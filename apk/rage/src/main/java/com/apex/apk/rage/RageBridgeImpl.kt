@@ -387,6 +387,124 @@ class RageBridgeImpl(
                         buildResult(facade.shutdown()) { JsonObject(emptyMap()) }
                     }
 
+                    // ===== 4 Agent 架构师 =====
+                    "rage/architect/execute" -> {
+                        val task = args["taskDescription"]?.jsonPrimitive?.content ?: ""
+                        val preset = args["preset"]?.jsonPrimitive?.content ?: "BALANCED"
+                        buildResult(facade.executeArchitectTask(task, preset)) { r ->
+                            buildJsonObject {
+                                put("taskId", r.taskId)
+                                put("success", r.success)
+                                put("stepCount", r.steps.size)
+                                put("durationMs", r.durationMs)
+                                put("retryCount", r.retryCount)
+                                put("agentInvocations", r.agentInvocations)
+                                put("dynamicAgentCount", r.dynamicAgentCount)
+                                if (r.errorMessage != null) put("errorMessage", r.errorMessage)
+                                put("steps", r.steps.joinToString("\n---\n") { s ->
+                                    "${s.agentName}|${s.action}|${s.success}|${s.durationMs}ms\n${s.thought}\n${s.output.take(200)}"
+                                })
+                            }
+                        }
+                    }
+                    "rage/architect/coreAgents" -> {
+                        val agents = facade.getCoreAgents()
+                        buildJsonObject {
+                            put("success", true)
+                            put("count", agents.size)
+                            put("agents", agents.values.joinToString("\n") { "${it.id}|${it.displayName}|${it.roleDisplay}|enabled=${it.enabled}" })
+                        }.toString()
+                    }
+                    "rage/architect/toggleAgent" -> {
+                        val agentId = args["agentId"]?.jsonPrimitive?.content ?: ""
+                        val enabled = facade.toggleCoreAgent(agentId)
+                        buildJsonObject { put("success", true); put("enabled", enabled) }.toString()
+                    }
+                    "rage/architect/setStrategy" -> {
+                        val autoExpand = args["autoExpand"]?.jsonPrimitive?.content?.toBooleanStrictOrNull()
+                        val gitBranching = args["gitBranching"]?.jsonPrimitive?.content?.toBooleanStrictOrNull()
+                        val sandboxExec = args["sandboxExec"]?.jsonPrimitive?.content?.toBooleanStrictOrNull()
+                        val githubSearch = args["githubSearch"]?.jsonPrimitive?.content?.toBooleanStrictOrNull()
+                        val codeRag = args["codeRag"]?.jsonPrimitive?.content?.toBooleanStrictOrNull()
+                        facade.setExpandStrategy(autoExpand, gitBranching, sandboxExec, githubSearch, codeRag)
+                        buildJsonObject { put("success", true) }.toString()
+                    }
+                    "rage/architect/getStrategy" -> {
+                        val s = facade.getExpandStrategy()
+                        buildJsonObject {
+                            put("success", true)
+                            put("autoExpand", s.autoExpand)
+                            put("gitBranching", s.gitBranching)
+                            put("sandboxExec", s.sandboxExec)
+                            put("githubSearch", s.githubSearch)
+                            put("codeRag", s.codeRag)
+                            put("maxRetries", s.maxRetries)
+                        }.toString()
+                    }
+                    "rage/architect/dynamicAgents" -> {
+                        val list = facade.getDynamicAgents()
+                        buildJsonObject {
+                            put("success", true)
+                            put("count", list.size)
+                            put("agents", list.joinToString("\n") { "${it.name}|${it.systemPrompt}|${it.status}" })
+                        }.toString()
+                    }
+                    "rage/architect/blackboard" -> {
+                        val bb = facade.getArchitectBlackboard()
+                        buildJsonObject {
+                            put("success", true)
+                            put("count", bb.size)
+                            bb.forEach { (k, v) -> put(k, v) }
+                        }.toString()
+                    }
+                    "rage/architect/history" -> {
+                        val list = facade.getTaskHistory()
+                        buildJsonObject {
+                            put("success", true)
+                            put("count", list.size)
+                            put("tasks", list.joinToString("\n") {
+                                "${it.taskId}|${it.description.take(30)}|${it.success}|${it.stepCount}步|${it.durationMs}ms"
+                            })
+                        }.toString()
+                    }
+                    "rage/architect/taskDetail" -> {
+                        val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
+                        val detail = facade.getTaskDetail(taskId)
+                        if (detail != null) {
+                            buildJsonObject {
+                                put("success", true)
+                                put("found", true)
+                                put("taskId", detail.taskId)
+                                put("taskSuccess", detail.success)
+                                put("stepCount", detail.steps.size)
+                                put("durationMs", detail.durationMs)
+                                put("retryCount", detail.retryCount)
+                                put("steps", detail.steps.joinToString("\n---\n") { s ->
+                                    "${s.agentName}|${s.action}|${s.success}|${s.durationMs}ms\n${s.thought}\n${s.output.take(300)}"
+                                })
+                            }.toString()
+                        } else {
+                            buildJsonObject { put("success", true); put("found", false) }.toString()
+                        }
+                    }
+                    "rage/architect/deleteTask" -> {
+                        val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
+                        buildResult(facade.deleteTask(taskId)) { JsonPrimitive(it) }
+                    }
+                    "rage/architect/clearHistory" -> {
+                        buildResult(facade.clearTaskHistory()) { JsonPrimitive(it) }
+                    }
+                    "rage/architect/spawnAgent" -> {
+                        val name = args["name"]?.jsonPrimitive?.content ?: ""
+                        val prompt = args["systemPrompt"]?.jsonPrimitive?.content ?: ""
+                        val tools = args["tools"]?.jsonPrimitive?.content?.split(",") ?: emptyList()
+                        val agent = facade.spawnAgent(name, prompt, tools)
+                        buildJsonObject { put("success", true); put("agentId", agent.id); put("name", agent.name) }.toString()
+                    }
+                    "rage/architect/terminateAgent" -> {
+                        val agentId = args["agentId"]?.jsonPrimitive?.content ?: ""
+                        buildResult(facade.terminateAgent(agentId)) { JsonPrimitive(it) }
+                    }
                     else -> errorResponse("unknown method: $method")
                 }
             }

@@ -1,6 +1,8 @@
 package com.apex.apk.rage
 
 import android.app.Application
+import com.apex.apk.rage.agent.RageAgentArchitect
+import com.apex.apk.rage.agent.RageTaskStore
 import com.apex.sdk.bridge.BridgeConnection
 import com.apex.sdk.bridge.TypedServiceRegistry
 import com.apex.sdk.common.ApexLog
@@ -13,7 +15,6 @@ import com.apex.sdk.watchdog.Watchdog
 class RageApplication : Application() {
 
     private val heartbeat = HeartbeatReporter(ApexSuite.ApkId.RAGE)
-    private lateinit var facade: RageServiceFacade
 
     override fun onCreate() {
         super.onCreate()
@@ -21,16 +22,18 @@ class RageApplication : Application() {
             ApkIdentity(
                 id = ApexSuite.ApkId.RAGE,
                 packageName = packageName,
-                displayName = "Apex Rage Mode",
+                displayName = "Apex 狂暴模式",
                 defaultProcess = ApexSuite.MAIN_PROCESS,
                 hostsForegroundService = true
             )
         )
         ApexLog.i(ApexSuite.ApkId.RAGE, "[Application] onCreate (pid=${android.os.Process.myPid()})")
 
-        // 创建 facade（懒加载 BurstKernel，首次执行任务时才初始化）
-        facade = RageServiceFacade(this)
-        TypedServiceRegistry.register<RageServiceFacade>(facade)
+        // 注册 4 Agent 架构师 + 任务存储到 TypedServiceRegistry
+        val architect = RageAgentArchitect()
+        val taskStore = RageTaskStore(this)
+        TypedServiceRegistry.register<RageAgentArchitect>(architect)
+        TypedServiceRegistry.register<RageTaskStore>(taskStore)
 
         heartbeat.start()
         Watchdog.start()
