@@ -118,10 +118,227 @@ object AgentTemplates {
         priority = 60
     )
 
+    // ============================================================
+    // 三省六部制（映射自主应用的 SanxingRole）
+    // ============================================================
+
+    /** 中书省 — 决策制定（草拟方案）。 */
+    val ZHONGSHU_SHENG = AgentTemplate(
+        id = "template.sanxing.zhongshu",
+        displayName = "中书省",
+        role = AgentRole.SUPERVISOR,
+        capabilities = listOf("decision", "policy_drafting", "strategy", "sanxing"),
+        description = "三省之首，负责草拟方案和制定决策，将任务拆分并分派给六部",
+        priority = 5
+    )
+
+    /** 门下省 — 审核驳回（审查方案）。 */
+    val MENXIA_SHENG = AgentTemplate(
+        id = "template.sanxing.menxia",
+        displayName = "门下省",
+        role = AgentRole.REVIEWER,
+        capabilities = listOf("review", "audit", "veto", "sanxing"),
+        description = "审查中书省的方案，可驳回不合理的部分，通过后交尚书省执行",
+        priority = 15
+    )
+
+    /** 尚书省 — 执行总调度（统领六部）。 */
+    val SHANGSHU_SHENG = AgentTemplate(
+        id = "template.sanxing.shangshu",
+        displayName = "尚书省",
+        role = AgentRole.SUPERVISOR,
+        capabilities = listOf("execution", "coordination", "dispatch", "sanxing"),
+        description = "统领六部，将审核通过的方案分配给具体部门执行",
+        priority = 20
+    )
+
+    /** 吏部（人事）— 人员/资源分配。 */
+    val LIBU_PERSONNEL = AgentTemplate(
+        id = "template.sanxing.libu_personnel",
+        displayName = "吏部",
+        role = AgentRole.WORKER,
+        capabilities = listOf("personnel", "resource_allocation", "team_management", "sanxing"),
+        description = "负责人事安排和资源分配，评估团队能力并合理调配",
+        priority = 40
+    )
+
+    /** 礼部（礼仪）— 文案/规范/文档。 */
+    val LIBU_RITUAL = AgentTemplate(
+        id = "template.sanxing.libu_ritual",
+        displayName = "礼部",
+        role = AgentRole.WORKER,
+        capabilities = listOf("documentation", "style_guide", "convention", "sanxing"),
+        description = "负责文案规范、编码风格指南、API 文档标准",
+        priority = 70
+    )
+
+    /** 户部（财政）— 预算/资源/成本。 */
+    val HUBU = AgentTemplate(
+        id = "template.sanxing.hubu",
+        displayName = "户部",
+        role = AgentRole.WORKER,
+        capabilities = listOf("budget", "cost_analysis", "resource_planning", "sanxing"),
+        description = "负责预算评估、资源成本分析、性能开销控制",
+        priority = 50
+    )
+
+    /** 兵部（军事）— 安全/攻防/部署。 */
+    val BINGBU = AgentTemplate(
+        id = "template.sanxing.bingbu",
+        displayName = "兵部",
+        role = AgentRole.WORKER,
+        capabilities = listOf("security", "deployment", "attack_defense", "sanxing"),
+        description = "负责安全审计、部署策略、攻防对抗测试",
+        priority = 30
+    )
+
+    /** 刑部（司法）— 测试/质检/bug 修复。 */
+    val XINGBU = AgentTemplate(
+        id = "template.sanxing.xingbu",
+        displayName = "刑部",
+        role = AgentRole.REVIEWER,
+        capabilities = listOf("testing", "quality_assurance", "bug_investigation", "sanxing"),
+        description = "负责测试用例、质量保证、bug 定位与修复",
+        priority = 35
+    )
+
+    /** 工部（工程）— 开发/构建/工程实现。 */
+    val GONGBU = AgentTemplate(
+        id = "template.sanxing.gongbu",
+        displayName = "工部",
+        role = AgentRole.WORKER,
+        capabilities = listOf("engineering", "implementation", "build", "sanxing"),
+        description = "负责核心工程开发、代码实现、构建打包",
+        priority = 45
+    )
+
+    /** 御史台 — 独立监督/审计/纠错。 */
+    val YUSHITAI = AgentTemplate(
+        id = "template.sanxing.yushitai",
+        displayName = "御史台",
+        role = AgentRole.CRITIC,
+        capabilities = listOf("supervision", "audit", "correction", "sanxing"),
+        description = "独立监督机构，纠察违规、审查合规、弹劾不称职的 Agent",
+        priority = 25
+    )
+
+    // ============================================================
+    // 扩展模板（10 种专业角色）
+    // ============================================================
+
+    /** 数据分析师 — 数据分析 + 可视化。 */
+    val DATA_ANALYST = AgentTemplate(
+        id = "template.data_analyst",
+        displayName = "数据分析师",
+        role = AgentRole.WORKER,
+        capabilities = listOf("data_analysis", "visualization", "statistics", "report"),
+        description = "分析数据、生成图表、统计建模、撰写数据报告",
+        priority = 55
+    )
+
+    /** 项目经理 — 任务拆分 + 进度跟踪。 */
+    val PROJECT_MANAGER = AgentTemplate(
+        id = "template.project_manager",
+        displayName = "项目经理",
+        role = AgentRole.SUPERVISOR,
+        capabilities = listOf("planning", "task_decomposition", "progress_tracking", "risk_management"),
+        description = "拆分任务、分配资源、跟踪进度、识别风险",
+        priority = 15
+    )
+
+    /** UI 设计师 — 界面设计 + 用户体验。 */
+    val UI_DESIGNER = AgentTemplate(
+        id = "template.ui_designer",
+        displayName = "UI 设计师",
+        role = AgentRole.WORKER,
+        capabilities = listOf("ui_design", "ux", "prototype", "design_system"),
+        description = "设计界面布局、交互流程、视觉风格、设计系统",
+        priority = 60
+    )
+
+    /** DevOps 工程师 — CI/CD + 部署 + 运维。 */
+    val DEVOPS_ENGINEER = AgentTemplate(
+        id = "template.devops_engineer",
+        displayName = "DevOps 工程师",
+        role = AgentRole.WORKER,
+        capabilities = listOf("devops", "ci_cd", "deployment", "monitoring", "infrastructure"),
+        description = "CI/CD 流水线、容器化部署、监控告警、基础设施管理",
+        priority = 50
+    )
+
+    /** API 设计师 — API 架构 + 规范。 */
+    val API_DESIGNER = AgentTemplate(
+        id = "template.api_designer",
+        displayName = "API 设计师",
+        role = AgentRole.WORKER,
+        capabilities = listOf("api_design", "openapi", "rest", "graphql", "sdk"),
+        description = "设计 API 架构、编写 OpenAPI 规范、生成 SDK",
+        priority = 45
+    )
+
+    /** 数据库专家 — 数据库设计 + 优化。 */
+    val DATABASE_EXPERT = AgentTemplate(
+        id = "template.database_expert",
+        displayName = "数据库专家",
+        role = AgentRole.WORKER,
+        capabilities = listOf("database", "sql", "schema_design", "query_optimization", "migration"),
+        description = "数据库设计、SQL 优化、Schema 迁移、索引调优",
+        priority = 50
+    )
+
+    /** 移动开发工程师 — Android/iOS 开发。 */
+    val MOBILE_DEVELOPER = AgentTemplate(
+        id = "template.mobile_developer",
+        displayName = "移动开发工程师",
+        role = AgentRole.WORKER,
+        capabilities = listOf("mobile", "android", "ios", "kotlin", "swift", "compose"),
+        description = "Android/iOS 原生开发、Jetpack Compose、SwiftUI",
+        priority = 45
+    )
+
+    /** 后端开发工程师 — 服务端开发。 */
+    val BACKEND_DEVELOPER = AgentTemplate(
+        id = "template.backend_developer",
+        displayName = "后端开发工程师",
+        role = AgentRole.WORKER,
+        capabilities = listOf("backend", "server", "microservice", "kotlin", "java", "spring"),
+        description = "服务端开发、微服务架构、API 实现、中间件",
+        priority = 45
+    )
+
+    /** 机器学习工程师 — ML 模型训练 + 部署。 */
+    val ML_ENGINEER = AgentTemplate(
+        id = "template.ml_engineer",
+        displayName = "ML 工程师",
+        role = AgentRole.WORKER,
+        capabilities = listOf("machine_learning", "model_training", "pytorch", "tensorflow", "mlops"),
+        description = "ML 模型训练、评估、部署、MLOps 流水线",
+        priority = 55
+    )
+
+    /** 产品负责人 — 需求分析 + 产品规划。 */
+    val PRODUCT_OWNER = AgentTemplate(
+        id = "template.product_owner",
+        displayName = "产品负责人",
+        role = AgentRole.SUPERVISOR,
+        capabilities = listOf("product", "requirements", "roadmap", "user_story", "prioritization"),
+        description = "需求分析、产品路线图、用户故事、优先级排序",
+        priority = 10
+    )
+
     /** 所有模板。 */
     val ALL: List<AgentTemplate> = listOf(
+        // 基础 10 种
         CODE_REVIEWER, TEST_GENERATOR, DOC_WRITER, ARCHITECT, DEBUGGER,
-        SECURITY_AUDITOR, PERFORMANCE_OPTIMIZER, TRANSLATOR, SUMMARIZER, CREATIVE_ADVISOR
+        SECURITY_AUDITOR, PERFORMANCE_OPTIMIZER, TRANSLATOR, SUMMARIZER, CREATIVE_ADVISOR,
+        // 三省六部制 9 种
+        ZHONGSHU_SHENG, MENXIA_SHENG, SHANGSHU_SHENG,
+        LIBU_PERSONNEL, LIBU_RITUAL, HUBU, BINGBU, XINGBU, GONGBU,
+        YUSHITAI,
+        // 扩展 10 种
+        DATA_ANALYST, PROJECT_MANAGER, UI_DESIGNER, DEVOPS_ENGINEER,
+        API_DESIGNER, DATABASE_EXPERT, MOBILE_DEVELOPER, BACKEND_DEVELOPER,
+        ML_ENGINEER, PRODUCT_OWNER
     )
 
     /** 按能力查找模板。 */

@@ -129,37 +129,38 @@ object ApkDescriptors {
     /**
      * Working Files APK — 工作文件夹绑定 + 实时监听 + 代码预览。
      *
-     * **必须**。三种 Agent 模式都需要工作文件夹来读写产物。
+     * **可选**。普通 Agent 流水式输出可以直接输出结果和 PDF 等本地文件，
+     * 不需要工作文件区 APK。只有需要 VSCode 式代码浏览/快照/diff/分支/
+     * Agent 执行流程可视化时才需要安装。
      */
     val WORKING_FILES = ApkDescriptor(
         apkId = ApexSuite.ApkId.WORKING_FILES,
         packageName = "com.apex.apk.workingfiles",
         displayName = "Apex 工作文件区",
-        description = "工作文件夹绑定 + 实时监听 + 代码预览 + SAF 支持",
-        necessity = ApkNecessity.REQUIRED,
-        capabilities = listOf("files", "workspace", "code.preview"),
+        description = "VSCode 式代码浏览 + 快照 + diff + 虚拟分支 + Agent 执行流程 + 时间机器",
+        necessity = ApkNecessity.OPTIONAL,
+        capabilities = listOf("files", "workspace", "code.preview", "snapshot", "diff", "branch"),
         dependsOn = listOf(ApexSuite.ApkId.MAIN),
         approxSizeMb = 5,
         downloadUrl = "https://github.com/mengjinghao/Apex-ai-agent/releases/latest"
     )
 
     // ============================================================
-    // 可选 APK — 按需安装
+    // 必须 APK — 高级 Agent 模式
     // ============================================================
 
     /**
      * Rage Mode APK — 狂暴模式微内核 + 31 个内置技能。
      *
-     * **可选**。只有用户使用狂暴模式时才需要。
-     * 不安装时：狂暴模式相关调用返回 [BridgeError.CODE_APK_NOT_INSTALLED]，
-     * 普通 Agent 模式不受影响。
+     * **必须**。狂暴模式是 Apex 的核心差异化能力（多策略推理 + 并行执行 + 断点续传），
+     * 所有用户都需要。
      */
     val RAGE = ApkDescriptor(
         apkId = ApexSuite.ApkId.RAGE,
         packageName = "com.apex.apk.rage",
         displayName = "Apex 狂暴模式",
-        description = "狂暴模式微内核 + 31 个内置技能 + 7 种预设 + 断点续传",
-        necessity = ApkNecessity.OPTIONAL,
+        description = "狂暴模式微内核 + 31 个内置技能 + 7 种预设 + 4 种执行模式 + 断点续传",
+        necessity = ApkNecessity.REQUIRED,
         capabilities = listOf("burst", "rage", "reasoning.advanced", "skills.burst"),
         dependsOn = listOf(ApexSuite.ApkId.MAIN, ApexSuite.ApkId.ENGINE, ApexSuite.ApkId.MARKET),
         approxSizeMb = 20,
@@ -167,17 +168,18 @@ object ApkDescriptors {
     )
 
     /**
-     * Multi-Agent APK — 多 Agent 协作（5 种模式 + 5 种角色 + 黑板）。
+     * Multi-Agent APK — 多 Agent 协作（7 种模式 + 10 种预设角色 + 三省六部制）。
      *
-     * **可选**。只有用户使用多 Agent 协作时才需要。
+     * **必须**。多 Agent 协作是 Apex 的核心差异化能力（三省六部制 + 7 种协作模式），
+     * 所有用户都需要。
      */
     val MULTI_AGENT = ApkDescriptor(
         apkId = ApexSuite.ApkId.MULTI_AGENT,
         packageName = "com.apex.apk.multiagent",
         displayName = "Apex 多 Agent 模式",
-        description = "多 Agent 协作（5 种模式：流水线/辩论/对抗/竞速/层级）",
-        necessity = ApkNecessity.OPTIONAL,
-        capabilities = listOf("multiagent", "collaboration", "blackboard"),
+        description = "多 Agent 协作（7 种模式 + 10 种预设角色 + 协作推荐器）",
+        necessity = ApkNecessity.REQUIRED,
+        capabilities = listOf("multiagent", "collaboration", "blackboard", "sanxing"),
         dependsOn = listOf(ApexSuite.ApkId.MAIN, ApexSuite.ApkId.ENGINE, ApexSuite.ApkId.MARKET),
         approxSizeMb = 8,
         downloadUrl = "https://github.com/mengjinghao/Apex-ai-agent/releases/latest"
@@ -222,8 +224,8 @@ object ApkDescriptors {
 
     /** 所有 APK 描述符。 */
     val ALL: List<ApkDescriptor> = listOf(
-        MAIN, ENGINE, TERMINAL, MARKET, WORKING_FILES,  // 必须
-        RAGE, MULTI_AGENT, WORKFLOW, VOICE              // 可选
+        MAIN, ENGINE, TERMINAL, MARKET, RAGE, MULTI_AGENT,  // 必须（6 个）
+        WORKING_FILES, WORKFLOW, VOICE                       // 可选（3 个）
     )
 
     /** 按 apkId 查找。 */
