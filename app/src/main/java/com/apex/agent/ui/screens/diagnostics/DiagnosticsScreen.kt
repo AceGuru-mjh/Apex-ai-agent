@@ -1,5 +1,6 @@
 package com.apex.agent.ui.screens.diagnostics
 
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,11 +23,16 @@ import androidx.compose.ui.unit.dp
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiagnosticsScreen(modifier: Modifier = Modifier) {
+fun DiagnosticsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onMenuClick) {
+                        Icon(Icons.Default.Menu, contentDescription = "菜单")
+                    }
+                },
                 title = { Text("诊断", style = MaterialTheme.typography.titleLarge) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface

@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
+fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
     var darkMode by remember { mutableStateOf(true) }
     var dynamicColor by remember { mutableStateOf(true) }
 
@@ -26,6 +26,11 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         modifier = modifier,
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onMenuClick) {
+                        Icon(Icons.Default.Menu, contentDescription = "菜单")
+                    }
+                },
                 title = { Text("设置", style = MaterialTheme.typography.titleLarge) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
