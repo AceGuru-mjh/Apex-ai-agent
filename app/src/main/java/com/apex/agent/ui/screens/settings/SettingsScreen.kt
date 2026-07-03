@@ -62,33 +62,6 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
                 )
             }
 
-            // Agent
-            item { SectionHeader("Agent 配置") }
-            item {
-                SettingsCard(
-                    icon = Icons.Default.Cloud,
-                    title = "模型提供商",
-                    subtitle = "DeepSeek（已配置 API Key）",
-                    onClick = {}
-                )
-            }
-            item {
-                SettingsCard(
-                    icon = Icons.Default.Speed,
-                    title = "温度",
-                    subtitle = "0.7（控制输出随机性）",
-                    onClick = {}
-                )
-            }
-            item {
-                SettingsCard(
-                    icon = Icons.Default.Token,
-                    title = "最大 Token",
-                    subtitle = "4096",
-                    onClick = {}
-                )
-            }
-
             // 权限
             item { SectionHeader("权限管理") }
             item {

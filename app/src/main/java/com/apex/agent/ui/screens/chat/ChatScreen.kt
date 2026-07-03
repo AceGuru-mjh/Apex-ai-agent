@@ -53,6 +53,24 @@ fun ChatScreen(
     var showCompressDialog by remember { mutableStateOf(false) }
     var autoCompress by remember { mutableStateOf(true) }
 
+    // 模型选择（从市场已配置的模型读取）
+    var selectedModel by remember { mutableStateOf("DeepSeek · deepseek-chat") }
+    var showModelPicker by remember { mutableStateOf(false) }
+
+    // 可用模型列表（实际应从 ApexClient.market.listAvailableProviders() 获取）
+    val availableModels = remember {
+        listOf(
+            ModelItem("deepseek", "DeepSeek", "deepseek-chat", "深度推理 · 已配置 ✓"),
+            ModelItem("deepseek", "DeepSeek", "deepseek-reasoner", "深度思考 · 已配置 ✓"),
+            ModelItem("openai", "OpenAI", "gpt-4o", "通用能力 · 已配置 ✓"),
+            ModelItem("claude", "Claude", "claude-sonnet-4", "最强推理 · 未配置 ✗"),
+            ModelItem("qwen", "通义千问", "qwen-max", "国内直连 · 已配置 ✓"),
+            ModelItem("glm", "智谱 GLM", "glm-4", "国内开源 · 已配置 ✓"),
+            ModelItem("moonshot", "Moonshot", "moonshot-v1-128k", "长上下文 · 未配置 ✗"),
+            ModelItem("ollama", "Ollama", "llama3.2", "本地推理 · 已配置 ✓")
+        )
+    }
+
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
@@ -78,6 +96,18 @@ fun ChatScreen(
             onSelect = { skillId ->
                 selectedSkill = skillId
                 showSkillPicker = false
+            }
+        )
+    }
+
+    if (showModelPicker) {
+        ModelPickerDialog(
+            models = availableModels,
+            selectedModelName = selectedModel,
+            onDismiss = { showModelPicker = false },
+            onSelect = { model ->
+                selectedModel = "${model.provider} · ${model.modelName}"
+                showModelPicker = false
             }
         )
     }
@@ -166,6 +196,12 @@ fun ChatScreen(
                 onFile = {}
             )
 
+            // 模型选择器（从市场已配置的模型读取）
+            ModelSelectorBar(
+                selectedModel = selectedModel,
+                onModelClick = { showModelPicker = true }
+            )
+
             // 增强输入栏（深度思考/联网搜索只在输入栏）
             EnhancedInputBar(
                 text = inputText,
@@ -234,7 +270,7 @@ private fun ContextPercentIndicator(
                 modifier = Modifier.fillMaxSize()
             )
             Text(
-                "${percent}%",
+                "$percent",
                 style = MaterialTheme.typography.labelSmall,
                 color = color,
                 fontWeight = FontWeight.Bold
@@ -615,3 +651,86 @@ private fun SkillPickerDialog(
 
 data class ChatMessage(val text: String, val isUser: Boolean, val timestamp: Long = System.currentTimeMillis())
 data class SkillItem(val id: String, val name: String, val icon: String, val description: String)
+data class ModelItem(val provider: String, val providerName: String, val modelName: String, val status: String)
+
+/**
+ * 模型选择栏 — 显示在输入框上方，点击弹出模型列表。
+ *
+ * 模型列表从市场 APK 已配置的 Provider 读取（ApexClient.market.listAvailableProviders()）。
+ */
+@Composable
+private fun ModelSelectorBar(
+    selectedModel: String,
+    onModelClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AssistChip(
+            onClick = onModelClick,
+            label = { Text("🤖 $selectedModel", style = MaterialTheme.typography.labelMedium) },
+            leadingIcon = null
+        )
+    }
+}
+
+/**
+ * 模型选择弹窗 — 列出市场已配置的所有模型。
+ */
+@Composable
+private fun ModelPickerDialog(
+    models: List<ModelItem>,
+    selectedModelName: String,
+    onDismiss: () -> Unit,
+    onSelect: (ModelItem) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("选择模型", style = MaterialTheme.typography.titleLarge) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    "从市场已配置的模型中选择",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                models.forEach { model ->
+                    val isSelected = "${model.providerName} · ${model.modelName}" == selectedModelName
+                    val isConfigured = model.status.contains("✓")
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { if (isConfigured) onSelect(model) }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "${model.providerName} · ${model.modelName}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = if (isConfigured) MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                model.status,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (isConfigured) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.error
+                            )
+                        }
+                        if (isSelected) {
+                            Icon(Icons.Default.Check, "已选", tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("取消") } }
+    )
+}

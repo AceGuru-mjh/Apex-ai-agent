@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -74,13 +75,25 @@ fun ApexMainScaffold() {
 
                 Spacer(Modifier.weight(1f))
                 HorizontalDivider()
-                // 底部信息
-                Text(
-                    "Apex Suite · Material You 3",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(24.dp)
+
+                // 关于
+                NavigationDrawerItem(
+                    label = { Text("关于", style = MaterialTheme.typography.bodyLarge) },
+                    selected = false,
+                    icon = { Icon(Icons.Default.Info, contentDescription = "关于") },
+                    onClick = { /* TODO: 显示关于弹窗 */ },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(16.dp)
                 )
+
+                // 开发者信息
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text("Apex Suite · Material You 3", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(8.dp))
+                    Text("开发者：MJH", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("QQ：2544240258", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("微信：meng4117222", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
     ) {
