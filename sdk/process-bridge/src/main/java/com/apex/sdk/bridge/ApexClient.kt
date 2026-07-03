@@ -168,6 +168,129 @@ object ApexClient {
         suspend fun listSessions(): BridgeResult<String> = invoke("rage/listSessions", emptyMap(), "rage")
         suspend fun listCheckpoints(): BridgeResult<String> = invoke("rage/listCheckpoints", emptyMap(), "rage")
         suspend fun shutdown(): BridgeResult<String> = invoke("rage/shutdown", emptyMap(), "rage")
+
+        // ===== P0 增强：4 种执行模式 =====
+        suspend fun executeBatch(taskDescriptions: List<String>, skillId: String? = null, preset: String = "BALANCED"): BridgeResult<String> {
+            val args = mutableMapOf(
+                "tasks" to taskDescriptions.joinToString("\n"),
+                "preset" to preset
+            )
+            if (skillId != null) args["skillId"] = skillId
+            return invoke("rage/executeBatch", args, "rage")
+        }
+        suspend fun executeWithDependencyGraph(
+            tasks: List<Pair<String, String>>,  // (taskId, description)
+            dependencies: List<Pair<String, String>>,  // (taskId, dependsOn)
+            strategy: String = "SKIP_ON_FAILURE",
+            skillId: String? = null
+        ): BridgeResult<String> {
+            val tasksStr = tasks.joinToString("\n") { (id, desc) -> "$id|$desc" }
+            val depsStr = dependencies.joinToString(";") { (id, dep) -> "$id|$dep" }
+            val args = mutableMapOf("tasks" to tasksStr, "dependencies" to depsStr, "strategy" to strategy)
+            if (skillId != null) args["skillId"] = skillId
+            return invoke("rage/executeWithDependencyGraph", args, "rage")
+        }
+        suspend fun executeWithChain(
+            initialTask: String,
+            steps: List<Pair<String, String>>,  // (stepName, description)
+            skillId: String? = null
+        ): BridgeResult<String> {
+            val stepsStr = steps.joinToString("\n") { (name, desc) -> "$name|$desc" }
+            val args = mutableMapOf("initialTask" to initialTask, "steps" to stepsStr)
+            if (skillId != null) args["skillId"] = skillId
+            return invoke("rage/executeWithChain", args, "rage")
+        }
+        suspend fun executeAsync(taskDescription: String, skillId: String? = null): BridgeResult<String> {
+            val args = mutableMapOf("taskDescription" to taskDescription)
+            if (skillId != null) args["skillId"] = skillId
+            return invoke("rage/executeAsync", args, "rage")
+        }
+        suspend fun awaitAsyncTask(taskId: String, timeoutMs: Long = 60_000L): BridgeResult<String> =
+            invoke("rage/awaitAsyncTask", mapOf("taskId" to taskId, "timeoutMs" to timeoutMs.toString()), "rage")
+        suspend fun cancelAsyncTask(taskId: String): BridgeResult<String> =
+            invoke("rage/cancelAsyncTask", mapOf("taskId" to taskId), "rage")
+
+        // ===== P1 增强：任务队列 =====
+        suspend fun enqueueTask(taskDescription: String, priority: String = "NORMAL", skillId: String? = null): BridgeResult<String> {
+            val args = mutableMapOf("taskDescription" to taskDescription, "priority" to priority)
+            if (skillId != null) args["skillId"] = skillId
+            return invoke("rage/enqueueTask", args, "rage")
+        }
+        suspend fun cancelQueuedTask(taskId: String): BridgeResult<String> =
+            invoke("rage/cancelQueuedTask", mapOf("taskId" to taskId), "rage")
+        suspend fun peekQueue(): BridgeResult<String> = invoke("rage/peekQueue", emptyMap(), "rage")
+        suspend fun pendingTaskCount(): BridgeResult<String> = invoke("rage/pendingTaskCount", emptyMap(), "rage")
+        suspend fun clearQueue(): BridgeResult<String> = invoke("rage/clearQueue", emptyMap(), "rage")
+        suspend fun getQueueSnapshot(): BridgeResult<String> = invoke("rage/getQueueSnapshot", emptyMap(), "rage")
+
+        // ===== P0 增强：完整断点续传 =====
+        suspend fun saveCheckpoint(taskId: String, completedSteps: List<String>, totalSteps: Int, intermediateResult: String? = null): BridgeResult<String> {
+            val args = mutableMapOf(
+                "taskId" to taskId,
+                "completedSteps" to completedSteps.joinToString(","),
+                "totalSteps" to totalSteps.toString()
+            )
+            if (intermediateResult != null) args["intermediateResult"] = intermediateResult
+            return invoke("rage/saveCheckpoint", args, "rage")
+        }
+        suspend fun loadCheckpoint(taskId: String): BridgeResult<String> =
+            invoke("rage/loadCheckpoint", mapOf("taskId" to taskId), "rage")
+        suspend fun resumeFromCheckpoint(taskId: String): BridgeResult<String> =
+            invoke("rage/resumeFromCheckpoint", mapOf("taskId" to taskId), "rage")
+        suspend fun listIncompleteTasks(): BridgeResult<String> = invoke("rage/listIncompleteTasks", emptyMap(), "rage")
+        suspend fun canResume(taskId: String): BridgeResult<String> =
+            invoke("rage/canResume", mapOf("taskId" to taskId), "rage")
+        suspend fun getResumePoint(taskId: String): BridgeResult<String> =
+            invoke("rage/getResumePoint", mapOf("taskId" to taskId), "rage")
+        suspend fun deleteCheckpoint(taskId: String): BridgeResult<String> =
+            invoke("rage/deleteCheckpoint", mapOf("taskId" to taskId), "rage")
+        suspend fun clearCheckpoints(): BridgeResult<String> = invoke("rage/clearCheckpoints", emptyMap(), "rage")
+
+        // ===== P2 增强：技能多维查询 =====
+        suspend fun getSkillsByTag(tag: String): BridgeResult<String> =
+            invoke("rage/getSkillsByTag", mapOf("tag" to tag), "rage")
+        suspend fun getSkillsByCapability(capability: String): BridgeResult<String> =
+            invoke("rage/getSkillsByCapability", mapOf("capability" to capability), "rage")
+        suspend fun unloadSkill(skillId: String): BridgeResult<String> =
+            invoke("rage/unloadSkill", mapOf("skillId" to skillId), "rage")
+        suspend fun getSkillCount(): BridgeResult<String> = invoke("rage/getSkillCount", emptyMap(), "rage")
+        suspend fun isSkillLoaded(skillId: String): BridgeResult<String> =
+            invoke("rage/isSkillLoaded", mapOf("skillId" to skillId), "rage")
+
+        // ===== P2 增强：配置管理 =====
+        suspend fun updateConfig(
+            maxConcurrency: Int? = null, defaultTimeoutMs: Long? = null,
+            enableAdaptiveOptimization: Boolean? = null,
+            enableMetricsCollection: Boolean? = null, memoryBudgetMb: Int? = null
+        ): BridgeResult<String> {
+            val args = mutableMapOf<String, String>()
+            if (maxConcurrency != null) args["maxConcurrency"] = maxConcurrency.toString()
+            if (defaultTimeoutMs != null) args["defaultTimeoutMs"] = defaultTimeoutMs.toString()
+            if (enableAdaptiveOptimization != null) args["enableAdaptiveOptimization"] = enableAdaptiveOptimization.toString()
+            if (enableMetricsCollection != null) args["enableMetricsCollection"] = enableMetricsCollection.toString()
+            if (memoryBudgetMb != null) args["memoryBudgetMb"] = memoryBudgetMb.toString()
+            return invoke("rage/updateConfig", args, "rage")
+        }
+        suspend fun getCurrentConfig(): BridgeResult<String> = invoke("rage/getCurrentConfig", emptyMap(), "rage")
+
+        // ===== P1 增强：指标与状态 =====
+        suspend fun observeNextMetrics(): BridgeResult<String> = invoke("rage/observeNextMetrics", emptyMap(), "rage")
+        suspend fun resetMetrics(): BridgeResult<String> = invoke("rage/resetMetrics", emptyMap(), "rage")
+        suspend fun getKernelState(): BridgeResult<String> = invoke("rage/getKernelState", emptyMap(), "rage")
+        suspend fun getHealthStatus(): BridgeResult<String> = invoke("rage/getHealthStatus", emptyMap(), "rage")
+
+        // ===== P2 增强：基础设施 =====
+        suspend fun clearResultCache(prefix: String? = null): BridgeResult<String> {
+            val args = if (prefix != null) mapOf("prefix" to prefix) else emptyMap()
+            return invoke("rage/clearResultCache", args, "rage")
+        }
+        suspend fun getResultCacheStats(): BridgeResult<String> = invoke("rage/getResultCacheStats", emptyMap(), "rage")
+        suspend fun setSkillSelectionStrategy(strategy: String): BridgeResult<String> =
+            invoke("rage/setSkillSelectionStrategy", mapOf("strategy" to strategy), "rage")
+
+        // ===== AR/VR 可视化 =====
+        suspend fun enableSpatialVisualization(): BridgeResult<String> =
+            invoke("rage/enableSpatialVisualization", emptyMap(), "rage")
     }
 
     // ============================================================

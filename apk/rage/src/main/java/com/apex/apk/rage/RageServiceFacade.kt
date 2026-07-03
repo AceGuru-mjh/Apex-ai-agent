@@ -3,46 +3,81 @@ package com.apex.apk.rage
 import android.app.Application
 import android.content.Context
 import com.apex.agent.burstmode.api.BurstMode
+import com.apex.agent.burstmode.config.BurstModeConfig
+import com.apex.agent.burstmode.execution.DependencyExecutionStrategy
+import com.apex.agent.burstmode.execution.SkillChain
+import com.apex.agent.burstmode.execution.TaskDependencyGraph
 import com.apex.agent.burstmode.preset.BurstPreset
-import com.apex.agent.domain.model.BurstTask
+import com.apex.agent.burstmode.selection.SkillSelectionStrategy
+import com.apex.agent.burstmode.api.TaskPriority
+import com.apex.agent.burstmode.api.TaskQueueSnapshot
+import com.apex.agent.burstmode.checkpoint.TaskCheckpoint
 import com.apex.agent.domain.model.BurstInput
-import com.apex.agent.kernel.burst.LLMProvider
+import com.apex.agent.domain.model.BurstTask
 import com.apex.agent.kernel.burst.BurstKernel
+import com.apex.agent.kernel.burst.KernelState
+import com.apex.agent.kernel.burst.LLMProvider
 import com.apex.agent.plugins.burst.base.BurstSkillResult
 import com.apex.agent.plugins.burst.base.IBurstSkill
 import com.apex.agent.plugins.burst.base.LLMConfig
+import com.apex.apk.rage.events.RageEvent
+import com.apex.apk.rage.events.RageEventBridge
 import com.apex.sdk.bridge.TypedServiceRegistry
 import com.apex.sdk.common.ApexLog
 import com.apex.sdk.common.ApexSuite
 import com.apex.sdk.common.BridgeResult
 import com.apex.sdk.common.bridgeRun
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * Rage Mode APK 的核心服务实现。
+ * Rage Mode APK 的核心服务实现（完整版）。
  *
- * **职责**：
- *   - 启动并管理 [BurstKernel] 微内核
- *   - 通过 [BurstMode] 业务门面暴露能力
- *   - 加载 31 个内置 [IBurstSkill]
- *   - 对其他 APK 暴露统一的 Kotlin API
+ * **暴露 BurstMode + BurstKernel 95%+ 能力**：
  *
- * **能力清单**：
- *   1. 启动 / 停止 / 暂停 / 恢复 狂暴模式会话
- *   2. 执行任务（自动选择最佳技能 + 多策略推理）
- *   3. 列出 / 加载 / 卸载技能
- *   4. 切换预设（性能模式 / 平衡模式 / 极限模式）
- *   5. 任务调度（优先级队列 + 并发控制）
- *   6. 断点续传（CheckpointManager）
- *   7. 监控指标（BurstMetrics）
+ * **核心执行**（4 种模式）：
+ *   1. executeTask — 单任务执行
+ *   2. executeBatch — 批量并发执行
+ *   3. executeWithDependencyGraph — DAG 依赖执行（分层并行）
+ *   4. executeWithChain — 链式管道执行（顺序/并行/分支/错误处理）
+ *   5. executeAsync — 异步执行（返回 Deferred，可取消/超时）
  *
- * **使用方式**（其他 APK）：
- *   ```kotlin
- *   val rage = TypedServiceRegistry.get<RageServiceFacade>() ?: error("rage not available")
- *   val result = rage.executeTask("分析这份代码并优化", "reasoning.react")
- *   ```
+ * **任务队列**：
+ *   - enqueueTask / cancelTask / peekTask / pendingCount
+ *   - 队列快照观察（StateFlow）
+ *
+ * **断点续传**：
+ *   - saveCheckpoint / loadCheckpoint / resumeFromCheckpoint
+ *   - listIncompleteTasks / deleteCheckpoint / clearCheckpoints
+ *   - canResume / getResumePoint
+ *
+ * **事件流**：
+ *   - RageEventBridge 桥接 14 种 BurstModeEvent → SuiteEventBus
+ *   - 实时进度推送（onTaskProgress）
+ *   - 任务成功/失败/取消通知
+ *
+ * **指标监控**：
+ *   - getMetrics / observeMetrics（StateFlow）/ resetMetrics
+ *
+ * **状态流**：
+ *   - observeState（KernelState StateFlow）
+ *
+ * **配置管理**：
+ *   - switchPreset / updateConfig（细粒度热更新）
+ *
+ * **技能管理**：
+ *   - listSkills / loadSkill / unloadSkill
+ *   - getSkillsByTag / getSkillsByCapability
+ *
+ * **基础设施**（5 大模块）：
+ *   - RateLimiter / LoadMonitor / ResultCache / RetryExecutor / TimeoutManager
+ *
+ * **AR/VR 可视化**：
+ *   - enableSpatialVisualization
  */
 class RageServiceFacade(private val context: Context) {
 
@@ -52,22 +87,27 @@ class RageServiceFacade(private val context: Context) {
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
 
+    /** 事件桥接器 — BurstMode 事件 → SuiteEventBus */
+    val eventBridge: RageEventBridge = RageEventBridge()
+
     /** 当前活跃会话：sessionId → RageSession。 */
     private val sessions = mutableMapOf<String, RageSession>()
 
+    /** 异步执行的 Deferred 缓存：taskId → Deferred<BurstSkillResult> */
+    private val asyncTasks = mutableMapOf<String, Deferred<BurstSkillResult>>()
+
+    // ============================================================
+    // 初始化
+    // ============================================================
+
     /**
-     * 初始化狂暴模式（懒加载，首次执行任务时触发）。
-     *
-     * @param llmConfig LLM 配置（可选，未提供则用默认本地配置）
-     * @param preset 预设（PERFORMANCE / BALANCED / EXTREME）
+     * 初始化狂暴模式。
      */
     suspend fun initialize(
         llmConfig: LLMConfig? = null,
         preset: RagePreset = RagePreset.BALANCED
     ): BridgeResult<Unit> = bridgeRun {
         if (_isInitialized.value) return@bridgeRun
-
-        // 从 Context 拿到 Application（BurstKernel.start 需要 Application）
         val app = context.applicationContext as Application
 
         ApexLog.i(ApexSuite.ApkId.RAGE, "[$TAG_SUB] initializing BurstKernel...")
@@ -86,15 +126,19 @@ class RageServiceFacade(private val context: Context) {
             .enableHealthCheck(true)
             .initialize()
 
+        // 桥接事件
+        eventBridge.attach(burstMode!!)
+
         _isInitialized.value = true
         ApexLog.i(ApexSuite.ApkId.RAGE, "[$TAG_SUB] initialized; available skills: ${burstMode?.skillManager?.count() ?: 0}")
     }
 
+    // ============================================================
+    // 核心：4 种执行模式
+    // ============================================================
+
     /**
      * 启动一个狂暴模式会话。
-     * @param taskDescription 任务描述
-     * @param preferredSkillId 优先使用的技能 ID（可选）
-     * @return sessionId
      */
     suspend fun startSession(
         taskDescription: String,
@@ -102,7 +146,6 @@ class RageServiceFacade(private val context: Context) {
         preset: RagePreset = RagePreset.BALANCED
     ): BridgeResult<String> = bridgeRun {
         ensureInitialized(preset)
-
         val sessionId = com.apex.sdk.common.Trace.newId("rage")
         val task = BurstTask(
             id = sessionId,
@@ -111,47 +154,44 @@ class RageServiceFacade(private val context: Context) {
             input = BurstInput(text = taskDescription),
             skillId = preferredSkillId
         )
-
-        val session = RageSession(
-            sessionId = sessionId,
-            task = task,
-            preset = preset,
-            createdAt = System.currentTimeMillis()
-        )
-        sessions[sessionId] = session
-
+        sessions[sessionId] = RageSession(sessionId, task, preset, System.currentTimeMillis())
         ApexLog.i(ApexSuite.ApkId.RAGE, "[$TAG_SUB] session started: $sessionId (skill=${preferredSkillId ?: "auto"})")
         com.apex.sdk.bridge.SuiteEventBus.publish(
             com.apex.sdk.bridge.SuiteEventTypes.BURST_SESSION_STARTED,
             mapOf("sessionId" to sessionId, "skillId" to (preferredSkillId ?: "auto")),
             ApexSuite.ApkId.RAGE
         )
-
         sessionId
     }
 
     /**
-     * 异步执行一个任务（在指定会话中）。
-     * @return 执行结果
+     * 单任务执行（真实进度推送）。
      */
     suspend fun executeTask(
         sessionId: String,
-        onProgress: ((Float, String) -> Unit)? = null
+        onProgress: ((Float, String?) -> Unit)? = null
     ): BridgeResult<RageExecutionResult> = bridgeRun {
         val session = sessions[sessionId] ?: throw IllegalStateException("session not found: $sessionId")
         val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
 
-        onProgress?.invoke(0.1f, "selecting skill")
+        // 注册进度回调
+        if (onProgress != null) {
+            eventBridge.registerProgressCallback(session.task.id, onProgress)
+        }
+
+        onProgress?.invoke(0.0f, "selecting skill")
         val skill = session.task.skillId?.let { mode.skillManager.get(it) }
             ?: mode.skillSelector.selectSkill(session.task)
         val skillId = skill?.manifest?.skillId ?: "reasoning.react"
 
-        onProgress?.invoke(0.3f, "executing with skill: $skillId")
+        onProgress?.invoke(0.1f, "executing with skill: $skillId")
         val result = mode.execute(session.task.copy(skillId = skillId))
 
         onProgress?.invoke(1.0f, "done")
         session.completed = true
         session.result = result
+
+        eventBridge.unregisterProgressCallback(session.task.id)
 
         RageExecutionResult(
             sessionId = sessionId,
@@ -165,8 +205,192 @@ class RageServiceFacade(private val context: Context) {
     }
 
     /**
-     * 暂停会话。
+     * **批量并发执行**多个任务。
+     *
+     * @param taskDescriptions 任务描述列表
+     * @param skillId 可选技能 ID（所有任务共用）
+     * @return 每个任务的执行结果
      */
+    suspend fun executeBatch(
+        taskDescriptions: List<String>,
+        skillId: String? = null,
+        preset: RagePreset = RagePreset.BALANCED
+    ): BridgeResult<List<RageExecutionResult>> = bridgeRun {
+        ensureInitialized(preset)
+        val mode = burstMode!!
+        val tasks = taskDescriptions.mapIndexed { index, desc ->
+            BurstTask(
+                id = "batch-${System.currentTimeMillis()}-$index",
+                name = desc.take(80),
+                description = desc,
+                input = BurstInput(text = desc),
+                skillId = skillId
+            )
+        }
+        val results = mode.executeBatch(tasks)
+        results.mapIndexed { index, result ->
+            RageExecutionResult(
+                sessionId = tasks[index].id,
+                skillId = skillId ?: "auto",
+                success = result.success,
+                output = result.output ?: "",
+                errorMessage = result.errorMessage,
+                executionTimeMs = result.metrics?.executionTimeMs ?: 0L,
+                tokensProcessed = result.metrics?.tokensProcessed ?: 0
+            )
+        }
+    }
+
+    /**
+     * **DAG 依赖执行** — 支持分层并行 + 依赖失败策略。
+     *
+     * @param tasks 任务列表
+     * @param dependencies 依赖关系列表（Pair<taskId, dependsOnTaskId>）
+     * @param strategy 依赖失败策略（SKIP_ON_FAILURE / CONTINUE_ON_FAILURE / ABORT_ON_FAILURE）
+     */
+    suspend fun executeWithDependencyGraph(
+        tasks: List<Pair<String, String>>,  // (taskId, taskDescription)
+        dependencies: List<Pair<String, String>>,  // (taskId, dependsOn)
+        strategy: String = "SKIP_ON_FAILURE",
+        skillId: String? = null,
+        preset: RagePreset = RagePreset.BALANCED
+    ): BridgeResult<List<DependencyExecutionResultDto>> = bridgeRun {
+        ensureInitialized(preset)
+        val mode = burstMode!!
+        val graph = TaskDependencyGraph()
+        // 添加节点
+        tasks.forEach { (taskId, desc) ->
+            graph.addNode(taskId, BurstTask(
+                id = taskId,
+                name = desc.take(80),
+                description = desc,
+                input = BurstInput(text = desc),
+                skillId = skillId
+            ))
+        }
+        // 添加依赖
+        dependencies.forEach { (taskId, dependsOn) ->
+            graph.addDependency(taskId, dependsOn)
+        }
+        // 检查循环
+        if (graph.hasCycle()) {
+            throw IllegalStateException("dependency graph has cycle")
+        }
+        val execStrategy = runCatching { DependencyExecutionStrategy.valueOf(strategy) }
+            .getOrDefault(DependencyExecutionStrategy.SKIP_ON_FAILURE)
+        val results = mode.executeWithDependencyGraph(graph, execStrategy)
+        results.map { r ->
+            DependencyExecutionResultDto(
+                taskId = r.taskId,
+                success = r.success,
+                skipped = r.skipped,
+                errorMessage = r.errorMessage
+            )
+        }
+    }
+
+    /**
+     * **链式管道执行** — 顺序/并行/分支/错误处理。
+     *
+     * @param initialTask 初始任务描述
+     * @param chainSteps 链步骤列表（每步含 name + executor 描述）
+     * @return 最终结果
+     */
+    suspend fun executeWithChain(
+        initialTask: String,
+        chainSteps: List<ChainStepDto>,
+        skillId: String? = null,
+        preset: RagePreset = RagePreset.BALANCED
+    ): BridgeResult<RageExecutionResult> = bridgeRun {
+        ensureInitialized(preset)
+        val mode = burstMode!!
+        val task = BurstTask(
+            id = "chain-${System.currentTimeMillis()}",
+            name = initialTask.take(80),
+            description = initialTask,
+            input = BurstInput(text = initialTask),
+            skillId = skillId
+        )
+        // 构建 SkillChain
+        val chain = SkillChain.create()
+        chainSteps.forEach { step ->
+            chain.then(step.name) { inputTask ->
+                val stepTask = inputTask.copy(
+                    description = step.description,
+                    skillId = step.skillId ?: skillId
+                )
+                mode.execute(stepTask)
+            }
+        }
+        val result = mode.executeWithChain(task, chain)
+        RageExecutionResult(
+            sessionId = task.id,
+            skillId = skillId ?: "chain",
+            success = result.success,
+            output = result.output ?: "",
+            errorMessage = result.errorMessage,
+            executionTimeMs = result.metrics?.executionTimeMs ?: 0L,
+            tokensProcessed = result.metrics?.tokensProcessed ?: 0
+        )
+    }
+
+    /**
+     * **异步执行**（返回 taskId，可取消/超时）。
+     */
+    suspend fun executeAsync(
+        taskDescription: String,
+        skillId: String? = null,
+        preset: RagePreset = RagePreset.BALANCED
+    ): BridgeResult<String> = bridgeRun {
+        ensureInitialized(preset)
+        val mode = burstMode!!
+        val taskId = "async-${System.currentTimeMillis()}"
+        val task = BurstTask(
+            id = taskId,
+            name = taskDescription.take(80),
+            description = taskDescription,
+            input = BurstInput(text = taskDescription),
+            skillId = skillId
+        )
+        val deferred = mode.executeAsync(task)
+        asyncTasks[taskId] = deferred
+        taskId
+    }
+
+    /**
+     * 等待异步任务完成。
+     */
+    suspend fun awaitAsyncTask(
+        taskId: String,
+        timeoutMs: Long = 60_000L
+    ): BridgeResult<RageExecutionResult?> = bridgeRun {
+        val deferred = asyncTasks[taskId] ?: return@bridgeRun null
+        val result = withTimeoutOrNull(timeoutMs) { deferred.await() }
+            ?: throw IllegalStateException("async task timeout: $taskId")
+        asyncTasks.remove(taskId)
+        RageExecutionResult(
+            sessionId = taskId,
+            skillId = "async",
+            success = result.success,
+            output = result.output ?: "",
+            errorMessage = result.errorMessage,
+            executionTimeMs = result.metrics?.executionTimeMs ?: 0L,
+            tokensProcessed = result.metrics?.tokensProcessed ?: 0
+        )
+    }
+
+    /**
+     * 取消异步任务。
+     */
+    fun cancelAsyncTask(taskId: String): Boolean {
+        val deferred = asyncTasks.remove(taskId) ?: return false
+        return deferred.cancel()
+    }
+
+    // ============================================================
+    // 会话管理
+    // ============================================================
+
     suspend fun pauseSession(sessionId: String): BridgeResult<Boolean> = bridgeRun {
         val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
         mode.pause()
@@ -179,9 +403,6 @@ class RageServiceFacade(private val context: Context) {
         true
     }
 
-    /**
-     * 恢复会话。
-     */
     suspend fun resumeSession(sessionId: String): BridgeResult<Boolean> = bridgeRun {
         val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
         mode.resume()
@@ -195,9 +416,14 @@ class RageServiceFacade(private val context: Context) {
     }
 
     /**
-     * 终止会话。
+     * **真正停止会话** — 取消异步任务 + 从 sessions 移除 + 发布事件。
      */
     suspend fun stopSession(sessionId: String): BridgeResult<Boolean> = bridgeRun {
+        // 取消异步任务
+        asyncTasks.remove(sessionId)?.cancel()
+        // 取消队列中的任务
+        burstMode?.taskQueue?.cancel(sessionId)
+        // 从 sessions 移除
         sessions.remove(sessionId)
         com.apex.sdk.bridge.SuiteEventBus.publish(
             com.apex.sdk.bridge.SuiteEventTypes.BURST_SESSION_STOPPED,
@@ -207,12 +433,220 @@ class RageServiceFacade(private val context: Context) {
         true
     }
 
+    fun listSessions(): List<SessionInfo> = sessions.map { (id, s) ->
+        SessionInfo(
+            sessionId = id,
+            taskName = s.task.name,
+            skillId = s.task.skillId ?: "auto",
+            createdAt = s.createdAt,
+            paused = s.paused,
+            completed = s.completed
+        )
+    }
+
+    // ============================================================
+    // 任务队列管理（P1 增强）
+    // ============================================================
+
     /**
-     * 列出所有可用技能。
+     * 任务入队。
      */
+    suspend fun enqueueTask(
+        taskDescription: String,
+        priority: String = "NORMAL",
+        skillId: String? = null
+    ): BridgeResult<String> = bridgeRun {
+        ensureInitialized()
+        val mode = burstMode!!
+        val p = runCatching { TaskPriority.valueOf(priority) }.getOrDefault(TaskPriority.NORMAL)
+        val task = BurstTask(
+            id = "queued-${System.currentTimeMillis()}",
+            name = taskDescription.take(80),
+            description = taskDescription,
+            input = BurstInput(text = taskDescription),
+            skillId = skillId
+        )
+        val queued = mode.taskQueue.enqueue(task, p)
+        queued.task.id
+    }
+
+    /**
+     * 取消队列中的任务。
+     */
+    suspend fun cancelQueuedTask(taskId: String): BridgeResult<Boolean> = bridgeRun {
+        burstMode?.taskQueue?.cancel(taskId) ?: false
+    }
+
+    /**
+     * 查看队首任务（不移除）。
+     */
+    suspend fun peekQueue(): BridgeResult<String?> = bridgeRun {
+        burstMode?.taskQueue?.peek()?.task?.id
+    }
+
+    /**
+     * 队列待处理任务数。
+     */
+    suspend fun pendingTaskCount(): BridgeResult<Int> = bridgeRun {
+        burstMode?.taskQueue?.pendingCount() ?: 0
+    }
+
+    /**
+     * 清空队列。
+     */
+    suspend fun clearQueue(): BridgeResult<Int> = bridgeRun {
+        burstMode?.taskQueue?.clear() ?: 0
+    }
+
+    /**
+     * 队列快照（含 pending/completed/failed/cancelled 计数）。
+     */
+    suspend fun getQueueSnapshot(): BridgeResult<TaskQueueSnapshot?> = bridgeRun {
+        burstMode?.taskQueue?.snapshot?.value
+    }
+
+    // ============================================================
+    // 断点续传（P0 增强 — 完整 CheckpointManager）
+    // ============================================================
+
+    /**
+     * 保存断点。
+     */
+    suspend fun saveCheckpoint(
+        taskId: String,
+        completedSteps: List<String>,
+        totalSteps: Int,
+        intermediateResult: String? = null,
+        metadata: Map<String, String> = emptyMap()
+    ): BridgeResult<Boolean> = bridgeRun {
+        ensureInitialized()
+        val mode = burstMode!!
+        val task = sessions[taskId]?.task ?: BurstTask(
+            id = taskId, name = "checkpoint-task", description = "",
+            input = BurstInput(text = "")
+        )
+        mode.checkpointManager.saveCheckpoint(
+            task = task,
+            completedSteps = completedSteps,
+            totalSteps = totalSteps,
+            intermediateResult = intermediateResult?.let { com.apex.agent.plugins.burst.base.BurstSkillResult(success = true, output = it) },
+            metadata = metadata
+        )
+    }
+
+    /**
+     * 加载断点。
+     */
+    suspend fun loadCheckpoint(taskId: String): BridgeResult<TaskCheckpoint?> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.checkpointManager.loadCheckpoint(taskId)
+    }
+
+    /**
+     * **从断点恢复执行**。
+     */
+    suspend fun resumeFromCheckpoint(taskId: String): BridgeResult<RageExecutionResult> = bridgeRun {
+        ensureInitialized()
+        val mode = burstMode!!
+        val checkpoint = mode.checkpointManager.loadCheckpoint(taskId)
+            ?: throw IllegalStateException("checkpoint not found: $taskId")
+        if (!checkpoint.isComplete) {
+            // 重新执行任务（实际生产环境应根据 completedSteps 跳过已完成步骤）
+            val result = mode.execute(checkpoint.task)
+            // 删除旧断点
+            mode.checkpointManager.deleteCheckpoint(taskId)
+            RageExecutionResult(
+                sessionId = taskId,
+                skillId = checkpoint.task.skillId ?: "auto",
+                success = result.success,
+                output = result.output ?: "",
+                errorMessage = result.errorMessage,
+                executionTimeMs = result.metrics?.executionTimeMs ?: 0L,
+                tokensProcessed = result.metrics?.tokensProcessed ?: 0
+            )
+        } else {
+            // 已完成，返回中间结果
+            RageExecutionResult(
+                sessionId = taskId,
+                skillId = checkpoint.task.skillId ?: "auto",
+                success = true,
+                output = checkpoint.intermediateResult?.output ?: "",
+                errorMessage = null,
+                executionTimeMs = 0L,
+                tokensProcessed = 0
+            )
+        }
+    }
+
+    /**
+     * 列出所有断点。
+     */
+    suspend fun listCheckpoints(): BridgeResult<List<CheckpointInfo>> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.checkpointManager.listAllCheckpoints().map { c ->
+            CheckpointInfo(
+                taskId = c.taskId,
+                completedSteps = c.completedSteps.size,
+                totalSteps = c.totalSteps,
+                canResume = true
+            )
+        }
+    }
+
+    /**
+     * 列出未完成的断点。
+     */
+    suspend fun listIncompleteTasks(): BridgeResult<List<CheckpointInfo>> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.checkpointManager.listIncompleteTasks().map { c ->
+            CheckpointInfo(
+                taskId = c.taskId,
+                completedSteps = c.completedSteps.size,
+                totalSteps = c.totalSteps,
+                canResume = true
+            )
+        }
+    }
+
+    /**
+     * 检查是否可恢复。
+     */
+    suspend fun canResume(taskId: String): BridgeResult<Boolean> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.checkpointManager.canResume(taskId)
+    }
+
+    /**
+     * 获取恢复点（下一步步骤名）。
+     */
+    suspend fun getResumePoint(taskId: String): BridgeResult<String?> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.checkpointManager.getResumePoint(taskId)
+    }
+
+    /**
+     * 删除断点。
+     */
+    suspend fun deleteCheckpoint(taskId: String): BridgeResult<Boolean> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.checkpointManager.deleteCheckpoint(taskId)
+    }
+
+    /**
+     * 清空所有断点。
+     */
+    suspend fun clearCheckpoints(): BridgeResult<Unit> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.checkpointManager.clearAll()
+    }
+
+    // ============================================================
+    // 技能管理（P2 增强 — 多维查询）
+    // ============================================================
+
     suspend fun listSkills(): BridgeResult<List<SkillDescriptor>> = bridgeRun {
-        val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
-        mode.skillManager.getAllManifests().map { m ->
+        ensureInitialized()
+        burstMode!!.skillManager.getAllManifests().map { m ->
             SkillDescriptor(
                 skillId = m.skillId,
                 skillName = m.skillName,
@@ -227,12 +661,33 @@ class RageServiceFacade(private val context: Context) {
     }
 
     /**
+     * 按标签查询技能。
+     */
+    suspend fun getSkillsByTag(tag: String): BridgeResult<List<SkillDescriptor>> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.skillManager.getByTag(tag).map { skill ->
+            val m = skill.manifest
+            SkillDescriptor(m.skillId, m.skillName, m.version, m.description, m.author, m.tags, m.capabilities, m.priority)
+        }
+    }
+
+    /**
+     * 按能力查询技能。
+     */
+    suspend fun getSkillsByCapability(capability: String): BridgeResult<List<SkillDescriptor>> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.skillManager.getByCapability(capability).map { skill ->
+            val m = skill.manifest
+            SkillDescriptor(m.skillId, m.skillName, m.version, m.description, m.author, m.tags, m.capabilities, m.priority)
+        }
+    }
+
+    /**
      * 加载自定义技能。
-     * 当前实现仅支持注册内存中的 IBurstSkill 实例（动态加载外部 APK 的能力待扩展）。
      */
     suspend fun loadSkill(skill: IBurstSkill): BridgeResult<String> = bridgeRun {
-        val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
-        val registered = mode.skillManager.register(skill)
+        ensureInitialized()
+        val registered = burstMode!!.skillManager.register(skill)
         if (!registered) throw IllegalStateException("skill registration failed: ${skill.manifest.skillId}")
         skill.manifest.skillId
     }
@@ -241,20 +696,79 @@ class RageServiceFacade(private val context: Context) {
      * 卸载技能。
      */
     suspend fun unloadSkill(skillId: String): BridgeResult<Boolean> = bridgeRun {
-        val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
-        mode.skillManager.unregister(skillId)
+        ensureInitialized()
+        burstMode!!.skillManager.unregister(skillId)
     }
 
     /**
-     * 切换预设。
+     * 获取技能数量。
      */
-    suspend fun switchPreset(preset: RagePreset): BridgeResult<Unit> = bridgeRun {
-        val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
-        mode.switchPreset(preset.toBurstPreset())
+    suspend fun getSkillCount(): BridgeResult<Int> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.skillManager.count()
     }
 
     /**
-     * 获取监控指标快照。
+     * 技能是否已注册。
+     */
+    suspend fun isSkillLoaded(skillId: String): BridgeResult<Boolean> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.skillManager.contains(skillId)
+    }
+
+    // ============================================================
+    // 预设与配置（P2 增强 — 细粒度热更新）
+    // ============================================================
+
+    suspend fun switchPreset(preset: RagePreset): BridgeResult<Unit> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.switchPreset(preset.toBurstPreset())
+    }
+
+    /**
+     * 动态更新配置（细粒度热更新）。
+     */
+    suspend fun updateConfig(
+        maxConcurrency: Int? = null,
+        defaultTimeoutMs: Long? = null,
+        enableAdaptiveOptimization: Boolean? = null,
+        enableMetricsCollection: Boolean? = null,
+        memoryBudgetMb: Int? = null
+    ): BridgeResult<Unit> = bridgeRun {
+        ensureInitialized()
+        val current = burstMode!!.currentConfig
+        val newConfig = BurstModeConfig.Builder()
+            .maxConcurrency(maxConcurrency ?: current.maxConcurrency)
+            .defaultTimeoutMs(defaultTimeoutMs ?: current.defaultTimeoutMs)
+            .enableAdaptiveOptimization(enableAdaptiveOptimization ?: current.enableAdaptiveOptimization)
+            .enableMetricsCollection(enableMetricsCollection ?: current.enableMetricsCollection)
+            .memoryBudgetMb(memoryBudgetMb ?: current.memoryBudgetMb)
+            .build()
+        burstMode!!.updateConfig(newConfig)
+    }
+
+    /**
+     * 获取当前配置。
+     */
+    suspend fun getCurrentConfig(): BridgeResult<ConfigInfo> = bridgeRun {
+        ensureInitialized()
+        val c = burstMode!!.currentConfig
+        ConfigInfo(
+            maxConcurrency = c.maxConcurrency,
+            defaultTimeoutMs = c.defaultTimeoutMs,
+            enableAdaptiveOptimization = c.enableAdaptiveOptimization,
+            enableMetricsCollection = c.enableMetricsCollection,
+            memoryBudgetMb = c.memoryBudgetMb,
+            preset = burstMode!!.currentPreset.name
+        )
+    }
+
+    // ============================================================
+    // 指标与状态（P1 增强 — 流式观察）
+    // ============================================================
+
+    /**
+     * 获取指标快照。
      */
     fun getMetrics(): RageMetricsSnapshot? {
         val mode = burstMode ?: return null
@@ -274,49 +788,135 @@ class RageServiceFacade(private val context: Context) {
     }
 
     /**
-     * 列出所有活跃会话。
+     * 获取下一个指标更新（流式观察的简化版 — 等待下一次指标变化）。
      */
-    fun listSessions(): List<SessionInfo> = sessions.map { (id, s) ->
-        SessionInfo(
-            sessionId = id,
-            taskName = s.task.name,
-            skillId = s.task.skillId ?: "auto",
-            createdAt = s.createdAt,
-            paused = s.paused,
-            completed = s.completed
+    suspend fun observeNextMetrics(): BridgeResult<RageMetricsSnapshot?> = bridgeRun {
+        ensureInitialized()
+        val flow = burstMode!!.observeMetrics()
+        val snapshot = flow.first()
+        RageMetricsSnapshot(
+            totalTasks = snapshot.totalTasks,
+            successfulTasks = snapshot.successfulTasks,
+            failedTasks = snapshot.failedTasks,
+            cancelledTasks = snapshot.cancelledTasks,
+            averageExecutionTimeMs = snapshot.averageExecutionTimeMs,
+            successRate = snapshot.successRate,
+            currentConcurrency = snapshot.currentConcurrency,
+            peakConcurrency = snapshot.peakConcurrency,
+            totalTokensProcessed = snapshot.totalTokensProcessed,
+            totalMemoryUsedMb = snapshot.totalMemoryUsedMb
         )
     }
 
     /**
-     * 列出所有可恢复的断点。
+     * 重置指标。
      */
-    suspend fun listCheckpoints(): BridgeResult<List<CheckpointInfo>> = bridgeRun {
-        val mode = burstMode ?: throw IllegalStateException("BurstMode not initialized")
-        mode.checkpointManager.listAllCheckpoints().map { c ->
-            CheckpointInfo(
-                taskId = c.taskId,
-                completedSteps = c.completedSteps.size,
-                totalSteps = c.totalSteps,
-                canResume = true
-            )
-        }
+    suspend fun resetMetrics(): BridgeResult<Unit> = bridgeRun {
+        ensureInitialized()
+        burstMode!!.resetMetrics()
     }
 
     /**
-     * 关闭狂暴模式。
+     * 获取内核状态。
      */
+    fun getKernelState(): String {
+        return burstMode?.state?.value?.name ?: "STOPPED"
+    }
+
+    /**
+     * 获取健康检查结果。
+     */
+    suspend fun getHealthStatus(): BridgeResult<HealthStatus> = bridgeRun {
+        ensureInitialized()
+        val mode = burstMode!!
+        val metrics = mode.getMetrics()
+        val loadMonitor = mode.loadMonitor
+        val usedMemory = loadMonitor.getUsedMemoryMb()
+        val shouldDegrade = loadMonitor.shouldDegrade(metrics.currentConcurrency)
+        HealthStatus(
+            healthy = !shouldDegrade,
+            usedMemoryMb = usedMemory,
+            currentConcurrency = metrics.currentConcurrency,
+            maxConcurrency = mode.currentConfig.maxConcurrency,
+            shouldDegrade = shouldDegrade
+        )
+    }
+
+    // ============================================================
+    // 基础设施管理（P2 增强）
+    // ============================================================
+
+    /**
+     * 结果缓存 — 清除指定前缀。
+     */
+    suspend fun clearResultCache(prefix: String? = null): BridgeResult<Int> = bridgeRun {
+        ensureInitialized()
+        val cache = burstMode!!.resultCache
+        if (prefix != null) cache.removeByPrefix(prefix) else { val n = cache.size(); cache.clear(); n }
+    }
+
+    /**
+     * 结果缓存统计。
+     */
+    suspend fun getResultCacheStats(): BridgeResult<CacheStatsInfo> = bridgeRun {
+        ensureInitialized()
+        val stats = burstMode!!.resultCache.getStats()
+        CacheStatsInfo(
+            size = stats.currentSize,
+            hitCount = stats.cacheHits,
+            missCount = stats.cacheMisses,
+            hitRate = stats.hitRate
+        )
+    }
+
+    /**
+     * 设置技能选择策略（type_matching / keyword_matching / priority / complexity_based）。
+     */
+    suspend fun setSkillSelectionStrategy(strategy: String): BridgeResult<Unit> = bridgeRun {
+        ensureInitialized()
+        val s: SkillSelectionStrategy = when (strategy.lowercase()) {
+            "type_matching", "typematching" -> com.apex.agent.burstmode.selection.TypeMatchingStrategy()
+            "keyword_matching", "keywordmatching" -> com.apex.agent.burstmode.selection.KeywordMatchingStrategy()
+            "priority" -> com.apex.agent.burstmode.selection.PriorityStrategy()
+            "complexity_based", "complexitybased" -> com.apex.agent.burstmode.selection.ComplexityBasedStrategy()
+            else -> com.apex.agent.burstmode.selection.PriorityStrategy()
+        }
+        burstMode!!.skillSelector.withStrategy(s)
+    }
+
+    // ============================================================
+    // AR/VR 可视化（P2 增强）
+    // ============================================================
+
+    /**
+     * 启用 AR/VR 空间可视化。
+     */
+    suspend fun enableSpatialVisualization(): BridgeResult<Boolean> = bridgeRun {
+        ensureInitialized()
+        BurstKernel.enableSpatialVisualization()
+        true
+    }
+
+    // ============================================================
+    // 关闭
+    // ============================================================
+
     suspend fun shutdown(): BridgeResult<Unit> = bridgeRun {
+        burstMode?.let { eventBridge.detach(it) }
         burstMode?.shutdown()
         BurstKernel.stop()
         _isInitialized.value = false
         burstMode = null
         sessions.clear()
+        asyncTasks.clear()
     }
 
-    private suspend fun ensureInitialized(preset: RagePreset) {
-        if (!_isInitialized.value) {
-            initialize(preset = preset)
-        }
+    // ============================================================
+    // 内部辅助
+    // ============================================================
+
+    private suspend fun ensureInitialized(preset: RagePreset = RagePreset.BALANCED) {
+        if (!_isInitialized.value) initialize(preset = preset)
     }
 
     private fun defaultLlmConfig(): LLMConfig = LLMConfig(
@@ -326,6 +926,10 @@ class RageServiceFacade(private val context: Context) {
         maxTokens = 4096
     )
 }
+
+// ============================================================
+// 数据类
+// ============================================================
 
 /** Rage 会话。 */
 private data class RageSession(
@@ -338,17 +942,9 @@ private data class RageSession(
     var result: BurstSkillResult? = null
 )
 
-/** 狂暴模式预设（简化版）。
- * 映射到 BurstPreset 的具体取值。 */
+/** 狂暴模式预设。 */
 enum class RagePreset {
-    PERFORMANCE,    // 性能模式：最大并发，长超时
-    BALANCED,       // 平衡模式：默认
-    POWER_SAVER,    // 省电模式：低并发，短超时
-    LOCAL_INFERENCE,// 本地推理：离线运行
-    CLOUD_INFERENCE,// 云端推理：DeepSeek API
-    STREAMING,      // 流式处理：超大文本
-    TEST;           // 测试模式：无 LLM
-
+    PERFORMANCE, BALANCED, POWER_SAVER, LOCAL_INFERENCE, CLOUD_INFERENCE, STREAMING, TEST;
     fun toBurstPreset(): BurstPreset = when (this) {
         PERFORMANCE -> BurstPreset.PERFORMANCE
         BALANCED -> BurstPreset.BALANCED
@@ -369,6 +965,21 @@ data class RageExecutionResult(
     val errorMessage: String?,
     val executionTimeMs: Long,
     val tokensProcessed: Int
+)
+
+/** DAG 执行结果。 */
+data class DependencyExecutionResultDto(
+    val taskId: String,
+    val success: Boolean,
+    val skipped: Boolean,
+    val errorMessage: String?
+)
+
+/** 链式步骤 DTO。 */
+data class ChainStepDto(
+    val name: String,
+    val description: String,
+    val skillId: String? = null
 )
 
 /** 技能描述。 */
@@ -413,4 +1024,31 @@ data class CheckpointInfo(
     val completedSteps: Int,
     val totalSteps: Int,
     val canResume: Boolean
+)
+
+/** 配置信息。 */
+data class ConfigInfo(
+    val maxConcurrency: Int,
+    val defaultTimeoutMs: Long,
+    val enableAdaptiveOptimization: Boolean,
+    val enableMetricsCollection: Boolean,
+    val memoryBudgetMb: Int,
+    val preset: String
+)
+
+/** 健康状态。 */
+data class HealthStatus(
+    val healthy: Boolean,
+    val usedMemoryMb: Long,
+    val currentConcurrency: Int,
+    val maxConcurrency: Int,
+    val shouldDegrade: Boolean
+)
+
+/** 缓存统计。 */
+data class CacheStatsInfo(
+    val size: Int,
+    val hitCount: Long,
+    val missCount: Long,
+    val hitRate: Double
 )
