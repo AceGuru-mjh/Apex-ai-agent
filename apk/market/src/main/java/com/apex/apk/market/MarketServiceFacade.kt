@@ -15,6 +15,18 @@ import com.apex.agent.integration.market.MarketSearchResult
 import com.apex.agent.integration.importer.ImportResult
 import com.apex.agent.integration.importer.ImportSource
 import com.apex.agent.integration.importer.IntegrationImporter
+import com.apex.apk.market.cache.CacheStats
+import com.apex.apk.market.cache.MarketCache
+import com.apex.apk.market.favorites.FavoriteEntry
+import com.apex.apk.market.favorites.Favorites
+import com.apex.apk.market.llm.LlmInvoker
+import com.apex.apk.market.llm.ProviderAvailability
+import com.apex.apk.market.skill.LocalSkillInvoker
+import com.apex.apk.market.stats.ItemStats
+import com.apex.apk.market.stats.TotalStats
+import com.apex.apk.market.stats.UsageEvent
+import com.apex.apk.market.stats.UsageEventType
+import com.apex.apk.market.stats.UsageStats
 import com.apex.sdk.bridge.TypedServiceRegistry
 import com.apex.sdk.common.ApexLog
 import com.apex.sdk.common.ApexSuite
@@ -23,6 +35,7 @@ import com.apex.sdk.common.bridgeRun
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.io.File
 
 /**
  * Market APK 的核心服务实现。
@@ -44,6 +57,18 @@ class MarketServiceFacade(private val context: Context) {
 
     private var center: IntegrationCenter? = null
     private val _isInitialized = MutableStateFlow(false)
+
+    // ===== Apex 独有增强模块 =====
+    /** LLM 调用器 — 真实调用 11 个内置 Provider */
+    private lateinit var llmInvoker: LlmInvoker
+    /** 本地技能调用器 — 调用已安装的 MCP/Plugin/Skill */
+    private lateinit var localSkillInvoker: LocalSkillInvoker
+    /** 市场缓存 — 离线浏览 + 减少网络请求 */
+    private val cache: MarketCache = MarketCache(File(context.filesDir, "apex-market-cache"))
+    /** 收藏夹 */
+    private val favorites: Favorites = Favorites(File(context.filesDir, "apex-market-favorites"))
+    /** 使用统计 */
+    private val usageStats: UsageStats = UsageStats(File(context.filesDir, "apex-market-stats"))
     val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
 
     /**
@@ -54,6 +79,9 @@ class MarketServiceFacade(private val context: Context) {
         if (_isInitialized.value) return@bridgeRun
         ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initializing IntegrationCenter...")
         center = IntegrationCenter.create()
+        // 初始化 LLM 和 Skill Invoker
+        llmInvoker = LlmInvoker(center!!.installedManager)
+        localSkillInvoker = LocalSkillInvoker(center!!.installedManager)
         _isInitialized.value = true
         val stats = center?.marketStats
         ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initialized; markets: $stats")
@@ -81,15 +109,26 @@ class MarketServiceFacade(private val context: Context) {
     }
 
     /**
-     * 在指定分类下搜索市场内容。
+     * 在指定分类下搜索市场内容（带缓存）。
      */
     suspend fun search(
         category: String,
         query: String = "",
-        limit: Int = 50
+        limit: Int = 50,
+        useCache: Boolean = true
     ): BridgeResult<List<MarketItemDto>> = bridgeRun {
         ensureInitialized()
         val cat = parseCategory(category)
+
+        // 1. 尝试缓存命中
+        if (useCache) {
+            val cached = cache.get("_aggregate_", query, cat)
+            if (cached != null) {
+                return@bridgeRun cached.take(limit).map { it.toDto() }
+            }
+        }
+
+        // 2. 实际搜索
         val filter = MarketSearchFilter(query = query, pageSize = limit)
         val result = when (cat) {
             IntegrationCategory.SKILLS -> center?.skillModule?.searchAcrossMarkets(filter)
@@ -98,6 +137,59 @@ class MarketServiceFacade(private val context: Context) {
             IntegrationCategory.MODEL_PLATFORMS -> center?.modelPlatformModule?.searchAcrossMarkets(filter)
             else -> null
         } ?: MarketSearchResult(emptyList())
+
+        // 3. 写入缓存
+        if (useCache) {
+            cache.put("_aggregate_", query, cat, result.items)
+        }
+
+        // 4. 记录使用统计
+        result.items.take(5).forEach { item ->
+            usageStats.record(
+                itemId = item.id,
+                name = item.name,
+                category = cat,
+                eventType = UsageEventType.SEARCH,
+                metadata = mapOf("query" to query)
+            )
+        }
+
+        result.items.map { it.toDto() }
+    }
+
+    /**
+     * 在指定市场的指定分类下搜索（不跨市场）。
+     */
+    suspend fun searchInMarket(
+        marketId: String,
+        category: String,
+        query: String = "",
+        limit: Int = 50,
+        useCache: Boolean = true
+    ): BridgeResult<List<MarketItemDto>> = bridgeRun {
+        ensureInitialized()
+        val cat = parseCategory(category)
+
+        if (useCache) {
+            val cached = cache.get(marketId, query, cat)
+            if (cached != null) {
+                return@bridgeRun cached.take(limit).map { it.toDto() }
+            }
+        }
+
+        val filter = MarketSearchFilter(query = query, pageSize = limit)
+        val result = when (cat) {
+            IntegrationCategory.SKILLS -> center?.skillModule?.searchInMarket(marketId, filter)
+            IntegrationCategory.MCP -> center?.mcpModule?.searchInMarket(marketId, filter)
+            IntegrationCategory.PLUGINS -> center?.pluginModule?.searchInMarket(marketId, filter)
+            IntegrationCategory.MODEL_PLATFORMS -> center?.modelPlatformModule?.searchInMarket(marketId, filter)
+            else -> null
+        } ?: MarketSearchResult(emptyList())
+
+        if (useCache) {
+            cache.put(marketId, query, cat, result.items)
+        }
+
         result.items.map { it.toDto() }
     }
 
@@ -187,23 +279,62 @@ class MarketServiceFacade(private val context: Context) {
     }
 
     /**
-     * 调用云端模型。
-     * 当前实现：转发到 ModelPlatformModule（待业务侧接入实际 LLM 调用）。
+     * 调用云端模型 — 真实实现（支持 11 个 Provider）。
+     *
+     * 支持：DeepSeek / Claude / OpenAI / 通义千问 / 智谱 GLM / Moonshot /
+     * MiniMax / Baichuan / Ollama / Agnes / 等。
+     *
+     * API Key 来源：
+     *   1. InstalledManager 中已安装的 model platform 的 metadata["apiKey"]
+     *   2. 环境变量（Android 通常无效）
      */
     suspend fun invokeModel(
         provider: String,
         modelName: String,
         prompt: String,
-        maxTokens: Int = 2048
+        maxTokens: Int = 2048,
+        systemPrompt: String? = null,
+        temperature: Float = 0.7f
     ): BridgeResult<String> = bridgeRun {
-        // TODO: 接入实际 ModelPlatformModule.invoke()
-        // 当前返回 stub 响应，证明调用链已打通
-        ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] invokeModel: provider=$provider, model=$modelName, prompt=${prompt.take(80)}")
-        "[Market][stub] provider=$provider model=$modelName response for: ${prompt.take(200)}"
+        ensureInitialized()
+        val response = llmInvoker.invoke(provider, modelName, prompt, maxTokens, systemPrompt, temperature)
+        // 记录使用统计
+        center?.let { c ->
+            val installed = c.installedManager.getAll().firstOrNull {
+                it.name.equals(provider, ignoreCase = true) &&
+                it.category == IntegrationCategory.MODEL_PLATFORMS
+            }
+            if (installed != null) {
+                usageStats.record(
+                    itemId = installed.id,
+                    name = installed.name,
+                    category = IntegrationCategory.MODEL_PLATFORMS,
+                    eventType = UsageEventType.INVOKE,
+                    metadata = mapOf("model" to modelName, "tokens" to maxTokens.toString())
+                )
+            }
+        }
+        response
     }
 
     /**
-     * 调用本地已安装的技能 / 插件 / MCP（零延迟直调）。
+     * 列出所有可用 LLM Provider（含 apiKey 状态）。
+     */
+    suspend fun listAvailableProviders(): BridgeResult<List<ProviderAvailability>> = bridgeRun {
+        ensureInitialized()
+        llmInvoker.listAvailableProviders()
+    }
+
+    /**
+     * 检查某 Provider 是否可用（有 apiKey）。
+     */
+    suspend fun isProviderAvailable(provider: String): BridgeResult<Boolean> = bridgeRun {
+        ensureInitialized()
+        llmInvoker.isProviderAvailable(provider)
+    }
+
+    /**
+     * 调用本地已安装的技能 / 插件 / MCP — 真实实现。
      */
     suspend fun invokeLocalSkill(
         itemId: String,
@@ -211,9 +342,37 @@ class MarketServiceFacade(private val context: Context) {
         argsJson: String
     ): BridgeResult<String> = bridgeRun {
         ensureInitialized()
-        // TODO: 根据 itemId 找到已安装的 skill/plugin/mcp，调用其 invoke 方法
-        ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] invokeLocalSkill: item=$itemId, method=$method")
-        "[Market][stub] local skill invoked: item=$itemId method=$method args=${argsJson.take(100)}"
+        val result = localSkillInvoker.invoke(itemId, method, argsJson)
+        // 记录使用统计
+        center?.let { c ->
+            val installed = c.installedManager.get(itemId)
+            if (installed != null) {
+                usageStats.record(
+                    itemId = itemId,
+                    name = installed.name,
+                    category = installed.category,
+                    eventType = UsageEventType.INVOKE,
+                    metadata = mapOf("method" to method)
+                )
+            }
+        }
+        result
+    }
+
+    /**
+     * 列出某已安装项支持的方法。
+     */
+    suspend fun listLocalSkillMethods(itemId: String): BridgeResult<List<String>> = bridgeRun {
+        ensureInitialized()
+        localSkillInvoker.listMethods(itemId)
+    }
+
+    /**
+     * 获取已安装项的元数据。
+     */
+    suspend fun getInstalledItemMetadata(itemId: String): BridgeResult<String?> = bridgeRun {
+        ensureInitialized()
+        localSkillInvoker.getMetadata(itemId)
     }
 
     /**
@@ -321,6 +480,225 @@ class MarketServiceFacade(private val context: Context) {
             ApexLog.w(ApexSuite.ApkId.MARKET, "[$TAG_SUB] generateMcpConfig failed: ${t.message}")
             ""
         }
+    }
+
+    // ============================================================
+    // Apex 独有增强：收藏夹
+    // ============================================================
+
+    /** 添加收藏。 */
+    suspend fun addFavorite(itemId: String, category: String, name: String, description: String = "", marketId: String = "", version: String = "", note: String = ""): BridgeResult<Boolean> = bridgeRun {
+        val cat = parseCategory(category)
+        // 构造一个最小 MarketItem 用于收藏
+        val item = MarketItem(
+            id = itemId, name = name, description = description, version = version,
+            category = cat, marketId = marketId, downloadUrl = ""
+        )
+        favorites.add(item, note)
+        usageStats.record(itemId, name, cat, UsageEventType.FAVORITE)
+        true
+    }
+
+    /** 移除收藏。 */
+    suspend fun removeFavorite(itemId: String): BridgeResult<Boolean> = bridgeRun {
+        val removed = favorites.remove(itemId)
+        if (removed) {
+            usageStats.record(itemId, "", IntegrationCategory.SKILLS, UsageEventType.UNFAVORITE)
+        }
+        removed
+    }
+
+    /** 切换收藏状态。 */
+    suspend fun toggleFavorite(itemId: String, category: String, name: String, description: String = "", marketId: String = "", version: String = ""): BridgeResult<Boolean> = bridgeRun {
+        if (favorites.isFavorite(itemId)) {
+            favorites.remove(itemId)
+            usageStats.record(itemId, name, parseCategory(category), UsageEventType.UNFAVORITE)
+            false
+        } else {
+            val item = MarketItem(id = itemId, name = name, description = description, version = version,
+                category = parseCategory(category), marketId = marketId, downloadUrl = "")
+            favorites.add(item)
+            usageStats.record(itemId, name, parseCategory(category), UsageEventType.FAVORITE)
+            true
+        }
+    }
+
+    /** 是否已收藏。 */
+    fun isFavorite(itemId: String): Boolean = favorites.isFavorite(itemId)
+
+    /** 列出所有收藏。 */
+    suspend fun listFavorites(category: String? = null): BridgeResult<List<FavoriteEntry>> = bridgeRun {
+        if (category != null) {
+            favorites.listByCategory(parseCategory(category))
+        } else {
+            favorites.listAll()
+        }
+    }
+
+    /** 搜索收藏。 */
+    suspend fun searchFavorites(query: String): BridgeResult<List<FavoriteEntry>> = bridgeRun {
+        favorites.search(query)
+    }
+
+    /** 更新收藏备注。 */
+    suspend fun updateFavoriteNote(itemId: String, note: String): BridgeResult<Boolean> = bridgeRun {
+        favorites.updateNote(itemId, note)
+    }
+
+    /** 清空收藏。 */
+    suspend fun clearFavorites(): BridgeResult<Int> = bridgeRun { favorites.clear() }
+
+    /** 收藏总数。 */
+    fun favoritesCount(): Int = favorites.count()
+
+    /** 按分类统计收藏。 */
+    fun favoritesCountByCategory(): Map<String, Int> = favorites.countByCategory()
+
+    // ============================================================
+    // Apex 独有增强：使用统计
+    // ============================================================
+
+    /** 获取某项的使用统计。 */
+    suspend fun getItemStats(itemId: String): BridgeResult<ItemStats?> = bridgeRun {
+        usageStats.getStats(itemId)
+    }
+
+    /** "最近使用"列表。 */
+    suspend fun getRecentlyUsed(limit: Int = 20): BridgeResult<List<ItemStats>> = bridgeRun {
+        usageStats.getRecentlyUsed(limit)
+    }
+
+    /** "最常使用"排行榜。 */
+    suspend fun getMostUsed(limit: Int = 20): BridgeResult<List<ItemStats>> = bridgeRun {
+        usageStats.getMostUsed(limit)
+    }
+
+    /** 总统计。 */
+    suspend fun getTotalUsageStats(): BridgeResult<TotalStats> = bridgeRun {
+        usageStats.getTotalStats()
+    }
+
+    /** 按分类统计使用次数。 */
+    suspend fun getUsageByCategory(): BridgeResult<Map<String, Int>> = bridgeRun {
+        usageStats.getUsageByCategory()
+    }
+
+    /** 获取最近事件流。 */
+    suspend fun getRecentEvents(limit: Int = 100): BridgeResult<List<UsageEvent>> = bridgeRun {
+        usageStats.getRecentEvents(limit)
+    }
+
+    /** 记录查看事件（用于"最近使用"统计）。 */
+    suspend fun recordView(itemId: String, name: String, category: String): BridgeResult<Unit> = bridgeRun {
+        usageStats.record(itemId, name, parseCategory(category), UsageEventType.VIEW)
+    }
+
+    /** 清除所有统计。 */
+    suspend fun clearUsageStats(): BridgeResult<Unit> = bridgeRun {
+        usageStats.clear()
+    }
+
+    // ============================================================
+    // Apex 独有增强：市场缓存管理
+    // ============================================================
+
+    /** 清除指定市场的缓存。 */
+    suspend fun clearCacheForMarket(marketId: String): BridgeResult<Int> = bridgeRun {
+        cache.clearForMarket(marketId)
+    }
+
+    /** 清除所有缓存。 */
+    suspend fun clearAllCache(): BridgeResult<Int> = bridgeRun {
+        cache.clearAll()
+    }
+
+    /** 清除过期缓存。 */
+    suspend fun cleanExpiredCache(): BridgeResult<Int> = bridgeRun {
+        cache.cleanExpired()
+    }
+
+    /** 缓存统计。 */
+    fun getCacheStats(): CacheStats = cache.getStats()
+
+    /** 列出所有缓存条目。 */
+    fun listCacheEntries() = cache.listEntries()
+
+    // ============================================================
+    // Apex 独有增强：批量操作 + 更新检查
+    // ============================================================
+
+    /** 批量安装。 */
+    suspend fun batchInstall(
+        items: List<Triple<String, String, String>>  // (itemId, category, targetPath?)
+    ): BridgeResult<List<InstallResultDto>> = bridgeRun {
+        ensureInitialized()
+        val results = mutableListOf<InstallResultDto>()
+        for ((itemId, category, targetPath) in items) {
+            val cat = parseCategory(category)
+            val item = findItem(itemId, cat) ?: run {
+                results.add(InstallResultDto(false, itemId, null, null, "item not found"))
+                continue
+            }
+            val executor = center?.installExecutor ?: continue
+            val r = executor.install(item, targetPath)
+            results.add(InstallResultDto(
+                success = r.success, itemId = r.itemId,
+                installedPath = r.installedPath, message = r.message, error = r.error
+            ))
+            if (r.success) {
+                usageStats.record(itemId, item.name, cat, UsageEventType.INSTALL)
+            }
+        }
+        results
+    }
+
+    /** 批量卸载。 */
+    suspend fun batchUninstall(itemIds: List<String>): BridgeResult<List<Pair<String, Boolean>>> = bridgeRun {
+        ensureInitialized()
+        itemIds.map { id ->
+            val ok = center?.installExecutor?.uninstall(id, true) ?: false
+            if (ok) {
+                val installed = center?.installedManager?.get(id)
+                if (installed != null) {
+                    usageStats.record(id, installed.name, installed.category, UsageEventType.UNINSTALL)
+                }
+            }
+            id to ok
+        }
+    }
+
+    /** 检查更新（扫描所有已安装项的最新版本）。 */
+    suspend fun checkForUpdates(): BridgeResult<List<InstalledItemDto>> = bridgeRun {
+        ensureInitialized()
+        // 实际版本检查需要联网，这里返回 getUpdatable（基于已知 latestVersion）
+        center?.getUpdatable()?.map { it.toDto() } ?: emptyList()
+    }
+
+    /** 批量更新所有可更新项。 */
+    suspend fun updateAll(): BridgeResult<List<InstallResultDto>> = bridgeRun {
+        ensureInitialized()
+        val updatable = center?.getUpdatable() ?: emptyList()
+        val items = updatable.map { Triple(it.id, it.category.name, null as String?) }
+        batchInstall(items)
+    }
+
+    /** 刷新所有市场（清缓存 + 重新加载）。 */
+    suspend fun refreshAllMarkets(): BridgeResult<Unit> = bridgeRun {
+        ensureInitialized()
+        cache.clearAll()
+        center?.refreshAllMarkets()
+    }
+
+    /** 刷新指定市场。 */
+    suspend fun refreshMarket(marketId: String): BridgeResult<Int> = bridgeRun {
+        cache.clearForMarket(marketId)
+    }
+
+    /** 市场诊断。 */
+    suspend fun diagnose(): BridgeResult<String> = bridgeRun {
+        ensureInitialized()
+        val report = center?.diagnose()
+        report?.toString() ?: "no diagnostics available"
     }
 
     private fun findItem(itemId: String, category: IntegrationCategory): MarketItem? {

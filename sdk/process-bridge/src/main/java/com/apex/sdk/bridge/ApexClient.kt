@@ -298,6 +298,112 @@ object ApexClient {
             invoke("market/getSuiteInstallSummary", emptyMap(), "market")
         suspend fun checkRequiredApks(): BridgeResult<String> =
             invoke("market/checkRequiredApks", emptyMap(), "market")
+
+        // ===== Apex 独有增强：LLM 调用 =====
+        suspend fun invokeModel(
+            provider: String, modelName: String, prompt: String,
+            maxTokens: Int = 2048, systemPrompt: String? = null, temperature: Float = 0.7f
+        ): BridgeResult<String> {
+            val args = mutableMapOf(
+                "provider" to provider, "modelName" to modelName, "prompt" to prompt,
+                "maxTokens" to maxTokens.toString(), "temperature" to temperature.toString()
+            )
+            if (systemPrompt != null) args["systemPrompt"] = systemPrompt
+            return invoke("market/invokeModel", args, "market")
+        }
+        suspend fun listAvailableProviders(): BridgeResult<String> =
+            invoke("market/listAvailableProviders", emptyMap(), "market")
+        suspend fun isProviderAvailable(provider: String): BridgeResult<String> =
+            invoke("market/isProviderAvailable", mapOf("provider" to provider), "market")
+
+        // ===== Apex 独有增强：本地技能调用 =====
+        suspend fun invokeLocalSkill(itemId: String, method: String, argsJson: String = "{}"): BridgeResult<String> =
+            invoke("market/invokeLocalSkill", mapOf("itemId" to itemId, "method" to method, "argsJson" to argsJson), "market")
+        suspend fun listLocalSkillMethods(itemId: String): BridgeResult<String> =
+            invoke("market/listLocalSkillMethods", mapOf("itemId" to itemId), "market")
+        suspend fun getInstalledItemMetadata(itemId: String): BridgeResult<String> =
+            invoke("market/getInstalledItemMetadata", mapOf("itemId" to itemId), "market")
+
+        // ===== Apex 独有增强：搜索增强 =====
+        suspend fun searchInMarket(marketId: String, category: String, query: String = "", limit: Int = 50): BridgeResult<String> =
+            invoke("market/searchInMarket", mapOf("marketId" to marketId, "category" to category, "query" to query, "limit" to limit.toString()), "market")
+
+        // ===== Apex 独有增强：收藏夹 =====
+        suspend fun addFavorite(itemId: String, category: String, name: String, description: String = "", marketId: String = "", version: String = "", note: String = ""): BridgeResult<String> {
+            val args = mutableMapOf("itemId" to itemId, "category" to category, "name" to name)
+            if (description.isNotBlank()) args["description"] = description
+            if (marketId.isNotBlank()) args["marketId"] = marketId
+            if (version.isNotBlank()) args["version"] = version
+            if (note.isNotBlank()) args["note"] = note
+            return invoke("market/addFavorite", args, "market")
+        }
+        suspend fun removeFavorite(itemId: String): BridgeResult<String> =
+            invoke("market/removeFavorite", mapOf("itemId" to itemId), "market")
+        suspend fun toggleFavorite(itemId: String, category: String, name: String): BridgeResult<String> =
+            invoke("market/toggleFavorite", mapOf("itemId" to itemId, "category" to category, "name" to name), "market")
+        suspend fun isFavorite(itemId: String): BridgeResult<String> =
+            invoke("market/isFavorite", mapOf("itemId" to itemId), "market")
+        suspend fun listFavorites(category: String? = null): BridgeResult<String> {
+            val args = if (category != null) mapOf("category" to category) else emptyMap()
+            return invoke("market/listFavorites", args, "market")
+        }
+        suspend fun searchFavorites(query: String): BridgeResult<String> =
+            invoke("market/searchFavorites", mapOf("query" to query), "market")
+        suspend fun updateFavoriteNote(itemId: String, note: String): BridgeResult<String> =
+            invoke("market/updateFavoriteNote", mapOf("itemId" to itemId, "note" to note), "market")
+        suspend fun clearFavorites(): BridgeResult<String> =
+            invoke("market/clearFavorites", emptyMap(), "market")
+        suspend fun favoritesCount(): BridgeResult<String> =
+            invoke("market/favoritesCount", emptyMap(), "market")
+
+        // ===== Apex 独有增强：使用统计 =====
+        suspend fun getItemStats(itemId: String): BridgeResult<String> =
+            invoke("market/getItemStats", mapOf("itemId" to itemId), "market")
+        suspend fun getRecentlyUsed(limit: Int = 20): BridgeResult<String> =
+            invoke("market/getRecentlyUsed", mapOf("limit" to limit.toString()), "market")
+        suspend fun getMostUsed(limit: Int = 20): BridgeResult<String> =
+            invoke("market/getMostUsed", mapOf("limit" to limit.toString()), "market")
+        suspend fun getTotalUsageStats(): BridgeResult<String> =
+            invoke("market/getTotalUsageStats", emptyMap(), "market")
+        suspend fun getUsageByCategory(): BridgeResult<String> =
+            invoke("market/getUsageByCategory", emptyMap(), "market")
+        suspend fun getRecentEvents(limit: Int = 100): BridgeResult<String> =
+            invoke("market/getRecentEvents", mapOf("limit" to limit.toString()), "market")
+        suspend fun recordView(itemId: String, name: String, category: String): BridgeResult<String> =
+            invoke("market/recordView", mapOf("itemId" to itemId, "name" to name, "category" to category), "market")
+        suspend fun clearUsageStats(): BridgeResult<String> =
+            invoke("market/clearUsageStats", emptyMap(), "market")
+
+        // ===== Apex 独有增强：缓存管理 =====
+        suspend fun clearCacheForMarket(marketId: String): BridgeResult<String> =
+            invoke("market/clearCacheForMarket", mapOf("marketId" to marketId), "market")
+        suspend fun clearAllCache(): BridgeResult<String> =
+            invoke("market/clearAllCache", emptyMap(), "market")
+        suspend fun cleanExpiredCache(): BridgeResult<String> =
+            invoke("market/cleanExpiredCache", emptyMap(), "market")
+        suspend fun getCacheStats(): BridgeResult<String> =
+            invoke("market/getCacheStats", emptyMap(), "market")
+
+        // ===== Apex 独有增强：批量操作 + 更新检查 =====
+        suspend fun batchInstall(items: List<Triple<String, String, String?>>): BridgeResult<String> {
+            // 编码为 "itemId,cat,path;itemId,cat,;..."
+            val itemsStr = items.joinToString(";") { (id, cat, path) ->
+                "$id,$cat,${path ?: ""}"
+            }
+            return invoke("market/batchInstall", mapOf("items" to itemsStr), "market")
+        }
+        suspend fun batchUninstall(itemIds: List<String>): BridgeResult<String> =
+            invoke("market/batchUninstall", mapOf("itemIds" to itemIds.joinToString(",")), "market")
+        suspend fun checkForUpdates(): BridgeResult<String> =
+            invoke("market/checkForUpdates", emptyMap(), "market")
+        suspend fun updateAll(): BridgeResult<String> =
+            invoke("market/updateAll", emptyMap(), "market")
+        suspend fun refreshAllMarkets(): BridgeResult<String> =
+            invoke("market/refreshAllMarkets", emptyMap(), "market")
+        suspend fun refreshMarket(marketId: String): BridgeResult<String> =
+            invoke("market/refreshMarket", mapOf("marketId" to marketId), "market")
+        suspend fun diagnose(): BridgeResult<String> =
+            invoke("market/diagnose", emptyMap(), "market")
     }
 
     // ============================================================
