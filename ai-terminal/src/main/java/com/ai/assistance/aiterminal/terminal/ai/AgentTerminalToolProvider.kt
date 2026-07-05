@@ -132,6 +132,55 @@ class AgentTerminalToolProvider(private val context: Context) {
                 ToolParameterSchema("task_id", "string", "要取消的任务 ID", required = true),
             ),
         ),
+
+        // === 高级执行 ===
+        ToolPrompt(
+            name = "agent_exec_parallel",
+            description = "并行执行多条独立命令(互不依赖)。适合同时检查多个文件、ping多个服务器、获取多种系统信息。每条命令独立工作目录。",
+            parametersStructured = listOf(
+                ToolParameterSchema("tasks", "array", "任务列表,每项含 id/command/working_dir", required = true),
+                ToolParameterSchema("timeout_ms", "number", "总超时毫秒,默认 60000", required = false),
+            ),
+        ),
+        ToolPrompt(
+            name = "agent_exec_retry",
+            description = "带自动重试的命令执行(指数退避)。适合网络命令/不稳定操作。默认重试3次,退避1s/2s/4s。",
+            parametersStructured = listOf(
+                ToolParameterSchema("command", "string", "要执行的命令", required = true),
+                ToolParameterSchema("working_dir", "string", "工作目录", required = false),
+                ToolParameterSchema("max_retries", "number", "最大重试次数,默认 3", required = false),
+                ToolParameterSchema("backoff_ms", "number", "退避基数毫秒,默认 1000(指数增长)", required = false),
+            ),
+        ),
+
+        // === 命令模板 ===
+        ToolPrompt(
+            name = "agent_template_list",
+            description = "列出所有可用命令模板(git_status/git_commit_push/build_gradle/find_process/disk_usage/port_info/file_search/env_check)。",
+            parametersStructured = emptyList(),
+        ),
+        ToolPrompt(
+            name = "agent_template_exec",
+            description = "执行命令模板(用模板名+参数代替记住复杂命令)。",
+            parametersStructured = listOf(
+                ToolParameterSchema("template_id", "string", "模板 ID(如 git_status/env_check)", required = true),
+                ToolParameterSchema("parameters", "object", "模板参数(键值对)", required = false),
+            ),
+        ),
+
+        // === 审计与统计 ===
+        ToolPrompt(
+            name = "agent_audit_logs",
+            description = "获取最近的执行审计日志(工具名/命令/成功/耗时/输出大小)。",
+            parametersStructured = listOf(
+                ToolParameterSchema("limit", "number", "返回条数,默认 50", required = false),
+            ),
+        ),
+        ToolPrompt(
+            name = "agent_stats",
+            description = "获取执行统计(总执行数/成功率/平均耗时/活跃会话/后台任务)。",
+            parametersStructured = emptyList(),
+        ),
     )
 
     /**

@@ -521,6 +521,44 @@ class AgentTerminalExecutor(private val context: Context) {
                 JSONObject().put("cancelled", true).put("taskId", taskId)
             }
 
+            "agent_exec_parallel" -> {
+                val tasksArr = args.getJSONArray("tasks")
+                val timeout = args.optLong("timeout_ms", 60_000)
+                execParallelJson(tasksArr, timeout)
+            }
+
+            "agent_exec_retry" -> {
+                val cmd = args.getString("command")
+                val dir = args.optString("working_dir", System.getProperty("user.home") ?: "/")
+                val retries = args.optInt("max_retries", 3)
+                val backoff = args.optLong("backoff_ms", 1000)
+                execWithRetry(cmd, dir, retries, backoff).toJson()
+            }
+
+            "agent_template_list" -> {
+                listTemplates()
+            }
+
+            "agent_template_exec" -> {
+                val templateId = args.getString("template_id")
+                val params = mutableMapOf<String, String>()
+                val paramsObj = args.optJSONObject("parameters")
+                if (paramsObj != null) {
+                    val keys = paramsObj.keys()
+                    while (keys.hasNext()) { val k = keys.next(); params[k] = paramsObj.getString(k) }
+                }
+                execTemplate(templateId, params).toJson()
+            }
+
+            "agent_audit_logs" -> {
+                val limit = args.optInt("limit", 50)
+                getAuditLogs(limit)
+            }
+
+            "agent_stats" -> {
+                getStats()
+            }
+
             else -> JSONObject().put("error", "Unknown tool: $toolName")
         }
 
@@ -570,5 +608,319 @@ class AgentTerminalExecutor(private val context: Context) {
         bgTasks.clear()
         sessions.clear()
         scope.cancel()
+    }
+
+    // ============ 8. 输出截断策略 ============
+
+    /**
+     * 智能截断长输出,避免 LLM context window 爆炸
+     *
+     * 策略:
+     * - 保留头部(开始几行,通常是命令本身+前几行输出)
+     * - 保留尾部(最后几行,通常是结果/错误/提示)
+     * - 中间用 [truncated N lines] 标记
+     *
+     * @param text 原始输出
+     * @param maxChars 最大字符数(默认 4000,约 1000 token)
+     */
+    fun truncateOutput(text: String, maxChars: Int = 4000): String {
+        if (text.length <= maxChars) return text
+
+        val lines = text.lines()
+        if (lines.isEmpty()) return text
+
+        val headLines = 15
+        val tailLines = 25
+        val headChars = maxChars * 30 / 100  // 30% 给头部
+        val tailChars = maxChars * 60 / 100  // 60% 给尾部
+
+        val head = lines.take(headLines).joinToString("\n").take(headChars)
+        val tail = lines.takeLast(tailLines).joinToString("\n").takeLast(tailChars)
+        val truncatedLines = lines.size - headLines - tailLines
+
+        return buildString {
+            append(head)
+            append("\n\n... [truncated $truncatedLines lines] ...\n\n")
+            append(tail)
+        }
+    }
+
+    /**
+     * 执行命令并自动截断输出(适合直接返回给 LLM)
+     */
+    suspend fun execTruncated(
+        command: String,
+        workingDir: String = System.getProperty("user.home") ?: "/",
+        timeoutMs: Long = 30_000,
+        maxOutputChars: Int = 4000,
+    ): ExecResult {
+        val result = exec(command, workingDir, timeoutMs)
+        return result.copy(
+            stdout = truncateOutput(result.stdout, maxOutputChars),
+            stderr = truncateOutput(result.stderr, maxOutputChars / 2),
+        )
+    }
+
+    // ============ 9. 并行执行 ============
+
+    data class ParallelTask(
+        val id: String,
+        val command: String,
+        val workingDir: String = System.getProperty("user.home") ?: "/",
+    )
+
+    data class ParallelResult(
+        val taskId: String,
+        val result: ExecResult,
+    )
+
+    /**
+     * 并行执行多条独立命令(互不依赖)
+     *
+     * 适合: 同时检查多个文件、同时 ping 多个服务器、同时获取多种系统信息
+     *
+     * @param tasks 任务列表
+     * @param timeoutMs 总超时
+     */
+    suspend fun execParallel(
+        tasks: List<ParallelTask>,
+        timeoutMs: Long = 60_000,
+    ): List<ParallelResult> = withTimeoutOrNull(timeoutMs) {
+        coroutineScope {
+            tasks.map { task ->
+                async(Dispatchers.IO) {
+                    ParallelResult(task.id, exec(task.command, task.workingDir, timeoutMs / tasks.size))
+                }
+            }.awaitAll()
+        }
+    } ?: emptyList()
+
+    /**
+     * 并行执行并返回 JSON
+     */
+    suspend fun execParallelJson(
+        tasksJson: JSONArray,
+        timeoutMs: Long = 60_000,
+    ): JSONArray {
+        val tasks = (0 until tasksJson.length()).map { i ->
+            val o = tasksJson.getJSONObject(i)
+            ParallelTask(
+                id = o.getString("id"),
+                command = o.getString("command"),
+                workingDir = o.optString("working_dir", System.getProperty("user.home") ?: "/"),
+            )
+        }
+        val results = execParallel(tasks, timeoutMs)
+        val arr = JSONArray()
+        results.forEach { pr ->
+            arr.put(JSONObject().put("taskId", pr.taskId).put("result", pr.result.toJson()))
+        }
+        return arr
+    }
+
+    // ============ 10. 自动重试 ============
+
+    /**
+     * 带重试的命令执行
+     *
+     * @param command 命令
+     * @param maxRetries 最大重试次数(默认 3)
+     * @param backoffMs 退避基数(默认 1000ms,指数增长)
+     * @param retryOnExitCodes 哪些 exitCode 触发重试(默认 -1=超时/1=一般错误)
+     */
+    suspend fun execWithRetry(
+        command: String,
+        workingDir: String = System.getProperty("user.home") ?: "/",
+        maxRetries: Int = 3,
+        backoffMs: Long = 1000,
+        retryOnExitCodes: Set<Int> = setOf(-1, 1),
+        timeoutMs: Long = 30_000,
+    ): ExecResult {
+        var lastResult: ExecResult? = null
+        for (attempt in 0..maxRetries) {
+            lastResult = exec(command, workingDir, timeoutMs)
+            if (lastResult.success || lastResult.exitCode !in retryOnExitCodes) {
+                return lastResult
+            }
+            if (attempt < maxRetries) {
+                kotlinx.coroutines.delay(backoffMs * (1L shl attempt))  // 指数退避
+            }
+        }
+        return lastResult ?: ExecResult("", "Max retries exceeded", -1, 0, workingDir)
+    }
+
+    // ============ 11. 命令模板 ============
+
+    /**
+     * 命令模板 — 常用操作一键执行
+     *
+     * Agent 可以用模板名代替记住复杂命令
+     */
+    data class CommandTemplate(
+        val id: String,
+        val name: String,
+        val description: String,
+        val commandTemplate: String,  // 含 {占位符}
+        val parameters: List<TemplateParam>,
+    )
+
+    data class TemplateParam(
+        val name: String,
+        val description: String,
+        val required: Boolean = true,
+        val defaultValue: String? = null,
+    )
+
+    /** 内置命令模板 */
+    val builtinTemplates: List<CommandTemplate> = listOf(
+        CommandTemplate(
+            "git_status", "Git 状态", "查看 git 仓库状态",
+            "cd {repo} && git status -sb && echo '---' && git log --oneline -5",
+            listOf(TemplateParam("repo", "仓库路径", false, ".")),
+        ),
+        CommandTemplate(
+            "git_commit_push", "Git 提交推送", "提交所有修改并推送",
+            "cd {repo} && git add -A && git commit -m \"{message}\" && git push",
+            listOf(TemplateParam("repo", "仓库路径", false, "."), TemplateParam("message", "提交信息")),
+        ),
+        CommandTemplate(
+            "build_gradle", "Gradle 构建", "执行 gradle build",
+            "cd {project} && ./gradlew {task} --no-daemon 2>&1 | tail -30",
+            listOf(TemplateParam("project", "项目路径", false, "."), TemplateParam("task", "gradle task", false, "build")),
+        ),
+        CommandTemplate(
+            "find_process", "查找进程", "按名称查找进程",
+            "ps aux | grep -i \"{name}\" | grep -v grep",
+            listOf(TemplateParam("name", "进程名关键词")),
+        ),
+        CommandTemplate(
+            "disk_usage", "磁盘分析", "分析目录磁盘使用",
+            "cd {path} && du -sh * 2>/dev/null | sort -rh | head -20",
+            listOf(TemplateParam("path", "分析路径", false, ".")),
+        ),
+        CommandTemplate(
+            "port_info", "端口信息", "查看端口占用详情",
+            "lsof -i:{port} 2>/dev/null || netstat -tlnp 2>/dev/null | grep {port} || ss -tlnp | grep {port}",
+            listOf(TemplateParam("port", "端口号")),
+        ),
+        CommandTemplate(
+            "file_search", "文件搜索", "按名称搜索文件",
+            "find {path} -name \"{pattern}\" -type f 2>/dev/null | head -20",
+            listOf(TemplateParam("path", "搜索路径", false, "."), TemplateParam("pattern", "文件名模式(支持*)", false, "*")),
+        ),
+        CommandTemplate(
+            "env_check", "环境检查", "检查开发环境版本",
+            "echo '=== Node ===' && node --version 2>/dev/null; echo '=== npm ===' && npm --version 2>/dev/null; echo '=== Java ===' && java -version 2>&1; echo '=== Python ===' && python3 --version 2>/dev/null; echo '=== Git ===' && git --version",
+            emptyList(),
+        ),
+    )
+
+    /** 列出所有可用模板 */
+    fun listTemplates(): JSONArray {
+        val arr = JSONArray()
+        builtinTemplates.forEach { t ->
+            val params = JSONArray()
+            t.parameters.forEach { p ->
+                params.put(JSONObject().put("name", p.name).put("description", p.description).put("required", p.required).put("default", p.defaultValue ?: ""))
+            }
+            arr.put(JSONObject()
+                .put("id", t.id)
+                .put("name", t.name)
+                .put("description", t.description)
+                .put("command", t.commandTemplate)
+                .put("parameters", params))
+        }
+        return arr
+    }
+
+    /** 执行模板 */
+    suspend fun execTemplate(templateId: String, params: Map<String, String>): ExecResult {
+        val template = builtinTemplates.firstOrNull { it.id == templateId }
+            ?: return ExecResult("", "Template not found: $templateId", -1, 0, "")
+
+        var command = template.commandTemplate
+        template.parameters.forEach { p ->
+            val value = params[p.name] ?: p.defaultValue ?: if (p.required) {
+                return ExecResult("", "Missing required parameter: ${p.name}", -1, 0, "")
+            } else ""
+            command = command.replace("{${p.name}}", value)
+        }
+
+        return execTruncated(command)
+    }
+
+    // ============ 12. 执行日志审计 ============
+
+    data class AuditLog(
+        val id: String,
+        val timestamp: Long,
+        val toolName: String,
+        val command: String,
+        val success: Boolean,
+        val exitCode: Int,
+        val durationMs: Long,
+        val outputLength: Int,
+        val agentId: String?,
+    )
+
+    private val _auditLogs = kotlinx.coroutines.flow.MutableStateFlow<List<AuditLog>>(emptyList())
+    val auditLogs: kotlinx.coroutines.flow.StateFlow<List<AuditLog>> = _auditLogs
+
+    private fun logAudit(toolName: String, command: String, result: ExecResult, agentId: String? = null) {
+        val log = AuditLog(
+            id = "audit_${System.currentTimeMillis()}_${(1..999).random()}",
+            timestamp = System.currentTimeMillis(),
+            toolName = toolName,
+            command = command.take(200),
+            success = result.success,
+            exitCode = result.exitCode,
+            durationMs = result.durationMs,
+            outputLength = result.stdout.length + result.stderr.length,
+            agentId = agentId,
+        )
+        _auditLogs.value = (_auditLogs.value + log).takeLast(200)
+    }
+
+    /** 获取审计日志(JSON) */
+    fun getAuditLogs(limit: Int = 50): JSONArray {
+        val arr = JSONArray()
+        _auditLogs.value.takeLast(limit).reversed().forEach { log ->
+            arr.put(JSONObject()
+                .put("id", log.id)
+                .put("timestamp", log.timestamp)
+                .put("time", java.text.SimpleDateFormat("HH:mm:ss").format(java.util.Date(log.timestamp)))
+                .put("tool", log.toolName)
+                .put("command", log.command)
+                .put("success", log.success)
+                .put("exitCode", log.exitCode)
+                .put("durationMs", log.durationMs)
+                .put("outputLength", log.outputLength))
+        }
+        return arr
+    }
+
+    /** 清空审计日志 */
+    fun clearAuditLogs() {
+        _auditLogs.value = emptyList()
+    }
+
+    /** 获取统计信息 */
+    fun getStats(): JSONObject {
+        val logs = _auditLogs.value
+        val total = logs.size
+        val success = logs.count { it.success }
+        val failed = total - success
+        val avgDuration = if (total > 0) logs.sumOf { it.durationMs } / total else 0
+        val totalOutput = logs.sumOf { it.outputLength }
+
+        return JSONObject()
+            .put("totalExecutions", total)
+            .put("successCount", success)
+            .put("failedCount", failed)
+            .put("successRate", if (total > 0) "%.1f%%".format(success * 100.0 / total) else "N/A")
+            .put("avgDurationMs", avgDuration)
+            .put("totalOutputChars", totalOutput)
+            .put("activeSessions", sessions.size)
+            .put("activeBgTasks", bgTasks.count { it.status == BgTaskStatus.RUNNING })
     }
 }
