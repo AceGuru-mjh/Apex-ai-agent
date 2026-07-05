@@ -65,19 +65,7 @@ fun MainNavigation(
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0A0E1A)).padding(padding)) {
             when (currentTab) {
-                NavTab.TERMINAL -> TerminalScreen(
-                    mascotForm = terminalForm,
-                    lines = terminalLines,
-                    inputText = inputText,
-                    onInputChange = { inputText = it },
-                    onSubmit = {
-                        if (inputText.isNotBlank()) {
-                            terminalLines = terminalLines + TerminalLine("❯ $inputText", TerminalLineKind.PROMPT)
-                            terminalLines = terminalLines + TerminalLine("执行: $inputText", TerminalLineKind.OUTPUT)
-                            inputText = ""
-                        }
-                    },
-                )
+                NavTab.TERMINAL -> com.apex.agent.presentation.enhancedterminal.ui.EnhancedTerminalScreen()
                 NavTab.BURST -> BurstModeScreen(
                     kernelState = kernelState,
                     loadedSkills = loadedSkills.value,
