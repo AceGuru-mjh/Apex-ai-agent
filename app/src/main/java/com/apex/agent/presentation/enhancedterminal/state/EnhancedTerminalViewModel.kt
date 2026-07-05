@@ -14,6 +14,8 @@ class EnhancedTerminalViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
+    private val prefs = TerminalPreferences(context)
+
     private val _sessions = MutableStateFlow<List<TerminalSession>>(emptyList())
     val sessions: StateFlow<List<TerminalSession>> = _sessions
 
@@ -69,7 +71,114 @@ class EnhancedTerminalViewModel @Inject constructor(
 
     private val tabCompleter = TabCompleter({ _aliases.value }, { _quickCommands.value }, { _globalHistory.value })
 
-    init { createSession() }
+    // === 危险命令确认 ===
+    private val _pendingDangerousCommand = MutableStateFlow<DangerousCommandDetector.DetectionResult?>(null)
+    val pendingDangerousCommand: StateFlow<DangerousCommandDetector.DetectionResult?> = _pendingDangerousCommand
+    private var pendingCommandText: String? = null
+
+    // === 代码段编辑器 ===
+    private val _snippetEditorOpen = MutableStateFlow(false)
+    val snippetEditorOpen: StateFlow<Boolean> = _snippetEditorOpen
+    private val _editingSnippet = MutableStateFlow<Snippet?>(null)
+    val editingSnippet: StateFlow<Snippet?> = _editingSnippet
+
+    init {
+        createSession()
+        loadPersistedState()
+        observeAndPersist()
+    }
+
+    /** 从 DataStore 加载持久化数据 */
+    private fun loadPersistedState() {
+        viewModelScope.launch {
+            prefs.historyFlow.collect { h -> if (h.isNotEmpty()) _globalHistory.value = h }
+        }
+        viewModelScope.launch {
+            prefs.aliasesFlow.collect { map ->
+                if (map.isNotEmpty()) {
+                    _aliases.value = DefaultAliases.all.associateBy { it.alias }.toMutableMap().apply {
+                        map.forEach { (k, v) -> put(k, CommandAlias(k, v.first, v.second)) }
+                    }
+                }
+            }
+        }
+        viewModelScope.launch {
+            prefs.snippetsFlow.collect { s -> if (s.isNotEmpty()) _snippets.value = s }
+        }
+        viewModelScope.launch { prefs.themeIdFlow.collect { id -> _themeId.value = id } }
+        viewModelScope.launch { prefs.fontSizeFlow.collect { size -> _fontSize.value = size } }
+    }
+
+    /** 监听状态变化,自动持久化 */
+    private fun observeAndPersist() {
+        viewModelScope.launch { _globalHistory.collect { prefs.saveHistory(it) } }
+        viewModelScope.launch { _aliases.collect { a -> prefs.saveAliases(a) } }
+        viewModelScope.launch { _snippets.collect { s -> prefs.saveSnippets(s) } }
+        viewModelScope.launch { _themeId.collect { id -> prefs.saveThemeId(id) } }
+        viewModelScope.launch { _fontSize.collect { size -> prefs.saveFontSize(size) } }
+    }
+
+    // === 危险命令检测 ===
+
+    /**
+     * 执行命令(带危险检测)
+     *
+     * 如果是危险命令,先存到 pending 状态,UI 弹确认对话框;
+     * 用户确认后调 [confirmDangerousCommand] 执行。
+     */
+    fun executeCommandWithCheck(input: String) {
+        val detection = DangerousCommandDetector.check(input)
+        if (detection.isDangerous) {
+            pendingCommandText = input
+            _pendingDangerousCommand.value = detection
+        } else {
+            executeCommand(input)
+        }
+    }
+
+    /** 用户确认后执行危险命令 */
+    fun confirmDangerousCommand() {
+        val cmd = pendingCommandText ?: return
+        _pendingDangerousCommand.value = null
+        pendingCommandText = null
+        executeCommand(cmd)
+    }
+
+    /** 用户取消危险命令 */
+    fun cancelDangerousCommand() {
+        _pendingDangerousCommand.value = null
+        pendingCommandText = null
+    }
+
+    // === 代码段编辑器 ===
+
+    fun openSnippetEditor(existing: Snippet? = null) {
+        _editingSnippet.value = existing
+        _snippetEditorOpen.value = true
+    }
+
+    fun closeSnippetEditor() {
+        _snippetEditorOpen.value = false
+        _editingSnippet.value = null
+    }
+
+    fun saveSnippet(name: String, content: String, language: String, tags: List<String>) {
+        val existing = _editingSnippet.value
+        val snippet = if (existing != null) {
+            existing.copy(name = name, content = content, language = language, tags = tags)
+        } else {
+            Snippet(
+                id = "snippet_${System.currentTimeMillis()}",
+                name = name, content = content, language = language, tags = tags,
+            )
+        }
+        if (existing != null) {
+            _snippets.value = _snippets.value.map { if (it.id == existing.id) snippet else it }
+        } else {
+            _snippets.value = _snippets.value + snippet
+        }
+        closeSnippetEditor()
+    }
 
     fun createSession(name: String? = null): String {
         val id = "session_${System.currentTimeMillis()}"

@@ -53,6 +53,9 @@ fun EnhancedTerminalScreen(
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val searchMatches by viewModel.searchMatches.collectAsStateWithLifecycle()
     val searchMatchIndex by viewModel.searchMatchIndex.collectAsStateWithLifecycle()
+    val pendingDangerous by viewModel.pendingDangerousCommand.collectAsStateWithLifecycle()
+    val snippetEditorOpen by viewModel.snippetEditorOpen.collectAsStateWithLifecycle()
+    val editingSnippet by viewModel.editingSnippet.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -80,6 +83,7 @@ fun EnhancedTerminalScreen(
                     Text("${fontSize}sp", color = theme.foregroundColor, fontSize = 10.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(horizontal = 4.dp))
                     IconButton(onClick = { viewModel.increaseFontSize() }, modifier = Modifier.size(28.dp)) { Text("A+", color = theme.foregroundColor, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
                     Spacer(Modifier.width(8.dp))
+                    IconButton(onClick = { viewModel.openSnippetEditor() }, modifier = Modifier.size(28.dp)) { Icon(Icons.Default.Code, null, tint = theme.successColor, modifier = Modifier.size(14.dp)) }
                     IconButton(onClick = { viewModel.openSearch() }, modifier = Modifier.size(28.dp)) { Icon(Icons.Default.Search, null, tint = theme.infoColor, modifier = Modifier.size(14.dp)) }
                 }
                 Surface(color = theme.backgroundColor) {
@@ -105,7 +109,7 @@ fun EnhancedTerminalScreen(
             Surface(color = theme.backgroundColor) {
                 LazyRow(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(quickCommands) { cmd ->
-                        Surface(color = cmd.category.color.copy(alpha = 0.15f), shape = RoundedCornerShape(16.dp), modifier = Modifier.height(28.dp).clickable { viewModel.executeCommand(cmd.command) }) {
+                        Surface(color = cmd.category.color.copy(alpha = 0.15f), shape = RoundedCornerShape(16.dp), modifier = Modifier.height(28.dp).clickable { viewModel.executeCommandWithCheck(cmd.command) }) {
                             Row(modifier = Modifier.padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) { Text(cmd.icon, fontSize = 12.sp); Spacer(Modifier.width(4.dp)); Text(cmd.label, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium) }
                         }
                     }
@@ -188,16 +192,41 @@ fun EnhancedTerminalScreen(
                             if (activeSession?.isRunning == true) CircularProgressIndicator(modifier = Modifier.size(12.dp), strokeWidth = 1.dp, color = theme.warningColor) else Text("❯", color = theme.promptColor, fontSize = 13.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.width(8.dp))
                             Text("${activeSession?.shortDir ?: "~"} ", color = theme.infoColor, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
-                            BasicTextField(value = inputText, onValueChange = { inputText = it; if (it.isNotBlank()) viewModel.requestCompletion(it) else viewModel.clearCompletions() }, modifier = Modifier.weight(1f).focusRequester(inputFocus), textStyle = androidx.compose.ui.text.TextStyle(color = theme.foregroundColor, fontSize = 13.sp, fontFamily = FontFamily.Monospace), cursorBrush = androidx.compose.ui.graphics.SolidColor(theme.promptColor), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { if (inputText.isNotBlank()) { viewModel.executeCommand(inputText); inputText = ""; viewModel.clearCompletions() } }, onPrevious = { viewModel.getPreviousCommand()?.let { inputText = it } }, onNext = { viewModel.getNextCommand()?.let { inputText = it } }), decorationBox = { if (inputText.isEmpty()) Text("输入命令... (help / ↑↓ 历史 / Tab 补全)", color = theme.commentColor, fontSize = 12.sp, fontFamily = FontFamily.Monospace); it })
+                            BasicTextField(value = inputText, onValueChange = { inputText = it; if (it.isNotBlank()) viewModel.requestCompletion(it) else viewModel.clearCompletions() }, modifier = Modifier.weight(1f).focusRequester(inputFocus), textStyle = androidx.compose.ui.text.TextStyle(color = theme.foregroundColor, fontSize = 13.sp, fontFamily = FontFamily.Monospace), cursorBrush = androidx.compose.ui.graphics.SolidColor(theme.promptColor), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { if (inputText.isNotBlank()) { viewModel.executeCommandWithCheck(inputText); inputText = ""; viewModel.clearCompletions() } }, onPrevious = { viewModel.getPreviousCommand()?.let { inputText = it } }, onNext = { viewModel.getNextCommand()?.let { inputText = it } }), decorationBox = { if (inputText.isEmpty()) Text("输入命令... (help / ↑↓ 历史 / Tab 补全)", color = theme.commentColor, fontSize = 12.sp, fontFamily = FontFamily.Monospace); it })
                             Spacer(Modifier.width(8.dp))
-                            Surface(color = if (inputText.isNotBlank()) theme.promptColor else theme.commentColor.copy(alpha = 0.3f), shape = RoundedCornerShape(6.dp), modifier = Modifier.size(28.dp).clickable(enabled = inputText.isNotBlank()) { if (inputText.isNotBlank()) { viewModel.executeCommand(inputText); inputText = ""; viewModel.clearCompletions() } }) { Box(contentAlignment = Alignment.Center) { Text("↵", color = if (inputText.isNotBlank()) Color.Black else theme.commentColor, fontSize = 14.sp, fontWeight = FontWeight.Bold) } }
+                            Surface(color = if (inputText.isNotBlank()) theme.promptColor else theme.commentColor.copy(alpha = 0.3f), shape = RoundedCornerShape(6.dp), modifier = Modifier.size(28.dp).clickable(enabled = inputText.isNotBlank()) { if (inputText.isNotBlank()) { viewModel.executeCommandWithCheck(inputText); inputText = ""; viewModel.clearCompletions() } }) { Box(contentAlignment = Alignment.Center) { Text("↵", color = if (inputText.isNotBlank()) Color.Black else theme.commentColor, fontSize = 14.sp, fontWeight = FontWeight.Bold) } }
                         }
                     }
                 }
             }
 
             AnimatedVisibility(visible = paletteOpen, enter = fadeIn() + slideInVertically(), exit = fadeOut() + slideOutVertically(), modifier = Modifier.fillMaxSize()) {
-                CommandPaletteOverlay(viewModel = viewModel, onExecute = { item -> val cmd = viewModel.executePaletteItem(item); inputText = cmd; viewModel.closePalette(); if (cmd.isNotBlank()) { viewModel.executeCommand(cmd); inputText = "" }; scope.launch { inputFocus.requestFocus() } }, onClose = { viewModel.closePalette() })
+                CommandPaletteOverlay(viewModel = viewModel, onExecute = { item -> val cmd = viewModel.executePaletteItem(item); inputText = cmd; viewModel.closePalette(); if (cmd.isNotBlank()) { viewModel.executeCommandWithCheck(cmd); inputText = "" }; scope.launch { inputFocus.requestFocus() } }, onClose = { viewModel.closePalette() })
+            }
+
+            // 危险命令确认对话框
+            pendingDangerous?.let { danger ->
+                AlertDialog(
+                    onDismissRequest = { viewModel.cancelDangerousCommand() },
+                    icon = { Icon(Icons.Default.Warning, null, tint = Color(danger.level.color)) },
+                    title = { Text("⚠ ${danger.level.label}", color = Color(danger.level.color), fontWeight = FontWeight.Bold) },
+                    text = { Text("即将执行危险命令:\n\n${danger.description}\n\n确定要继续吗?", fontSize = 13.sp) },
+                    confirmButton = { TextButton(onClick = { viewModel.confirmDangerousCommand() }, colors = ButtonDefaults.textButtonColors(contentColor = Color(danger.level.color))) { Text("确认执行") } },
+                    dismissButton = { TextButton(onClick = { viewModel.cancelDangerousCommand() }) { Text("取消") } },
+                    containerColor = theme.backgroundColor,
+                    titleContentColor = theme.foregroundColor,
+                    textContentColor = theme.foregroundColor,
+                )
+            }
+
+            // 代码段编辑器 BottomSheet
+            if (snippetEditorOpen) {
+                SnippetEditorSheet(
+                    existing = editingSnippet,
+                    theme = theme,
+                    onSave = { name, content, lang, tags -> viewModel.saveSnippet(name, content, lang, tags) },
+                    onClose = { viewModel.closeSnippetEditor() },
+                )
             }
         }
     }
@@ -228,6 +257,118 @@ private fun CommandPaletteOverlay(viewModel: EnhancedTerminalViewModel, onExecut
                     }}
                 }
                 if (results.isEmpty()) Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { Text("无匹配结果", color = Color(0xFF64748B), fontSize = 13.sp) }
+            }
+        }
+    }
+}
+
+// ============ 代码段编辑器 BottomSheet ============
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SnippetEditorSheet(
+    existing: Snippet?,
+    theme: TerminalTheme,
+    onSave: (String, String, String, List<String>) -> Unit,
+    onClose: () -> Unit,
+) {
+    var name by remember { mutableStateOf(existing?.name ?: "") }
+    var content by remember { mutableStateOf(existing?.content ?: "") }
+    var language by remember { mutableStateOf(existing?.language ?: "bash") }
+    var tagsText by remember { mutableStateOf(existing?.tags?.joinToString(" ") ?: "") }
+
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = theme.backgroundColor) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                if (existing != null) "编辑代码段" else "新建代码段",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = theme.foregroundColor,
+            )
+
+            // 名称
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("名称", color = theme.commentColor) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                textStyle = androidx.compose.ui.text.TextStyle(color = theme.foregroundColor, fontSize = 14.sp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = theme.promptColor,
+                    unfocusedBorderColor = theme.commentColor.copy(alpha = 0.3f),
+                    cursorColor = theme.promptColor,
+                ),
+            )
+
+            // 语言
+            OutlinedTextField(
+                value = language,
+                onValueChange = { language = it },
+                label = { Text("语言", color = theme.commentColor) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                textStyle = androidx.compose.ui.text.TextStyle(color = theme.foregroundColor, fontSize = 14.sp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = theme.promptColor,
+                    unfocusedBorderColor = theme.commentColor.copy(alpha = 0.3f),
+                    cursorColor = theme.promptColor,
+                ),
+            )
+
+            // 内容(多行)
+            OutlinedTextField(
+                value = content,
+                onValueChange = { content = it },
+                label = { Text("命令内容(支持多行)", color = theme.commentColor) },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp, max = 240.dp),
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    color = theme.foregroundColor,
+                    fontSize = 13.sp,
+                    fontFamily = FontFamily.Monospace,
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = theme.promptColor,
+                    unfocusedBorderColor = theme.commentColor.copy(alpha = 0.3f),
+                    cursorColor = theme.promptColor,
+                ),
+            )
+
+            // 标签
+            OutlinedTextField(
+                value = tagsText,
+                onValueChange = { tagsText = it },
+                label = { Text("标签(空格分隔)", color = theme.commentColor) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                textStyle = androidx.compose.ui.text.TextStyle(color = theme.foregroundColor, fontSize = 14.sp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = theme.promptColor,
+                    unfocusedBorderColor = theme.commentColor.copy(alpha = 0.3f),
+                    cursorColor = theme.promptColor,
+                ),
+            )
+
+            // 操作按钮
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = onClose,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = theme.commentColor),
+                ) { Text("取消") }
+                Button(
+                    onClick = { if (name.isNotBlank() && content.isNotBlank()) onSave(name, content, language, tagsText.split(" ").filter { it.isNotBlank() }) },
+                    modifier = Modifier.weight(1f),
+                    enabled = name.isNotBlank() && content.isNotBlank(),
+                    colors = ButtonDefaults.buttonColors(containerColor = theme.promptColor, contentColor = Color.Black),
+                ) { Text("保存") }
             }
         }
     }
