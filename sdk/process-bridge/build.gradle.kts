@@ -13,6 +13,13 @@ android {
         aidl = true
         buildConfig = true
     }
+
+    // Export AIDL sources to consuming modules
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -21,6 +28,4 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-
-    // For LocalSocket (Linux domain socket) — part of Android platform, no extra dep
 }
