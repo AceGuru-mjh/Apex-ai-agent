@@ -65,7 +65,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     }
                 }
             }
-            }
         }
     }
 }

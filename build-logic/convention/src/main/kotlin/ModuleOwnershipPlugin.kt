@@ -55,11 +55,11 @@ class ModuleOwnershipPlugin : Plugin<Project> {
                 val violations = mutableListOf<String>()
 
                 // 遍历所有 configurations 的项目依赖
-                target.configurations.configureEach { config ->
+                target.configurations.configureEach {
                     // 只检查可以解析的 configuration
-                    if (!config.isCanBeResolved) return@configureEach
+                    if (!isCanBeResolved) return@configureEach
 
-                    config.dependencies.forEach { dep: org.gradle.api.artifacts.Dependency ->
+                    dependencies.forEach { dep ->
                         if (dep is ProjectDependency) {
                             val depPath = dep.dependencyProject.path
                             val allowedOwners = ownershipRules[depPath]
