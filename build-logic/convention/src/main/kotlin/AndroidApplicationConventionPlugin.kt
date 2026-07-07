@@ -13,6 +13,7 @@ import org.gradle.kotlin.dsl.configure
  * - 默认的 ProGuard 配置
  * - 单 APK 输出（无 flavor）
  * - 统一的 buildConfig 开关
+ * - Core library desugaring
  *
  * 使用：在 app/build.gradle.kts 中
  *   plugins { id("apex.android.application") }
@@ -32,8 +33,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     minSdk = 26
                     targetSdk = 35
 
-                    // 单 APK 输出：不配置 productFlavors
-                    // 如需多 flavor（如 free/paid），在模块 build.gradle.kts 中自行覆盖
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                     vectorDrawables.useSupportLibrary = true
                 }
@@ -66,7 +65,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     }
                 }
             }
-        }
 
             dependencies {
                 add("coreLibraryDesugaring", "com.android.tools:desugar_jdk_libs:2.0.3")
