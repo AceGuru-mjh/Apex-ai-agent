@@ -9,8 +9,6 @@ import com.apex.sdk.common.ApexLog
 import com.apex.sdk.common.ApexSuite
 import com.apex.sdk.common.ApkIdentity
 import com.apex.sdk.common.ApkIdentityRegistry
-import com.apex.sdk.watchdog.HeartbeatReporter
-import com.apex.sdk.watchdog.Watchdog
 
 /**
  * 自动初始化器 — 利用 ContentProvider 在 Application.onCreate 之前
@@ -22,8 +20,8 @@ import com.apex.sdk.watchdog.Watchdog
  *
  * **本 Provider 做的事**：
  *   1. 注册本 APK 的 [ApkIdentity]
- *   2. 启动 [HeartbeatReporter]
- *   3. 启动 [Watchdog]
+ *   2. 启动 HeartbeatReporter (via reflection)
+ *   3. 启动 Watchdog (via reflection)
  *   4. bindService 到主 APK 的 [BridgeRegistryService]
  *
  * 各 APK 无需修改 Application 类，只需在 AndroidManifest 中声明本 Provider。
@@ -36,7 +34,7 @@ import com.apex.sdk.watchdog.Watchdog
  */
 class ApexBridgeInitializer : ContentProvider() {
 
-    private var heartbeat: HeartbeatReporter? = null
+    private var heartbeat: Any? = null  // HeartbeatReporter, loaded via reflection if available
 
     override fun onCreate(): Boolean {
         val ctx = context ?: return false
@@ -54,11 +52,22 @@ class ApexBridgeInitializer : ContentProvider() {
         )
         ApexLog.i(apkId, "[BridgeInitializer] onCreate (pid=${android.os.Process.myPid()}, pkg=${ctx.packageName})")
 
-        // 启动心跳
-        heartbeat = HeartbeatReporter(apkId).also { it.start() }
+        // 启动心跳和看门狗（通过反射加载，避免循环依赖）
+        try {
+            val hrClass = Class.forName("com.apex.sdk.watchdog.HeartbeatReporter")
+            val hrCtor = hrClass.getConstructor(String::class.java)
+            val hr = hrCtor.newInstance(apkId)
+            hrClass.getMethod("start").invoke(hr)
+            heartbeat = hr
 
-        // 启动看门狗
-        Watchdog.start()
+            val wdClass = Class.forName("com.apex.sdk.watchdog.Watchdog")
+            wdClass.getMethod("start").invoke(null)
+        } catch (e: ClassNotFoundException) {
+            // watchdog SDK not available in classpath, skip
+            ApexLog.d(apkId, "[BridgeInitializer] watchdog SDK not available, skipping")
+        } catch (e: Exception) {
+            ApexLog.w(apkId, "[BridgeInitializer] watchdog init failed: ${e.message}")
+        }
 
         // 注册包监听（监听套件中 APK 的安装/卸载）
         ApkPackageMonitor.register(ctx)

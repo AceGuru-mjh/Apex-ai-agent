@@ -24,7 +24,6 @@ android {
 
 dependencies {
     api(project(":sdk:common-core"))
-    api(project(":sdk:watchdog"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
