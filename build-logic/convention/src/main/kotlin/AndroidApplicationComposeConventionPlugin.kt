@@ -25,17 +25,14 @@ class AndroidApplicationComposeConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                val libs = extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension::class.java)
-                    .named("libs")
-
-                add("implementation", platform(libs.findLibrary("androidx-compose-bom").get()))
-                add("implementation", libs.findLibrary("androidx-compose-ui").get())
-                add("implementation", libs.findLibrary("androidx-compose-ui-graphics").get())
-                add("implementation", libs.findLibrary("androidx-compose-ui-tooling-preview").get())
-                add("implementation", libs.findLibrary("androidx-compose-material3").get())
-                add("implementation", libs.findLibrary("androidx-activity-compose").get())
-                add("implementation", libs.findLibrary("androidx-navigation-compose").get())
-                add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
+                add("implementation", platform("androidx.compose:compose-bom:2024.06.00"))
+                add("implementation", "androidx.compose.ui:ui")
+                add("implementation", "androidx.compose.ui:ui-graphics")
+                add("implementation", "androidx.compose.ui:ui-tooling-preview")
+                add("implementation", "androidx.compose.material3:material3")
+                add("implementation", "androidx.activity:activity-compose:1.8.2")
+                add("implementation", "androidx.navigation:navigation-compose:2.5.3")
+                add("debugImplementation", "androidx.compose.ui:ui-tooling")
             }
         }
     }
