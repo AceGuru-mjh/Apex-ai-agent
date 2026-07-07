@@ -65,7 +65,7 @@ class ModuleOwnershipPlugin : Plugin<Project> {
                             val allowedOwners = ownershipRules[depPath]
                             if (allowedOwners != null && path !in allowedOwners) {
                                 violations.add(
-                                    "  ❌ $path 通过 ${config.name} 引用了 $depPath\n" +
+                                    "  ❌ $path 通过 ${this.name} 引用了 $depPath\n" +
                                     "     但 $depPath 只允许以下模块引用：${allowedOwners.joinToString(", ")}\n" +
                                     "     请改用 ApexClient 跨 APK 调用，或检查 docs/architecture/MODULE_OWNERSHIP.md"
                                 )
