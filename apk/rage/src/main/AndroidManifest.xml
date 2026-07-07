@@ -21,7 +21,7 @@
         <service
             android:name=".RageHostService"
             android:permission="com.apex.sdk.bridge.permission.BIND"
-            android:exported="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.apex.sdk.bridge.BIND_RAGE" />
             </intent-filter>

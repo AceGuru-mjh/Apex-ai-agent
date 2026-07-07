@@ -21,7 +21,7 @@
         <service
             android:name=".MarketHostService"
             android:permission="com.apex.sdk.bridge.permission.BIND"
-            android:exported="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.apex.sdk.bridge.BIND_MARKET" />
             </intent-filter>
