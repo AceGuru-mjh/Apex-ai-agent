@@ -1,5 +1,6 @@
 plugins {
     id("apex.android.library")
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -18,7 +19,4 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
-
-    // Parcelize for AIDL models
-    implementation("org.jetbrains.kotlin:kotlin-parcelize:2.0.21")
 }

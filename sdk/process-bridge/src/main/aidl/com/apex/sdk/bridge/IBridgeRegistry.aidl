@@ -1,18 +1,19 @@
-// ApexBridge.aidl
+// IBridgeRegistry.aidl
 package com.apex.sdk.bridge;
 
 import com.apex.sdk.bridge.BridgeParcel;
+import com.apex.sdk.bridge.IApkBridge;
 import com.apex.sdk.bridge.IBridgeCallback;
 
 /**
  * 套件级服务发现 + 通用 RPC 入口。
  *
- * 每个 APK 在 Application.onCreate 中通过 [IBridgeRegistry.register] 注册自己对外暴露的服务，
- * 其他 APK 通过 [IBridgeRegistry.lookup] 拿到 [IApkBridge] 后调用 [IApkBridge.invoke]。
+ * 每个 APK 在 Application.onCreate 中通过 IBridgeRegistry.register 注册自己对外暴露的服务，
+ * 其他 APK 通过 IBridgeRegistry.lookup 拿到 IApkBridge 后调用 IApkBridge.invoke。
  *
  * 当两个 APK 共享同一个进程（SharedUserId + android:process）时，
  * 调用方可以直接通过进程内 ServiceRegistry 拿到对方 Service 的 Kotlin 实例，
- * 完全跳过 Binder —— 这是“零延迟”路径。
+ * 完全跳过 Binder —— 这是"零延迟"路径。
  *
  * 当两个 APK 处于不同进程（如 Terminal 独立进程）时，走标准 Binder AIDL。
  */
