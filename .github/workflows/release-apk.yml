@@ -109,6 +109,13 @@ jobs:
             echo "No signing keystore found, building with debug signing"
           fi
 
+      - name: Fix gradle.properties for CI (remove hardcoded Windows paths)
+        run: |
+          sed -i 's|-Djava.io.tmpdir=C:/Users/18119/AppData/Local/Temp|-Djava.io.tmpdir=/tmp|g' gradle.properties
+          sed -i 's|-Dobjectbox.properties=C:/Users/18119/Desktop/android-agent/.objectbox-build.properties||g' gradle.properties
+          echo "Fixed gradle.properties for Linux CI"
+          grep "java.io.tmpdir" gradle.properties
+
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
