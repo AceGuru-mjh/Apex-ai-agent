@@ -160,7 +160,7 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
     }
 
     override suspend fun synthesize(request: TtsRequest): BridgeResult<String> = bridgeRun {
-        ensureTts(request.language)
+        ensureTts(request.language ?: "zh-CN")
         // Android 系统 TTS 不直接返回音频字节；这里返回 utteranceId，
         // 业务侧如需原始音频可通过 AudioTrack 录制或第三方 TTS 替换。
         val uid = makeUtteranceId(request.sessionId)
@@ -221,7 +221,7 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
         val sessionId = request.sessionId
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, request.language)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, request.language ?: "zh-CN")
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, request.partialResults)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, request.maxAlternatives)
         }
@@ -274,7 +274,7 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
 
         recognizer?.startListening(intent)
         _isRecognizing.value = true
-        ApexLog.i(ApexSuite.ApkId.VOICE, "[$TAG_SUB] ASR started: $utteranceId (session=$sessionId, lang=${request.language})")
+        ApexLog.i(ApexSuite.ApkId.VOICE, "[$TAG_SUB] ASR started: $utteranceId (session=$sessionId, lang=${request.language ?: "zh-CN"})")
         utteranceId
     }
 

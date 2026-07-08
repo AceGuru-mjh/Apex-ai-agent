@@ -1,7 +1,7 @@
 package com.ai.assistance.aiterminal.terminal.ai
 
-import com.ai.assistance.aiterminal.terminal.data.model.ToolParameterSchema
-import com.ai.assistance.aiterminal.terminal.data.model.ToolPrompt
+import com.ai.assistance.aiterminal.terminal.model.ToolParameterSchema
+import com.ai.assistance.aiterminal.terminal.model.ToolPrompt
 
 object TerminalToolDefinition {
 

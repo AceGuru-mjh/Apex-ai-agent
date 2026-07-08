@@ -1,6 +1,7 @@
 package com.apex.apk.market
 
 import com.apex.agent.integration.api.IntegrationCategory
+import com.apex.agent.integration.market.IntegrationCategory as MarketCategory
 
 import android.content.Context
 import com.apex.agent.integration.api.IntegrationCenter

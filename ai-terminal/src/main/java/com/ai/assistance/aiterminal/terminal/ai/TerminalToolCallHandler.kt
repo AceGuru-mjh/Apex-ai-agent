@@ -1,7 +1,7 @@
 ﻿package com.ai.assistance.aiterminal.terminal.ai
 
 import android.content.Context
-import com.ai.assistance.aiterminal.terminal.data.model.ToolPrompt
+import com.ai.assistance.aiterminal.terminal.model.ToolPrompt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
