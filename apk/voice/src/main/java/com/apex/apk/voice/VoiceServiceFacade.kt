@@ -318,7 +318,6 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
     fun listSessions(): List<VoiceSession> = engine.listSessions()
 
     /** 朗读文本（会话式）。 */
-    suspend fun speak(sessionId: String, text: String): BridgeResult<String> = engine.speak(sessionId, text)
 
     /** 开始监听语音（会话式）。 */
     suspend fun startListening(sessionId: String): BridgeResult<String> = engine.startListening(sessionId)
@@ -356,34 +355,6 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
      * 同步朗读（阻塞直到完成，遗留 API）。
      * 内部启动一个临时会话并复用引擎。
      */
-    suspend fun speak(text: String, language: String = "zh-CN"): BridgeResult<Unit> = bridgeRun {
-        ensureTts(language)
-        val t = tts ?: throw IllegalStateException("TTS not initialized")
-        val locale = parseLocale(language)
-        t.setLanguage(locale)
-
-        suspendCancellableCoroutine<Unit> { cont ->
-            val utteranceId = UUID.randomUUID().toString()
-            val params = Bundle().apply {
-                putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
-                putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, ttsParams.volume)
-            }
-            t.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
-
-            val listener = object : UtteranceProgressListener() {
-                override fun onStart(id: String?) {}
-                override fun onDone(id: String?) {
-                    if (id == utteranceId) cont.resume(Unit)
-                }
-                override fun onError(id: String?) {
-                    if (id == utteranceId) cont.resume(Unit)
-                }
-            }
-            t.setOnUtteranceProgressListener(listener)
-
-            cont.invokeOnCancellation { t.stop() }
-        }
-    }
 
     /** 异步朗读（遗留 API）。 */
     suspend fun speakAsync(text: String, language: String = "zh-CN"): BridgeResult<String> = bridgeRun {
@@ -429,7 +400,7 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
         val sid = startRecognition(language).getOrNull()
             ?: throw IllegalStateException("failed to start recognition")
         val result = kotlinx.coroutines.withTimeoutOrNull(timeoutMs) {
-            kotlinx.coroutines.flow.first(events) { ev ->
+            kotlinx.coroutines.flow.events.first() { ev ->
                 ev is VoiceEvent.FinalTranscript && ev.sessionId == sid
             }
         } ?: throw IllegalStateException("recognition timeout")

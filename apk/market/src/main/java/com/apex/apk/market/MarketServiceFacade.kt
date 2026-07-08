@@ -1,7 +1,7 @@
+@OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 package com.apex.apk.market
 
 import com.apex.agent.integration.api.IntegrationCategory
-import com.apex.agent.integration.market.IntegrationCategory as MarketCategory
 
 import android.content.Context
 import com.apex.agent.integration.api.IntegrationCenter
@@ -10,7 +10,6 @@ import com.apex.agent.integration.installer.InstallExecutor
 import com.apex.agent.integration.installer.InstallProgress
 import com.apex.agent.integration.installed.InstalledItem
 import com.apex.agent.integration.installed.InstalledSnapshot
-import com.apex.agent.integration.market.IntegrationCategory
 import com.apex.agent.integration.market.MarketInfo
 import com.apex.agent.integration.market.MarketItem
 import com.apex.agent.integration.market.MarketSearchFilter
@@ -251,7 +250,7 @@ class MarketServiceFacade(private val context: Context) {
         engine.initialize()
 
         _isInitialized.value = true
-        val stats = center?.marketStats
+        val stats = center?.stats
         ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initialized; markets: $stats; engine wired")
     }
 
@@ -550,8 +549,8 @@ class MarketServiceFacade(private val context: Context) {
         ensureInitialized()
         val overview = center?.getOverview() ?: throw IllegalStateException("overview not available")
         OverviewDto(
-            marketStats = overview.marketStats.mapKeys { it.key.name },
-            totalMarkets = overview.marketStats.values.sum(),
+            stats = overview.stats.mapKeys { it.key.name },
+            totalMarkets = overview.stats.values.sum(),
             installedByCategory = overview.installedByCategory.mapKeys { it.key.name },
             totalInstalled = overview.installedCount,
             updatableCount = overview.updatableCount,
@@ -846,7 +845,7 @@ class MarketServiceFacade(private val context: Context) {
     suspend fun updateAll(): BridgeResult<List<InstallResultDto>> = bridgeRun {
         ensureInitialized()
         val updatable = center?.getUpdatable() ?: emptyList()
-        val items = updatable.map { Triple(it.id, it.category.name, null as String?) }
+        val items = updatable.map { Triple(it.id, it.category.name, "" as String) }
         batchInstall(items)
     }
 
@@ -1132,7 +1131,7 @@ data class ImportResultDto(
 )
 
 data class OverviewDto(
-    val marketStats: Map<String, Int>,
+    val stats: Map<String, Int>,
     val totalMarkets: Int,
     val installedByCategory: Map<String, Int>,
     val totalInstalled: Int,
