@@ -31,7 +31,7 @@ import kotlinx.serialization.json.put
 class LocalSkillInvoker(
     private val installedManager: InstalledManager
 ) {
-    private const val TAG_SUB = "LocalSkillInvoker"
+    private val TAG_SUB = "LocalSkillInvoker"
 
     private val json = Json { ignoreUnknownKeys = true }
 

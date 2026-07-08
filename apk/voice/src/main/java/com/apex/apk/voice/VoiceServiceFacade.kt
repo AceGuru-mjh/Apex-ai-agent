@@ -212,14 +212,6 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
 
     override fun isListening(): Boolean = _isRecognizing.value
 
-    override suspend fun initialize(config: VoiceConfig): BridgeResult<Unit> = bridgeRun {
-        if (!SpeechRecognizer.isRecognitionAvailable(context)) {
-            throw IllegalStateException("speech recognition not available on this device")
-        }
-        if (recognizer == null) {
-            recognizer = SpeechRecognizer.createSpeechRecognizer(context)
-        }
-    }
 
     override suspend fun startListening(request: AsrRequest): BridgeResult<String> = bridgeRun {
         if (_isRecognizing.value) throw IllegalStateException("recognition already in progress")

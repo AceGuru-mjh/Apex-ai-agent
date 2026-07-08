@@ -46,7 +46,7 @@ class VoiceBridgeImpl(
                     "voice/speak" -> {
                         val text = args["text"]?.jsonPrimitive?.content ?: ""
                         val lang = args["language"]?.jsonPrimitive?.content ?: "zh-CN"
-                        buildResult(facade.speak(text, lang)) { JsonObject(emptyMap()) }
+                        buildResult<Unit>(facade.speak(text, lang)) { JsonObject(emptyMap()) }
                     }
                     "voice/speakAsync" -> {
                         val text = args["text"]?.jsonPrimitive?.content ?: ""

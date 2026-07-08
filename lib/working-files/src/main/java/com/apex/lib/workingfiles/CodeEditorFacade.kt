@@ -119,7 +119,7 @@ class CodeEditorFacade(
     ): FileTreeNode {
         val root = File(rootPath)
         if (!root.exists() || !root.isDirectory) {
-            return FileTreeNode(name = root.name, path = root.absolutePath, isDirectory = false, children = emptyList())
+            return FileTreeNode(name = root.name, path = root.absolutePath, relativePath = root.name, isDirectory = false, children = emptyList())
         }
         return buildFileTree(root, root.absolutePath, 0, maxDepth, includeHidden)
     }

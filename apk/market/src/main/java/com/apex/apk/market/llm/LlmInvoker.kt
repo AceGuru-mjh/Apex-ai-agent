@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit
 class LlmInvoker(
     private val installedManager: InstalledManager
 ) {
-    private const val TAG_SUB = "LlmInvoker"
+    private val TAG_SUB = "LlmInvoker"
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
