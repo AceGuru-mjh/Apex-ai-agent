@@ -79,12 +79,12 @@ class MarketBridgeImpl(
                     }
                     "market/uninstall" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.uninstall(itemId)) { JsonPrimitive(it) }
+                        buildResult(facade.uninstall(itemId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/setEnabled" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
                         val enabled = args["enabled"]?.jsonPrimitive?.content?.toBooleanStrictOrNull() ?: true
-                        buildResult(facade.setEnabled(itemId, enabled)) { JsonPrimitive(it) }
+                        buildResult(facade.setEnabled(itemId, enabled)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/import" -> {
                         val sourceType = args["sourceType"]?.jsonPrimitive?.content ?: "LOCAL_FILE"
@@ -108,13 +108,13 @@ class MarketBridgeImpl(
                         val modelName = args["modelName"]?.jsonPrimitive?.content ?: ""
                         val prompt = args["prompt"]?.jsonPrimitive?.content ?: ""
                         val maxTokens = args["maxTokens"]?.jsonPrimitive?.content?.toIntOrNull() ?: 2048
-                        buildResult(facade.invokeModel(provider, modelName, prompt, maxTokens)) { JsonPrimitive(it) }
+                        buildResult(facade.invokeModel(provider, modelName, prompt, maxTokens)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/invokeLocalSkill" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
                         val m = args["method"]?.jsonPrimitive?.content ?: ""
                         val aJson = args["argsJson"]?.jsonPrimitive?.content ?: "{}"
-                        buildResult(facade.invokeLocalSkill(itemId, m, aJson)) { JsonPrimitive(it) }
+                        buildResult(facade.invokeLocalSkill(itemId, m, aJson)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/getOverview" -> {
                         buildResult(facade.getOverview()) { o ->
@@ -186,7 +186,7 @@ class MarketBridgeImpl(
                         val maxTokens = args["maxTokens"]?.jsonPrimitive?.content?.toIntOrNull() ?: 2048
                         val systemPrompt = args["systemPrompt"]?.jsonPrimitive?.content
                         val temperature = args["temperature"]?.jsonPrimitive?.content?.toFloatOrNull() ?: 0.7f
-                        buildResult(facade.invokeModel(provider, modelName, prompt, maxTokens, systemPrompt, temperature)) { JsonPrimitive(it) }
+                        buildResult(facade.invokeModel(provider, modelName, prompt, maxTokens, systemPrompt, temperature)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/listAvailableProviders" -> {
                         buildResult(facade.listAvailableProviders()) { list ->
@@ -200,7 +200,7 @@ class MarketBridgeImpl(
                     }
                     "market/isProviderAvailable" -> {
                         val provider = args["provider"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.isProviderAvailable(provider)) { JsonPrimitive(it) }
+                        buildResult(facade.isProviderAvailable(provider)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
 
                     // ===== Apex 独有增强：本地技能调用 =====
@@ -208,7 +208,7 @@ class MarketBridgeImpl(
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
                         val m = args["method"]?.jsonPrimitive?.content ?: ""
                         val aJson = args["argsJson"]?.jsonPrimitive?.content ?: "{}"
-                        buildResult(facade.invokeLocalSkill(itemId, m, aJson)) { JsonPrimitive(it) }
+                        buildResult(facade.invokeLocalSkill(itemId, m, aJson)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/listLocalSkillMethods" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
@@ -247,17 +247,17 @@ class MarketBridgeImpl(
                         val marketId = args["marketId"]?.jsonPrimitive?.content ?: ""
                         val version = args["version"]?.jsonPrimitive?.content ?: ""
                         val note = args["note"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.addFavorite(itemId, cat, name, desc, marketId, version, note)) { JsonPrimitive(it) }
+                        buildResult(facade.addFavorite(itemId, cat, name, desc, marketId, version, note)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/removeFavorite" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.removeFavorite(itemId)) { JsonPrimitive(it) }
+                        buildResult(facade.removeFavorite(itemId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/toggleFavorite" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
                         val cat = args["category"]?.jsonPrimitive?.content ?: "SKILLS"
                         val name = args["name"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.toggleFavorite(itemId, cat, name)) { JsonPrimitive(it) }
+                        buildResult(facade.toggleFavorite(itemId, cat, name)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/isFavorite" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
@@ -281,10 +281,10 @@ class MarketBridgeImpl(
                     "market/updateFavoriteNote" -> {
                         val itemId = args["itemId"]?.jsonPrimitive?.content ?: ""
                         val note = args["note"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.updateFavoriteNote(itemId, note)) { JsonPrimitive(it) }
+                        buildResult(facade.updateFavoriteNote(itemId, note)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/clearFavorites" -> {
-                        buildResult(facade.clearFavorites()) { JsonPrimitive(it) }
+                        buildResult(facade.clearFavorites()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/favoritesCount" -> {
                         buildJsonObject { put("success", true); put("count", facade.favoritesCount()) }.toString()
@@ -363,13 +363,13 @@ class MarketBridgeImpl(
                     // ===== Apex 独有增强：缓存管理 =====
                     "market/clearCacheForMarket" -> {
                         val marketId = args["marketId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.clearCacheForMarket(marketId)) { JsonPrimitive(it) }
+                        buildResult(facade.clearCacheForMarket(marketId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/clearAllCache" -> {
-                        buildResult(facade.clearAllCache()) { JsonPrimitive(it) }
+                        buildResult(facade.clearAllCache()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/cleanExpiredCache" -> {
-                        buildResult(facade.cleanExpiredCache()) { JsonPrimitive(it) }
+                        buildResult(facade.cleanExpiredCache()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/getCacheStats" -> {
                         val s = facade.getCacheStats()
@@ -426,10 +426,10 @@ class MarketBridgeImpl(
                     }
                     "market/refreshMarket" -> {
                         val marketId = args["marketId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.refreshMarket(marketId)) { JsonPrimitive(it) }
+                        buildResult(facade.refreshMarket(marketId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/diagnose" -> {
-                        buildResult(facade.diagnose()) { JsonPrimitive(it) }
+                        buildResult(facade.diagnose()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
 
                     // ===== lib:market 引擎：目录元数据 + 安装任务状态（走 lib 引擎而非旧 IntegrationCenter 路径） =====
@@ -526,7 +526,7 @@ class MarketBridgeImpl(
                     }
                     "market/cancelInstallTask" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.getEngine().cancelInstall(taskId)) { JsonPrimitive(it) }
+                        buildResult(facade.getEngine().cancelInstall(taskId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "market/searchViaEngine" -> {
                         val cat = args["category"]?.jsonPrimitive?.content ?: "SKILLS"
