@@ -57,12 +57,12 @@ class MultiAgentEngine {
 
     suspend fun executeSession(sessionId: String): SessionResult {
         val session = sessions[sessionId] ?: throw IllegalStateException("session not found: $sessionId")
-        session.execute()
+        return session.execute()
     }
 
     suspend fun run(config: CollaborationConfig): SessionResult {
         val sessionId = startSession(config).getOrNull() ?: throw IllegalStateException("failed to start session")
-        executeSession(sessionId)
+        return executeSession(sessionId)
     }
 
     fun cancelSession(sessionId: String): Boolean {

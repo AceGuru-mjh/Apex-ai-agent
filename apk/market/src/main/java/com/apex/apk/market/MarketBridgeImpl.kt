@@ -1,5 +1,6 @@
-import kotlinx.serialization.json.jsonPrimitive
 package com.apex.apk.market
+
+import kotlinx.serialization.json.jsonPrimitive
 
 import com.apex.lib.market.MarketCatalog
 import com.apex.lib.market.MarketCategory
