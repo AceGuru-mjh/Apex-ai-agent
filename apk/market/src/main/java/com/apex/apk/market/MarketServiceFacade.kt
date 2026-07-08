@@ -249,7 +249,7 @@ class MarketServiceFacade(private val context: Context) {
         engine.initialize()
 
         _isInitialized.value = true
-        val stats = center?.marketStats
+        val stats: String = center?.let { "ok" } ?: "none"
         ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initialized; markets: $stats; engine wired")
     }
 

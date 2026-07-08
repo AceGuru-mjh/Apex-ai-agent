@@ -44,7 +44,7 @@ data class VirtualBranch(
     var headSnapshotId: String,
     val createdAt: Long,
     var updatedAt: Long,
-    val status: BranchStatus = BranchStatus.ACTIVE,
+    var status: BranchStatus = BranchStatus.ACTIVE,
     val description: String = "",
     val agentId: String? = null,
     val color: String = "#007ACC"

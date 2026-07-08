@@ -148,8 +148,8 @@ object DiffComputer {
                 i++
             }
 
-            val oldEnd = diffLines.filter { it.oldLineNumber != null }.maxOrNull()?.oldLineNumber ?: oldStart
-            val newEnd = diffLines.filter { it.newLineNumber != null }.maxOrNull()?.newLineNumber ?: newStart
+            val oldEnd = diffLines.filter { it.oldLineNumber != null }.maxOfOrNull { it.oldLineNumber ?: 0 } ?: oldStart
+            val newEnd = diffLines.filter { it.newLineNumber != null }.maxOfOrNull { it.newLineNumber ?: 0 } ?: newStart
             hunks.add(DiffHunk(oldStart, oldEnd, newStart, newEnd, diffLines))
         }
 
