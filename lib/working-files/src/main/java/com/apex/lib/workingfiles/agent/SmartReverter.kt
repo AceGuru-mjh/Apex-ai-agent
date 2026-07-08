@@ -92,7 +92,7 @@ class SmartReverter(
             filesToRevert = fileTargets,
             filesToKeep = filesToKeep,
             impactedLaterSteps = impactedSteps.map { it.id },
-            warnings = buildWarnings(filesToRevert, filesToKeep, impactedSteps)
+            warnings = buildWarnings(filesToRevert.map { FileRevertTarget(filePath = it, targetSnapshotId = "", targetTimestamp = 0L) }, filesToKeep, impactedSteps)
         )
     }
 

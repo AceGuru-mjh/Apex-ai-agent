@@ -37,23 +37,23 @@ object DiffComputer {
         newContent: String,
         contextLines: Int = DEFAULT_CONTEXT_LINES
     ): FileDiff {
-        val oldLines = oldContent.split("\n")
-        val newLines = newContent.split("\n")
+        val oldLineNumbers = oldContent.split("\n")
+        val newLineNumbers = newContent.split("\n")
 
         // 用 Myers 算法计算 patch
-        val patch = DiffUtils.diff(oldLines, newLines)
+        val patch = DiffUtils.diff(oldLineNumbers, newLineNumbers)
 
         // 生成 unified diff
         val unifiedDiff = UnifiedDiffUtils.generateUnifiedDiff(
             "old", "new",
-            oldLines, patch, contextLines
+            oldLineNumbers, patch, contextLines
         )
 
         // 解析 unified diff → 自定义结构
-        val hunks = parseUnifiedDiff(unifiedDiff, oldLines, newLines)
+        val hunks = parseUnifiedDiff(unifiedDiff, oldLineNumbers, newLineNumbers)
 
         // 计算统计
-        val summary = computeSummary(oldLines, newLines, hunks)
+        val summary = computeSummary(oldLineNumbers, newLineNumbers, hunks)
 
         return FileDiff(
             oldFilePath = "old",
@@ -70,8 +70,8 @@ object DiffComputer {
      */
     private fun parseUnifiedDiff(
         unifiedDiff: List<String>,
-        oldLines: List<String>,
-        newLines: List<String>
+        oldLineNumbers: List<String>,
+        newLineNumbers: List<String>
     ): List<DiffHunk> {
         if (unifiedDiff.size <= 2) return emptyList()
 
@@ -103,8 +103,8 @@ object DiffComputer {
 
             i++
             val diffLines = mutableListOf<DiffLine>()
-            var oldLineNum = oldStart
-            var newLineNum = newStart
+            var oldLineNumberNum = oldStart
+            var newLineNumberNum = newStart
 
             while (i < unifiedDiff.size && !unifiedDiff[i].startsWith("@@")) {
                 val diffLine = unifiedDiff[i]
@@ -116,40 +116,40 @@ object DiffComputer {
                         diffLines.add(DiffLine(
                             type = DiffLineType.ADDED,
                             content = diffLine.substring(1),
-                            oldLine = null,
-                            newLine = newLineNum++
+                            oldLineNumber = null,
+                            newLineNumber = newLineNumberNum++
                         ))
                     }
                     diffLine.startsWith("-") -> {
                         diffLines.add(DiffLine(
                             type = DiffLineType.REMOVED,
                             content = diffLine.substring(1),
-                            oldLine = oldLineNum++,
-                            newLine = null
+                            oldLineNumber = oldLineNumberNum++,
+                            newLineNumber = null
                         ))
                     }
                     diffLine.startsWith(" ") -> {
                         diffLines.add(DiffLine(
                             type = DiffLineType.CONTEXT,
                             content = diffLine.substring(1),
-                            oldLine = oldLineNum++,
-                            newLine = newLineNum++
+                            oldLineNumber = oldLineNumberNum++,
+                            newLineNumber = newLineNumberNum++
                         ))
                     }
                     diffLine.isEmpty() -> {
                         diffLines.add(DiffLine(
                             type = DiffLineType.CONTEXT,
                             content = "",
-                            oldLine = oldLineNum++,
-                            newLine = newLineNum++
+                            oldLineNumber = oldLineNumberNum++,
+                            newLineNumber = newLineNumberNum++
                         ))
                     }
                 }
                 i++
             }
 
-            val oldEnd = diffLines.filter { it.oldLine != null }.maxOrNull()?.oldLine ?: oldStart
-            val newEnd = diffLines.filter { it.newLine != null }.maxOrNull()?.newLine ?: newStart
+            val oldEnd = diffLines.filter { it.oldLineNumber != null }.maxOrNull()?.oldLineNumber ?: oldStart
+            val newEnd = diffLines.filter { it.newLineNumber != null }.maxOrNull()?.newLineNumber ?: newStart
             hunks.add(DiffHunk(oldStart, oldEnd, newStart, newEnd, diffLines))
         }
 
@@ -160,8 +160,8 @@ object DiffComputer {
      * 计算 diff 统计。
      */
     private fun computeSummary(
-        oldLines: List<String>,
-        newLines: List<String>,
+        oldLineNumbers: List<String>,
+        newLineNumbers: List<String>,
         hunks: List<DiffHunk>
     ): DiffSummary {
         var added = 0
@@ -177,14 +177,14 @@ object DiffComputer {
             modified += minOf(hunkAdded, hunkRemoved)
         }
 
-        val unchanged = oldLines.size - removed
+        val unchanged = oldLineNumbers.size - removed
         return DiffSummary(
             addedLines = added,
             removedLines = removed,
             modifiedLines = modified,
             unchangedLines = if (unchanged < 0) 0 else unchanged,
-            totalOldLines = oldLines.size,
-            totalNewLines = newLines.size
+            totalOldLines = oldLineNumbers.size,
+            totalNewLines = newLineNumbers.size
         )
     }
 

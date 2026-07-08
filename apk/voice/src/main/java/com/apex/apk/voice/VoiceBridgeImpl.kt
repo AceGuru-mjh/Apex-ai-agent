@@ -47,7 +47,7 @@ class VoiceBridgeImpl(
                         val text = args["text"]?.jsonPrimitive?.content ?: ""
                         val lang = args["language"]?.jsonPrimitive?.content ?: "zh-CN"
                         val ttsReq = com.apex.lib.voice.TtsRequest(text = text, language = lang)
-                        val speakResult = facade.speak(ttsReq)
+                        val speakResult = facade.speak(sessionId = "", request = ttsReq)
                         buildResult<Unit>(speakResult) { JsonObject(emptyMap()) }
                     }
                     "voice/speakAsync" -> {

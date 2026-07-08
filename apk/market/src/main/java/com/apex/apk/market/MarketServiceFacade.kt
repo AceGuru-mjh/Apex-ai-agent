@@ -250,7 +250,7 @@ class MarketServiceFacade(private val context: Context) {
 
         _isInitialized.value = true
         val stats = center?.marketStats
-        ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initialized; markets: $marketStats; engine wired")
+        ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initialized; markets: $stats; engine wired")
     }
 
     /**
@@ -803,9 +803,9 @@ class MarketServiceFacade(private val context: Context) {
             val cat = parseCategory(category)
             val item = findItem(itemId, cat) ?: run {
                 results.add(InstallResultDto(false, itemId, null, null, "item not found"))
-                return@bridgeRun BridgeResult.Success(results)
+                return@bridgeRun results
             }
-            val executor = center?.installExecutor ?: return@bridgeRun BridgeResult.Success(results)
+            val executor = center?.installExecutor ?: return@bridgeRun results
             val r = executor.install(item, targetPath)
             results.add(InstallResultDto(
                 success = r.success, itemId = r.itemId,

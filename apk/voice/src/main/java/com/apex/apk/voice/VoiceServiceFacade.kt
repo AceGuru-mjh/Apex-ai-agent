@@ -400,7 +400,7 @@ class VoiceServiceFacade(private val context: Context) : TtsGateway, AsrGateway 
         val sid = startRecognition(language).getOrNull()
             ?: throw IllegalStateException("failed to start recognition")
         val result = kotlinx.coroutines.withTimeoutOrNull(timeoutMs) {
-            kotlinx.coroutines.flow.events.first() { ev ->
+            events.first() { ev ->
                 ev is VoiceEvent.FinalTranscript && ev.sessionId == sid
             }
         } ?: throw IllegalStateException("recognition timeout")
