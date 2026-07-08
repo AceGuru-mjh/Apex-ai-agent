@@ -382,6 +382,42 @@ class HotUpdateManager private constructor(
     }
 
     /**
+     * 重新打开已下载 APK 的系统安装界面。
+     *
+     * 用于：下载完成后用户误关闭了系统安装界面，对话框中点击"重新打开安装"。
+     * 若缓存中确实存在上次下载的 APK 文件，则直接调起安装；否则提示用户重新下载。
+     */
+    fun retryInstall() {
+        val cacheDir = File(context.cacheDir, "hotupdate")
+        val candidates = cacheDir.listFiles { f -> f.name.endsWith(".apk", ignoreCase = true) }
+            ?.sortedByDescending { it.lastModified() }
+            ?: emptyList()
+        val apk = candidates.firstOrNull()
+        if (apk == null) {
+            _state.value = UpdateState.Failed("未找到已下载的 APK，请重新下载")
+            return
+        }
+        try {
+            triggerInstall(apk)
+            AppLogger.i(TAG, "重新打开安装界面：${apk.name}")
+        } catch (t: Throwable) {
+            _state.value = UpdateState.Failed("打开安装界面失败：${t.message}")
+        }
+    }
+
+    /**
+     * 清理已下载的 APK 缓存（递归删除 hotupdate 目录下所有文件与子目录）。
+     * 用于：用户忽略版本、或下载失败后清理残留文件。
+     */
+    fun clearDownloadCache() {
+        val cacheDir = File(context.cacheDir, "hotupdate")
+        if (cacheDir.exists()) {
+            cacheDir.walkBottomUp().forEach { it.delete() }
+        }
+        AppLogger.i(TAG, "已清理下载缓存")
+    }
+
+    /**
      * 测试某个镜像的连通性。
      */
     suspend fun testMirror(mirror: MirrorSource): MirrorTestResult = withContext(Dispatchers.IO) {

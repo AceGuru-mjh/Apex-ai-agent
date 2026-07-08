@@ -6,8 +6,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudDownload
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.NewReleases
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,7 +34,9 @@ fun UpdateDialog(
     onCheck: () -> Unit,
     onDownload: () -> Unit,
     onCancel: () -> Unit,
-    onIgnore: (String) -> Unit
+    onIgnore: (String) -> Unit,
+    onRetryInstall: () -> Unit = {},
+    onRetryDownload: () -> Unit = {}
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -65,17 +67,33 @@ fun UpdateDialog(
                 is UpdateState.UpdateAvailable -> UpdateAvailableBody(state)
                 is UpdateState.Downloading -> DownloadingBody(state.progress)
                 UpdateState.Downloaded -> {
-                    Text(
-                        "下载完成，请在弹出的系统安装界面完成更新。",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Column(Modifier.fillMaxWidth()) {
+                        Text(
+                            "下载完成，请在弹出的系统安装界面完成更新。",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "若安装界面被关闭，可点击下方按钮重新打开。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 is UpdateState.Failed -> {
-                    Text(
-                        "更新失败：${state.message}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    Column(Modifier.fillMaxWidth()) {
+                        Text(
+                            "更新失败：${state.message}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "可点击下方按钮重试，或前往镜像管理测试连通性。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         },
@@ -97,8 +115,27 @@ fun UpdateDialog(
                 is UpdateState.Downloading -> {
                     OutlinedButton(onClick = onCancel) { Text("取消下载") }
                 }
-                UpdateState.Downloaded, is UpdateState.Failed -> {
-                    Button(onClick = onDismiss) { Text("关闭") }
+                UpdateState.Downloaded -> {
+                    Row {
+                        TextButton(onClick = onDismiss) { Text("关闭") }
+                        Spacer(Modifier.width(8.dp))
+                        Button(onClick = onRetryInstall) {
+                            Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("重新打开安装")
+                        }
+                    }
+                }
+                is UpdateState.Failed -> {
+                    Row {
+                        TextButton(onClick = onDismiss) { Text("关闭") }
+                        Spacer(Modifier.width(8.dp))
+                        Button(onClick = onRetryDownload) {
+                            Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("重试下载")
+                        }
+                    }
                 }
                 UpdateState.Idle, UpdateState.Checking -> {
                     OutlinedButton(onClick = onDismiss) { Text("取消") }

@@ -445,6 +445,13 @@
             android:exported="false"
             android:foregroundServiceType="dataSync|microphone|specialUse" />
 
+        <!-- 热更新下载前台服务 - 用户点击"立即更新"后启动，App 被杀也能继续下载 -->
+        <service
+            android:name="com.apex.agent.update.UpdateDownloadService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
         <!-- 后台常驻服务 - 永久后台运行 -->
         <service
             android:name="com.apex.agent.services.PermanentBackgroundService"

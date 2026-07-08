@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hot Update / Self-update -->
+    <string name="hot_update_title">Software Update</string>
+    <string name="hot_update_check">Check for updates</string>
+    <string name="hot_update_checking">Checking GitHub Releases…</string>
+    <string name="hot_update_available">New version %1$s available</string>
+    <string name="hot_update_up_to_date">You are on the latest version</string>
+    <string name="hot_update_download_now">Update now</string>
+    <string name="hot_update_later">Later</string>
+    <string name="hot_update_skip_version">Skip this version</string>
+    <string name="hot_update_download_progress">Downloading %1$d%%</string>
+    <string name="hot_update_download_complete">Download complete. Please finish the update in the system installer.</string>
+    <string name="hot_update_cancel">Cancel download</string>
+    <string name="hot_update_mirror_manage">Mirror sources</string>
+    <string name="hot_update_mirror_builtin">Built-in</string>
+    <string name="hot_update_mirror_test">Test</string>
+    <string name="hot_update_mirror_add">Add custom mirror</string>
+    <string name="hot_update_auto_check">Auto-check on startup</string>
+    <string name="hot_update_include_prerelease">Include pre-releases</string>
+    <string name="hot_update_wifi_only">Download on Wi-Fi only</string>
+</resources>

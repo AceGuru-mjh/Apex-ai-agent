@@ -13,10 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.apex.agent.update.HotUpdateManager
+import com.apex.agent.update.UpdateState
 import com.apex.agent.ui.screens.chat.ChatSession
 import com.apex.agent.ui.screens.chat.ChatSessionManager
 import kotlinx.coroutines.launch
@@ -40,6 +43,11 @@ fun ApexMainScaffold() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentTab by remember { mutableStateOf(ApexTab.CHAT) }
+
+    // 热更新状态：用于在"设置"导航项上显示红点 Badge
+    val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
+    val updateState by hotUpdateManager.state.collectAsState()
+    val hasUpdate = updateState is UpdateState.UpdateAvailable
 
     // 会话管理
     val sessionManager = remember { ChatSessionManager(context) }
@@ -156,7 +164,16 @@ fun ApexMainScaffold() {
                     NavigationDrawerItem(
                         label = { Text(tab.label) },
                         selected = currentTab == tab,
-                        icon = { Icon(tab.icon, tab.description) },
+                        icon = {
+                            if (tab == ApexTab.SETTINGS && hasUpdate) {
+                                // 发现新版本时，在设置图标右上角加红点 Badge
+                                BadgedBox(badge = { Badge() }) {
+                                    Icon(tab.icon, tab.description)
+                                }
+                            } else {
+                                Icon(tab.icon, tab.description)
+                            }
+                        },
                         onClick = { currentTab = tab; scope.launch { drawerState.close() } },
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
                         shape = RoundedCornerShape(16.dp)

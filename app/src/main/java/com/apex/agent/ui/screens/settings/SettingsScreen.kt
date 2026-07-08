@@ -177,12 +177,13 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
             state = updateState,
             onDismiss = { showUpdateDialog = false },
             onCheck = {
-                scope.launch { hotUpdateManager.checkForUpdate(force = true) }
+                scope.launch { hotUpdateManager.checkForUpdate(force = true, notifyOnAvailable = false) }
             },
             onDownload = {
                 val s = updateState
                 if (s is UpdateState.UpdateAvailable && s.release != null && s.asset != null) {
-                    hotUpdateManager.startDownload()
+                    // 启动前台服务下载，App 被杀也能继续
+                    com.apex.agent.update.UpdateDownloadService.start(context)
                 } else {
                     hotUpdateManager.notifyFailed("当前无可下载的更新，请先检查")
                 }
@@ -191,6 +192,20 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
             onIgnore = { v ->
                 scope.launch { hotUpdateManager.ignoreVersion(v) }
                 showUpdateDialog = false
+            },
+            onRetryInstall = { hotUpdateManager.retryInstall() },
+            onRetryDownload = {
+                // 重新触发：恢复到 UpdateAvailable 状态后启动前台服务
+                scope.launch {
+                    val result = hotUpdateManager.checkForUpdate(force = true, notifyOnAvailable = false)
+                    if (result is com.apex.agent.update.CheckResult.UpdateAvailable) {
+                        com.apex.agent.update.UpdateDownloadService.start(context)
+                    } else {
+                        hotUpdateManager.notifyFailed(
+                            "无法重试：${(result as? com.apex.agent.update.CheckResult.Failed)?.reason ?: "检查失败"}"
+                        )
+                    }
+                }
             }
         )
     }
