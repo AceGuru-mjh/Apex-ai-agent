@@ -19,6 +19,7 @@ import com.apex.data.model.PreferenceProfile
 import com.apex.data.repository.MemoryRepository
 import com.apex.util.AppLogger
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.io.FileNotFoundException
@@ -137,7 +138,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                     if (targetParent is DocRef.Directory) {
                         requireDirectoryExists(repo, targetParent.path)
                     }
-                    val memory = runBlocking { repo.findMemoryByUuid(source.uuid) }
+                    val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(source.uuid) }
                         ?: throw FileNotFoundException("Memory not found: ${source.uuid}")
 
                     val newFolderPath: String? = when (targetParent) {
@@ -147,7 +148,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                         is DocRef.Root -> throw IllegalArgumentException("Cannot move into root")
                     }
 
-                    runBlocking {
+                    runBlocking(Dispatchers.IO) {
                         repo.updateMemory(
                             memory = memory,
                             newTitle = memory.title,
@@ -203,7 +204,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                         throw IllegalStateException("Target folder already exists: ${newPath}")
                     }
 
-                    val ok = runBlocking { repo.renameFolder(source.path, newPath) }
+                    val ok = runBlocking(Dispatchers.IO) { repo.renameFolder(source.path, newPath) }
                     if (!ok) {
                         throw IllegalStateException("Failed to move folder: ${source.path} -> ${newPath}")
                     }
@@ -260,9 +261,9 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
         when (val parent = parseDocumentId(parentDocumentId)) {
             is DocRef.Root -> {
-                val profileIds = runBlocking { prefs.profileListFlow.first() }
+                val profileIds = runBlocking(Dispatchers.IO) { prefs.profileListFlow.first() }
                 profileIds.forEach { profileId ->
-                    val profile = runBlocking { prefs.getUserPreferencesFlow(profileId).first() }
+                    val profile = runBlocking(Dispatchers.IO) { prefs.getUserPreferencesFlow(profileId).first() }
                     includeProfile(result, profile)
                 }
             }
@@ -344,7 +345,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
         val wantsWrite = mode.contains('w') || mode.contains('W')
         return if (!wantsWrite) {
-            val jsonString = runBlocking {
+            val jsonString = runBlocking(Dispatchers.IO) {
                 val memory = repo.findMemoryByUuid(ref.uuid)
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
                 buildMemoryJson(memory)
@@ -361,7 +362,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 }
             }
         } else {
-            val jsonString = runBlocking {
+            val jsonString = runBlocking(Dispatchers.IO) {
                 val memory = repo.findMemoryByUuid(ref.uuid)
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
                 buildMemoryJson(memory)
@@ -433,7 +434,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 is DocRef.Root -> throw IllegalArgumentException("Cannot create profiles from provider")
             }
 
-            val ok = runBlocking { repo.createFolder(newFolderPath) }
+            val ok = runBlocking(Dispatchers.IO) { repo.createFolder(newFolderPath) }
             if (!ok) {
                 throw IllegalStateException("Failed to create folder: ${newFolderPath}")
             }
@@ -456,7 +457,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 folderPath = folderPathForMemory
             )
 
-            runBlocking {
+            runBlocking(Dispatchers.IO) {
                 repo.saveMemory(memory)
             }
 
@@ -471,9 +472,9 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             is DocRef.Profile -> throw IllegalArgumentException("Cannot delete profile from provider")
             is DocRef.Memory -> {
                 val repo = getRepository(ref.profileId)
-                val memory = runBlocking { repo.findMemoryByUuid(ref.uuid) }
+                val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
-                val ok = runBlocking { repo.deleteMemory(memory.id) }
+                val ok = runBlocking(Dispatchers.IO) { repo.deleteMemory(memory.id) }
                 if (!ok) {
                     throw IllegalStateException("Failed to delete memory: ${ref.uuid}")
                 }
@@ -483,7 +484,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 requireDirectoryExists(repo, ref.path)
                 val memories = loadMemoriesInFolderTree(repo, ref.path)
                 val uuids = memories.map { it.uuid }.toSet()
-                val ok = runBlocking { repo.deleteMemoriesByUuids(uuids) }
+                val ok = runBlocking(Dispatchers.IO) { repo.deleteMemoriesByUuids(uuids) }
                 if (!ok) {
                     throw IllegalStateException("Failed to delete folder and its contents: ${ref.path}")
                 }
@@ -510,8 +511,8 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
             is DocRef.Profile -> {
                 requireProfileExists(ref.profileId)
-                val profile = runBlocking { prefs.getUserPreferencesFlow(ref.profileId).first() }
-                runBlocking {
+                val profile = runBlocking(Dispatchers.IO) { prefs.getUserPreferencesFlow(ref.profileId).first() }
+                runBlocking(Dispatchers.IO) {
                     prefs.updateProfile(profile.copy(name = cleanName))
                 }
                 buildProfileDocumentId(ref.profileId)
@@ -530,7 +531,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 if (conflict) {
                     throw IllegalStateException("Target folder already exists: ${newPath}")
                 }
-                val ok = runBlocking { repo.renameFolder(ref.path, newPath) }
+                val ok = runBlocking(Dispatchers.IO) { repo.renameFolder(ref.path, newPath) }
                 if (!ok) {
                     throw IllegalStateException("Failed to rename folder: ${ref.path} -> ${newPath}")
                 }
@@ -539,12 +540,12 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
             is DocRef.Memory -> {
                 val repo = getRepository(ref.profileId)
-                val memory = runBlocking { repo.findMemoryByUuid(ref.uuid) }
+                val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
 
                 val newTitle = decodeRequestedTitle(memory, cleanName)
 
-                runBlocking {
+                runBlocking(Dispatchers.IO) {
                     repo.updateMemory(
                         memory = memory,
                         newTitle = newTitle,
@@ -610,7 +611,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
                     is DocRef.Memory -> {
                         if (child.profileId != parent.profileId) return false
-                        val memory = runBlocking { repo.findMemoryByUuid(child.uuid) } ?: return false
+                        val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(child.uuid) } ?: return false
                         val fp = MemoryRepository.normalizeFolderPath(memory.folderPath)
                         fp == parent.path || (fp != null && fp.startsWith(parent.path + "/"))
                     }
@@ -638,7 +639,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             is DocRef.Profile -> {
                 requireProfileExists(ref.profileId)
                 val prefs = UserPreferencesManager.getInstance(context ?: throw IllegalStateException("Context is null"))
-                val profile = runBlocking { prefs.getUserPreferencesFlow(ref.profileId).first() }
+                val profile = runBlocking(Dispatchers.IO) { prefs.getUserPreferencesFlow(ref.profileId).first() }
                 val displayName = getProfileDisplayName(profile)
 
                 val row = result.newRow()
@@ -673,7 +674,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
             is DocRef.Memory -> {
                 val repo = getRepository(ref.profileId)
-                val memory = runBlocking { repo.findMemoryByUuid(ref.uuid) }
+                val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
 
                 val displayName = buildMemoryDisplayName(memory.title, memory.uuid)
@@ -764,7 +765,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
     }
 
     private fun applyWrittenContentToMemory(repo: MemoryRepository, uuid: String, writtenText: String) {
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             val memory = repo.findMemoryByUuid(uuid) ?: return@runBlocking
             try {
                 val json = JSONObject(writtenText)
@@ -931,10 +932,10 @@ class MemoryDocumentsProvider : DocumentsProvider() {
         return when (parent) {
             is DocRef.Root -> {
                 val prefs = UserPreferencesManager.getInstance(requireProviderContext())
-                val profileIds = runBlocking { prefs.profileListFlow.first() }
+                val profileIds = runBlocking(Dispatchers.IO) { prefs.profileListFlow.first() }
                 val profile = profileIds
                     .asSequence()
-                    .map { profileId -> runBlocking { prefs.getUserPreferencesFlow(profileId).first() } }
+                    .map { profileId -> runBlocking(Dispatchers.IO) { prefs.getUserPreferencesFlow(profileId).first() } }
                     .firstOrNull { getProfileDisplayName(it) == displayName }
                     ?: throw FileNotFoundException("Synthetic child not found: ${originalDocumentId}")
                 DocRef.Profile(profile.id)
@@ -1042,14 +1043,14 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             }
             is DocRef.Memory -> {
                 val repo = getRepository(ref.profileId)
-                runBlocking { repo.findMemoryByUuid(ref.uuid) } != null
+                runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) } != null
             }
         }
     }
 
     private fun profileExists(profileId: String): Boolean {
         val prefs = UserPreferencesManager.getInstance(requireProviderContext())
-        return runBlocking { prefs.profileListFlow.first() }.contains(profileId)
+        return runBlocking(Dispatchers.IO) { prefs.profileListFlow.first() }.contains(profileId)
     }
 
     private fun requireProfileExists(profileId: String) {
@@ -1059,7 +1060,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
     }
 
     private fun loadAllMemories(repo: MemoryRepository): List<Memory> {
-        return runBlocking {
+        return runBlocking(Dispatchers.IO) {
             repo.searchMemories(query = "*", folderPath = null)
         }
     }
