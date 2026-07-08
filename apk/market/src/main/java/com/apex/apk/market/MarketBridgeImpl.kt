@@ -386,9 +386,9 @@ class MarketBridgeImpl(
                         val itemsStr = args["items"]?.jsonPrimitive?.content ?: ""
                         val items = itemsStr.split(";").filter { it.isNotBlank() }.map { entry ->
                             val parts = entry.split(",")
-                            Triple(parts.getOrNull(0) ?: "", parts.getOrNull(1) ?: "SKILLS", parts.getOrNull(2))
+                            Triple(parts.getOrNull(0) ?: "", parts.getOrNull(1) ?: "SKILLS", parts.getOrNull(2) ?: "")
                         }
-                        buildResult(facade.batchInstall(items)) { list ->
+                        buildResult(facade.batchInstall(items).getOrNull() ?: emptyList()) { list ->
                             buildJsonObject {
                                 put("count", list.size)
                                 put("successCount", list.count { it.success })

@@ -1,4 +1,5 @@
-@OptIn(kotlin.experimental.ExperimentalTypeInference::class)
+@file:OptIn(kotlin.experimental.ExperimentalTypeInference::class)
+
 package com.apex.apk.market
 
 import com.apex.agent.integration.api.IntegrationCategory
@@ -24,11 +25,11 @@ import com.apex.apk.market.favorites.Favorites
 import com.apex.apk.market.llm.LlmInvoker
 import com.apex.apk.market.llm.ProviderAvailability
 import com.apex.apk.market.skill.LocalSkillInvoker
-import com.apex.apk.market.stats.ItemStats
-import com.apex.apk.market.stats.TotalStats
-import com.apex.apk.market.stats.UsageEvent
-import com.apex.apk.market.stats.UsageEventType
-import com.apex.apk.market.stats.UsageStats
+import com.apex.apk.market.marketStats.ItemStats
+import com.apex.apk.market.marketStats.TotalStats
+import com.apex.apk.market.marketStats.UsageEvent
+import com.apex.apk.market.marketStats.UsageEventType
+import com.apex.apk.market.marketStats.UsageStats
 import com.apex.sdk.bridge.TypedServiceRegistry
 import com.apex.sdk.common.ApexLog
 import com.apex.sdk.common.ApexSuite
@@ -75,6 +76,8 @@ import kotlinx.coroutines.flow.SharedFlow
  *   6. 调用本地技能 / 插件 / MCP（已安装后零延迟直调）
  *   7. 集成 GitHub 等平台（任意 APK 可用）
  */
+@file:OptIn(kotlin.experimental.ExperimentalTypeInference::class)
+
 class MarketServiceFacade(private val context: Context) {
 
     private val TAG_SUB = "MarketFacade"
@@ -92,7 +95,7 @@ class MarketServiceFacade(private val context: Context) {
     /** 收藏夹 */
     private val favorites: Favorites = Favorites(File(context.filesDir, "apex-market-favorites"))
     /** 使用统计 */
-    private val usageStats: UsageStats = UsageStats(File(context.filesDir, "apex-market-stats"))
+    private val usageStats: UsageStats = UsageStats(File(context.filesDir, "apex-market-marketStats"))
 
     // ===== lib:market 引擎（持有并委托） =====
     /**
@@ -144,7 +147,7 @@ class MarketServiceFacade(private val context: Context) {
                     IntegrationCategory.MODEL_PLATFORMS -> c.modelPlatformModule?.searchInMarket(marketId, filter)
                     else -> null
                 }
-            } ?: MarketSearchResult(emptyList())
+            } ?: MarketSearchResult(emptyList(), 0)
             result.items.map { it.toLibItem() }
         }
         engine.installer = object : Installer {
@@ -250,8 +253,8 @@ class MarketServiceFacade(private val context: Context) {
         engine.initialize()
 
         _isInitialized.value = true
-        val stats = center?.stats
-        ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initialized; markets: $stats; engine wired")
+        val marketStats = center?.marketStats
+        ApexLog.i(ApexSuite.ApkId.MARKET, "[$TAG_SUB] initialized; markets: $marketStats; engine wired")
     }
 
     /**
@@ -303,7 +306,7 @@ class MarketServiceFacade(private val context: Context) {
             IntegrationCategory.PLUGINS -> center?.pluginModule?.searchAcrossMarkets(filter)
             IntegrationCategory.MODEL_PLATFORMS -> center?.modelPlatformModule?.searchAcrossMarkets(filter)
             else -> null
-        } ?: MarketSearchResult(emptyList())
+        } ?: MarketSearchResult(emptyList(), 0)
 
         // 3. 写入缓存
         if (useCache) {
@@ -351,7 +354,7 @@ class MarketServiceFacade(private val context: Context) {
             IntegrationCategory.PLUGINS -> center?.pluginModule?.searchInMarket(marketId, filter)
             IntegrationCategory.MODEL_PLATFORMS -> center?.modelPlatformModule?.searchInMarket(marketId, filter)
             else -> null
-        } ?: MarketSearchResult(emptyList())
+        } ?: MarketSearchResult(emptyList(), 0)
 
         if (useCache) {
             cache.put(marketId, query, cat, result.items)
@@ -549,8 +552,8 @@ class MarketServiceFacade(private val context: Context) {
         ensureInitialized()
         val overview = center?.getOverview() ?: throw IllegalStateException("overview not available")
         OverviewDto(
-            stats = overview.stats.mapKeys { it.key.name },
-            totalMarkets = overview.stats.values.sum(),
+            marketStats = overview.marketStats.mapKeys { it.key.name },
+            totalMarkets = overview.marketStats.values.sum(),
             installedByCategory = overview.installedByCategory.mapKeys { it.key.name },
             totalInstalled = overview.installedCount,
             updatableCount = overview.updatableCount,
@@ -1131,7 +1134,7 @@ data class ImportResultDto(
 )
 
 data class OverviewDto(
-    val stats: Map<String, Int>,
+    val marketStats: Map<String, Int>,
     val totalMarkets: Int,
     val installedByCategory: Map<String, Int>,
     val totalInstalled: Int,
