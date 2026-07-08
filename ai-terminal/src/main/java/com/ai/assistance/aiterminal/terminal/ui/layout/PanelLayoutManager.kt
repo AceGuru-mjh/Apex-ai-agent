@@ -173,7 +173,7 @@ class PanelLayoutManager {
         if (index !in panels.indices) return false
         panels.removeAt(index)
         // 重新编号
-        panels.forEachIndexed { i, p -> p.index = i }
+        panels.forEachIndexed { i, p -> }  // index assignment removed
         activeIndex = activeIndex.coerceIn(0, panels.size - 1)
         updateActive()
         return true

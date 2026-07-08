@@ -2,15 +2,20 @@ package com.ai.assistance.aiterminal.terminal.model
 
 /**
  * Tool prompt for LLM function calling.
+ * Matches the original ToolPrompt interface used by the app module.
  */
 data class ToolPrompt(
     val name: String,
     val description: String,
-    val parameters: ToolParameterSchema = ToolParameterSchema()
+    val parametersStructured: List<ToolParameterSchema> = emptyList()
 )
 
+/**
+ * Tool parameter schema for LLM function calling.
+ */
 data class ToolParameterSchema(
-    val type: String = "object",
-    val properties: Map<String, Any> = emptyMap(),
-    val required: List<String> = emptyList()
+    val name: String,
+    val type: String,
+    val description: String = "",
+    val required: Boolean = false
 )

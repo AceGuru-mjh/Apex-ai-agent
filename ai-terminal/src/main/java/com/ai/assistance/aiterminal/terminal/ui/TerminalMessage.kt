@@ -108,6 +108,13 @@ data class TerminalMessage(
             content = text
         )
 
+        /** 创建提示信息。 */
+        fun info(text: String) = TerminalMessage(
+            type = TerminalMessageType.INFO,
+            source = MessageSource.SYSTEM,
+            content = text
+        )
+
         /** 创建 Agent 消息。 */
         fun agent(text: String, agentId: String, agentRole: String) = TerminalMessage(
             type = TerminalMessageType.AGENT,
