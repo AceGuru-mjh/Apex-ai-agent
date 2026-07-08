@@ -199,7 +199,7 @@ class RageEngine(
     fun getBlackboardSnapshot(): Map<String, String> = architect.getBlackboardSnapshot()
 
     /** 获取执行历史（内存）。 */
-    fun getExecutionHistory(): List<ExecutionRecord> = architect.getExecutionHistory()
+    fun fetchExecutionHistory(): List<ExecutionRecord> = architect.fetchExecutionHistory()
 
     /** 清空执行历史（内存）。 */
     fun clearExecutionHistory(): Int = architect.clearHistory()

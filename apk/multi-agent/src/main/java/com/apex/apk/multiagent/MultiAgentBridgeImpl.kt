@@ -1,4 +1,5 @@
 package com.apex.apk.multiagent
+import kotlinx.serialization.json.jsonPrimitive
 
 import com.apex.lib.multiagent.CollaborationMode
 import com.apex.sdk.bridge.IApkBridgeInternal

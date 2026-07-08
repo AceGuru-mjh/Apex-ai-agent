@@ -1,4 +1,5 @@
 package com.apex.apk.rage
+import kotlinx.serialization.json.jsonPrimitive
 
 import com.apex.agent.plugins.burst.base.IBurstSkill
 import com.apex.sdk.bridge.IApkBridgeInternal

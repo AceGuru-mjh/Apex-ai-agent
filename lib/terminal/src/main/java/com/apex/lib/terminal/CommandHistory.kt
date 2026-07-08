@@ -90,7 +90,7 @@ class CommandHistory(private val maxEntries: Int = 500) {
         if (entries.isEmpty() || cursor < 0) return null
         cursor++
         return if (cursor in 0 until entries.size) {
-            entries[cursor]
+            entries.toList()[cursor]
         } else {
             resetCursor()
             null
