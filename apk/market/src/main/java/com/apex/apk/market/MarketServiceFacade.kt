@@ -25,11 +25,11 @@ import com.apex.apk.market.favorites.Favorites
 import com.apex.apk.market.llm.LlmInvoker
 import com.apex.apk.market.llm.ProviderAvailability
 import com.apex.apk.market.skill.LocalSkillInvoker
-import com.apex.apk.market.marketStats.ItemStats
-import com.apex.apk.market.marketStats.TotalStats
-import com.apex.apk.market.marketStats.UsageEvent
-import com.apex.apk.market.marketStats.UsageEventType
-import com.apex.apk.market.marketStats.UsageStats
+import com.apex.apk.market.stats.ItemStats
+import com.apex.apk.market.stats.TotalStats
+import com.apex.apk.market.stats.UsageEvent
+import com.apex.apk.market.stats.UsageEventType
+import com.apex.apk.market.stats.UsageStats
 import com.apex.sdk.bridge.TypedServiceRegistry
 import com.apex.sdk.common.ApexLog
 import com.apex.sdk.common.ApexSuite
@@ -95,7 +95,7 @@ class MarketServiceFacade(private val context: Context) {
     /** 收藏夹 */
     private val favorites: Favorites = Favorites(File(context.filesDir, "apex-market-favorites"))
     /** 使用统计 */
-    private val usageStats: UsageStats = UsageStats(File(context.filesDir, "apex-market-marketStats"))
+    private val usageStats: UsageStats = UsageStats(File(context.filesDir, "apex-market-stats"))
 
     // ===== lib:market 引擎（持有并委托） =====
     /**
