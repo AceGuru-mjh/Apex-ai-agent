@@ -1,7 +1,8 @@
 package com.apex.agent.core.concurrent
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.*
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -107,7 +108,7 @@ class AsyncBatchProcessor<T, R>(
         queue.add(item)
         submitted.incrementAndGet()
         return try {
-            runBlocking { deferred.await() }
+            runBlocking(Dispatchers.IO) { deferred.await() }
         } catch (e: Exception) {
             null
         }
@@ -143,7 +144,7 @@ class AsyncBatchProcessor<T, R>(
 
     fun shutdown() {
         isRunning.set(false)
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             flush()
         }
         batchScope.cancel()

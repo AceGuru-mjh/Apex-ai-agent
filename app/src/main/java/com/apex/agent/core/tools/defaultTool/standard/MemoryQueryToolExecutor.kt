@@ -72,7 +72,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
     }
 
     private fun resolveActiveProfileId(): String {
-        return runBlocking { preferencesManager.activeProfileIdFlow.first() }
+        return runBlocking(Dispatchers.IO) { preferencesManager.activeProfileIdFlow.first() }
     }
 
     private val memoryRepository: MemoryRepository
@@ -177,7 +177,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
 
     private var lastLoggedMode: AgentMode? = null
 
-    override fun invoke(tool: AITool): ToolResult = runBlocking {
+    override fun invoke(tool: AITool): ToolResult = runBlocking(Dispatchers.IO) {
         val currentMode = resolveActiveMode()
         if (lastLoggedMode != currentMode) {
             lastLoggedMode = currentMode

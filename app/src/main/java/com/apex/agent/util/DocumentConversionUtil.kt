@@ -29,6 +29,7 @@ import com.itextpdf.text.FontFactory
 import com.itextpdf.text.Paragraph
 import com.itextpdf.text.pdf.PdfWriter
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
 import java.io.IOException
 
 /** Utility class for document conversion operations */
@@ -96,14 +97,14 @@ object DocumentConversionUtil {
             } else {
                 // Fallback to OCR
                 AppLogger.d(TAG, "Direct text extraction yielded little or no text. Falling back to OCR.")
-                return runBlocking {
+                return runBlocking(Dispatchers.IO) {
                     convertPdfToTextWithOcr(context, sourceFile, targetFile)
                 }
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error during PDF text extraction process", e)
             // If even the initial loading fails, try OCR as a last resort
-            return runBlocking {
+            return runBlocking(Dispatchers.IO) {
                 AppLogger.d(TAG, "Initial PDF load failed. Attempting OCR as last resort.")
                 convertPdfToTextWithOcr(context, sourceFile, targetFile)
             }

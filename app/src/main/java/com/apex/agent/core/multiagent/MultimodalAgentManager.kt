@@ -6,8 +6,10 @@ import android.media.MediaRecorder
 import android.util.Base64
 import com.google.gson.Gson
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.MutableStateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.StateFlow
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
@@ -144,7 +146,7 @@ class MultimodalAgentManager(private val context: Context) {
     }
 
     fun processImage(agentId: String, imageData: ByteArray, options: ImageProcessingOptions = ImageProcessingOptions()): VisionResult {
-        return scope.runBlocking {
+        return runBlocking(Dispatchers.IO) {
             _processingStatus.value = _processingStatus.value + mapOf(
                 agentId to ProcessingStatus(agentId, ModalityState.Modality.IMAGE, 0f, "Processing image...")
             )
@@ -167,7 +169,7 @@ class MultimodalAgentManager(private val context: Context) {
     }
 
     fun processAudio(agentId: String, audioData: ByteArray, options: AudioProcessingOptions = AudioProcessingOptions()): AudioResult {
-        return scope.runBlocking {
+        return runBlocking(Dispatchers.IO) {
             _processingStatus.value = _processingStatus.value + mapOf(
                 agentId to ProcessingStatus(agentId, ModalityState.Modality.AUDIO, 0f, "Processing audio...")
             )
@@ -190,7 +192,7 @@ class MultimodalAgentManager(private val context: Context) {
     }
 
     fun processVideo(agentId: String, videoData: ByteArray, options: VideoProcessingOptions = VideoProcessingOptions()): VideoResult {
-        return scope.runBlocking {
+        return runBlocking(Dispatchers.IO) {
             _processingStatus.value = _processingStatus.value + mapOf(
                 agentId to ProcessingStatus(agentId, ModalityState.Modality.VIDEO, 0f, "Processing video...")
             )
@@ -213,7 +215,7 @@ class MultimodalAgentManager(private val context: Context) {
     }
 
     fun processMultimodalTask(task: MultimodalTask): CrossModalResult {
-        return scope.runBlocking {
+        return runBlocking(Dispatchers.IO) {
             task.status = MultimodalTask.TaskStatus.PROCESSING
 
             val results = mutableMapOf<ModalityState.Modality, Any>()
@@ -251,21 +253,21 @@ class MultimodalAgentManager(private val context: Context) {
     }
 
     fun generateImage(description: String, style: String = "realistic"): ByteArray {
-        return scope.runBlocking {
+        return runBlocking(Dispatchers.IO) {
             val generator = ImageGenerator()
             generator.generate(description, style)
         }
     }
 
     fun generateSpeech(text: String, voice: String = "default", speed: Float = 1.0f): ByteArray {
-        return scope.runBlocking {
+        return runBlocking(Dispatchers.IO) {
             val generator = SpeechGenerator()
             generator.generate(text, voice, speed)
         }
     }
 
     fun generateVideo(script: String, duration: Float): ByteArray {
-        return scope.runBlocking {
+        return runBlocking(Dispatchers.IO) {
             val generator = VideoGenerator()
             generator.generate(script, duration)
         }

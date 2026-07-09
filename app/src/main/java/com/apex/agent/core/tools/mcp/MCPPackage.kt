@@ -7,6 +7,7 @@ import com.apex.core.tools.PackageToolParameter
 import com.apex.core.tools.ToolPackage
 import com.apex.data.mcp.plugins.MCPBridgeClient
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 
 /**
@@ -41,7 +42,7 @@ data class MCPPackage(
 
             try {
                 // 尝试连接
-                val connected = runBlocking { bridgeClient.connect() }
+                val connected = runBlocking(Dispatchers.IO) { bridgeClient.connect() }
                 if (!connected) {
                     com.apex.util.AppLogger.w(TAG, "无法连接到MCP服务�?${serverConfig.name}")
                     return LoadResult(
@@ -55,7 +56,7 @@ data class MCPPackage(
                 com.apex.util.AppLogger.d(TAG, "成功连接到MCP服务�?${serverConfig.name}，开始获取工具列表）
 
                 // 获取工具列表
-                val jsonTools = runBlocking { bridgeClient.getTools() }
+                val jsonTools = runBlocking(Dispatchers.IO) { bridgeClient.getTools() }
                 if (jsonTools.isEmpty()) {
                     com.apex.util.AppLogger.w(TAG, "MCP服务�?{serverConfig.name} 没有提供任何工具")
                     // 不要因为没有工具就返回null

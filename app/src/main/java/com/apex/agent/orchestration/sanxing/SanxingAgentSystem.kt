@@ -20,7 +20,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.firstOrNull
 
 /**
  * 三星�?Agent 系统的编排入口，管理三省六部一台的全部角色�? */
@@ -136,7 +137,7 @@ class SanxingAgentSystem @Inject constructor(
     ): SanxingAgent {
         val rbacPerms = SanxingRbacBridge.toRbacPermissions(role.permissions)
         val missing = rbacPerms.filter { permName ->
-            kotlinx.coroutines.runBlocking { !rbacManager.hasPermission(userId, permName) }
+            kotlinx.coroutines.runBlocking(Dispatchers.IO) { !rbacManager.hasPermission(userId, permName) }
         }
         if (missing.isNotEmpty()) {
             throw PermissionDeniedException(

@@ -1,8 +1,10 @@
 package com.apex.agent.telemetry
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync
+import kotlinx.coroutines.Dispatchers.Mutex
+import kotlinx.coroutines.sync
+import kotlinx.coroutines.Dispatchers.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.*
@@ -226,7 +228,7 @@ class TelemetryReporter private constructor() {
         if (pendingExports.isEmpty()) return null
         val batch = pendingExports.toList()
         pendingExports.clear()
-        val result = runBlocking { exportReports(batch) }
+        val result = runBlocking(Dispatchers.IO) { exportReports(batch) }
         result
     }
 

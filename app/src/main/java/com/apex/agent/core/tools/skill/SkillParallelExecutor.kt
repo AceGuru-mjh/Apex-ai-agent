@@ -1,5 +1,7 @@
 package com.apex.agent.core.tools.skill
 
+import kotlinx.coroutines.Dispatchers
+
 import com.apex.agent.util.AppLogger
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -316,7 +318,7 @@ class SkillParallelExecutor private constructor(
             listeners.forEach { it.onTaskStarted(task.id, task.skillName) }
 
             try {
-                val result = kotlinx.coroutines.runBlocking {
+                val result = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
                     executor.execute(task)
                 }
 

@@ -187,7 +187,7 @@ class EventDispatcher(
                 dispatchChannel.trySend(event)
             }
             is BackpressureStrategy.Backpressure -> {
-                kotlinx.coroutines.runBlocking {
+                kotlinx.coroutines.runBlocking(Dispatchers.IO) {
                     dispatchChannel.send(event)
                 }
             }

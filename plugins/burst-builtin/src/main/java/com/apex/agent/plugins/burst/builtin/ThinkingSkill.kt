@@ -1,5 +1,7 @@
 package com.apex.agent.plugins.burst.builtin
 
+import kotlinx.coroutines.Dispatchers
+
 import android.util.Log
 import com.apex.agent.domain.model.*
 import com.apex.agent.plugins.burst.base.*
@@ -39,7 +41,7 @@ class ThinkingSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking {
+    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         
         try {

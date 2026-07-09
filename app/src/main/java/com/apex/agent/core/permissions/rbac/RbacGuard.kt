@@ -2,6 +2,7 @@ package com.apex.agent.core.permissions.rbac
 
 import android.content.Context
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
 
 class RbacGuard(private val context: Context) {
 
@@ -16,7 +17,7 @@ class RbacGuard(private val context: Context) {
         private val checker: PermissionChecker
     ) {
         fun orElse(onDenied: () -> Unit) {
-            runBlocking {
+            runBlocking(Dispatchers.IO) {
                 val result = checker.check(userId, permissionName)
                 if (result is PermissionResult.Denied) {
                     onDenied()

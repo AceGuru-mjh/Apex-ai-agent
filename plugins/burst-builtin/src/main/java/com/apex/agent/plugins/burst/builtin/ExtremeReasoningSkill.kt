@@ -1,5 +1,7 @@
 package com.apex.agent.plugins.burst.builtin
 
+import kotlinx.coroutines.Dispatchers
+
 import com.apex.agent.domain.model.BurstTask
 import com.apex.agent.plugins.burst.base.*
 import kotlinx.coroutines.*
@@ -32,7 +34,7 @@ class ExtremeReasoningSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking {
+    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
         val llm = context.llmService
         val startTime = System.currentTimeMillis()
         

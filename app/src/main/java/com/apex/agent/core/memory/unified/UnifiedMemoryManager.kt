@@ -7,12 +7,18 @@ import com.apex.agent.kernel.interaction.awareness.ContextFact
 import com.apex.agent.kernel.interaction.awareness.ContextMemory
 import com.apex.agent.kernel.interaction.awareness.FactCategory
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.MutableSharedFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.MutableStateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.SharedFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.StateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.asSharedFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.math.min
@@ -306,7 +312,7 @@ class UnifiedMemoryManager private constructor() {
             AgentMode.MULTI_AGENT -> true
             AgentMode.BURST_MODE -> {
                 burstMemory?.let {
-                    runBlocking { it.delete(id) }
+                    runBlocking(Dispatchers.IO) { it.delete(id) }
                 } ?: false
             }
         }

@@ -1,5 +1,7 @@
 package com.apex.agent.plugins.burst.builtin
 
+import kotlinx.coroutines.Dispatchers
+
 import com.apex.agent.domain.model.BurstTask
 import com.apex.agent.plugins.burst.base.*
 import kotlinx.coroutines.*
@@ -81,7 +83,7 @@ class ToolFusionSkill : IBurstSkill {
         )
     }
 
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking {
+    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         try {
             val operation = task.metadata["operation"] ?: "fuse"

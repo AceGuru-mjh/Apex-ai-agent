@@ -1,5 +1,7 @@
 package com.apex.agent.plugins.burst.builtin
 
+import kotlinx.coroutines.Dispatchers
+
 import com.apex.agent.domain.model.BurstTask
 import com.apex.agent.plugins.burst.base.*
 import kotlinx.coroutines.*
@@ -65,7 +67,7 @@ class RacingSkill : IBurstSkill {
         this.ctx = context
     }
 
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking {
+    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         try {
             // 修复 C4：旧版 execute 完全未检查 isPaused，pause() 失效

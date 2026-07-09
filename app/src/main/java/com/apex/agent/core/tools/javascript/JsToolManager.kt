@@ -7,7 +7,8 @@ import com.apex.core.tools.packTool.PackageManager
 import com.apex.data.model.AITool
 import com.apex.data.model.ToolResult
 import com.apex.util.AppLogger
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels
+import kotlinx.coroutines.Dispatchers.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.runBlocking
@@ -57,7 +58,7 @@ class JsToolManager private constructor(
     }
 
     private fun <T> withEngineBlocking(block: (JsEngine) -> T): T {
-        return runBlocking {
+        return runBlocking(Dispatchers.IO) {
             withEngine { engine -> block(engine) }
         }
     }

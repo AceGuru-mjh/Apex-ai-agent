@@ -6,7 +6,8 @@ import com.apex.data.repository.CustomEmojiRepository
 import com.apex.util.markdown.MarkdownProcessorType
 import com.apex.util.stream.stream
 import com.apex.util.streamnative.nativeMarkdownSplitByBlock
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.first
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
@@ -240,7 +241,7 @@ object WaifuMessageProcessor {
 
         val segments = mutableListOf<Segment>()
 
-        runBlocking {
+        runBlocking(Dispatchers.IO) {
             content.stream()
                 .nativeMarkdownSplitByBlock()
                 .collect { blockGroup ->
@@ -398,7 +399,7 @@ object WaifuMessageProcessor {
             // 只从自定义表情中查找
             val customEmoji = try {
                 customEmojiRepository?.let { repo ->
-                    runBlocking {
+                    runBlocking(Dispatchers.IO) {
                         val activePrompt = activePromptManager?.getActivePrompt() ?: return@runBlocking null
                         repo.initializeBuiltinEmojis(activePrompt)
                         val emojis = repo.getEmojisForCategory(activePrompt, emotion).first()

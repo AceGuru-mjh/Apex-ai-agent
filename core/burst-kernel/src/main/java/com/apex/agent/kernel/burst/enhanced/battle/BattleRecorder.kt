@@ -1,9 +1,13 @@
 package com.apex.agent.kernel.burst.enhanced.battle
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.Flow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.MutableSharedFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.SharedFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.asSharedFlow
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicLong
@@ -110,7 +114,7 @@ class BattleRecorder(
         frameById[frameWithId.frameId] = frameWithId
 
         // 实时流
-        kotlinx.coroutines.runBlocking { _liveStream.emit(frameWithId) }
+        kotlinx.coroutines.runBlocking(Dispatchers.IO) { _liveStream.emit(frameWithId) }
 
         return frameWithId
     }

@@ -7,7 +7,8 @@ package com.apex.core.tools
  import com.apex.data.model.AITool
  import com.apex.data.model.ToolResult
  import com.apex.data.model.ToolValidationResult
- import kotlinx.coroutines.flow.Flow
+ import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.Flow
  import kotlinx.serialization.builtins.MapSerializer
  import kotlinx.serialization.builtins.serializer
  import kotlinx.serialization.Serializable
@@ -27,7 +28,8 @@ package com.apex.core.tools
  import kotlinx.serialization.json.jsonPrimitive
  import kotlinx.serialization.json.put
  import kotlinx.coroutines.runBlocking
- import kotlinx.coroutines.flow.last
+ import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.last
  import java.util.Locale
  
  /**
@@ -390,7 +392,7 @@ data class ToolPackageState(
  
          // Execute the script using runBlocking since we can't make this a suspending function
          // without changing the interface. We collect the last result for single-result compatibility.
-         return runBlocking {
+         return runBlocking(Dispatchers.IO) {
              jsToolManager.executeScript(packageTool.script, tool).last()
          }
      }

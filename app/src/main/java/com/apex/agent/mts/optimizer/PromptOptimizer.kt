@@ -4,6 +4,7 @@ import com.apex.agent.mts.observer.ToolCallRecord
 import com.apex.agent.mts.registry.ToolRegistry
 import com.apex.agent.mts.schema.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
 
 data class OptimizationContext(
     val availableTokens: Int = 4096,
@@ -110,7 +111,7 @@ class PromptOptimizer(
         context: OptimizationContext = OptimizationContext()
     ): OptimizationResult {
         val router = com.apex.agent.mts.router.IntelligentRouter(registry)
-        val plan = runBlocking { router.route(userQuery) }
+        val plan = runBlocking(Dispatchers.IO) { router.route(userQuery) }
 
         val primaryName = plan.primaryTool?.name
         val alternativeNames = plan.alternatives.map { it.tool.name }.toSet()

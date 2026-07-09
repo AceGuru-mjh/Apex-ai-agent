@@ -4,8 +4,10 @@ import android.content.Context
 import android.util.Log
 import com.apex.agent.data.burstmode.swarm.SwarmSession
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync
+import kotlinx.coroutines.Dispatchers.Mutex
+import kotlinx.coroutines.sync
+import kotlinx.coroutines.Dispatchers.withLock
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -122,7 +124,7 @@ class SwarmBurstOrchestrator(
         val agentCount = computeAgentCount()
 
         // 同步注册（runBlocking 仅在初始化时阻塞，避免在协程外暴露 suspend API）
-        val agentIds: List<String> = runBlocking {
+        val agentIds: List<String> = runBlocking(Dispatchers.IO) {
             framework?.registerSwarmAgents(sessionId, taskId, agentCount)
                 ?: (1..agentCount).map { "local-agent-$it" }
         }

@@ -4,9 +4,12 @@ import android.content.Context
 import android.os.PowerManager
 import androidx.work.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.MutableStateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.StateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.asStateFlow
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
@@ -231,7 +234,7 @@ class BackgroundSchedulerOptimizer private constructor() {
     private suspend fun executeTaskAction(task: OptimizedTask) {
         when (task.category) {
             TaskCategory.NETWORK -> delay(task.estimatedDurationMs / 10)
-            TaskCategory.CPU -> runBlocking { delay(task.estimatedDurationMs / 5) }
+            TaskCategory.CPU -> runBlocking(Dispatchers.IO) { delay(task.estimatedDurationMs / 5) }
             TaskCategory.IO -> delay(task.estimatedDurationMs / 8)
             TaskCategory.MEMORY -> delay(task.estimatedDurationMs / 6)
             TaskCategory.STORAGE -> delay(task.estimatedDurationMs / 4)

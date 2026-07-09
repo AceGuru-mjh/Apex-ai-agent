@@ -3,9 +3,12 @@ package com.apex.agent.plugins.burst.builtin
 import com.apex.agent.domain.model.BurstTask
 import com.apex.agent.plugins.burst.base.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.MutableStateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.StateFlow
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.asStateFlow
 
 class APIClientSkill : IBurstSkill {
     override lateinit var manifest: BurstSkillManifest
@@ -43,7 +46,7 @@ class APIClientSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking {
+    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         
         try {

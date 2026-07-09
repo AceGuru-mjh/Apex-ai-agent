@@ -1,7 +1,8 @@
 package com.apex.agent.database.performance
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
@@ -261,7 +262,7 @@ class DaoQueryOptimizer private constructor() {
         request: PaginationRequest
     ): PaginatedResult<T> {
         val startTime = System.currentTimeMillis()
-        val allItems = runBlocking { query() }
+        val allItems = runBlocking(Dispatchers.IO) { query() }
         val totalCount = allItems.size
         val totalPages = ceil(totalCount.toDouble() / request.pageSize).toInt().coerceAtLeast(1)
         val adjustedPage = request.page.coerceIn(1, totalPages)

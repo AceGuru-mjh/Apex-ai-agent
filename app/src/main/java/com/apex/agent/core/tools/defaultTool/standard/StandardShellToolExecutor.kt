@@ -10,6 +10,7 @@ import com.apex.data.model.AITool
 import com.apex.data.model.ToolResult
 import com.apex.data.model.ToolValidationResult
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Tool for executing ADB commands directly. This provides direct access to ADB shell commands for
@@ -39,7 +40,7 @@ open class StandardShellToolExecutor(private val context: Context) {
 
         return try {
             // Use AdbCommandExecutor to execute the command
-            val result = runBlocking { AndroidShellExecutor.executeShellCommand(command) }
+            val result = runBlocking(Dispatchers.IO) { AndroidShellExecutor.executeShellCommand(command) }
 
             if (result.success) {
                 ToolResult(

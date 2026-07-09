@@ -1,5 +1,7 @@
 package com.apex.agent.core.normal
 
+import kotlinx.coroutines.Dispatchers
+
 import com.apex.agent.core.normal.branching.ConversationBranching
 import com.apex.agent.core.normal.clarification.ProactiveClarification
 import com.apex.agent.core.normal.context.SmartContextCompressor
@@ -172,7 +174,7 @@ class NormalAgentOrchestrator(
         }
 
         // F25: 提醒提取
-        val reminders = kotlinx.coroutines.runBlocking {
+        val reminders = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
             reminderManager.extractFromMessage(userMessage, context.chatId, "current")
         }
 
