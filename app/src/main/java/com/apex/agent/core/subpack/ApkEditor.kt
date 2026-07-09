@@ -171,7 +171,7 @@ private constructor(
 
         val unsignedOutputFile =
                 if (outputFile != null) {
-                    outputFile!!
+                    requireNotNull(outputFile) { "outputFile must not be null" }
                 } else {
                     File(context.cacheDir, "unsigned_${apkFile.name}")
                 }
@@ -225,10 +225,10 @@ private constructor(
 
         val signResult = apkReverseEngineer.signApk(
                 unsignedApk,
-                keyStoreFile!!,
-                keyStorePassword!!,
-                keyAlias!!,
-                keyPassword!!,
+                requireNotNull(keyStoreFile) { "keyStoreFile must not be null" },
+                requireNotNull(keyStorePassword) { "keyStorePassword must not be null" },
+                requireNotNull(keyAlias) { "keyAlias must not be null" },
+                requireNotNull(keyPassword) { "keyPassword must not be null" },
                 signedOutputFile
         )
 
@@ -238,20 +238,20 @@ private constructor(
         }
 
         val finalOutputFile = if (outputFile != null && signedOutputFile.exists()) {
-            outputFile!!.parentFile?.mkdirs()
+            requireNotNull(outputFile) { "outputFile must not be null" }.parentFile?.mkdirs()
 
-            if (outputFile!!.exists()) {
-                outputFile!!.delete()
+            if (requireNotNull(outputFile) { "outputFile must not be null" }.exists()) {
+                requireNotNull(outputFile) { "outputFile must not be null" }.delete()
             }
 
             signedOutputFile.inputStream().use { input ->
-                outputFile!!.outputStream().use { output -> input.copyTo(output) }
+                requireNotNull(outputFile) { "outputFile must not be null" }.outputStream().use { output -> input.copyTo(output) }
             }
 
             signedOutputFile.delete()
 
-            AppLogger.d(TAG, "已将签名后的APK从临时文件复制到指定输出位置: ${outputFile!!.absolutePath}")
-            outputFile!!
+            AppLogger.d(TAG, "已将签名后的APK从临时文件复制到指定输出位置: ${requireNotNull(outputFile) { "outputFile must not be null" }.absolutePath}")
+            requireNotNull(outputFile) { "outputFile must not be null" }
         } else {
             signedOutputFile
         }

@@ -104,14 +104,14 @@ class PipelineAnalyzer {
         val recommendations = mutableListOf<Recommendation>()
 
         // 瓶颈建议
-        if (bottleneck != null && stepDurations[bottleneck]!! > totalDuration * 0.5) {
+        if (bottleneck != null && stepDurations.getValue(bottleneck) > totalDuration * 0.5) {
             recommendations.add(Recommendation(
                 type = RecommendationType.PARALLELIZE,
                 priority = RecommendationPriority.HIGH,
                 title = "瓶颈步骤 $bottleneck 可并行化",
-                description = "步骤 $bottleneck 占总耗时 ${stepDurations[bottleneck]!! * 100 / totalDuration}%，考虑拆分为并行子任务",
+                description = "步骤 $bottleneck 占总耗时 ${stepDurations.getValue(bottleneck) * 100 / totalDuration}%，考虑拆分为并行子任务",
                 affectedSteps = listOf(bottleneck),
-                estimatedImprovement = "预计减少 ${stepDurations[bottleneck]!! / 2}ms"
+                estimatedImprovement = "预计减少 ${stepDurations.getValue(bottleneck) / 2}ms"
             ))
         }
 

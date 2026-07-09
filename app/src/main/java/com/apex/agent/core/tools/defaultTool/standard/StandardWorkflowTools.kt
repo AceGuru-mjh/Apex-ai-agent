@@ -155,7 +155,7 @@ class StandardWorkflowTools(private val context: Context) {
             val result = workflowRepository.createWorkflow(workflow)
             
             if (result.isSuccess) {
-                val createdWorkflow = result.getOrNull()!!
+                val createdWorkflow = result.getOrThrow()
                 ToolResult(
                     toolName = tool.name,
                     success = true,
@@ -283,7 +283,7 @@ class StandardWorkflowTools(private val context: Context) {
                 )
             }
 
-            val existingWorkflow = existingResult.getOrNull()!!
+            val existingWorkflow = existingResult.getOrThrow()
 
             // 更新字段（如果提供了新值）
             val name = tool.parameters.find { it.name == "name" }?.value ?: existingWorkflow.name
@@ -316,7 +316,7 @@ class StandardWorkflowTools(private val context: Context) {
             val result = workflowRepository.updateWorkflow(updatedWorkflow)
             
             if (result.isSuccess) {
-                val savedWorkflow = result.getOrNull()!!
+                val savedWorkflow = result.getOrThrow()
                 ToolResult(
                     toolName = tool.name,
                     success = true,
@@ -379,7 +379,7 @@ class StandardWorkflowTools(private val context: Context) {
                 )
             }
 
-            val existingWorkflow = existingResult.getOrNull()!!
+            val existingWorkflow = existingResult.getOrThrow()
             if (existingWorkflow.enabled == enabled) {
                 return ToolResult(
                     toolName = tool.name,
@@ -390,7 +390,7 @@ class StandardWorkflowTools(private val context: Context) {
 
             val saveResult = workflowRepository.updateWorkflow(existingWorkflow.copy(enabled = enabled))
             if (saveResult.isSuccess) {
-                val savedWorkflow = saveResult.getOrNull()!!
+                val savedWorkflow = saveResult.getOrThrow()
                 ToolResult(
                     toolName = tool.name,
                     success = true,
@@ -447,7 +447,7 @@ class StandardWorkflowTools(private val context: Context) {
                 )
             }
 
-            val existingWorkflow = existingResult.getOrNull()!!
+            val existingWorkflow = existingResult.getOrThrow()
 
             val nameParam = tool.parameters.find { it.name == "name" }?.value
             val descriptionParam = tool.parameters.find { it.name == "description" }?.value
@@ -772,7 +772,7 @@ class StandardWorkflowTools(private val context: Context) {
 
             val result = workflowRepository.updateWorkflow(updatedWorkflow)
             if (result.isSuccess) {
-                buildNodeDetailResult(result.getOrNull()!!)
+                buildNodeDetailResult(result.getOrThrow())
             } else {
                 ToolResult(
                     toolName = tool.name,
