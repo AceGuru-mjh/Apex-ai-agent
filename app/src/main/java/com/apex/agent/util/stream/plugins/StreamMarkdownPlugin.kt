@@ -60,7 +60,7 @@ class StreamMarkdownFencedCodeBlockPlugin(private val includeFences: Boolean = t
             if (atStartOfLine) {
                 isMatchingEndFence = true
                 hasStartedMatchingFence = false
-                endMatcher!!.reset()
+                requireNotNull(endMatcher).reset()
             }
 
             if (isMatchingEndFence) {
@@ -71,7 +71,7 @@ class StreamMarkdownFencedCodeBlockPlugin(private val includeFences: Boolean = t
                     hasStartedMatchingFence = true
                 }
 
-                val matcher = endMatcher!!
+                val matcher = requireNotNull(endMatcher)
                 when (matcher.processChar(c)) {
                     is StreamKmpMatchResult.Match -> {
                         reset()
@@ -163,7 +163,7 @@ class StreamMarkdownInlineCodePlugin(private val includeTicks: Boolean = true) :
         }
 
         if (state == PluginState.PROCESSING) {
-            val matcher = endMatcher!!
+            val matcher = requireNotNull(endMatcher)
             when (matcher.processChar(c)) {
                 is StreamKmpMatchResult.Match -> {
                     reset()

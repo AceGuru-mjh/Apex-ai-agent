@@ -663,7 +663,7 @@ class ClaudeProvider(
 
             val contentArray = JSONArray()
             if (!queuedAssistantToolText.isNullOrBlank()) {
-                appendContentBlocks(contentArray, buildContentArray(queuedAssistantToolText!!))
+                appendContentBlocks(contentArray, buildContentArray(requireNotNull(queuedAssistantToolText)))
             }
             for (i in 0 until queuedToolUses.length()) {
                 contentArray.put(queuedToolUses.getJSONObject(i))
@@ -1456,7 +1456,7 @@ class ClaudeProvider(
 
                                                         val input = contentBlock.optJSONObject("input")
                                                         if (input != null) {
-                                                            val events = currentToolParser!!.feed(input.toString())
+                                                            val events = requireNotNull(currentToolParser).feed(input.toString())
                                                             events.forEach { event ->
                                                                 when (event) {
                                                                     is StreamingJsonXmlConverter.Event.Tag -> {
@@ -1530,7 +1530,7 @@ class ClaudeProvider(
                                         } else if (enableToolCall && isInToolCall && currentToolParser != null && deltaType == "input_json_delta") {
                                             val partialJson = delta.optString("partial_json", "")
                                             if (partialJson.isNotEmpty()) {
-                                                val events = currentToolParser!!.feed(partialJson)
+                                                val events = requireNotNull(currentToolParser).feed(partialJson)
                                                 events.forEach { event ->
                                                     when (event) {
                                                         is StreamingJsonXmlConverter.Event.Tag -> {
@@ -1549,7 +1549,7 @@ class ClaudeProvider(
                                 }
                                 "content_block_stop" -> {
                                     if (isInToolCall && currentToolParser != null) {
-                                        val events = currentToolParser!!.flush()
+                                        val events = requireNotNull(currentToolParser).flush()
                                         events.forEach { event ->
                                             when (event) {
                                                 is StreamingJsonXmlConverter.Event.Tag -> {
@@ -1588,7 +1588,7 @@ class ClaudeProvider(
                                 }
                                 "message_stop" -> {
                                     if (isInToolCall && currentToolParser != null) {
-                                        val events = currentToolParser!!.flush()
+                                        val events = requireNotNull(currentToolParser).flush()
                                         events.forEach { event ->
                                             when (event) {
                                                 is StreamingJsonXmlConverter.Event.Tag -> {
