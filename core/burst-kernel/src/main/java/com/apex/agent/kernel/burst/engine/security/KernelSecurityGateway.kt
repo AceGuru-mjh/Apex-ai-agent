@@ -151,7 +151,7 @@ class KernelSecurityGateway {
     private fun registerBuiltinFilters() {
         inputFilters.add(Regex("(?i)<script|javascript:|onerror=|onload="))  // XSS
         inputFilters.add(Regex("(?i)(drop|delete|truncate)\\s+table"))  // SQL injection
-        inputFilters.add(Regex("(?i)\\$\\{|\\${env\\."))  // Template injection
+        inputFilters.add(Regex("""(?i)\\$\\{|\\$\\{env\\."""))  // Template injection
     }
 
     private class RateBucket(private val capacity: Int, private val windowMs: Long) {

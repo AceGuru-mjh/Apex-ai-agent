@@ -57,7 +57,7 @@ import java.io.File
  */
 class WorkingFilesServiceFacade(private val context: Context) {
 
-    private const val TAG_SUB = "WorkingFilesFacade"
+    private val TAG_SUB = "WorkingFilesFacade"
 
     private val manager = WorkingFolderManager()
     /** 代码编辑器门面 — 文件快照 / diff / Agent 流程 / 回退 */
