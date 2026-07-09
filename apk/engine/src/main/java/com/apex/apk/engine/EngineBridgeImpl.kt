@@ -114,16 +114,16 @@ class EngineBridgeImpl(
                             }
                         }
                     }
-                    "engine/startContainer" -> buildResult(facade.startContainer()) { JsonPrimitive(it) }
-                    "engine/stopContainer" -> buildResult(facade.stopContainer()) { JsonPrimitive(it) }
-                    "engine/restartContainer" -> buildResult(facade.restartContainer()) { JsonPrimitive(it) }
+                    "engine/startContainer" -> buildResult(facade.startContainer()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
+                    "engine/stopContainer" -> buildResult(facade.stopContainer()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
+                    "engine/restartContainer" -> buildResult(facade.restartContainer()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     "engine/getContainerStatus" -> {
                         val r = facade.getContainerStatus()
                         buildResult(r) { it?.toJson() ?: JsonObject(emptyMap()) }
                     }
                     "engine/getContainerOutput" -> {
                         val r = facade.getContainerOutput()
-                        buildResult(r) { JsonPrimitive(it) }
+                        buildResult(r) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "engine/isAccessibilityEnabled" -> JsonPrimitive(facade.isAccessibilityEnabled()).toString()
                     "engine/performClick" -> {

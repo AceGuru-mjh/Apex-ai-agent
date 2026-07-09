@@ -46,7 +46,7 @@ class RageBridgeImpl(
                         val preset = args["preset"]?.jsonPrimitive?.content?.let {
                             runCatching { RagePreset.valueOf(it) }.getOrDefault(RagePreset.BALANCED)
                         } ?: RagePreset.BALANCED
-                        buildResult(facade.startSession(task, skill, preset)) { JsonPrimitive(it) }
+                        buildResult(facade.startSession(task, skill, preset)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/executeTask" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
@@ -54,15 +54,15 @@ class RageBridgeImpl(
                     }
                     "rage/pauseSession" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.pauseSession(sessionId)) { JsonPrimitive(it) }
+                        buildResult(facade.pauseSession(sessionId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/resumeSession" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.resumeSession(sessionId)) { JsonPrimitive(it) }
+                        buildResult(facade.resumeSession(sessionId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/stopSession" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.stopSession(sessionId)) { JsonPrimitive(it) }
+                        buildResult(facade.stopSession(sessionId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/listSessions" -> {
                         val list = facade.listSessions()
@@ -135,7 +135,7 @@ class RageBridgeImpl(
                     "rage/executeAsync" -> {
                         val taskDesc = args["taskDescription"]?.jsonPrimitive?.content ?: ""
                         val skillId = args["skillId"]?.jsonPrimitive?.content
-                        buildResult(facade.executeAsync(taskDesc, skillId)) { JsonPrimitive(it) }
+                        buildResult(facade.executeAsync(taskDesc, skillId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/awaitAsyncTask" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
@@ -156,20 +156,20 @@ class RageBridgeImpl(
                         val desc = args["taskDescription"]?.jsonPrimitive?.content ?: ""
                         val priority = args["priority"]?.jsonPrimitive?.content ?: "NORMAL"
                         val skillId = args["skillId"]?.jsonPrimitive?.content
-                        buildResult(facade.enqueueTask(desc, priority, skillId)) { JsonPrimitive(it) }
+                        buildResult(facade.enqueueTask(desc, priority, skillId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/cancelQueuedTask" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.cancelQueuedTask(taskId)) { JsonPrimitive(it) }
+                        buildResult(facade.cancelQueuedTask(taskId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/peekQueue" -> {
                         buildResult(facade.peekQueue()) { JsonPrimitive(it ?: "") }
                     }
                     "rage/pendingTaskCount" -> {
-                        buildResult(facade.pendingTaskCount()) { JsonPrimitive(it) }
+                        buildResult(facade.pendingTaskCount()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/clearQueue" -> {
-                        buildResult(facade.clearQueue()) { JsonPrimitive(it) }
+                        buildResult(facade.clearQueue()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/getQueueSnapshot" -> {
                         buildResult(facade.getQueueSnapshot()) { s ->
@@ -189,7 +189,7 @@ class RageBridgeImpl(
                         val completedSteps = args["completedSteps"]?.jsonPrimitive?.content?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
                         val totalSteps = args["totalSteps"]?.jsonPrimitive?.content?.toIntOrNull() ?: 0
                         val intermediateResult = args["intermediateResult"]?.jsonPrimitive?.content
-                        buildResult(facade.saveCheckpoint(taskId, completedSteps, totalSteps, intermediateResult)) { JsonPrimitive(it) }
+                        buildResult(facade.saveCheckpoint(taskId, completedSteps, totalSteps, intermediateResult)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/loadCheckpoint" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
@@ -226,7 +226,7 @@ class RageBridgeImpl(
                     }
                     "rage/canResume" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.canResume(taskId)) { JsonPrimitive(it) }
+                        buildResult(facade.canResume(taskId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/getResumePoint" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
@@ -234,7 +234,7 @@ class RageBridgeImpl(
                     }
                     "rage/deleteCheckpoint" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.deleteCheckpoint(taskId)) { JsonPrimitive(it) }
+                        buildResult(facade.deleteCheckpoint(taskId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/clearCheckpoints" -> {
                         buildResult(facade.clearCheckpoints()) { JsonObject(emptyMap()) }
@@ -272,14 +272,14 @@ class RageBridgeImpl(
                     }
                     "rage/unloadSkill" -> {
                         val skillId = args["skillId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.unloadSkill(skillId)) { JsonPrimitive(it) }
+                        buildResult(facade.unloadSkill(skillId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/getSkillCount" -> {
-                        buildResult(facade.getSkillCount()) { JsonPrimitive(it) }
+                        buildResult(facade.getSkillCount()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/isSkillLoaded" -> {
                         val skillId = args["skillId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.isSkillLoaded(skillId)) { JsonPrimitive(it) }
+                        buildResult(facade.isSkillLoaded(skillId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
 
                     // ===== 预设与配置（P2 增强） =====
@@ -361,7 +361,7 @@ class RageBridgeImpl(
                     // ===== 基础设施（P2 增强） =====
                     "rage/clearResultCache" -> {
                         val prefix = args["prefix"]?.jsonPrimitive?.content
-                        buildResult(facade.clearResultCache(prefix)) { JsonPrimitive(it) }
+                        buildResult(facade.clearResultCache(prefix)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/getResultCacheStats" -> {
                         buildResult(facade.getResultCacheStats()) { s ->
@@ -380,7 +380,7 @@ class RageBridgeImpl(
 
                     // ===== AR/VR 可视化 =====
                     "rage/enableSpatialVisualization" -> {
-                        buildResult(facade.enableSpatialVisualization()) { JsonPrimitive(it) }
+                        buildResult(facade.enableSpatialVisualization()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
 
                     // ===== 关闭 =====
@@ -490,10 +490,10 @@ class RageBridgeImpl(
                     }
                     "rage/architect/deleteTask" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.deleteTask(taskId)) { JsonPrimitive(it) }
+                        buildResult(facade.deleteTask(taskId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/architect/clearHistory" -> {
-                        buildResult(facade.clearTaskHistory()) { JsonPrimitive(it) }
+                        buildResult(facade.clearTaskHistory()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/architect/spawnAgent" -> {
                         val name = args["name"]?.jsonPrimitive?.content ?: ""
@@ -504,7 +504,7 @@ class RageBridgeImpl(
                     }
                     "rage/architect/terminateAgent" -> {
                         val agentId = args["agentId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.terminateAgent(agentId)) { JsonPrimitive(it) }
+                        buildResult(facade.terminateAgent(agentId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
 
                     // ===== lib:rage 引擎新能力（任务/技能/架构师/配置/预设） =====

@@ -53,7 +53,7 @@ class VoiceBridgeImpl(
                     "voice/speakAsync" -> {
                         val text = args["text"]?.jsonPrimitive?.content ?: ""
                         val lang = args["language"]?.jsonPrimitive?.content ?: "zh-CN"
-                        buildResult(facade.speakAsync(text, lang)) { JsonPrimitive(it) }
+                        buildResult(facade.speakAsync(text, lang)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "voice/stopSpeaking" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content
@@ -84,12 +84,12 @@ class VoiceBridgeImpl(
                     }
                     "voice/startRecognition" -> {
                         val lang = args["language"]?.jsonPrimitive?.content ?: "zh-CN"
-                        buildResult(facade.startRecognition(lang)) { JsonPrimitive(it) }
+                        buildResult(facade.startRecognition(lang)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "voice/recognizeOnce" -> {
                         val lang = args["language"]?.jsonPrimitive?.content ?: "zh-CN"
                         val timeoutMs = args["timeoutMs"]?.jsonPrimitive?.content?.toLongOrNull() ?: 30_000L
-                        buildResult(facade.recognizeOnce(lang, timeoutMs)) { JsonPrimitive(it) }
+                        buildResult(facade.recognizeOnce(lang, timeoutMs)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "voice/stopRecognition" -> {
                         buildResult(facade.stopRecognition()) { JsonObject(emptyMap()) }
@@ -105,7 +105,7 @@ class VoiceBridgeImpl(
                         val mode = runCatching { VoiceMode.valueOf(modeStr) }
                             .getOrDefault(VoiceMode.CONVERSATION)
                         val config = parseVoiceConfig(args, mode)
-                        buildResult(facade.engine().startSession(mode, config)) { JsonPrimitive(it) }
+                        buildResult(facade.engine().startSession(mode, config)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "voice/closeSession" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
@@ -114,16 +114,16 @@ class VoiceBridgeImpl(
                     "voice/speakInSession" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
                         val text = args["text"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.engine().speak(sessionId, text)) { JsonPrimitive(it) }
+                        buildResult(facade.engine().speak(sessionId, text)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "voice/synthesize" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
                         val text = args["text"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.engine().synthesize(sessionId, text)) { JsonPrimitive(it) }
+                        buildResult(facade.engine().synthesize(sessionId, text)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "voice/startListening" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.engine().startListening(sessionId)) { JsonPrimitive(it) }
+                        buildResult(facade.engine().startListening(sessionId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "voice/stopListening" -> {
                         val sessionId = args["sessionId"]?.jsonPrimitive?.content ?: ""
