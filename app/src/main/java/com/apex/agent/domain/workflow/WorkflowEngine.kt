@@ -180,7 +180,7 @@ class WorkflowEngine : WorkflowExecutor {
                     progress = 1f,
                     error = "工作流被取消"
                 )
-                appendHistory(activeExecutions[executionId]!!)
+                appendHistory(activeExecutions.getValue(executionId))
             }
             return results[executionId] ?: WorkflowResult(
                 workflowId = executionId, success = false,
@@ -214,7 +214,7 @@ class WorkflowEngine : WorkflowExecutor {
             error = finalError,
             results = nodeResults.entries.associate { it.key to (it.value.output ?: "") }
         )
-        appendHistory(activeExecutions[executionId]!!)
+        appendHistory(activeExecutions.getValue(executionId))
         return result
     }
 
@@ -428,7 +428,7 @@ class WorkflowEngine : WorkflowExecutor {
             progress = 1f,
             error = "用户取消"
         )
-        appendHistory(activeExecutions[workflowId]!!)
+        appendHistory(activeExecutions.getValue(workflowId))
         job.cancel(CancellationException("工作流 $workflowId 被用户取消"))
         executionJobs.remove(workflowId)
         return true
@@ -440,7 +440,7 @@ class WorkflowEngine : WorkflowExecutor {
         val pauseSignal = CompletableDeferred<Unit>()
         pausedExecutions[workflowId] = pauseSignal
         activeExecutions[workflowId] = exec.copy(state = ExecutionState.PAUSED)
-        appendHistory(activeExecutions[workflowId]!!)
+        appendHistory(activeExecutions.getValue(workflowId))
         return true
     }
 
@@ -448,7 +448,7 @@ class WorkflowEngine : WorkflowExecutor {
         val pauseSignal = pausedExecutions.remove(workflowId) ?: return false
         val exec = activeExecutions[workflowId] ?: return false
         activeExecutions[workflowId] = exec.copy(state = ExecutionState.RUNNING)
-        appendHistory(activeExecutions[workflowId]!!)
+        appendHistory(activeExecutions.getValue(workflowId))
         pauseSignal.complete(Unit)
         return true
     }
@@ -525,7 +525,7 @@ class WorkflowEngine : WorkflowExecutor {
             state = ExecutionState.FAILED, completedAt = System.currentTimeMillis(),
             progress = 1f, error = error
         )
-        appendHistory(activeExecutions[executionId]!!)
+        appendHistory(activeExecutions.getValue(executionId))
         return result
     }
 

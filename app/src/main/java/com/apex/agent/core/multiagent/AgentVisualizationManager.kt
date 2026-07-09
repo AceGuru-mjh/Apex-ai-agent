@@ -347,8 +347,8 @@ class PerformanceMonitor {
 
         metricsHistory.getOrPut(agentId) { mutableListOf() }.add(sample)
 
-        if (metricsHistory[agentId]!!.size > AgentVisualizationManager.PERFORMANCE_SAMPLE_SIZE) {
-            metricsHistory[agentId]!!.removeAt(0)
+        if (metricsHistory\.getValue(agentId).size > AgentVisualizationManager.PERFORMANCE_SAMPLE_SIZE) {
+            metricsHistory\.getValue(agentId).removeAt(0)
         }
     }
 
@@ -452,8 +452,8 @@ class BehaviorLogger {
 
         logEntries.getOrPut(agentId) { mutableListOf() }.add(entry)
 
-        if (logEntries[agentId]!!.size > AgentVisualizationManager.MAX_LOG_ENTRIES) {
-            logEntries[agentId]!!.removeAt(0)
+        if (logEntries\.getValue(agentId).size > AgentVisualizationManager.MAX_LOG_ENTRIES) {
+            logEntries\.getValue(agentId).removeAt(0)
         }
     }
 
@@ -540,7 +540,7 @@ class WorkflowEditor {
     fun updatePosition(workflowId: String, nodeId: String, x: Float, y: Float) {
         workflows[workflowId]?.nodes?.find { it.nodeId == nodeId }?.let { node ->
             workflows[workflowId]?.nodes?.set(
-                workflows[workflowId]!!.nodes.indexOf(node),
+                workflows\.getValue(workflowId).nodes.indexOf(node),
                 node.copy(x = x, y = y)
             )
         }
