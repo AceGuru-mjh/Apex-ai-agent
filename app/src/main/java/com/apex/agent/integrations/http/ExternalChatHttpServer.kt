@@ -218,7 +218,7 @@ class ExternalChatHttpServer(
             ).withCors()
         }
 
-        val result = runBlocking {
+        val result = runBlocking(Dispatchers.IO) {
             executor.execute(request.toExecutionRequest(resolvedRequestId))
         }
         return jsonResponse(Response.Status.OK, result).withCors()

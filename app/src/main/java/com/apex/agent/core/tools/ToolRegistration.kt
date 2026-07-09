@@ -1624,7 +1624,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor =
                     object : ToolExecutor {
                         override fun invoke(tool: AITool): ToolResult {
-                            return runBlocking { fileSystemTools.applyFile(tool).last() }
+                            return runBlocking(Dispatchers.IO) { fileSystemTools.applyFile(tool).last() }
                         }
 
                         override fun invokeAndStream(

@@ -467,7 +467,7 @@ private fun executeTool(toolName: String, body: String): Response {
         // 通过注入的 toolExecutor 执行真实工具调用；如果未注入则返回占位响应。
         val executor = toolExecutor
         if (executor != null) {
-            val result = kotlinx.coroutines.runBlocking { executor.execute(toolName, request) }
+            val result = kotlinx.coroutines.runBlocking(Dispatchers.IO) { executor.execute(toolName, request) }
             val json = JSONObject()
             json.put("toolName", toolName)
             json.put("success", result.success)

@@ -747,7 +747,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
     private fun initializeAppLanguage() {
         try {
             // 同步获取已保存的语言设置
-            val languageCode = runBlocking {
+            val languageCode = runBlocking(Dispatchers.IO) {
                 try {
                     // 使用更安全的方式检查preferencesManager
                     val manager = runCatching { preferencesManager }.getOrNull()

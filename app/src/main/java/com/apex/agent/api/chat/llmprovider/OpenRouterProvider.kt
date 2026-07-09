@@ -7,7 +7,8 @@ import com.apex.data.model.ModelParameter
 import com.apex.data.model.ToolPrompt
 import com.apex.data.preferences.ApiPreferences
 import com.apex.util.AppLogger
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow
+import kotlinx.coroutines.Dispatchers.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
@@ -153,7 +154,7 @@ class OpenRouterProvider(
         modelParameters: List<ModelParameter<*>>
     ): Int? {
         val qualityLevel = runCatching {
-            runBlocking {
+            runBlocking(Dispatchers.IO) {
                 ApiPreferences.getInstance(context).thinkingQualityLevelFlow.first()
             }
         }.getOrElse {

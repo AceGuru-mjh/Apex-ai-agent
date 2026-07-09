@@ -2635,10 +2635,10 @@ class EnhancedAIService private constructor(private val context: Context) {
         val refCount = FOREGROUND_REF_COUNT.incrementAndGet()
         val appInForeground = ActivityLifecycleManager.getCurrentActivity() != null
         val alwaysListeningEnabled = runCatching {
-            runBlocking { WakeWordPreferences(context).alwaysListeningEnabledFlow.first() }
+            runBlocking(Dispatchers.IO) { WakeWordPreferences(context).alwaysListeningEnabledFlow.first() }
         }.getOrDefault(false)
         val externalHttpEnabled = runCatching {
-            runBlocking { ExternalHttpApiPreferences.getInstance(context).enabledFlow.first() }
+            runBlocking(Dispatchers.IO) { ExternalHttpApiPreferences.getInstance(context).enabledFlow.first() }
         }.getOrDefault(false)
         if (!appInForeground &&
             !AIForegroundService.isRunning.get() &&

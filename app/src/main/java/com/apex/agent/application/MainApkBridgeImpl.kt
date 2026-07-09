@@ -7,6 +7,7 @@ import com.apex.sdk.bridge.TypedServiceRegistry
 import com.apex.sdk.common.ApexLog
 import com.apex.sdk.common.ApexSuite
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -42,7 +43,7 @@ class MainApkBridgeImpl : IApkBridgeInternal {
         }.toString()
 
         return runCatching {
-            runBlocking {
+            runBlocking(Dispatchers.IO) {
                 when (method) {
                     "diagnostics/startLogCapture" -> buildOk { f.startLogCapture() }
                     "diagnostics/getRecentLogs" -> {

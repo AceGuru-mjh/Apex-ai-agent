@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -177,7 +178,7 @@ class JsEngine(private val context: Context) {
         ensureQuickJs()
         val engine = quickJs ?: return null
         return if (Thread.currentThread() === quickJsThread) {
-            runBlocking {
+            runBlocking(Dispatchers.IO) {
                 engine.evaluate<T>(script, fileName)
             }
         } else {

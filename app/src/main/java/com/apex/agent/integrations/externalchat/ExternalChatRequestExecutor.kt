@@ -13,6 +13,7 @@ import com.apex.util.AppLogger
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
 
 class ExternalChatStreamingSession(
     val requestId: String,
@@ -203,7 +204,7 @@ class ExternalChatRequestExecutor(context: Context) {
             cleanupAction = {
                 if (request.stopAfter) {
                     runCatching {
-                        runBlocking {
+                        runBlocking(Dispatchers.IO) {
                             chatTool.stopChatService(AITool(name = "stop_chat_service"))
                         }
                     }
