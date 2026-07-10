@@ -10,3 +10,5 @@
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface *;
 }
+# Fix R8 missing class
+dontwarn java.lang.invoke.StringConcatFactory

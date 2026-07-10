@@ -188,3 +188,5 @@
 
 # ONNX Runtime
 -keep class ai.onnxruntime.** { *; }
+# Fix R8 missing class
+dontwarn java.lang.invoke.StringConcatFactory
