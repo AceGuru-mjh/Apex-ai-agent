@@ -35,6 +35,7 @@ object CodePreview {
         val content = try {
             file.readText()
         } catch (t: Throwable) {
+            android.util.Log.w("Apex", "Operation failed", t)
             return null
         }
         val lines = content.count { it == '\n' } + 1

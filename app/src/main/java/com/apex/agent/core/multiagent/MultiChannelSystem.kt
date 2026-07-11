@@ -121,6 +121,7 @@ class TextChannelAdapter(private val context: Context) : ChannelAdapter {
             
             return true
         } catch (e: Exception) {
+            android.util.Log.w("Apex", "Operation failed", e)
             return false
         }
     }
@@ -183,6 +184,7 @@ class VoiceChannelAdapter(private val context: Context) : ChannelAdapter {
             Toast.makeText(context, "语音消息: ${message.content}", Toast.LENGTH_SHORT).show()
             return true
         } catch (e: Exception) {
+            android.util.Log.w("Apex", "Operation failed", e)
             return false
         }
     }

@@ -567,12 +567,14 @@ class MemoryDocumentsProvider : DocumentsProvider() {
         Log.d(TAG, "isChildDocument parent=${parentDocumentId} doc=${documentId}")
         val parent = try {
             parseDocumentId(parentDocumentId)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            AppLogger.w(TAG, "Operation failed", e)
             return false
         }
         val child = try {
             parseDocumentId(documentId)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            AppLogger.w(TAG, "Operation failed", e)
             return false
         }
 

@@ -62,7 +62,8 @@ object ImageBitmapLimiter {
     fun limitBase64ForAi(base64: String, mimeType: String): LimitedImage? {
         val bytes = try {
             Base64.decode(base64, Base64.DEFAULT)
-        } catch (_: Throwable) {
+        } catch (e: Throwable) {
+            android.util.Log.w("Apex", "Operation failed", e)
             return null
         }
 
@@ -114,7 +115,8 @@ object ImageBitmapLimiter {
                 base64 = Base64.encodeToString(outBytes, Base64.NO_WRAP),
                 mimeType = mimeType
             )
-        } catch (_: Throwable) {
+        } catch (e: Throwable) {
+            android.util.Log.w("Apex", "Operation failed", e)
             return null
         } finally {
             try {

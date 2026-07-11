@@ -46,7 +46,8 @@ object MediaBase64Limiter {
 
         val bytes = try {
             Base64.decode(base64, Base64.DEFAULT)
-        } catch (_: Throwable) {
+        } catch (e: Throwable) {
+            android.util.Log.w("Apex", "Operation failed", e)
             return null
         }
 

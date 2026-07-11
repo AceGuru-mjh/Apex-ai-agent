@@ -293,7 +293,8 @@ fun File.tail(n: Int): List<String> {
     try {
         val lines = readLines()
         return lines.takeLast(n.coerceAtMost(lines.size))
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        android.util.Log.w("Apex", "Operation failed", e)
         return emptyList()
     }
 }
@@ -309,7 +310,8 @@ fun File.head(n: Int): List<String> {
     try {
         val lines = readLines()
         return lines.take(n.coerceAtMost(lines.size))
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        android.util.Log.w("Apex", "Operation failed", e)
         return emptyList()
     }
 }

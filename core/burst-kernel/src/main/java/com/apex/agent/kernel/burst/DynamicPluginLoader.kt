@@ -97,6 +97,7 @@ class DynamicPluginLoader(private val context: Context) {
             pluginInfos[pluginId] = info
             return info
         } catch (e: Exception) {
+            android.util.Log.w("Apex", "Operation failed", e)
             return null
         }
     }

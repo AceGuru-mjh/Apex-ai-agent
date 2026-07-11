@@ -86,7 +86,7 @@ class EnhancedStreamUtils {
         fun deleteRecursively(path: Path) {
             if (Files.isDirectory(path)) {
                 Files.walk(path).sorted(Comparator.reverseOrder()).forEach {
-                    try { Files.deleteIfExists(it) } catch (e: IOException) {}
+                    try { Files.deleteIfExists(it) } catch (e: IOException) { com.apex.util.AppLogger.w("EnhancedStreamUtils", "Failed to delete: $it", e) }
                 }
             } else {
                 Files.deleteIfExists(path)
