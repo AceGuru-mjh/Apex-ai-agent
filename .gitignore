@@ -110,6 +110,9 @@ data/
 # 例外：源码包路径 com/apex/agent/data/burstmode/ 不属于临时数据目录
 !core/burst-kernel/src/main/java/com/apex/agent/data/
 !core/burst-kernel/src/main/java/com/apex/agent/data/**
+# 例外：ai-terminal multiagent data 包
+!ai-terminal/src/main/java/com/apex/agent/presentation/multiagent/data/
+!ai-terminal/src/main/java/com/apex/agent/presentation/multiagent/data/**
 
 # 示例文件
 examples/
