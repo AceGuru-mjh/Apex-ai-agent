@@ -284,6 +284,9 @@ class TerminalServiceFacade(private val context: Context) {
 
     /** 获取会话列表。 */
     fun getSessions(): List<TerminalSessionInfo> = sessions.values.toList()
+
+    /** 查询会话 PTY 是否存活。 */
+    fun isAlive(sessionId: String): Boolean = sessions.containsKey(sessionId)
 }
 
 /** 终端引擎包装器。 */
@@ -296,16 +299,22 @@ class TerminalEngineWrapper(private val facade: TerminalServiceFacade) {
     )
 
     data class SessionDetail(
-        val sessionId: String,
-        val type: String,
-        val status: String,
+        val id: String,
+        val type: SessionType,
+        val status: SessionStatus,
         val workingDir: String,
         val createdAt: Long,
-        val active: Boolean,
+        val isActive: Boolean,
         val rows: Int,
         val cols: Int,
-        val shell: String
+        val shell: String,
+        val bufferLineLimit: Int = 1000,
+        val closedAt: Long? = null,
+        val exitCode: Int? = null
     )
+
+    enum class SessionType { NORMAL, MULTI_AGENT, BURST }
+    enum class SessionStatus { ACTIVE, CLOSED, ERROR }
 
     fun resize(sessionId: String, rows: Int, cols: Int): com.apex.sdk.common.BridgeResult<Unit> = com.apex.sdk.common.bridgeRun {
         // PTY resize not fully implemented
@@ -323,12 +332,16 @@ class TerminalEngineWrapper(private val facade: TerminalServiceFacade) {
     fun getSession(sessionId: String): SessionDetail? {
         val info = facade.getSessions().find { it.sessionId == sessionId } ?: return null
         return SessionDetail(
-            sessionId = info.sessionId,
-            type = info.mode.name,
-            status = "ACTIVE",
+            id = info.sessionId,
+            type = when (info.mode.name) {
+                "MULTI_AGENT" -> SessionType.MULTI_AGENT
+                "BURST" -> SessionType.BURST
+                else -> SessionType.NORMAL
+            },
+            status = SessionStatus.ACTIVE,
             workingDir = info.workingDir,
             createdAt = info.createdAt,
-            active = true,
+            isActive = true,
             rows = 24,
             cols = 80,
             shell = "/bin/sh"

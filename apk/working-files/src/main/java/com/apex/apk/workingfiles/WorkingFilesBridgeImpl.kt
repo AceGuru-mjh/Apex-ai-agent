@@ -432,7 +432,7 @@ class WorkingFilesBridgeImpl(
                                 put("newSnapshotId", r.newSnapshotId ?: "")
                                 if (r.conflict != null) {
                                     put("hasConflict", true)
-                                    put("conflictLines", JsonArray(r.conflict?.conflictLines?.map { JsonPrimitive(it) } ?: emptyList()))
+                                    put("conflictLines", r.conflict?.conflictLines ?: 0)
                                 }
                             }
                         }
