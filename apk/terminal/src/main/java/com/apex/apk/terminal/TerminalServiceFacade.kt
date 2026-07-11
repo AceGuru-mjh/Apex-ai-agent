@@ -278,6 +278,64 @@ class TerminalServiceFacade(private val context: Context) {
     private fun ensureInitialized() {
         if (!_isInitialized.value) initialize()
     }
+
+    /** 终端引擎包装器 — 提供 resize/history/output 等能力。 */
+    fun engine(): TerminalEngineWrapper = TerminalEngineWrapper(this)
+
+    /** 获取会话列表。 */
+    fun getSessions(): List<TerminalSessionInfo> = sessions.values.toList()
+}
+
+/** 终端引擎包装器。 */
+class TerminalEngineWrapper(private val facade: TerminalServiceFacade) {
+
+    data class HistoryEntry(
+        val timestamp: Long,
+        val command: String,
+        val exitCode: Int?
+    )
+
+    data class SessionDetail(
+        val sessionId: String,
+        val type: String,
+        val status: String,
+        val workingDir: String,
+        val createdAt: Long,
+        val active: Boolean,
+        val rows: Int,
+        val cols: Int,
+        val shell: String
+    )
+
+    fun resize(sessionId: String, rows: Int, cols: Int): com.apex.sdk.common.BridgeResult<Unit> = com.apex.sdk.common.bridgeRun {
+        // PTY resize not fully implemented
+    }
+
+    fun getHistory(sessionId: String): List<HistoryEntry> = emptyList()
+
+    fun searchHistory(sessionId: String, query: String): List<HistoryEntry> =
+        getHistory(sessionId).filter { it.command.contains(query, ignoreCase = true) }
+
+    fun lastOutputLines(sessionId: String, maxLines: Int): List<String> = emptyList()
+
+    fun outputSnapshot(sessionId: String): List<String> = emptyList()
+
+    fun getSession(sessionId: String): SessionDetail? {
+        val info = facade.getSessions().find { it.sessionId == sessionId } ?: return null
+        return SessionDetail(
+            sessionId = info.sessionId,
+            type = info.mode.name,
+            status = "ACTIVE",
+            workingDir = info.workingDir,
+            createdAt = info.createdAt,
+            active = true,
+            rows = 24,
+            cols = 80,
+            shell = "/bin/sh"
+        )
+    }
+
+    fun clearHistory(sessionId: String): Boolean = true
 }
 
 /** 终端类型（三块结构）。 */

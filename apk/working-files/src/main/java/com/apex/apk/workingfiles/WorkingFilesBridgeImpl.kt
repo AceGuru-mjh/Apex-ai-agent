@@ -9,6 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -431,7 +432,7 @@ class WorkingFilesBridgeImpl(
                                 put("newSnapshotId", r.newSnapshotId ?: "")
                                 if (r.conflict != null) {
                                     put("hasConflict", true)
-                                    put("conflictLines", r.conflict?.conflictLines ?: emptyList())
+                                    put("conflictLines", JsonArray(r.conflict?.conflictLines?.map { JsonPrimitive(it) } ?: emptyList()))
                                 }
                             }
                         }
