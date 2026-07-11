@@ -1,8 +1,6 @@
 // IMarketBridge.aidl
 package com.apex.apk.market;
 
-import com.apex.sdk.bridge.BridgeParcel;
-import com.apex.sdk.bridge.IBridgeCallback;
 
 /**
  * Market APK 对外暴露的接口。
@@ -22,13 +20,13 @@ import com.apex.sdk.bridge.IBridgeCallback;
 interface IMarketBridge {
 
     /// 搜索市场
-    BridgeParcel search(in BridgeParcel request);
+    String search(in String request);
 
     /// 列出已安装的资产
-    BridgeParcel listInstalled(String category);
+    String listInstalled(String category);
 
     /// 安装一个资产
-    void installAsync(in BridgeParcel request, IBridgeCallback callback);
+    void installAsync(in String request, String callback);
 
     /// 卸载
     boolean uninstall(String assetId);
@@ -37,10 +35,10 @@ interface IMarketBridge {
     boolean setEnabled(String assetId, boolean enabled);
 
     /// 调用云端模型（统一入口）
-    void invokeModelAsync(in BridgeParcel request, IBridgeCallback callback);
+    void invokeModelAsync(in String request, String callback);
 
     /// 调用本地技能 / 插件 / MCP
-    BridgeParcel invokeLocalSkill(in BridgeParcel request);
+    String invokeLocalSkill(in String request);
 
     /// 心跳
     long heartbeat();

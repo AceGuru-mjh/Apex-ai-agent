@@ -1,8 +1,6 @@
 // IEngineBridge.aidl
 package com.apex.apk.engine;
 
-import com.apex.sdk.bridge.BridgeParcel;
-import com.apex.sdk.bridge.IBridgeCallback;
 
 /**
  * Engine APK 对外暴露的强类型接口。
@@ -21,10 +19,10 @@ interface IEngineBridge {
     String executeShell(String cmd);
 
     /// 执行内置工具
-    BridgeParcel executeTool(in BridgeParcel request);
+    String executeTool(in String request);
 
     /// 异步执行长任务
-    void executeToolAsync(in BridgeParcel request, IBridgeCallback callback);
+    void executeToolAsync(in String request, String callback);
 
     /// 查询引擎状态
     String getStatus();

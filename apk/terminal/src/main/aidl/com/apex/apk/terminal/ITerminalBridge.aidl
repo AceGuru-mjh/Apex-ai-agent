@@ -1,8 +1,6 @@
 // ITerminalBridge.aidl
 package com.apex.apk.terminal;
 
-import com.apex.sdk.bridge.BridgeParcel;
-import com.apex.sdk.bridge.IBridgeCallback;
 
 /**
  * Terminal APK 对外暴露的接口。

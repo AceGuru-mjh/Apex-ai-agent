@@ -1,8 +1,6 @@
 // IWorkflowBridge.aidl
 package com.apex.apk.workflow;
 
-import com.apex.sdk.bridge.BridgeParcel;
-import com.apex.sdk.bridge.IBridgeCallback;
 
 /**
  * Workflow APK 对外接口。
@@ -10,10 +8,10 @@ import com.apex.sdk.bridge.IBridgeCallback;
 interface IWorkflowBridge {
 
     /// 注册一个工作流定义
-    boolean registerWorkflow(in BridgeParcel workflowDef);
+    boolean registerWorkflow(in String workflowDef);
 
     /// 异步执行工作流
-    void executeAsync(String workflowId, in BridgeParcel inputs, IBridgeCallback callback);
+    void executeAsync(String workflowId, in String inputs, String callback);
 
     /// 列出所有已注册的工作流
     List<String> listWorkflows();

@@ -1,7 +1,6 @@
 // IWorkingFilesBridge.aidl
 package com.apex.apk.workingfiles;
 
-import com.apex.sdk.bridge.BridgeParcel;
 
 /**
  * Working Files APK 对外接口。
@@ -11,16 +10,16 @@ import com.apex.sdk.bridge.BridgeParcel;
 interface IWorkingFilesBridge {
 
     /// 绑定一个工作文件夹
-    boolean bindFolder(in BridgeParcel folderSpec);
+    boolean bindFolder(in String folderSpec);
 
     /// 解绑
     boolean unbindFolder(String folderId);
 
     /// 列出绑定的文件夹
-    BridgeParcel listFolders();
+    String listFolders();
 
     /// 列出某文件夹下的文件树
-    BridgeParcel listFiles(String folderId, String relativePath);
+    String listFiles(String folderId, String relativePath);
 
     /// 读取文件内容
     String readFile(String folderId, String relativePath);
