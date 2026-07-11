@@ -921,6 +921,6 @@ class AgentTerminalExecutor(private val context: Context) {
             .put("avgDurationMs", avgDuration)
             .put("totalOutputChars", totalOutput)
             .put("activeSessions", sessions.size)
-            .put("activeBgTasks", bgTasks.count { it.status == BgTaskStatus.RUNNING })
+            .put("activeBgTasks", bgTasks.values.count { it.status == BgTaskStatus.RUNNING })
     }
 }

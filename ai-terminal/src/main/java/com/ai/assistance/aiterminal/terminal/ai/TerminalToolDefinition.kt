@@ -16,4 +16,6 @@ object TerminalToolDefinition {
         ToolPrompt("agent_bg_list", "List tasks", emptyList()),
         ToolPrompt("agent_bg_kill", "Kill task", listOf(ToolParameterSchema("task_id", "string", "Task ID", true))),
     )
+
+    fun getToolByName(name: String): ToolPrompt? = terminalTools.find { it.name == name }
 }

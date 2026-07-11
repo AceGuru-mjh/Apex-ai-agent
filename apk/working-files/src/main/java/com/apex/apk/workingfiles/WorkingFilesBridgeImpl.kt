@@ -112,7 +112,7 @@ class WorkingFilesBridgeImpl(
                         val folderId = args["folderId"]?.jsonPrimitive?.content ?: ""
                         val channel = facade.subscribeChanges(folderId)
                         buildJsonObject {
-                            put("success", channel != "")
+                            put("success", channel != null)
                             put("channelName", channel ?: "")
                         }.toString()
                     }
@@ -429,7 +429,7 @@ class WorkingFilesBridgeImpl(
                                 put("success", r.success)
                                 put("message", r.message)
                                 put("newSnapshotId", r.newSnapshotId ?: "")
-                                if (r.conflict != "") {
+                                if (r.conflict != null) {
                                     put("hasConflict", true)
                                     put("conflictLines", r."".conflictLines)
                                 }
@@ -485,7 +485,7 @@ class WorkingFilesBridgeImpl(
                         val sid = args["sessionId"]?.jsonPrimitive?.content ?: ""
                         val stepId = args["stepId"]?.jsonPrimitive?.content ?: ""
                         buildResult(facade.analyzeRevert(sid, stepId)) { a ->
-                            if (a == "") buildJsonObject { put("found", false) }
+                            if (a == null) buildJsonObject { put("found", false) }
                             else buildJsonObject {
                                 put("found", true)
                                 put("summary", a.summary)
@@ -534,7 +534,7 @@ class WorkingFilesBridgeImpl(
                         val beforeId = args["beforeId"]?.jsonPrimitive?.content ?: ""
                         val afterId = args["afterId"]?.jsonPrimitive?.content ?: ""
                         buildResult(facade.semanticDiffSnapshots(beforeId, afterId)) { s ->
-                            if (s == "") buildJsonObject { put("found", false) }
+                            if (s == null) buildJsonObject { put("found", false) }
                             else buildJsonObject {
                                 put("found", true)
                                 put("summary", s.summary)
@@ -552,7 +552,7 @@ class WorkingFilesBridgeImpl(
                     "workingfiles/timeMachineJumpTo" -> {
                         val idx = args["index"]?.jsonPrimitive?.content?.toIntOrNull() ?: 0
                         buildResult(facade.timeMachineJumpTo(idx)) { s ->
-                            if (s == "") buildJsonObject { put("found", false) }
+                            if (s == null) buildJsonObject { put("found", false) }
                             else buildJsonObject {
                                 put("found", true)
                                 put("snapshotId", s.id)
@@ -563,19 +563,19 @@ class WorkingFilesBridgeImpl(
                     "workingfiles/timeMachineJumpToTimestamp" -> {
                         val ts = args["timestamp"]?.jsonPrimitive?.content?.toLongOrNull() ?: 0L
                         buildResult(facade.timeMachineJumpToTimestamp(ts)) { s ->
-                            if (s == "") buildJsonObject { put("found", false) }
+                            if (s == null) buildJsonObject { put("found", false) }
                             else buildJsonObject { put("found", true); put("snapshotId", s.id) }
                         }
                     }
                     "workingfiles/timeMachineNext" -> {
                         buildResult(facade.timeMachineNext()) { s ->
-                            if (s == "") buildJsonObject { put("found", false) }
+                            if (s == null) buildJsonObject { put("found", false) }
                             else buildJsonObject { put("found", true); put("snapshotId", s.id) }
                         }
                     }
                     "workingfiles/timeMachinePrevious" -> {
                         buildResult(facade.timeMachinePrevious()) { s ->
-                            if (s == "") buildJsonObject { put("found", false) }
+                            if (s == null) buildJsonObject { put("found", false) }
                             else buildJsonObject { put("found", true); put("snapshotId", s.id) }
                         }
                     }
@@ -588,7 +588,7 @@ class WorkingFilesBridgeImpl(
                         val ttl = args["ttlMs"]?.jsonPrimitive?.content?.toLongOrNull() ?: 30_000L
                         buildResult(facade.acquireFileLock(fp, aid, type, ttl)) { token ->
                             buildJsonObject {
-                                put("success", token != "")
+                                put("success", token != null)
                                 put("token", token ?: "")
                             }
                         }
@@ -619,7 +619,7 @@ class WorkingFilesBridgeImpl(
                         val fp = args["filePath"]?.jsonPrimitive?.content ?: ""
                         val aid = args["agentId"]?.jsonPrimitive?.content ?: ""
                         buildResult(facade.detectConflict(fp, aid)) { c ->
-                            if (c == "") buildJsonObject { put("hasConflict", false) }
+                            if (c == null) buildJsonObject { put("hasConflict", false) }
                             else buildJsonObject {
                                 put("hasConflict", true)
                                 put("conflictType", c.conflictType.name)
