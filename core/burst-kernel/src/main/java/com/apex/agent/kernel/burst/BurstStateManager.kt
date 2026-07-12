@@ -305,7 +305,7 @@ class BurstStateManager(app: Application) : IBurstStateManager {
     }
 
     private fun JsonElement.toAny(): Any = when (this) {
-        is JsonNull -> null as Any
+        is JsonNull -> ""  // JSON null represented as empty string (preserves non-null Any contract)
         is JsonPrimitive -> {
             when {
                 this.isString -> this.content
