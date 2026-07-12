@@ -215,7 +215,7 @@ class RageMeter(
         val oldRage = _rage.value
         val newRage = (oldRage + amount).coerceAtMost(maxRage)
         _rage.value = newRage
-        emitEvent(RageEventType.RAGE_INCREASED, reason, oldRage, newRage)
+        emitEvent(RageEventType.RAGE_INCREASED, reason, _state.value, _state.value)
         evaluateStateTransition(reason)
     }
 
@@ -223,7 +223,7 @@ class RageMeter(
         val oldRage = _rage.value
         val newRage = (oldRage - amount).coerceAtLeast(0)
         _rage.value = newRage
-        emitEvent(RageEventType.RAGE_DECREASED, reason, oldRage, newRage)
+        emitEvent(RageEventType.RAGE_DECREASED, reason, _state.value, _state.value)
         evaluateStateTransition(reason)
     }
 
@@ -265,8 +265,8 @@ class RageMeter(
         }
     }
 
-    private fun emitEvent(type: RageEventType, reason: String, oldRage: Int, newRage: Int) {
-        val event = RageEvent(type, _state.value, _state.value, newRage, _energy.value, reason)
+    private fun emitEvent(type: RageEventType, reason: String, oldState: BerserkState, newState: BerserkState) {
+        val event = RageEvent(type, oldState, newState, _rage.value, _energy.value, reason)
         recentEvents.add(event)
         while (recentEvents.size > 100) recentEvents.poll()
         _events.value = recentEvents.toList().reversed()
