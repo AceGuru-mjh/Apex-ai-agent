@@ -1706,12 +1706,12 @@ onTriggered = onTriggered@{ similarity ->
         text
         .lowercase()
         .replace(
-        Regex("[\\s\\p{
-Punct
-}，。！？；：、“”‘’【】（?)\\[\\]{
-}<>《》]+"),                    ""                )
-            return cleaned"
-}
+        Regex("[\\s\\p{Punct}，。！？；：、""''【】（）?\\[\\]{}<>《》]+"),
+            ""
+        )
+        return cleaned
+    }
+
     private fun createNotification(): Notification {
         // 为了简单起见，使用一个安卓内置图标？
         // 在实际项目中，应替换为应用的自定义图标？
