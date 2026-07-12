@@ -75,7 +75,7 @@ internal class BurstModeImpl(
     override val checkpointManager: com.apex.agent.burstmode.checkpoint.CheckpointManager = _checkpointManager
 
     /** 技能选择器。 */
-    private val _skillSelector = com.apex.agent.burstmode.selection.SkillSelector(_skillManager).withDefaultStrategies()
+    private val _skillSelector = com.apex.agent.burstmode.selection.SkillSelector()
     override val skillSelector: com.apex.agent.burstmode.selection.SkillSelector = _skillSelector
 
     /** 限流器。 */
@@ -172,7 +172,7 @@ internal class BurstModeImpl(
         }
 
         try {
-            _state.value = KernelState.INITIALIZING
+            _state.value = KernelState.STARTING
             Log.i(TAG, "Initializing BurstMode with preset=${preset.displayName}, profile=${profile.name}")
 
             // 重建并发信号量

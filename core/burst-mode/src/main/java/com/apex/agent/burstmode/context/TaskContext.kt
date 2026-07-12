@@ -44,12 +44,12 @@ import java.util.concurrent.ConcurrentHashMap
  * ```
  */
 class TaskContext(
-    private val parent: TaskContext? = null
+    val parent: TaskContext? = null
 ) {
 
-    private val variables = ConcurrentHashMap<String, Any?>()
+    val variables = ConcurrentHashMap<String, Any?>()
 
-    private val listeners = java.util.concurrent.CopyOnWriteArraySet<(String, Any?, Any?) -> Unit>()
+    val listeners = java.util.concurrent.CopyOnWriteArraySet<(String, Any?, Any?) -> Unit>()
 
     /**
      * 设置变量。
@@ -99,7 +99,7 @@ class TaskContext(
      * @return 类型匹配的值，不匹配返回 null
      */
     @Suppress("UNCHECKED_CAST")
-    fun <reified T> getOrNull(key: String): T? {
+    inline fun <reified T> getOrNull(key: String): T? {
         val value = variables[key] ?: return parent?.getOrNull<T>(key)
         return if (value is T) value else null
     }
@@ -225,7 +225,7 @@ class TaskContext(
  */
 class ContextScope {
 
-    private val scopes = ConcurrentHashMap<String, TaskContext>()
+    val scopes = ConcurrentHashMap<String, TaskContext>()
 
     /**
      * 获取或创建指定作用域的上下文。
