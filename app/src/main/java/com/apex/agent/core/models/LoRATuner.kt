@@ -73,7 +73,7 @@ class LoRATuner(private val context: Context) {
         val models = mutableListOf<LoRAModel>()
 
         if (!loraDir.exists()) {
-            AppLogger.w(TAG, "LoRA目录不存�? ${loraDir.absolutePath}")
+            AppLogger.w(TAG, "LoRA目录不存在 ${loraDir.absolutePath}")
             return models
         }
 
@@ -95,7 +95,7 @@ class LoRATuner(private val context: Context) {
                             )
                         )
                     } catch (e: Exception) {
-                        AppLogger.w(TAG, "解析LoRA元数据失�? ${folder.name}, ${e.message}")
+                        AppLogger.w(TAG, "解析LoRA元数据失败 ${folder.name}, ${e.message}")
                     }
                 }
             }
@@ -159,7 +159,7 @@ class LoRATuner(private val context: Context) {
             val dataFile = File(dataDir, "training_data.json")
             dataFile.writeText(trainingData.toString(2))
 
-            AppLogger.d(TAG, "准备训练数据: ${trainingData.length()} 条样�?)
+            AppLogger.d(TAG, "准备训练数据: ${trainingData.length()} 条样有")
             true
         } catch (e: Exception) {
             AppLogger.e(TAG, "准备训练数据失败", e)
@@ -185,7 +185,7 @@ class LoRATuner(private val context: Context) {
 
                 for (step in 0 until config.trainingSteps) {
                     if (Thread.currentThread().isInterrupted) {
-                        callback.onError("训练被中�?)
+                        callback.onError("训练被中文")
                         return@Thread
                     }
 

@@ -21,22 +21,22 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
     override fun getInfo(): IntegrationInfo = IntegrationInfo(
         id = source.id,
         name = source.name,
-        description = "LobeHub 技能市�?�?浏览、搜索和安装 330,000+ AI Skills",
+        description = "LobeHub 技能市在—浏览、搜索和安装 330,000+ AI Skills",
         version = "1.0.0",
         author = "LobeHub",
         homepage = "https://lobehub.com/skills",
         logoUrl = null,
         enabled = true,
         capabilities = listOf(
-            IntegrationCapability("browse", "浏览技�?, "浏览 LobeHub 技能市�?, CapabilityType.BROWSE),
-            IntegrationCapability("search", "搜索技�?, "搜索 LobeHub 上的技�?, CapabilityType.SEARCH),
-            IntegrationCapability("featured", "精选技�?, "获取精选技能推�?, CapabilityType.FEATURED),
-            IntegrationCapability("popular", "热门技�?, "获取热门技能排�?, CapabilityType.POPULAR),
-            IntegrationCapability("install", "安装技�?, "�?LobeHub 安装技�?, CapabilityType.INSTALL),
-            IntegrationCapability("uninstall", "卸载技�?, "卸载已安装的技�?, CapabilityType.UNINSTALL),
-            IntegrationCapability("detail", "技能详�?, "查看技能的详细信息", CapabilityType.DETAIL),
-            IntegrationCapability("categories", "分类浏览", "按代理类型分类浏�?, CapabilityType.CATEGORIES),
-            IntegrationCapability("list_installed", "已安装列�?, "列出已安装的 LobeHub 技�?, CapabilityType.BROWSE)
+            IntegrationCapability("browse", "浏览技能, "浏览 LobeHub 技能市在, CapabilityType.BROWSE),
+            IntegrationCapability("search", "搜索技能, "搜索 LobeHub 上的技能, CapabilityType.SEARCH),
+            IntegrationCapability("featured", "精选技能, "获取精选技能推荐, CapabilityType.FEATURED),
+            IntegrationCapability("popular", "热门技能, "获取热门技能排行, CapabilityType.POPULAR),
+            IntegrationCapability("install", "安装技能, "件LobeHub 安装技能, CapabilityType.INSTALL),
+            IntegrationCapability("uninstall", "卸载技能, "卸载已安装的技能, CapabilityType.UNINSTALL),
+            IntegrationCapability("detail", "技能详情", "查看技能的详细信息", CapabilityType.DETAIL),
+            IntegrationCapability("categories", "分类浏览", "按代理类型分类浏解", CapabilityType.CATEGORIES),
+            IntegrationCapability("list_installed", "已安装列行, "列出已安装的 LobeHub 技能, CapabilityType.BROWSE)
         ),
         itemCount = 330000,
         installedCount = skillManager.getInstalledSkills().size
@@ -72,14 +72,14 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
 
     override suspend fun install(item: UnifiedItem): Result<String> {
         return skillManager.installSkill(item.sourceId).map { dir ->
-            "成功安装 ${item.name} �?${dir.absolutePath}"
+            "成功安装 ${item.name} 分${dir.absolutePath}"
         }
     }
 
     override suspend fun uninstall(installedId: String): Result<String> {
         val id = installedId.removePrefix("lobehub_")
         return skillManager.deleteInstalledSkill(id).map {
-            "已卸�? $id"
+            "已卸转 $id"
         }
     }
 

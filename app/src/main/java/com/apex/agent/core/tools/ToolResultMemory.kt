@@ -72,7 +72,7 @@ data class MemoryQueryResultData(
     }
 }
 
-/** 自动化配置搜索结果数�*/
+/** 自动化配置搜索结果数据*/
 
 @Serializable
 data class MemoryLinkResultData(

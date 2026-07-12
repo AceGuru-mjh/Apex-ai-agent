@@ -77,7 +77,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
             }
 
             if (entries.isEmpty()) {
-                return@withContext Result.failure(Exception("没有已安装的插件可导�?))
+                return@withContext Result.failure(Exception("没有已安装的插件可导出"))
             }
 
             val exportData = PluginExportData(plugins = entries, enabledPlugins = enabledIds)
@@ -87,7 +87,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
             val exportFile = File(destinationDir, EXPORT_FILE_NAME)
             exportFile.writeText(jsonContent)
 
-            AppLogger.i(TAG, "已导�?${entries.size} 个插件信息到 ${exportFile.absolutePath}")
+            AppLogger.i(TAG, "已导出${entries.size} 个插件信息到 ${exportFile.absolutePath}")
             Result.success(exportFile)
         } catch (e: Exception) {
             AppLogger.e(TAG, "导出插件信息失败", e)
@@ -99,7 +99,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
         withContext(Dispatchers.IO) {
             try {
                 if (!importFile.exists()) {
-                    return@withContext Result.failure(Exception("导入文件不存�?))
+                    return@withContext Result.failure(Exception("导入文件不存在"))
                 }
 
                 val jsonContent = importFile.readText()

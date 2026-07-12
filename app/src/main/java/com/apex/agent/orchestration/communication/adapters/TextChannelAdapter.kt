@@ -60,10 +60,10 @@ class TextChannelAdapter @Inject constructor(
 
     private fun simulateReply(originalMessage: AgentMessage) {
         val replyContent = when {
-            originalMessage.content.contains("你好", ignoreCase = true) -> "你好！很高兴为你服务�?
-            originalMessage.content.contains("谢谢", ignoreCase = true) -> "不客气！有问题随时问我�?
-            originalMessage.content.contains("时间", ignoreCase = true) -> "现在时间�?${java.time.LocalTime.now()}"
-            else -> "已收到你的消�? \"${originalMessage.content}\""
+            originalMessage.content.contains("你好", ignoreCase = true) -> "你好！很高兴为你服务。"
+            originalMessage.content.contains("谢谢", ignoreCase = true) -> "不客气！有问题随时问我。"
+            originalMessage.content.contains("时间", ignoreCase = true) -> "现在时间是${java.time.LocalTime.now()}"
+            else -> "已收到你的消息 \"${originalMessage.content}\""
         }
 
         val replyMessage = AgentMessage(

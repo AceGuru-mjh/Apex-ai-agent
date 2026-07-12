@@ -99,7 +99,7 @@ class ModelPerformanceOptimizer(private val context: Context) {
 
             gpuMemoryEstimate
         } catch (e: Exception) {
-            AppLogger.w(TAG, "无法检测GPU层数，使用默认�? ${e.message}")
+            AppLogger.w(TAG, "无法检测GPU层数，使用默认值 ${e.message}")
             0
         }
     }
@@ -113,11 +113,11 @@ class ModelPerformanceOptimizer(private val context: Context) {
         val improvements = mutableListOf<String>()
 
         if (currentConfig.threadCount != optimal.threadCount) {
-            improvements.add("线程�? ${currentConfig.threadCount} -> ${optimal.threadCount}")
+            improvements.add("线程数 ${currentConfig.threadCount} -> ${optimal.threadCount}")
         }
 
         if (currentConfig.batchSize != optimal.batchSize) {
-            improvements.add("批处理大�? ${currentConfig.batchSize} -> ${optimal.batchSize}")
+            improvements.add("批处理大将 ${currentConfig.batchSize} -> ${optimal.batchSize}")
         }
 
         if (currentConfig.gpuLayers != optimal.gpuLayers) {
@@ -129,7 +129,7 @@ class ModelPerformanceOptimizer(private val context: Context) {
         }
 
         if (currentConfig.contextSize != optimal.contextSize) {
-            improvements.add("上下文大�? ${currentConfig.contextSize} -> ${optimal.contextSize}")
+            improvements.add("上下文大将 ${currentConfig.contextSize} -> ${optimal.contextSize}")
         }
 
         val estimatedSpeedUp = calculateSpeedUp(currentConfig, optimal)

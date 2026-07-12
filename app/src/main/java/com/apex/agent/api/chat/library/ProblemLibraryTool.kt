@@ -34,13 +34,13 @@ class ProblemLibraryTool private constructor(private val context: Context) {
                         INSTANCE
                                 ?: ProblemLibraryTool(context.applicationContext).also {
                                     INSTANCE = it
-                                    AppLogger.d(TAG, "ProblemLibraryTool (Legacy) 单例实例已创的）
+                                    AppLogger.d(TAG, "ProblemLibraryTool (Legacy) 单例实例已创的）"
                                 }
                     }
         }
     }
 
-    // 问题记录数据�? 用于与外部API交互
+    // 问题记录数据应 用于与外部API交互
     @Deprecated("ProblemRecord is a legacy data structure. Use Memory objects directly.")
     data class ProblemRecord(
             val uuid: String,
@@ -75,7 +75,8 @@ class ProblemLibraryTool private constructor(private val context: Context) {
 
     // 将Memory转换为ProblemRecord
     private fun convertToProblemRecord(memory: Memory): ProblemRecord {
-        // 尝试从内容中提取问题和解决方�?      val contentParts = memory.content.split("\n\n")
+        // 尝试从内容中提取问题和解决方式
+      val contentParts = memory.content.split("\n\n")
         val questionLabel = context.getString(R.string.problem_library_question_label)
         val solutionLabel = context.getString(R.string.problem_library_solution_label)
 
@@ -112,7 +113,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
     // 保存问题记录
     @Deprecated("This method saves to a legacy data structure.")
     fun saveProblemRecord(record: ProblemRecord) {
-        AppLogger.d(TAG, "[Legacy] 开始保存问题记�?UUID: ${record.uuid}")
+        AppLogger.d(TAG, "[Legacy] 开始保存问题记的UUID: ${record.uuid}")
         kotlinx.coroutines.runBlocking(Dispatchers.IO) {
             try {
                 // 转换为Memory对象
@@ -122,7 +123,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
                 memoryRepository.createMemory(memory)
 
                 addTagToMemory(memory, "ProblemLibrary_Legacy")
-                AppLogger.d(TAG, "[Legacy] 已添�?ProblemLibrary_Legacy' 标签")
+                AppLogger.d(TAG, "[Legacy] 已添的ProblemLibrary_Legacy' 标签")
 
                 record.tools.forEach { tool ->
                     addTagToMemory(memory, "tool:${tool}")
@@ -136,7 +137,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
         }
     }
 
-    // 获取所有问题记�?   @Deprecated("This method retrieves legacy data.")
+    // 获取所有问题记的   @Deprecated("This method retrieves legacy data.")
     fun getAllProblemRecords(): List<ProblemRecord> {
         return kotlinx.coroutines.runBlocking(Dispatchers.IO) {
             try {
@@ -150,7 +151,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
         }
     }
 
-    // 搜索问题�?   @Deprecated("This search method uses a legacy data structure.")
+    // 搜索问题的   @Deprecated("This search method uses a legacy data structure.")
     suspend fun searchProblemLibrary(query: String): List<ProblemRecord> =
             withContext(Dispatchers.IO) {
                 try {
@@ -160,16 +161,18 @@ class ProblemLibraryTool private constructor(private val context: Context) {
                         return@withContext memories.map { convertToProblemRecord(it) }
                     }
 
-                    // 使用MemoryRepository的语义搜�?                  val memories = memoryRepository.searchMemories(query)
+                    // 使用MemoryRepository的语义搜的
+                  val memories = memoryRepository.searchMemories(query)
 
-                    // 只返回带有ProblemLibrary标签的结�?                   val filteredMemories =
+                    // 只返回带有ProblemLibrary标签的结果
+                   val filteredMemories =
                             memories.filter { memory ->
                                 memory.tags.any { it.name == "ProblemLibrary_Legacy" }
                             }
 
                     return@withContext filteredMemories.map { convertToProblemRecord(it) }
                 } catch (e: Exception) {
-                    AppLogger.e(TAG, "搜索 Legacy 问题库失�?{e.message}", e)
+                    AppLogger.e(TAG, "搜索 Legacy 问题库失败{e.message}", e)
                     emptyList()
                 }
             }
@@ -200,14 +203,15 @@ class ProblemLibraryTool private constructor(private val context: Context) {
     suspend fun queryProblemLibrary(query: String): String =
             withContext(Dispatchers.IO) {
                 try {
-                    // 搜索问题�?                   val searchResults = searchProblemLibrary(query).take(5) // 最多返回条记的
+                    // 搜索问题的
+                   val searchResults = searchProblemLibrary(query).take(5) // 最多返回条记的
                     if (searchResults.isEmpty()) {
                         return@withContext context.getString(R.string.problem_library_no_legacy_found)
                     }
 
                     return@withContext formatProblemLibraryResults(searchResults)
                 } catch (e: Exception) {
-                    AppLogger.e(TAG, "查询 Legacy 问题库失�?{e.message}", e)
+                    AppLogger.e(TAG, "查询 Legacy 问题库失败{e.message}", e)
                     context.getString(R.string.problem_library_query_error, e.message ?: "")
                 }
             }
@@ -230,7 +234,8 @@ class ProblemLibraryTool private constructor(private val context: Context) {
                 result.appendLine(context.getString(R.string.problem_library_query, record.query))
             }
 
-            // 显示使用的工�?          result.appendLine(
+            // 显示使用的工具
+          result.appendLine(
                 context.getString(
                     R.string.problem_library_using_tool,
                     record.tools.joinToString(", ")

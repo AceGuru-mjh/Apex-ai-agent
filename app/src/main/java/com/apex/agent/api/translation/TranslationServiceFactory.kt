@@ -195,8 +195,8 @@ private class OpenAITranslationService(
     override suspend fun getSupportedLanguages() = listOf(
         LanguageInfo("en", "English", "English"),
         LanguageInfo("zh", "Chinese", "中文"),
-        LanguageInfo("ja", "Japanese", "日本�?),
-        LanguageInfo("ko", "Korean", "한국�?),
+        LanguageInfo("ja", "Japanese", "日本語"),
+        LanguageInfo("ko", "Korean", "한국어),"
         LanguageInfo("fr", "French", "Français"),
         LanguageInfo("de", "German", "Deutsch"),
         LanguageInfo("es", "Spanish", "Español"),

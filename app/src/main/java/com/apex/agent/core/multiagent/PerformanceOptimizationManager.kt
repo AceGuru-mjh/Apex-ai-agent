@@ -94,10 +94,10 @@ class PerformanceOptimizationManager(private val context: Context) {
     }
 
     fun getAvailablePresets(): List<PresetInfo> = listOf(
-        PresetInfo(PRESET_BALANCED, "平衡模式", "兼顾性能和资源消耗的最佳平),
-        PresetInfo(PRESET_HIGH_PERFORMANCE, "高性能模式", "最大程度提升系统性能，资源消耗较),
-        PresetInfo(PRESET_LOW_POWER, "低功耗模, "最小化资源消耗，适合移动设备"),
-        PresetInfo(PRESET_CUSTOM, "自定, "根据个人需求自定义配置")
+        PresetInfo(PRESET_BALANCED, "平衡模式", "兼顾性能和资源消耗的最佳平"),
+        PresetInfo(PRESET_HIGH_PERFORMANCE, "高性能模式", "最大程度提升系统性能，资源消耗较"),
+        PresetInfo(PRESET_LOW_POWER, "低功耗模", "最小化资源消耗，适合移动设备"),
+        PresetInfo(PRESET_CUSTOM, "自定", "根据个人需求自定义配置")
     )
 }
 

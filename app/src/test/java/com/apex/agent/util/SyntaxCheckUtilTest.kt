@@ -52,7 +52,7 @@ class SyntaxCheckUtilTest {
     @Test
     fun `checkJavaScript detects unclosed string`() {
         val code = """
-            var x = "unclosed string;
+            var x = "unclosed string;"
             var y = 1;
         """.trimIndent()
         val result = SyntaxCheckUtil.checkJavaScript("test.js", code)

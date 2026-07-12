@@ -266,7 +266,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             val resultData = SystemSettingData(namespace = namespace, setting = setting, value = value)
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "修改系统设置时出??, e)
+            AppLogger.e(TAG, "修改系统设置时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -274,7 +274,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Security exception when modifying system settings: ${e.message}. This may require higher permissions."
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "修改系统设置时出??, e)
+            AppLogger.e(TAG, "修改系统设置时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -328,7 +328,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "获取系统设置时出??, e)
+            AppLogger.e(TAG, "获取系统设置时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -336,7 +336,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Security exception when getting system settings: ${e.message}. This may require higher permissions."
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取系统设置时出??, e)
+            AppLogger.e(TAG, "获取系统设置时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -398,7 +398,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "请求安装应用时出??, e)
+            AppLogger.e(TAG, "请求安装应用时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -446,7 +446,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "请求卸载应用时出??, e)
+            AppLogger.e(TAG, "请求卸载应用时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -547,7 +547,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
         } catch (e: Exception) {
-            AppLogger.e(TAG, "启动应用时出??, e)
+            AppLogger.e(TAG, "启动应用时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -581,7 +581,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "停止应用时出现安全异??, e)
+            AppLogger.e(TAG, "停止应用时出现安全异??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -589,7 +589,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Failed to stop app: ${e.message}. Requires KILL_BACKGROUND_PROCESSES permission."
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "停止应用时出??, e)
+            AppLogger.e(TAG, "停止应用时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -623,7 +623,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 }
                 context.startActivity(intent)
             } catch (e: Exception) {
-                AppLogger.e(TAG, "打开通知使用权设置页面失??, e)
+                AppLogger.e(TAG, "打开通知使用权设置页面失??, e)"
             }
 
             return ToolResult(
@@ -645,7 +645,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取通知时出??, e)
+            AppLogger.e(TAG, "获取通知时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -791,7 +791,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "读取应用使用时长时出现权限异??, e)
+            AppLogger.e(TAG, "读取应用使用时长时出现权限异??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -799,7 +799,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Security exception when reading app usage time: ${e.message}"
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "读取应用使用时长时出??, e)
+            AppLogger.e(TAG, "读取应用使用时长时出??, e)"
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -886,7 +886,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                             null
                                         }
                                     } catch (e: SecurityException) {
-                                        AppLogger.e(TAG, "获取最后已知位置失??, e)
+                                        AppLogger.e(TAG, "获取最后已知位置失??, e)"
                                         null
                                     }
 
@@ -1020,7 +1020,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
             return ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取位置信息时出??, e)
+            AppLogger.e(TAG, "获取位置信息时出??, e)"
             return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -1055,7 +1055,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取地址信息时出??, e)
+            AppLogger.e(TAG, "获取地址信息时出??, e)"
         }
 
         // 如果无法获取地址信息，返回空对象

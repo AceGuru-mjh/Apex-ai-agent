@@ -64,7 +64,7 @@ class CoreModuleInitializer private constructor() {
     private var isInitialized = false
     private var appContext: Context? = null
 
-    // 使用自定�?CoroutineScope 替代 GlobalScope
+    // 使用自定义CoroutineScope 替代 GlobalScope
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun initialize(context: Context) {
@@ -225,7 +225,7 @@ object HermesIntegration {
 
     private val logger = LoggerFactory.getLogger(HermesIntegration::class.java)
     
-    // 使用自定�?CoroutineScope 替代 GlobalScope
+    // 使用自定义CoroutineScope 替代 GlobalScope
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     // Link state management

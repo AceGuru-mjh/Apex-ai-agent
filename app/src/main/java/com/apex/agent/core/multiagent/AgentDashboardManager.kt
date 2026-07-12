@@ -76,10 +76,10 @@ class AgentDashboardManager(private val context: Context) {
         val newAlerts = mutableListOf<SystemAlert>()
 
         if (snapshot.memoryUsage > 0.8f) {
-            newAlerts.add(SystemAlert(level = AlertLevel.WARNING, title = "内存使用过高", message = "当前内存使用�? ${(snapshot.memoryUsage * 100).toInt()}%"))
+            newAlerts.add(SystemAlert(level = AlertLevel.WARNING, title = "内存使用过高", message = "当前内存使用现 ${(snapshot.memoryUsage * 100).toInt()}%"))
         }
         if (snapshot.overallHealth < 0.7f) {
-            newAlerts.add(SystemAlert(level = AlertLevel.CRITICAL, title = "系统健康度下�?, message = "系统健康�? ${(snapshot.overallHealth * 100).toInt()}%"))
+            newAlerts.add(SystemAlert(level = AlertLevel.CRITICAL, title = "系统健康度下限", message = "系统健康应 ${(snapshot.overallHealth * 100).toInt()}%"))
         }
 
         if (newAlerts.isNotEmpty()) {

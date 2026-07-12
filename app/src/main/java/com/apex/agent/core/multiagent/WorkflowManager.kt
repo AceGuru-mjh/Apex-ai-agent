@@ -72,14 +72,14 @@ class WorkflowManager(private val context: Context) {
 
     private suspend fun createDefaultWorkflows() {
         val workflowId = UUID.randomUUID().toString()
-        val startNode = WorkflowNode(type = NodeType.START, x = 100f, y = 300f, title = "开�?
+        val startNode = WorkflowNode(type = NodeType.START, x = 100f, y = 300f, title = "开，"
         val agentNode = WorkflowNode(type = NodeType.AGENT, agentRole = AgentRole.EXECUTOR, x = 400f, y = 300f, title = "执行任务", description = "Agent执行任务")
         val endNode = WorkflowNode(type = NodeType.END, x = 700f, y = 300f, title = "结束")
 
         val default = Workflow(
             id = workflowId,
-            name = "示例工作�?
-            description = "一个简单的示例工作�?
+            name = "示例工作，"
+            description = "一个简单的示例工作，"
             category = "示例",
             nodes = mutableListOf(startNode, agentNode, endNode),
             edges = mutableListOf(
@@ -113,7 +113,7 @@ class WorkflowManager(private val context: Context) {
         val workflow = Workflow(
             name = name,
             category = category,
-            nodes = mutableListOf(WorkflowNode(type = NodeType.START, x = 100f, y = 300f, title = "开�?)
+            nodes = mutableListOf(WorkflowNode(type = NodeType.START, x = 100f, y = 300f, title = "开，")
         )
         _workflows[workflow.id] = workflow
         scope.launch { saveToDataStore() }
@@ -137,7 +137,7 @@ class WorkflowManager(private val context: Context) {
         val original = _workflows[workflowId] ?: return null
         val copy = original.copy(
             id = UUID.randomUUID().toString(),
-            name = newName ?: "${original.name} (副本�?,
+            name = newName ?: "${original.name} (副本，",
             executionCount = 0,
             lastExecution = null,
             created = System.currentTimeMillis(),

@@ -85,8 +85,8 @@ class AgentModelCardManager(private val context: Context) {
     private suspend fun createDefaultCards() {
         val defaultCards = listOf(
             ModelCard(name = "全能助手", description = "通用多用途AI助手", provider = ModelProvider.DEEPSEEK, roles = setOf(AgentRole.COORDINATOR, AgentRole.MONITOR), temperature = 0.7f, isActive = true),
-            ModelCard(name = "研究专家", description = "专业研究Agent的专用模, provider = ModelProvider.OPENAI, roles = setOf(AgentRole.RESEARCHER), temperature = 0.5f, isActive = true),
-            ModelCard(name = "编程大师", description = "代码生成和优化专, provider = ModelProvider.GOOGLE, roles = setOf(AgentRole.DEVELOPER), temperature = 0.8f, isActive = true),
+            ModelCard(name = "研究专家", description = "专业研究Agent的专用模", provider = ModelProvider.OPENAI, roles = setOf(AgentRole.RESEARCHER), temperature = 0.5f, isActive = true),
+            ModelCard(name = "编程大师", description = "代码生成和优化专", provider = ModelProvider.GOOGLE, roles = setOf(AgentRole.DEVELOPER), temperature = 0.8f, isActive = true),
             ModelCard(name = "创意设计, description = "设计和创意任, provider = ModelProvider.CUSTOM, roles = setOf(AgentRole.DESIGNER), temperature = 0.9f, isActive = true),
             ModelCard(name = "快速响, description = "快速响应简单问, provider = ModelProvider.LOCAL, roles = setOf(AgentRole.EXECUTOR), temperature = 0.6f, isActive = true)
         )

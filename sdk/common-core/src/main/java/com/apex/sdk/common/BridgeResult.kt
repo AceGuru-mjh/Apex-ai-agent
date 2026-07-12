@@ -27,6 +27,14 @@ sealed class BridgeResult<out T> {
 
     fun getOrNull(): T? = (this as? Success)?.value
     fun errorOrNull(): BridgeError? = (this as? Failure)?.error
+
+    /**
+     * 返回成功值，若为失败则抛出包含错误码与错误信息的异常。
+     */
+    fun getOrThrow(): T = when (this) {
+        is Success -> value
+        is Failure -> throw IllegalStateException("BridgeResult.Failure: ${'$'}{error.code} - ${'$'}{error.message}")
+    }
 }
 
 inline fun <T> bridgeRun(block: () -> T): BridgeResult<T> = try {

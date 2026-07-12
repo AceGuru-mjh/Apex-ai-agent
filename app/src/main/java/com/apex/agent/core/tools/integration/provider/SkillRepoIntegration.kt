@@ -19,17 +19,17 @@ class SkillRepoIntegration : IntegrationProvider {
     override fun getInfo(): IntegrationInfo = IntegrationInfo(
         id = source.id,
         name = source.name,
-        description = "官方技能仓�?�?浏览、搜索和安装技�?,
+        description = "官方技能仓应—浏览、搜索和安装技能",
         version = "1.0.0",
         author = "Logistra AI",
         homepage = "https://skill-repo.logistra.ai",
         enabled = true,
         capabilities = listOf(
-            IntegrationCapability("browse", "浏览技�?, "浏览技能仓�?, CapabilityType.BROWSE),
-            IntegrationCapability("search", "搜索技�?, "搜索技能仓�?, CapabilityType.SEARCH),
-            IntegrationCapability("install", "安装技�?, "从仓库安装技�?, CapabilityType.INSTALL),
-            IntegrationCapability("detail", "技能详�?, "查看技能详细信�?, CapabilityType.DETAIL),
-            IntegrationCapability("categories", "分类浏览", "按分类浏�?, CapabilityType.CATEGORIES)
+            IntegrationCapability("browse", "浏览技能, "浏览技能仓应, CapabilityType.BROWSE),
+            IntegrationCapability("search", "搜索技能, "搜索技能仓应, CapabilityType.SEARCH),
+            IntegrationCapability("install", "安装技能, "从仓库安装技能, CapabilityType.INSTALL),
+            IntegrationCapability("detail", "技能详情, "查看技能详细信息, CapabilityType.DETAIL),
+            IntegrationCapability("categories", "分类浏览", "按分类浏解", CapabilityType.CATEGORIES)
         ),
         itemCount = 0,
         installedCount = 0
@@ -93,7 +93,7 @@ class SkillRepoIntegration : IntegrationProvider {
             outputFile.parentFile?.mkdirs()
             repoClient.downloadSkill(item.sourceId, item.version, outputFile).fold(
                 onSuccess = { file ->
-                    Result.success("成功安装 ${item.name} �?${file.absolutePath}")
+                    Result.success("成功安装 ${item.name} 分${file.absolutePath}")
                 },
                 onFailure = { Result.failure(it) }
             )
@@ -101,7 +101,7 @@ class SkillRepoIntegration : IntegrationProvider {
     }
 
     override suspend fun uninstall(installedId: String): Result<String> {
-        return Result.success("卸载功能待实�? $installedId")
+        return Result.success("卸载功能待实现 $installedId")
     }
 
     override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {

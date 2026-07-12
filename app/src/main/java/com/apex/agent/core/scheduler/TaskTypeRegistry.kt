@@ -6,8 +6,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * 任务类型注册�? * 
- * 管理所有可用的任务类型及其处理�? * 支持自定义任务注�? */
+ * 任务类型注册行
+ * 
+ * 管理所有可用的任务类型及其处理器
+ * 支持自定义任务注内
+ */
 class TaskTypeRegistry(private val context: Context) {
 
     companion object {
@@ -24,7 +27,8 @@ class TaskTypeRegistry(private val context: Context) {
     }
     
     /**
-     * 任务处理器接�?     */
+     * 任务处理器接取
+     */
     interface TaskHandler {
         val taskType: ScheduledTask.TaskType
         suspend fun execute(): ExecutionResult
@@ -41,7 +45,8 @@ class TaskTypeRegistry(private val context: Context) {
     )
     
     /**
-     * 已注册的任务处理�?     */
+     * 已注册的任务处理器
+     */
     private val handlers = mutableMapOf<ScheduledTask.TaskType, TaskHandler>()
     
     /**
@@ -52,7 +57,8 @@ class TaskTypeRegistry(private val context: Context) {
     }
     
     /**
-     * 注册内置任务处理�?     */
+     * 注册内置任务处理器
+     */
     private fun registerBuiltInHandlers() {
         // 日报生成任务
         registerHandler(object : TaskHandler {
@@ -111,7 +117,8 @@ class TaskTypeRegistry(private val context: Context) {
             }
         })
         
-        // 健康检查任�?        registerHandler(object : TaskHandler {
+        // 健康检查任务
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.HEALTH_CHECK
             
             override suspend fun execute(): ExecutionResult {
@@ -131,45 +138,49 @@ class TaskTypeRegistry(private val context: Context) {
             override suspend fun execute(): ExecutionResult {
                 return try {
                     // 通知逻辑
-                    ExecutionResult(true, "通知已发�?)
+                    ExecutionResult(true, "通知已发通")
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
             }
         })
         
-        // 自定义任�?        registerHandler(object : TaskHandler {
+        // 自定义任务
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.CUSTOM
             
             override suspend fun execute(): ExecutionResult {
-                return ExecutionResult(true, "自定义任务执行完�?)
+                return ExecutionResult(true, "自定义任务执行完成")
             }
         })
         
-        AppLogger.d(TAG, "已注�?${handlers.size} 个内置任务处理器")
+        AppLogger.d(TAG, "已注内${handlers.size} 个内置任务处理器")
     }
     
     /**
-     * 注册任务处理�?     */
+     * 注册任务处理器
+     */
     fun registerHandler(handler: TaskHandler): Boolean {
         return try {
             handlers[handler.taskType] = handler
             AppLogger.d(TAG, "已注册任务处理器: ${handler.taskType.name}")
             true
         } catch (e: Exception) {
-            AppLogger.e(TAG, "注册任务处理器失�? ${handler.taskType.name}", e)
+            AppLogger.e(TAG, "注册任务处理器失败 ${handler.taskType.name}", e)
             false
         }
     }
     
     /**
-     * 注销任务处理�?     */
+     * 注销任务处理器
+     */
     fun unregisterHandler(taskType: ScheduledTask.TaskType): Boolean {
         return handlers.remove(taskType) != null
     }
     
     /**
-     * 获取任务处理�?     */
+     * 获取任务处理器
+     */
     fun getHandler(taskTypeName: String): TaskHandler? {
         return try {
             val taskType = ScheduledTask.TaskType.valueOf(taskTypeName)
@@ -181,7 +192,8 @@ class TaskTypeRegistry(private val context: Context) {
     }
     
     /**
-     * 获取所有已注册的任务类�?     */
+     * 获取所有已注册的任务类型
+     */
     fun getRegisteredTaskTypes(): List<ScheduledTask.TaskType> {
         return handlers.keys.toList()
     }
@@ -201,14 +213,14 @@ class TaskTypeRegistry(private val context: Context) {
             appendLine("📊 每日报告 - ${formatDate()}")
             appendLine()
             appendLine("## 今日概览")
-            appendLine("- 系统运行状�? 正常")
-            appendLine("- 任务执行: 12 �?)
-            appendLine("- AI 交互: 45 �?)
+            appendLine("- 系统运行状态 正常")
+            appendLine("- 任务执行: 12 次")
+            appendLine("- AI 交互: 45 次")
             appendLine()
             appendLine("## 性能指标")
             appendLine("- 响应时间: 平均 230ms")
-            appendLine("- 成功�? 98.5%")
-            appendLine("- Token 消�? 12,500")
+            appendLine("- 成功现 98.5%")
+            appendLine("- Token 消者 12,500")
         }
     }
     
@@ -219,7 +231,7 @@ class TaskTypeRegistry(private val context: Context) {
         val timestamp = System.currentTimeMillis()
         val backupPath = "/backup/backup_${timestamp}.zip"
         appendLine("备份已保存到: ${backupPath}")
-        appendLine("备份大小: �?45MB")
+        appendLine("备份大小: 级45MB")
         appendLine("备份时间: ${formatTime(timestamp)}")
     }
     
@@ -230,15 +242,15 @@ class TaskTypeRegistry(private val context: Context) {
         buildString {
             appendLine("🔒 安全审计报告 - ${formatDate()}")
             appendLine()
-            appendLine("## 权限检�?)
-            appendLine("�?文件访问权限 - 正常")
-            appendLine("�?网络访问权限 - 正常")
-            appendLine("�?通知权限 - 已授�?)
+            appendLine("## 权限检查")
+            appendLine("✓文件访问权限 - 正常")
+            appendLine("✓网络访问权限 - 正常")
+            appendLine("✓通知权限 - 已授权")
             appendLine()
-            appendLine("## 安全检�?)
-            appendLine("�?证书状�?- 有效")
-            appendLine("�?API 密钥 - 已配�?)
-            appendLine("�?加密存储 - 启用")
+            appendLine("## 安全检查")
+            appendLine("✓证书状态- 有效")
+            appendLine("✓API 密钥 - 已配置")
+            appendLine("✓加密存储 - 启用")
         }
     }
     
@@ -250,22 +262,23 @@ class TaskTypeRegistry(private val context: Context) {
             appendLine("📈 自动报告 - ${formatDate()}")
             appendLine()
             appendLine("## 使用统计")
-            appendLine("- 日活跃用�? 1,234")
+            appendLine("- 日活跃用成 1,234")
             appendLine("- 周增长率: +12.5%")
-            appendLine("- 核心功能使用: 8,901 �?)
+            appendLine("- 核心功能使用: 8,901 次")
         }
     }
     
     /**
-     * 执行健康检�?     */
+     * 执行健康检查
+     */
     private suspend fun performHealthCheck(): String = withContext(Dispatchers.IO) {
         buildString {
-            appendLine("🏥 系统健康检�?- ${formatDate()}")
+            appendLine("🏥 系统健康检查- ${formatDate()}")
             appendLine()
-            appendLine("## 服务状�?)
-            appendLine("�?AI 服务 - 正常")
-            appendLine("�?存储服务 - 正常")
-            appendLine("�?网络连接 - 正常")
+            appendLine("## 服务状态")
+            appendLine("✓AI 服务 - 正常")
+            appendLine("✓存储服务 - 正常")
+            appendLine("✓网络连接 - 正常")
             appendLine()
             appendLine("## 资源使用")
             appendLine("- CPU: 23%")
@@ -275,21 +288,24 @@ class TaskTypeRegistry(private val context: Context) {
     }
     
     /**
-     * 格式化日�?     */
+     * 格式化日有
+     */
     private fun formatDate(): String {
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
         return sdf.format(java.util.Date())
     }
     
     /**
-     * 格式化时�?     */
+     * 格式化时间
+     */
     private fun formatTime(timestamp: Long): String {
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
         return sdf.format(java.util.Date(timestamp))
     }
     
     /**
-     * 获取注册表统�?     */
+     * 获取注册表统计
+     */
     fun getStats(): RegistryStats {
         return RegistryStats(
             totalHandlers = handlers.size,
@@ -298,7 +314,8 @@ class TaskTypeRegistry(private val context: Context) {
     }
     
     /**
-     * 注册表统�?     */
+     * 注册表统计
+     */
     data class RegistryStats(
         val totalHandlers: Int,
         val taskTypes: List<String>

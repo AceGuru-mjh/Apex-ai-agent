@@ -44,7 +44,7 @@ class PerformanceTester {
             "数据分析与可视化",
             "设计用户界面",
             "编写API接口",
-            "优化数据库查。
+            "优化数据库查。"
             "实现安全认证",
             "部署应用到服务器",
             "编写测试用例"
@@ -111,7 +111,7 @@ class PerformanceTester {
 
     fun testScalability(maxThreads: Int, requestCount: Int) {
         println("===== 可扩展性测===-")
-        println("线程数\t成功数\t失败数\t平均响应时间(ms)\t吞吐？req/s)\t错误。
+        println("线程数\t成功数\t失败数\t平均响应时间(ms)\t吞吐？req/s)\t错误。"
         println("-".repeat(80))
 
         for (threads in 1..maxThreads step 2) {

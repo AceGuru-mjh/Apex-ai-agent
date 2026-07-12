@@ -33,7 +33,7 @@ data class SimplifiedUINode(
 
         // Node identifier
         sb.append(indent)
-        if (isClickable) sb.append("ï¼?) else sb.append("ï¼?)
+        if (isClickable) sb.append("ï¼Œ) else sb.append("ï¼Œ)
 
         // Class name
         className?.let { sb.append("[${it}] ") }
@@ -173,7 +173,7 @@ data class ComputerDesktopActionResultData(
             }
         }
         pageContent?.let {
-            sb.appendLine("\n--- Page Content (Interactable Elements marked with ï¼?---")
+            sb.appendLine("\n--- Page Content (Interactable Elements marked with ï¼Œ---")
             sb.append(it.toTreeString())
         }
         return sb.toString()

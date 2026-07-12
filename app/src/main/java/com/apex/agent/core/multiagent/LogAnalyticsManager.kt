@@ -102,7 +102,8 @@ class LogAnalyticsManager {
 
     private fun updateTaskTypeStats(taskId: String?, difficulty: Int?, duration: Long?, success: Boolean) {
         if (taskId != null && duration != null) {
-            val taskType = taskId.split("_")[0] // 简单提取任务类�?           taskTypeStats.computeIfAbsent(taskType) { mutableListOf() }.add(Triple(difficulty ?: 1, duration, success))
+            val taskType = taskId.split("_")[0] // 简单提取任务类，
+           taskTypeStats.computeIfAbsent(taskType) { mutableListOf() }.add(Triple(difficulty ?: 1, duration, success))
         }
     }
 
@@ -186,14 +187,14 @@ class LogAnalyticsManager {
         sb.appendLine("[")
         logs.values.forEachIndexed { index, entry ->
             sb.appendLine("  {")
-            sb.appendLine("    \"id\": \"${entry.id}",")
+            sb.appendLine("    \"id\": \"${entry.id}",")"
             sb.appendLine("    \"timestamp\": ${entry.timestamp},")
-            sb.appendLine("    \"level\": \"${entry.level}",")
-            sb.appendLine("    \"component\": \"${entry.component}",")
+            sb.appendLine("    \"level\": \"${entry.level}",")"
+            sb.appendLine("    \"component\": \"${entry.component}",")"
             sb.appendLine("    \"sessionId\": ${if (entry.sessionId != null) "\"${entry.sessionId}\"" else "null"},")
             sb.appendLine("    \"agentId\": ${if (entry.agentId != null) "\"${entry.agentId}\"" else "null"},")
             sb.appendLine("    \"taskId\": ${if (entry.taskId != null) "\"${entry.taskId}\"" else "null"},")
-            sb.appendLine("    \"message\": \"${entry.message.replace("\"", "\\\"")}",")
+            sb.appendLine("    \"message\": \"${entry.message.replace("\"", "\\\"")}",")"
             sb.appendLine("    \"details\": ${if (entry.details != null) entry.details else "null"},")
             sb.appendLine("    \"duration\": ${entry.duration ?: "null"}")
             sb.appendLine("  }${if (index < logs.size - 1) "," else ""}")
@@ -262,7 +263,7 @@ class LogAnalyticsManager {
         return logs.values.groupBy { it.component }.mapValues { it.value.size }
     }
 
-    // 高级分析功能：识别系统瓶�?   fun identifyBottlenecks(): List<Pair<String, Double>> {
+    // 高级分析功能：识别系统瓶，   fun identifyBottlenecks(): List<Pair<String, Double>> {
         return componentStats.map { (component, durations) ->
             val avgDuration = durations.average()
             Pair(component, avgDuration)

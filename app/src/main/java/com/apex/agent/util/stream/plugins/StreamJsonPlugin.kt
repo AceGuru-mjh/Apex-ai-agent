@@ -4,7 +4,7 @@ package com.apex.util.stream.plugins
  * A stream processing plugin that identifies and extracts complete JSON objects or arrays.
  *
  * This plugin treats an entire JSON structure as a single block and emits all of its
- * characters, including structural ones like `{}[]",:`.
+ * characters, including structural ones like `{}[]",:`."
  */
 class StreamJsonPlugin : BaseJsonPlugin() {
     /**

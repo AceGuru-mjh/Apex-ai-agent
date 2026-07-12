@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 /**
- * 统一会话存储入口 - 封装 Session/Message/BatchRun/RLTrajectory �?CRUD 操作
+ * 统一会话存储入口 - 封装 Session/Message/BatchRun/RLTrajectory 的CRUD 操作
  */
 class SessionStorage private constructor(context: Context) {
 

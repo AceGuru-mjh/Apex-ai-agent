@@ -10,7 +10,8 @@ class TrainingDataGenerator {
         val taskId: String,
         val taskFeatures: Map<String, Double>,
         val agentFeatures: Map<String, Double>,
-        val label: Double, // 0-1之间的匹配得�?       val metadata: Map<String, Any>
+        val label: Double, // 0-1之间的匹配得，
+       val metadata: Map<String, Any>
     )
 
     data class DataPipelineConfig(
@@ -88,7 +89,7 @@ class TrainingDataGenerator {
             "数据分析与可视化",
             "设计用户界面",
             "编写API接口",
-            "优化数据库查�?
+            "优化数据库查，"
             "实现安全认证",
             "部署应用到服务器",
             "编写测试用例"
@@ -130,7 +131,8 @@ class TrainingDataGenerator {
         val features = mutableMapOf<String, Double>()
         features["difficulty"] = task.difficulty.toDouble() / 10.0
         features["riskLevel"] = task.riskLevel.toDouble() / 5.0
-        features["estimatedTime"] = task.estimatedTime.toDouble() / 3600.0 // 转换为小�?       features["memoryRequirement"] = task.resourceRequirement.memory.toDouble() / 1024.0 // 转换为GB
+        features["estimatedTime"] = task.estimatedTime.toDouble() / 3600.0 // 转换为小，
+       features["memoryRequirement"] = task.resourceRequirement.memory.toDouble() / 1024.0 // 转换为GB
         features["cpuRequirement"] = task.resourceRequirement.cpu.toDouble() / 100.0
         features["networkRequirement"] = task.resourceRequirement.network.toDouble() / 100.0
         features["storageRequirement"] = task.resourceRequirement.storage.toDouble() / 1024.0 // 转换为GB
@@ -147,7 +149,8 @@ class TrainingDataGenerator {
     private fun extractAgentFeatures(agent: AgentCapabilityProfile.CapabilityProfile, taskCategory: String): Map<String, Double> {
         val features = mutableMapOf<String, Double>()
         features["successRate"] = agent.performanceMetrics.successRate
-        features["averageResponseTime"] = agent.performanceMetrics.averageResponseTime.toDouble() / 60000.0 // 转换为分�?       features["averageQualityScore"] = agent.performanceMetrics.averageQualityScore
+        features["averageResponseTime"] = agent.performanceMetrics.averageResponseTime.toDouble() / 60000.0 // 转换为分，
+       features["averageQualityScore"] = agent.performanceMetrics.averageQualityScore
         features["totalTasks"] = agent.performanceMetrics.totalTasks.toDouble() / 100.0
         
         // Agent能力评分
@@ -165,24 +168,28 @@ class TrainingDataGenerator {
     private fun calculateMatchScore(taskFeatures: Map<String, Double>, agentFeatures: Map<String, Double>): Double {
         var score = 0.0
         
-        // 能力匹配�?       score += agentFeatures.getOrDefault("capabilityScore", 0.0) * 0.4
+        // 能力匹配，
+       score += agentFeatures.getOrDefault("capabilityScore", 0.0) * 0.4
         
         // 技能匹配度
         score += agentFeatures.getOrDefault("skillMatch", 0.0) * 0.3
         
-        // 成功�?       score += agentFeatures.getOrDefault("successRate", 0.0) * 0.2
+        // 成功，
+       score += agentFeatures.getOrDefault("successRate", 0.0) * 0.2
         
         // 响应时间（越低越好）
         val responseTimeScore = 1.0 - minOf(agentFeatures.getOrDefault("averageResponseTime", 0.0), 1.0)
         score += responseTimeScore * 0.1
         
-        // 添加一些噪�?       score += (Random.nextDouble() - 0.5) * 0.1
+        // 添加一些噪，
+       score += (Random.nextDouble() - 0.5) * 0.1
         
         return score.coerceIn(0.0, 1.0)
     }
 
     private fun normalizeFeatures(samples: List<TrainingSample>): List<TrainingSample> {
-        // 计算特征均值和标准�?       val taskFeatureStats = calculateFeatureStats(samples.map { it.taskFeatures })
+        // 计算特征均值和标准，
+       val taskFeatureStats = calculateFeatureStats(samples.map { it.taskFeatures })
         val agentFeatureStats = calculateFeatureStats(samples.map { it.agentFeatures })
 
         return samples.map { sample ->
@@ -220,11 +227,13 @@ class TrainingDataGenerator {
     }
 
     private fun balanceClasses(samples: List<TrainingSample>): List<TrainingSample> {
-        // 按标签分�?       val lowScoreSamples = samples.filter { it.label < 0.3 }
+        // 按标签分，
+       val lowScoreSamples = samples.filter { it.label < 0.3 }
         val mediumScoreSamples = samples.filter { it.label >= 0.3 && it.label < 0.7 }
         val highScoreSamples = samples.filter { it.label >= 0.7 }
         
-        // 找到最小的组大�?       val minSize = minOf(lowScoreSamples.size, mediumScoreSamples.size, highScoreSamples.size)
+        // 找到最小的组大，
+       val minSize = minOf(lowScoreSamples.size, mediumScoreSamples.size, highScoreSamples.size)
         
         // 平衡样本
         return lowScoreSamples.take(minSize) + mediumScoreSamples.take(minSize) + highScoreSamples.take(minSize)
@@ -236,21 +245,23 @@ class TrainingDataGenerator {
             "writing" -> listOf("写作", "文案", "编辑")
             "research" -> listOf("研究", "分析", "调查")
             "design" -> listOf("设计", "创意", "用户体验")
-            "data" -> listOf("数据分析", "统计", "数据可视�?
-            "communication" -> listOf("沟？, "协调", "表达")
+            "data" -> listOf("数据分析", "统计", "数据可视，"
+            "communication" -> listOf("沟？", "协调", "表达")
             "planning" -> listOf("计划", "组织", "项目管理")
             "testing" -> listOf("测试", "质量保证", "问题定位")
-            "documentation" -> listOf("文档编写", "技术写�?
+            "documentation" -> listOf("文档编写", "技术写，"
             else -> emptyList()
         }
     }
 
     fun exportDataset(dataset: Dataset, path: String) {
-        // 这里可以实现数据集导出到文件的功�?       // 例如导出为CSV或TFRecord格式
+        // 这里可以实现数据集导出到文件的功，
+       // 例如导出为CSV或TFRecord格式
     }
 
     fun importDataset(path: String): Dataset {
-        // 这里可以实现从文件导入数据集的功�?       // 例如从CSV或TFRecord格式导入
+        // 这里可以实现从文件导入数据集的功，
+       // 例如从CSV或TFRecord格式导入
         return Dataset(emptyList(), emptyList(), emptyList())
     }
 

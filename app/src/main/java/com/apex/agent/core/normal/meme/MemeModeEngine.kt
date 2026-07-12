@@ -309,11 +309,11 @@ class MemeModeEngine(
             appendLine("含义: ${meme.description}")
             appendLine("使用场景: ${meme.usage}")
             appendLine("示例: ${meme.example}")
-            appendLine("正式度: ${when (meme.formalityLevel) {
+            appendLine("正式度: ${when (meme.formalityLevel) {"
                 0 -> "可在正式场合使用"
                 1 -> "半正式场合可用"
                 else -> "仅休闲场合使用"
-            }}")
+            }}")"
             appendLine("热度: ${(meme.popularity * 100).toInt()}%")
         }
     }

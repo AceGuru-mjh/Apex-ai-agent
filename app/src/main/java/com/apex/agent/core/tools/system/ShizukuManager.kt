@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
 
 /**
- * Shizuku 管理�?- 提供统一�?Shizuku 管理接口
+ * Shizuku 管理器- 提供统一的Shizuku 管理接口
  */
 object ShizukuManager {
     private const val TAG = "ShizukuManager"
@@ -47,7 +47,7 @@ object ShizukuManager {
     private val _lastError = MutableStateFlow<String?>(null)
     val lastError: StateFlow<String?> = _lastError.asStateFlow()
 
-    // 监听器标�?
+    // 监听器标计
     private var binderReceivedListenerRegistered = false
     private var permissionRequestListenerRegistered = false
 
@@ -55,25 +55,25 @@ object ShizukuManager {
     private val stateChangeListeners = mutableSetOf<() -> Unit>()
 
     /**
-     * 初始�?Shizuku 管理�?
+     * 初始化Shizuku 管理器
      */
     fun initialize() {
         if (_isInitialized.value) return
 
         scope.launch {
             try {
-                AppLogger.d(TAG, "初始�?Shizuku 管理�?..")
+                AppLogger.d(TAG, "初始化Shizuku 管理器..")
 
-                // 注册监听�?
+                // 注册监听器
                 registerListeners()
 
-                // 初始检�?
+                // 初始检测
                 checkStatus()
 
                 _isInitialized.value = true
                 AppLogger.d(TAG, "Shizuku 管理器初始化完成")
             } catch (e: Exception) {
-                AppLogger.e(TAG, "初始�?Shizuku 管理器失�?, e)
+                AppLogger.e(TAG, "初始化Shizuku 管理器失败", e)
                 _lastError.value = e.message
             }
         }
@@ -84,14 +84,14 @@ object ShizukuManager {
 
         try {
             Shizuku.addBinderReceivedListener {
-                AppLogger.d(TAG, "Shizuku binder 已接�?)
+                AppLogger.d(TAG, "Shizuku binder 已接支")
                 _isServiceAvailable.value = true
                 checkStatus()
                 notifyStateChange()
             }
 
             Shizuku.addBinderDeadListener {
-                AppLogger.d(TAG, "Shizuku binder 已失�?)
+                AppLogger.d(TAG, "Shizuku binder 已失数")
                 _isServiceAvailable.value = false
                 _isPermissionGranted.value = false
                 notifyStateChange()
@@ -100,18 +100,18 @@ object ShizukuManager {
             binderReceivedListenerRegistered = true
             AppLogger.d(TAG, "Shizuku 监听器已注册")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "注册 Shizuku 监听器失�?, e)
-            _lastError.value = "注册监听器失�? ${e.message}"
+            AppLogger.e(TAG, "注册 Shizuku 监听器失败", e)
+            _lastError.value = "注册监听器失败 ${e.message}"
         }
     }
 
     /**
-     * 检�?Shizuku 状�?
+     * 检查Shizuku 状态
      */
     fun checkStatus() {
         scope.launch {
             try {
-                AppLogger.d(TAG, "检�?Shizuku 状�?..")
+                AppLogger.d(TAG, "检查Shizuku 状态..")
 
                 val installed = isShizukuOrSuiInstalled()
                 _isShizukuInstalled.value = installed
@@ -134,10 +134,10 @@ object ShizukuManager {
                     _currentUid.value = uid
                 }
 
-                AppLogger.d(TAG, "Shizuku 状�?- 已安�? ${installed}, 服务可用: ${serviceAvailable}, 已授�? ${_isPermissionGranted.value}")
+                AppLogger.d(TAG, "Shizuku 状态- 已安装 ${installed}, 服务可用: ${serviceAvailable}, 已授权 ${_isPermissionGranted.value}")
                 notifyStateChange()
             } catch (e: Exception) {
-                AppLogger.e(TAG, "检�?Shizuku 状态失�?, e)
+                AppLogger.e(TAG, "检查Shizuku 状态失败", e)
                 _lastError.value = e.message
             }
         }
@@ -150,25 +150,25 @@ object ShizukuManager {
             null
         }
 
-        // 检�?SUI 后端
+        // 检查SUI 后端
         if (checkIsSuiBackend()) {
             return true
         }
 
-        // 检�?Shizuku �?
+        // 检查Shizuku 化
         return try {
             pm?.getPackageInfo(SHIZUKU_PACKAGE, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false
         } catch (e: Exception) {
-            AppLogger.e(TAG, "检�?Shizuku 安装状态失�?, e)
+            AppLogger.e(TAG, "检查Shizuku 安装状态失败", e)
             false
         }
     }
 
     /**
-     * 检�?Shizuku 是否已安装（兼容版本�?
+     * 检查Shizuku 是否已安装（兼容版本，
      */
     fun isShizukuInstalled(context: Context): Boolean {
         return isShizukuOrSuiInstalled(context)
@@ -196,13 +196,13 @@ object ShizukuManager {
             val binder = Shizuku.getBinder()
             binder != null && binder.isBinderAlive
         } catch (e: Exception) {
-            AppLogger.w(TAG, "检�?Shizuku 服务失败", e)
+            AppLogger.w(TAG, "检查Shizuku 服务失败", e)
             false
         }
     }
 
     /**
-     * 检�?Shizuku 服务是否正在运行
+     * 检查Shizuku 服务是否正在运行
      */
     fun isShizukuServiceRunning(): Boolean {
         return _isServiceAvailable.value || checkServiceAvailable()
@@ -212,21 +212,21 @@ object ShizukuManager {
         return try {
             when {
                 !checkServiceAvailable() -> {
-                    _lastError.value = "Shizuku 服务未运�?
+                    _lastError.value = "Shizuku 服务未运行"
                     false
                 }
                 else -> {
                     val result = Shizuku.checkSelfPermission()
                     val granted = result == PackageManager.PERMISSION_GRANTED
                     if (!granted) {
-                        _lastError.value = "Shizuku 权限未授�?
+                        _lastError.value = "Shizuku 权限未授于"
                     }
                     granted
                 }
             }
         } catch (e: Exception) {
-            AppLogger.e(TAG, "检�?Shizuku 权限失败", e)
-            _lastError.value = "检查权限失�? ${e.message}"
+            AppLogger.e(TAG, "检查Shizuku 权限失败", e)
+            _lastError.value = "检查权限失败 ${e.message}"
             false
         }
     }
@@ -248,13 +248,13 @@ object ShizukuManager {
 
                 if (!isShizukuServiceRunning()) {
                     AppLogger.w(TAG, "Shizuku 服务未运行，无法请求权限")
-                    _lastError.value = "Shizuku 服务未运�?
+                    _lastError.value = "Shizuku 服务未运行"
                     onResult(false)
                     return@launch
                 }
 
                 if (hasShizukuPermission()) {
-                    AppLogger.d(TAG, "已拥�?Shizuku 权限")
+                    AppLogger.d(TAG, "已拥有Shizuku 权限")
                     onResult(true)
                     return@launch
                 }
@@ -266,7 +266,7 @@ object ShizukuManager {
                         val granted = grantResult == PackageManager.PERMISSION_GRANTED
                         _isPermissionGranted.value = granted
                         if (!granted) {
-                            _lastError.value = "权限请求被拒�?
+                            _lastError.value = "权限请求被拒结"
                         }
 
                         AppLogger.d(TAG, "Shizuku 权限请求结果: ${granted}")
@@ -277,7 +277,7 @@ object ShizukuManager {
                             Shizuku.removeRequestPermissionResultListener { _, _ -> }
                             permissionRequestListenerRegistered = false
                         } catch (e: Exception) {
-                            AppLogger.w(TAG, "移除权限请求监听器失�?, e)
+                            AppLogger.w(TAG, "移除权限请求监听器失败", e)
                         }
                     }
                 }
@@ -297,13 +297,13 @@ object ShizukuManager {
      */
     fun getShizukuStartupInstructions(context: Context): String {
         return """
-            请按以下步骤启动 Shizuku�?
+            请按以下步骤启动 Shizuku，
             
-            1. 确保已安�?Shizuku 应用
+            1. 确保已安装Shizuku 应用
             2. 打开 Shizuku 应用
-            3. 选择启动方式�?
-               �?Root 设备：直接通过 Root 启动
-               �?�?Root 设备：使�?ADB 启动
+            3. 选择启动方式，
+               —Root 设备：直接通过 Root 启动
+               —面Root 设备：使用ADB 启动
             4. 启动成功后返回本应用
         """.trimIndent()
     }
@@ -342,14 +342,14 @@ object ShizukuManager {
     }
 
     /**
-     * 清除错误状�?
+     * 清除错误状态
      */
     fun clearError() {
         _lastError.value = null
     }
 
     /**
-     * 获取综合状�?
+     * 获取综合状态
      */
     fun getStatus(): ShizukuDetectionResult {
         return ShizukuDetectionResult(

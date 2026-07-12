@@ -1143,8 +1143,8 @@ class MemoryDocumentsProvider : DocumentsProvider() {
     private fun buildVisibleMemoryName(title: String): String {
         val raw = title.ifBlank { "untitled" }
         return raw
-            .replace("/", "ï¼?
-            .replace("\\", "ï¼?
+            .replace("/", "ï¼Œ"
+            .replace("\\", "ï¼Œ
             .trim()
             .ifBlank { "untitled" }
     }

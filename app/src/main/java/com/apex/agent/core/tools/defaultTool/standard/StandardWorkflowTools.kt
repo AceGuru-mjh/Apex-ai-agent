@@ -27,7 +27,7 @@ import org.json.JSONObject
 import java.util.UUID
 
 /**
- * 工作流管理工�?* 提供工作流的创建、查询、更新、启停、删除与触发功能
+ * 工作流管理工具* 提供工作流的创建、查询、更新、启停、删除与触发功能
  */
 class StandardWorkflowTools(private val context: Context) {
 
@@ -112,7 +112,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 创建工作�?   */
+     * 创建工作的
+   */
     suspend fun createWorkflow(tool: AITool): ToolResult {
         return try {
             val name = tool.parameters.find { it.name == "name" }?.value
@@ -195,7 +196,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 获取工作流详�?    */
+     * 获取工作流详的
+    */
     suspend fun getWorkflow(tool: AITool): ToolResult {
         return try {
             val workflowId = tool.parameters.find { it.name == "workflow_id" }?.value
@@ -260,7 +262,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 更新工作�?   */
+     * 更新工作的
+   */
     suspend fun updateWorkflow(tool: AITool): ToolResult {
         return try {
             val workflowId = tool.parameters.find { it.name == "workflow_id" }?.value
@@ -273,7 +276,8 @@ class StandardWorkflowTools(private val context: Context) {
                 )
             }
 
-            // 获取现有工作�?          val existingResult = workflowRepository.getWorkflowById(workflowId)
+            // 获取现有工作的
+          val existingResult = workflowRepository.getWorkflowById(workflowId)
             if (existingResult.isFailure || existingResult.getOrNull() == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -293,13 +297,15 @@ class StandardWorkflowTools(private val context: Context) {
             val enabledParam = tool.parameters.find { it.name == "enabled" }?.value
             val enabled = if (enabledParam != null) enabledParam.toBoolean() else existingWorkflow.enabled
 
-            // 解析节点（如果提供了�?           val nodes = if (!nodesJson.isNullOrBlank()) {
+            // 解析节点（如果提供了的
+           val nodes = if (!nodesJson.isNullOrBlank()) {
                 parseNodes(nodesJson)
             } else {
                 existingWorkflow.nodes
             }
 
-            // 解析连接（如果提供了�?           val connections = if (!connectionsJson.isNullOrBlank()) {
+            // 解析连接（如果提供了的
+           val connections = if (!connectionsJson.isNullOrBlank()) {
                 parseConnections(connectionsJson, nodes)
             } else {
                 existingWorkflow.connections
@@ -424,7 +430,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 差异更新工作流（增量 patch�?    */
+     * 差异更新工作流（增量 patch的
+    */
     suspend fun patchWorkflow(tool: AITool): ToolResult {
         return try {
             val workflowId = tool.parameters.find { it.name == "workflow_id" }?.value
@@ -437,7 +444,8 @@ class StandardWorkflowTools(private val context: Context) {
                 )
             }
 
-            // 获取现有工作�?          val existingResult = workflowRepository.getWorkflowById(workflowId)
+            // 获取现有工作的
+          val existingResult = workflowRepository.getWorkflowById(workflowId)
             if (existingResult.isFailure || existingResult.getOrNull() == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -793,7 +801,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 删除工作�?   */
+     * 删除工作的
+   */
     suspend fun deleteWorkflow(tool: AITool): ToolResult {
         return try {
             val workflowId = tool.parameters.find { it.name == "workflow_id" }?.value
@@ -844,7 +853,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 触发工作流执�?   */
+     * 触发工作流执行
+   */
     suspend fun triggerWorkflow(tool: AITool): ToolResult {
         val workflowId = tool.parameters.find { it.name == "workflow_id" }?.value
         if (workflowId.isNullOrBlank()) {
@@ -892,7 +902,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 解析节点JSON字符�?   */
+     * 解析节点JSON字符取
+   */
     private fun parseNodes(nodesJson: String): List<WorkflowNode> {
         return try {
             val jsonArray = JSONArray(nodesJson)
@@ -1098,7 +1109,8 @@ class StandardWorkflowTools(private val context: Context) {
     }
 
     /**
-     * 解析连接JSON字符�?   */
+     * 解析连接JSON字符取
+   */
     private fun parseConnections(connectionsJson: String, nodes: List<WorkflowNode>): List<WorkflowNodeConnection> {
         return try {
             val jsonArray = JSONArray(connectionsJson)

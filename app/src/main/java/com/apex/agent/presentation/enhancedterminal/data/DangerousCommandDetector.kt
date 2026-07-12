@@ -80,7 +80,7 @@ object DangerousCommandDetector {
                 }
             } catch (e: Exception) {
                 // 正则构建失败,用简单 contains 匹配
-                if (lower.contains(p.regex.lowercase().replace("\\", ""))) {
+                if (lower.contains(p.regex.lowercase().replace("\\", ""))) {"
                     return DetectionResult(true, p.description, p.level)
                 }
             }

@@ -27,7 +27,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
     private var lastChar: Char = '\u0000'
 
     private val punctuationTriggers =
-            setOf('ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? ':', ',', '.', '?', '!', '~', 'ï¼? '>', 'ï¼?
+            setOf('ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ ':', ',', '.', '?', '!', '~', 'ï¼Œ '>', 'ï¼Œ
     private val emojiContinuationChars = setOf('\u200D', '\uFE0E', '\uFE0F', '\u20E3')
 
     init {
@@ -205,7 +205,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
         if (Character.isSurrogate(c)) {
             return true
         }
-        // BMP emoji/symbols (e.g. â˜€, ï¼?are usually "OTHER_SYMBOL".
+        // BMP emoji/symbols (e.g. â˜€, ï¼Œare usually "OTHER_SYMBOL".
         return Character.getType(c) == Character.OTHER_SYMBOL.toInt()
     }
 

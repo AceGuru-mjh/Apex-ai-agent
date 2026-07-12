@@ -64,7 +64,7 @@ data class AutomationConfigSearchResult(
     }
 }
 
-/** 自动化计划参数结果数�*/
+/** 自动化计划参数结果数据*/
 
 @Serializable
 data class AutomationPlanParametersResult(
@@ -110,7 +110,7 @@ data class AutomationPlanParametersResult(
     }
 }
 
-/** 自动化执行结果数�*/
+/** 自动化执行结果数据*/
 
 @Serializable
 data class AutomationExecutionResult(
@@ -163,7 +163,7 @@ data class AutomationExecutionResult(
     }
 }
 
-/** 自动化功能列表结果数�*/
+/** 自动化功能列表结果数据*/
 
 @Serializable
 data class AutomationFunctionListResult(

@@ -585,7 +585,7 @@ class SyntaxCheckUtilTest {
         val jsCode = """
             const str1 = "He said, \"Hello!\"";
             const str2 = 'It\'s a beautiful day';
-            const str3 = "Backslash: \\";
+            const str3 = "Backslash: \\";"
             console.log(str1, str2, str3);
         """.trimIndent()
 
@@ -614,7 +614,7 @@ class SyntaxCheckUtilTest {
     @Test
     fun testJavaScript_DoubleBackslashBeforeQuote_ShouldDetectUnclosedString() {
         val jsCode = """
-            const str = "This ends with double backslash\\";
+            const str = "This ends with double backslash\\";"
             console.log(str);
         """.trimIndent()
 

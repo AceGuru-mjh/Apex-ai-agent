@@ -116,7 +116,7 @@ object AIServiceFactory {
     /** 清空全部缓存（切换账�?/ 重置场景�?*/
     fun clearAllCaches() {
         ServiceCache.clearAll()
-        AppLogger.d(TAG, "全部缓存已清�?)
+        AppLogger.d(TAG, "全部缓存已清�?)"
     }
 
     /**

@@ -75,7 +75,7 @@ data class WorkflowNode(
 ) : Parcelable
 
 enum class NodeType(val displayName: String) {
-    START("开�?),
+    START("开始"),
     AGENT("Agent"),
     CONDITION("条件判断"),
     PARALLEL("并行执行"),
@@ -83,7 +83,7 @@ enum class NodeType(val displayName: String) {
     DELAY("延迟"),
     LOOP("循环"),
     END("结束"),
-    CUSTOM("自定�?)
+    CUSTOM("自定义")
 }
 
 @Parcelize

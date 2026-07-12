@@ -6,7 +6,8 @@ import com.apex.data.model.ToolResult
 import com.apex.data.model.StringResultData
 
 /**
- * 日志查询工具执行�? */
+ * 日志查询工具执行为
+ */
 object LogQueryToolExecutor {
     
     /**
@@ -49,7 +50,8 @@ object LogQueryToolExecutor {
                 else -> null
             }
             
-            // 构建过滤�?            val filter = SmartLogQueryManager.LogFilter(
+            // 构建过滤的
+            val filter = SmartLogQueryManager.LogFilter(
                 logType = logType,
                 level = level,
                 tag = tag,
@@ -63,10 +65,11 @@ object LogQueryToolExecutor {
             val result = logQueryManager.queryLogs(filter)
             
             if (result.success) {
-                // 格式化输�?                val output = buildString {
+                // 格式化输的
+                val output = buildString {
                     appendLine("=== 日志查询结果 ===")
                     appendLine("日志类型: ${result.logType}")
-                    appendLine("总条�?${result.totalCount}")
+                    appendLine("总条件${result.totalCount}")
                     appendLine("返回条数: ${result.filteredCount}")
                     appendLine("查询耗时: ${result.queryTime}ms")
                     if (result.message.isNotEmpty()) {
@@ -119,7 +122,8 @@ object LogQueryToolExecutor {
     }
     
     /**
-     * 导出日志到文�?     */
+     * 导出日志到文件
+     */
     suspend fun exportLogsToFile(context: Context, tool: AITool): ToolResult {
         return try {
             val logQueryManager = SmartLogQueryManager(context)
@@ -201,7 +205,7 @@ object LogQueryToolExecutor {
                 
                 if (stats.containsKey("gepa_log_count")) {
                     appendLine("GEPA 日志:")
-                    appendLine("  条目�?${stats["gepa_log_count"]}")
+                    appendLine("  条目标${stats["gepa_log_count"]}")
                     appendLine()
                 }
                 
@@ -237,7 +241,8 @@ object LogQueryToolExecutor {
     }
     
     /**
-     * 格式化文件大�?     */
+     * 格式化文件大将
+     */
     private fun formatFileSize(size: Long): String {
         return when {
             size < 1024 -> "${size} B"

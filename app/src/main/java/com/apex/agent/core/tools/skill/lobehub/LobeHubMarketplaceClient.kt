@@ -328,7 +328,7 @@ class LobeHubMarketplaceClient private constructor() {
             LobeHubSkillListing(
                 id = "lobehub-skills-search-engine",
                 name = "Skills Search Engine",
-                description = "Your skill search engine. When you encounter a task you don't know how to do �?search this marketplace to find a skill.",
+                description = "Your skill search engine. When you encounter a task you don't know how to do —search this marketplace to find a skill.",
                 author = "LobeHub",
                 version = "1.0.0",
                 rating = 4.9f,
@@ -370,7 +370,7 @@ class LobeHubMarketplaceClient private constructor() {
             LobeHubSkillListing(
                 id = "aehyok-blog-xhs-images",
                 name = "XHS Images",
-                description = "小红书信息图卡片生成�?- Generate infographic cards for Xiaohongshu (XHS/RedNote).",
+                description = "小红书信息图卡片生成器- Generate infographic cards for Xiaohongshu (XHS/RedNote).",
                 author = "aehyok",
                 version = "1.0.0",
                 rating = 4.6f,

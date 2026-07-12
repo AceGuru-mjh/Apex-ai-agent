@@ -76,14 +76,16 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
     }
 
     /**
-     * 获取已安装应用列�?     */
+     * 获取已安装应用列行
+     */
     override suspend fun getAppList(tool: AITool): ToolResult {
         return executeWithCatch("getAppList", tool) {
             // 1. 获取参数
             val filter = getParameter(tool, "filter", null)
             val limit = getParameter(tool, "limit", "100").toIntOrNull() ?: 100
 
-            // 2. 扫描已安装应�?            val appList = UIToolsConfig.scanInstalledApps(context)
+            // 2. 扫描已安装应试
+            val appList = UIToolsConfig.scanInstalledApps(context)
 
             // 3. 过滤（如果指定）
             val filteredList = if (filter != null) {
@@ -118,7 +120,8 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
     }
 
     /**
-     * 根据名称或包名查找应�?     */
+     * 根据名称或包名查找应试
+     */
     suspend fun findApp(tool: AITool): ToolResult {
         return executeWithCatch("findApp", tool) {
             // 1. 验证参数
@@ -216,7 +219,8 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
                 return false
             }
 
-            // 如果指定了activity，设置组�?            if (activity != null) {
+            // 如果指定了activity，设置组结
+            if (activity != null) {
                 intent.setClassName(packageName, activity)
             }
 

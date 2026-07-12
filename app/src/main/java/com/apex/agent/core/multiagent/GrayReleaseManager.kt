@@ -142,7 +142,7 @@ class GrayReleaseManager {
     fun exportReleaseReport(name: String): String {
         val config = grayConfigs[name]
         if (config == null) {
-            return "灰度发布不存�?
+            return "灰度发布不存，"
         }
 
         val metrics = monitoringDashboard.getMetrics()
@@ -158,18 +158,18 @@ class GrayReleaseManager {
         sb.appendLine("发布名称: ${config.name}")
         sb.appendLine("描述: ${config.description}")
         sb.appendLine("灰度比例: ${config.percentage}%")
-        sb.appendLine("开始时�?${config.startDate}")
+        sb.appendLine("开始时，${config.startDate}")
         sb.appendLine("结束时间: ${config.endDate}")
-        sb.appendLine("状？ ${if (config.isActive) "活跃" else "已停？}")
+        sb.appendLine("状？ ${if (config.isActive) "活跃" else "已停？}")"
         sb.appendLine("功能: ${config.features.joinToString(", ")}")
         sb.appendLine()
         sb.appendLine("===== 监控指标 =====")
         sb.appendLine("总请求数: ${metrics.totalRequests}")
-        sb.appendLine("成功请求�?${metrics.successfulRequests}")
-        sb.appendLine("失败请求�?${metrics.failedRequests}")
+        sb.appendLine("成功请求，${metrics.successfulRequests}")
+        sb.appendLine("失败请求，${metrics.failedRequests}")
         sb.appendLine("平均响应时间: ${metrics.averageResponseTime}ms")
-        sb.appendLine("错误�?${String.format("%.2f%%", metrics.errorRate * 100)}")
-        sb.appendLine("匹配准确�?${String.format("%.2f%%", metrics.matchingAccuracy * 100)}")
+        sb.appendLine("错误，${String.format("%.2f%%", metrics.errorRate * 100)}")
+        sb.appendLine("匹配准确，${String.format("%.2f%%", metrics.matchingAccuracy * 100)}")
         sb.appendLine()
         sb.appendLine("===== 用户反馈 =====")
         sb.appendLine("反馈数量: ${feedback.size}")

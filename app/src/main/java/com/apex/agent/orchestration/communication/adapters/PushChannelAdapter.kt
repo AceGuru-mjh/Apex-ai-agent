@@ -11,7 +11,7 @@ class PushChannelAdapter @Inject constructor(
     private val context: Context
 ) : ChannelAdapter {
     override val channel = CommunicationChannel.PUSH
-    override val name = "推�?
+    override val name = "推通"
 
     private var messageCallback: ((AgentMessage) -> Unit)? = null
     private var initialized = false

@@ -55,7 +55,7 @@ data class AppListData(val includesSystemApps: Boolean, val packages: List<Strin
     }
 }
 
-/** 单个应用的使用时长统�*/
+/** 单个应用的使用时长统，*/
 
 @Serializable
 data class AppUsageTimeEntry(

@@ -2,7 +2,7 @@ package com.apex.util.stream.plugins
 
 /**
  * A stream processing plugin to identify JSON structures and extract only their content, filtering
- * out all structural characters (`{}[]",:`).
+ * out all structural characters (`{}[]",:`)."
  *
  * This plugin intelligently parses a JSON object or array and emits only the meaningful content
  * (keys and values) as a stream of characters.

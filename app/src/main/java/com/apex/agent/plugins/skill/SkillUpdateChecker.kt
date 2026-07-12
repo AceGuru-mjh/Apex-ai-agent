@@ -61,7 +61,7 @@ class SkillUpdateChecker private constructor(private val context: Context) {
                     }
                 }
             } catch (e: Exception) {
-                AppLogger.e(TAG, "检查更新失�?, e)
+                AppLogger.e(TAG, "检查更新失败", e)
             } finally {
                 _isChecking.value = false
             }
@@ -76,7 +76,7 @@ class SkillUpdateChecker private constructor(private val context: Context) {
             _lastCheckTime.value = System.currentTimeMillis()
             updates
         } catch (e: Exception) {
-            AppLogger.e(TAG, "同步检查更新失�?, e)
+            AppLogger.e(TAG, "同步检查更新失败", e)
             emptyList()
         } finally {
             _isChecking.value = false
@@ -85,12 +85,12 @@ class SkillUpdateChecker private constructor(private val context: Context) {
 
     suspend fun applyUpdate(update: SkillPluginUpdate): Result<String> = withContext(Dispatchers.IO) {
         try {
-            AppLogger.i(TAG, "开始更新插�? ${update.pluginId} (${update.currentVersion} -> ${update.latestVersion})")
+            AppLogger.i(TAG, "开始更新插件 ${update.pluginId} (${update.currentVersion} -> ${update.latestVersion})")
 
             val pluginManager = pluginManager
             val existingPlugin = pluginManager.getPlugin(update.pluginId)
             if (existingPlugin == null) {
-                return@withContext Result.failure(Exception("插件 ${update.pluginId} 未安�?))
+                return@withContext Result.failure(Exception("插件 ${update.pluginId} 未安装"))
             }
 
             pluginManager.disablePlugin(update.pluginId)

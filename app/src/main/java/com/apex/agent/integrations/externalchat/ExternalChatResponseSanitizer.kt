@@ -106,6 +106,6 @@ object ExternalChatResponseSanitizer {
 
     private fun isNaturalFlushBoundary(lastChar: Char): Boolean {
         return lastChar in
-            setOf('ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? 'ï¼? '.', ',', '!', '?', ';', ':')
+            setOf('ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ 'ï¼Œ '.', ',', '!', '?', ';', ':')
     }
 }

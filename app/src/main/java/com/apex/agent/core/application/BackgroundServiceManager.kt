@@ -38,9 +38,9 @@ private val context: Context) {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)    private var monitoringJob: Job? = null    private var isServiceRunning = false    fun startMonitoring() {
         if (monitoringJob?.isActive == true) return        monitoringJob = serviceScope.launch {
             val preferences = UserPreferencesManager.getInstance(context)            preferences.permanentBackgroundEnabled.collectLatest {
- enabled ->                AppLogger.d(TAG, "Permanent background enabled changed: �?{
+ enabled ->                AppLogger.d(TAG, "Permanent background enabled changed: 的{"
 enabled
-}")                if (enabled) {
+}")                if (enabled) {"
                     startPermanentBackgroundService()
 }
  else {
@@ -112,9 +112,9 @@ class PermanentBackgroundService : Service() {
         serviceScope.launch {
             val preferences = UserPreferencesManager.getInstance(applicationContext)            launch {
                 preferences.permanentBackgroundEnabled.collectLatest {
- enabled ->                    isAlwaysOnEnabled = enabled                    AppLogger.d(TAG, "Always on setting changed: �?{
+ enabled ->                    isAlwaysOnEnabled = enabled                    AppLogger.d(TAG, "Always on setting changed: 的{"
 enabled
-}")                    if (!enabled) {
+}")                    if (!enabled) {"
                         stopSelfIfIdle()
 }
  else {
@@ -126,9 +126,9 @@ enabled
 }
             launch {
                 preferences.wechatClawbotEnabled.collectLatest {
- enabled ->                    AppLogger.d(TAG, "WeChat clawbot enabled: �?{
+ enabled ->                    AppLogger.d(TAG, "WeChat clawbot enabled: 的{"
 enabled
-}")                    if (enabled) {
+}")                    if (enabled) {"
                         startLinkServices()
 }
                     updateNotification()
@@ -137,9 +137,9 @@ enabled
 }
             launch {
                 preferences.linkServicesEnabled.collectLatest {
- enabled ->                    AppLogger.d(TAG, "Link services enabled: �?{
+ enabled ->                    AppLogger.d(TAG, "Link services enabled: 的{"
 enabled
-}")                    if (enabled) {
+}")                    if (enabled) {"
                         startLinkServices()
 }
                     updateNotification()
@@ -154,19 +154,19 @@ enabled
         if (linkServicesCallback == null) {
             linkServicesCallback = object : LinkServicesManager.LinkServiceCallback {
                 override fun onStatusChanged(status: LinkServicesManager.LinkServiceStatus) {
-                    AppLogger.d(TAG, "Link service status: �?{
+                    AppLogger.d(TAG, "Link service status: 的{"
 status
-}")                    updateNotification()
+}")                    updateNotification()"
 }
                 override fun onMessageReceived(message: String) {
-                    AppLogger.d(TAG, "Link service message: �?{
+                    AppLogger.d(TAG, "Link service message: 的{"
 message
-}")
+}")"
 }
                 override fun onCommandReceived(command: String) {
-                    AppLogger.d(TAG, "Link service command: �?{
+                    AppLogger.d(TAG, "Link service command: 的{"
 command
-}")
+}")"
 }
 
 }
@@ -195,7 +195,7 @@ class.java).apply {
             services.add(getString(R.string.service_always_on))
 }
         if (linkServicesManager.isServiceConnected()) {
-            services.add("閾炬帴鏈嶅姟宸茶繛鎺�?}
+            services.add("閾炬帴鏈嶅姟宸茶繛鎺，}"
         return if (services.isEmpty()) {
             getString(R.string.service_permanent_background_running)
 }

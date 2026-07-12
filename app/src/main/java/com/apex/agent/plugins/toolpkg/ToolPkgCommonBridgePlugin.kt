@@ -327,7 +327,7 @@ private object ToolPkgMessageProcessingBridgePlugin : MessageProcessingPlugin {
                         if (parsed != null && parsed.matched && !emittedAny) {
                             AppLogger.i(
                                 TOOLPKG_LOG_TAG,
-                                "message-processing final fallback hook=${
+                                "message-processing final fallback hook=${"
                                     hook.containerPackageName
                                 }:${hook.pluginId}:${hook.functionName} chunkCount=${parsed.chunks.size}"
                             )

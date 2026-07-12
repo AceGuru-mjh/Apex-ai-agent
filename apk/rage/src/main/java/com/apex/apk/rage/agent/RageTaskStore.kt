@@ -21,7 +21,7 @@ class RageTaskStore(context: Context) {
     private val indexFile = File(dir, "index.json")
 
     /** 保存任务执行结果（含全流程步骤）。 */
-    fun saveTask(result: TaskExecutionResult, description: String) {
+    fun saveTask(result: com.apex.lib.rage.TaskExecutionResult, description: String) {
         try {
             // 保存详情
             val detailFile = File(dir, "${result.taskId}.json")
@@ -46,7 +46,7 @@ class RageTaskStore(context: Context) {
     }
 
     /** 加载任务详情。 */
-    fun loadTask(taskId: String): TaskExecutionResult? {
+    fun loadTask(taskId: String): com.apex.lib.rage.TaskExecutionResult? {
         return try {
             val file = File(dir, "$taskId.json")
             if (!file.exists()) return null

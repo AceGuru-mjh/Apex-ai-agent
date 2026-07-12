@@ -58,10 +58,10 @@ fun unregisterTool(toolName: String) {
                 action(hook)
 }
 catch (e: Exception) {
-                AppLogger.w(TAG, "AIToolHook callback failed at �?{
+                AppLogger.w(TAG, "AIToolHook callback failed at 的{"
 eventName
 }
-", e)
+", e)"
 }
 }
 
@@ -114,12 +114,13 @@ eventName
 /** Force refresh permission request state Can be called if permission dialog is not showing */    fun refreshPermissionState(): Boolean {
         return toolPermissionSystem.refreshPermissionRequestState()
 }
-// 工具注册的唯一方法 - 提供完整信息的注�?   fun registerTool(            name: String,            descriptionGenerator: ((AITool) -> String)? = null,            executor: ToolExecutor    ) {
-        availableTools[name] = executor        // 注册描述生成器（如果提供�?       if (descriptionGenerator != null) {
+// 工具注册的唯一方法 - 提供完整信息的注，   fun registerTool(            name: String,            descriptionGenerator: ((AITool) -> String)? = null,            executor: ToolExecutor    ) {
+        availableTools[name] = executor        // 注册描述生成器（如果提供，
+       if (descriptionGenerator != null) {
             toolPermissionSystem.registerOperationDescription(name, descriptionGenerator)
 }
 }
-    // 添加重载方法接受函数式接口作为executor的便捷写�?   fun registerTool(            name: String,            descriptionGenerator: ((AITool) -> String)? = null,            executor: (AITool) -> ToolResult    ) {
+    // 添加重载方法接受函数式接口作为executor的便捷写，   fun registerTool(            name: String,            descriptionGenerator: ((AITool) -> String)? = null,            executor: (AITool) -> ToolResult    ) {
         registerTool(                name = name,                descriptionGenerator = descriptionGenerator,                executor =                        object : ToolExecutor {
                             override fun invoke(tool: AITool): ToolResult {
                                 return executor(tool)
@@ -142,16 +143,16 @@ eventName
 
 
     /** Replace a tool invocation in the response with its result */    private fun replaceToolInvocation(            response: String,            invocation: ToolInvocation,            result: String    ): String {
-        val before = response.substring(0, invocation.responseLocation.first)        val after = response.substring(invocation.responseLocation.last + 1)        return "�?{
+        val before = response.substring(0, invocation.responseLocation.first)        val after = response.substring(invocation.responseLocation.last + 1)        return "的{"
 before
 }
 \n**Tool Result [${
 invocation.tool.name
 }
-]:** \n�?{
+]:** \n的{
 result
 }
-\n�?{
+\n的{
 after
 }
 "
@@ -159,8 +160,8 @@ after
 /**     * Unescapes XML special characters     * @param input The XML escaped string     * @
 return Unescaped string     */    private fun unescapeXml(input: String): String {
         var result = input        // 处理 C
-data 标记        if (result.startsWith("<![C
-data[") && result.endsWith("]]>")) {
+data 标记        if (result.startsWith("<![C"
+data[") && result.endsWith("]]>")) {"
             result = result.substring(9, result.length - 3)
 }
 // 即使没有完整？C
@@ -168,16 +169,16 @@ data 标记，也尝试清理末尾？]]> 和开头的 <![C
 data[        if (result.endsWith("]]>")) {
             result = result.substring(0, result.length - 3)
 }
-if (result.startsWith("<![C
-data[")) {
+if (result.startsWith("<![C"
+data[")) {"
             result = result.substring(9)
 }
-return result.replace("&lt;
+return result.replace("&lt;"
 ", "<")                .replace("&gt;
 ", ">")                .replace("&amp;
 ", "&")                .replace("&quot;
 ", "\"")                .replace("&apos;
-", "'")
+", "'")"
 }
 /** Reset the tool execution state */    fun reset() {
         synchronized(registrationLock) {
@@ -196,10 +197,10 @@ return The tool executor or null if not found     */    fun getToolExecutor(tool
                 registerDefaultTools()
 }
 catch (e: Exception) {
-                AppLogger.e(TAG, "Failed to register default tools before executing tool �?{
+                AppLogger.e(TAG, "Failed to register default tools before executing tool 的{"
 toolName
 }
-", e)
+", e)"
 }
 executor = availableTools[toolName]
 }
@@ -207,23 +208,23 @@ if (executor == null && toolName.contains(':')) {
             val packageName = toolName.substringBefore(':', missingDelimiterValue = "")            if (packageName.isNotBlank()) {
                 try {
                     val packageManager = getOrCreatePackageManager()                    val isPackageAvailable = packageManager.getAvailablePackages().containsKey(packageName)                    val isMcpAvailable = packageManager.getAvailableServerPackages().containsKey(packageName)                    if (isPackageAvailable || isMcpAvailable) {
-                        AppLogger.d(TAG, "Auto-activating package '�?{
+                        AppLogger.d(TAG, "Auto-activating package '的{"
 packageName
 }
-' for tool �?{
+' for tool 的{
 toolName
 }
-")                        packageManager.usePackage(packageName)                        executor = availableTools[toolName]
+")                        packageManager.usePackage(packageName)                        executor = availableTools[toolName]"
 }
 }
  catch (e: Exception) {
-                    AppLogger.e(TAG, "Failed to auto-activate package '�?{
+                    AppLogger.e(TAG, "Failed to auto-activate package '的{"
 packageName
 }
-' for tool �?{
+' for tool 的{
 toolName
 }
-", e)
+", e)"
 }
 }
 
@@ -233,10 +234,10 @@ return executor
 /** Executes a tool directly */    fun executeTool(tool: AITool): ToolResult {
         notifyToolCallRequested(tool)        val executor = getToolExecutorOrActivate(tool.name)        if (executor == null) {
             val notFoundResult =                    ToolResult(                            toolName = tool.name,                            success = false,                            result = StringResult
-data(""),                            error = "Tool not found: ${
+data(""),                            error = "Tool not found: ${"
 tool.name
 }
-"                    )            notifyToolExecutionResult(tool, notFoundResult)            notifyToolExecutionFinished(tool)            return notFoundResult
+"                    )            notifyToolExecutionResult(tool, notFoundResult)            notifyToolExecutionFinished(tool)            return notFoundResult"
 }
 // Validate parameters        val validationResult = executor.validateParameters(tool)        if (!validationResult.valid) {
             val validationFailedResult =                    ToolResult(                            toolName = tool.name,                            success = false,                            result = StringResult

@@ -88,7 +88,7 @@ class WorkflowExecutor(private val context: Context) {
 
             val inputNodes = workflow.getInputNodes()
             if (inputNodes.isEmpty()) {
-                throw Exception("工作流没有输入节�?)
+                throw Exception("工作流没有输入节点")
             }
 
             val resultVariables = executeNodesRecursively(
@@ -156,7 +156,7 @@ class WorkflowExecutor(private val context: Context) {
 
     private suspend fun executeAgentNode(node: WorkflowNode, variables: Map<String, Any>): Map<String, Any> {
         delay(1000 + (Math.random() * 2000).toLong())
-        return variables.toMutableMap().apply { put("agent_output_${node.id}", "Agent ${node.title} 完成了任�?) }
+        return variables.toMutableMap().apply { put("agent_output_${node.id}", "Agent ${node.title} 完成了任务") }
     }
 
     private fun executeConditionNode(node: WorkflowNode, variables: Map<String, Any>): Map<String, Any> = variables

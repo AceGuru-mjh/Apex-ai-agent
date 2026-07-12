@@ -33,13 +33,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
-import com.apex.apk.rage.agent.RageAgentArchitect
 import com.apex.apk.rage.agent.RageTaskStore
-import com.apex.apk.rage.agent.TaskExecutionResult
-import com.apex.apk.rage.agent.ExecutionRecord
-import com.apex.apk.rage.agent.AgentStepRecord
-import com.apex.apk.rage.agent.DynamicAgentInfo
 import com.apex.apk.rage.agent.TaskIndexEntry
+import com.apex.lib.rage.RageAgentArchitect
+import com.apex.lib.rage.TaskExecutionResult
+import com.apex.lib.rage.ExecutionRecord
+import com.apex.lib.rage.AgentStepRecord
+import com.apex.lib.rage.DynamicAgentInfo
+import com.apex.lib.rage.AgentConfig
 import com.apex.lib.rage.RageEngine
 import com.apex.lib.rage.RageModeConfig
 import com.apex.lib.rage.RageStrategyPreset
@@ -201,7 +202,7 @@ class RageServiceFacade(private val context: Context) {
 
         onProgress?.invoke(0.0f, "selecting skill")
         val skill = session.task.skillId?.let { mode.skillManager.get(it) }
-            ?: mode.skillSelector.selectSkill(session.task)
+            ?: runCatching { mode.skillSelector.selectSkill(session.task) }.getOrNull()
         val skillId = skill?.manifest?.skillId ?: "reasoning.react"
 
         onProgress?.invoke(0.1f, "executing with skill: $skillId")
@@ -404,7 +405,8 @@ class RageServiceFacade(private val context: Context) {
      */
     fun cancelAsyncTask(taskId: String): Boolean {
         val deferred = asyncTasks.remove(taskId) ?: return false
-        return deferred.cancel()
+        deferred.cancel()
+        return true
     }
 
     // ============================================================
@@ -902,6 +904,7 @@ class RageServiceFacade(private val context: Context) {
             else -> com.apex.agent.burstmode.selection.PriorityStrategy()
         }
         burstMode!!.skillSelector.withStrategy(s)
+        Unit
     }
 
     // ============================================================
@@ -960,7 +963,7 @@ class RageServiceFacade(private val context: Context) {
     /**
      * 获取 4 核心 Agent 配置。
      */
-    fun getCoreAgents(): Map<String, com.apex.apk.rage.agent.AgentConfig> = engine.coreAgents
+    fun getCoreAgents(): Map<String, AgentConfig> = engine.coreAgents
 
     /**
      * 切换核心 Agent 开关。
@@ -1029,7 +1032,7 @@ class RageServiceFacade(private val context: Context) {
     /**
      * 获取执行历史记录（内存中的）。
      */
-    fun getExecutionHistory(): List<ExecutionRecord> = engine.getExecutionHistory()
+    fun getExecutionHistory(): List<ExecutionRecord> = engine.fetchExecutionHistory()
 
     /**
      * 清空执行历史（内存）。
@@ -1139,7 +1142,7 @@ class RageServiceFacade(private val context: Context) {
             activeCoreAgentCount = core.values.count { it.enabled },
             dynamicAgentCount = dynamic.size,
             blackboardKeys = blackboard.size,
-            executionHistoryCount = engine.getExecutionHistory().size,
+            executionHistoryCount = engine.fetchExecutionHistory().size,
             currentConcurrency = metrics.currentConcurrency,
             peakConcurrency = metrics.peakConcurrency,
             maxRetries = engine.maxRetries,

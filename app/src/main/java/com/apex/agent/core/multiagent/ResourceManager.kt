@@ -139,7 +139,7 @@ class ResourceManager {
 
         if (currentUsage.memoryUtilization > WARNING_MEMORY_THRESHOLD) {
             issues.add(OptimizationIssue.HIGH_MEMORY_PRESSURE)
-            recommendations.add("考虑释放空闲 Agent 资源或增加内存限。
+            recommendations.add("考虑释放空闲 Agent 资源或增加内存限。"
         }
 
         if (activeThreads.get() < DEFAULT_MAX_THREADS * 0.5f) {

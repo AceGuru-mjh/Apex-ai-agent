@@ -290,15 +290,15 @@ class DebugConsoleUI private constructor(private val context: Context) {
 
     fun buildStateSummary(state: DebugState): String {
         val sb = StringBuilder()
-        sb.appendLine("┌─────────────────────────────────────────────────────────────�?)
-        sb.appendLine("�?Skill Debug Console                           ${SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())} �?)
-        sb.appendLine("├─────────────────────────────────────────────────────────────�?)
+        sb.appendLine("┌──────────────────────────────────────────────────────────────)"
+        sb.appendLine("─Skill Debug Console                           ${SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())} ─)"
+        sb.appendLine("├──────────────────────────────────────────────────────────────)"
 
         state.sessionId?.let { sessionId ->
-            sb.appendLine("�?Session: ${sessionId.take(20).padEnd(48)}�?)
+            sb.appendLine("─Session: ${sessionId.take(20).padEnd(48)}─)"
         }
         state.skillName?.let { skillName ->
-            sb.appendLine("�?Skill: ${skillName.padEnd(51)}�?)
+            sb.appendLine("─Skill: ${skillName.padEnd(51)}─)"
         }
 
         val statusStr = when (state.state) {
@@ -309,42 +309,42 @@ class DebugConsoleUI private constructor(private val context: Context) {
             SkillDebugger.DebugState.TERMINATED -> "TERMINATED"
         }
         val statusColor = when (state.state) {
-            SkillDebugger.DebugState.RUNNING -> "�?
-            SkillDebugger.DebugState.PAUSED -> "�?
-            SkillDebugger.DebugState.STEP_MODE -> "�?
-            else -> "�?
+            SkillDebugger.DebugState.RUNNING -> "●"
+            SkillDebugger.DebugState.PAUSED -> "⏱"
+            SkillDebugger.DebugState.STEP_MODE -> "→"
+            else -> "●"
         }
-        sb.appendLine("�?Status: ${statusColor} ${statusStr}${" ".repeat(42 - statusStr.length - 3)}�?)
+        sb.appendLine("─Status: ${statusColor} ${statusStr}${" ".repeat(42 - statusStr.length - 3)}─)"
 
         if (state.isPaused) {
             state.currentTool?.let {
-                sb.appendLine("�?Current Tool: ${it.padEnd(42)}�?)
+                sb.appendLine("─Current Tool: ${it.padEnd(42)}─)"
             }
             state.currentLine?.let {
-                sb.appendLine("�?Current Line: ${it.toString().padEnd(43)}�?)
+                sb.appendLine("─Current Line: ${it.toString().padEnd(43)}─)"
             }
             state.pauseReason?.let {
-                sb.appendLine("�?Pause Reason: ${it.name.padEnd(39)}�?)
+                sb.appendLine("─Pause Reason: ${it.name.padEnd(39)}─)"
             }
         }
 
-        sb.appendLine("├─────────────────────────────────────────────────────────────�?)
-        sb.appendLine("�?Execution Stats                                              �?)
-        sb.appendLine("�?  Tool Calls: ${state.toolCallCount.toString().padEnd(44)}�?)
-        sb.appendLine("�?  Errors: ${state.errorCount.toString().padEnd(47)}�?)
-        sb.appendLine("�?  Elapsed: ${state.elapsedTimeMs.toString().padEnd(45)}�?)
-        sb.appendLine("�?  Breakpoints: ${breakpoints.size.toString().padEnd(43)}�?)
+        sb.appendLine("├──────────────────────────────────────────────────────────────)"
+        sb.appendLine("─Execution Stats                                              ─)"
+        sb.appendLine("─  Tool Calls: ${state.toolCallCount.toString().padEnd(44)}─)"
+        sb.appendLine("─  Errors: ${state.errorCount.toString().padEnd(47)}─)"
+        sb.appendLine("─  Elapsed: ${state.elapsedTimeMs.toString().padEnd(45)}─)"
+        sb.appendLine("─  Breakpoints: ${breakpoints.size.toString().padEnd(43)}─)"
 
         if (watchedVariables.isNotEmpty()) {
-            sb.appendLine("├─────────────────────────────────────────────────────────────�?)
-            sb.appendLine("�?Watched Variables                                            �?)
+            sb.appendLine("├──────────────────────────────────────────────────────────────)"
+            sb.appendLine("─Watched Variables                                            ─)"
             watchedVariables.take(5).forEach { watch ->
                 val valueStr = (watch.lastValue?.toString() ?: "null").take(30)
-                sb.appendLine("�?  ${watch.name}: ${valueStr}${" ".padEnd(45 - valueStr.length - watch.name.length)}�?)
+                sb.appendLine("─  ${watch.name}: ${valueStr}${" ".padEnd(45 - valueStr.length - watch.name.length)}─)"
             }
         }
 
-        sb.appendLine("└─────────────────────────────────────────────────────────────�?)
+        sb.appendLine("└──────────────────────────────────────────────────────────────)"
         return sb.toString()
     }
 
@@ -353,14 +353,14 @@ class DebugConsoleUI private constructor(private val context: Context) {
 
         val sb = StringBuilder()
         sb.appendLine("Tool Call Tree (Session: ${session.id})")
-        sb.appendLine("�?.repeat(60))
+        sb.appendLine("═.repeat(60))"
 
         session.toolCalls.forEachIndexed { index, toolCall ->
             val indent = "  ".repeat(toolCall.sequenceNumber)
             val statusIcon = when {
-                toolCall.error != null -> "�?
-                toolCall.durationMs != null -> "�?
-                else -> "�?
+                toolCall.error != null -> "✓"
+                toolCall.durationMs != null -> "✓"
+                else -> "●"
             }
             val duration = toolCall.durationMs?.let { "${it}ms" } ?: "..."
             val startTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(toolCall.startTime))
@@ -407,7 +407,7 @@ class DebugConsoleUI private constructor(private val context: Context) {
             val type = bp.type.name.take(12)
             val target = bp.target.take(20)
             val hitCount = bp.hitCount.get()
-            val enabledStr = if (bp.enabled) "�? else "�?
+            val enabledStr = if (bp.enabled) "✓ else "✓
             sb.appendLine(String.format("%-5s %-12s %-20s %d %s", id, type, target, hitCount, enabledStr))
         }
 
@@ -419,7 +419,7 @@ class DebugConsoleUI private constructor(private val context: Context) {
 
         val sb = StringBuilder()
         sb.appendLine("Execution Flow")
-        sb.appendLine("�?.repeat(60))
+        sb.appendLine("═.repeat(60))"
 
         val tracer = SkillDebugger.getInstance(context).getExecutionTracer()
         return tracer.generateFlowDiagram(session.id)

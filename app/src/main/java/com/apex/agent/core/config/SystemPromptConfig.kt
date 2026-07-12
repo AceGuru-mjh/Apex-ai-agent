@@ -75,8 +75,8 @@ Based on user needs, proactively select the most appropriate tool or combination
             )
         } else {
             guidelines.replace(
-                "输出XML（如 <tool>，status>）时，必须在XML前换行，并确保起始标签位于行首，,
-                "输出XML（如 <tool>）时，必须在XML前换行，并确保起始标签位于行首，
+                "输出XML（如 <tool>，status>）时，必须在XML前换行，并确保起始标签位于行首，",
+                "输出XML（如 <tool>）时，必须在XML前换行，并确保起始标签位于行首，"
             )
         }
     }

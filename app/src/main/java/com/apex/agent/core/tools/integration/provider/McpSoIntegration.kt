@@ -39,7 +39,7 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
             IntegrationCapability("search", "搜索服务, "搜索 mcp.so 上的 MCP 服务, CapabilityType.SEARCH),
             IntegrationCapability("install", "安装服务, "?mcp.so 安装 MCP 服务, CapabilityType.INSTALL),
             IntegrationCapability("uninstall", "卸载服务, "卸载已安装的 MCP 服务, CapabilityType.UNINSTALL),
-            IntegrationCapability("list_installed", "已安装列, "列出已从 mcp.so 安装的服务器", CapabilityType.BROWSE),
+            IntegrationCapability("list_installed", "已安装列", "列出已从 mcp.so 安装的服务器", CapabilityType.BROWSE),
             IntegrationCapability("categories", "分类浏览", "按标签分类浏览服务器", CapabilityType.CATEGORIES)
         ),
         itemCount = 0,
@@ -123,7 +123,7 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
                         "成功安装 ${targetServer.name}（已添加 $count 个配置）"
                     }
                 } else {
-                    Result.failure(Exception("该服务器没有可用的安装配))
+                    Result.failure(Exception("该服务器没有可用的安装配"))
                 }
             } ?: Result.failure(Exception("未找到服务器: ${item.name}"))
         }.fold(

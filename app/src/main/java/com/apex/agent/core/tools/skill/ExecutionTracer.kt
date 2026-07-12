@@ -377,9 +377,9 @@ class ExecutionTracer private constructor(private val context: Context) {
 
         flow.toolCalls.forEachIndexed { index, toolCall ->
             val statusIcon = when {
-                toolCall.error != null -> "âœ?
-                toolCall.durationMs != null -> "âœ?
-                else -> "â—?
+                toolCall.error != null -> "âœ“"
+                toolCall.durationMs != null -> "âœ“"
+                else -> "â—"
             }
             val duration = toolCall.durationMs?.let { "${it}ms" } ?: "N/A"
             sb.appendLine("${index + 1}. ${statusIcon} ${toolCall.toolName} [${duration}]")
@@ -393,7 +393,7 @@ class ExecutionTracer private constructor(private val context: Context) {
             sb.appendLine("Errors (${flow.errors.size}):")
             sb.appendLine("â”€".repeat(60))
             flow.errors.forEach { error ->
-                sb.appendLine("â€?${error.toolName ?: "Unknown"}: ${error.error}")
+                sb.appendLine("â€”${error.toolName ?: "Unknown"}: ${error.error}")
             }
         }
 

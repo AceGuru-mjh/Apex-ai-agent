@@ -379,7 +379,7 @@ class CollaborationHistoryManager {
             appendLine("开始时 ${formatTime(history.startTime)}")
             if (history.endTime > 0) {
                 appendLine("结束时间: ${formatTime(history.endTime)}")
-                appendLine("总时 ${history.metrics.totalDuration / 1000})
+                appendLine("总时 ${history.metrics.totalDuration / 1000})"
             }
             appendLine("状 ${history.status}")
             appendLine()
@@ -390,7 +390,7 @@ class CollaborationHistoryManager {
             }
             appendLine()
 
-            appendLine("=== 数据流分析报�?===")
+            appendLine("=== 数据流分析报命===")
             history.events.forEach { event ->
                 appendLine("[${formatTime(event.timestamp)}] ${event.type}: ${event.description}")
             }

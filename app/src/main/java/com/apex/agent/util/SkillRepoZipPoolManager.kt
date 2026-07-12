@@ -83,7 +83,7 @@ object SkillRepoZipPoolManager {
                 return@withLock zipFile
             }
 
-            AppLogger.d(TAG, "ZIP 缓存未命中，开始下�?key=${key}")
+            AppLogger.d(TAG, "ZIP 缓存未命中，开始下，key=${key}")
             val partFile = partFileFor(dir, key)
             runCatching { partFile.delete() }
 
@@ -95,7 +95,7 @@ object SkillRepoZipPoolManager {
             }
 
             if (!ok || !partFile.exists() || partFile.length() <= 0L) {
-                AppLogger.w(TAG, "ZIP 下载失败或文件为�?key=${key}")
+                AppLogger.w(TAG, "ZIP 下载失败或文件为，key=${key}")
                 runCatching { partFile.delete() }
                 return@withLock null
             }
@@ -117,7 +117,7 @@ object SkillRepoZipPoolManager {
 
             touch(zipFile)
 
-            AppLogger.d(TAG, "ZIP 已缓�?key=${key}, file=${zipFile.name}, bytes=${zipFile.length()}")
+            AppLogger.d(TAG, "ZIP 已缓字key=${key}, file=${zipFile.name}, bytes=${zipFile.length()}")
 
             evictionMutex.withLock {
                 evictIfNeededLocked(dir)

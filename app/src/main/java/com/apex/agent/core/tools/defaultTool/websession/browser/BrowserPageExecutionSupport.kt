@@ -478,7 +478,7 @@ internal fun StandardBrowserSessionTools.quoteJsCode(value: String): String {
         buildString(value.length + 8) {
             value.forEach { ch ->
                 when (ch) {
-                    '\\' -> append("\\\\")
+                    '\\' -> append("\\\\")"
                     '\'' -> append("\\'")
                     '\n' -> append("\\n")
                     '\r' -> append("\\r")

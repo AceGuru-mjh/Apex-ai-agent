@@ -156,7 +156,7 @@ class AgentRoleCardManager(private val context: Context) {
         val card = getCardById(roleCardId) ?: return null
         return card.copy(
             id = java.util.UUID.randomUUID().toString(),
-            name = newName ?: "${card.name} (副本,
+            name = newName ?: "${card.name} (副本",
             isDefault = false,
             tags = card.tags.toMutableSet().apply { add("duplicate") },
             created = System.currentTimeMillis(),

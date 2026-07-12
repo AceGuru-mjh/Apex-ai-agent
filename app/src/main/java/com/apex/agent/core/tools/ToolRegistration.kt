@@ -105,7 +105,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             }
     )
 
-    // 终端命令执行工具 - 一次性收集输�?   handler.registerTool(
+    // 终端命令执行工具 - 一次性收集输出   handler.registerTool(
             name = "create_terminal_session",
             descriptionGenerator = { tool ->
                 val sessionName = tool.parameters.find { it.name == "session_name" }?.value
@@ -401,7 +401,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             }
     )
 
-    // 注册问题库查询工�?   handler.registerTool(
+    // 注册问题库查询工具   handler.registerTool(
             name = "query_memory",
             descriptionGenerator = { tool ->
                 val query = tool.parameters.find { it.name == "query" }?.value ?: ""
@@ -740,7 +740,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
 
     // ADB命令执行工具
 
-    // 计算器工�?   handler.registerTool(
+    // 计算器工具   handler.registerTool(
             name = "calculate",
             descriptionGenerator = { tool ->
                 val expression = tool.parameters.find { it.name == "expression" }?.value ?: ""
@@ -1065,7 +1065,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
     )
 
     
-    // 工作流工�?   val workflowTools = ToolGetter.getWorkflowTools(context)
+    // 工作流工具   val workflowTools = ToolGetter.getWorkflowTools(context)
 
     // 获取所有工作流
     handler.registerTool(
@@ -1074,7 +1074,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.getAllWorkflows(tool) } }
     )
 
-    // 创建工作�?   handler.registerTool(
+    // 创建工作，   handler.registerTool(
             name = "create_workflow",
             descriptionGenerator = { tool ->
                 val name = tool.parameters.find { it.name == "name" }?.value ?: ""
@@ -1083,7 +1083,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.createWorkflow(tool) } }
     )
 
-    // 获取工作流详�?   handler.registerTool(
+    // 获取工作流详，   handler.registerTool(
             name = "get_workflow",
             descriptionGenerator = { tool ->
                 val id = tool.parameters.find { it.name == "workflow_id" }?.value ?: ""
@@ -1092,7 +1092,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.getWorkflow(tool) } }
     )
 
-    // 更新工作�?   handler.registerTool(
+    // 更新工作，   handler.registerTool(
             name = "update_workflow",
             descriptionGenerator = { tool ->
                 val id = tool.parameters.find { it.name == "workflow_id" }?.value ?: ""
@@ -1106,7 +1106,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.updateWorkflow(tool) } }
     )
 
-    // 差异更新工作�?   handler.registerTool(
+    // 差异更新工作，   handler.registerTool(
             name = "patch_workflow",
             descriptionGenerator = { tool ->
                 val id = tool.parameters.find { it.name == "workflow_id" }?.value ?: ""
@@ -1115,7 +1115,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.patchWorkflow(tool) } }
     )
 
-    // 启用工作�?   handler.registerTool(
+    // 启用工作，   handler.registerTool(
             name = "enable_workflow",
             descriptionGenerator = { tool ->
                 val id = tool.parameters.find { it.name == "workflow_id" }?.value ?: ""
@@ -1124,7 +1124,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.enableWorkflow(tool) } }
     )
 
-    // 禁用工作�?   handler.registerTool(
+    // 禁用工作，   handler.registerTool(
             name = "disable_workflow",
             descriptionGenerator = { tool ->
                 val id = tool.parameters.find { it.name == "workflow_id" }?.value ?: ""
@@ -1133,7 +1133,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.disableWorkflow(tool) } }
     )
 
-    // 删除工作�?   handler.registerTool(
+    // 删除工作，   handler.registerTool(
             name = "delete_workflow",
             descriptionGenerator = { tool ->
                 val id = tool.parameters.find { it.name == "workflow_id" }?.value ?: ""
@@ -1142,7 +1142,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { workflowTools.deleteWorkflow(tool) } }
     )
 
-    // 触发工作流执�?   handler.registerTool(
+    // 触发工作流执行   handler.registerTool(
             name = "trigger_workflow",
             descriptionGenerator = { tool ->
                 val id = tool.parameters.find { it.name == "workflow_id" }?.value ?: ""
@@ -1182,7 +1182,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { chatManagerTool.createNewChat(tool) } }
     )
 
-    // 列出所有对�?   handler.registerTool(
+    // 列出所有对象   handler.registerTool(
             name = "list_chats",
             descriptionGenerator = { _ -> s(R.string.toolreg_list_chats_desc) },
             executor = { tool -> runBlocking(Dispatchers.IO) { chatManagerTool.listChats(tool) } }
@@ -1198,7 +1198,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { chatManagerTool.findChat(tool) } }
     )
 
-    // 查询对话输入状�?   handler.registerTool(
+    // 查询对话输入状态   handler.registerTool(
             name = "agent_status",
             descriptionGenerator = { tool ->
                 val chatId = tool.parameters.find { it.name == "chat_id" }?.value ?: ""
@@ -1308,7 +1308,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { fileSystemTools.readFile(tool) } }
     )
 
-    // 按行号范围读取文件内�?   handler.registerTool(
+    // 按行号范围读取文件内定   handler.registerTool(
             name = "read_file_part",
             descriptionGenerator = { tool ->
                 val path = tool.parameters.find { it.name == "path" }?.value ?: ""
@@ -1341,7 +1341,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { fileSystemTools.readFileFull(tool) } }
     )
 
-    // 读取二进制文件内容（Base64编码�?   handler.registerTool(
+    // 读取二进制文件内容（Base64编码，   handler.registerTool(
             name = "read_file_binary",
             descriptionGenerator = { tool ->
                 val path = tool.parameters.find { it.name == "path" }?.value ?: ""
@@ -1373,7 +1373,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             }
     )
 
-    // 写入二进制文�?   handler.registerTool(
+    // 写入二进制文件   handler.registerTool(
         name = "write_file_binary",
         descriptionGenerator = { tool ->
             val path = tool.parameters.find { it.name == "path" }?.value ?: ""
@@ -1405,7 +1405,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { fileSystemTools.deleteFile(tool) } }
     )
 
-    // UI自动化工�?   val uiTools = ToolGetter.getUITools(context)
+    // UI自动化工具   val uiTools = ToolGetter.getUITools(context)
 
     // 点击元素
     handler.registerTool(
@@ -1481,7 +1481,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { httpTools.httpRequest(tool) } }
     )
 
-    // 多部分表单请求（文件上传�?   handler.registerTool(
+    // 多部分表单请求（文件上传，   handler.registerTool(
             name = "multipart_request",
             descriptionGenerator = { tool ->
                 val url = tool.parameters.find { it.name == "url" }?.value ?: ""
@@ -1526,7 +1526,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { httpTools.manageCookies(tool) } }
     )
 
-    // 检查文件是否存�?   handler.registerTool(
+    // 检查文件是否存，   handler.registerTool(
             name = "file_exists",
             descriptionGenerator = { tool ->
                 val path = tool.parameters.find { it.name == "path" }?.value ?: ""
@@ -1552,7 +1552,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { fileSystemTools.moveFile(tool) } }
     )
 
-    // 复制文件或目�?   handler.registerTool(
+    // 复制文件或目当   handler.registerTool(
             name = "copy_file",
             descriptionGenerator = { tool ->
                 val source = tool.parameters.find { it.name == "source" }?.value ?: ""
@@ -1648,7 +1648,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { fileSystemTools.zipFiles(tool) } }
     )
 
-    // 解压缩文�?   handler.registerTool(
+    // 解压缩文件   handler.registerTool(
             name = "unzip_files",
             descriptionGenerator = { tool ->
                 val source = tool.parameters.find { it.name == "source" }?.value ?: ""
@@ -1708,7 +1708,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             }
     )
 
-    // Grep上下文搜�?   handler.registerTool(
+    // Grep上下文搜索   handler.registerTool(
             name = "grep_context",
             descriptionGenerator = { tool ->
                 val path = tool.parameters.find { it.name == "path" }?.value ?: ""
@@ -1804,7 +1804,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             }
     )
 
-    // 获取已安装应用列�?   handler.registerTool(
+    // 获取已安装应用列行   handler.registerTool(
             name = "list_installed_apps",
             descriptionGenerator = { _ -> s(R.string.toolreg_list_installed_apps_desc) },
             executor = { tool ->
@@ -1938,7 +1938,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { uiTools.runUiSubAgent(tool) } }
     )
 
-    // 在输入框中设置文�?   handler.registerTool(
+    // 在输入框中设置文件   handler.registerTool(
             name = "set_input_text",
             descriptionGenerator = { tool ->
                 val text = tool.parameters.find { it.name == "text" }?.value ?: ""

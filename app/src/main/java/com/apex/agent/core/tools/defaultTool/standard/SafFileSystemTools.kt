@@ -1025,7 +1025,7 @@ class SafFileSystemTools(
                 '*' -> regex.append(".*")
                 '?' -> regex.append(".")
                 '.' -> regex.append("\\.")
-                '\\' -> regex.append("\\\\")
+                '\\' -> regex.append("\\\\")"
                 '[' -> regex.append("[")
                 ']' -> regex.append("]")
                 '(' -> regex.append("\\(")

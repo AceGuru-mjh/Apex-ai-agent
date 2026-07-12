@@ -655,25 +655,25 @@ class ARVRInteractionManager(private val context: Context) {
     }
 
     suspend fun generateSessionReport(sessionId: String): String = withContext(Dispatchers.IO) {
-        val session = activeSessions[sessionId] ?: return@withContext "会话不存�?
+        val session = activeSessions[sessionId] ?: return@withContext "会话不存在"
 
         buildString {
             appendLine("=== AR/VR 会话报告 ===")
             appendLine()
-            appendLine("【会话信息�?)
+            appendLine("【会话信息。")
             appendLine("ID: ${session.id}")
             appendLine("类型: ${session.type.name}")
             appendLine("交互模式: ${session.mode.name}")
-            appendLine("状�? ${if (session.isActive) "活跃" else "已结�?}")
+            appendLine("状态 ${if (session.isActive) "活跃" else "已结权}")"
             appendLine()
 
-            appendLine("【场景统计�?)
+            appendLine("【场景统计。")
             appendLine("对象数量: ${session.sceneObjects.size}")
             appendLine("锚点数量: ${session.spatialAnchors.size}")
             appendLine("交互次数: ${session.interactions.size}")
             appendLine()
 
-            appendLine("【交互类型分布�?)
+            appendLine("【交互类型分布。")
             val typeCounts = session.interactions.groupingBy { it.type }.eachCount()
             typeCounts.forEach { (type, count) ->
                 appendLine("  ${type}: ${count}")
@@ -690,7 +690,7 @@ class ARVRInteractionManager(private val context: Context) {
                 if (session.endTime != null && session.endTime < cutoffTime) {
                     file.delete()
                     activeSessions.remove(session.id)
-                    AppLogger.d(TAG, "清理旧会�? ${file.name}")
+                    AppLogger.d(TAG, "清理旧会试 ${file.name}")
                 }
             } catch (e: Exception) {
                 file.delete()

@@ -8,6 +8,7 @@ import com.apex.sdk.common.ApexSuite
 import com.apex.sdk.common.BridgeResult
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -490,10 +491,10 @@ class RageBridgeImpl(
                     }
                     "rage/architect/deleteTask" -> {
                         val taskId = args["taskId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.deleteTask(taskId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
+                        buildResult(BridgeResult.Success<Boolean>(facade.deleteTask(taskId))) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/architect/clearHistory" -> {
-                        buildResult(facade.clearTaskHistory()) { buildJsonObject { put("result", JsonPrimitive(it)) } }
+                        buildResult(BridgeResult.Success<Int>(facade.clearTaskHistory())) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
                     "rage/architect/spawnAgent" -> {
                         val name = args["name"]?.jsonPrimitive?.content ?: ""
@@ -504,7 +505,7 @@ class RageBridgeImpl(
                     }
                     "rage/architect/terminateAgent" -> {
                         val agentId = args["agentId"]?.jsonPrimitive?.content ?: ""
-                        buildResult(facade.terminateAgent(agentId)) { buildJsonObject { put("result", JsonPrimitive(it)) } }
+                        buildResult(BridgeResult.Success<Boolean>(facade.terminateAgent(agentId))) { buildJsonObject { put("result", JsonPrimitive(it)) } }
                     }
 
                     // ===== lib:rage 引擎新能力（任务/技能/架构师/配置/预设） =====
@@ -717,7 +718,7 @@ class RageBridgeImpl(
     override fun openStream(channelName: String): String = channelName
     override fun closeStream(channelName: String) {}
 
-    private fun <T> buildResult(result: BridgeResult<T>, transform: (T) -> JsonObject): String = when (result) {
+    private fun <T> buildResult(result: BridgeResult<T>, transform: (T) -> JsonElement): String = when (result) {
         is BridgeResult.Success -> buildJsonObject {
             put("success", true)
             put("data", transform(result.value))

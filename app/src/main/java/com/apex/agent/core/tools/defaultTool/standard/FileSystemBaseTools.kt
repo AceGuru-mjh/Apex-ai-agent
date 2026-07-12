@@ -505,7 +505,7 @@ open class FileSystemBaseTools(protected val context: Context) {
         return partContent.toString()
     }
 
-    /** 统计文件总行�?/
+    /** 统计文件总行为/
     protected fun countFileLines(file: File): Int {
         var totalLines = 0
         file.bufferedReader().use {

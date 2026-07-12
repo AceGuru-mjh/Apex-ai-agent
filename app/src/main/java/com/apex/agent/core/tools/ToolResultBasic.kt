@@ -73,7 +73,7 @@ data class CalculationResultData(
     }
 }
 
-/** 日期结果结构化数�*/
+/** 日期结果结构化数据*/
 
 @Serializable
 data class DateResultData(val date: String, val format: String, val formattedDate: String) :

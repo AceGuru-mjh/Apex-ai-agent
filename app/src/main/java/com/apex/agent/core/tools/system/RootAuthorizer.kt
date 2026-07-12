@@ -94,7 +94,7 @@ object RootAuthorizer {
             )
             AppLogger.d(TAG, "libsu Shell全局配置已初始化")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "libsu Shell全局配置初始化失败：${e.message})
+            AppLogger.e(TAG, "libsu Shell全局配置初始化失败：${e.message})"
         }
     }
 
@@ -110,9 +110,9 @@ object RootAuthorizer {
 
             // 检查Root状           checkRootStatus(context)
             
-            AppLogger.d(TAG, "RootAuthorizer初始化完了）
+            AppLogger.d(TAG, "RootAuthorizer初始化完了）"
         } catch (e: Exception) {
-            AppLogger.e(TAG, "RootAuthorizer初始化失败：${e.message})
+            AppLogger.e(TAG, "RootAuthorizer初始化失败：${e.message})"
             // 设置默认状           _isRooted.value = false
             _hasRootAccess.value = false
         }
@@ -181,7 +181,7 @@ object RootAuthorizer {
             val rootExecutionMode = getRootExecutionModePreference()
 
             if (rootExecutionMode == RootCommandExecutionMode.FORCE_EXEC) {
-                AppLogger.d(TAG, "Root执行模式已手动设为exec，跳过libsu自动检。
+                AppLogger.d(TAG, "Root执行模式已手动设为exec，跳过libsu自动检。"
                 useExecForCommands = true
                 if (checkExecSuAccess()) {
                     return true
@@ -192,7 +192,7 @@ object RootAuthorizer {
                 try {
                     val isRoot = Shell.isAppGrantedRoot() ?: false
                     if (isRoot) {
-                        AppLogger.d(TAG, "libsu检测到设备已Root并授予应用权限）
+                        AppLogger.d(TAG, "libsu检测到设备已Root并授予应用权限）"
                         useExecForCommands = false
                         return true
                     }
@@ -363,7 +363,7 @@ object RootAuthorizer {
                 onResult(granted)
             }
         } catch (e: Exception) {
-            AppLogger.e(TAG, "请求Root权限时出 e)
+            AppLogger.e(TAG, "请求Root权限时出 e)"
             onResult(false)
         }
     }
@@ -385,7 +385,7 @@ object RootAuthorizer {
                 ?: return Pair(false, context.getString(R.string.root_authorizer_not_initialized))
             return Pair(result.success, if (result.success) result.stdout else result.stderr)
         } catch (e: Exception) {
-            AppLogger.e(TAG, "执行Root命令时出 e)
+            AppLogger.e(TAG, "执行Root命令时出 e)"
             return Pair(false, context.getString(R.string.root_authorizer_execute_error, e.message ?: ""))
         }
     }

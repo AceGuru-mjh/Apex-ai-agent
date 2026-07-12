@@ -61,7 +61,7 @@ data class DirectoryListingData(
         entries.forEach { entry ->
             val typeIndicator = if (entry.isDirectory) "d" else "-"
             sb.appendLine(
-                    "${typeIndicator}${entry.permissions} ${
+                    "${typeIndicator}${entry.permissions} ${"
                     entry.size.toString().padStart(8)
                 } ${entry.lastModified} ${entry.name}"
             )
@@ -241,7 +241,7 @@ data class FileApplyResultData(
     }
 }
 
-/** HTTP响应结果结构化数�*/
+/** HTTP响应结果结构化数据*/
 
 @Serializable
 @OptIn(ExperimentalSerializationApi::class)

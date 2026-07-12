@@ -10,7 +10,8 @@ class DynamicProfileUpdater {
     data class ProfileUpdateConfig(
         val agentId: String,
         val updateInterval: Long = 60, // 默认60??        val minSamples: Int = 5, // 最小样本数
-        val learningRate: Double = 0.1, // 学习�?       val enabled: Boolean = true
+        val learningRate: Double = 0.1, // 学习，
+       val enabled: Boolean = true
     )
 
     data class TaskExecutionData(
@@ -43,7 +44,7 @@ class DynamicProfileUpdater {
         val dataList = executionData.getOrPut(agentId) { mutableListOf() }
         dataList.add(data)
         
-        // 限制数据量，只保留最�?0??        if (dataList.size > 100) {
+        // 限制数据量，只保留最，0??        if (dataList.size > 100) {
             executionData[agentId] = dataList.takeLast(100).toMutableList()
         }
     }
@@ -70,7 +71,8 @@ class DynamicProfileUpdater {
             return
         }
 
-        // 按任务类别分�?       val dataByCategory = dataList.groupBy { it.taskCategory }
+        // 按任务类别分，
+       val dataByCategory = dataList.groupBy { it.taskCategory }
 
         dataByCategory.forEach { (category, data) ->
             // 计算该类别的统计数据
@@ -91,14 +93,17 @@ class DynamicProfileUpdater {
                 val newScore = currentScore * (1 - config.learningRate) + 综合得分 * config.learningRate
                 profile.capabilityScores[category] = newScore.coerceIn(0.1, 2.0)
 
-                // 更新技能标�?               if (综合得分 > 0.7) {
-                    // 添加相关技能标�?                   val skills = getSkillsForCategory(category)
+                // 更新技能标，
+               if (综合得分 > 0.7) {
+                    // 添加相关技能标，
+                   val skills = getSkillsForCategory(category)
                     skills.forEach { profile.skillTags.add(it) }
                 }
             }
         }
 
-        // 清理旧数�?       executionData[agentId] = dataList.takeLast(config.minSamples * 2).toMutableList()
+        // 清理旧数，
+       executionData[agentId] = dataList.takeLast(config.minSamples * 2).toMutableList()
     }
 
     private fun getSkillsForCategory(category: String): List<String> {
@@ -107,11 +112,11 @@ class DynamicProfileUpdater {
             "writing" -> listOf("写作", "文案", "编辑")
             "research" -> listOf("研究", "分析", "调查")
             "design" -> listOf("设计", "创意", "用户体验")
-            "data" -> listOf("数据分析", "统计", "数据可视�?
-            "communication" -> listOf("沟？, "协调", "表达")
+            "data" -> listOf("数据分析", "统计", "数据可视，"
+            "communication" -> listOf("沟？", "协调", "表达")
             "planning" -> listOf("计划", "组织", "项目管理")
             "testing" -> listOf("测试", "质量保证", "问题定位")
-            "documentation" -> listOf("文档编写", "技术写�?
+            "documentation" -> listOf("文档编写", "技术写，"
             else -> emptyList()
         }
     }
@@ -171,24 +176,24 @@ class DynamicProfileUpdater {
                 sb.appendLine("  ${category}: ${String.format("%.2f", score)}")
             }
             sb.appendLine()
-            sb.appendLine("技能标�?)
+            sb.appendLine("技能标，")
             sb.appendLine("  ${profile.skillTags.joinToString(", ")}")
             sb.appendLine()
             sb.appendLine("性能指标:")
             sb.appendLine("  总任务数: ${profile.performanceMetrics.totalTasks}")
-            sb.appendLine("  成功任务�?${profile.performanceMetrics.completedTasks}")
-            sb.appendLine("  成功�?${String.format("%.2f%%", profile.performanceMetrics.successRate * 100)}")
+            sb.appendLine("  成功任务，${profile.performanceMetrics.completedTasks}")
+            sb.appendLine("  成功，${String.format("%.2f%%", profile.performanceMetrics.successRate * 100)}")
             sb.appendLine("  平均响应时间: ${profile.performanceMetrics.averageResponseTime}ms")
             sb.appendLine("  平均质量评分: ${String.format("%.2f", profile.performanceMetrics.averageQualityScore)}")
         }
         
         if (dataList != null && dataList.isNotEmpty()) {
             sb.appendLine()
-            sb.appendLine("最近执行数�?)
+            sb.appendLine("最近执行数，")
             dataList.takeLast(5).forEachIndexed { index, data ->
                 sb.appendLine("${index + 1}. 任务: ${data.taskCategory}, 难度: ${data.difficulty}")
                 sb.appendLine("   状？ ${if (data.success) "成功" else "失败"}, 质量: ${String.format("%.2f", data.qualityScore)}")
-                sb.appendLine("   时间: ${data.completionTime}ms, 反馈: ${data.userFeedback ?: "??}")
+                sb.appendLine("   时间: ${data.completionTime}ms, 反馈: ${data.userFeedback ?: "??}")"
             }
         }
         

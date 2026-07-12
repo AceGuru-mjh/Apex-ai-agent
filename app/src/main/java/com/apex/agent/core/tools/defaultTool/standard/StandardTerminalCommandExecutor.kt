@@ -25,7 +25,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
     }
 
 
-    /** 创建或获取一个终端会�?
+    /** 创建或获取一个终端会的
     fun createOrGetSession(tool: AITool): ToolResult {
         return runBlocking(Dispatchers.IO) {
             try {
@@ -41,9 +41,11 @@ class StandardTerminalCommandExecutor(private val context: Context) {
 
                 val terminal = Terminal.getInstance(context)
 
-                // 修正：直接检查Terminal 单例中是否已存在同名会话，而不是依赖本地缓�?              val existingSession = terminal.terminalState.value.sessions.find { it.title == sessionName }
+                // 修正：直接检查Terminal 单例中是否已存在同名会话，而不是依赖本地缓的
+              val existingSession = terminal.terminalState.value.sessions.find { it.title == sessionName }
                 if (existingSession != null) {
-                    // 如果存在，更新本地缓存并返回该会�?                  sessionNameToIdMap[sessionName] = existingSession.id
+                    // 如果存在，更新本地缓存并返回该会的
+                  sessionNameToIdMap[sessionName] = existingSession.id
                     return@runBlocking ToolResult(
                         toolName = tool.name,
                         success = true,
@@ -55,7 +57,8 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                     )
                 }
 
-                // 如果 Terminal 中不存在，则创建新会�?              val newSessionId = terminal.createSession(sessionName)
+                // 如果 Terminal 中不存在，则创建新会的
+              val newSessionId = terminal.createSession(sessionName)
                 sessionNameToIdMap[sessionName] = newSessionId
 
                 ToolResult(
@@ -79,7 +82,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
         }
     }
 
-    /** 在指定的终端会话中执行命�?/
+    /** 在指定的终端会话中执行命的/
     fun executeCommandInSession(tool: AITool): ToolResult {
         return runBlocking(Dispatchers.IO) {
             try {
@@ -104,7 +107,8 @@ class StandardTerminalCommandExecutor(private val context: Context) {
 
                 val terminal = Terminal.getInstance(context)
 
-                // 检查会话是否存�?               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
+                // 检查会话是否存储
+               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
                     // 如果会话不存在，也从我们的映射中移除
                     sessionNameToIdMap.entries.removeIf { it.value == sessionId }
                     return@runBlocking ToolResult(
@@ -179,7 +183,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                     )
                 }
             } catch (e: Exception) {
-                AppLogger.e(TAG, "执行终端命令时出�? e)
+                AppLogger.e(TAG, "执行终端命令时出的 e)"
                 ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -190,7 +194,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
         }
     }
 
-    /** 在隐藏终端执行器中执行命�?/
+    /** 在隐藏终端执行器中执行命的/
     fun executeHiddenCommand(tool: AITool): ToolResult {
         return runBlocking(Dispatchers.IO) {
             try {
@@ -256,7 +260,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                     error = errorMessage
                 )
             } catch (e: Exception) {
-                AppLogger.e(TAG, "执行隐藏终端命令时出�? e)
+                AppLogger.e(TAG, "执行隐藏终端命令时出的 e)"
                 ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -301,7 +305,8 @@ class StandardTerminalCommandExecutor(private val context: Context) {
 
                 val terminal = Terminal.getInstance(context)
 
-                // 检查会话是否存�?               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
+                // 检查会话是否存储
+               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
                     sessionNameToIdMap.entries.removeIf { it.value == sessionId }
                     return@runBlocking ToolResult(
                         toolName = tool.name,
@@ -349,7 +354,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
         }
     }
 
-    /** 关闭一个终端会�?
+    /** 关闭一个终端会的
     fun closeSession(tool: AITool): ToolResult {
         return runBlocking(Dispatchers.IO) {
             val sessionId = tool.parameters.find { it.name == "session_id" }?.value
@@ -379,7 +384,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                     )
                 )
             } catch (e: Exception) {
-                AppLogger.e(TAG, "关闭终端会话时出�? e)
+                AppLogger.e(TAG, "关闭终端会话时出的 e)"
                 ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -390,7 +395,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
         }
     }
 
-    /** 获取终端会话当前屏幕内容（不包含历史滚动缓冲�?/
+    /** 获取终端会话当前屏幕内容（不包含历史滚动缓冲的/
     fun getSessionScreen(tool: AITool): ToolResult {
         return runBlocking(Dispatchers.IO) {
             val sessionId = tool.parameters.find { it.name == "session_id" }?.value
@@ -434,7 +439,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                     )
                 )
             } catch (e: Exception) {
-                AppLogger.e(TAG, "获取终端会话屏幕内容时出�? e)
+                AppLogger.e(TAG, "获取终端会话屏幕内容时出的 e)"
                 ToolResult(
                     toolName = tool.name,
                     success = false,
