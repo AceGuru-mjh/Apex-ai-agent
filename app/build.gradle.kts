@@ -6,10 +6,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.compose)
-    id("io.objectbox")
     alias(libs.plugins.google.hilt.android)
     // 模块归属校验 — 防止 lib:* 被打包进主 APK
     id("apex.module.ownership")
@@ -190,16 +189,13 @@ android {
 }
 
 // Room schema 导出目录配置（用于迁移验证）
-kapt {
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas")
-    }
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 // Kotlin 编译配置
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
-        languageVersion = "1.9"
         jvmTarget = "17"
         jvmTarget = "17"
     }
@@ -360,17 +356,17 @@ dependencies {
 
     // Hilt 依赖注入
     implementation(libs.google.hilt.android)
-    kapt(libs.google.hilt.compiler)
+    ksp(libs.google.hilt.compiler)
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Room 数据库
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     // ObjectBox
-    implementation(libs.objectbox.kotlin)
-    kapt(libs.objectbox.processor)
+    // implementation(libs.objectbox.kotlin) // Disabled: ObjectBox plugin removed
+    // kapt(libs.objectbox.processor) // ObjectBox disabled: KSP not supported
     implementation(libs.junrar.junrar)
 
     // Compose dependencies - use BOM for version consistency
