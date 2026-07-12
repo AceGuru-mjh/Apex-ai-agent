@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.asSharedFlow
  */
 class RageEventBridge {
 
-    private const val TAG_SUB = "RageEventBridge"
+    private val TAG_SUB = "RageEventBridge"
 
     /** 本地事件流（同进程零延迟）。 */
     private val _events = MutableSharedFlow<RageEvent>(extraBufferCapacity = 256)
