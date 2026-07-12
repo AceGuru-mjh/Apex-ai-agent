@@ -20,7 +20,7 @@ class GrayReleaseManager {
         val sessionId: String,
         val feedback: String,
         val rating: Int, // 1-5
-        val timestamp: Long
+                val timestamp: Long
     )
 
     private val grayConfigs = ConcurrentHashMap<String, GrayReleaseConfig>()
@@ -35,7 +35,8 @@ class GrayReleaseManager {
             description = description,
             percentage = percentage,
             startDate = System.currentTimeMillis(),
-            endDate = System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000, // 默认7??            features = features,
+            endDate = System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000, // 默认7??
+                features = features,
             isActive = true
         )
         grayConfigs[name] = config
@@ -43,7 +44,7 @@ class GrayReleaseManager {
         grayTestConfig.enableGrayTest()
         
         // 启用相关功能
-        features.forEach {
+                features.forEach {
             grayTestConfig.toggleFeature(it, true)
         }
         

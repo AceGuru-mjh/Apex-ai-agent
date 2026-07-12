@@ -46,8 +46,7 @@ internal enum class BrowserDownloadStatus(val wireName: String) {
     COMPLETED("completed"),
     FAILED("failed"),
     CANCELED("canceled");
-
-    companion object {
+            companion object {
         fun fromWireName(value: String): BrowserDownloadStatus =
             entries.firstOrNull { it.wireName == value } ?: FAILED
     }
@@ -168,12 +167,12 @@ internal data class BrowserDownloadTaskRecord(
     companion object {
         fun fromJson(json: JSONObject): BrowserDownloadTaskRecord {
             val headersJson = json.optJSONObject("headers") ?: JSONObject()
-            val headers = LinkedHashMap<String, String>()
+        val headers = LinkedHashMap<String, String>()
             headersJson.keys().forEach { key ->
                 headers[key] = headersJson.optString(key)
             }
             val segmentsJson = json.optJSONArray("segments") ?: JSONArray()
-            val segments =
+        val segments =
                 MutableList(segmentsJson.length()) { index ->
                     BrowserDownloadSegmentRecord.fromJson(segmentsJson.getJSONObject(index))
                 }
@@ -533,7 +532,7 @@ internal class BrowserDownloadManager private constructor(
         updateTaskStatus(taskId, BrowserDownloadStatus.DOWNLOADING)
         try {
             val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
-            val segment = task.segments.firstOrNull()
+        val segment = task.segments.firstOrNull()
                 ?: throw IllegalStateException("Inline download segment is missing.")
             val partFile = File(segment.tempPath)
             partFile.parentFile?.mkdirs()
@@ -575,7 +574,7 @@ internal class BrowserDownloadManager private constructor(
                 synchronized(speedLock) {
                     if (now - sampledAt >= 500L) {
                         val downloadedNow = currentDownloadedBytes(taskId)
-                        val delta = max(0L, downloadedNow - bytesAtLastSample)
+        val delta = max(0L, downloadedNow - bytesAtLastSample)
                         val speed = (delta * 1000L) / max(1L, now - sampledAt)
                         updateTaskSpeed(taskId, speed)
                         bytesAtLastSample = downloadedNow
@@ -1082,7 +1081,7 @@ internal fun StandardBrowserSessionTools.startBrowserManagedDownload(
     mimeType: String?
 ) {
     val fileName = sanitizeFileName(android.webkit.URLUtil.guessFileName(url, contentDisposition, mimeType))
-    val headers = linkedMapOf<String, String>()
+        val headers = linkedMapOf<String, String>()
     if (userAgent.isNotBlank()) {
         headers["User-Agent"] = userAgent
     }
@@ -1111,7 +1110,7 @@ internal fun StandardBrowserSessionTools.startInlineManagedDownload(
     sourceUrl: String? = null
 ) {
     val normalizedMimeType = mimeType.ifBlank { guessMimeTypeFromDataUrl(base64Data) }
-    val resolvedFileName = resolveInlineDownloadFileName(fileName, normalizedMimeType)
+        val resolvedFileName = resolveInlineDownloadFileName(fileName, normalizedMimeType)
     val bytes = decodeInlineDownloadBytes(base64Data)
     browserDownloadManager().startInlineDownload(
         sessionId = session.id,
@@ -1126,9 +1125,9 @@ internal fun StandardBrowserSessionTools.startInlineManagedDownload(
 
 internal fun StandardBrowserSessionTools.buildBrowserDownloadSummary(): BrowserDownloadSummary {
     val tasks = browserDownloadManager().snapshotTasks()
-    val active = tasks.filter { it.activeOrPending() }
+        val active = tasks.filter { it.activeOrPending() }
     val failed = tasks.count { it.status == BrowserDownloadStatus.FAILED }
-    val latestCompleted =
+        val latestCompleted =
         tasks.filter { it.status == BrowserDownloadStatus.COMPLETED && it.completedAt != null }
             .maxByOrNull { it.completedAt ?: 0L }
             ?.fileName
@@ -1141,7 +1140,7 @@ internal fun StandardBrowserSessionTools.buildBrowserDownloadSummary(): BrowserD
                 null
             } else {
                 val downloaded = progressTasks.sumOf { it.downloadedBytes.toDouble() }
-                val total = progressTasks.sumOf { it.totalBytes.toDouble() }
+        val total = progressTasks.sumOf { it.totalBytes.toDouble() }
                 if (total > 0.0) {
                     (downloaded / total).toFloat()
                 } else {
@@ -1219,7 +1218,7 @@ internal fun StandardBrowserSessionTools.performBrowserDownloadDelete(
 
 internal fun StandardBrowserSessionTools.openDownloadedFile(taskId: String): Boolean {
     val task = browserDownloadManager().snapshotTasks().firstOrNull { it.id == taskId } ?: return false
-    val file = File(task.destinationPath)
+        val file = File(task.destinationPath)
     if (!file.exists()) {
         return false
     }
@@ -1278,9 +1277,9 @@ internal fun StandardBrowserSessionTools.launchBrowserExternalIntent(intent: Int
 
 private fun BrowserDownloadManager.resolveUniqueDestinationFile(suggestedFileName: String): File {
     val downloadsDir = publicDownloadsDirectory()
-    val sanitized = suggestedFileName.trim().ifBlank { "download" }
+        val sanitized = suggestedFileName.trim().ifBlank { "download" }
     val dotIndex = sanitized.lastIndexOf('.')
-    val base = if (dotIndex > 0) sanitized.substring(0, dotIndex) else sanitized
+        val base = if (dotIndex > 0) sanitized.substring(0, dotIndex) else sanitized
     val ext = if (dotIndex > 0) sanitized.substring(dotIndex) else ""
     var candidate = File(downloadsDir, sanitized)
     var index = 1

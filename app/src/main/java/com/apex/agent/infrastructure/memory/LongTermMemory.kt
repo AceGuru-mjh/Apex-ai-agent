@@ -116,7 +116,7 @@ class LongTermMemory(
     override fun keys(): Set<String> {
         lock.read {
             val now = System.currentTimeMillis()
-            val expired = store.filterValues { isExpired(it, now) }.keys
+        val expired = store.filterValues { isExpired(it, now) }.keys
             if (expired.isNotEmpty()) {
                 lock.write {
                     expired.forEach { key ->
@@ -168,7 +168,7 @@ class LongTermMemory(
     private fun syncToDisk() {
         try {
             val data = PersistenceData(store.values.toList())
-            val content = json.encodeToString(data)
+        val content = json.encodeToString(data)
             val tmpFile = File(storageDir, "$FILE_NAME$TMP_SUFFIX")
             tmpFile.writeText(content, Charsets.UTF_8)
             tmpFile.renameTo(persistenceFile)
@@ -183,7 +183,7 @@ class LongTermMemory(
             val file = persistenceFile
             if (!file.exists()) return
             val content = file.readText(Charsets.UTF_8)
-            val data = json.decodeFromString<PersistenceData>(content)
+        val data = json.decodeFromString<PersistenceData>(content)
             val now = System.currentTimeMillis()
             data.entries.forEach { entry ->
                 if (!isExpired(entry, now)) {

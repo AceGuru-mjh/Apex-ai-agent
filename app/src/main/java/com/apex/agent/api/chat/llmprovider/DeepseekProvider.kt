@@ -52,7 +52,7 @@ class DeepseekProvider(
     ) {
 
     // DeepSeek 模型类型检测
-    private val isR1Model = modelName.contains("r1", ignoreCase = true) || 
+                private val isR1Model = modelName.contains("r1", ignoreCase = true) || 
                            modelName.contains("reasoner", ignoreCase = true)
     private val isV4Model = modelName.contains("v4", ignoreCase = true)
     private val isV3Model = modelName.contains("v3", ignoreCase = true) || 
@@ -70,7 +70,7 @@ class DeepseekProvider(
             when (param.apiName) {
                 "temperature" -> {
                     // R1 模型强制 temperature = 1.0
-                    if (param.currentValue != 1.0f) {
+                if (param.currentValue != 1.0f) {
                         AppLogger.w("DeepseekProvider", "R1 模型要求 temperature 固定为1.0，已自动修正")
                         @Suppress("UNCHECKED_CAST")
                         (param as ModelParameter<Float>).apply {
@@ -81,7 +81,7 @@ class DeepseekProvider(
                 }
                 "top_p" -> {
                     // R1 模型建议 top_p = 0.95
-                    if (param.currentValue != 0.95f) {
+                if (param.currentValue != 0.95f) {
                         AppLogger.w("DeepseekProvider", "R1 模型建议 top_p 为0.95，已自动修正")
                         @Suppress("UNCHECKED_CAST")
                         (param as ModelParameter<Float>).apply {
@@ -109,13 +109,13 @@ class DeepseekProvider(
         preserveThinkInHistory: Boolean
     ): RequestBody {
         // 验证并修正DeepSeek 特定参数（R1 模型强制 temperature=1.0, top_p=0.95，
-        val validatedParameters = validateAndFixDeepSeekParameters(modelParameters)
+                val validatedParameters = validateAndFixDeepSeekParameters(modelParameters)
 
         fun applyThinkingParamsIfNeeded(jsonObject: JSONObject) {
             if (!enableThinking) return
 
             // DeepSeek Thinking Mode: thinking: { type: enabled }
-            jsonObject.put(
+                jsonObject.put(
                 "thinking",
                 JSONObject().apply {
                     put("type", "enabled")
@@ -128,10 +128,10 @@ class DeepseekProvider(
         jsonObject.put("stream", stream)
 
         // DeepSeek Thinking Mode
-        applyThinkingParamsIfNeeded(jsonObject)
+                applyThinkingParamsIfNeeded(jsonObject)
 
         // 添加已启用的模型参数（使用验证后的参数）
-        for (param in validatedParameters) {
+                for (param in validatedParameters) {
             if (param.isEnabled) {
                 when (param.valueType) {
                     com.apex.data.model.ParameterValueType.INT ->
@@ -144,7 +144,7 @@ class DeepseekProvider(
                         jsonObject.put(param.apiName, param.currentValue as Boolean)
                     com.apex.data.model.ParameterValueType.OBJECT -> {
                         val raw = param.currentValue.toString().trim()
-                        val parsed: Any? = try {
+        val parsed: Any? = try {
                             when {
                                 raw.startsWith("{") -> JSONObject(raw)
                                 raw.startsWith("[") -> JSONArray(raw)
@@ -165,10 +165,10 @@ class DeepseekProvider(
         }
 
         // 当工具为空时，将 enableToolCall 视为 false
-        val effectiveEnableToolCall = enableToolCall && availableTools != null && availableTools.isNotEmpty()
+                val effectiveEnableToolCall = enableToolCall && availableTools != null && availableTools.isNotEmpty()
 
         // 如果启用 Tool Call 且传入了工具列表，添务tools 定义
-        var toolsJson: String? = null
+                var toolsJson: String? = null
         if (effectiveEnableToolCall) {
             val tools = buildToolDefinitions(availableTools!!)
             if (tools.length() > 0) {
@@ -179,7 +179,7 @@ class DeepseekProvider(
         }
 
         // 使用特殊的消息构建方法（支持 reasoning_content，
-        val messagesArray = buildMessagesWithReasoning(
+                val messagesArray = buildMessagesWithReasoning(
             context,
             chatHistory,
             effectiveEnableToolCall
@@ -187,7 +187,7 @@ class DeepseekProvider(
         jsonObject.put("messages", messagesArray)
 
         // 记录最终的请求体（省略过长的tools 字段，
-        val logJson = JSONObject(jsonObject.toString())
+                val logJson = JSONObject(jsonObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
             logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")
@@ -489,7 +489,7 @@ class DeepseekProvider(
     ): Stream<String> {
         // 直接调用父类的sendMessage 实现
         // DeepSeek 特定的错误处理将在父类的统一重试策略中处理
-        return super.sendMessage(context, chatHistory, modelParameters, enableThinking, stream, availableTools, preserveThinkInHistory, onTokensUpdated, onNonFatalError, enableRetry)
+                return super.sendMessage(context, chatHistory, modelParameters, enableThinking, stream, availableTools, preserveThinkInHistory, onTokensUpdated, onNonFatalError, enableRetry)
     }
 
     /**
@@ -499,7 +499,7 @@ class DeepseekProvider(
     override suspend fun testConnection(context: Context): Result<String> {
         return try {
             // 使用简单的测试消息进行连接测试
-            val testHistory = listOf(
+                val testHistory = listOf(
                 PromptTurn(kind = PromptTurnKind.SYSTEM, content = "You are a helpful assistant."),
                 PromptTurn(kind = PromptTurnKind.USER, content = "Hi")
             )

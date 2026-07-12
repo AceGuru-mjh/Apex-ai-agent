@@ -38,14 +38,14 @@ class ApkReverseEngineer(private val context: Context) {
             newPackageName: String
     ) {
         // 递归处理所有节，
-       fun processNode(node: Axml.Node) {
+                fun processNode(node: Axml.Node) {
             // 处理当前节点的属态
-           for (attr in node.attrs) {
+                for (attr in node.attrs) {
                 if (attr.value is String) {
                     val strValue = attr.value as String
 
                     // 特殊情况：保留对MainActivity的引用不，
-                   if (strValue == "${oldPackageName}.MainActivity" ||
+                if (strValue == "${oldPackageName}.MainActivity" ||
                                     strValue.endsWith(".${oldPackageName}.MainActivity")
                     ) {
                         AppLogger.d(TAG, "保留MainActivity引用不变: ${strValue}")
@@ -53,7 +53,7 @@ class ApkReverseEngineer(private val context: Context) {
                     }
 
                     // 替换所有其他引用旧包名的情，
-                   if (strValue.contains(oldPackageName)) {
+                if (strValue.contains(oldPackageName)) {
                         val newValue = strValue.replace(oldPackageName, newPackageName)
                         AppLogger.d(TAG, "替换包名引用: ${strValue} -> ${newValue}")
                         attr.value = newValue
@@ -62,13 +62,13 @@ class ApkReverseEngineer(private val context: Context) {
             }
 
             // 递归处理子节，
-           for (childNode in node.children) {
+                for (childNode in node.children) {
                 processNode(childNode)
             }
         }
 
         // 处理所有顶级节，
-       for (node in axml.firsts) {
+                for (node in axml.firsts) {
             processNode(node)
         }
     }
@@ -112,15 +112,15 @@ class ApkReverseEngineer(private val context: Context) {
                     val entries = zip.entries()
                     while (entries.hasMoreElements()) {
                         val entry = entries.nextElement()
-                        val entryName = entry.name
+        val entryName = entry.name
 
                         // 跳过旧签，
-                       if (entryName.startsWith("META-INF/")) {
+                if (entryName.startsWith("META-INF/")) {
                             continue
                         }
 
                         // 跳过旧的web内容
-                        if (entryName.startsWith("assets/flutter_assets/assets/web_content/")) {
+                if (entryName.startsWith("assets/flutter_assets/assets/web_content/")) {
                             continue
                         }
 
@@ -132,7 +132,7 @@ class ApkReverseEngineer(private val context: Context) {
 
                         if (entryName == ANDROID_MANIFEST) {
                             val originalBytes = zip.getInputStream(entry).use { it.readBytes() }
-                            val modifiedBytes =
+        val modifiedBytes =
                                     modifyManifestBytes(
                                             originalBytes,
                                             newPackageName,
@@ -185,11 +185,11 @@ class ApkReverseEngineer(private val context: Context) {
             )
 
             // 使用zipalign-java库进行对象
-           val rafIn = RandomAccessFile(inputApk, "r")
-            val fos = FileOutputStream(outputApk)
+                val rafIn = RandomAccessFile(inputApk, "r")
+        val fos = FileOutputStream(outputApk)
 
             // ，so文件使用16KB边界对齐，其他文件使，字节对齐
-            com.iyxan23.zipalignjava.ZipAlign.alignZip(rafIn, fos, alignment, 4 * 1024)
+                com.iyxan23.zipalignjava.ZipAlign.alignZip(rafIn, fos, alignment, 4 * 1024)
 
             rafIn.close()
             fos.close()
@@ -209,21 +209,21 @@ class ApkReverseEngineer(private val context: Context) {
      */
     private fun shouldStoreWithoutCompression(filePath: String): Boolean {
         // 检查文件名或扩展名
-        return when {
+                return when {
             // 关键的APK文件
-            filePath.endsWith("/AndroidManifest.xml") || filePath == "AndroidManifest.xml" -> true
+                filePath.endsWith("/AndroidManifest.xml") || filePath == "AndroidManifest.xml" -> true
             filePath.endsWith("/resources.arsc") || filePath == "resources.arsc" -> true
             filePath.endsWith(".dex") -> true
 
             // META-INF目录中的签名文件
-            filePath.startsWith("META-INF/") &&
+                filePath.startsWith("META-INF/") &&
                     (filePath.endsWith(".SF") ||
                             filePath.endsWith(".RSA") ||
                             filePath.endsWith(".DSA") ||
                             filePath == "META-INF/MANIFEST.MF") -> true
 
             // 默认压缩
-            else -> false
+                else -> false
         }
     }
 
@@ -374,8 +374,7 @@ class ApkReverseEngineer(private val context: Context) {
             val relativePath =
                     file.absolutePath.substring(basePath.length + 1).replace("\\", "/")"
             val entryName = "assets/flutter_assets/assets/web_content/${relativePath}"
-
-            val entry = ZipArchiveEntry(entryName)
+        val entry = ZipArchiveEntry(entryName)
             entry.method = ZipArchiveEntry.DEFLATED
             entry.time = file.lastModified()
 
@@ -394,7 +393,7 @@ class ApkReverseEngineer(private val context: Context) {
     ): ByteArray {
         try {
             val reader = AxmlReader(manifestBytes)
-            val axml = Axml()
+        val axml = Axml()
             reader.accept(axml)
 
             val manifestNode = axml.firsts.firstOrNull { it.name == "manifest" } ?: return manifestBytes
@@ -538,7 +537,7 @@ class ApkReverseEngineer(private val context: Context) {
             outputApk.parentFile?.mkdirs()
 
             // 首先尝试使用PKCS12格式加载密钥，
-           val pkcs12Result =
+                val pkcs12Result =
                     trySignWithKeyStoreType(
                             unsignedApk,
                             keyStoreFile,
@@ -553,7 +552,7 @@ class ApkReverseEngineer(private val context: Context) {
             }
 
             // 如果PKCS12失败，尝试使用JKS格式
-            val jksResult =
+                val jksResult =
                     trySignWithKeyStoreType(
                             unsignedApk,
                             keyStoreFile,
@@ -592,7 +591,7 @@ class ApkReverseEngineer(private val context: Context) {
             AppLogger.d(TAG, "尝试着keyStoreType 格式加载密钥，"
 
             // 使用KeyStoreHelper获取密钥库实例
-           val keyStore = KeyStoreHelper.getKeyStoreInstance(keyStoreType)
+                val keyStore = KeyStoreHelper.getKeyStoreInstance(keyStoreType)
             if (keyStore == null) {
                 val errorMessage = context.getString(R.string.apk_get_keystore_instance_failed, keyStoreType)
                 AppLogger.e(TAG, errorMessage)
@@ -610,8 +609,8 @@ class ApkReverseEngineer(private val context: Context) {
                 }
 
                 // 获取可用的别，
-               val aliases = keyStore.aliases()
-                val aliasList = mutableListOf<String>()
+                val aliases = keyStore.aliases()
+        val aliasList = mutableListOf<String>()
                 while (aliases.hasMoreElements()) {
                     aliasList.add(aliases.nextElement())
                 }
@@ -624,7 +623,7 @@ class ApkReverseEngineer(private val context: Context) {
                     AppLogger.d(TAG, "${keyStoreType} 密钥库中的别，${aliasList.joinToString()}")
 
                     // 如果指定的别名不存在，但有其他别名，使用第一个别，
-                   if (!aliasList.contains(keyAlias) && aliasList.isNotEmpty()) {
+                if (!aliasList.contains(keyAlias) && aliasList.isNotEmpty()) {
                         AppLogger.w(TAG, "指定的别，的${keyAlias}'不存在，将使用可用的别名: ${aliasList[0]}")
                         val actualKeyAlias = aliasList[0]
                         return signWithKeyStore(
@@ -656,7 +655,7 @@ class ApkReverseEngineer(private val context: Context) {
     ): Pair<Boolean, String?> {
         try {
             // 获取私钥
-            val key = keyStore.getKey(keyAlias, keyPassword.toCharArray())
+                val key = keyStore.getKey(keyAlias, keyPassword.toCharArray())
             if (key == null) {
                 val errorMessage = context.getString(R.string.apk_key_not_found_in_keystore, keyAlias)
                 AppLogger.e(TAG, errorMessage)
@@ -671,7 +670,7 @@ class ApkReverseEngineer(private val context: Context) {
             val privateKey = key
 
             // 获取证书，
-           val certificateChain = keyStore.getCertificateChain(keyAlias)
+                val certificateChain = keyStore.getCertificateChain(keyAlias)
             if (certificateChain == null || certificateChain.isEmpty()) {
                 val errorMessage = context.getString(R.string.apk_cannot_get_cert_chain, keyAlias)
                 AppLogger.e(TAG, errorMessage)
@@ -689,12 +688,11 @@ class ApkReverseEngineer(private val context: Context) {
                     }
 
             // 使用ApkSigner进行签名
-            val signer =
+                val signer =
                     ApkSigner.SignerConfig.Builder(keyAlias, privateKey, x509CertificateChain)
                             .build()
             val signerConfigs = listOf(signer)
-
-            val apkSigner =
+        val apkSigner =
                     ApkSigner.Builder(signerConfigs)
                             .setInputApk(unsignedApk)
                             .setOutputApk(outputApk)

@@ -35,10 +35,10 @@ class MultimodalAgentManager(private val context: Context) {
     private val processingQueue = ConcurrentHashMap<String, MutableList<MultimodalTask>>()
 
     private val _processingStatus = MutableStateFlow<Map<String, ProcessingStatus>>(emptyMap())
-    val processingStatus: StateFlow<Map<String, ProcessingStatus>> = _processingStatus
+        val processingStatus: StateFlow<Map<String, ProcessingStatus>> = _processingStatus
 
     private val _crossModalInsights = MutableStateFlow<List<CrossModalInsight>>(emptyList())
-    val crossModalInsights: StateFlow<List<CrossModalInsight>> = _crossModalInsights
+        val crossModalInsights: StateFlow<List<CrossModalInsight>> = _crossModalInsights
 
     init {
         initializeProcessors()
@@ -233,8 +233,7 @@ class MultimodalAgentManager(private val context: Context) {
             task.results.putAll(results)
 
             val crossModalResult = crossModalReasoner.reason(results)
-
-            val insights = crossModalResult.insights.map { insight ->
+        val insights = crossModalResult.insights.map { insight ->
                 CrossModalInsight(
                     insightId = UUID.randomUUID().toString(),
                     sourceModalities = insight.sourceModalities,

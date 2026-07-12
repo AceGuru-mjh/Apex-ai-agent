@@ -36,17 +36,17 @@ enum class PrivacyLevel {
  */
 enum class DataType {
     CONVERSATION,        // 对话内容
-    USER_PROFILE,        // 用户画像
-    MEMORY,              // 长期记忆
-    SEARCH_INDEX,        // 搜索索引
-    KNOWLEDGE_GRAPH,     // 知识图谱
-    EMOTION_TRACK,       // 情感追踪
-    HEALTH_METRICS,      // 健康指标
-    TOOL_HISTORY,        // 工具调用历史
-    BRANCH_HISTORY,      // 分支历史
-    SUMMARY,             // 摘要
-    SENSITIVE_DATA,      // 敏感数据
-    USAGE_STATISTICS     // 使用统计
+                USER_PROFILE,        // 用户画像
+                MEMORY,              // 长期记忆
+                SEARCH_INDEX,        // 搜索索引
+                KNOWLEDGE_GRAPH,     // 知识图谱
+                EMOTION_TRACK,       // 情感追踪
+                HEALTH_METRICS,      // 健康指标
+                TOOL_HISTORY,        // 工具调用历史
+                BRANCH_HISTORY,      // 分支历史
+                SUMMARY,             // 摘要
+                SENSITIVE_DATA,      // 敏感数据
+                USAGE_STATISTICS     // 使用统计
 }
 
 /**
@@ -58,7 +58,7 @@ data class DataPolicy(
     val canAnalyze: Boolean,
     val canUpload: Boolean,
     val retentionDays: Int? = null,  // null=永久
-    val encryptAtRest: Boolean = true,
+                val encryptAtRest: Boolean = true,
     val anonymizeForAnalytics: Boolean = true
 )
 
@@ -70,7 +70,7 @@ data class PrivacyConfig(
     val policies: Map<DataType, DataPolicy> = defaultPolicies(),
     val autoDeleteAfterDays: Int? = null,
     val excludePatterns: List<String> = emptyList(),  // 不存储包含这些模式的内容
-    val requireExplicitConsent: Set<DataType> = setOf(DataType.SENSITIVE_DATA)
+                val requireExplicitConsent: Set<DataType> = setOf(DataType.SENSITIVE_DATA)
 ) {
     companion object {
         fun defaultPolicies(): Map<DataType, DataPolicy> {
@@ -306,9 +306,9 @@ class PrivacyManager(
         sb.appendLine("数据策略:")
         config.policies.forEach { (type, policy) ->
             val store = if (policy.canStore) "✓" else "✗"
-            val analyze = if (policy.canAnalyze) "✓" else "✗"
+        val analyze = if (policy.canAnalyze) "✓" else "✗"
             val upload = if (policy.canUpload) "✓" else "✗"
-            val retention = policy.retentionDays?.let { "${it}天" } ?: "永久"
+        val retention = policy.retentionDays?.let { "${it}天" } ?: "永久"
             sb.appendLine("  ${type.name.padEnd(20)} 存储:$store 分析:$analyze 上传:$upload 保留:$retention")
         }
         sb.appendLine()
@@ -337,8 +337,7 @@ class PrivacyManager(
     }
 
     // ============ 数据结构 ============
-
-    data class ConsentRecord(
+                data class ConsentRecord(
         val dataType: DataType,
         val granted: Boolean,
         val scope: ConsentScope,

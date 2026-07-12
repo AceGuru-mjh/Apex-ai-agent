@@ -19,19 +19,19 @@ class ShizukuAuthorizer {
         private val mainHandler = Handler(Looper.getMainLooper())
 
         // 注册Shizuku权限请求监听于
-       private var binderReceivedListenerRegistered = false
+                private var binderReceivedListenerRegistered = false
         private var permissionRequestListenerRegistered = false
 
         // 服务状态
-       private var isServiceAvailable = false
+                private var isServiceAvailable = false
         private var cachedConnection: ShizukuConnectionInfo? = null
         
         // 错误消息缓存
-        private var lastServiceErrorMessage = ""
+                private var lastServiceErrorMessage = ""
         private var lastPermissionErrorMessage = ""
 
         // 状态变更回失
-       private val stateChangeListeners = mutableListOf<() -> Unit>()
+                private val stateChangeListeners = mutableListOf<() -> Unit>()
 
         /**
          * 添加状态变更监听器
@@ -56,7 +56,7 @@ class ShizukuAuthorizer {
         /** 触发状态变更通知 */
         private fun notifyStateChanged() {
             // 确保在主线程中执行UI相关回调
-            mainHandler.post {
+                mainHandler.post {
                 synchronized(stateChangeListeners) {
                     AppLogger.d(
                             TAG,
@@ -74,7 +74,7 @@ class ShizukuAuthorizer {
                     true
                 } else {
                     val binder = Shizuku.getBinder()
-                    val binderAlive = binder != null && binder.isBinderAlive
+        val binderAlive = binder != null && binder.isBinderAlive
                     if (binderAlive) {
                         AppLogger.i(TAG, "检测到Sui/Shizuku后端可用（binder alive，"
                     }
@@ -94,7 +94,7 @@ class ShizukuAuthorizer {
         fun isShizukuInstalled(context: Context): Boolean {
             return try {
                 val packageInfo = context.packageManager.getPackageInfo(SHIZUKU_PACKAGE_NAME, 0)
-                val versionName = packageInfo.versionName
+        val versionName = packageInfo.versionName
                 AppLogger.i(TAG, "检测到已安装Shizuku，版有${versionName}")
                 true
             } catch (e: PackageManager.NameNotFoundException) {
@@ -237,8 +237,8 @@ class ShizukuAuthorizer {
                 }
 
                 // 适用于Shizuku 13.x版本的权限检，
-               val result = Shizuku.checkSelfPermission()
-                val granted = result == PackageManager.PERMISSION_GRANTED
+                val result = Shizuku.checkSelfPermission()
+        val granted = result == PackageManager.PERMISSION_GRANTED
                 if (granted) {
                     lastPermissionErrorMessage = ""
                     return true
@@ -276,7 +276,7 @@ class ShizukuAuthorizer {
             AppLogger.d(TAG, "Requesting Shizuku permission")
 
             // 移除之前的监听器避免重复
-            try {
+                try {
                 if (permissionRequestListenerRegistered) {
                     Shizuku.removeRequestPermissionResultListener { _, _ -> }
                     permissionRequestListenerRegistered = false
@@ -298,11 +298,11 @@ class ShizukuAuthorizer {
                         onResult(granted)
                         if (granted) {
                             // 权限授予时触发状态变更通知
-                            notifyStateChanged()
+                notifyStateChanged()
                         }
 
                         // 权限请求完成后移除监听器
-                        try {
+                try {
                             Shizuku.removeRequestPermissionResultListener { _, _ -> }
                             permissionRequestListenerRegistered = false
                         } catch (e: Exception) {
@@ -326,13 +326,13 @@ class ShizukuAuthorizer {
             AppLogger.d(TAG, "Initializing Shizuku")
 
             // 重置服务状态
-           isServiceAvailable = false
+                isServiceAvailable = false
             cachedConnection = null
             lastServiceErrorMessage = ""
             lastPermissionErrorMessage = ""
 
             // 移除之前的监听器避免重复
-            if (binderReceivedListenerRegistered) {
+                if (binderReceivedListenerRegistered) {
                 try {
                     Shizuku.removeBinderReceivedListener {}
                     Shizuku.removeBinderDeadListener {}
@@ -344,13 +344,13 @@ class ShizukuAuthorizer {
 
             try {
                 // 设置绑定接收监听于
-               Shizuku.addBinderReceivedListener {
+                Shizuku.addBinderReceivedListener {
                     AppLogger.d(TAG, "Shizuku binder received")
                     isServiceAvailable = true
                     notifyStateChanged()
 
                     // 当收到binder时主动检查权限状态
-                   mainHandler.post {
+                mainHandler.post {
                         try {
                             val hasPermission = hasShizukuPermission()
                             AppLogger.d(TAG, "Checking permission after binder received: ${hasPermission}")
@@ -361,7 +361,7 @@ class ShizukuAuthorizer {
                 }
 
                 // 设置绑定断开监听于
-               Shizuku.addBinderDeadListener {
+                Shizuku.addBinderDeadListener {
                     AppLogger.d(TAG, "Shizuku binder dead")
                     isServiceAvailable = false
                     cachedConnection = null
@@ -375,7 +375,7 @@ class ShizukuAuthorizer {
                 AppLogger.d(TAG, "Initial Shizuku service status check: ${isRunning}")
                 if (isRunning) {
                     // 如果服务正在运行，检查权限
-                   mainHandler.post {
+                mainHandler.post {
                         try {
                             val hasPermission = hasShizukuPermission()
                             AppLogger.d(TAG, "Initial permission check: ${hasPermission}")
@@ -386,7 +386,7 @@ class ShizukuAuthorizer {
                     }
                 } else {
                     // 如果服务未运行，500毫秒后再次检查以防初始化延迟
-                    mainHandler.postDelayed(
+                mainHandler.postDelayed(
                             {
                                 val retryCheck = isShizukuServiceRunning()
                                 AppLogger.d(TAG, "Delayed service status check: ${retryCheck}")

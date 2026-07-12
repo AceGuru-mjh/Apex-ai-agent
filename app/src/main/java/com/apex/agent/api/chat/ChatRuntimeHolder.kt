@@ -20,9 +20,9 @@ class ChatRuntimeHolder private constructor(context: Context) {
     private val runtimeScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val cores = ConcurrentHashMap<ChatRuntimeSlot, ChatServiceCore>()
     private val _activeConversationCount = MutableStateFlow(0)
-    val activeConversationCount: StateFlow<Int> = _activeConversationCount.asStateFlow()
+        val activeConversationCount: StateFlow<Int> = _activeConversationCount.asStateFlow()
     private val _currentSessionToolCount = MutableStateFlow(0)
-    val currentSessionToolCount: StateFlow<Int> = _currentSessionToolCount.asStateFlow()
+        val currentSessionToolCount: StateFlow<Int> = _currentSessionToolCount.asStateFlow()
 
     init {
         ChatRuntimeSlot.values().forEach { slot ->

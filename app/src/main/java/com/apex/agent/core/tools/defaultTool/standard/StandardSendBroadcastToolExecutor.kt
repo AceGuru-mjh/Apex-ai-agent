@@ -85,10 +85,10 @@ class StandardSendBroadcastToolExecutor(private val context: Context) {
                 if (!extrasJsonString.isNullOrBlank()) {
                     try {
                         val extrasJson = JSONObject(extrasJsonString)
-                        val keys = extrasJson.keys()
+        val keys = extrasJson.keys()
                         while (keys.hasNext()) {
                             val key = keys.next()
-                            val value = extrasJson.get(key)
+        val value = extrasJson.get(key)
                             when (value) {
                                 is String -> putExtra(key, value)
                                 is Int -> putExtra(key, value)

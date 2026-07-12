@@ -26,7 +26,7 @@ class AsyncCacheStore<V>(
     private val pendingOperations = AtomicLong(0)
     private val failedOperations = AtomicLong(0)
     private val _operationFlow = MutableStateFlow<CacheOperation>(CacheOperation.Idle)
-    val operationFlow = _operationFlow.asStateFlow()
+        val operationFlow = _operationFlow.asStateFlow()
 
     private sealed class CacheOperation {
         object Idle : CacheOperation()
@@ -480,7 +480,7 @@ class PredictiveCache<V>(
 
         if (history.size >= 2) {
             val sorted = history.sorted()
-            val intervals = sorted.zipWithNext { a, b -> (b - a).toDouble() }
+        val intervals = sorted.zipWithNext { a, b -> (b - a).toDouble() }
             meta.averageIntervalMs = intervals.average()
             meta.nextPredictedAccess = now + meta.averageIntervalMs.toLong()
         }
@@ -569,7 +569,7 @@ class PredictiveCache<V>(
         if (history.size > maxHistorySize) history.poll()
         if (history.size >= 2) {
             val sorted = history.sorted()
-            val intervals = sorted.zipWithNext { a, b -> (b - a).toDouble() }
+        val intervals = sorted.zipWithNext { a, b -> (b - a).toDouble() }
             meta.averageIntervalMs = intervals.average()
             meta.nextPredictedAccess = now + meta.averageIntervalMs.toLong()
         }

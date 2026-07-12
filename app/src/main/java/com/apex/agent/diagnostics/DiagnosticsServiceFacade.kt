@@ -45,7 +45,7 @@ class DiagnosticsServiceFacade(private val context: Context) {
     private val crashDir = File(context.filesDir, "apex-crashes").apply { mkdirs() }
 
     private val _memoryStats = MutableStateFlow(MemoryStats(0, 0, 0))
-    val memoryStats: StateFlow<MemoryStats> = _memoryStats.asStateFlow()
+        val memoryStats: StateFlow<MemoryStats> = _memoryStats.asStateFlow()
 
     /** 当前 logcat 输出文件（按日轮转）。修复了原版的 getter 缺 return BUG。 */
     private val currentLogFile: File
@@ -141,7 +141,7 @@ class DiagnosticsServiceFacade(private val context: Context) {
         crashFile.writeText(sb.toString())
 
         // 发布事件让其他 APK 感知
-        com.apex.sdk.bridge.SuiteEventBus.publish(
+                com.apex.sdk.bridge.SuiteEventBus.publish(
             com.apex.sdk.bridge.SuiteEventTypes.APK_CRASHED,
             mapOf(
                 "thread" to (thread.name),
@@ -267,7 +267,7 @@ class DiagnosticsServiceFacade(private val context: Context) {
         val parts = line.split(" ", limit = 4)
         if (parts.size >= 4) {
             val time = "${parts[0]} ${parts[1]}"
-            val tag = parts[2].removeSurrounding("[", "]")
+        val tag = parts[2].removeSurrounding("[", "]")
             val message = parts[3]
             return LogEntry(timestamp = time, tag = tag, message = message, raw = line)
         }

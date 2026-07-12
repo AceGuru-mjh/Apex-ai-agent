@@ -218,7 +218,7 @@ class AgentEventBus(
         if (enableHistory) {
             eventHistory.add(event)
             // 保持历史不超过上限
-            while (eventHistory.size > historySize) {
+                while (eventHistory.size > historySize) {
                 eventHistory.poll()
             }
         }

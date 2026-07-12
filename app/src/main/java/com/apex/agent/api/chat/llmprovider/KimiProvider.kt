@@ -88,7 +88,7 @@ class KimiProvider(
                         jsonObject.put(param.apiName, param.currentValue as Boolean)
                     com.apex.data.model.ParameterValueType.OBJECT -> {
                         val raw = param.currentValue.toString().trim()
-                        val parsed: Any? = try {
+        val parsed: Any? = try {
                             when {
                                 raw.startsWith("{") -> JSONObject(raw)
                                 raw.startsWith("[") -> JSONArray(raw)

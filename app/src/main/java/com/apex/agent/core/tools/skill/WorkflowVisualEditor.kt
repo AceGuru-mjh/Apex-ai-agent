@@ -145,27 +145,26 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
     }
 
     // ========== 状态==========
-
-    private val _editorState = MutableStateFlow<EditorState?>(null)
-    val editorState: StateFlow<EditorState?> = _editorState.asStateFlow()
+                private val _editorState = MutableStateFlow<EditorState?>(null)
+        val editorState: StateFlow<EditorState?> = _editorState.asStateFlow()
 
     private val _nodeTemplates = MutableStateFlow<List<NodeTemplate>>(emptyList())
-    val nodeTemplates: StateFlow<List<NodeTemplate>> = _nodeTemplates.asStateFlow()
+        val nodeTemplates: StateFlow<List<NodeTemplate>> = _nodeTemplates.asStateFlow()
 
     private val _validationIssues = MutableStateFlow<List<ValidationIssue>>(emptyList())
-    val validationIssues: StateFlow<List<ValidationIssue>> = _validationIssues.asStateFlow()
+        val validationIssues: StateFlow<List<ValidationIssue>> = _validationIssues.asStateFlow()
 
     private val _dragState = MutableStateFlow(DragState())
-    val dragState: StateFlow<DragState> = _dragState.asStateFlow()
+        val dragState: StateFlow<DragState> = _dragState.asStateFlow()
 
     private val _selectionBox = MutableStateFlow(SelectionBox())
-    val selectionBox: StateFlow<SelectionBox> = _selectionBox.asStateFlow()
+        val selectionBox: StateFlow<SelectionBox> = _selectionBox.asStateFlow()
 
     private val _isExecuting = MutableStateFlow(false)
-    val isExecuting: StateFlow<Boolean> = _isExecuting.asStateFlow()
+        val isExecuting: StateFlow<Boolean> = _isExecuting.asStateFlow()
 
     private val _executionLogs = MutableStateFlow<List<ExecutionLogEntry>>(emptyList())
-    val executionLogs: StateFlow<List<ExecutionLogEntry>> = _executionLogs.asStateFlow()
+        val executionLogs: StateFlow<List<ExecutionLogEntry>> = _executionLogs.asStateFlow()
 
     data class ExecutionLogEntry(
         val timestamp: Long,
@@ -192,11 +191,10 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
     }
 
     // ========== 节点模板 ==========
-
-    private fun initializeNodeTemplates() {
+                private fun initializeNodeTemplates() {
         _nodeTemplates.value = listOf(
             // Trigger 节点
-            NodeTemplate(
+                NodeTemplate(
                 type = NodeType.TRIGGER,
                 name = "触发器",
                 description = "工作流入口点",
@@ -208,7 +206,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             ),
 
             // 执行节点
-            NodeTemplate(
+                NodeTemplate(
                 type = NodeType.EXECUTE,
                 name = "执行动作",
                 description = "执行特定的操作或工具",
@@ -220,7 +218,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             ),
 
             // 条件节点
-            NodeTemplate(
+                NodeTemplate(
                 type = NodeType.CONDITION,
                 name = "条件判断",
                 description = "根据条件选择分支",
@@ -232,7 +230,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             ),
 
             // 逻辑节点
-            NodeTemplate(
+                NodeTemplate(
                 type = NodeType.LOGIC,
                 name = "逻辑运算",
                 description = "AND/OR 逻辑运算",
@@ -244,7 +242,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             ),
 
             // 提取节点
-            NodeTemplate(
+                NodeTemplate(
                 type = NodeType.EXTRACT,
                 name = "数据提取",
                 description = "从数据中提取信息",
@@ -349,7 +347,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         )
 
         // 记录撤销操作
-        val action = EditorAction(
+                val action = EditorAction(
             type = ActionType.ADD_NODE,
             nodeId = nodeId,
             after = Json.encodeToString(newNode)
@@ -372,11 +370,10 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
      */
     fun deleteNode(nodeId: String): Boolean {
         val state = _editorState.value ?: return false
-
         val node = state.workflow.nodes.find { it.id == nodeId } ?: return false
 
         // 删除节点及其连接
-        val updatedNodes = state.workflow.nodes.filter { it.id != nodeId }
+                val updatedNodes = state.workflow.nodes.filter { it.id != nodeId }
         val updatedConnections = state.workflow.connections.filter {
             it.sourceNodeId != nodeId && it.targetNodeId != nodeId
         }
@@ -407,7 +404,6 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
      */
     fun moveNode(nodeId: String, newX: Float, newY: Float) {
         val state = _editorState.value ?: return
-
         val updatedNodes = state.workflow.nodes.map { node ->
             if (node.id == nodeId) {
                 node.copy(position = NodePosition(newX, newY))
@@ -425,7 +421,6 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
      */
     fun updateNodeConfig(nodeId: String, config: NodeConfig) {
         val state = _editorState.value ?: return
-
         val updatedNodes = state.workflow.nodes.map { node ->
             if (node.id == nodeId) {
                 node.copy(config = config)
@@ -460,11 +455,11 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val state = _editorState.value ?: return null
 
         // 验证节点存在
-        val sourceNode = state.workflow.nodes.find { it.id == sourceNodeId } ?: return null
+                val sourceNode = state.workflow.nodes.find { it.id == sourceNodeId } ?: return null
         val targetNode = state.workflow.nodes.find { it.id == targetNodeId } ?: return null
 
         // 验证不会创建循环（简单检查）
-        if (wouldCreateCycle(state.workflow, sourceNodeId, targetNodeId)) {
+                if (wouldCreateCycle(state.workflow, sourceNodeId, targetNodeId)) {
             AppLogger.w(TAG, "Connection would create a cycle")
             return null
         }
@@ -500,7 +495,6 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
      */
     fun deleteConnection(connectionId: String): Boolean {
         val state = _editorState.value ?: return false
-
         val connection = state.workflow.connections.find { it.id == connectionId } ?: return false
 
         val action = EditorAction(
@@ -534,7 +528,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val newUndoStack = state.undoStack.dropLast(1)
 
         // 根据操作类型恢复状态
-        val updatedWorkflow = when (action.type) {
+                val updatedWorkflow = when (action.type) {
             ActionType.ADD_NODE -> {
                 val nodeId = action.nodeId ?: return false
                 state.workflow.copy(
@@ -548,9 +542,9 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
                 )
             }
             ActionType.MOVE_NODE -> state.workflow // 需要更复杂的处理
-            ActionType.UPDATE_NODE -> {
+                ActionType.UPDATE_NODE -> {
                 val nodeId = action.nodeId ?: return false
-                val beforeNode = action.before?.let { Json.decodeFromString<WorkflowNode>(it) } ?: return false
+        val beforeNode = action.before?.let { Json.decodeFromString<WorkflowNode>(it) } ?: return false
                 state.workflow.copy(
                     nodes = state.workflow.nodes.map { if (it.id == nodeId) beforeNode else it }
                 )
@@ -591,7 +585,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val newRedoStack = state.redoStack.dropLast(1)
 
         // 根据操作类型恢复状态
-        val updatedWorkflow = when (action.type) {
+                val updatedWorkflow = when (action.type) {
             ActionType.UNDO -> {
                 // 执行相反的操作
                 when (action.type) {
@@ -724,17 +718,17 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val state = _editorState.value ?: return
 
         // 简单的分层布局算法
-        val layers = mutableMapOf<String, Int>()
+                val layers = mutableMapOf<String, Int>()
         val positioned = mutableSetOf<String>()
 
         // 找出入口节点（没有入边的节点，
-        val entryNodes = state.workflow.nodes.filter { node ->
+                val entryNodes = state.workflow.nodes.filter { node ->
             state.workflow.connections.none { it.targetNodeId == node.id }
         }
 
         if (entryNodes.isEmpty()) {
             // 如果没有明确的入口，选择第一个节点
-            entryNodes.firstOrNull()?.let {
+                entryNodes.firstOrNull()?.let {
                 layers[it.id] = 0
                 positioned.add(it.id)
             }
@@ -744,7 +738,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // BFS 分层
-        var currentLayer = 0
+                var currentLayer = 0
         while (positioned.size < state.workflow.nodes.size) {
             val nodesInLayer = state.workflow.nodes.filter { layers[it.id] == currentLayer }
 
@@ -763,13 +757,12 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 根据层级定位节点
-        val layerNodes = state.workflow.nodes.groupBy { layers[it.id] ?: 0 }
+                val layerNodes = state.workflow.nodes.groupBy { layers[it.id] ?: 0 }
         val updatedNodes = state.workflow.nodes.map { node ->
             val layer = layers[node.id] ?: 0
-            val indexInLayer = layerNodes[layer]?.indexOf(node) ?: 0
+        val indexInLayer = layerNodes[layer]?.indexOf(node) ?: 0
             val nodesInSameLayer = layerNodes[layer]?.size ?: 1
-
-            val x = 100f + layer * 250f
+        val x = 100f + layer * 250f
             val y = 100f + (indexInLayer - nodesInSameLayer / 2f) * 120f
 
             node.copy(position = NodePosition(x, y))
@@ -789,7 +782,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val issues = mutableListOf<ValidationIssue>()
 
         // 检查是否有节点
-        if (state.workflow.nodes.isEmpty()) {
+                if (state.workflow.nodes.isEmpty()) {
             issues.add(ValidationIssue(
                 severity = IssueSeverity.WARNING,
                 message = "Workflow has no nodes",
@@ -798,9 +791,9 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 检查每个节点
-        for (node in state.workflow.nodes) {
+                for (node in state.workflow.nodes) {
             // 验证触发器
-            if (node.type == NodeType.TRIGGER) {
+                if (node.type == NodeType.TRIGGER) {
                 if (node.config.triggerConfig == null) {
                     issues.add(ValidationIssue(
                         severity = IssueSeverity.ERROR,
@@ -811,7 +804,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             }
 
             // 验证执行节点
-            if (node.type == NodeType.EXECUTE) {
+                if (node.type == NodeType.EXECUTE) {
                 if (node.config.actionType.isNullOrBlank()) {
                     issues.add(ValidationIssue(
                         severity = IssueSeverity.ERROR,
@@ -822,8 +815,8 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             }
 
             // 检查孤立的节点
-            val hasIncoming = state.workflow.connections.any { it.targetNodeId == node.id }
-            val hasOutgoing = state.workflow.connections.any { it.sourceNodeId == node.id }
+                val hasIncoming = state.workflow.connections.any { it.targetNodeId == node.id }
+        val hasOutgoing = state.workflow.connections.any { it.sourceNodeId == node.id }
             val isEntry = node.type == NodeType.TRIGGER
 
             if (!hasIncoming && !isEntry && state.workflow.nodes.size > 1) {
@@ -836,9 +829,9 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 检查连接
-        for (conn in state.workflow.connections) {
+                for (conn in state.workflow.connections) {
             val sourceExists = state.workflow.nodes.any { it.id == conn.sourceNodeId }
-            val targetExists = state.workflow.nodes.any { it.id == conn.targetNodeId }
+        val targetExists = state.workflow.nodes.any { it.id == conn.targetNodeId }
 
             if (!sourceExists || !targetExists) {
                 issues.add(ValidationIssue(
@@ -850,7 +843,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 检查循现
-        if (hasCycle(state.workflow)) {
+                if (hasCycle(state.workflow)) {
             issues.add(ValidationIssue(
                 severity = IssueSeverity.WARNING,
                 message = "Workflow contains a cycle (might cause infinite loop)",
@@ -890,7 +883,7 @@ fun exportToImage(): ByteArray? {
         // WorkflowDefinition.nodes/edges 是 List<Any>，
         // 我们通过反射读取常用字段（id/name/type/sourceId/targetId），
         // 任何字段缺失都使用空串占位，保证导出不抛异常。
-        return try {
+                return try {
             val svg = buildString {
                 appendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
                 appendLine("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1200\" height=\"800\" viewBox=\"0 0 1200 800\">")
@@ -900,9 +893,9 @@ fun exportToImage(): ByteArray? {
                 // 节点：按网格位置渲染
                 workflow.nodes.forEachIndexed { i, node ->
                     val x = 40 + (i % 6) * 180
-                    val y = 80 + (i / 6) * 140
+        val y = 80 + (i / 6) * 140
                     val label = reflectStringField(node, "label") ?: reflectStringField(node, "name") ?: "node_$i"
-                    val typeStr = reflectStringField(node, "type") ?: ""
+        val typeStr = reflectStringField(node, "type") ?: ""
                     val fill = if (typeStr.contains("START") || typeStr.contains("END")) "#dbeafe" else "#ffffff"
                     appendLine("  <rect x=\"$x\" y=\"$y\" width=\"160\" height=\"80\" rx=\"8\" fill=\"$fill\" stroke=\"#94a3b8\" stroke-width=\"1\"/>")
                     appendLine("  <text x=\"${x + 10}\" y=\"${y + 30}\" font-family=\"sans-serif\" font-size=\"13\" font-weight=\"600\" fill=\"#1f2937\">${escapeXml(label)}</text>")
@@ -912,15 +905,15 @@ fun exportToImage(): ByteArray? {
                 // 边：从 source 到 target 画曲线
                 workflow.edges.forEach { edge ->
                     val srcId = reflectStringField(edge, "sourceId") ?: reflectStringField(edge, "from")
-                    val tgtId = reflectStringField(edge, "targetId") ?: reflectStringField(edge, "to")
+        val tgtId = reflectStringField(edge, "targetId") ?: reflectStringField(edge, "to")
                     if (srcId != null && tgtId != null) {
                         val srcIdx = workflow.nodes.indexOfFirst { reflectStringField(it, "id") == srcId }
-                        val tgtIdx = workflow.nodes.indexOfFirst { reflectStringField(it, "id") == tgtId }
+        val tgtIdx = workflow.nodes.indexOfFirst { reflectStringField(it, "id") == tgtId }
                         if (srcIdx >= 0 && tgtIdx >= 0) {
                             val sx = 40 + (srcIdx % 6) * 180 + 160
-                            val sy = 80 + (srcIdx / 6) * 140 + 40
+        val sy = 80 + (srcIdx / 6) * 140 + 40
                             val tx = 40 + (tgtIdx % 6) * 180
-                            val ty = 80 + (tgtIdx / 6) * 140 + 40
+        val ty = 80 + (tgtIdx / 6) * 140 + 40
                             appendLine("  <path d=\"M$sx,$sy C${sx + 40},$sy ${tx - 40},$ty $tx,$ty\" stroke=\"#64748b\" stroke-width=\"1.5\" fill=\"none\"/>")
                         }
                     }
@@ -974,10 +967,10 @@ fun exportToImage(): ByteArray? {
 
         try {
             val workflow = state.workflow
-            val result = workflowEngine.executeWorkflow(workflow.id)
+        val result = workflowEngine.executeWorkflow(workflow.id)
 
             // 记录执行日志
-            result?.nodeResults?.forEach { (nodeId, nodeResult) ->
+                result?.nodeResults?.forEach { (nodeId, nodeResult) ->
                 val node = workflow.nodes.find { it.id == nodeId }
                 _executionLogs.value = _executionLogs.value + ExecutionLogEntry(
                     timestamp = System.currentTimeMillis(),
@@ -1014,10 +1007,9 @@ fun exportToImage(): ByteArray? {
     }
 
     // ========== 私有方法 ==========
-
-    private fun wouldCreateCycle(workflow: WorkflowDefinition, sourceId: String, targetId: String): Boolean {
+                private fun wouldCreateCycle(workflow: WorkflowDefinition, sourceId: String, targetId: String): Boolean {
         // 简单检查：件target 能否到达 source
-        val visited = mutableSetOf<String>()
+                val visited = mutableSetOf<String>()
         fun canReach(from: String, to: String): Boolean {
             if (from == to) return true
             if (from in visited) return false
@@ -1061,18 +1053,17 @@ fun exportToImage(): ByteArray? {
     }
 
     // ========== 工具方法 ==========
-
-    fun getNodeTemplate(type: NodeType): NodeTemplate? {
+                fun getNodeTemplate(type: NodeType): NodeTemplate? {
         return _nodeTemplates.value.find { it.type == type }
     }
 
     fun getNodeColor(type: NodeType): Int {
         return when (type) {
             NodeType.TRIGGER -> 0xFF4CAF50.toInt() // 绿色
-            NodeType.EXECUTE -> 0xFF2196F3.toInt() // 蓝色
-            NodeType.CONDITION -> 0xFFFF9800.toInt() // 橙色
-            NodeType.LOGIC -> 0xFF9C27B0.toInt() // 紫色
-            NodeType.EXTRACT -> 0xFF00BCD4.toInt() // 青色
+                NodeType.EXECUTE -> 0xFF2196F3.toInt() // 蓝色
+                NodeType.CONDITION -> 0xFFFF9800.toInt() // 橙色
+                NodeType.LOGIC -> 0xFF9C27B0.toInt() // 紫色
+                NodeType.EXTRACT -> 0xFF00BCD4.toInt() // 青色
         }
     }
 
@@ -1081,8 +1072,7 @@ fun exportToImage(): ByteArray? {
     }
 
     // ========== 数据类==========
-
-    data class ExecutionResult(
+                data class ExecutionResult(
         val success: Boolean,
         val message: String,
         val nodeResults: Map<String, WorkflowEngine.NodeResult>,

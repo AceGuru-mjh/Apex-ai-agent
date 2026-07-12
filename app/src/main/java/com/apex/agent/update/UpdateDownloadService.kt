@@ -93,39 +93,39 @@ class UpdateDownloadService : Service() {
         isRunning = true
         AppLogger.d(TAG, "UpdateDownloadService onCreate")
         // 立即启动前台通知，避免 Android 12+ 的 ForegroundServiceDidNotStartInTimeException
-        startForegroundCompat()
+                startForegroundCompat()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         AppLogger.d(TAG, "UpdateDownloadService onStartCommand")
         // 确保前台通知已启动（若被系统重启则需再次确认）
-        startForegroundCompat()
+                startForegroundCompat()
 
         val manager = HotUpdateManager.getInstance(this)
         val state = manager.state.value
 
         // 重入保护：若下载已在进行中，不要重复启动
-        if (state is UpdateState.Downloading) {
+                if (state is UpdateState.Downloading) {
             AppLogger.d(TAG, "下载进行中，跳过重复启动")
             return START_NOT_STICKY
         }
 
         // 若已完成或失败，服务无需再启动下载
-        if (state is UpdateState.Downloaded || state is UpdateState.Failed) {
+                if (state is UpdateState.Downloaded || state is UpdateState.Failed) {
             AppLogger.d(TAG, "下载已结束（$state），停止服务")
             stopSelfAndCleanup()
             return START_NOT_STICKY
         }
 
         // 若无可用更新，停止服务
-        if (state !is UpdateState.UpdateAvailable || state.release == null || state.asset == null) {
+                if (state !is UpdateState.UpdateAvailable || state.release == null || state.asset == null) {
             AppLogger.w(TAG, "无可用更新，停止服务")
             stopSelfAndCleanup()
             return START_NOT_STICKY
         }
 
         // 订阅进度更新通知（取消旧的订阅避免泄漏）
-        progressJob?.cancel()
+                progressJob?.cancel()
         progressJob = serviceScope.launch {
             manager.state.collectLatest { s ->
                 when (s) {
@@ -139,15 +139,15 @@ class UpdateDownloadService : Service() {
                     }
                     is UpdateState.Downloaded -> {
                         // 已在 HotUpdateManager 中触发通知，这里仅停止服务
-                        stopSelfAndCleanup()
+                stopSelfAndCleanup()
                     }
                     is UpdateState.Failed -> {
                         // 已在 HotUpdateManager 中触发通知，这里仅停止服务
-                        stopSelfAndCleanup()
+                stopSelfAndCleanup()
                     }
                     UpdateState.Idle -> {
                         // 用户取消或重置，停止服务
-                        stopSelfAndCleanup()
+                stopSelfAndCleanup()
                     }
                     else -> { /* Checking / UpdateAvailable: 维持前台 */ }
                 }
@@ -156,7 +156,7 @@ class UpdateDownloadService : Service() {
 
         // 启动下载（HotUpdateManager.startDownload 内部会在自己的 scope 里 launch，
         // 这里仅做触发；downloadJob 用于追踪触发动作本身）
-        if (downloadJob == null || downloadJob?.isActive != true) {
+                if (downloadJob == null || downloadJob?.isActive != true) {
             downloadJob = serviceScope.launch {
                 try {
                     manager.startDownload()
@@ -174,7 +174,7 @@ class UpdateDownloadService : Service() {
         super.onDestroy()
         AppLogger.d(TAG, "UpdateDownloadService onDestroy")
         // 若下载仍在进行中，显式取消，确保 Service 生命周期与下载一致
-        val manager = HotUpdateManager.getInstance(this)
+                val manager = HotUpdateManager.getInstance(this)
         val s = manager.state.value
         if (s is UpdateState.Downloading) {
             manager.cancelDownload()

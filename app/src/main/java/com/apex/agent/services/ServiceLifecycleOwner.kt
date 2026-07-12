@@ -23,12 +23,12 @@ class ServiceLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateReg
     
     init {
         // 确保在主线程上初始化
-        if (Looper.myLooper() == Looper.getMainLooper()) {
+                if (Looper.myLooper() == Looper.getMainLooper()) {
             // 在主线程上，直接初始，
-           savedStateRegistryController.performRestore(null)
+                savedStateRegistryController.performRestore(null)
         } else {
             // 如果不在主线程上，使用Handler将初始化转到主线程
-           AppLogger.w(TAG, "Initializing ServiceLifecycleOwner not on main thread. Moving to main thread.")
+                AppLogger.w(TAG, "Initializing ServiceLifecycleOwner not on main thread. Moving to main thread.")
             mainHandler.post { savedStateRegistryController.performRestore(null) }
         }
     }
@@ -44,11 +44,11 @@ class ServiceLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateReg
         
     fun handleLifecycleEvent(event: Lifecycle.Event) {
         // 确保生命周期事件在主线程上处理
-       if (Looper.myLooper() == Looper.getMainLooper()) {
+                if (Looper.myLooper() == Looper.getMainLooper()) {
             lifecycleRegistry.handleLifecycleEvent(event)
         } else {
             // 如果不在主线程上，使用Handler将调用转到主线程
-            mainHandler.post { lifecycleRegistry.handleLifecycleEvent(event) }
+                mainHandler.post { lifecycleRegistry.handleLifecycleEvent(event) }
         }
     }
 } 

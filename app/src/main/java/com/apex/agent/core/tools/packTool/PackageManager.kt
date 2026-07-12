@@ -57,8 +57,8 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         private const val TAG = "PackageManager"
         private const val TOOLPKG_TAG = "ToolPkg"
         private const val PACKAGES_DIR = "packages" // Directory for packages
-        private const val ASSETS_PACKAGES_DIR = "packages" // Directory in assets for packages
-        private const val PACKAGE_PREFS = "com.apex.core.tools.PackageManager"
+                private const val ASSETS_PACKAGES_DIR = "packages" // Directory in assets for packages
+                private const val PACKAGE_PREFS = "com.apex.core.tools.PackageManager"
         private const val IMPORTED_PACKAGES_KEY = "imported_packages"
         private const val DISABLED_PACKAGES_KEY = "disabled_packages"
         private const val ACTIVE_PACKAGES_KEY = "active_packages"
@@ -82,7 +82,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     }
 
     // Map of package name to package description (all available packages in market)
-    private val availablePackages = ConcurrentHashMap<String, ToolPackage>()
+                private val availablePackages = ConcurrentHashMap<String, ToolPackage>()
 
     private val packageLoadErrors = ConcurrentHashMap<String, String>()
 
@@ -182,15 +182,15 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     private val skillVisibilityPreferences by lazy { SkillVisibilityPreferences.getInstance(context) }
 
     // JavaScript engine for executing JS package code
-    private val jsEngine by lazy { JsEngine(context) }
+                private val jsEngine by lazy { JsEngine(context) }
     private val toolPkgExecutionEngines = ConcurrentHashMap<String, JsEngine>()
     private val toolPkgFacade by lazy { PackageManagerToolPkgFacade(this) }
 
     // Environment preferences for package-level env variables
-    private val envPreferences by lazy { EnvPreferences.getInstance(context) }
+                private val envPreferences by lazy { EnvPreferences.getInstance(context) }
 
     // MCP Manager instance (lazy loading)
-    private val mcpManager by lazy { MCPManager.getInstance(context) }
+                private val mcpManager by lazy { MCPManager.getInstance(context) }
 
     private fun logToolPkgInfo(message: String) {
         AppLogger.i(TOOLPKG_TAG, "PKG: ${message}")
@@ -221,7 +221,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         val packagesJson = prefs.getString(IMPORTED_PACKAGES_KEY, "[]")
         return try {
             val jsonConfig = Json { ignoreUnknownKeys = true }
-            val rawPackages = jsonConfig.decodeFromString<List<String>>(packagesJson ?: "[]")
+        val rawPackages = jsonConfig.decodeFromString<List<String>>(packagesJson ?: "[]")
             normalizeImportedPackageNames(rawPackages)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error decoding imported packages", e)
@@ -398,7 +398,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     }
 
     // Get the external packages directory
-    private val externalPackagesDir: File
+                private val externalPackagesDir: File
         get() {
             val dir = File(context.getExternalFilesDir(null), PACKAGES_DIR)
             if (!dir.exists()) {
@@ -475,7 +475,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         val future = ensureInitializationStarted()
         if (isMainThread) {
             // Never block main thread for toolpkg parsing: it requires WebView main-thread callbacks.
-            return
+                return
         }
         try {
             future.get()
@@ -504,13 +504,13 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
                     runtimeCachesReady = false
 
                     // Create packages directory if it doesn't exist
-                    externalPackagesDir
+                externalPackagesDir
 
                     // Load available packages info (metadata only) from assets and external storage
-                    loadAvailablePackages()
+                loadAvailablePackages()
 
                     // Automatically import built-in packages that are enabled by default
-                    initializeDefaultPackages()
+                initializeDefaultPackages()
                     reconcileToolPkgCaches()
 
                     synchronized(initLock) {
@@ -667,11 +667,11 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         val signature = buildToolPkgCacheSignature(runtime) ?: return null
         synchronized(toolPkgCacheLock) {
             val cacheDir = toolPkgCacheDir(runtime.packageName)
-            val signatureFile = File(cacheDir, TOOLPKG_CACHE_SIGNATURE_FILE)
+        val signatureFile = File(cacheDir, TOOLPKG_CACHE_SIGNATURE_FILE)
             val mainScriptFile = File(cacheDir, runtime.mainEntry)
-            val cacheDirExists = cacheDir.exists()
+        val cacheDirExists = cacheDir.exists()
             val signatureFileExists = signatureFile.exists()
-            val signatureMatches =
+        val signatureMatches =
                 if (signatureFileExists) {
                     runCatching { signatureFile.readText() == signature }.getOrDefault(false)
                 } else {
@@ -711,7 +711,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     private fun reconcileToolPkgCaches() {
         synchronized(toolPkgCacheLock) {
             val importedPackages = getImportedPackagesInternal().toSet()
-            val availableContainerNames = toolPkgContainers.keys.toSet()
+        val availableContainerNames = toolPkgContainers.keys.toSet()
             val importedContainerNames = linkedSetOf<String>().apply {
                 toolPkgContainers.keys.forEach { containerName ->
                     if (importedPackages.contains(containerName)) {
@@ -929,7 +929,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
                         loadToolPkg = { onError -> loadToolPkgFromExternalFile(file, onError) }
                     )
                 val signature = buildExternalPackageScanSignature(file)
-                val cachedResult =
+        val cachedResult =
                     previousCache[file.absolutePath]
                         ?.takeIf { entry -> entry.signature == signature }
                         ?.result
@@ -1073,7 +1073,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
 
         return try {
             val readBytesStartTime = messageTimingNow()
-            val bytes = readToolPkgResourceBytes(runtime, runtime.mainEntry) ?: return null
+        val bytes = readToolPkgResourceBytes(runtime, runtime.mainEntry) ?: return null
             logMessageTiming(
                 stage = "toolpkg.getMainScript.readBytes",
                 startTimeMs = readBytesStartTime,
@@ -1169,7 +1169,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
 
         if (packagesChanged) {
             val prefs = context.getSharedPreferences(PACKAGE_PREFS, Context.MODE_PRIVATE)
-            val updatedJson = Json.encodeToString(importedPackages.toList())
+        val updatedJson = Json.encodeToString(importedPackages.toList())
             prefs.edit().putString(IMPORTED_PACKAGES_KEY, updatedJson).apply()
             AppLogger.d(TAG, "Updated imported packages with default packages.")
         }
@@ -1302,7 +1302,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     ): ToolPackage? {
         try {
             val assetManager = context.assets
-            val jsContent = assetManager.open(assetPath).bufferedReader().use { it.readText() }
+        val jsContent = assetManager.open(assetPath).bufferedReader().use { it.readText() }
             return parseJsPackage(jsContent) { key, error ->
                 reportPackageLoadError(
                     key,
@@ -1518,7 +1518,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
                     .sortedBy { it.relativeTo(zipRootParent).invariantSeparatorsPath }
                     .forEach { file ->
                         val entryName = file.relativeTo(zipRootParent).invariantSeparatorsPath
-                        val entry = ZipEntry(entryName)
+        val entry = ZipEntry(entryName)
                         zipOutput.putNextEntry(entry)
                         file.inputStream().use { input ->
                             input.copyTo(zipOutput)
@@ -1540,28 +1540,28 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     ): ToolPackage? {
         try {
             // Extract metadata from comments at the top of the file
-            val metadataString = extractMetadataFromJs(jsContent)
+                val metadataString = extractMetadataFromJs(jsContent)
 
             // 先将元数据解析为 JSONObject 以便修改 tools 数组中的每个元素
-            val metadataJson = org.json.JSONObject(JsonValue.readHjson(metadataString).toString())
+                val metadataJson = org.json.JSONObject(JsonValue.readHjson(metadataString).toString())
 
             // 统一历史键名/值格式，避免 enabledByDefault ，Kotlin 侧被错误解析为默认，
-            normalizeJsPackageMetadata(metadataJson)
+                normalizeJsPackageMetadata(metadataJson)
 
             // 检查并修复 tools 数组中的元素，确保每个工具都，script 字段
-            if (metadataJson.has("tools") && metadataJson.get("tools") is org.json.JSONArray) {
+                if (metadataJson.has("tools") && metadataJson.get("tools") is org.json.JSONArray) {
                 val toolsArray = metadataJson.getJSONArray("tools")
                 for (i in 0 until toolsArray.length()) {
                     val tool = toolsArray.getJSONObject(i)
                     if (!tool.has("script")) {
                         // 添加一个临时的，script 字段
-                        tool.put("script", "")
+                tool.put("script", "")
                     }
                 }
             }
 
             // 检查并修复 states.tools 数组中的元素，确保每个工具都，script 字段
-            if (metadataJson.has("states") && metadataJson.get("states") is org.json.JSONArray) {
+                if (metadataJson.has("states") && metadataJson.get("states") is org.json.JSONArray) {
                 val statesArray = metadataJson.getJSONArray("states")
                 for (i in 0 until statesArray.length()) {
                     val state = statesArray.optJSONObject(i) ?: continue
@@ -1578,21 +1578,20 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
             }
 
             // 使用修改后的 JSON 字符串进行反序列行
-           val jsonString = metadataJson.toString()
-
-            val jsonConfig = Json { ignoreUnknownKeys = true }
+                val jsonString = metadataJson.toString()
+        val jsonConfig = Json { ignoreUnknownKeys = true }
             val packageMetadata = jsonConfig.decodeFromString<ToolPackage>(jsonString)
 
             // 更新所有工具，使用相同的完整脚本内容，但记录每个工具的函数据
-           val tools =
+                val tools =
                 packageMetadata.tools.map { tool ->
                     // 检查函数是否存在于脚本，
-                   if (!tool.advice) {
+                if (!tool.advice) {
                         validateToolFunctionExists(jsContent, tool.name)
                     }
 
                     // 使用整个脚本，并记录函数名，而不是提取单个函数
-                   tool.copy(script = jsContent)
+                tool.copy(script = jsContent)
                 }
 
             val states =
@@ -1611,7 +1610,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error parsing JS package: ${e.message}", e)
             val fallbackKey = try {
-                val metadataString = extractMetadataFromJs(jsContent)
+        val metadataString = extractMetadataFromJs(jsContent)
                 val metadataJson = org.json.JSONObject(JsonValue.readHjson(metadataString).toString())
                 metadataJson.optString("name").takeIf { it.isNotBlank() } ?: "unknown"
             } catch (_: Exception) {
@@ -1732,7 +1731,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     /** 验证JavaScript文件中是否存在指定的函数 这确保了我们可以在运行时调用该函数/
     private fun validateToolFunctionExists(jsContent: String, toolName: String): Boolean {
         // 各种函数声明模式
-        val patterns =
+                val patterns =
             listOf(
                 """async\s+function\s+${toolName}\s*\(""",
                 """function\s+${toolName}\s*\(""",
@@ -1770,7 +1769,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
      */
     fun getExternalPackagesPath(): String {
         // 为了更易读，改成Android/data/包名/files/packages的形，
-       return "Android/data/${context.packageName}/files/packages"
+                return "Android/data/${context.packageName}/files/packages"
     }
 
     /**
@@ -1787,9 +1786,9 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
             }
 
             val lowerPath = filePath.lowercase()
-            val isToolPkg = lowerPath.endsWith(TOOLPKG_EXTENSION)
+        val isToolPkg = lowerPath.endsWith(TOOLPKG_EXTENSION)
             val isJsLike = lowerPath.endsWith(".js") || lowerPath.endsWith(".ts")
-            val isHjson = lowerPath.endsWith(".hjson")
+        val isHjson = lowerPath.endsWith(".hjson")
 
             if (!isToolPkg && !isJsLike && !isHjson) {
                 return "Only .toolpkg, HJSON, JavaScript (.js) and TypeScript (.ts) package files are supported"
@@ -1830,10 +1829,10 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
             val packageMetadata =
                 if (isHjson) {
                     val hjsonContent = file.readText()
-                    val metadataJson = org.json.JSONObject(JsonValue.readHjson(hjsonContent).toString())
+        val metadataJson = org.json.JSONObject(JsonValue.readHjson(hjsonContent).toString())
                     normalizeJsPackageMetadata(metadataJson)
                     val jsonString = metadataJson.toString()
-                    val jsonConfig = Json { ignoreUnknownKeys = true }
+        val jsonConfig = Json { ignoreUnknownKeys = true }
                     jsonConfig.decodeFromString<ToolPackage>(jsonString)
                 } else {
                     loadPackageFromJsFile(file)
@@ -2035,7 +2034,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
 
         if (resetSubpackageStatesToManifest) {
             val updatedStates = getToolPkgSubpackageStatesInternal().toMutableMap()
-            val currentSubpackageNames =
+        val currentSubpackageNames =
                 runtime.subpackages
                     .map(ToolPkgSubpackageRuntime::packageName)
                     .toSet()
@@ -2195,14 +2194,13 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     fun usePackage(packageName: String): String {
         ensureInitialized()
         val normalizedPackageName = normalizePackageName(packageName)
-
         val containerRuntime = toolPkgContainers[normalizedPackageName]
         if (containerRuntime != null) {
             return "ToolPkg container '${normalizedPackageName}' is not a package and cannot be activated."
         }
 
         // First check if packageName is a standard imported package (priority)
-        val importedPackages = getImportedPackages()
+                val importedPackages = getImportedPackages()
         val subpackageRuntime = toolPkgSubpackageByPackageName[normalizedPackageName]
         if (subpackageRuntime != null &&
             !importedPackages.contains(subpackageRuntime.containerPackageName)
@@ -2211,15 +2209,14 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         }
         if (importedPackages.contains(normalizedPackageName)) {
             // Load the full package data for a standard package
-            val toolPackage =
+                val toolPackage =
                 getPackageTools(normalizedPackageName)
                     ?: return "Failed to load package data for: ${normalizedPackageName}"
 
             // Validate required environment variables, if any
-            if (toolPackage.env.isNotEmpty()) {
+                if (toolPackage.env.isNotEmpty()) {
                 val missingRequiredEnv = mutableListOf<String>()
-                val missingOptionalEnv = mutableListOf<Pair<String, String>>() // env name, default value
-
+        val missingOptionalEnv = mutableListOf<Pair<String, String>>() // env name, default value
                 toolPackage.env.forEach { envVar ->
                     val envName = envVar.name.trim()
                     if (envName.isEmpty()) return@forEach
@@ -2237,22 +2234,22 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
 
                     if (envVar.required) {
                         // Check required environment variables
-                        if (value.isNullOrEmpty()) {
+                if (value.isNullOrEmpty()) {
                             missingRequiredEnv.add(envName)
                         }
                     } else {
                         // Check optional environment variables
-                        if (value.isNullOrEmpty()) {
+                if (value.isNullOrEmpty()) {
                             if (envVar.defaultValue != null) {
                                 // Use default value for optional env vars
-                                missingOptionalEnv.add(envName to envVar.defaultValue)
+                missingOptionalEnv.add(envName to envVar.defaultValue)
                                 AppLogger.d(
                                     TAG,
                                     "Optional env var '${envName}' not set for package '${normalizedPackageName}', using default value: ${envVar.defaultValue}"
                                 )
                             } else {
                                 // Optional env var without default value is acceptable
-                                AppLogger.d(
+                AppLogger.d(
                                     TAG,
                                     "Optional env var '${envName}' not set for package '${normalizedPackageName}' (no default value)"
                                 )
@@ -2287,17 +2284,17 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
             }
 
             // Register the package tools with AIToolHandler
-            val selectedPackage = selectToolPackageState(toolPackage)
+                val selectedPackage = selectToolPackageState(toolPackage)
             registerPackageTools(selectedPackage)
 
             AppLogger.d(TAG, "Successfully loaded and activated package: ${normalizedPackageName}")
 
             // Generate and return the system prompt enhancement
-            return generatePackageSystemPrompt(selectedPackage)
+                return generatePackageSystemPrompt(selectedPackage)
         }
 
         // Then check if it's a Skill package
-        if (skillManager.getAvailableSkills().containsKey(normalizedPackageName) &&
+                if (skillManager.getAvailableSkills().containsKey(normalizedPackageName) &&
             !skillVisibilityPreferences.isSkillVisibleToAi(normalizedPackageName)
         ) {
             return "Skill '${normalizedPackageName}' is set to not show to AI"
@@ -2309,7 +2306,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         }
 
         // Next check if it's an MCP server by checking with MCPManager
-        if (isRegisteredMCPServer(normalizedPackageName)) {
+                if (isRegisteredMCPServer(normalizedPackageName)) {
             return useMCPServer(normalizedPackageName)
         }
 
@@ -2385,9 +2382,9 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     }
 
     // Helper function to determine if a package is an MCP server
-    private fun isMCPServerPackage(toolPackage: ToolPackage): Boolean {
+                private fun isMCPServerPackage(toolPackage: ToolPackage): Boolean {
         // Check if any tool has MCP script placeholder
-        return if (toolPackage.tools.isNotEmpty()) {
+                return if (toolPackage.tools.isNotEmpty()) {
             val script = toolPackage.tools[0].script
             script.contains("/* MCPJS") // Check for MCP script marker
         } else {
@@ -2407,7 +2404,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         activePackageToolNames[toolPackage.name] = newToolNames
 
         // Register each tool with the format packageName:toolName
-        executableTools.forEach { packageTool ->
+                executableTools.forEach { packageTool ->
             val toolName = "${toolPackage.name}:${packageTool.name}"
             aiToolHandler.registerTool(toolName) { tool ->
                 packageToolExecutor.invoke(tool)
@@ -2572,9 +2569,9 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     private fun cleanupNonExistentPackages(currentPackages: List<String>): List<String> {
         // Serialize cleanup with package reload to avoid transient map states
         // (e.g. during forceRefresh) causing accidental removal of valid imports.
-        synchronized(initLock) {
+                synchronized(initLock) {
             val normalizedPackages = normalizeImportedPackageNames(currentPackages)
-            val cleanedPackages = normalizedPackages.filter { packageName ->
+        val cleanedPackages = normalizedPackages.filter { packageName ->
                 availablePackages.containsKey(packageName)
             }
 
@@ -2589,7 +2586,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
             }
 
             val states = getToolPkgSubpackageStatesInternal()
-            val cleanedStates =
+        val cleanedStates =
                 states.filterKeys { packageName ->
                     toolPkgSubpackageByPackageName.containsKey(packageName)
                 }
@@ -2735,7 +2732,6 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     fun removePackage(packageName: String): String {
         ensureInitialized()
         val normalizedPackageName = normalizePackageName(packageName)
-
         val currentPackages = LinkedHashSet(getImportedPackages())
         val subpackageStates = getToolPkgSubpackageStatesInternal().toMutableMap()
         var packageWasRemoved = false
@@ -2804,7 +2800,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
 
         // Load script based on whether it's built-in or external
         // All tools in a package share the same script, so we can get it from any tool
-        return if (toolPackage.tools.isNotEmpty()) {
+                return if (toolPackage.tools.isNotEmpty()) {
             toolPackage.tools[0].script
         } else {
             null
@@ -2819,17 +2815,17 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
      */
     fun useMCPServer(serverName: String): String {
         // 检查服务器是否已注重
-       if (!mcpManager.isServerRegistered(serverName)) {
+                if (!mcpManager.isServerRegistered(serverName)) {
             return "MCP server '${serverName}' does not exist or is not registered."
         }
 
         // 获取服务器配置
-       val serverConfig =
+                val serverConfig =
             mcpManager.getRegisteredServers()[serverName]
                 ?: return "Cannot get MCP server configuration: ${serverName}"
 
         // 创建MCP，
-       val mcpLoadResult = MCPPackage.loadFromServer(context, serverConfig)
+                val mcpLoadResult = MCPPackage.loadFromServer(context, serverConfig)
         val mcpPackage =
             mcpLoadResult.mcpPackage
                 ?: return mcpLoadResult.errorMessage?.let {
@@ -2837,17 +2833,17 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
                 } ?: "Cannot connect to MCP server: ${serverName}"
 
         // 转换为标准工具包
-        val toolPackage = mcpPackage.toToolPackage()
+                val toolPackage = mcpPackage.toToolPackage()
 
         // 获取或创建MCP工具执行的
-       val mcpToolExecutor = MCPToolExecutor(context, mcpManager)
+                val mcpToolExecutor = MCPToolExecutor(context, mcpManager)
 
         // 注册包中的每个工具 使用 serverName:toolName 格式
-        toolPackage.tools.forEach { packageTool ->
+                toolPackage.tools.forEach { packageTool ->
             val toolName = "${serverName}:${packageTool.name}"
 
             // 使用MCP特定的执行器注册工具
-            aiToolHandler.registerTool(
+                aiToolHandler.registerTool(
                 name = toolName,
                 executor = mcpToolExecutor
             )
@@ -2870,7 +2866,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
 
         toolPackage.tools.forEach { tool ->
             // 使用 serverName:toolName 格式
-            sb.appendLine("- ${serverName}:${tool.name}: ${tool.description.resolve(context)}")
+                sb.appendLine("- ${serverName}:${tool.name}: ${tool.description.resolve(context)}")
             if (tool.parameters.isNotEmpty()) {
                 sb.appendLine("  Parameters:")
                 tool.parameters.forEach { param ->
@@ -2895,7 +2891,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
 
         if (toolPkgSubpackageByPackageName.containsKey(normalizedPackageName)) {
             // Subpackage is part of a toolpkg archive; only remove enable state.
-            removePackage(normalizedPackageName)
+                removePackage(normalizedPackageName)
             return true
         }
 
@@ -2999,7 +2995,7 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
     fun toPromptCategory(toolPackage: ToolPackage): PackageToolPromptCategory {
         val toolPrompts = toolPackage.tools.map { packageTool ->
             // ，PackageTool 转换，ToolPrompt
-            val parametersString = if (packageTool.parameters.isNotEmpty()) {
+                val parametersString = if (packageTool.parameters.isNotEmpty()) {
                 packageTool.parameters.joinToString(", ") { param ->
                     val required = if (param.required) "required" else "optional"
                     "${param.name} (${param.type}, ${required})"

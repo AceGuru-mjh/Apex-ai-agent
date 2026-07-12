@@ -37,7 +37,6 @@ class SkillBenchmark(private val context: Context) {
         val loadTimeMs = measureLoadTime(toolPackage)
         val memoryBeforeLoad = if (config.measureMemory) getUsedMemoryBytes() else 0L
         val memoryAfterLoad = if (config.measureMemory) getUsedMemoryBytes() else 0L
-
         val executionTimes = mutableListOf<Long>()
         val memorySamples = mutableListOf<Long>()
         var peakMemory = memoryAfterLoad
@@ -48,7 +47,7 @@ class SkillBenchmark(private val context: Context) {
 
         repeat(config.benchmarkIterations) {
             val startMem = if (config.measureMemory) getUsedMemoryBytes() else 0L
-            val execTime = measureToolExecutionTime(toolPackage)
+        val execTime = measureToolExecutionTime(toolPackage)
             executionTimes.add(execTime)
             if (config.measureMemory) {
                 val endMem = getUsedMemoryBytes()
@@ -60,7 +59,6 @@ class SkillBenchmark(private val context: Context) {
         val avgExecutionTime = if (executionTimes.isNotEmpty()) executionTimes.average().toLong() else 0L
         val minExecutionTime = executionTimes.minOrNull() ?: 0L
         val maxExecutionTime = executionTimes.maxOrNull() ?: 0L
-
         val avgMemory = if (memorySamples.isNotEmpty()) memorySamples.average().toLong() else 0L
         val memoryOverheadPerTool = if (toolPackage.tools.isNotEmpty()) {
             (avgMemory - memoryBeforeLoad) / toolPackage.tools.size
@@ -115,7 +113,7 @@ class SkillBenchmark(private val context: Context) {
 
         repeat(config.benchmarkIterations) {
             val startMem = if (config.measureMemory) getUsedMemoryBytes() else 0L
-            val execTime = measureScriptExecutionTime(scriptContent)
+        val execTime = measureScriptExecutionTime(scriptContent)
             executionTimes.add(execTime)
             if (config.measureMemory) {
                 val endMem = getUsedMemoryBytes()
@@ -127,10 +125,8 @@ class SkillBenchmark(private val context: Context) {
         val avgExecutionTime = if (executionTimes.isNotEmpty()) executionTimes.average().toLong() else 0L
         val minExecutionTime = executionTimes.minOrNull() ?: 0L
         val maxExecutionTime = executionTimes.maxOrNull() ?: 0L
-
         val avgMemory = if (memorySamples.isNotEmpty()) memorySamples.average().toLong() else 0L
         val memoryOverheadPerTool = (avgMemory - memoryBeforeLoad) / maxOf(1, executionTimes.size)
-
         val metrics = PerformanceMetrics(
             avgLoadTimeMs = loadTimeMs,
             avgExecutionTimeMs = avgExecutionTime,

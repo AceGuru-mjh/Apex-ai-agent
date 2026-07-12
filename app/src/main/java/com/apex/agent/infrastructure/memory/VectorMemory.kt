@@ -125,7 +125,7 @@ class VectorMemory(
         lock.write {
             searchCache[cacheKey]?.let { return it }
             val now = System.currentTimeMillis()
-            val results = store.entries
+        val results = store.entries
                 .mapNotNull { (id, entry) ->
                     if (isExpired(entry, now)) {
                         store.remove(id)
@@ -199,7 +199,7 @@ class VectorMemory(
     private fun syncToDisk() {
         try {
             val data = PersistenceData(store.values.toList())
-            val content = json.encodeToString(data)
+        val content = json.encodeToString(data)
             val tmpFile = File(storageDir, "$FILE_NAME$TMP_SUFFIX")
             tmpFile.writeText(content, Charsets.UTF_8)
             tmpFile.renameTo(persistenceFile)
@@ -214,7 +214,7 @@ class VectorMemory(
             val file = persistenceFile
             if (!file.exists()) return
             val content = file.readText(Charsets.UTF_8)
-            val data = json.decodeFromString<PersistenceData>(content)
+        val data = json.decodeFromString<PersistenceData>(content)
             val now = System.currentTimeMillis()
             data.entries.forEach { entry ->
                 if (!isExpired(entry, now)) {

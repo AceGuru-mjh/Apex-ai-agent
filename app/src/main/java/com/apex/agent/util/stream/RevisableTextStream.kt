@@ -139,7 +139,7 @@ fun Stream<String>.shareRevisable(
     onComplete: suspend () -> Unit = {}
 ): SharedStream<String> {
     val sharedTextStream = share(scope = scope, replay = replay, started = started, onComplete = onComplete)
-    val carrier = this as? TextStreamEventCarrier ?: return sharedTextStream
+        val carrier = this as? TextStreamEventCarrier ?: return sharedTextStream
     val sharedEventStream =
         carrier.eventChannel.share(scope = scope, replay = Int.MAX_VALUE, started = started)
     return sharedTextStream.withEventChannel(sharedEventStream)

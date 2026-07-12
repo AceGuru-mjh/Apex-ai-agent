@@ -127,7 +127,7 @@ object MediaLinkParser {
         fun collectFromPattern(pattern: Regex) {
             pattern.findAll(message).forEach { match ->
                 val type = match.groupValues[1]
-                val id = match.groupValues[2]
+        val id = match.groupValues[2]
 
                 if (id == "error") {
                     return@forEach
@@ -138,8 +138,7 @@ object MediaLinkParser {
                 }
 
                 val mediaData = MediaPoolManager.getMedia(id) ?: return@forEach
-
-                val limited = MediaBase64Limiter.limitBase64ForAi(mediaData.base64, mediaData.mimeType)
+        val limited = MediaBase64Limiter.limitBase64ForAi(mediaData.base64, mediaData.mimeType)
                     ?: return@forEach
                 links.add(
                     MediaLink(
@@ -165,7 +164,7 @@ object MediaLinkParser {
         fun collectFromPattern(pattern: Regex) {
             pattern.findAll(message).forEach { match ->
                 val type = match.groupValues[1]
-                val id = match.groupValues[2]
+        val id = match.groupValues[2]
                 if (id == "error") {
                     return@forEach
                 }
@@ -188,7 +187,7 @@ object MediaLinkParser {
         patterns.forEach { pattern ->
             result = pattern.replace(result) { match ->
                 val type = match.groupValues.getOrNull(1) ?: return@replace ""
-                val id = match.groupValues.getOrNull(2) ?: return@replace ""
+        val id = match.groupValues.getOrNull(2) ?: return@replace ""
                 if (id == "error") "" else replacer(type, id)
             }
         }

@@ -10,8 +10,7 @@ enum class FootprintLevel(val level: Int, val description: String, val surfaceAr
     PLUGIN(4, "Plugin", "第三方能务"),
     MCP_SERVER(5, "MCP Server", "工具化非核心能力"),
     NEW_CORE_TOOL(6, "New Core Tool", "最后手段");
-
-    fun isLowerThan(other: FootprintLevel): Boolean {
+            fun isLowerThan(other: FootprintLevel): Boolean {
         return this.level < other.level
     }
 

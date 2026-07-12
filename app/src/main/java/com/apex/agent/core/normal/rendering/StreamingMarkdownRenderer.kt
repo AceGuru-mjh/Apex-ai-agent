@@ -58,7 +58,7 @@ class StreamingMarkdownRenderer {
     private var currentNode: RenderNode = root
 
     // 解析状态
-    private var inCodeBlock = false
+                private var inCodeBlock = false
     private var codeBlockLang = ""
     private var codeBlockBuffer = StringBuilder()
     private var inTable = false
@@ -75,7 +75,7 @@ class StreamingMarkdownRenderer {
         buffer.append(chunk)
 
         // 按行处理（保留最后不完整的行）
-        val lines = buffer.toString().split("\n")
+                val lines = buffer.toString().split("\n")
         val completeLines = if (buffer.endsWith("\n")) lines.dropLast(1) else lines.dropLast(1)
 
         for (line in completeLines) {
@@ -90,7 +90,7 @@ class StreamingMarkdownRenderer {
      */
     fun finalize(): RenderTree {
         // 处理缓冲区剩余内容
-        if (buffer.isNotEmpty()) {
+                if (buffer.isNotEmpty()) {
             val remaining = buffer.toString().split("\n")
             for (line in remaining) {
                 processLine(line)
@@ -99,7 +99,7 @@ class StreamingMarkdownRenderer {
         }
 
         // 关闭所有未闭合的结构
-        if (inCodeBlock) {
+                if (inCodeBlock) {
             root.children.add(RenderNode(
                 type = RenderNodeType.CODE_BLOCK,
                 content = codeBlockBuffer.toString(),
@@ -129,14 +129,13 @@ class StreamingMarkdownRenderer {
     }
 
     // ============ 内部方法 ============
-
-    private fun processLine(line: String) {
+                private fun processLine(line: String) {
         when {
             // 代码块开始/结束
-            line.trimStart().startsWith("```") -> {
+                line.trimStart().startsWith("```") -> {
                 if (inCodeBlock) {
                     // 结束代码块
-                    root.children.add(RenderNode(
+                root.children.add(RenderNode(
                         type = RenderNodeType.CODE_BLOCK,
                         content = codeBlockBuffer.toString(),
                         attributes = mapOf("lang" to codeBlockLang),
@@ -147,7 +146,7 @@ class StreamingMarkdownRenderer {
                     inCodeBlock = false
                 } else {
                     // 开始代码块
-                    codeBlockLang = line.trimStart().removePrefix("```").trim()
+                codeBlockLang = line.trimStart().removePrefix("```").trim()
                     inCodeBlock = true
                 }
             }
@@ -155,7 +154,7 @@ class StreamingMarkdownRenderer {
                 codeBlockBuffer.appendLine(line)
             }
             // 思考块 <think>
-            line.trim() == "<think>" -> {
+                line.trim() == "<think>" -> {
                 inThinkingBlock = true
             }
             line.trim() == "</think>" -> {
@@ -171,7 +170,7 @@ class StreamingMarkdownRenderer {
                 thinkingBuffer.appendLine(line)
             }
             // 表格行（含 |）
-            line.contains("|") && line.trim().startsWith("|") -> {
+                line.contains("|") && line.trim().startsWith("|") -> {
                 if (!inTable) inTable = true
                 val cells = line.trim().trim('|').split("|").map { it.trim() }
                 // 跳过分隔行 |---|---|
@@ -185,7 +184,7 @@ class StreamingMarkdownRenderer {
                 processLine(line)  // 递归处理当前行
             }
             // 列表
-            line.matches(Regex("^\\s*[-*+]\\s+.+")) -> {
+                line.matches(Regex("^\\s*[-*+]\\s+.+")) -> {
                 if (!inList) inList = true
                 listItems.add(line.trim().removePrefix("-").removePrefix("*").removePrefix("+").trim())
             }
@@ -197,9 +196,9 @@ class StreamingMarkdownRenderer {
                 finalizeList()
             }
             // 标题
-            line.matches(Regex("^#{1,6}\\s+.+")) -> {
+                line.matches(Regex("^#{1,6}\\s+.+")) -> {
                 val level = line.takeWhile { it == '#' }.length
-                val content = line.dropWhile { it == '#' }.trim()
+        val content = line.dropWhile { it == '#' }.trim()
                 root.children.add(RenderNode(
                     type = RenderNodeType.HEADING,
                     content = content,
@@ -208,7 +207,7 @@ class StreamingMarkdownRenderer {
                 ))
             }
             // 引用
-            line.startsWith("> ") -> {
+                line.startsWith("> ") -> {
                 root.children.add(RenderNode(
                     type = RenderNodeType.BLOCKQUOTE,
                     content = line.removePrefix("> ").trim(),
@@ -216,16 +215,16 @@ class StreamingMarkdownRenderer {
                 ))
             }
             // 分割线
-            line.matches(Regex("^[-*_]{3,}$")) -> {
+                line.matches(Regex("^[-*_]{3,}$")) -> {
                 root.children.add(RenderNode(
                     type = RenderNodeType.HORIZONTAL_RULE,
                     complete = true
                 ))
             }
             // 空行
-            line.isBlank() -> { /* 忽略 */ }
+                line.isBlank() -> { /* 忽略 */ }
             // 普通段落
-            else -> {
+                else -> {
                 root.children.add(RenderNode(
                     type = RenderNodeType.PARAGRAPH,
                     content = line,

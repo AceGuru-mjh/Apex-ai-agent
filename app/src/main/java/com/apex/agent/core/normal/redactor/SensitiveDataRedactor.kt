@@ -20,14 +20,14 @@ enum class SensitiveType {
     API_KEY,
     PASSWORD,
     ID_CARD,         // 身份证
-    PHONE_NUMBER,    // 手机号
-    EMAIL,
+                PHONE_NUMBER,    // 手机号
+                EMAIL,
     BANK_CARD,       // 银行卡
-    JWT_TOKEN,
+                JWT_TOKEN,
     PRIVATE_KEY,     // 私钥
-    OAUTH_TOKEN,
+                OAUTH_TOKEN,
     SSN,             // 社会安全号
-    IP_ADDRESS,
+                IP_ADDRESS,
     CREDIT_CARD
 }
 
@@ -64,7 +64,7 @@ data class RedactedText(
     val original: String,
     val redacted: String,
     val mappings: Map<String, String>,  // placeholder -> original
-    val detectedTypes: Set<SensitiveType>
+                val detectedTypes: Set<SensitiveType>
 )
 
 /**
@@ -105,16 +105,16 @@ class SensitiveDataRedactor {
             detectedTypes.add(pattern.type)
 
             // 从后向前替换，避免索引偏移
-            for (match in matches.reversed()) {
+                for (match in matches.reversed()) {
                 val original = match.value
-                val placeholder = generatePlaceholder(pattern.type, original, sessionId, mappings)
+        val placeholder = generatePlaceholder(pattern.type, original, sessionId, mappings)
                 mappings[placeholder] = original
                 result = result.substring(0, match.range.first) + placeholder + result.substring(match.range.last + 1)
             }
         }
 
         // 保存到会话映射
-        if (sessionId != null && mappings.isNotEmpty()) {
+                if (sessionId != null && mappings.isNotEmpty()) {
             sessionMappings.computeIfAbsent(sessionId) { mutableMapOf() }.putAll(mappings)
         }
 
@@ -179,15 +179,14 @@ class SensitiveDataRedactor {
     }
 
     // ============ 内部方法 ============
-
-    private fun generatePlaceholder(
+                private fun generatePlaceholder(
         type: SensitiveType,
         original: String,
         sessionId: String?,
         currentMappings: Map<String, String>
     ): String {
         // 检查是否已经映射过同一个值
-        val existing = currentMappings.entries.find { it.value == original }?.key
+                val existing = currentMappings.entries.find { it.value == original }?.key
         if (existing != null) return existing
 
         val seq = counter.incrementAndGet()
@@ -226,7 +225,7 @@ class SensitiveDataRedactor {
 
     private fun registerBuiltinPatterns() {
         // API Key 模式（通用）
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.API_KEY,
             name = "OpenAI API Key",
             regex = Regex("sk-[a-zA-Z0-9]{48}"),
@@ -256,7 +255,7 @@ class SensitiveDataRedactor {
         ))
 
         // JWT Token
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.JWT_TOKEN,
             name = "JWT Token",
             regex = Regex("eyJ[a-zA-Z0-9_-]+\\.eyJ[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+"),
@@ -265,7 +264,7 @@ class SensitiveDataRedactor {
         ))
 
         // 私钥
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.PRIVATE_KEY,
             name = "Private Key",
             regex = Regex("-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----[\\s\\S]*?-----END (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----"),
@@ -274,7 +273,7 @@ class SensitiveDataRedactor {
         ))
 
         // 身份证（中国大陆）
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.ID_CARD,
             name = "Chinese ID Card",
             regex = Regex("\\b[1-9]\\d{5}(?:19|20)\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])\\d{3}[\\dXx]\\b"),
@@ -283,7 +282,7 @@ class SensitiveDataRedactor {
         ))
 
         // 手机号（中国大陆）
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.PHONE_NUMBER,
             name = "Chinese Phone",
             regex = Regex("\\b1[3-9]\\d{9}\\b"),
@@ -292,7 +291,7 @@ class SensitiveDataRedactor {
         ))
 
         // 邮箱
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.EMAIL,
             name = "Email",
             regex = Regex("\\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\\b"),
@@ -301,7 +300,7 @@ class SensitiveDataRedactor {
         ))
 
         // 银行卡
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.BANK_CARD,
             name = "Bank Card",
             regex = Regex("\\b(?:62|4[0-9]|5[1-5]|3[47])\\d{14,17}\\b"),
@@ -310,7 +309,7 @@ class SensitiveDataRedactor {
         ))
 
         // IP 地址
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.IP_ADDRESS,
             name = "IP Address",
             regex = Regex("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b"),
@@ -319,7 +318,7 @@ class SensitiveDataRedactor {
         ))
 
         // password= 模式
-        patterns.add(SensitivePattern(
+                patterns.add(SensitivePattern(
             type = SensitiveType.PASSWORD,
             name = "Password Assignment",
             regex = Regex("(?i)(?:password|passwd|pwd)[\"'\\s:=]+[\"']([^\"'\\s]{4,})[\"']"),

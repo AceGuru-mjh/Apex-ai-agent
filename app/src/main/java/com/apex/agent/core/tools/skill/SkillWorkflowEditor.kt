@@ -79,13 +79,13 @@ class SkillWorkflowEditor private constructor() {
     private val redoStacks = ConcurrentHashMap<String, MutableList<EditorAction>>()
 
     private val _editorState = MutableStateFlow(EditorState())
-    val editorState: StateFlow<EditorState> = _editorState.asStateFlow()
+        val editorState: StateFlow<EditorState> = _editorState.asStateFlow()
 
     private val _editorEvents = MutableSharedFlow<EditorEvent>()
-    val editorEvents: SharedFlow<EditorEvent> = _editorEvents.asSharedFlow()
+        val editorEvents: SharedFlow<EditorEvent> = _editorEvents.asSharedFlow()
 
     private val _workflowsFlow = MutableStateFlow<List<WorkflowDefinition>>(emptyList())
-    val workflowsFlow: StateFlow<List<WorkflowDefinition>> = _workflowsFlow.asStateFlow()
+        val workflowsFlow: StateFlow<List<WorkflowDefinition>> = _workflowsFlow.asStateFlow()
 
     private val json = Json { prettyPrint = true; encodeDefaults = true }
 
@@ -166,7 +166,6 @@ class SkillWorkflowEditor private constructor() {
 
     fun addNode(workflowId: String, node: WorkflowNode): WorkflowNode? {
         val workflow = workflows[workflowId] ?: return null
-
         val updatedWorkflow = workflow.copy(
             nodes = workflow.nodes + node,
             updatedAt = System.currentTimeMillis()
@@ -263,7 +262,6 @@ class SkillWorkflowEditor private constructor() {
         val oldPosition = node.position
         val updatedNode = node.copy(position = newPosition)
         val updatedNodes = workflow.nodes.map { if (it.id == nodeId) updatedNode else it }
-
         val updatedWorkflow = workflow.copy(
             nodes = updatedNodes,
             updatedAt = System.currentTimeMillis()
@@ -283,10 +281,8 @@ class SkillWorkflowEditor private constructor() {
 
     fun addConnection(workflowId: String, connection: WorkflowConnection): WorkflowConnection? {
         val workflow = workflows[workflowId] ?: return null
-
         val sourceNode = workflow.getNodeById(connection.sourceNodeId) ?: return null
         val targetNode = workflow.getNodeById(connection.targetNodeId) ?: return null
-
         val existingConnection = workflow.connections.find {
             it.sourceNodeId == connection.sourceNodeId && it.targetNodeId == connection.targetNodeId
         }
@@ -452,12 +448,12 @@ class SkillWorkflowEditor private constructor() {
             is EditorAction.RemoveNode -> addNode(workflowId, action.node)
             is EditorAction.UpdateNode -> {
                 val workflow = workflows[workflowId] ?: return
-                val updatedNodes = workflow.nodes.map { if (it.id == action.newNode.id) action.oldNode else it }
+        val updatedNodes = workflow.nodes.map { if (it.id == action.newNode.id) action.oldNode else it }
                 workflows[workflowId] = workflow.copy(nodes = updatedNodes)
             }
             is EditorAction.MoveNode -> {
                 val workflow = workflows[workflowId] ?: return
-                val updatedNodes = workflow.nodes.map {
+        val updatedNodes = workflow.nodes.map {
                     if (it.id == action.nodeId) it.copy(position = action.oldPosition) else it
                 }
                 workflows[workflowId] = workflow.copy(nodes = updatedNodes)
@@ -477,12 +473,12 @@ class SkillWorkflowEditor private constructor() {
             is EditorAction.RemoveNode -> removeNode(workflowId, action.node.id)
             is EditorAction.UpdateNode -> {
                 val workflow = workflows[workflowId] ?: return
-                val updatedNodes = workflow.nodes.map { if (it.id == action.oldNode.id) action.newNode else it }
+        val updatedNodes = workflow.nodes.map { if (it.id == action.oldNode.id) action.newNode else it }
                 workflows[workflowId] = workflow.copy(nodes = updatedNodes)
             }
             is EditorAction.MoveNode -> {
                 val workflow = workflows[workflowId] ?: return
-                val updatedNodes = workflow.nodes.map {
+        val updatedNodes = workflow.nodes.map {
                     if (it.id == action.nodeId) it.copy(position = action.newPosition) else it
                 }
                 workflows[workflowId] = workflow.copy(nodes = updatedNodes)
@@ -542,7 +538,6 @@ class SkillWorkflowEditor private constructor() {
 
     fun duplicateWorkflow(workflowId: String, newName: String? = null): WorkflowDefinition? {
         val original = workflows[workflowId] ?: return null
-
         val duplicated = original.copy(
             id = WorkflowDefinition.generateWorkflowId(),
             name = newName ?: "${original.name} (Copy)",

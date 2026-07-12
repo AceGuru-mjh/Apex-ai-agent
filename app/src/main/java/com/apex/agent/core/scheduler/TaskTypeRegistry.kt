@@ -61,13 +61,13 @@ class TaskTypeRegistry(private val context: Context) {
      */
     private fun registerBuiltInHandlers() {
         // 日报生成任务
-        registerHandler(object : TaskHandler {
+                registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.DAILY_REPORT
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     // 生成日报内容
-                    val report = generateDailyReport()
+                val report = generateDailyReport()
                     ExecutionResult(true, report)
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
@@ -76,7 +76,7 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 数据备份任务
-        registerHandler(object : TaskHandler {
+                registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.BACKUP
             
             override suspend fun execute(): ExecutionResult {
@@ -90,7 +90,7 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 系统审计任务
-        registerHandler(object : TaskHandler {
+                registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.AUDIT
             
             override suspend fun execute(): ExecutionResult {
@@ -104,7 +104,7 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 自动报告任务
-        registerHandler(object : TaskHandler {
+                registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.AUTO_REPORT
             
             override suspend fun execute(): ExecutionResult {
@@ -118,7 +118,7 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 健康检查任务
-        registerHandler(object : TaskHandler {
+                registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.HEALTH_CHECK
             
             override suspend fun execute(): ExecutionResult {
@@ -132,13 +132,13 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 通知提醒任务
-        registerHandler(object : TaskHandler {
+                registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.NOTIFICATION
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     // 通知逻辑
-                    ExecutionResult(true, "通知已发通")
+                ExecutionResult(true, "通知已发通")
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
@@ -146,7 +146,7 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 自定义任务
-        registerHandler(object : TaskHandler {
+                registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.CUSTOM
             
             override suspend fun execute(): ExecutionResult {

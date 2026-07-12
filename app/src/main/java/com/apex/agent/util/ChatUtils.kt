@@ -87,7 +87,6 @@ object ChatUtils {
         val thinkMatches = thinkPattern.findAll(content)
 
         val thinkingContent = thinkMatches.joinToString("\n") { it.groupValues[1].trim() }
-
         val contentWithoutThink = content
             .replace(thinkPattern, "")
             .replace("<search>.*?(</search>|\\z)".toRegex(RegexOption.DOT_MATCHES_ALL), "")

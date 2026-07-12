@@ -199,7 +199,7 @@ object MiddleCompression {
 
         if (targetTokens <= 0) {
             val summary = generateSummary(middleTurns)
-            val compressedTurn = TrajectoryTurn(
+        val compressedTurn = TrajectoryTurn(
                 role = "user",
                 content = summary,
                 timestamp = middleTurns.first().timestamp
@@ -289,7 +289,7 @@ object TrajectoryCompressor {
             )
 
             val partition = CompressionStrategy.partitionTrajectory(trajectory)
-            val compressionNeeded = CompressionStrategy.calculateCompressionNeeded(trajectory, budget)
+        val compressionNeeded = CompressionStrategy.calculateCompressionNeeded(trajectory, budget)
 
             var compressedMiddle = partition.middle
             var compressedRegion: CompressedRegion? = null
@@ -305,7 +305,7 @@ object TrajectoryCompressor {
             }
 
             val compressedTurns = partition.head + compressedMiddle + partition.tail
-            val compressedTrajectory = TrajectoryData(
+        val compressedTrajectory = TrajectoryData(
                 id = trajectory.id,
                 turns = compressedTurns,
                 metadata = trajectory.metadata + mapOf(

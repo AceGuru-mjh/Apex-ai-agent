@@ -40,11 +40,12 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as FloatingChatService.LocalBinder
-            val chatService = binder.getService()
+        val chatService = binder.getService()
             floatingChatService = chatService
             isBound = true
             viewModel.setWindowInteractionController { visible ->
-                // 控制悬浮窗的可见性，从而控制其可交互，                chatService.setFloatingWindowVisible(visible)
+                // 控制悬浮窗的可见性，从而控制其可交互，
+                chatService.setFloatingWindowVisible(visible)
             }
         }
 
@@ -66,13 +67,13 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
         lifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
         
         // Initialize ViewModel - use singleton instance to share state with main app
-        viewModel = UIDebuggerViewModel.getInstance()
+                viewModel = UIDebuggerViewModel.getInstance()
 
         windowManager = UIDebuggerWindowManager(this, this, lifecycleOwner)
         createNotificationChannel()
 
         // Bind to FloatingChatService
-        Intent(this, FloatingChatService::class.java).also { intent ->
+                Intent(this, FloatingChatService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
@@ -103,7 +104,7 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
         }
 
         // Unbind from FloatingChatService
-        if (isBound) {
+                if (isBound) {
             unbindService(connection)
             isBound = false
         }
@@ -112,9 +113,9 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "UI Debugger Service"
-            val descriptionText = "Displays a floating overlay for UI debugging"
+        val descriptionText = "Displays a floating overlay for UI debugging"
             val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
             val notificationManager: NotificationManager =

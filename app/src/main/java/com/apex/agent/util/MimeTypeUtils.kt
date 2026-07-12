@@ -118,7 +118,7 @@ object MimeTypeUtils {
         .mapValues { it.value.first() }
 
     // 魔术字节到 MIME 类型的映射
-    private val MAGIC_BYTES: List<Pair<ByteArray, String>> = listOf(
+                private val MAGIC_BYTES: List<Pair<ByteArray, String>> = listOf(
         byteArrayOf(0x89, 0x50, 0x4E, 0x47) to "image/png",
         byteArrayOf(0xFF, 0xD8, 0xFF) to "image/jpeg",
         byteArrayOf(0x47, 0x49, 0x46, 0x38) to "image/gif",
@@ -199,7 +199,7 @@ object MimeTypeUtils {
     fun fromStream(input: InputStream, maxBytes: Int = 16): String? {
         return try {
             val bytes = ByteArray(maxBytes)
-            val read = input.read(bytes, 0, maxBytes)
+        val read = input.read(bytes, 0, maxBytes)
             if (read > 0) {
                 fromMagicBytes(bytes.copyOf(read))
             } else null
@@ -309,7 +309,7 @@ object MimeTypeUtils {
             .map { it.trim() }
             .mapNotNull { entry ->
                 val parts = entry.split(";")
-                val type = parts[0].trim()
+        val type = parts[0].trim()
                 val q = parts.drop(1).firstOrNull { it.trim().startsWith("q=") }
                     ?.substringAfter("=")?.trim()?.toFloatOrNull() ?: 1.0f
                 type to q
@@ -319,7 +319,7 @@ object MimeTypeUtils {
         for ((type, _) in accepted) {
             if (type == "*/*") return available.first()
             val typePrefix = type.substringBefore("/")
-            val typeSuffix = type.substringAfter("/")
+        val typeSuffix = type.substringAfter("/")
             if (type in available) return type
             val matching = available.filter {
                 it.substringBefore("/") == typePrefix && typeSuffix == "*"

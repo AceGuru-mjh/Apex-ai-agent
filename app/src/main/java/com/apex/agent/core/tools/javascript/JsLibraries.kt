@@ -125,7 +125,7 @@ internal fun getJsThirdPartyLibraries(): String {
                 }
                 if (collection && typeof collection === 'object') {
                     var keys = Object.keys(collection);
-                    for (var keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
+            for (var keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
                         var key = keys[keyIndex];
                         iteratee(collection[key], key, collection);
                     }
@@ -137,11 +137,10 @@ internal fun getJsThirdPartyLibraries(): String {
                 _.forEach(collection, function(item, key, source) {
                     output.push(iteratee(item, key, source));
                 });
-                return output;
+            return output;
             }
         };
-
-        var dataUtils = {
+            var dataUtils = {
             parseJson: function(text) {
                 try { return JSON.parse(text); } catch (_error) { return null; }
             },
@@ -150,7 +149,7 @@ internal fun getJsThirdPartyLibraries(): String {
             },
             formatDate: function(value) {
                 var date = value ? new Date(value) : new Date();
-                function pad(part) { return String(part).padStart(2, '0'); }
+            function pad(part) { return String(part).padStart(2, '0'); }
                 return [
                     date.getFullYear(),
                     pad(date.getMonth() + 1),

@@ -39,21 +39,21 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     override suspend fun getPageInfo(tool: AITool): ToolResult {
         return executeWithCatch("getPageInfo", tool) {
             // 1. 验证参数
-            validateParameters(
+                validateParameters(
                 tool,
                 requiredParams = emptyList(),
                 optionalParams = listOf("format", "detail")
             )
 
             // 2. 检查无障碍服务
-            checkAccessibilityService()
+                checkAccessibilityService()
 
             // 3. 获取参数
-            val format = getParameter(tool, "format", "xml")
-            val detail = getParameter(tool, "detail", "summary")
+                val format = getParameter(tool, "format", "xml")
+        val detail = getParameter(tool, "detail", "summary")
 
             // 4. 验证format参数
-            if (format !in listOf("xml", "json")) {
+                if (format !in listOf("xml", "json")) {
                 return@executeWithCatch UIToolsResult.Error(
                     errorCode = UIToolsErrorCode.INVALID_PARAMETER,
                     message = "Invalid format specified. Must be 'xml' or 'json'."
@@ -61,7 +61,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 5. 获取UI层次结构（带重测试
-            val uiXml = executeWithRetry(
+                val uiXml = executeWithRetry(
                 operation = { UIHierarchyManager.getUIHierarchy(context) },
                 maxRetries = UIToolsConfig.MAX_RETRY_COUNT,
                 delayMs = UIToolsConfig.RETRY_DELAY_MS,
@@ -76,13 +76,13 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 6. 提取窗口信息
-            val focusInfo = extractFocusInfo(uiXml)
+                val focusInfo = extractFocusInfo(uiXml)
 
             // 7. 简化布局
-            val simplifiedLayout = xmlParser.parseAndSimplify(uiXml)
+                val simplifiedLayout = xmlParser.parseAndSimplify(uiXml)
 
             // 8. 构建结果
-            val resultData = UIPageResultData(
+                val resultData = UIPageResultData(
                 packageName = focusInfo.packageName ?: "Unknown",
                 activityName = focusInfo.activityName ?: "Unknown",
                 uiElements = simplifiedLayout
@@ -98,24 +98,24 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     override suspend fun clickElement(tool: AITool): ToolResult {
         return executeWithCatch("clickElement", tool) {
             // 1. 验证参数
-            validateParameters(
+                validateParameters(
                 tool,
                 requiredParams = emptyList(),
                 optionalParams = listOf("resourceId", "className", "contentDesc", "bounds", "index")
             )
 
             // 2. 检查无障碍服务
-            checkAccessibilityService()
+                checkAccessibilityService()
 
             // 3. 获取参数
-            val resourceId = getParameter(tool, "resourceId", null)
-            val className = getParameter(tool, "className", null)
+                val resourceId = getParameter(tool, "resourceId", null)
+        val className = getParameter(tool, "className", null)
             val contentDesc = getParameter(tool, "contentDesc", null)
-            val bounds = getParameter(tool, "bounds", null)
+        val bounds = getParameter(tool, "bounds", null)
             val index = getParameter(tool, "index", "0").toIntOrNull() ?: 0
 
             // 4. 至少需要一个选择条件
-            if (resourceId == null && className == null && bounds == null && contentDesc == null) {
+                if (resourceId == null && className == null && bounds == null && contentDesc == null) {
                 return@executeWithCatch UIToolsResult.Error(
                     errorCode = UIToolsErrorCode.MISSING_PARAMETER,
                     message = "Missing element identifier. Provide at least one of 'resourceId', 'className', 'contentDesc', or 'bounds'."
@@ -123,12 +123,12 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 5. 如果提供了bounds，直接点。
-            if (bounds != null) {
+                if (bounds != null) {
                 return@executeWithCatch handleClickByBounds(bounds).toToolResult(tool.name)
             }
 
             // 6. 获取UI层次结构
-            val uiXml = executeWithRetry(
+                val uiXml = executeWithRetry(
                 operation = { UIHierarchyManager.getUIHierarchy(context) },
                 maxRetries = UIToolsConfig.MAX_RETRY_COUNT,
                 delayMs = UIToolsConfig.RETRY_DELAY_MS,
@@ -143,7 +143,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 7. 查找匹配的元的
-            val selector = ElementSelector(
+                val selector = ElementSelector(
                 resourceId = resourceId,
                 className = className,
                 contentDesc = contentDesc,
@@ -160,7 +160,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 8. 检查索引范的
-            if (index < 0 || index >= matchedNodes.size) {
+                if (index < 0 || index >= matchedNodes.size) {
                 return@executeWithCatch UIToolsResult.Error(
                     errorCode = UIToolsErrorCode.INVALID_PARAMETER,
                     message = "Index out of range. Found ${matchedNodes.size} elements, but requested index ${index}."
@@ -168,7 +168,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 9. 获取目标节点的bounds并点。
-            val targetNodeBounds = matchedNodes[index].bounds
+                val targetNodeBounds = matchedNodes[index].bounds
             if (targetNodeBounds == null) {
                 return@executeWithCatch UIToolsResult.Error(
                     errorCode = UIToolsErrorCode.ELEMENT_INVALID,
@@ -186,11 +186,11 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     override suspend fun tap(tool: AITool): ToolResult {
         return executeWithCatch("tap", tool) {
             // 1. 检查无障碍服务
-            checkAccessibilityService()
+                checkAccessibilityService()
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
-            val y = getRequiredParameter(tool, "y").toIntOrNull()
+                val x = getRequiredParameter(tool, "x").toIntOrNull()
+        val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -200,10 +200,10 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 3. 显示点击反馈
-            showTapOverlay(x, y)
+                showTapOverlay(x, y)
 
             // 4. 执行无障碍点。
-            val result = performAccessibilityClick(x, y)
+                val result = performAccessibilityClick(x, y)
 
             if (!result) {
                 hideOverlay()
@@ -214,7 +214,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 5. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 com.apex.agent.core.tools.UIActionResultData(
@@ -232,11 +232,11 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     override suspend fun longPress(tool: AITool): ToolResult {
         return executeWithCatch("longPress", tool) {
             // 1. 检查无障碍服务
-            checkAccessibilityService()
+                checkAccessibilityService()
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
-            val y = getRequiredParameter(tool, "y").toIntOrNull()
+                val x = getRequiredParameter(tool, "x").toIntOrNull()
+        val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -246,10 +246,10 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 3. 显示长按反馈
-            showTapOverlay(x, y)
+                showTapOverlay(x, y)
 
             // 4. 执行无障碍长的
-            val result = performAccessibilityLongPress(x, y)
+                val result = performAccessibilityLongPress(x, y)
 
             if (!result) {
                 hideOverlay()
@@ -260,7 +260,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 5. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 com.apex.agent.core.tools.UIActionResultData(
@@ -278,13 +278,13 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     override suspend fun swipe(tool: AITool): ToolResult {
         return executeWithCatch("swipe", tool) {
             // 1. 检查无障碍服务
-            checkAccessibilityService()
+                checkAccessibilityService()
 
             // 2. 获取参数
-            val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
-            val startY = getRequiredParameter(tool, "start_y").toIntOrNull()
+                val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
+        val startY = getRequiredParameter(tool, "start_y").toIntOrNull()
             val endX = getRequiredParameter(tool, "end_x").toIntOrNull()
-            val endY = getRequiredParameter(tool, "end_y").toIntOrNull()
+        val endY = getRequiredParameter(tool, "end_y").toIntOrNull()
             val duration = getParameter(tool, "duration", "300")?.toIntOrNull() ?: 300
 
             if (startX == null || startY == null || endX == null || endY == null) {
@@ -295,10 +295,10 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 3. 显示滑动反馈
-            showSwipeOverlay(startX, startY, endX, endY)
+                showSwipeOverlay(startX, startY, endX, endY)
 
             // 4. 执行无障碍滑的
-            val result = performAccessibilitySwipe(startX, startY, endX, endY, duration)
+                val result = performAccessibilitySwipe(startX, startY, endX, endY, duration)
 
             if (!result) {
                 hideOverlay()
@@ -309,7 +309,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 5. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 com.apex.agent.core.tools.UIActionResultData(
@@ -326,13 +326,13 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     override suspend fun setInputText(tool: AITool): ToolResult {
         return executeWithCatch("setInputText", tool) {
             // 1. 检查无障碍服务
-            checkAccessibilityService()
+                checkAccessibilityService()
 
             // 2. 获取参数
-            val text = getRequiredParameter(tool, "text")
+                val text = getRequiredParameter(tool, "text")
 
             // 3. 查找焦点节点
-            val focusedNodeId = UIHierarchyManager.findFocusedNodeId(context)
+                val focusedNodeId = UIHierarchyManager.findFocusedNodeId(context)
             if (focusedNodeId.isNullOrEmpty()) {
                 return@executeWithCatch UIToolsResult.Error(
                     errorCode = UIToolsErrorCode.ELEMENT_NOT_FOUND,
@@ -341,13 +341,13 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 4. 显示输入反馈
-            val rect = parseBounds(focusedNodeId)
+                val rect = parseBounds(focusedNodeId)
             if (rect != null) {
                 showTextInputOverlay(rect.first, rect.second, text)
             }
 
             // 5. 设置文本
-            val result = UIHierarchyManager.setTextOnNode(context, focusedNodeId, text)
+                val result = UIHierarchyManager.setTextOnNode(context, focusedNodeId, text)
 
             if (!result) {
                 hideOverlay()
@@ -358,7 +358,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 6. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 com.apex.agent.core.tools.UIActionResultData(
@@ -375,13 +375,13 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     override suspend fun pressKey(tool: AITool): ToolResult {
         return executeWithCatch("pressKey", tool) {
             // 1. 检查无障碍服务
-            checkAccessibilityService()
+                checkAccessibilityService()
 
             // 2. 获取参数
-            val keyCode = getRequiredParameter(tool, "key_code")
+                val keyCode = getRequiredParameter(tool, "key_code")
 
             // 3. 转换为无障碍服务常量
-            val keyAction = when (keyCode) {
+                val keyAction = when (keyCode) {
                 "KEYCODE_BACK" -> android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK
                 "KEYCODE_HOME" -> android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME
                 "KEYCODE_RECENTS" -> android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RECENTS
@@ -399,7 +399,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
             }
 
             // 4. 执行全局操作
-            val success = UIHierarchyManager.performGlobalAction(context, keyAction)
+                val success = UIHierarchyManager.performGlobalAction(context, keyAction)
 
             if (!success) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -436,10 +436,10 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     private suspend fun extractFocusInfo(uiXml: String): FocusInfo {
         return try {
             // 1. 从XML中解析包后
-            val (packageName, _) = UIHierarchyManager.extractWindowInfo(uiXml)
+                val (packageName, _) = UIHierarchyManager.extractWindowInfo(uiXml)
 
             // 2. 从服务中获取Activity名称
-            val activityName = UIHierarchyManager.getCurrentActivityName(context)
+                val activityName = UIHierarchyManager.getCurrentActivityName(context)
 
             FocusInfo(
                 packageName = packageName ?: "android",
@@ -460,7 +460,7 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     private suspend fun handleClickByBounds(bounds: String): UIToolsResult {
         return try {
             // 解析bounds格式: [left,top][right,bottom]
-            val coords = parseBounds(bounds)
+                val coords = parseBounds(bounds)
             if (coords == null) {
                 return UIToolsResult.Error(
                     errorCode = UIToolsErrorCode.INVALID_PARAMETER,
@@ -470,10 +470,10 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
 
             val (left, top, right, bottom) = coords
             val centerX = (left + right) / 2
-            val centerY = (top + bottom) / 2
+        val centerY = (top + bottom) / 2
 
             // 调用 UIHierarchyManager 通过无障碍服务执行点击
-            AppLogger.d(TAG, "点击坐标: ($centerX, $centerY)")
+                AppLogger.d(TAG, "点击坐标: ($centerX, $centerY)")
             val clicked = UIHierarchyManager.performClick(context, centerX, centerY)
             if (!clicked) {
                 return UIToolsResult.Error(
@@ -505,8 +505,8 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     private fun parseBounds(bounds: String): Quadruple<Int>? {
         return try {
             // 格式: [left,top][right,bottom]
-            val regex = Regex("""\[(\d+),(\d+)\]\[(\d+),(\d+)\]""")
-            val matchResult = regex.find(bounds)
+                val regex = Regex("""\[(\d+),(\d+)\]\[(\d+),(\d+)\]""")
+        val matchResult = regex.find(bounds)
             
             if (matchResult != null) {
                 val (left, top, right, bottom) = matchResult.destructured
@@ -606,12 +606,12 @@ open class AccessibilityUITools(context: Context) : BaseUITools(context) {
     private fun parseBoundsCenter(bounds: String): Pair<Int, Int>? {
         return try {
             val regex = Regex("""\[(\d+),(\d+)\]\[(\d+),(\d+)\]""")
-            val matchResult = regex.find(bounds)
+        val matchResult = regex.find(bounds)
             
             if (matchResult != null) {
                 val (left, top, right, bottom) = matchResult.destructured
                 val centerX = (left.toInt() + right.toInt()) / 2
-                val centerY = (top.toInt() + bottom.toInt()) / 2
+        val centerY = (top.toInt() + bottom.toInt()) / 2
                 Pair(centerX, centerY)
             } else {
                 null

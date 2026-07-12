@@ -77,7 +77,7 @@ internal fun decodeToolPkgHookResult(raw: Any): Any? {
 
 internal fun jsonObjectToMap(jsonObject: JSONObject): Map<String, Any?> {
     val result = linkedMapOf<String, Any?>()
-    val keys = jsonObject.keys()
+        val keys = jsonObject.keys()
     while (keys.hasNext()) {
         val key = keys.next()
         result[key] = jsonValueToKotlin(jsonObject.opt(key))

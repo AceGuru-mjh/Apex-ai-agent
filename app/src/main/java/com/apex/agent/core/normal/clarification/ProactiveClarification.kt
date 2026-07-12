@@ -38,10 +38,10 @@ enum class ClarificationType {
 data class ClarificationNeed(
     val type: ClarificationType,
     val ambiguousPart: String,      // 模糊的部分
-    val possibleInterpretations: List<String>,  // 可能的解读
-    val suggestedQuestion: String,  // 建议的反问
-    val confidence: Float,          // 检测置信度
-    val options: List<String> = emptyList()  // 选项（如有）
+                val possibleInterpretations: List<String>,  // 可能的解读
+                val suggestedQuestion: String,  // 建议的反问
+                val confidence: Float,          // 检测置信度
+                val options: List<String> = emptyList()  // 选项（如有）
 )
 
 /**
@@ -65,26 +65,25 @@ class ProactiveClarification {
         val needs = mutableListOf<ClarificationNeed>()
 
         // 1. 代词指代检测
-        needs.addAll(detectPronounAmbiguity(userMessage, context))
+                needs.addAll(detectPronounAmbiguity(userMessage, context))
 
         // 2. 术语歧义检测
-        needs.addAll(detectTermAmbiguity(userMessage))
+                needs.addAll(detectTermAmbiguity(userMessage))
 
         // 3. 操作目标不明检测
-        needs.addAll(detectUnclearTarget(userMessage))
+                needs.addAll(detectUnclearTarget(userMessage))
 
         // 4. 范围模糊检测
-        needs.addAll(detectVagueScope(userMessage))
+                needs.addAll(detectVagueScope(userMessage))
 
         // 5. 意图模糊检测
-        needs.addAll(detectVagueIntent(userMessage))
+                needs.addAll(detectVagueIntent(userMessage))
 
         // 6. 上下文缺失检测
-        needs.addAll(detectMissingContext(userMessage, context))
+                needs.addAll(detectMissingContext(userMessage, context))
 
         // 按置信度排序，取前 3 个
-        val topNeeds = needs.sortedByDescending { it.confidence }.take(3)
-
+                val topNeeds = needs.sortedByDescending { it.confidence }.take(3)
         val combinedQuestion = if (topNeeds.isNotEmpty()) {
             buildCombinedQuestion(topNeeds)
         } else ""
@@ -110,8 +109,7 @@ class ProactiveClarification {
     }
 
     // ============ 检测方法 ============
-
-    private fun detectPronounAmbiguity(message: String, context: Map<String, Any>): List<ClarificationNeed> {
+                private fun detectPronounAmbiguity(message: String, context: Map<String, Any>): List<ClarificationNeed> {
         val needs = mutableListOf<ClarificationNeed>()
         val pronouns = mapOf(
             "它" to "指代对象",
@@ -130,7 +128,7 @@ class ProactiveClarification {
         )
 
         // 如果上下文中没有明确的指代对象，标记为模糊
-        val hasRecentEntity = context.containsKey("last_entity") || context.containsKey("last_subject")
+                val hasRecentEntity = context.containsKey("last_entity") || context.containsKey("last_subject")
 
         for ((pronoun, desc) in pronouns) {
             if (message.contains(pronoun, ignoreCase = true) && !hasRecentEntity) {
@@ -238,7 +236,7 @@ class ProactiveClarification {
     private fun detectVagueIntent(message: String): List<ClarificationNeed> {
         val needs = mutableListOf<ClarificationNeed>()
         // 过短的消息可能意图模糊
-        if (message.trim().length < 5 && !message.matches(Regex("^(你好|hi|hello|谢谢).*", RegexOption.IGNORE_CASE))) {
+                if (message.trim().length < 5 && !message.matches(Regex("^(你好|hi|hello|谢谢).*", RegexOption.IGNORE_CASE))) {
             needs.add(ClarificationNeed(
                 type = ClarificationType.INTENT_VAGUE,
                 ambiguousPart = message,
@@ -253,7 +251,7 @@ class ProactiveClarification {
     private fun detectMissingContext(message: String, context: Map<String, Any>): List<ClarificationNeed> {
         val needs = mutableListOf<ClarificationNeed>()
         // 检测代码相关但无上下文
-        if (message.contains("这段代码") || message.contains("这个错误") || message.contains("this code") || message.contains("this error")) {
+                if (message.contains("这段代码") || message.contains("这个错误") || message.contains("this code") || message.contains("this error")) {
             if (!context.containsKey("code") && !context.containsKey("error") && !message.contains("```")) {
                 needs.add(ClarificationNeed(
                     type = ClarificationType.CONTEXT_MISSING,

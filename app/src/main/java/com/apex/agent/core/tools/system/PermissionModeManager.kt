@@ -25,7 +25,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     companion object {
         private const val TAG = "PermissionModeManager"
         private const val DETECTION_CACHE_DURATION = 30000L // 30移
-        private const val AUTO_CHECK_INTERVAL = 60000L // 1分钟
+                private const val AUTO_CHECK_INTERVAL = 60000L // 1分钟
 
         @Volatile
         private var instance: PermissionModeManager? = null
@@ -43,29 +43,29 @@ class PermissionModeManager private constructor(private val context: Context) {
     private val mutex = Mutex()
 
     // 状态管理
-    private val _modeStates = MutableStateFlow<Map<PermissionMode, PermissionModeState>>(emptyMap())
-    val modeStates: StateFlow<Map<PermissionMode, PermissionModeState>> = _modeStates.asStateFlow()
+                private val _modeStates = MutableStateFlow<Map<PermissionMode, PermissionModeState>>(emptyMap())
+        val modeStates: StateFlow<Map<PermissionMode, PermissionModeState>> = _modeStates.asStateFlow()
 
     private val _currentMode = MutableStateFlow<PermissionMode?>(null)
-    val currentMode: StateFlow<PermissionMode?> = _currentMode.asStateFlow()
+        val currentMode: StateFlow<PermissionMode?> = _currentMode.asStateFlow()
 
     private val _rootResult = MutableStateFlow<RootDetectionResult>(RootDetectionResult())
-    val rootResult: StateFlow<RootDetectionResult> = _rootResult.asStateFlow()
+        val rootResult: StateFlow<RootDetectionResult> = _rootResult.asStateFlow()
 
     private val _shizukuResult = MutableStateFlow<ShizukuDetectionResult>(ShizukuDetectionResult())
-    val shizukuResult: StateFlow<ShizukuDetectionResult> = _shizukuResult.asStateFlow()
+        val shizukuResult: StateFlow<ShizukuDetectionResult> = _shizukuResult.asStateFlow()
 
     private val _isInitialized = MutableStateFlow(false)
-    val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
+        val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
 
     private val _isChecking = MutableStateFlow(false)
-    val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
+        val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
 
     // 缓存
-    private val detectionCache = ConcurrentHashMap<PermissionMode, CachedResult>()
+                private val detectionCache = ConcurrentHashMap<PermissionMode, CachedResult>()
 
     // 状态监听器
-    private val stateChangeListeners = mutableSetOf<(PermissionModeState) -> Unit>()
+                private val stateChangeListeners = mutableSetOf<(PermissionModeState) -> Unit>()
     private val modeChangeListeners = mutableSetOf<(PermissionMode) -> Unit>()
 
     private data class CachedResult(
@@ -125,7 +125,7 @@ class PermissionModeManager private constructor(private val context: Context) {
             PermissionMode.DEBUGGER -> AndroidPermissionLevel.DEBUGGER
             PermissionMode.ADMIN -> AndroidPermissionLevel.ADMIN
             PermissionMode.SHIZUKU -> AndroidPermissionLevel.ROOT // Shizuku 映射分Root 级别
-            PermissionMode.ROOT -> AndroidPermissionLevel.ROOT
+                PermissionMode.ROOT -> AndroidPermissionLevel.ROOT
         }
 
     /**
@@ -140,14 +140,14 @@ class PermissionModeManager private constructor(private val context: Context) {
             AppLogger.d(TAG, "开始检测所有权限模式（强制刷新: ${forceRefresh}，")
 
             // 优先检测Root 和Shizuku（可能耗时较长，
-            checkRoot(forceRefresh)
+                checkRoot(forceRefresh)
             checkShizuku(forceRefresh)
 
             // 检测其他模式
-            for (mode in PermissionMode.values()) {
+                for (mode in PermissionMode.values()) {
                 if (mode == PermissionMode.ROOT || mode == PermissionMode.SHIZUKU) {
                     // Root 和Shizuku 已单独检测
-                    continue
+                continue
                 }
 
                 val state = checkMode(mode, forceRefresh, timestamp)
@@ -155,7 +155,7 @@ class PermissionModeManager private constructor(private val context: Context) {
             }
 
             // 件Root 和Shizuku 结果构建状态
-            newStates[PermissionMode.ROOT] = buildRootState(timestamp)
+                newStates[PermissionMode.ROOT] = buildRootState(timestamp)
             newStates[PermissionMode.SHIZUKU] = buildShizukuState(timestamp)
 
             _modeStates.update { newStates }
@@ -236,7 +236,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     private fun checkAccessibilityServiceEnabled(): Boolean {
         return try {
             val serviceString = context.packageName + "/.accessibility.YourAccessibilityService"
-            val enabledServices = android.provider.Settings.Secure.getString(
+        val enabledServices = android.provider.Settings.Secure.getString(
                 context.contentResolver,
                 android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             )
@@ -250,8 +250,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     private fun checkDebuggerMode(timestamp: Long): PermissionModeState {
         val isAvailable = true
         val isGranted = true // 调试模式总是可用
-
-        return PermissionModeState(
+                return PermissionModeState(
             mode = PermissionMode.DEBUGGER,
             isAvailable = isAvailable,
             isGranted = isGranted,
@@ -335,14 +334,14 @@ class PermissionModeManager private constructor(private val context: Context) {
 
         val result = try {
             // 使用 RootAuthorizer 检测
-            val isRooted = RootAuthorizer.isDeviceRooted()
-            val hasRootAccess = RootAuthorizer.hasRootAccess()
+                val isRooted = RootAuthorizer.isDeviceRooted()
+        val hasRootAccess = RootAuthorizer.hasRootAccess()
 
             // 检测Root 方案
-            val rootScheme = detectRootScheme()
+                val rootScheme = detectRootScheme()
 
             // 检测SELinux 状态
-            val seLinuxStatus = detectSELinuxStatus()
+                val seLinuxStatus = detectSELinuxStatus()
 
             RootDetectionResult(
                 isRooted = isRooted,
@@ -386,7 +385,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     private fun detectSELinuxStatus(): SELinuxStatus {
         return try {
             val process = Runtime.getRuntime().exec("getenforce")
-            val output = process.inputStream.bufferedReader().readText().trim()
+        val output = process.inputStream.bufferedReader().readText().trim()
             process.waitFor()
             SELinuxStatus.fromString(output)
         } catch (e: Exception) {
@@ -412,9 +411,9 @@ class PermissionModeManager private constructor(private val context: Context) {
         AppLogger.d(TAG, "检测Shizuku 状态..")
 
         val result = try {
-            val isShizukuInstalled = ShizukuAuthorizer.isShizukuInstalled(context)
+        val isShizukuInstalled = ShizukuAuthorizer.isShizukuInstalled(context)
             val isServiceAvailable = ShizukuAuthorizer.isShizukuServiceRunning()
-            val isGranted = ShizukuAuthorizer.hasShizukuPermission()
+        val isGranted = ShizukuAuthorizer.hasShizukuPermission()
             val isSuiBackend = checkIsSuiBackend()
 
             ShizukuDetectionResult(
@@ -441,7 +440,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     private fun checkIsSuiBackend(): Boolean {
         return try {
             val pm = context.packageManager
-            val suiPackage = "rikka.sui"
+        val suiPackage = "rikka.sui"
             try {
                 pm.getPackageInfo(suiPackage, 0)
                 true
@@ -470,7 +469,7 @@ class PermissionModeManager private constructor(private val context: Context) {
             _currentMode.value = mode
 
             // 更新所有模式的 isPreferred 状态
-            _modeStates.update { current ->
+                _modeStates.update { current ->
                 current.mapValues { (m, s) ->
                     s.copy(isPreferred = m == mode)
                 }

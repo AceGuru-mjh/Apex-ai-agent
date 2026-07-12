@@ -42,16 +42,16 @@ class MediaProjectionCaptureManager(private val context: Context, private val me
             ensureProjectionCallbackRegistered()
 
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val metrics = DisplayMetrics()
+        val metrics = DisplayMetrics()
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getRealMetrics(metrics)
 
             val width = metrics.widthPixels
-            val height = metrics.heightPixels
+        val height = metrics.heightPixels
             val densityDpi = metrics.densityDpi
 
             // Using RGBA_8888
-            val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
+                val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
             imageReader = reader
 
             val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR
@@ -109,25 +109,24 @@ class MediaProjectionCaptureManager(private val context: Context, private val me
         var image: Image? = null
         return try {
             // Try to get the latest image
-            image = reader.acquireLatestImage()
+                image = reader.acquireLatestImage()
             if (image == null) {
                  // Sometimes it takes a moment for the first frame to arrive
-                 return null
+                return null
             }
 
             val width = image.width
-            val height = image.height
+        val height = image.height
             if (width <= 0 || height <= 0) {
                 return null
             }
             
             val plane = image.planes[0]
-            val buffer = plane.buffer
+        val buffer = plane.buffer
             val pixelStride = plane.pixelStride
-            val rowStride = plane.rowStride
+        val rowStride = plane.rowStride
             val rowPadding = rowStride - pixelStride * width
-
-            val bitmap = Bitmap.createBitmap(
+        val bitmap = Bitmap.createBitmap(
                 width + rowPadding / pixelStride,
                 height,
                 Bitmap.Config.ARGB_8888

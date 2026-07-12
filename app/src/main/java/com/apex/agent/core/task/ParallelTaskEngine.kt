@@ -52,19 +52,19 @@ class ParallelTaskEngine(
     private val defaultScope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 ) {
     private val _tasks = MutableStateFlow<Map<String, Task>>(emptyMap())
-    val tasks: StateFlow<Map<String, Task>> = _tasks.asStateFlow()
+        val tasks: StateFlow<Map<String, Task>> = _tasks.asStateFlow()
 
     private val _taskStatus = MutableStateFlow<Map<String, TaskStatus>>(emptyMap())
-    val taskStatus: StateFlow<Map<String, TaskStatus>> = _taskStatus.asStateFlow()
+        val taskStatus: StateFlow<Map<String, TaskStatus>> = _taskStatus.asStateFlow()
 
     private val _taskProgress = MutableStateFlow<Map<String, TaskProgress>>(emptyMap())
-    val taskProgress: StateFlow<Map<String, TaskProgress>> = _taskProgress.asStateFlow()
+        val taskProgress: StateFlow<Map<String, TaskProgress>> = _taskProgress.asStateFlow()
 
     private val _executionResults = MutableStateFlow<List<TaskExecutionResult>>(emptyList())
-    val executionResults: StateFlow<List<TaskExecutionResult>> = _executionResults.asStateFlow()
+        val executionResults: StateFlow<List<TaskExecutionResult>> = _executionResults.asStateFlow()
 
     private val _isEnabled = MutableStateFlow(true)
-    val isEnabled: StateFlow<Boolean> = _isEnabled.asStateFlow()
+        val isEnabled: StateFlow<Boolean> = _isEnabled.asStateFlow()
 
     private val activeTasks = AtomicInteger(0)
     private val taskJobs = ConcurrentHashMap<String, Job>()
@@ -255,7 +255,7 @@ class ParallelTaskEngine(
         taskJobs[task.id] = job
         return job.join().let {
             val finalStatus = _taskStatus.value[task.id] ?: TaskStatus.Failed(Exception("Unknown status"))
-            val result = _executionResults.value.findLast { it.taskId == task.id }
+        val result = _executionResults.value.findLast { it.taskId == task.id }
             result ?: TaskExecutionResult(
                 taskId = task.id,
                 status = finalStatus,

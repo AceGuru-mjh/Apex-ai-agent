@@ -31,13 +31,13 @@ class LobeHubMarketplaceClient private constructor() {
         private const val TAG = "LobeHubMarketplace"
         
         // LobeHub API endpoints
-        private const val BASE_URL = "https://lobehub.com"
+                private const val BASE_URL = "https://lobehub.com"
         private const val SKILLS_API = "${BASE_URL}/api/skills"
         private const val SKILL_DETAIL_API = "${BASE_URL}/api/skills"
         private const val SKILL_MD_BASE = "${BASE_URL}/skills"
         
         // Fallback marketplace
-        private const val MARKET_CLI_NPX = "npx -y @lobehub/market-cli skills"
+                private const val MARKET_CLI_NPX = "npx -y @lobehub/market-cli skills"
         
         private const val CONNECT_TIMEOUT = 15_000
         private const val READ_TIMEOUT = 30_000
@@ -92,7 +92,7 @@ class LobeHubMarketplaceClient private constructor() {
                 }
 
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
-                val skills = parseSearchResponse(response, filters)
+        val skills = parseSearchResponse(response, filters)
                 Result.success(skills)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to search skills", e)
@@ -108,7 +108,7 @@ class LobeHubMarketplaceClient private constructor() {
         withContext(Dispatchers.IO) {
             try {
                 val url = "${SKILL_DETAIL_API}/${URLEncoder.encode(skillId, "UTF-8")}"
-                val connection = openConnection(url)
+        val connection = openConnection(url)
                 connection.requestMethod = "GET"
                 connection.setRequestProperty("Accept", "application/json")
                 connection.connect()
@@ -118,7 +118,7 @@ class LobeHubMarketplaceClient private constructor() {
                 }
 
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
-                val detail = parseSkillDetail(response, skillId)
+        val detail = parseSkillDetail(response, skillId)
                 Result.success(detail)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to get skill detail for ${skillId}", e)
@@ -132,7 +132,7 @@ class LobeHubMarketplaceClient private constructor() {
     suspend fun getSkillMd(skillId: String): Result<String> = withContext(Dispatchers.IO) {
         try {
             val url = "${SKILL_MD_BASE}/${URLEncoder.encode(skillId, "UTF-8")}"
-            val connection = openConnection(url)
+        val connection = openConnection(url)
             connection.requestMethod = "GET"
             connection.connect()
 
@@ -165,25 +165,25 @@ class LobeHubMarketplaceClient private constructor() {
     ): Result<File> = withContext(Dispatchers.IO) {
         try {
             // First get the skill detail to find download URL
-            val detailResult = getSkillDetail(skillId)
+                val detailResult = getSkillDetail(skillId)
             if (detailResult.isFailure) {
                 return@withContext Result.failure(detailResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Get SKILL.md content
-            val mdResult = getSkillMd(skillId)
+                val mdResult = getSkillMd(skillId)
             if (mdResult.isFailure) {
                 return@withContext Result.failure(mdResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Create output directory
-            val skillDir = File(outputDir, skillId)
+                val skillDir = File(outputDir, skillId)
             if (!skillDir.exists()) {
                 skillDir.mkdirs()
             }
 
             // Write SKILL.md
-            val skillFile = File(skillDir, "SKILL.md")
+                val skillFile = File(skillDir, "SKILL.md")
             skillFile.writeText(mdResult.getOrNull() ?: "")
 
             Result.success(skillDir)
@@ -200,7 +200,7 @@ class LobeHubMarketplaceClient private constructor() {
         withContext(Dispatchers.IO) {
             try {
                 val url = "${SKILLS_API}/featured?limit=20"
-                val connection = openConnection(url)
+        val connection = openConnection(url)
                 connection.requestMethod = "GET"
                 connection.setRequestProperty("Accept", "application/json")
                 connection.connect()
@@ -210,7 +210,7 @@ class LobeHubMarketplaceClient private constructor() {
                 }
 
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
-                val skills = parseSearchResponse(response, LobeHubSearchFilters())
+        val skills = parseSearchResponse(response, LobeHubSearchFilters())
                 Result.success(skills)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to get featured skills", e)
@@ -267,7 +267,7 @@ class LobeHubMarketplaceClient private constructor() {
         val skills = mutableListOf<LobeHubSkillListing>()
         try {
             val root = gson.fromJson(json, JsonObject::class.java)
-            val items = root.getAsJsonArray("skills") ?: root.getAsJsonArray("data") ?: JsonArray()
+        val items = root.getAsJsonArray("skills") ?: root.getAsJsonArray("data") ?: JsonArray()
 
             for (i in 0 until items.size()) {
                 val item = items[i].asJsonObject
@@ -276,7 +276,7 @@ class LobeHubMarketplaceClient private constructor() {
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to parse search response", e)
             // Return fallback curated list
-            return getCuratedSkills()
+                return getCuratedSkills()
         }
         
         return if (skills.isEmpty()) getCuratedSkills() else skills

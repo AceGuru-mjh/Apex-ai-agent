@@ -236,10 +236,8 @@ class SkillParallelExecutor private constructor(
         val completed = completedCount.get()
         val totalTime = totalExecutionTime.get()
         val avgExecTime = if (completed > 0) totalTime / completed else 0L
-
         val elapsedSeconds = max(1L, System.currentTimeMillis() / 1000)
         val throughput = completed.toFloat() / elapsedSeconds
-
         val cpuUtil = if (totalCpuTime.get() > 0) {
             (totalCpuTime.get().toFloat() / (System.currentTimeMillis() * Runtime.getRuntime().availableProcessors())).coerceIn(0f, 1f)
         } else 0f
@@ -304,7 +302,6 @@ class SkillParallelExecutor private constructor(
 
     private fun executeTask(task: SkillTaskQueue.SkillTask) {
         val executor = taskExecutors[task.skillName] ?: return
-
         val thread = Thread {
             val startTime = System.currentTimeMillis()
             taskQueue.setTaskRunning(task.id)

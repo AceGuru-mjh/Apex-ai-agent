@@ -90,7 +90,7 @@ fun <T> Stream<T>.merge(other: Stream<T>): Stream<T> = stream {
 fun <T1, T2, R> Stream<T1>.combine(other: Stream<T2>, transform: suspend (T1, T2) -> R): Stream<R> =
         stream {
             val latest1 = mutableListOf<T1>()
-            val latest2 = mutableListOf<T2>()
+        val latest2 = mutableListOf<T2>()
             val channel = Channel<Pair<T1?, T2?>>(Channel.BUFFERED)
 
             coroutineScope {
@@ -133,7 +133,7 @@ fun <T1, T2, R> Stream<T1>.combine(other: Stream<T2>, transform: suspend (T1, T2
                 launch {
                     for (pair in channel) {
                         val first = pair.first
-                        val second = pair.second
+        val second = pair.second
                         if (first != null && second != null) {
                             emit(transform(first, second))
                         }
@@ -207,7 +207,7 @@ fun <T> Stream<T>.chunked(size: Int): Stream<List<T>> {
             }
         }
         // Emit the last chunk if it's not empty
-        if (currentChunk.isNotEmpty()) {
+                if (currentChunk.isNotEmpty()) {
             emit(currentChunk.toList())
         }
     }
@@ -221,17 +221,17 @@ fun <T> Stream<T>.chunked(size: Int): Stream<List<T>> {
  * @return 返回一个包含分组后结果的Stream。每个组内的流会实时发射单个字符（作为String）， */
 fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<StreamPlugin?>> {
     val upstream = this
-    val TAG = "StreamSplitter"
+        val TAG = "StreamSplitter"
 
     return object : Stream<StreamGroup<StreamPlugin?>> {
         // 实现Stream接口必须的属态
-       override val isLocked: Boolean
+                override val isLocked: Boolean
             get() = upstream.isLocked
         override val bufferedCount: Int
             get() = upstream.bufferedCount
 
         // 实现Stream接口必须的方法
-       override suspend fun lock() = upstream.lock()
+                override suspend fun lock() = upstream.lock()
         override suspend fun unlock() = upstream.unlock()
         override fun clearBuffer() = upstream.clearBuffer()
 
@@ -240,7 +240,7 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                 val groupChannel = Channel<StreamGroup<StreamPlugin?>>(Channel.UNLIMITED)
 
                 launch { // Producer Coroutine
-                    try {
+                try {
                         plugins.forEach {
                             it.initPlugin()
                         }
@@ -250,12 +250,12 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                         var activePluginChannel: Channel<Char>? = null
 
                         // 用于在没有活动插件时缓冲字符和插件处理结，
-                       val evaluationBuffer = mutableListOf<Char>()
-                        val evaluationShouldEmit = mutableListOf<Map<StreamPlugin, Boolean>>()
+                val evaluationBuffer = mutableListOf<Char>()
+        val evaluationShouldEmit = mutableListOf<Map<StreamPlugin, Boolean>>()
 
                         // 用于处理插件状态转换时需要重新评估的字符
-                        val pendingChars = ArrayDeque<Char>()
-                        val upstreamChannel = Channel<Char>(Channel.UNLIMITED)
+                val pendingChars = ArrayDeque<Char>()
+        val upstreamChannel = Channel<Char>(Channel.UNLIMITED)
                         var atStartOfLine = true
 
                         launch {
@@ -310,7 +310,7 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
 
                             if (currentActivePlugin != null) {
                                 // --- 状态：处理器--
-                                val shouldEmit =
+                val shouldEmit =
                                         currentActivePlugin.processChar(
                                                 char,
                                                 isAtStartOfLineForCurrentChar
@@ -321,15 +321,15 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
 
                                 if (currentActivePlugin.state != PluginState.PROCESSING) {
                                     // 处理WAITFOR状态 积累字符，等待确认或退，
-                                   if (currentActivePlugin.state == PluginState.WAITFOR) {
+                if (currentActivePlugin.state == PluginState.WAITFOR) {
                                         // 创建WAITFOR缓冲，
-                                       val waitforBuffer = mutableListOf<Char>()
+                val waitforBuffer = mutableListOf<Char>()
                                         if (shouldEmit) {
                                             waitforBuffer.add(char)
                                         }
 
                                         // 等待下一个字符决定去于
-                                       var nextChar: Char? = null
+                var nextChar: Char? = null
                                         try {
                                             nextChar = upstreamChannel.receiveCatching().getOrNull()
                                         } catch (e: Exception) {
@@ -338,7 +338,7 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
 
                                         if (nextChar != null) {
                                             val isNextAtStartOfLine = (char == '\n')
-                                            val nextShouldEmit =
+        val nextShouldEmit =
                                                     currentActivePlugin.processChar(
                                                             nextChar,
                                                             isNextAtStartOfLine
@@ -347,21 +347,21 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                                             if (currentActivePlugin.state == PluginState.PROCESSING
                                             ) {
                                                 // 确认继续处理 - 发射缓冲的字符
-                                               if (nextShouldEmit) {
+                if (nextShouldEmit) {
                                                     activePluginChannel?.send(nextChar)
                                                 }
                                                 atStartOfLine = (nextChar == '\n')
                                                 continue
                                             } else {
                                                 // 退出WAITFOR状态 返还所有字符
-                                               pendingChars.addFirst(nextChar)
+                pendingChars.addFirst(nextChar)
                                                 waitforBuffer.reversed().forEach {
                                                     pendingChars.addFirst(it)
                                                 }
                                             }
                                         } else {
                                             // 流结束，返还缓冲的字符
-                                           waitforBuffer.reversed().forEach {
+                waitforBuffer.reversed().forEach {
                                                 pendingChars.addFirst(it)
                                             }
                                         }
@@ -372,7 +372,7 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                             } else {
                                 // --- 状态：评估，--
                                 // 所有插件并行处理字符
-                               evaluationBuffer.add(char)
+                evaluationBuffer.add(char)
                                 val shouldEmitMap =
                                         plugins.associateWith {
                                             it.processChar(char, isAtStartOfLineForCurrentChar)
@@ -380,7 +380,7 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                                 evaluationShouldEmit.add(shouldEmitMap)
 
                                 // 记录所有TRYING状态的插件
-                                val tryingPlugins =
+                val tryingPlugins =
                                         plugins.filter { it.state == PluginState.TRYING }
 
                                 val successfulPlugin =
@@ -390,7 +390,7 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                                     // --- 转换：评估中 -> 处理器--
                                     
                                     // 如果有多个插件可能同时匹配，记录潜在冲突
-                                    val otherTryingPlugins =
+                val otherTryingPlugins =
                                             plugins.filter {
                                                 it != successfulPlugin &&
                                                         it.state == PluginState.TRYING
@@ -400,7 +400,7 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                                     openPluginChannel(successfulPlugin)
 
                                     // 回放缓冲区中的字符到成功的插，
-                                   evaluationBuffer.forEachIndexed { index, bufferedChar ->
+                evaluationBuffer.forEachIndexed { index, bufferedChar ->
                                         val shouldEmit =
                                                 evaluationShouldEmit[index][successfulPlugin]
                                         if (shouldEmit == true) {
@@ -411,23 +411,23 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
                                     evaluationShouldEmit.clear()
 
                                     // 重置其他插件
-                                    plugins.forEach { if (it != successfulPlugin) it.reset() }
+                plugins.forEach { if (it != successfulPlugin) it.reset() }
                                 } else if (plugins.none { it.state == PluginState.TRYING }) {
                                     // --- 转换：评估中 -> 空闲 ---
                                     // 没有插件处于TRYING状态，意味着匹配失败
-                                    openDefaultChannel()
+                openDefaultChannel()
                                     evaluationBuffer.forEach { defaultTextChannel?.send(it) }
                                     evaluationBuffer.clear()
                                     evaluationShouldEmit.clear()
 
                                     // 重置所有插，
-                                   plugins.forEach { it.reset() }
+                plugins.forEach { it.reset() }
                                 }
                                 // 如果有插件处于TRYING状态，则继续缓字                           }
                         }
 
                         // 流结束后，关闭所有剩余通道并清空缓冲区
-                        closeDefaultChannel()
+                closeDefaultChannel()
                         closePluginChannel()
 
                         if (evaluationBuffer.isNotEmpty()) {
@@ -456,10 +456,10 @@ fun Stream<Char>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<Stream
 @JvmName("splitByString")
 fun Stream<String>.splitBy(plugins: List<StreamPlugin>): Stream<StreamGroup<StreamPlugin?>> {
     val TAG = "StringStreamSplitter"
-    val upstream = this
+        val upstream = this
 
     // 创建一个包装的Stream，附带委托功能   val delegatingStream =
-            object : Stream<String> by upstream {
+                object : Stream<String> by upstream {
                 override suspend fun collect(collector: StreamCollector<String>) {
                     upstream.collect(collector)
                 }
@@ -575,15 +575,15 @@ fun <T> Stream<T>.fixedRate(period: Duration): Stream<T> = stream {
 
         if (nextEmitTime == 0L) {
             // 第一个元素立即发通
-           nextEmitTime = currentTime + period.inWholeMilliseconds
+                nextEmitTime = currentTime + period.inWholeMilliseconds
             emit(value)
         } else if (currentTime >= nextEmitTime) {
             // 已经过了发射时间，立即发射并设置下次时间
-            emit(value)
+                emit(value)
             nextEmitTime = currentTime + period.inWholeMilliseconds
         } else {
             // 等待到下次发射时，
-           val waitTime = nextEmitTime - currentTime
+                val waitTime = nextEmitTime - currentTime
             delay(waitTime)
             emit(value)
             nextEmitTime = System.currentTimeMillis() + period.inWholeMilliseconds

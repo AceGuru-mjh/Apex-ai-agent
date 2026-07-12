@@ -73,10 +73,8 @@ object EnhancedModelProvider {
         val allModels = ModelRegistry.getAllLocalModels()
         val llamaModels = allModels.filter { it.isLlama }
         val mnnModels = allModels.filter { it.isMNN }
-
         val totalSize = allModels.sumOf { it.sizeBytes }
         val totalSizeFormatted = ModelRegistry.LocalModelInfo.formatFileSize(totalSize)
-
         val quantizationCounts = allModels
             .mapNotNull { it.quantization }
             .groupingBy { it }

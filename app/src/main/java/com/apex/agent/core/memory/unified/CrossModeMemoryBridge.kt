@@ -19,7 +19,7 @@ class CrossModeMemoryBridge(
     private val batchWindowMs = 200L
 
     private val _transferEvents = MutableSharedFlow<MemoryTransferEvent>(replay = 10)
-    val transferEvents: SharedFlow<MemoryTransferEvent> = _transferEvents.asSharedFlow()
+        val transferEvents: SharedFlow<MemoryTransferEvent> = _transferEvents.asSharedFlow()
 
     suspend fun burstToSingleAgent(burstItem: BurstMemoryItem) {
         if (burstItem.confidence < importanceThreshold) return

@@ -13,7 +13,7 @@ class TranslationServiceFactory private constructor(
     private var currentProvider: TranslationProvider = TranslationProvider.OPENAI
 
     private val _isInitialized = MutableStateFlow(false)
-    val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
+        val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
 
     companion object {
         private const val TAG = "TranslationServiceFactory"

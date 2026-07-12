@@ -28,9 +28,9 @@ private constructor(
         @JvmStatic
         fun fromAsset(context: Context, assetPath: String): ApkEditor {
             val fileName = assetPath.substringAfterLast('/')
-            val outputFile = File(context.cacheDir, "apk_editor_${fileName}")
+        val outputFile = File(context.cacheDir, "apk_editor_${fileName}")
             val apkFile = AssetCopyUtils.copyAssetToFile(context, assetPath, outputFile, overwrite = true)
-            val apkReverseEngineer = ApkReverseEngineer(context)
+        val apkReverseEngineer = ApkReverseEngineer(context)
             return ApkEditor(context, apkFile, apkReverseEngineer)
         }
 

@@ -32,18 +32,18 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SuiteScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+        val scope = rememberCoroutineScope()
     var apkStates by remember { mutableStateOf<List<ApkStateItem>>(emptyList()) }
     var refreshing by remember { mutableStateOf(false) }
 
     // 加载 APK 状态
-    fun refresh() {
+                fun refresh() {
         scope.launch {
             refreshing = true
             val states = withContext(Dispatchers.IO) {
                 ApkDescriptors.ALL.map { desc ->
                     val installed = ApkDependencyManager.isApkInstalled(context, desc.apkId)
-                    val version = if (installed) ApkDependencyManager.getInstalledVersion(context, desc.apkId) else null
+        val version = if (installed) ApkDependencyManager.getInstalledVersion(context, desc.apkId) else null
                     val missingDeps = ApkDependencyManager.checkDependencies(context, desc.apkId)
                     ApkStateItem(
                         apkId = desc.apkId,
@@ -88,11 +88,11 @@ fun SuiteScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val installedCount = apkStates.count { it.installed }
-            val requiredCount = apkStates.count { it.necessity == ApkNecessity.REQUIRED }
+        val requiredCount = apkStates.count { it.necessity == ApkNecessity.REQUIRED }
             val optionalCount = apkStates.count { it.necessity == ApkNecessity.OPTIONAL }
 
             // 摘要
-            item {
+                item {
                 Card(
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
@@ -107,11 +107,11 @@ fun SuiteScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
             }
 
             // 必须
-            item { SectionHeader("必须组件", MaterialTheme.colorScheme.primary) }
+                item { SectionHeader("必须组件", MaterialTheme.colorScheme.primary) }
             items(apkStates.filter { it.necessity == ApkNecessity.REQUIRED }) { apk -> ApkCard(apk, context) }
 
             // 可选
-            item { SectionHeader("可选组件", MaterialTheme.colorScheme.tertiary) }
+                item { SectionHeader("可选组件", MaterialTheme.colorScheme.tertiary) }
             items(apkStates.filter { it.necessity == ApkNecessity.OPTIONAL }) { apk -> ApkCard(apk, context) }
         }
     }
@@ -131,7 +131,7 @@ private fun ApkCard(apk: ApkStateItem, context: android.content.Context) {
     ) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             // 状态图标
-            Box(
+                Box(
                 Modifier.size(48.dp).clip(CircleShape).background(if (apk.installed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer),
                 contentAlignment = Alignment.Center
             ) {
@@ -139,7 +139,7 @@ private fun ApkCard(apk: ApkStateItem, context: android.content.Context) {
             }
             Spacer(Modifier.width(16.dp))
             // 信息
-            Column(Modifier.weight(1f)) {
+                Column(Modifier.weight(1f)) {
                 Text(apk.displayName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                 Text(apk.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -155,14 +155,14 @@ private fun ApkCard(apk: ApkStateItem, context: android.content.Context) {
                 }
             }
             // 操作
-            FilledIconButton(
+                FilledIconButton(
                 onClick = {
                     if (apk.installed) {
                         // 已安装 → 启动
-                        com.apex.sdk.common.ApkIdentityRegistry.launchApk(context, apk.apkId)
+                com.apex.sdk.common.ApkIdentityRegistry.launchApk(context, apk.apkId)
                     } else {
                         // 未安装 → 打开下载页
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(apk.downloadUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(apk.downloadUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         try { context.startActivity(intent) } catch (_: Throwable) {}
                     }
                 },

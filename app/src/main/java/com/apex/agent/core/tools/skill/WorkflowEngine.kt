@@ -103,10 +103,10 @@ class WorkflowEngine private constructor() {
     private val executionHistory = ConcurrentHashMap<String, List<ExecutionResult>>()
 
     private val _executionState = MutableStateFlow<Map<String, ExecutionState>>(emptyMap())
-    val executionState: StateFlow<Map<String, ExecutionState>> = _executionState.asStateFlow()
+        val executionState: StateFlow<Map<String, ExecutionState>> = _executionState.asStateFlow()
 
     private val _executionEvents = MutableSharedFlow<ExecutionEvent>()
-    val executionEvents: SharedFlow<ExecutionEvent> = _executionEvents.asSharedFlow()
+        val executionEvents: SharedFlow<ExecutionEvent> = _executionEvents.asSharedFlow()
 
     private val eventBus = SkillEventBus.getInstance()
 
@@ -208,10 +208,10 @@ class WorkflowEngine private constructor() {
             }
 
             val entryNode = triggerNodes.first()
-            val result = executeNode(workflow, entryNode, context)
+        val result = executeNode(workflow, entryNode, context)
 
             val endTime = System.currentTimeMillis()
-            val success = !context.cancelled && result.isSuccess
+        val success = !context.cancelled && result.isSuccess
 
             val executionResult = ExecutionResult(
                 executionId = executionId,
@@ -222,7 +222,7 @@ class WorkflowEngine private constructor() {
                 totalExecutionTimeMs = endTime - startTime,
                 nodeResults = context.nodeStates.mapValues { (nodeId, state) ->
                     val node = workflow.getNodeById(nodeId)
-                    val output = context.getNodeOutput(nodeId)
+        val output = context.getNodeOutput(nodeId)
                     NodeResult(
                         nodeId = nodeId,
                         nodeName = node?.name ?: "Unknown",
@@ -354,7 +354,6 @@ class WorkflowEngine private constructor() {
 
     private suspend fun executeTriggerNode(node: WorkflowNode, context: ExecutionContext): Result<Any> {
         val triggerConfig = node.config.triggerConfig ?: return Result.success("Trigger executed")
-
         val output = when (triggerConfig.triggerType) {
             TriggerType.MANUAL -> "Manual trigger"
             TriggerType.SCHEDULE -> {
@@ -396,10 +395,8 @@ class WorkflowEngine private constructor() {
         val left = node.config.left ?: return Result.failure(IllegalArgumentException("left value is required"))
         val operator = node.config.operator ?: return Result.failure(IllegalArgumentException("operator is required"))
         val right = node.config.right
-
         val leftValue = resolveParameterValue(left, context)
         val rightValue = right?.let { resolveParameterValue(it, context) }
-
         val result = evaluateCondition(leftValue, operator, rightValue)
 
         return Result.success(result)
@@ -414,7 +411,6 @@ class WorkflowEngine private constructor() {
         }
 
         val resolvedInputs = inputs.map { resolveParameterValue(it, context) }.map { it.toBoolean() }
-
         val result = when (operator.uppercase()) {
             "AND" -> resolvedInputs.all { it }
             "OR" -> resolvedInputs.any { it }
@@ -458,7 +454,6 @@ class WorkflowEngine private constructor() {
         val source = node.config.source ?: throw IllegalArgumentException("source is required for JSON mode")
         val expression = node.config.expression ?: throw IllegalArgumentException("expression is required for JSON mode")
         val defaultValue = node.config.defaultValue
-
         val sourceValue = resolveParameterValue(source, context)
 
         return try {
@@ -575,8 +570,7 @@ class WorkflowEngine private constructor() {
 
         for (connection in outgoingConnections) {
             val condition = ConnectionCondition.fromString(connection.condition.name)
-
-            val shouldProceed = when {
+        val shouldProceed = when {
                 lastResult.isSuccess && (condition == ConnectionCondition.OnSuccess || condition == ConnectionCondition.TRUE) -> true
                 lastResult.isFailure && condition == ConnectionCondition.OnError -> true
                 condition == ConnectionCondition.TRUE && lastResult.getOrNull() == true -> true

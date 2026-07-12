@@ -120,7 +120,6 @@ class IntelligentTaskAllocator @Inject constructor(
         val histSuccess = computeHistoricalSuccess(agent)
         val loadBal = computeLoadBalance(agent)
         val modelCap = computeModelCapability(agent, request)
-
         val total = (
             capMatch * weights.capabilityMatch +
             specOverlap * weights.specialtyOverlap +
@@ -206,7 +205,7 @@ class IntelligentTaskAllocator @Inject constructor(
         parts.add("capability=${"%.2f".format(top.capabilityMatch)}, specialty=${"%.2f".format(top.specialtyOverlap)}, history=${"%.2f".format(top.historicalSuccess)}, load=${"%.2f".format(top.loadBalance)}, model=${"%.2f".format(top.modelCapability)}")
         if (ranked.size > 1) {
             val runnerUpId = ranked[1].agentId
-            val runnerUpName = when (val r = agentManager.getAgent(runnerUpId)) {
+        val runnerUpName = when (val r = agentManager.getAgent(runnerUpId)) {
                 is Result.Success -> r.data.name
                 is Result.Failure -> runnerUpId
             }

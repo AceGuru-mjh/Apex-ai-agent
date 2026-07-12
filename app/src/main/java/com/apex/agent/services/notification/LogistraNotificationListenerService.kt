@@ -28,7 +28,6 @@ object ApexAgentNotificationStore {
         val notification = sbn.notification
         val text = extractText(notification)
         val isOngoing = sbn.isOngoing || (notification.flags and Notification.FLAG_ONGOING_EVENT) != 0
-
         val entry = Entry(
             key = key,
             packageName = sbn.packageName ?: "",

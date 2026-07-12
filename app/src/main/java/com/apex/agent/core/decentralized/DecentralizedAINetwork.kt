@@ -194,7 +194,6 @@ class DecentralizedAINetwork(private val context: Context) {
         publicKey: String = ""
     ): Node = withContext(Dispatchers.IO) {
         val nodeId = UUID.randomUUID().toString()
-
         val node = Node(
             id = nodeId,
             name = name,
@@ -251,7 +250,7 @@ class DecentralizedAINetwork(private val context: Context) {
             ?.forEach { file ->
                 try {
                     val json = JSONObject(file.readText())
-                    val node = Node(
+        val node = Node(
                         id = json.getString("id"),
                         name = json.getString("name"),
                         nodeType = NodeType.valueOf(json.getString("nodeType")),
@@ -280,7 +279,6 @@ class DecentralizedAINetwork(private val context: Context) {
 
     suspend fun connectToNode(nodeId: String): PeerConnection? = withContext(Dispatchers.IO) {
         val node = knownNodes[nodeId] ?: return@withContext null
-
         val connection = PeerConnection(
             id = UUID.randomUUID().toString(),
             node = node,
@@ -302,7 +300,6 @@ class DecentralizedAINetwork(private val context: Context) {
 
     suspend fun disconnectFromNode(connectionId: String): Boolean = withContext(Dispatchers.IO) {
         val connection = activeConnections[connectionId] ?: return@withContext false
-
         val updatedConnection = connection.copy(
             status = ConnectionStatus.DISCONNECTED
         )
@@ -325,7 +322,6 @@ class DecentralizedAINetwork(private val context: Context) {
         priority: MessagePriority = MessagePriority.NORMAL
     ): NetworkMessage = withContext(Dispatchers.IO) {
         val sender = localNode ?: throw IllegalStateException("本地节点未初始化")
-
         val message = NetworkMessage(
             id = UUID.randomUUID().toString(),
             type = type,
@@ -374,7 +370,7 @@ class DecentralizedAINetwork(private val context: Context) {
             ?.forEach { file ->
                 try {
                     val json = JSONObject(file.readText())
-                    val message = NetworkMessage(
+        val message = NetworkMessage(
                         id = json.getString("id"),
                         type = MessageType.valueOf(json.getString("type")),
                         senderId = json.getString("senderId"),
@@ -404,10 +400,8 @@ class DecentralizedAINetwork(private val context: Context) {
         tags: List<String> = emptyList()
     ): SharedModel = withContext(Dispatchers.IO) {
         val local = localNode ?: throw IllegalStateException("本地节点未初始化")
-
         val modelId = UUID.randomUUID().toString()
         val hash = calculateHash(modelData)
-
         val model = SharedModel(
             id = modelId,
             name = name,
@@ -460,13 +454,11 @@ class DecentralizedAINetwork(private val context: Context) {
         priority: MessagePriority = MessagePriority.NORMAL
     ): InferenceJob = withContext(Dispatchers.IO) {
         val local = localNode ?: throw IllegalStateException("本地节点未初始化")
-
         val availableNodes = knownNodes.values.filter {
             it.isOnline && it.reputation > 0.3f
         }
 
         val assignedNodes = availableNodes.take(3).map { it.id }
-
         val job = InferenceJob(
             id = UUID.randomUUID().toString(),
             requesterId = local.id,
@@ -494,7 +486,6 @@ class DecentralizedAINetwork(private val context: Context) {
         reason: String
     ): Float = withContext(Dispatchers.IO) {
         val node = knownNodes[nodeId] ?: return@withContext -1f
-
         val newReputation = (node.reputation + delta).coerceIn(0f, 1f)
 
         val updatedNode = node.copy(
@@ -562,7 +553,7 @@ class DecentralizedAINetwork(private val context: Context) {
             ?.forEach { file ->
                 try {
                     val json = JSONObject(file.readText())
-                    val entry = LedgerEntry(
+        val entry = LedgerEntry(
                         id = json.getString("id"),
                         type = LedgerType.valueOf(json.getString("type")),
                         data = json.getString("data"),

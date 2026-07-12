@@ -33,7 +33,6 @@ class ModelPerformanceOptimizer(private val context: Context) {
         val totalRAM = memInfo.totalMem
         val availableRAM = memInfo.availMem
         val cpuCores = Runtime.getRuntime().availableProcessors()
-
         val isHighEndDevice = totalRAM >= 8 * 1024 * 1024 * 1024 && cpuCores >= 6
 
         val threadCount = when {
@@ -50,11 +49,9 @@ class ModelPerformanceOptimizer(private val context: Context) {
         }
 
         val gpuLayers = detectOptimalGpuLayers()
-
         val useMemoryMapping = availableRAM > 4 * 1024 * 1024 * 1024
 
         val useMemoryLock = !useMemoryMapping && availableRAM > 2 * 1024 * 1024 * 1024
-
         val contextSize = when {
             totalRAM >= 16 * 1024 * 1024 * 1024 -> 8192
             totalRAM >= 8 * 1024 * 1024 * 1024 -> 4096
@@ -75,11 +72,11 @@ class ModelPerformanceOptimizer(private val context: Context) {
     private fun detectOptimalGpuLayers(): Int {
         return try {
             val memInfo = ActivityManager.MemoryInfo()
-            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             activityManager.getMemoryInfo(memInfo)
 
             val totalRAM = memInfo.totalMem
-            val gpuMemoryEstimate = when {
+        val gpuMemoryEstimate = when {
                 Build.HARDWARE.contains("adreno", ignoreCase = true) -> {
                     when {
                         Build.HARDWARE.contains("adreno 6") || Build.HARDWARE.contains("adreno 7") -> 48
@@ -109,7 +106,6 @@ class ModelPerformanceOptimizer(private val context: Context) {
         testPromptLength: Int = 500
     ): OptimizationResult {
         val optimal = optimizeForDevice()
-
         val improvements = mutableListOf<String>()
 
         if (currentConfig.threadCount != optimal.threadCount) {
@@ -133,7 +129,6 @@ class ModelPerformanceOptimizer(private val context: Context) {
         }
 
         val estimatedSpeedUp = calculateSpeedUp(currentConfig, optimal)
-
         val memoryUsage = estimateMemoryUsage(optimal)
 
         return OptimizationResult(

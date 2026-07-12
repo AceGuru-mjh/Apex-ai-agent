@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun DiagnosticsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+        val scope = rememberCoroutineScope()
     var usedMb by remember { mutableStateOf(0L) }
     var totalMb by remember { mutableStateOf(0L) }
     var maxMb by remember { mutableStateOf(0L) }
@@ -90,17 +90,17 @@ fun DiagnosticsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // JVM 内存
-            item {
+                item {
                 val pct = if (maxMb > 0) usedMb.toFloat() / maxMb else 0f
                 StatCard("💾", "JVM 内存", "$usedMb / $maxMb MB", "已用 ${(pct * 100).toInt()}% · 峰值 ${totalMb} MB", pct)
             }
             // Native 内存
-            item {
+                item {
                 val pct = if (nativeTotal > 0) nativeAllocated.toFloat() / nativeTotal else 0f
                 StatCard("💾", "Native 内存", "$nativeAllocated MB", "已分配 · 总量 $nativeTotal MB", pct)
             }
             // APK 健康
-            item {
+                item {
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -123,7 +123,7 @@ fun DiagnosticsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {
                 }
             }
             // 系统信息
-            item {
+                item {
                 systemInfo?.let { info ->
                     Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                         Column(Modifier.padding(16.dp)) {
@@ -143,7 +143,7 @@ fun DiagnosticsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {
                 }
             }
             // 崩溃报告 + 日志
-            item {
+                item {
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = if (crashCount > 0) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface)) {
                     Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.BugReport, null, tint = if (crashCount > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
@@ -157,7 +157,7 @@ fun DiagnosticsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {
                 }
             }
             // 操作
-            item {
+                item {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilledTonalButton(onClick = { TypedServiceRegistry.get<DiagnosticsServiceFacade>()?.forceGc() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) { Text("强制 GC") }
                     FilledTonalButton(onClick = { TypedServiceRegistry.get<DiagnosticsServiceFacade>()?.dumpHeap() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) { Text("Heap Dump") }

@@ -38,7 +38,6 @@ class SkillValidator(context: Context) {
         val securityReport = securityScanner.scan(toolPackage)
         val performanceReport = benchmark.benchmark(toolPackage)
         val compatibilityReport = compatibilityChecker.check(toolPackage, otherSkills)
-
         val overallStatus = when {
             !securityReport.isPassed -> ValidationStatus.FAILED
             !compatibilityReport.isPassed -> ValidationStatus.FAILED

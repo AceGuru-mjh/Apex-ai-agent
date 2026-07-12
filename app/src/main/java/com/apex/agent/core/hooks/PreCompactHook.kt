@@ -42,28 +42,28 @@ class PreCompactHook : SessionLifecycleHook {
         val state = mutableMapOf<String, Any>()
 
         // 提取会话基本信息
-        state["sessionId"] = sessionContext.sessionId
+                state["sessionId"] = sessionContext.sessionId
         state["messageCount"] = sessionContext.messageCount
         state["tokenUsage"] = sessionContext.tokenUsage
         state["lastActivity"] = sessionContext.lastActivity
 
         // 提取环境状态
-        state["environmentState"] = sessionContext.environmentState
+                state["environmentState"] = sessionContext.environmentState
 
         // 提取未完成任务列表（从环境状态中解析，
-        val pendingTasks = extractPendingTasks(sessionContext.environmentState)
+                val pendingTasks = extractPendingTasks(sessionContext.environmentState)
         if (pendingTasks.isNotEmpty()) {
             state["pendingTasks"] = pendingTasks
         }
 
         // 提取重要决策记录
-        val decisions = extractImportantDecisions(sessionContext.environmentState)
+                val decisions = extractImportantDecisions(sessionContext.environmentState)
         if (decisions.isNotEmpty()) {
             state["importantDecisions"] = decisions
         }
 
         // 提取关键变量值
-        val keyVariables = extractKeyVariables(sessionContext.environmentState)
+                val keyVariables = extractKeyVariables(sessionContext.environmentState)
         if (keyVariables.isNotEmpty()) {
             state["keyVariables"] = keyVariables
         }
@@ -131,7 +131,7 @@ class PreCompactHook : SessionLifecycleHook {
     ) = withContext(Dispatchers.IO) {
         try {
             val fileName = "${CHECKPOINT_FILE_PREFIX}${sessionId}${CHECKPOINT_FILE_SUFFIX}"
-            val file = File(context.filesDir, fileName)
+        val file = File(context.filesDir, fileName)
 
             val jsonContent = convertMapToJson(checkpointData)
             file.writeText(jsonContent.toString(2))
@@ -187,7 +187,7 @@ class PreCompactHook : SessionLifecycleHook {
         withContext(Dispatchers.IO) {
             try {
                 val fileName = "${CHECKPOINT_FILE_PREFIX}${sessionId}${CHECKPOINT_FILE_SUFFIX}"
-                val file = File(context.filesDir, fileName)
+        val file = File(context.filesDir, fileName)
 
                 if (!file.exists()) {
                     AppLogger.d(TAG, "No checkpoint file found for session: ${sessionId}")
@@ -196,7 +196,7 @@ class PreCompactHook : SessionLifecycleHook {
 
                 AppLogger.d(TAG, "Restoring from checkpoint: ${file.absolutePath}")
                 val content = file.readText()
-                val json = JSONObject(content)
+        val json = JSONObject(content)
 
                 parseJsonToMap(json)
             } catch (e: Exception) {

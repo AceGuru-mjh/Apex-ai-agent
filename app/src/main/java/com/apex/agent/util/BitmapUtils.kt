@@ -184,7 +184,7 @@ object BitmapUtils {
         var inSampleSize = 1
         if (height > reqHeight || width > reqWidth) {
             val halfHeight = height / 2
-            val halfWidth = width / 2
+        val halfWidth = width / 2
             while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
                 inSampleSize *= 2
             }
@@ -306,12 +306,10 @@ object BitmapUtils {
         val result = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(result)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-
         val wmWidth = watermark.width
         val wmHeight = watermark.height
         val horizontalGravity = position and android.view.Gravity.HORIZONTAL_GRAVITY_MASK
         val verticalGravity = position and android.view.Gravity.VERTICAL_GRAVITY_MASK
-
         val x = when (horizontalGravity) {
             android.view.Gravity.LEFT -> margin
             android.view.Gravity.RIGHT -> bitmap.width - wmWidth - margin

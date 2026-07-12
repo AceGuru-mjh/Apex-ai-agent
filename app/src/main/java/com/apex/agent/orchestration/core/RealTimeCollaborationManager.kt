@@ -47,8 +47,7 @@ class RealTimeCollaborationManager @Inject constructor(
     private val sessions = ConcurrentHashMap<String, CollaborationSession>()
     private val connectionStates = MutableStateFlow<Map<String, ConnectionState>>(emptyMap())
     private val _events = MutableSharedFlow<CollaborationEvent>()
-
-    val events: SharedFlow<CollaborationEvent> = _events
+        val events: SharedFlow<CollaborationEvent> = _events
     val connections: StateFlow<Map<String, ConnectionState>> = connectionStates
 
     suspend fun createSession(taskId: String, participants: Set<String>): String {

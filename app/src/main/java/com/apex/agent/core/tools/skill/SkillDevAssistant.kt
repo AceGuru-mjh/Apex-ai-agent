@@ -207,7 +207,6 @@ class SkillDevAssistant private constructor(private val context: Context) {
 
     fun getCompletions(document: EditorDocument, position: Int): List<CompletionItem> {
         val completions = mutableListOf<CompletionItem>()
-
         val line = document.content.substring(0, position.coerceAtMost(document.content.length))
         val lastWord = line.substringAfterLast(" ").substringAfterLast(".")
 
@@ -296,7 +295,7 @@ class SkillDevAssistant private constructor(private val context: Context) {
             TokenPattern(Regex("'[^']*'"), TokenType.STRING),
             TokenPattern(Regex("`[^`]*`"), TokenType.STRING),
             TokenPattern(Regex("//.*"), TokenType.COMMENT),
-            TokenPattern(Regex("/\\*[\\s\\S]*?\\*/"), TokenType.COMMENT),
+                TokenPattern(Regex("/\\*[\\s\\S]*?\\*/"), TokenType.COMMENT),
             TokenPattern(Regex("\\b\\d+\\.?\\d*\\b"), TokenType.NUMBER),
             TokenPattern(Regex("\\b(function|const|let|var|class|return|if|else|for|while)\\b"), TokenType.KEYWORD),
             TokenPattern(Regex("\\b[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*\\()"), TokenType.FUNCTION),

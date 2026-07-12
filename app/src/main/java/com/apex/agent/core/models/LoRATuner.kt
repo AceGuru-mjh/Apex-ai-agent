@@ -116,7 +116,7 @@ class LoRATuner(private val context: Context) {
             }
 
             val configFile = File(configDir, "training_config.json")
-            val metadata = org.json.JSONObject().apply {
+        val metadata = org.json.JSONObject().apply {
                 put("name", config.name)
                 put("base_model", config.baseModelId)
                 put("rank", config.rank)
@@ -143,7 +143,7 @@ class LoRATuner(private val context: Context) {
     ): Boolean {
         return try {
             val configDir = File(config.outputPath)
-            val dataDir = File(configDir, "training_data")
+        val dataDir = File(configDir, "training_data")
             if (!dataDir.exists()) {
                 dataDir.mkdirs()
             }

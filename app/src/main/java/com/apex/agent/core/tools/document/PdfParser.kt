@@ -17,11 +17,10 @@ class PdfParser : DocumentParser {
     override suspend fun parse(inputStream: InputStream, fileName: String): DocumentParseResult {
         return try {
             val document = PDDocument.load(inputStream)
-            val textStripper = PDFTextStripper()
+        val textStripper = PDFTextStripper()
             textStripper.sortByPosition = true
             val textContent = textStripper.getText(document)
-
-            val renderer = PDFRenderer(document)
+        val renderer = PDFRenderer(document)
             val images = mutableListOf<ByteArray>()
 
             for (i in 1..document.numberOfPages) {
@@ -70,7 +69,7 @@ class PdfParser : DocumentParser {
     override suspend fun extractText(inputStream: InputStream, fileName: String): String {
         return try {
             val document = PDDocument.load(inputStream)
-            val textStripper = PDFTextStripper()
+        val textStripper = PDFTextStripper()
             textStripper.sortByPosition = true
             val text = textStripper.getText(document)
             document.close()

@@ -94,7 +94,6 @@ class ReinforcementLearningEngine(
         val stateKey = stateToKey(state)
         val actionKey = actionToKey(action)
         val nextStateKey = stateToKey(nextState)
-
         val transition = Transition(state, action, nextState, reward, done)
         currentEpisode.add(transition)
 
@@ -133,7 +132,6 @@ class ReinforcementLearningEngine(
 
     private fun updateQValue(stateKey: String, actionKey: String, value: Double) {
         val stateMap = qTable.getOrPut(stateKey) { mutableMapOf() }
-        
         val existingQValue = stateMap[actionKey]
         val visits = existingQValue?.visits ?: 0
         
@@ -181,7 +179,7 @@ class ReinforcementLearningEngine(
         )
 
         // 维护内存中的 episodes 历史列表
-        episodesHistory.add(episode)
+                episodesHistory.add(episode)
         if (episodesHistory.size > MAX_EPISODES_IN_MEMORY) {
             episodesHistory.removeAt(0)
         }
@@ -268,13 +266,12 @@ class ReinforcementLearningEngine(
 
     private fun updatePolicyFromQTable(policyId: String) {
         val policy = policies[policyId] ?: return
-        
         val stateActions = mutableMapOf<String, List<ActionProbability>>()
         
         qTable.forEach { (stateKey, actionQValues) ->
             if (actionQValues.isNotEmpty()) {
                 val bestActionKey = actionQValues.maxBy { it.value.value }.key
-                val probabilities = actionQValues.entries.map { entry ->
+        val probabilities = actionQValues.entries.map { entry ->
                     ActionProbability(
                         actionKey = entry.key,
                         probability = if (entry.key == bestActionKey) 0.9 else 0.1 / (actionQValues.size - 1)
@@ -309,7 +306,7 @@ class ReinforcementLearningEngine(
 
     suspend fun evaluatePolicy(policyId: String, testEpisodes: Int): TrainingStats = withContext(Dispatchers.IO) {
         // 获取策略
-        val policy = policies[policyId]
+                val policy = policies[policyId]
         if (policy == null) {
             AppLogger.w(TAG, "Policy not found: ${policyId}, returning default stats")
             return@withContext TrainingStats(
@@ -325,7 +322,7 @@ class ReinforcementLearningEngine(
         AppLogger.d(TAG, "Evaluating policy: ${policy.name} (id: ${policyId})")
 
         // 获取最近的 episodes 进行评估（包含持久化加载的历史记录）
-        val recentEpisodes = getAllEpisodes().takeLast(testEpisodes.coerceAtLeast(1))
+                val recentEpisodes = getAllEpisodes().takeLast(testEpisodes.coerceAtLeast(1))
 
         if (recentEpisodes.isEmpty()) {
             AppLogger.d(TAG, "No episodes available for evaluation")
@@ -340,12 +337,12 @@ class ReinforcementLearningEngine(
         }
 
         // 计算统计信息
-        val successCount = recentEpisodes.count { it.success }
+                val successCount = recentEpisodes.count { it.success }
         val avgReward = recentEpisodes.map { it.totalReward }.average()
         val totalDuration = recentEpisodes.map { it.durationMs }.average()
 
         // 计算策略覆盖的状态数
-        val statesCovered = policy.stateActions.size
+                val statesCovered = policy.stateActions.size
 
         AppLogger.d(TAG, "Policy evaluation complete: ${recentEpisodes.size} episodes, " +
                 "success rate: ${successCount.toDouble() / recentEpisodes.size}, " +
@@ -379,7 +376,7 @@ class ReinforcementLearningEngine(
     suspend fun getAllEpisodes(): List<Episode> = withContext(Dispatchers.IO) {
         if (!episodesLoaded) {
             val persistedEpisodes = loadEpisodesFromStorage()
-            val existingIds = episodesHistory.map { it.id }.toSet()
+        val existingIds = episodesHistory.map { it.id }.toSet()
             persistedEpisodes
                 .filter { it.id !in existingIds }
                 .forEach { episodesHistory.add(it) }

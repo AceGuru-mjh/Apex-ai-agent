@@ -198,11 +198,9 @@ object CryptoUtils {
         val iv = ByteArray(IV_SIZE)
         SecureRandom().nextBytes(iv)
         val ivSpec = IvParameterSpec(iv)
-
         val cipher = Cipher.getInstance(AES_ALGORITHM)
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec)
         val encrypted = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
-
         val combined = ByteArray(IV_SIZE + encrypted.size)
         System.arraycopy(iv, 0, combined, 0, IV_SIZE)
         System.arraycopy(encrypted, 0, combined, IV_SIZE, encrypted.size)
@@ -227,7 +225,6 @@ object CryptoUtils {
         val iv = combined.copyOfRange(0, IV_SIZE)
         val ivSpec = IvParameterSpec(iv)
         val encrypted = combined.copyOfRange(IV_SIZE, combined.size)
-
         val cipher = Cipher.getInstance(AES_ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec)
         val decrypted = cipher.doFinal(encrypted)
@@ -246,14 +243,12 @@ object CryptoUtils {
         val salt = SecureRandom().generateSeed(16)
         val keyBytes = MessageDigest.getInstance("SHA-256").digest(salt + password.toByteArray(Charsets.UTF_8))
         val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
-
         val iv = ByteArray(IV_SIZE)
         SecureRandom().nextBytes(iv)
         val ivSpec = IvParameterSpec(iv)
         val cipher = Cipher.getInstance(AES_ALGORITHM)
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec)
         val encrypted = cipher.doFinal(plaintext.toByteArray(Charsets.UTF_8))
-
         val combined = ByteArray(16 + IV_SIZE + encrypted.size)
         System.arraycopy(salt, 0, combined, 0, 16)
         System.arraycopy(iv, 0, combined, 16, IV_SIZE)
@@ -434,7 +429,7 @@ object CryptoUtils {
         val result = ByteArray(len)
         for (i in 0 until len) {
             val high = Character.digit(hex[i * 2], 16)
-            val low = Character.digit(hex[i * 2 + 1], 16)
+        val low = Character.digit(hex[i * 2 + 1], 16)
             if (high == -1 || low == -1) throw IllegalArgumentException("invalid hex character")
             result[i] = ((high shl 4) or low).toByte()
         }
@@ -691,11 +686,11 @@ object CryptoUtils {
     fun encryptFile(inputFile: File, outputFile: File, key: String): Boolean {
         return try {
             val keyBytes = Base64.getDecoder().decode(key)
-            val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
+        val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
             val iv = ByteArray(IV_SIZE)
             SecureRandom().nextBytes(iv)
             val ivSpec = IvParameterSpec(iv)
-            val cipher = Cipher.getInstance(AES_ALGORITHM)
+        val cipher = Cipher.getInstance(AES_ALGORITHM)
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec)
 
             outputFile.parentFile?.mkdirs()
@@ -729,13 +724,13 @@ object CryptoUtils {
     fun decryptFile(inputFile: File, outputFile: File, key: String): Boolean {
         return try {
             val keyBytes = Base64.getDecoder().decode(key)
-            val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
+        val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
 
             FileInputStream(inputFile).use { input ->
                 val iv = ByteArray(IV_SIZE)
                 if (input.read(iv) != IV_SIZE) throw IllegalArgumentException("Invalid file format")
                 val ivSpec = IvParameterSpec(iv)
-                val cipher = Cipher.getInstance(AES_ALGORITHM)
+        val cipher = Cipher.getInstance(AES_ALGORITHM)
                 cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec)
 
                 outputFile.parentFile?.mkdirs()

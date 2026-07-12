@@ -74,18 +74,18 @@ class CacheManager<V>(
     fun get(key: String): V? {
         checkNotClosed()
         // L1
-        memoryStore.get(key)?.let { entry ->
+                memoryStore.get(key)?.let { entry ->
             recordAccess(key)
             return entry.value
         }
         // L2
-        diskStore?.get(key)?.let { entry ->
+                diskStore?.get(key)?.let { entry ->
             memoryStore.put(CacheEntry(key, entry.value))
             recordAccess(key)
             return entry.value
         }
         // L3
-        distributedStore?.get(key)?.let { entry ->
+                distributedStore?.get(key)?.let { entry ->
             val v = entry.value
             memoryStore.put(CacheEntry(key, v))
             diskStore?.put(CacheEntry(key, v.toString()))

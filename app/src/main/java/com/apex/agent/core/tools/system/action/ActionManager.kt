@@ -36,16 +36,16 @@ class ActionManager(private val context: Context) {
     // 协程作用于   private val managerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     
     // 当前活跃的监听器
-    private var activeListener: ActionListener? = null
+                private var activeListener: ActionListener? = null
     
     // 是否正在监听状态   private val _isListening = MutableStateFlow(false)
-    val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
+        val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
     
     // 当前使用的权限级，   private val _currentPermissionLevel = MutableStateFlow<AndroidPermissionLevel?>(null)
-    val currentPermissionLevel: StateFlow<AndroidPermissionLevel?> = _currentPermissionLevel.asStateFlow()
+        val currentPermissionLevel: StateFlow<AndroidPermissionLevel?> = _currentPermissionLevel.asStateFlow()
     
     // 事件回调集合
-    private val eventCallbacks = ConcurrentHashMap<String, (ActionListener.ActionEvent) -> Unit>()
+                private val eventCallbacks = ConcurrentHashMap<String, (ActionListener.ActionEvent) -> Unit>()
     
     // 监听状态变化回失   private val stateChangeCallbacks = mutableListOf<(Boolean, AndroidPermissionLevel) -> Unit>()
 
@@ -106,7 +106,7 @@ class ActionManager(private val context: Context) {
         callback: (ActionListener.ActionEvent) -> Unit
     ): ActionListener.ListeningResult {
         // 如果已在监听，先停止
-        if (_isListening.value) {
+                if (_isListening.value) {
             stopListening()
         }
         
@@ -115,7 +115,7 @@ class ActionManager(private val context: Context) {
         
         val result = listener.startListening { event ->
             // 广播事件到所有注册的回调
-            eventCallbacks.values.forEach { it(event) }
+                eventCallbacks.values.forEach { it(event) }
         }
         
         if (result.success) {
@@ -124,7 +124,7 @@ class ActionManager(private val context: Context) {
             _currentPermissionLevel.value = listener.getPermissionLevel()
             
             // 通知状态变重
-           notifyStateChange(true, listener.getPermissionLevel())
+                notifyStateChange(true, listener.getPermissionLevel())
             
             AppLogger.d(TAG, "UI操作监听已启动，权限级别: ${listener.getPermissionLevel()}")
         } else {
@@ -156,7 +156,7 @@ class ActionManager(private val context: Context) {
                 eventCallbacks.clear()
                 
                 // 通知状态变重
-               notifyStateChange(false, null)
+                notifyStateChange(false, null)
                 
                 AppLogger.d(TAG, "UI操作监听已停止）"
             } else {
@@ -230,7 +230,7 @@ class ActionManager(private val context: Context) {
         for (level in AndroidPermissionLevel.values()) {
             try {
                 val listener = ActionListenerFactory.getListener(context, level)
-                val available = listener.isAvailable()
+        val available = listener.isAvailable()
                 val permissionStatus = listener.hasPermission()
                 
                 result[level] = Pair(available, permissionStatus)

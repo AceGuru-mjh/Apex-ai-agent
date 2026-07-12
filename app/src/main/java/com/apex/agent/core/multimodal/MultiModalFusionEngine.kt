@@ -189,7 +189,7 @@ class MultiModalFusionEngine(
 
         var totalWeight = 0.0
         val weights = embeddings.map { embedding ->
-            val weight = baseWeights.getOrDefault(embedding.type, 1.0)
+        val weight = baseWeights.getOrDefault(embedding.type, 1.0)
             totalWeight += weight
             weight
         }
@@ -333,7 +333,6 @@ class MultiModalFusionEngine(
 
     suspend fun generateFusionReport(input: MultiModalInput): FusionReport = withContext(Dispatchers.IO) {
         val result = processMultiModalInput(input)
-        
         val modalityContributions = mutableMapOf<ModalType, Double>()
         input.modalities.forEach { modalData ->
             modalityContributions[modalData.type] = modalityContributions.getOrDefault(modalData.type, 0.0) + 1.0

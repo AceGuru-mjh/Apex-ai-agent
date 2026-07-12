@@ -45,7 +45,7 @@ fun BurstModeScreen(
             .padding(16.dp)
     ) {
         // 顶部:水母 + 状态 + 控制
-        BurstTopBar(
+                BurstTopBar(
             kernelState = kernelState,
             skillCount = loadedSkills.size,
             logCount = logs.size,
@@ -57,11 +57,11 @@ fun BurstModeScreen(
         Spacer(Modifier.height(12.dp))
 
         // 技能链
-        SkillChainPanel(skills = loadedSkills, modifier = Modifier.weight(0.35f))
+                SkillChainPanel(skills = loadedSkills, modifier = Modifier.weight(0.35f))
         Spacer(Modifier.height(12.dp))
 
         // 日志流
-        LogStreamPanel(logs = logs, modifier = Modifier.weight(0.65f))
+                LogStreamPanel(logs = logs, modifier = Modifier.weight(0.65f))
     }
 }
 
@@ -99,7 +99,7 @@ private fun BurstTopBar(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // 水母(狂暴形态)
-        AuraMascotView(
+                AuraMascotView(
             form = if (isBerserk) AuraMascot.AuraForm.BERSERK else AuraMascot.AuraForm.IDLE,
             modifier = Modifier.size(72.dp),
             transitionEnabled = true,
@@ -114,7 +114,7 @@ private fun BurstTopBar(
             }
         }
         // 控制按钮
-        Button(onClick = onStart, enabled = kernelState == KernelState.STOPPED, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4ADE80))) { Text("启动", color = Color.Black, fontSize = 12.sp) }
+                Button(onClick = onStart, enabled = kernelState == KernelState.STOPPED, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4ADE80))) { Text("启动", color = Color.Black, fontSize = 12.sp) }
         Button(onClick = onPause, enabled = kernelState == KernelState.RUNNING, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFBBF24))) { Text("暂停", color = Color.Black, fontSize = 12.sp) }
         Button(onClick = onStop, enabled = kernelState != KernelState.STOPPED, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))) { Text("停止", color = Color.White, fontSize = 12.sp) }
         Button(onClick = onBerserk, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B9D))) { Text("🔥 狂暴", color = Color.White, fontSize = 12.sp) }

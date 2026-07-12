@@ -39,7 +39,7 @@ object ValidationLoop {
     private const val HISTORY_FILE_NAME = "validation_history.json"
     
     // 任务验证历史缓存
-    private val validationHistory = ConcurrentHashMap<String, MutableList<PassKReport>>()
+                private val validationHistory = ConcurrentHashMap<String, MutableList<PassKReport>>()
 
     /**
      * 执行 k 次独立验试
@@ -60,7 +60,6 @@ object ValidationLoop {
             try {
                 // 模拟验证过程
                 delay(100) // 模拟验证耗时
-                
                 val validationResult = performSingleValidation(output, iteration)
                 results.add(validationResult)
                 
@@ -90,7 +89,7 @@ object ValidationLoop {
         )
 
         // 保存到历史记当
-        saveToHistory(taskId, report)
+                saveToHistory(taskId, report)
 
         AppLogger.i(TAG, "任务 ${taskId} 验证完成: pass@${k}=${passAtK}, pass^${k}=${passPowK}, 平均评分=${averageScore}, 总耗时=${totalDuration}ms")
 
@@ -108,13 +107,12 @@ object ValidationLoop {
         val n = results.size
         val c = results.count { it.pass }
         val k = minOf(n, 1) // pass@1
-        
-        if (c == 0) return 0f
+                if (c == 0) return 0f
         if (c >= n) return 1f
         
         // 使用组合数公式计管
         // pass@k = 1 - C(n-c, k) / C(n, k)
-        val combination = calculateCombination(n - c, k) / calculateCombination(n, k)
+                val combination = calculateCombination(n - c, k) / calculateCombination(n, k)
         return (1f - combination).coerceIn(0f, 1f)
     }
 
@@ -129,7 +127,6 @@ object ValidationLoop {
         val n = results.size
         val c = results.count { it.pass }
         val k = minOf(n, 1) // pass^1
-        
         val passRate = c.toFloat() / n.toFloat()
         return Math.pow(passRate.toDouble(), k.toDouble()).toFloat()
     }
@@ -141,10 +138,9 @@ object ValidationLoop {
         val startTime = System.currentTimeMillis()
         
         // 模拟验证逻辑
-        val hasContent = output.isNotBlank()
+                val hasContent = output.isNotBlank()
         val hasStructure = output.contains("#") || output.contains("```")
         val hasDetails = output.length > 100
-        
         val pass = hasContent && hasStructure && hasDetails
         val score = when {
             !hasContent -> 0f
@@ -192,7 +188,7 @@ object ValidationLoop {
         validationHistory.getOrPut(taskId) { mutableListOf() }.add(report)
         
         // 实际实现中，这里应该持久化到文件
-        AppLogger.d(TAG, "已保存任务${taskId} 的验证历史，当前具${validationHistory[taskId]?.size} 条记当")
+                AppLogger.d(TAG, "已保存任务${taskId} 的验证历史，当前具${validationHistory[taskId]?.size} 条记当")
     }
 
     /**

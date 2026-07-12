@@ -26,7 +26,7 @@ class UIDebuggerWindowManager(
     private var isExpanded = mutableStateOf(false)
     
     // Floating ball position state
-    private var ballX = mutableStateOf(100f)
+                private var ballX = mutableStateOf(100f)
     private var ballY = mutableStateOf(100f)
 
     fun show() {
@@ -39,7 +39,7 @@ class UIDebuggerWindowManager(
         }
 
         // Start with floating ball size
-        params = WindowManager.LayoutParams(
+                params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             layoutFlag,

@@ -62,9 +62,8 @@ fun ChatScreen(
     var selectedModel by remember { mutableStateOf("DeepSeek · deepseek-chat") }
     var showModelPicker by remember { mutableStateOf(false) }
     var pendingCommand by remember { mutableStateOf<String?>(null) }  // 待确认的危险命令
-
-    val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
+                val listState = rememberLazyListState()
+        val scope = rememberCoroutineScope()
 
     val launchApk: (String) -> Unit = { ApkIdentityRegistry.launchApk(context, it) }
 
@@ -81,7 +80,7 @@ fun ChatScreen(
     if (pendingCommand != null) {
         CommandConfirmDialog(requireNotNull(pendingCommand), { pendingCommand = null }, {
             // 确认执行 → 跳转终端 APK 执行
-            launchApk(ApexSuite.ApkId.TERMINAL)
+                launchApk(ApexSuite.ApkId.TERMINAL)
             pendingCommand = null
         })
     }
@@ -89,7 +88,7 @@ fun ChatScreen(
     LaunchedEffect(contextPercent) { if (autoCompress && contextPercent >= 85 && !showCompressDialog) showCompressDialog = true }
 
     // 切换会话时加载历史消息
-    LaunchedEffect(currentSessionId) {
+                LaunchedEffect(currentSessionId) {
         if (currentSessionId != null && sessionManager != null) {
             val stored = sessionManager.loadMessages(requireNotNull(currentSessionId))
             if (stored.isNotEmpty()) {
@@ -111,7 +110,7 @@ fun ChatScreen(
                 title = { Text("Apex Agent") },
                 actions = {
                     // 新建对话按钮
-                    IconButton(onClick = onNewChat) { Icon(Icons.Default.Add, "新建对话") }
+                IconButton(onClick = onNewChat) { Icon(Icons.Default.Add, "新建对话") }
                     ContextPercentIndicator(contextPercent) { showCompressDialog = true }
                     Spacer(Modifier.width(4.dp))
                     IconButton(onClick = { showCompressDialog = true }) { Icon(Icons.Default.Compress, "压缩") }
@@ -138,7 +137,7 @@ fun ChatScreen(
                         val userMsg = inputText; inputText = ""
                         contextPercent = (contextPercent + userMsg.length / 50).coerceAtMost(100)
                         // 更新会话
-                        currentSessionId?.let { sid -> onSessionUpdate(sid, userMsg, messages.size) }
+                currentSessionId?.let { sid -> onSessionUpdate(sid, userMsg, messages.size) }
                         scope.launch {
                             isStreaming = true
                             streamAgentResponse(messages, userMsg, selectedSkill, deepThinking, webSearch, selectedModel, listState) { cmd ->
@@ -148,7 +147,7 @@ fun ChatScreen(
                             isStreaming = false
                             contextPercent = (contextPercent + 15).coerceAtMost(100)
                             // 回复后更新会话 + 保存消息
-                            currentSessionId?.let { sid ->
+                currentSessionId?.let { sid ->
                                 onSessionUpdate(sid, messages.lastOrNull()?.bubbles?.lastOrNull()?.let { it.toString().take(50) } ?: "回复", messages.size)
                                 sessionManager?.saveMessages(sid, messages.toList())
                             }
@@ -227,13 +226,13 @@ private suspend fun streamAgentResponse(
     onCommand: (String) -> Unit
 ) {
     val bubbles = mutableListOf<Bubble>()
-    val msgIndex = messages.size
+        val msgIndex = messages.size
     messages.add(ChatMessage(bubbles = emptyList(), isUser = false))
 
     fun updateBubbles() { if (msgIndex < messages.size) messages[msgIndex] = messages[msgIndex].copy(bubbles = bubbles.toList()) }
 
     // 1. 思考过程（如果开启深度思考）
-    if (deepThinking) {
+                if (deepThinking) {
         val thinking = StringBuilder()
         bubbles.add(Bubble.Thinking(""))
         updateBubbles()
@@ -251,7 +250,7 @@ private suspend fun streamAgentResponse(
     }
 
     // 2. 联网搜索
-    if (webSearch) {
+                if (webSearch) {
         bubbles.add(Bubble.Search("", emptyList(), "搜索中..."))
         updateBubbles()
         scope(listState, messages.size - 1)
@@ -263,7 +262,7 @@ private suspend fun streamAgentResponse(
     }
 
     // 3. 文字说明
-    val text1 = StringBuilder()
+                val text1 = StringBuilder()
     bubbles.add(Bubble.Text(""))
     updateBubbles()
     val text1Full = "好的，我来帮你"
@@ -273,7 +272,7 @@ private suspend fun streamAgentResponse(
     }
 
     // 4. 命令执行（如果任务涉及命令）
-    val needsCommand = userMessage.contains("运行") || userMessage.contains("执行") || userMessage.contains("命令") || userMessage.contains("终端") || userMessage.contains("查看") || userMessage.contains("检查")
+                val needsCommand = userMessage.contains("运行") || userMessage.contains("执行") || userMessage.contains("命令") || userMessage.contains("终端") || userMessage.contains("查看") || userMessage.contains("检查")
     if (needsCommand) {
         val cmd = when {
             userMessage.contains("进程") || userMessage.contains("内存") -> "top -n 1"
@@ -283,16 +282,16 @@ private suspend fun streamAgentResponse(
             else -> "ls -la"
         }
         // 命令块
-        bubbles.add(Bubble.Command(cmd, CommandStatus.WAITING))
+                bubbles.add(Bubble.Command(cmd, CommandStatus.WAITING))
         updateBubbles()
         scope(listState, messages.size - 1)
         delay(500)
 
         // 安全检查
-        val risk = CommandSafety.classify(cmd)
+                val risk = CommandSafety.classify(cmd)
         if (risk == CommandRisk.SAFE) {
             // 安全命令直接执行
-            bubbles[bubbles.lastIndex] = Bubble.Command(cmd, CommandStatus.RUNNING)
+                bubbles[bubbles.lastIndex] = Bubble.Command(cmd, CommandStatus.RUNNING)
             updateBubbles()
             scope(listState, messages.size - 1)
             delay(300)
@@ -301,10 +300,10 @@ private suspend fun streamAgentResponse(
             updateBubbles()
             scope(listState, messages.size - 1)
             // 调用终端 APK
-            onCommand(cmd)
+                onCommand(cmd)
         } else {
             // 危险/中等命令 → 弹窗确认
-            onCommand(cmd)
+                onCommand(cmd)
             bubbles[bubbles.lastIndex] = Bubble.Command(cmd, CommandStatus.WAITING, "等待用户确认...")
             updateBubbles()
             scope(listState, messages.size - 1)
@@ -313,7 +312,7 @@ private suspend fun streamAgentResponse(
     }
 
     // 5. 最终总结
-    val text2 = StringBuilder()
+                val text2 = StringBuilder()
     bubbles.add(Bubble.Text(""))
     updateBubbles()
     val text2Full = buildString {
@@ -387,7 +386,7 @@ private fun BubbleView(bubble: Bubble) {
         }
         is Bubble.Command -> {
             val risk = CommandSafety.classify(bubble.command)
-            val borderColor = risk.color
+        val borderColor = risk.color
             Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surface, border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)) {
                 Column(Modifier.padding(12.dp, 10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -433,7 +432,7 @@ private fun RenderMarkdown(text: String, color: androidx.compose.ui.graphics.Col
             block.split("\n").forEach { line ->
                 if (line.isNotBlank()) {
                     val isBold = line.startsWith("**") && line.endsWith("**")
-                    val isList = line.trim().startsWith(Regex("\\d+\\.|[-•]"))
+        val isList = line.trim().startsWith(Regex("\\d+\\.|[-•]"))
                     Row(Modifier.fillMaxWidth()) { if (isList) Spacer(Modifier.width(8.dp)); Text(if (isBold) line.removePrefix("**").removeSuffix("**") else line, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal), color = color) }
                 } else Spacer(Modifier.height(4.dp))
             }
@@ -452,7 +451,7 @@ private fun RenderMarkdown(text: String, color: androidx.compose.ui.graphics.Col
 @Composable
 private fun TypingIndicator() {
     val t = rememberInfiniteTransition("typing")
-    val a1 by t.animateFloat(.3f, 1f, infiniteRepeatable(tween(600), RepeatMode.Reverse), "d1")
+        val a1 by t.animateFloat(.3f, 1f, infiniteRepeatable(tween(600), RepeatMode.Reverse), "d1")
     val a2 by t.animateFloat(.3f, 1f, infiniteRepeatable(tween(600), RepeatMode.Reverse, delayMillis = 200), "d2")
     val a3 by t.animateFloat(.3f, 1f, infiniteRepeatable(tween(600), RepeatMode.Reverse, delayMillis = 400), "d3")
     Row(Modifier.fillMaxWidth()) {

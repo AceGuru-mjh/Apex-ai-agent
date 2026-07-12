@@ -27,9 +27,9 @@ class CompositeStreamProcessor<T, R>(
 ) : StreamProcessor<T, R> {
     override suspend fun process(stream: Stream<T>): R {
         // 先执行中间处理器
-        processors.forEach { it.process(stream) }
+                processors.forEach { it.process(stream) }
         // 最后执行最终处理器并返回结，
-       return finalProcessor.process(stream)
+                return finalProcessor.process(stream)
     }
 
     companion object {
@@ -204,7 +204,7 @@ class StreamInterceptor<T, R>(
 ) {
     // 下游流，用于向外部提供数据   val interceptedStream: Stream<R> = stream { 
         // 收集上游流的数据并转，
-       sourceStream.collect { value ->
+                sourceStream.collect { value ->
             emit(onEach(value))
         }
         AppLogger.d("StreamInterceptor", "上游流收集完了）"

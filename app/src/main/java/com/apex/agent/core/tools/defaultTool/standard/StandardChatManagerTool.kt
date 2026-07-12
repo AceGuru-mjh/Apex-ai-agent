@@ -75,7 +75,7 @@ class StandardChatManagerTool(private val context: Context) {
     companion object {
         private const val TAG = "StandardChatManagerTool"
         private const val SERVICE_CONNECTION_TIMEOUT = 15000L // 15秒超的
-       private const val RESPONSE_STREAM_ACQUIRE_TIMEOUT = 15000L
+                private const val RESPONSE_STREAM_ACQUIRE_TIMEOUT = 15000L
         private const val AI_RESPONSE_TIMEOUT = 300000L
     }
 
@@ -146,7 +146,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val rawOrder = tool.parameters.find { it.name == "order" }?.value?.trim()
-            val order = rawOrder?.lowercase()?.takeIf { it == "asc" || it == "desc" }
+        val order = rawOrder?.lowercase()?.takeIf { it == "asc" || it == "desc" }
             if (rawOrder != null && rawOrder.isNotBlank() && order == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -157,7 +157,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val rawLimit = tool.parameters.find { it.name == "limit" }?.value?.trim()
-            val parsedLimit = rawLimit?.takeIf { it.isNotBlank() }?.toIntOrNull()
+        val parsedLimit = rawLimit?.takeIf { it.isNotBlank() }?.toIntOrNull()
             if (rawLimit != null && rawLimit.isNotBlank() && parsedLimit == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -168,10 +168,10 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val effectiveOrder = order ?: "desc"
-            val effectiveLimit = (parsedLimit ?: 20).coerceIn(1, 200)
+        val effectiveLimit = (parsedLimit ?: 20).coerceIn(1, 200)
 
             val chatHistoryManager = ChatHistoryManager.getInstance(appContext)
-            val title = chatHistoryManager.getChatTitle(chatId)
+        val title = chatHistoryManager.getChatTitle(chatId)
             if (title == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -235,7 +235,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val chatHistoryManager = ChatHistoryManager.getInstance(appContext)
-            val title = chatHistoryManager.getChatTitle(chatId)
+        val title = chatHistoryManager.getChatTitle(chatId)
             if (title == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -246,7 +246,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val connected = ensureServiceConnected()
-            val chatService = chatCore
+        val chatService = chatCore
             if (!connected || chatService == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -358,7 +358,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val matchRaw = tool.parameters.find { it.name == "match" }?.value?.trim()?.lowercase()
-            val matchMode = when (matchRaw) {
+        val matchMode = when (matchRaw) {
                 null, "", "contains" -> "contains"
                 "exact", "regex" -> matchRaw
                 else ->
@@ -371,7 +371,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val rawIndex = tool.parameters.find { it.name == "index" }?.value?.trim()
-            val index = rawIndex?.takeIf { it.isNotBlank() }?.toIntOrNull()
+        val index = rawIndex?.takeIf { it.isNotBlank() }?.toIntOrNull()
             if (rawIndex != null && rawIndex.isNotBlank() && index == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -382,12 +382,11 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val targetIndex = index ?: 0
-            val chatHistoryManager = ChatHistoryManager.getInstance(appContext)
+        val chatHistoryManager = ChatHistoryManager.getInstance(appContext)
             val chatHistories = chatHistoryManager.chatHistoriesFlow.first()
-            val currentChatId = chatHistoryManager.currentChatIdFlow.first()
+        val currentChatId = chatHistoryManager.currentChatIdFlow.first()
             val messageCounts = chatHistoryManager.getMessageCountsByChatId()
-
-            val idMatches = chatHistories.filter { chat -> chat.id == query }
+        val idMatches = chatHistories.filter { chat -> chat.id == query }
             val matched = if (idMatches.isNotEmpty()) {
                 idMatches
             } else {
@@ -444,7 +443,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val titleRaw = tool.parameters.find { it.name == "title" }?.value
-            val title = titleRaw?.trim().orEmpty()
+        val title = titleRaw?.trim().orEmpty()
             if (title.isBlank()) {
                 return ToolResult(
                     toolName = tool.name,
@@ -455,7 +454,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val chatHistoryManager = ChatHistoryManager.getInstance(appContext)
-            val existingTitle = chatHistoryManager.getChatTitle(chatId)
+        val existingTitle = chatHistoryManager.getChatTitle(chatId)
             if (existingTitle == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -498,7 +497,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val chatHistoryManager = ChatHistoryManager.getInstance(appContext)
-            val chat = chatHistoryManager.chatHistoriesFlow.first().find { it.id == chatId }
+        val chat = chatHistoryManager.chatHistoriesFlow.first().find { it.id == chatId }
             if (chat == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -546,12 +545,12 @@ class StandardChatManagerTool(private val context: Context) {
     private val appContext = context.applicationContext
 
     // Service 连接状态  private var chatCore: ChatServiceCore? = null
-    private var floatingService: FloatingChatService? = null
+                private var floatingService: FloatingChatService? = null
     private var isBound = false
     private var connectionDeferred = CompletableDeferred<Boolean>().apply { complete(false) }
 
     // Service 连接回调
-    private val serviceConnection = object : ServiceConnection {
+                private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder) {
             AppLogger.d(TAG, "Service connected")
             val binder = service as? FloatingChatService.LocalBinder
@@ -592,7 +591,7 @@ class StandardChatManagerTool(private val context: Context) {
      */
     private suspend fun ensureServiceConnected(startIntent: Intent? = null): Boolean {
         // 如果已经连接，直接返回
-      if (isBound && chatCore != null) {
+                if (isBound && chatCore != null) {
             if (startIntent != null) {
                 withContext(Dispatchers.Main) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -623,7 +622,7 @@ class StandardChatManagerTool(private val context: Context) {
         }
 
         // 如果正在连接中，等待连接完成
-        if (!connectionDeferred.isCompleted) {
+                if (!connectionDeferred.isCompleted) {
             return try {
                 withTimeout(SERVICE_CONNECTION_TIMEOUT) {
                     connectionDeferred.await()
@@ -638,17 +637,16 @@ class StandardChatManagerTool(private val context: Context) {
         }
 
         // 重新启动和绑定服的
-      return try {
+                return try {
             // 重置 deferred
-            connectionDeferred = CompletableDeferred()
+                connectionDeferred = CompletableDeferred()
             
             val intent = startIntent ?: Intent(appContext, FloatingChatService::class.java)
-
-            val bound =
+        val bound =
                 withContext(Dispatchers.Main) {
                     if (startIntent != null) {
                         // 启动服务
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             appContext.startForegroundService(intent)
                         } else {
                             appContext.startService(intent)
@@ -656,7 +654,7 @@ class StandardChatManagerTool(private val context: Context) {
                     }
 
                     // 绑定服务
-                    appContext.bindService(
+                appContext.bindService(
                         intent,
                         serviceConnection,
                         Context.BIND_AUTO_CREATE
@@ -670,7 +668,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             // 等待连接完成
-            withTimeout(SERVICE_CONNECTION_TIMEOUT) {
+                withTimeout(SERVICE_CONNECTION_TIMEOUT) {
                 connectionDeferred.await()
             }
         } catch (e: Exception) {
@@ -705,13 +703,12 @@ class StandardChatManagerTool(private val context: Context) {
     suspend fun startChatService(tool: AITool): ToolResult {
         return try {
             val initialModeParam = tool.parameters.find { it.name == "initial_mode" }?.value?.trim()
-            val autoEnterVoiceChatParam =
+        val autoEnterVoiceChatParam =
                 tool.parameters.find { it.name == "auto_enter_voice_chat" }?.value?.trim()
             val wakeLaunchedParam = tool.parameters.find { it.name == "wake_launched" }?.value?.trim()
-            val timeoutMsParam = tool.parameters.find { it.name == "timeout_ms" }?.value?.trim()
+        val timeoutMsParam = tool.parameters.find { it.name == "timeout_ms" }?.value?.trim()
             val keepIfExistsParam = tool.parameters.find { it.name == "keep_if_exists" }?.value?.trim()
-
-            val initialMode =
+        val initialMode =
                 initialModeParam
                     ?.takeIf { it.isNotBlank() }
                     ?.let { raw ->
@@ -833,7 +830,7 @@ class StandardChatManagerTool(private val context: Context) {
             unbindService()
 
             val intent = Intent(appContext, FloatingChatService::class.java)
-            val stopped = runCatching { appContext.stopService(intent) }.getOrDefault(false)
+        val stopped = runCatching { appContext.stopService(intent) }.getOrDefault(false)
 
             ToolResult(
                 toolName = tool.name,
@@ -873,12 +870,10 @@ class StandardChatManagerTool(private val context: Context) {
             )
 
             // 获取创建前的 chat list
-            val previousChatIds = core.chatHistories.value.map { it.id }.toSet()
-
-            val group = tool.parameters.find { it.name == "group" }?.value?.trim()
+                val previousChatIds = core.chatHistories.value.map { it.id }.toSet()
+        val group = tool.parameters.find { it.name == "group" }?.value?.trim()
             val effectiveGroup = group?.takeIf { it.isNotBlank() }
-
-            val rawSetAsCurrent = tool.parameters.find { it.name == "set_as_current_chat" }?.value?.trim()
+        val rawSetAsCurrent = tool.parameters.find { it.name == "set_as_current_chat" }?.value?.trim()
             val setAsCurrentChat =
                 when (rawSetAsCurrent?.lowercase()) {
                     null, "" -> true
@@ -896,7 +891,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             // 创建新对话（不切换当前对话）
-            core.createNewChat(
+                core.createNewChat(
                 group = effectiveGroup,
                 setAsCurrentChat = setAsCurrentChat
             )
@@ -969,12 +964,12 @@ class StandardChatManagerTool(private val context: Context) {
     suspend fun listChats(tool: AITool): ToolResult {
         return try {
             val chatHistoryManager = ChatHistoryManager.getInstance(appContext)
-            val chatHistories = chatHistoryManager.chatHistoriesFlow.first()
+        val chatHistories = chatHistoryManager.chatHistoriesFlow.first()
             val currentChatId = chatHistoryManager.currentChatIdFlow.first()
-            val messageCounts = chatHistoryManager.getMessageCountsByChatId()
+        val messageCounts = chatHistoryManager.getMessageCountsByChatId()
 
             val query = tool.parameters.find { it.name == "query" }?.value?.trim().orEmpty()
-            val matchRaw = tool.parameters.find { it.name == "match" }?.value?.trim()?.lowercase()
+        val matchRaw = tool.parameters.find { it.name == "match" }?.value?.trim()?.lowercase()
             val matchMode = when (matchRaw) {
                 null, "", "contains" -> "contains"
                 "exact", "regex" -> matchRaw
@@ -988,7 +983,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val rawLimit = tool.parameters.find { it.name == "limit" }?.value?.trim()
-            val parsedLimit = rawLimit?.takeIf { it.isNotBlank() }?.toIntOrNull()
+        val parsedLimit = rawLimit?.takeIf { it.isNotBlank() }?.toIntOrNull()
             if (rawLimit != null && rawLimit.isNotBlank() && parsedLimit == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -998,8 +993,7 @@ class StandardChatManagerTool(private val context: Context) {
                 )
             }
             val limit = (parsedLimit ?: 50).coerceIn(1, 200)
-
-            val sortByRaw = tool.parameters.find { it.name == "sort_by" }?.value?.trim()
+        val sortByRaw = tool.parameters.find { it.name == "sort_by" }?.value?.trim()
             val sortBy = when (sortByRaw) {
                 null, "", "updatedAt" -> "updatedAt"
                 "createdAt", "messageCount" -> sortByRaw
@@ -1013,7 +1007,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val sortOrderRaw = tool.parameters.find { it.name == "sort_order" }?.value?.trim()?.lowercase()
-            val sortOrder = when (sortOrderRaw) {
+        val sortOrder = when (sortOrderRaw) {
                 null, "", "desc" -> "desc"
                 "asc" -> "asc"
                 else ->
@@ -1101,7 +1095,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             // 检查对话是否存在并获取标题
-            val targetChat = core.chatHistories.value.find { it.id == chatId }
+                val targetChat = core.chatHistories.value.find { it.id == chatId }
             if (targetChat == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -1112,10 +1106,10 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             // 切换对话
-            core.switchChatLocal(chatId)
+                core.switchChatLocal(chatId)
             
             // 等待切换完成（最多等着秒）
-            var attempts = 0
+                var attempts = 0
             while (attempts < 10 && core.currentChatId.value != chatId) {
                 delay(100)
                 attempts++
@@ -1189,12 +1183,12 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val senderNameParam = tool.parameters.find { it.name == "sender_name" }?.value?.trim()
-            val proxySenderName = senderNameParam?.takeIf { it.isNotBlank() }
+        val proxySenderName = senderNameParam?.takeIf { it.isNotBlank() }
 
             try {
                 // 可选的 chat_id 参数
                 val targetChatId = tool.parameters.find { it.name == "chat_id" }?.value?.trim()
-                val hasTargetChat = !targetChatId.isNullOrBlank()
+        val hasTargetChat = !targetChatId.isNullOrBlank()
 
                 if (hasTargetChat) {
                     val chatExists = core.chatHistories.value.any { it.id == targetChatId }
@@ -1233,7 +1227,7 @@ class StandardChatManagerTool(private val context: Context) {
 
                 if (hasTargetChat) {
                     // 后台发送到指定对话，不切换 UI
-                    core.sendUserMessage(
+                core.sendUserMessage(
                         promptFunctionType = PromptFunctionType.CHAT,
                         roleCardIdOverride = roleCardId,
                         chatIdOverride = preflightChatId,
@@ -1242,7 +1236,7 @@ class StandardChatManagerTool(private val context: Context) {
                     )
                 } else {
                     // 发送消息（包含总结逻辑），的Coordination 处理 chatId 默认
-                    core.sendUserMessage(
+                core.sendUserMessage(
                         promptFunctionType = PromptFunctionType.CHAT,
                         roleCardIdOverride = roleCardId,
                         messageTextOverride = message,
@@ -1334,7 +1328,7 @@ class StandardChatManagerTool(private val context: Context) {
                 is MessageSendStreamStartResult.Failed -> startResult.result
                 is MessageSendStreamStartResult.Started -> {
                     val session = startResult.session
-                    val aiResponse =
+        val aiResponse =
                         try {
                             withTimeout(AI_RESPONSE_TIMEOUT) {
                                 val sb = StringBuilder()
@@ -1407,7 +1401,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             val maxTokensParam = tool.parameters.find { it.name == "max_tokens" }?.value?.trim()
-            val maxTokens = maxTokensParam?.toIntOrNull()
+        val maxTokens = maxTokensParam?.toIntOrNull()
             if (maxTokens == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -1440,19 +1434,19 @@ class StandardChatManagerTool(private val context: Context) {
             val chatId = tool.parameters.find { it.name == "chat_id" }?.value?.trim()
                 ?.takeIf { it.isNotBlank() }
             val chatHistoryParam = tool.parameters.find { it.name == "chat_history" }?.value?.trim()
-            val workspacePath =
+        val workspacePath =
                 tool.parameters.find { it.name == "workspace_path" }?.value?.trim()?.takeIf { it.isNotBlank() }
             val functionTypeParam = tool.parameters.find { it.name == "function_type" }?.value?.trim()
-            val promptFunctionTypeParam =
+        val promptFunctionTypeParam =
                 tool.parameters.find { it.name == "prompt_function_type" }?.value?.trim()
             val enableThinkingParam = tool.parameters.find { it.name == "enable_thinking" }?.value?.trim()
-            val thinkingGuidanceParam = tool.parameters.find { it.name == "thinking_guidance" }?.value?.trim()
+        val thinkingGuidanceParam = tool.parameters.find { it.name == "thinking_guidance" }?.value?.trim()
             val enableMemoryQueryParam = tool.parameters.find { it.name == "enable_memory_query" }?.value?.trim()
-            val customSystemPromptTemplate =
+        val customSystemPromptTemplate =
                 tool.parameters.find { it.name == "custom_system_prompt_template" }?.value?.trim()
                     ?.takeIf { it.isNotBlank() }
             val isSubTaskParam = tool.parameters.find { it.name == "is_sub_task" }?.value?.trim()
-            val streamParam = tool.parameters.find { it.name == "stream" }?.value?.trim()
+        val streamParam = tool.parameters.find { it.name == "stream" }?.value?.trim()
 
             val functionType =
                 if (functionTypeParam.isNullOrBlank()) {
@@ -1535,7 +1529,7 @@ class StandardChatManagerTool(private val context: Context) {
                     emptyList()
                 } else {
                     val parsed = runCatching {
-                        val arr = JSONArray(chatHistoryParam)
+        val arr = JSONArray(chatHistoryParam)
                         val result = ArrayList<Pair<String, String>>(arr.length())
                         for (i in 0 until arr.length()) {
                             val item = arr.getJSONArray(i)
@@ -1565,7 +1559,7 @@ class StandardChatManagerTool(private val context: Context) {
                 }
 
             val responseBuilder = StringBuilder()
-            val responseStream =
+        val responseStream =
                 enhancedService.sendMessage(
                     message = message,
                     chatId = chatId,

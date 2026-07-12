@@ -192,7 +192,7 @@ class PromptOptimizer(
 
         for ((_, tools) in orderedCategories) {
             val sorted = tools.sortedByDescending { it.score }
-            val categoryTools = sorted.take(context.maxToolsPerCategory)
+        val categoryTools = sorted.take(context.maxToolsPerCategory)
             for (scored in categoryTools) {
                 val cost = estimateSingleToolCost(scored.tool, OptimizationStrategy.BALANCED)
                 if (usedTokens + cost <= tokenBudget) {

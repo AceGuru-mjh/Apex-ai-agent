@@ -104,7 +104,7 @@ data class ExecutionSummary(
 class DependencyAnalyzer {
     fun analyze(calls: List<ParsedToolCall>): ExecutionDAG {
         val nodes = calls.mapIndexed { index, call ->
-            val deps = findDependencies(call, calls)
+        val deps = findDependencies(call, calls)
             ExecutionNode(call = call, order = index, dependsOn = deps)
         }
         val edges = mutableListOf<ExecutionEdge>()
@@ -126,7 +126,7 @@ class DependencyAnalyzer {
         for (other in allCalls) {
             if (other.toolCallId == call.toolCallId) continue
             val otherIdx = allCalls.indexOf(other)
-            val thisIdx = allCalls.indexOf(call)
+        val thisIdx = allCalls.indexOf(call)
             if (otherIdx >= thisIdx) continue
 
             if (isWriteTool(other.toolSpec) && isReadTool(call.toolSpec)) {
@@ -264,7 +264,6 @@ class SmartExecutor(
         val startTime = System.currentTimeMillis()
         val results = ConcurrentHashMap<String, ExecutionResult>()
         val errors = ConcurrentHashMap<String, String>()
-
         val isBerserk = context.agentMode == AgentMode.BERSERK
 
         val dag = if (activeConfig.enableDependencyAnalysis && !isBerserk) {
@@ -328,7 +327,7 @@ class SmartExecutor(
             launch {
                 try {
                     val toolName = node.call.rawName
-                    val toolSpec = node.call.toolSpec
+        val toolSpec = node.call.toolSpec
 
                     inFlight.add(toolName)
 
@@ -533,7 +532,7 @@ class SmartExecutor(
     ): kotlinx.coroutines.Deferred<Unit> {
         return async {
             val toolName = node.call.rawName
-            val toolSpec = node.call.toolSpec
+        val toolSpec = node.call.toolSpec
 
             for (dep in node.dependsOn) {
                 val depNode = dag.nodes.find { it.call.rawName == dep }

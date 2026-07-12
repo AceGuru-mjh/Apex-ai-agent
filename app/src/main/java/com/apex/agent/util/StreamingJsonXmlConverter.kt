@@ -16,15 +16,15 @@ class StreamingJsonXmlConverter {
 
     private enum class State {
         WAIT_BRACE,      // 等待起始 {
-        WAIT_KEY_QUOTE,  // 等待 Key 的起。
-        READ_KEY,        // 读取 Key 内容
-        WAIT_COLON,      // 等待 :
-        WAIT_VALUE,      // 等待 Value
-        READ_STRING,     // 读取 String Value
-        READ_PRIMITIVE,  // 读取 Primitive Value
-        ESCAPE,          // 转义字符处理
-        UNICODE_ESCAPE,  // Unicode 转义
-        WAIT_COMMA       // 等待 , ，}
+                WAIT_KEY_QUOTE,  // 等待 Key 的起。
+                READ_KEY,        // 读取 Key 内容
+                WAIT_COLON,      // 等待 :
+                WAIT_VALUE,      // 等待 Value
+                READ_STRING,     // 读取 String Value
+                READ_PRIMITIVE,  // 读取 Primitive Value
+                ESCAPE,          // 转义字符处理
+                UNICODE_ESCAPE,  // Unicode 转义
+                WAIT_COMMA       // 等待 , ，}
     }
 
     private var state = State.WAIT_BRACE
@@ -78,7 +78,7 @@ class StreamingJsonXmlConverter {
                         buffer.setLength(0)
                     } else if (c == '}') {
                         // 对象结束
-                        state = State.WAIT_BRACE
+                state = State.WAIT_BRACE
                     }
                 }
                 State.READ_KEY -> {

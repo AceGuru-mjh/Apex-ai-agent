@@ -78,7 +78,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
     private val inputProcessingState = mutableStateOf<InputProcessingState>(InputProcessingState.Idle)
 
     // 聊天服务核心 - 整合所有业务逻辑
-    private lateinit var chatCore: ChatServiceCore
+                private lateinit var chatCore: ChatServiceCore
 
     private var lastCrashTime = 0L
     private var crashCount = 0
@@ -227,7 +227,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
             AppLogger.d(TAG, "ChatServiceCore 已初始化")
 
             // 订阅聊天历史更新
-            serviceScope.launch {
+                serviceScope.launch {
                 chatCore.chatHistory.collect { messages ->
                     chatMessages.value = messages
                     AppLogger.d(TAG, "聊天历史已更文${messages.size} 条消，"
@@ -235,7 +235,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
             }
             
             // 订阅附件列表更新
-            serviceScope.launch {
+                serviceScope.launch {
                 chatCore.attachments.collect { newAttachments ->
                     attachments.value = newAttachments
                     AppLogger.d(TAG, "附件列表已更文${newAttachments.size} 个附，"
@@ -243,7 +243,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
             }
 
             // 订阅输入处理状态更文
-           serviceScope.launch {
+                serviceScope.launch {
                 combine(
                     chatCore.currentChatId,
                     chatCore.inputProcessingStateByChatId
@@ -257,7 +257,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
             }
             
             // 设置 EnhancedAIService 就绪回调，以便监听输入处理状态
-           chatCore.setOnEnhancedAiServiceReady { aiService ->
+                chatCore.setOnEnhancedAiServiceReady { aiService ->
                 AppLogger.d(TAG, "EnhancedAIService 已就绪，开始监听输入处理状态）"
                 serviceScope.launch {
                     try {
@@ -331,9 +331,9 @@ class FloatingChatService : Service(), FloatingWindowCallback {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.floating_chat_window_title)
-            val descriptionText = getString(R.string.floating_service_description)
+        val descriptionText = getString(R.string.floating_service_description)
             val importance = NotificationManager.IMPORTANCE_LOW
-            val channel =
+        val channel =
                     NotificationChannel(CHANNEL_ID, name, importance).apply {
                         description = descriptionText
                         setShowBadge(false)
@@ -374,7 +374,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
             acquireWakeLock()
 
             val keepIfExists = intent?.getBooleanExtra(EXTRA_KEEP_IF_EXISTS, false) == true
-            val isFirstStart = !hasHandledStartCommand
+        val isFirstStart = !hasHandledStartCommand
             if (keepIfExists && instance != null && !isFirstStart) {
                 AppLogger.d(TAG, "Service already running; keep_if_exists=true, skip mode change")
             } else {
@@ -574,7 +574,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
     fun removeAttachment(filePath: String) {
         AppLogger.d(TAG, "移除附件: ${filePath}")
         // 直接使用 chatCore ，AttachmentDelegate 移除附件
-        chatCore.removeAttachment(filePath)
+                chatCore.removeAttachment(filePath)
     }
 
     override fun onDestroy() {
@@ -686,10 +686,10 @@ class FloatingChatService : Service(), FloatingWindowCallback {
         AppLogger.d(TAG, "onSendMessage: ${message}, promptType: ${promptType}")
         
         // 直接使用 chatCore 发送消息，不再通过 SharedFlow
-        serviceScope.launch {
+                serviceScope.launch {
             try {
                 // 发送消息（包含总结逻辑，
-               chatCore.sendUserMessage(
+                chatCore.sendUserMessage(
                     promptFunctionType = promptType,
                     messageTextOverride = message
                 )
@@ -705,7 +705,7 @@ class FloatingChatService : Service(), FloatingWindowCallback {
         AppLogger.d(TAG, "onCancelMessage")
         
         // 直接使用 chatCore 取消消息，不再通过 SharedFlow
-        chatCore.cancelCurrentMessage()
+                chatCore.cancelCurrentMessage()
     }
 
     override fun onAttachmentRequest(request: String) {

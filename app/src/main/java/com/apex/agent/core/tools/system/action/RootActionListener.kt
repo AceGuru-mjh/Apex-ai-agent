@@ -37,10 +37,10 @@ class RootActionListener(private val context: Context) : ActionListener {
     override suspend fun isAvailable(): Boolean {
         try {
             // 如果已经检查过，直接返回缓存结，
-           rootAvailable?.let { return it }
+                rootAvailable?.let { return it }
 
             // 检查Root权限
-            val hasRoot = shellExecutor.isAvailable()
+                val hasRoot = shellExecutor.isAvailable()
             rootAvailable = hasRoot
             
             AppLogger.d(TAG, "Root权限检，${hasRoot}")
@@ -69,7 +69,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
         try {
             // Root权限无法通过代码请求，只能提示用于
-           val hasRoot = isAvailable()
+                val hasRoot = isAvailable()
             onResult(hasRoot)
 
             if (!hasRoot) {
@@ -125,7 +125,7 @@ class RootActionListener(private val context: Context) : ActionListener {
             actionCallback = null
 
             // 停止监控任务
-            monitoringJob?.cancel()
+                monitoringJob?.cancel()
             monitoringJob = null
             
             stopRootLevelMonitoring()
@@ -184,7 +184,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private fun parseTouchEvent(line: String) {
         // A simple parser for `getevent -l` output.
         // This is a placeholder and needs to be implemented properly.AppLogger.v(TAG, "Input event: ${line}")
-        if (line.contains("ABS_MT_POSITION_X")) {
+                if (line.contains("ABS_MT_POSITION_X")) {
             // Handle X coordinate
         } else if (line.contains("ABS_MT_POSITION_Y")) {
             // Handle Y coordinate
@@ -192,7 +192,7 @@ class RootActionListener(private val context: Context) : ActionListener {
             // Handle touch down
         } else if (line.contains("BTN_TOUCH") && line.contains("UP")) {
             // Handle touch up
-            actionCallback?.invoke(
+                actionCallback?.invoke(
                 ActionListener.ActionEvent(
                     timestamp = System.currentTimeMillis(),
                     actionType = ActionListener.ActionType.CLICK,
@@ -209,7 +209,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private suspend fun monitorRawInputEvents() {
         try {
             // 使用Root权限直接读取输入设备
-            val result = shellExecutor.executeCommand("cat /proc/bus/input/devices | grep -E 'Name|Handlers'")
+                val result = shellExecutor.executeCommand("cat /proc/bus/input/devices | grep -E 'Name|Handlers'")
             if (result.success) {
                 parseInputDeviceInfo(result.stdout)
             }
@@ -217,7 +217,8 @@ class RootActionListener(private val context: Context) : ActionListener {
             // 监听实时触摸事件 - 这里只是示例，实际需要解析二进制事件数据
             // val touchResult = shellExecutor.executeCommand("timeout 0.1 getevent")
             // if (touchResult.success) {
-            //     parseTouchEvents(touchResult.stdout)
+            //
+                parseTouchEvents(touchResult.stdout)
             // }
             
         } catch (e: Exception) {
@@ -232,7 +233,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private suspend fun monitorKernelEvents() {
         try {
             // 读取最新的内核消息
-            val result = shellExecutor.executeCommand("dmesg -T | tail -5")
+                val result = shellExecutor.executeCommand("dmesg -T | tail -5")
             if (result.success && result.stdout.isNotEmpty()) {
                 parseKernelEvents(result.stdout)
             }
@@ -248,7 +249,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private suspend fun monitorProcessEvents() {
         try {
             // 获取当前运行的应用进程
-           val result = shellExecutor.executeCommand("ps -A | grep -v '\\[' | tail -10")
+                val result = shellExecutor.executeCommand("ps -A | grep -v '\\[' | tail -10")
             if (result.success) {
                 parseProcessEvents(result.stdout)
             }
@@ -263,7 +264,7 @@ class RootActionListener(private val context: Context) : ActionListener {
      */
     private fun parseInputDeviceInfo(deviceInfo: String) {
         // 解析输入设备信息，识别触摸屏等设置
-       AppLogger.v(TAG, "解析输入设备信息: ${deviceInfo}")
+                AppLogger.v(TAG, "解析输入设备信息: ${deviceInfo}")
     }
 
     /**
@@ -273,7 +274,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private fun parseTouchEvents(eventData: String) {
         // 解析getevent输出的二进制触摸事件数据
         // 转换为ActionEvent并回失
-       AppLogger.v(TAG, "解析触摸事件: ${eventData}")
+                AppLogger.v(TAG, "解析触摸事件: ${eventData}")
     }
 
     /**
@@ -282,7 +283,7 @@ class RootActionListener(private val context: Context) : ActionListener {
      */
     private fun parseKernelEvents(kernelLog: String) {
         // 解析内核日志中的相关事件
-        if (kernelLog.contains("input") || kernelLog.contains("touch")) {
+                if (kernelLog.contains("input") || kernelLog.contains("touch")) {
             AppLogger.v(TAG, "检测到输入相关内核事件")
             
             actionCallback?.let { callback ->
@@ -305,7 +306,7 @@ class RootActionListener(private val context: Context) : ActionListener {
      */
     private fun parseProcessEvents(processInfo: String) {
         // 解析进程状态变化，检测应用启动关间
-        AppLogger.v(TAG, "解析进程事件: ${processInfo.take(100)}...")
+                AppLogger.v(TAG, "解析进程事件: ${processInfo.take(100)}...")
     }
 
     /**

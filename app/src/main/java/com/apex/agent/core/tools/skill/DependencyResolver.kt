@@ -39,11 +39,11 @@ object DependencyResolver {
             visiting.add(current.name)
 
             // 解析依赖
-            current.dependencies.forEach { depName ->
+                current.dependencies.forEach { depName ->
                 val dep = skillMap[depName]
                 if (dep == null) {
                     // 检查已解析的列表中是否有
-                    val alreadyResolved = resolved.any { it.name == depName }
+                val alreadyResolved = resolved.any { it.name == depName }
                     if (!alreadyResolved) {
                         throw IllegalStateException("Missing dependency: '${depName}' required by '${current.name}'")
                     }
@@ -92,7 +92,7 @@ object DependencyResolver {
             skill?.dependencies?.forEach { dep ->
                 if (dep in gray) {
                     // 发现循环
-                    val cycle = mutableListOf(dep, current)
+                val cycle = mutableListOf(dep, current)
                     var p = current
                     while (p != dep) {
                         p = parent[p] ?: break

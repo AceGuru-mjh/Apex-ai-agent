@@ -29,8 +29,7 @@ class WorkflowManager(private val context: Context) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val gson = Gson()
     private val _workflows = mutableMapOf<String, Workflow>()
-
-    val workflows: List<Workflow>
+        val workflows: List<Workflow>
         get() = _workflows.values.sortedByDescending { it.updated }
 
     val enabledWorkflows: List<Workflow>
@@ -54,7 +53,7 @@ class WorkflowManager(private val context: Context) {
             val prefs = context.workflowDataStore.data.first()
             prefs[KEY_WORKFLOWS]?.let { json ->
                 val type = object : TypeToken<List<Workflow>>() {}.type
-                val loadedWorkflows: List<Workflow> = gson.fromJson(json, type)
+        val loadedWorkflows: List<Workflow> = gson.fromJson(json, type)
                 _workflows.clear()
                 loadedWorkflows.forEach { workflow -> _workflows[workflow.id] = workflow }
             }

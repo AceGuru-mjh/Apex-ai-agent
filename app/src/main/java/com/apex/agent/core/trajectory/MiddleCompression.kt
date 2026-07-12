@@ -42,22 +42,22 @@ class MiddleCompression(
         }
 
         // 保留工具调用配对
-        val (preservedPairs, nonPairTurns) = toolPairPreserver.preservePairs(middleTurns)
+                val (preservedPairs, nonPairTurns) = toolPairPreserver.preservePairs(middleTurns)
         
         // 计算需要删除的 token
-        val tokensToRemove = currentTokens - targetTokens
+                val tokensToRemove = currentTokens - targetTokens
         val preservedTokens = preservedPairs.sumOf { it.totalTokens }
         val availableToRemove = tokensToRemove - preservedTokens
         
         // 压缩非配对轮次
-        val (compressedNonPairs, removedTokens) = compressNonPairs(nonPairTurns, availableToRemove)
+                val (compressedNonPairs, removedTokens) = compressNonPairs(nonPairTurns, availableToRemove)
         
         // 生成摘要
-        val allRemovedTurns = nonPairTurns.filter { it !in compressedNonPairs }
+                val allRemovedTurns = nonPairTurns.filter { it !in compressedNonPairs }
         val summaryTurn = summarizer.summarize(allRemovedTurns)
         
         // 重新组合：保留的工具对+ 压缩的非配对轮次 + 摘要
-        val finalTurns = buildList {
+                val finalTurns = buildList {
             addAll(preservedPairs.flatMap { listOf(it.toolCall, it.toolResult).filterNotNull() })
             addAll(compressedNonPairs)
             if (summaryTurn != null) {
@@ -89,7 +89,7 @@ class MiddleCompression(
         }
 
         // 按优先级排序：优先保略assistant，然后是 user，最后是其他
-        val sortedTurns = turns.sortedByDescending { turn ->
+                val sortedTurns = turns.sortedByDescending { turn ->
             when (turn.kind) {
                 PromptTurnKind.ASSISTANT -> 3
                 PromptTurnKind.USER -> 2
@@ -183,7 +183,7 @@ class DefaultMiddleSummarizer : MiddleSummarizer {
 
     private fun estimateTokenCount(text: String): Int {
         // 粗略估算：中文约 2 字符/token，英文约 4 字符/token
-        val chineseChars = text.count { it.codePointRangeContainsPoint(0x4E00.toInt(), it.codePoint) }
+                val chineseChars = text.count { it.codePointRangeContainsPoint(0x4E00.toInt(), it.codePoint) }
         val otherChars = text.length - chineseChars
         return (chineseChars / 2 + otherChars / 4).coerceAtLeast(10)
     }
@@ -208,7 +208,7 @@ class LLMSummarizer(
 
         // 同步版本返回默认摘要
         // 实际 LLM 摘要需要异步调用
-        return DefaultMiddleSummarizer().summarize(removedTurns)
+                return DefaultMiddleSummarizer().summarize(removedTurns)
     }
 
     /**

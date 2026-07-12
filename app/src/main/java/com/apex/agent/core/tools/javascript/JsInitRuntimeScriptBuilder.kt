@@ -95,11 +95,11 @@ private fun buildRuntimeCallRegistryScript(): String {
 
             function getCallState(callId) {
                 var resolvedCallId = normalizeCallId(callId);
-                if (!resolvedCallId) {
+            if (!resolvedCallId) {
                     return null;
                 }
                 var registry = ensureCallRegistry();
-                var state = registry[resolvedCallId];
+            var state = registry[resolvedCallId];
                 return state && typeof state === 'object' ? state : null;
             }
 
@@ -122,15 +122,15 @@ private fun buildRuntimeCallRegistryScript(): String {
 
             function registerCallSession(callId, params) {
                 var resolvedCallId = normalizeCallId(callId);
-                if (!resolvedCallId) {
+            if (!resolvedCallId) {
                     throw new Error('callId is required');
                 }
                 var registry = ensureCallRegistry();
-                var state = registry[resolvedCallId];
+            var state = registry[resolvedCallId];
                 var callState = state && typeof state === 'object' ? state : {};
-                callState.callId = resolvedCallId;
+            callState.callId = resolvedCallId;
                 callState.params = params && typeof params === 'object' ? params : {};
-                callState.completed = false;
+            callState.completed = false;
                 callState.safetyTimeout = null;
                 callState.safetyTimeoutFinal = null;
                 callState.lastExecStage = '';
@@ -147,28 +147,28 @@ private fun buildRuntimeCallRegistryScript(): String {
 
             function cleanupCallSession(callId) {
                 var resolvedCallId = normalizeCallId(callId);
-                if (!resolvedCallId) {
+            if (!resolvedCallId) {
                     return;
                 }
                 var registry = ensureCallRegistry();
-                var callState = registry[resolvedCallId];
+            var callState = registry[resolvedCallId];
                 clearCallTimers(callState);
-                delete registry[resolvedCallId];
+            delete registry[resolvedCallId];
             }
 
             function cancelCallSession(callId) {
                 var callState = getCallState(callId);
-                if (!callState || callState.completed) {
+            if (!callState || callState.completed) {
                     return false;
                 }
                 callState.completed = true;
                 clearCallTimers(callState);
-                return true;
+            return true;
             }
 
             function buildRuntimeContext(callId) {
                 var callState = getCallState(callId);
-                var mapping = [
+            var mapping = [
                     ['lastExecStage', 'stage'],
                     ['lastExecFunction', 'function'],
                     ['lastModulePath', 'module'],
@@ -193,7 +193,6 @@ private fun buildRuntimeCallRegistryScript(): String {
             expose('__ApexCleanupCallSession', cleanupCallSession);
             expose('__ApexCancelCallSession', cancelCallSession);
             expose('__ApexBuildRuntimeContext', buildRuntimeContext);
-
             windowRef.__ApexGetActiveModuleExports = function() {
                 if (
                     windowRef.__ApexActiveModule &&
@@ -230,7 +229,7 @@ private fun buildRuntimeErrorScript(): String {
                     return undefined;
                 }
                 var args = Array.prototype.slice.call(arguments, 1);
-                try {
+            try {
                     return NativeInterface[methodName].apply(NativeInterface, args);
                 } catch (_error) {
                     return undefined;
@@ -239,14 +238,14 @@ private fun buildRuntimeErrorScript(): String {
 
             function formatErrorDetails(error) {
                 var name = asString(error && error.name ? error.name : 'Error');
-                var message = asString(error && error.message ? error.message : error);
-                var stack = asString(error && error.stack ? error.stack : 'No stack trace');
-                var lineNumber = 0;
+            var message = asString(error && error.message ? error.message : error);
+            var stack = asString(error && error.stack ? error.stack : 'No stack trace');
+            var lineNumber = 0;
                 var fileName = '';
                 var stackMatch = stack.match(/at\s+.*?\s+\((.+):(\d+):(\d+)\)/);
-                if (stackMatch) {
+            if (stackMatch) {
                     fileName = asString(stackMatch[1]);
-                    lineNumber = Number(stackMatch[2]) || 0;
+            lineNumber = Number(stackMatch[2]) || 0;
                 }
                 return {
                     formatted: name + ': ' + message + '\nStack: ' + stack,
@@ -262,8 +261,8 @@ private fun buildRuntimeErrorScript(): String {
 
             function reportDetailedErrorForCall(callId, error, context) {
                 var details = formatErrorDetails(error);
-                var resolvedCallId = asString(callId).trim();
-                if (resolvedCallId) {
+            var resolvedCallId = asString(callId).trim();
+            if (resolvedCallId) {
                     callNativeOptional(
                         'reportErrorForCall',
                         resolvedCallId,
@@ -319,7 +318,7 @@ private fun buildRuntimeToolCallScript(): String {
                     throw new Error('NativeInterface.' + methodName + ' is unavailable');
                 }
                 var args = Array.prototype.slice.call(arguments, 1);
-                return NativeInterface[methodName].apply(NativeInterface, args);
+            return NativeInterface[methodName].apply(NativeInterface, args);
             }
 
             function clonePlainObject(value) {
@@ -327,8 +326,8 @@ private fun buildRuntimeToolCallScript(): String {
                     return {};
                 }
                 var copy = {};
-                var keys = Object.keys(value);
-                for (var i = 0; i < keys.length; i += 1) {
+            var keys = Object.keys(value);
+            for (var i = 0; i < keys.length; i += 1) {
                     copy[keys[i]] = value[keys[i]];
                 }
                 return copy;
@@ -375,14 +374,14 @@ private fun buildRuntimeToolCallScript(): String {
 
             function buildToolError(result, fallbackMessage) {
                 var message = asString((result && result.error) || fallbackMessage || 'Unknown error');
-                if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
+            if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
                     var detailText = stringifyToolResultDetail(result.data);
-                    if (detailText) {
+            if (detailText) {
                         message += '\n\nTool output:\n' + detailText;
                     }
                 }
                 var error = new Error(message);
-                if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
+            if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
                     error.data = result.data;
                 }
                 return error;
@@ -403,10 +402,10 @@ private fun buildRuntimeToolCallScript(): String {
                 }
                 if (typeof result === 'string' && result.length > 1) {
                     var first = result.charAt(0);
-                    if (first === '{' || first === '[') {
+            if (first === '{' || first === '[') {
                         try {
                             var parsed = JSON.parse(result);
-                            return parseToolResult(parsed, false);
+            return parseToolResult(parsed, false);
                         } catch (_error) {
                             return result;
                         }
@@ -424,8 +423,8 @@ private fun buildRuntimeToolCallScript(): String {
                 return new Promise(function(resolve, reject) {
                     try {
                         var parsed = parseToolCallArguments(rawArgs);
-                        var callbackId = nextToolCallbackId();
-                        windowRef[callbackId] = function(result, isError) {
+            var callbackId = nextToolCallbackId();
+            windowRef[callbackId] = function(result, isError) {
                             delete windowRef[callbackId];
                             try {
                                 resolve(parseToolResult(result, !!isError));
@@ -433,7 +432,7 @@ private fun buildRuntimeToolCallScript(): String {
                                 reject(error);
                             }
                         };
-                        callNative(
+            callNative(
                             'callToolAsync',
                             callbackId,
                             parsed.type || 'default',

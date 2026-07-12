@@ -174,10 +174,10 @@ class AgentLifecycleManager(
     private val _healths = ConcurrentHashMap<String, MutableStateFlow<AgentHealth>>()
 
     private val _events = MutableSharedFlow<AgentLifecycleEvent>(extraBufferCapacity = 256)
-    val events: SharedFlow<AgentLifecycleEvent> = _events.asSharedFlow()
+        val events: SharedFlow<AgentLifecycleEvent> = _events.asSharedFlow()
 
     private val _messageBus = MutableSharedFlow<AgentMessage>(extraBufferCapacity = 512)
-    val messageBus: SharedFlow<AgentMessage> = _messageBus.asSharedFlow()
+        val messageBus: SharedFlow<AgentMessage> = _messageBus.asSharedFlow()
 
     /** 已注册的 Agent（agentId -> SubAgent） */
     private val agents = ConcurrentHashMap<String, SubAgent>()
@@ -211,7 +211,7 @@ class AgentLifecycleManager(
         val currentState = _states[agentId]?.value ?: AgentLifecycleState.TERMINATED
 
         // 确保先停止
-        if (currentState == AgentLifecycleState.ACTIVE || currentState == AgentLifecycleState.PAUSED) {
+                if (currentState == AgentLifecycleState.ACTIVE || currentState == AgentLifecycleState.PAUSED) {
             stop(agentId)
         }
         if (currentState != AgentLifecycleState.TERMINATED) {
@@ -399,13 +399,13 @@ class AgentLifecycleManager(
         val targetAgent = agents[message.toId] ?: return false
 
         // 发布到消息总线供观察者订阅
-        _messageBus.tryEmit(message)
+                _messageBus.tryEmit(message)
         _events.tryEmit(
             AgentLifecycleEvent.MessageReceived(message.fromId, message.toId, message)
         )
 
         // 直接调用目标 Agent 的 onMessage
-        return try {
+                return try {
             (targetAgent as? AgentLifecycleCallbacks)?.onMessage(message)
             true
         } catch (e: Exception) {
@@ -423,7 +423,7 @@ class AgentLifecycleManager(
     suspend fun broadcast(fromId: String, type: String, payload: Map<String, Any> = emptyMap()) {
         for ((agentId, _) in agents) {
             if (agentId == fromId) continue  // 不发给自己
-            val state = _states[agentId]?.value
+                val state = _states[agentId]?.value
             if (state == AgentLifecycleState.ACTIVE) {
                 sendMessage(
                     AgentMessage(
@@ -494,8 +494,7 @@ class AgentLifecycleManager(
     }
 
     // ===== 内部方法 =====
-
-    private fun transitionState(
+                private fun transitionState(
         agentId: String,
         expectedFrom: AgentLifecycleState,
         to: AgentLifecycleState

@@ -79,13 +79,13 @@ class CoreNarrowWaistValidator {
         AppLogger.d(TAG, "Validating capability: ${capability.name} at level ${capability.level}")
 
         // Check 1: Verify level is appropriate for the capability type
-        val levelValidation = validateLevelAppropriateness(capability)
+                val levelValidation = validateLevelAppropriateness(capability)
         if (levelValidation !is ValidationResult.Accepted) {
             return levelValidation
         }
 
         // Check 2: Verify core tool additions are necessary
-        if (capability.level == FootprintLevel.NEW_CORE_TOOL) {
+                if (capability.level == FootprintLevel.NEW_CORE_TOOL) {
             val coreCheck = validateCoreAddition(capability)
             if (coreCheck !is ValidationResult.Accepted) {
                 return coreCheck
@@ -93,13 +93,13 @@ class CoreNarrowWaistValidator {
         }
 
         // Check 3: Verify dependencies are appropriate
-        val depCheck = validateDependencies(capability)
+                val depCheck = validateDependencies(capability)
         if (depCheck !is ValidationResult.Accepted) {
             return depCheck
         }
 
         // Check 4: Verify check_fn is present for service-gated tools
-        if (capability.level == FootprintLevel.SERVICE_GATED_TOOL && capability.checkFn == null) {
+                if (capability.level == FootprintLevel.SERVICE_GATED_TOOL && capability.checkFn == null) {
             return ValidationResult.Rejected(
                 reason = "Service-gated tool must have a check_fn for conditional availability",
                 suggestedLevel = FootprintLevel.CLI_COMMAND_SKILL,
@@ -111,7 +111,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check 5: Review required for high-impact capabilities
-        if (capability.level.coreImpact == FootprintLevel.CoreImpact.HIGH ||
+                if (capability.level.coreImpact == FootprintLevel.CoreImpact.HIGH ||
             capability.level == FootprintLevel.NEW_CORE_TOOL) {
             return ValidationResult.NeedsReview(
                 reasons = listOf(
@@ -132,7 +132,7 @@ class CoreNarrowWaistValidator {
         val name = capability.name.lowercase()
 
         // Check if capability belongs to core tools and is trying to use higher level
-        val isCoreTool = CORE_TOOLS.any { name.contains(it.lowercase()) }
+                val isCoreTool = CORE_TOOLS.any { name.contains(it.lowercase()) }
 
         if (isCoreTool && capability.level.level > FootprintLevel.CLI_COMMAND_SKILL.level) {
             return ValidationResult.NeedsReview(
@@ -144,7 +144,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if capability is suitable for MCP Server level
-        val isMcpSuitable = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+                val isMcpSuitable = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (isMcpSuitable && capability.level.level < FootprintLevel.MCP_SERVER.level) {
             return ValidationResult.NeedsReview(
                 reasons = listOf(
@@ -155,7 +155,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if capability is suitable for Plugin level
-        val isPluginSuitable = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+                val isPluginSuitable = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (isPluginSuitable && capability.level.level < FootprintLevel.PLUGIN.level) {
             return ValidationResult.NeedsReview(
                 reasons = listOf(
@@ -175,7 +175,7 @@ class CoreNarrowWaistValidator {
         val name = capability.name.lowercase()
 
         // Check if similar capability exists in core
-        val similarCoreTool = CORE_TOOLS.find { coreTool ->
+                val similarCoreTool = CORE_TOOLS.find { coreTool ->
             name.contains(coreTool.lowercase()) || coreTool.lowercase().contains(name)
         }
 
@@ -192,7 +192,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if this could be implemented via MCP
-        val couldBeMcp = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+                val couldBeMcp = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (couldBeMcp) {
             return ValidationResult.Rejected(
                 reason = "This capability should be implemented via MCP Server, not as core tool",
@@ -205,7 +205,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if this could be a plugin
-        val couldBePlugin = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+                val couldBePlugin = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (couldBePlugin) {
             return ValidationResult.Rejected(
                 reason = "This capability should be implemented as Plugin, not as core tool",
@@ -229,7 +229,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check for circular dependencies
-        if (hasCircularDependency(capability.name, capability.dependencies.toSet(), emptySet())) {
+                if (hasCircularDependency(capability.name, capability.dependencies.toSet(), emptySet())) {
             return ValidationResult.Rejected(
                 reason = "Circular dependency detected",
                 suggestedLevel = capability.level,
@@ -241,7 +241,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check dependency levels are appropriate
-        for (dep in capability.dependencies) {
+                for (dep in capability.dependencies) {
             val depLevel = getDependencyLevel(dep)
             if (depLevel > capability.level.level) {
                 return ValidationResult.Rejected(
@@ -274,7 +274,7 @@ class CoreNarrowWaistValidator {
 
         for (dep in dependencies) {
             val registry = CapabilityRegistry.getInstance()
-            val depCap = registry.getCapability(dep)
+        val depCap = registry.getCapability(dep)
 
             if (depCap != null && hasCircularDependency(dep, depCap.dependencies.toSet(), newVisited)) {
                 return true

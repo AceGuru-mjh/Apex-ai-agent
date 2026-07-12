@@ -42,10 +42,9 @@ private fun Stream<Char>.nativeMarkdownSplitBySession(
 
                 launch {
                     val session = sessionFactory()
-                    val fullContent = StringBuilder()
+        val fullContent = StringBuilder()
                     val deltaBuffer = StringBuilder()
-
-                    val mutex = Mutex()
+        val mutex = Mutex()
                     val flushMutex = Mutex()
 
                     var defaultTextChannel: Channel<String>? = null
@@ -100,7 +99,7 @@ private fun Stream<Char>.nativeMarkdownSplitBySession(
                                 var i = 0
                                 while (i + 2 < segments.size) {
                                     val typeOrdinal = segments[i]
-                                    val start = segments[i + 1]
+        val start = segments[i + 1]
                                     val end = segments[i + 2]
                                     i += 3
 
@@ -126,7 +125,7 @@ private fun Stream<Char>.nativeMarkdownSplitBySession(
                                 }
 
                                 val type = action.type
-                                val text = action.text ?: ""
+        val text = action.text ?: ""
 
                                 if (type == MarkdownProcessorType.PLAIN_TEXT) {
                                     if (activePluginChannel != null) {
@@ -169,7 +168,7 @@ private fun Stream<Char>.nativeMarkdownSplitBySession(
                     try {
                         upstream.collect { c ->
                             val noBatching = flushIntervalMs == null && maxDeltaChars == null
-                            val shouldFlush =
+        val shouldFlush =
                                 mutex.withLock {
                                     fullContent.append(c)
                                     deltaBuffer.append(c)
@@ -233,10 +232,9 @@ private fun Stream<String>.nativeMarkdownSplitBySessionString(
 
                 launch {
                     val session = sessionFactory()
-                    val fullContent = StringBuilder()
+        val fullContent = StringBuilder()
                     val deltaBuffer = StringBuilder()
-
-                    val mutex = Mutex()
+        val mutex = Mutex()
                     val flushMutex = Mutex()
 
                     var defaultTextChannel: Channel<String>? = null
@@ -291,7 +289,7 @@ private fun Stream<String>.nativeMarkdownSplitBySessionString(
                                 var i = 0
                                 while (i + 2 < segments.size) {
                                     val typeOrdinal = segments[i]
-                                    val start = segments[i + 1]
+        val start = segments[i + 1]
                                     val end = segments[i + 2]
                                     i += 3
 
@@ -317,7 +315,7 @@ private fun Stream<String>.nativeMarkdownSplitBySessionString(
                                 }
 
                                 val type = action.type
-                                val text = action.text ?: ""
+        val text = action.text ?: ""
 
                                 if (type == MarkdownProcessorType.PLAIN_TEXT) {
                                     if (activePluginChannel != null) {
@@ -360,7 +358,7 @@ private fun Stream<String>.nativeMarkdownSplitBySessionString(
                     try {
                         upstream.collect { chunk ->
                             val noBatching = flushIntervalMs == null && maxDeltaChars == null
-                            val shouldFlush =
+        val shouldFlush =
                                 mutex.withLock {
                                     fullContent.append(chunk)
                                     deltaBuffer.append(chunk)

@@ -15,8 +15,7 @@ class Subscription(
     private val onClose: () -> Unit
 ) : AutoCloseable {
     private val closed = AtomicBoolean(false)
-
-    val isActive: Boolean get() = !closed.get()
+        val isActive: Boolean get() = !closed.get()
 
     override fun close() {
         if (closed.compareAndSet(false, true)) {

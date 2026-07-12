@@ -200,7 +200,6 @@ class SkillResourceController private constructor() {
         val rt = Runtime.getRuntime()
         val memoryUsed = ((rt.totalMemory() - rt.freeMemory()) / (1024 * 1024)).toInt()
         val memoryAvailable = (rt.maxMemory() / (1024 * 1024)).toInt() - memoryUsed
-
         val cpuUsage = calculateCpuUsage()
 
         return ResourceUsage(
@@ -265,7 +264,6 @@ class SkillResourceController private constructor() {
         val rt = Runtime.getRuntime()
         val memoryUsed = ((rt.totalMemory() - rt.freeMemory()) / (1024 * 1024)).toInt()
         val memoryAvailable = (rt.maxMemory() / (1024 * 1024)).toInt() - memoryUsed
-
         val cpuUsage = calculateCpuUsage()
 
         val timestamp = System.currentTimeMillis()
@@ -293,7 +291,7 @@ class SkillResourceController private constructor() {
 
         try {
             val reader = java.io.RandomAccessFile("/proc/stat", "r")
-            val load = reader.readLine()
+        val load = reader.readLine()
             reader.close()
 
             val toks = load.split(" +".toRegex())

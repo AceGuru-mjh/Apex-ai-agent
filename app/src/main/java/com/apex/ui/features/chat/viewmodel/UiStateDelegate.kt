@@ -19,7 +19,7 @@ class UiStateDelegate {
     )
 
     private val _state = MutableStateFlow(UiState())
-    val state: StateFlow<UiState> = _state.asStateFlow()
+        val state: StateFlow<UiState> = _state.asStateFlow()
 
     fun updateState(update: (UiState) -> UiState) {
         _state.value = update(_state.value)

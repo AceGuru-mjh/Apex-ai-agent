@@ -82,7 +82,7 @@ class ARVRInteractionManager(private val context: Context) {
     ) {
         companion object {
             val zero = Vector3(0f, 0f, 0f)
-            val one = Vector3(1f, 1f, 1f)
+        val one = Vector3(1f, 1f, 1f)
         }
     }
 
@@ -223,7 +223,6 @@ class ARVRInteractionManager(private val context: Context) {
 
     private suspend fun saveSession(session: ARVRSession) = withContext(Dispatchers.IO) {
         val sessionFile = File(sessionsDir, "${session.id}.json")
-
         val objectsJson = JSONArray()
         session.sceneObjects.forEach { obj ->
             objectsJson.put(serializeSceneObject(obj))
@@ -340,7 +339,6 @@ class ARVRInteractionManager(private val context: Context) {
 
     suspend fun endSession(sessionId: String): Boolean = withContext(Dispatchers.IO) {
         val session = activeSessions[sessionId] ?: return@withContext false
-
         val updatedSession = session.copy(
             isActive = false,
             endTime = System.currentTimeMillis()
@@ -394,7 +392,6 @@ class ARVRInteractionManager(private val context: Context) {
         newPosition: Vector3
     ): Boolean = withContext(Dispatchers.IO) {
         val obj = sceneObjects[objectId] ?: return@withContext false
-
         val updatedObj = obj.copy(
             position = newPosition
         )
@@ -409,7 +406,6 @@ class ARVRInteractionManager(private val context: Context) {
         deltaRotation: Quaternion
     ): Boolean = withContext(Dispatchers.IO) {
         val obj = sceneObjects[objectId] ?: return@withContext false
-
         val updatedObj = obj.copy(
             rotation = Quaternion(
                 x = obj.rotation.x * deltaRotation.w + obj.rotation.w * deltaRotation.x,
@@ -534,7 +530,6 @@ class ARVRInteractionManager(private val context: Context) {
 
     private fun deserializeSession(jsonString: String): ARVRSession {
         val json = JSONObject(jsonString)
-
         val objects = mutableListOf<SceneObject>()
         val objectsJson = json.getJSONArray("sceneObjects")
         for (i in 0 until objectsJson.length()) {

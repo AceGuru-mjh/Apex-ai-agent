@@ -25,6 +25,6 @@ class GlobalExceptionHandler(private val context: Context) : Thread.UncaughtExce
         context.startActivity(intent)
 
         // 终止当前进程
-        exitProcess(1)
+                exitProcess(1)
     }
 }

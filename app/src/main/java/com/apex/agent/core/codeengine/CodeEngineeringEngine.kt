@@ -176,7 +176,6 @@ class CodeEngineeringEngine(private val context: Context) {
         val projectId = rootFile.name + "_" + System.currentTimeMillis().toString()
         val language = detectLanguage(rootFile)
         val buildSystem = detectBuildSystem(rootFile)
-
         val codeFiles = mutableListOf<CodeFile>()
         val directories = mutableMapOf<String, MutableList<String>>()
         val entryPoints = mutableListOf<String>()
@@ -184,7 +183,6 @@ class CodeEngineeringEngine(private val context: Context) {
         scanDirectory(rootFile, "", codeFiles, directories, entryPoints)
 
         val dependencies = analyzeDependencies(rootFile, buildSystem)
-
         val structure = ProjectStructure(
             files = codeFiles,
             directories = directories,
@@ -261,7 +259,6 @@ class CodeEngineeringEngine(private val context: Context) {
         entryPoints: MutableList<String>
     ) {
         val files = dir.listFiles() ?: return
-
         val dirFiles = mutableListOf<String>()
         files.forEach { file ->
             if (file.isFile) {
@@ -269,7 +266,7 @@ class CodeEngineeringEngine(private val context: Context) {
 
                 if (isCodeFile(file)) {
                     val issues = analyzeFile(file)
-                    val complexity = calculateComplexity(file)
+        val complexity = calculateComplexity(file)
 
                     codeFiles.add(
                         CodeFile(
@@ -345,7 +342,7 @@ class CodeEngineeringEngine(private val context: Context) {
 
         try {
             val content = file.readText()
-            val lines = content.lines()
+        val lines = content.lines()
 
             if (content.length > 50000) {
                 issues.add(
@@ -429,7 +426,7 @@ class CodeEngineeringEngine(private val context: Context) {
     private fun calculateComplexity(file: File): Float {
         return try {
             val content = file.readText()
-            val lines = content.lines()
+        val lines = content.lines()
             val conditionals = lines.count { line ->
                 line.contains("if") || line.contains("for") ||
                 line.contains("while") || line.contains("case") ||
@@ -451,7 +448,7 @@ class CodeEngineeringEngine(private val context: Context) {
                     val buildFile = File(rootDir, "build.gradle.kts")
                     if (buildFile.exists()) {
                         val content = buildFile.readText()
-                        val depRegex = Regex("""implementation\s*\(\s*"([^"]+)"\s*\)""")
+        val depRegex = Regex("""implementation\s*\(\s*"([^"]+)"\s*\)""")
                         depRegex.findAll(content).forEach { match ->
                             val depString = match.groupValues[1]
                             if (depString.contains(":")) {
@@ -476,7 +473,7 @@ class CodeEngineeringEngine(private val context: Context) {
                         val content = pkgFile.readText()
                         try {
                             val json = JSONObject(content)
-                            val depsObj = json.optJSONObject("dependencies")
+        val depsObj = json.optJSONObject("dependencies")
                             depsObj?.keys()?.forEach { key ->
                                 dependencies.add(
                                     Dependency(
@@ -504,7 +501,7 @@ class CodeEngineeringEngine(private val context: Context) {
     private suspend fun saveProject(project: CodeProject) = withContext(Dispatchers.IO) {
         try {
             val projectFile = File(projectsDir, "${project.id}.json")
-            val json = JSONObject().apply {
+        val json = JSONObject().apply {
                 put("id", project.id)
                 put("rootPath", project.rootPath)
                 put("name", project.name)
@@ -524,15 +521,14 @@ class CodeEngineeringEngine(private val context: Context) {
             AppLogger.d(TAG, "生成重构建议: ${projectId}")
 
             val suggestions = mutableListOf<RefactoringSuggestion>()
-
-            val projectFile = File(projectsDir, "${projectId}.json")
+        val projectFile = File(projectsDir, "${projectId}.json")
             if (!projectFile.exists()) {
                 AppLogger.e(TAG, "项目不存在 ${projectId}")
                 return@withContext suggestions
             }
 
             val projectJson = JSONObject(projectFile.readText())
-            val rootPath = projectJson.getString("rootPath")
+        val rootPath = projectJson.getString("rootPath")
             val rootDir = File(rootPath)
 
             scanDirectoryForRefactoring(rootDir, "", suggestions)
@@ -567,12 +563,11 @@ class CodeEngineeringEngine(private val context: Context) {
     ) {
         try {
             val content = file.readText()
-            val lines = content.lines()
+        val lines = content.lines()
 
             lines.forEachIndexed { index, line ->
                 val lineNum = index + 1
-
-                val magicNumbers = line.findMagicNumbers()
+        val magicNumbers = line.findMagicNumbers()
                 if (magicNumbers.isNotEmpty()) {
                     magicNumbers.forEach { num ->
                         suggestions.add(
@@ -628,7 +623,7 @@ class CodeEngineeringEngine(private val context: Context) {
         projectsDir.listFiles()?.forEach { file ->
             try {
                 val json = JSONObject(file.readText())
-                val analyzed = json.getLong("lastAnalyzed")
+        val analyzed = json.getLong("lastAnalyzed")
 
                 if (analyzed < cutoffTime) {
                     file.delete()

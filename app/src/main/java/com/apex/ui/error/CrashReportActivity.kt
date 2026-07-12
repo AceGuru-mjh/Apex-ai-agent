@@ -20,6 +20,6 @@ class CrashReportActivity : Activity() {
         super.onResume()
         // Stub: 原 UI 展示崩溃详情并允许复制/分享，已移除
         // 直接 finish() 让用户回到上一个非崩溃状态
-        finish()
+                finish()
     }
 }

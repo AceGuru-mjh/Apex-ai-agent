@@ -20,28 +20,28 @@ class MmdAvatarController(
     override val state: StateFlow<AvatarState> = _state.asStateFlow()
 
     private val _scale = MutableStateFlow(1.0f)
-    val scale: StateFlow<Float> = _scale.asStateFlow()
+        val scale: StateFlow<Float> = _scale.asStateFlow()
 
     private val _translateX = MutableStateFlow(0.0f)
-    val translateX: StateFlow<Float> = _translateX.asStateFlow()
+        val translateX: StateFlow<Float> = _translateX.asStateFlow()
 
     private val _translateY = MutableStateFlow(0.0f)
-    val translateY: StateFlow<Float> = _translateY.asStateFlow()
+        val translateY: StateFlow<Float> = _translateY.asStateFlow()
 
     private val _initialRotationX = MutableStateFlow(0.0f)
-    val initialRotationX: StateFlow<Float> = _initialRotationX.asStateFlow()
+        val initialRotationX: StateFlow<Float> = _initialRotationX.asStateFlow()
 
     private val _initialRotationY = MutableStateFlow(0.0f)
-    val initialRotationY: StateFlow<Float> = _initialRotationY.asStateFlow()
+        val initialRotationY: StateFlow<Float> = _initialRotationY.asStateFlow()
 
     private val _initialRotationZ = MutableStateFlow(0.0f)
-    val initialRotationZ: StateFlow<Float> = _initialRotationZ.asStateFlow()
+        val initialRotationZ: StateFlow<Float> = _initialRotationZ.asStateFlow()
 
     private val _cameraDistanceScale = MutableStateFlow(1.0f)
-    val cameraDistanceScale: StateFlow<Float> = _cameraDistanceScale.asStateFlow()
+        val cameraDistanceScale: StateFlow<Float> = _cameraDistanceScale.asStateFlow()
 
     private val _cameraTargetHeight = MutableStateFlow(0.0f)
-    val cameraTargetHeight: StateFlow<Float> = _cameraTargetHeight.asStateFlow()
+        val cameraTargetHeight: StateFlow<Float> = _cameraTargetHeight.asStateFlow()
 
     override val availableAnimations: List<String>
         get() = model.displayMotionNames
@@ -156,7 +156,7 @@ class MmdAvatarController(
         triggerAnimationMapping =
             mapping.entries.mapNotNull { (rawKey, rawAnimationName) ->
                 val key = AvatarMoodTypes.normalizeKey(rawKey)
-                val animationName = rawAnimationName.trim()
+        val animationName = rawAnimationName.trim()
                 if (key.isBlank() || animationName.isBlank()) {
                     return@mapNotNull null
                 }

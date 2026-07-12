@@ -33,13 +33,13 @@ class FederatedLearningManager(private val context: Context) {
     private val adaptationHistories = ConcurrentHashMap<String, MutableList<AdaptationRecord>>()
 
     private val _globalModelVersion = MutableStateFlow(0)
-    val globalModelVersion: StateFlow<Int> = _globalModelVersion
+        val globalModelVersion: StateFlow<Int> = _globalModelVersion
 
     private val _trainingProgress = MutableStateFlow<Map<String, Float>>(emptyMap())
-    val trainingProgress: StateFlow<Map<String, Float>> = _trainingProgress
+        val trainingProgress: StateFlow<Map<String, Float>> = _trainingProgress
 
     private val _knowledgeTransferStats = MutableStateFlow(KnowledgeTransferStats())
-    val knowledgeTransferStats: StateFlow<KnowledgeTransferStats> = _knowledgeTransferStats
+        val knowledgeTransferStats: StateFlow<KnowledgeTransferStats> = _knowledgeTransferStats
 
     private val prefs = context.getSharedPreferences(MODEL_STORE_NAME, Context.MODE_PRIVATE)
 
@@ -138,8 +138,7 @@ class FederatedLearningManager(private val context: Context) {
     ) {
         scope.launch {
             val model = localModels[agentId] ?: return@launch
-
-            val performance = if (success) minOf(quality, 1.0f) else maxOf(quality - 0.3f, 0.0f)
+        val performance = if (success) minOf(quality, 1.0f) else maxOf(quality - 0.3f, 0.0f)
             model.performanceHistory.add(performance)
             if (model.performanceHistory.size > 100) {
                 model.performanceHistory.removeAt(0)
@@ -147,7 +146,7 @@ class FederatedLearningManager(private val context: Context) {
 
             capabilities.forEach { (cap, value) ->
                 val currentWeight = model.capabilityWeights[cap] ?: 1.0f
-                val adjustment = calculateAdjustment(performance, value, success)
+        val adjustment = calculateAdjustment(performance, value, success)
                 model.capabilityWeights[cap] = (currentWeight + adjustment).coerceIn(0.1f, 2.0f)
             }
 
@@ -196,13 +195,13 @@ class FederatedLearningManager(private val context: Context) {
         scope.launch {
             try {
                 val sourceModel = localModels[sourceAgentId] ?: return@launch
-                val targetModel = localModels[targetAgentId] ?: return@launch
+        val targetModel = localModels[targetAgentId] ?: return@launch
 
                 val capabilityKey = knowledge.capability
-                val sourceWeight = sourceModel.capabilityWeights[capabilityKey] ?: 1.0f
+        val sourceWeight = sourceModel.capabilityWeights[capabilityKey] ?: 1.0f
 
                 val currentWeight = targetModel.capabilityWeights[capabilityKey] ?: 1.0f
-                val transferStrength = knowledge.confidence * 0.3f
+        val transferStrength = knowledge.confidence * 0.3f
                 val newWeight = currentWeight + (sourceWeight - currentWeight) * transferStrength
 
                 targetModel.capabilityWeights[capabilityKey] = newWeight.coerceIn(0.1f, 2.0f)
@@ -231,7 +230,6 @@ class FederatedLearningManager(private val context: Context) {
 
     fun distillKnowledge(agentId: String): SharedKnowledge {
         val model = localModels[agentId] ?: throw IllegalArgumentException("Agent not found")
-
         val topCapabilities = model.capabilityWeights.entries
             .sortedByDescending { it.value }
             .take(5)
@@ -303,7 +301,7 @@ class FederatedLearningManager(private val context: Context) {
         }
 
         val finalCapabilities = aggregatedCapabilities.mapValues { (_, weights) ->
-            val filteredWeights = filterOutliers(weights)
+        val filteredWeights = filterOutliers(weights)
             filteredWeights.average().toFloat()
         }
 
@@ -408,7 +406,6 @@ class FederatedLearningManager(private val context: Context) {
 
     private fun performModelMerge(agentId: String, context: Map<String, Any>) {
         val sourceAgents = context["sourceAgents"] as? List<String> ?: return
-
         val targetModel = localModels[agentId] ?: return
         val sourceModels = sourceAgents.mapNotNull { localModels[it] }
 
@@ -464,7 +461,7 @@ class FederatedLearningManager(private val context: Context) {
     private fun saveToDisk() {
         try {
             val modelJson = gson.toJson(localModels.mapKeys { it.key })
-            val knowledgeJson = gson.toJson(sharedKnowledgeBase)
+        val knowledgeJson = gson.toJson(sharedKnowledgeBase)
             val contributionJson = gson.toJson(agentContributions.mapValues { it.value.toList() })
 
             prefs.edit()
@@ -480,26 +477,26 @@ class FederatedLearningManager(private val context: Context) {
     private fun loadFromDisk() {
         try {
             val modelJson = prefs.getString("models", null)
-            val knowledgeJson = prefs.getString("knowledge", null)
+        val knowledgeJson = prefs.getString("knowledge", null)
             val contributionJson = prefs.getString("contributions", null)
 
             modelJson?.let {
                 val json = String(Base64.decode(it, Base64.DEFAULT))
-                val type = object : TypeToken<Map<String, LocalAgentModel>>() {}.type
+        val type = object : TypeToken<Map<String, LocalAgentModel>>() {}.type
                 val models: Map<String, LocalAgentModel> = gson.fromJson(json, type)
                 models.forEach { (k, v) -> localModels[k] = v }
             }
 
             knowledgeJson?.let {
                 val json = String(Base64.decode(it, Base64.DEFAULT))
-                val type = object : TypeToken<Map<String, SharedKnowledge>>() {}.type
+        val type = object : TypeToken<Map<String, SharedKnowledge>>() {}.type
                 val knowledge: Map<String, SharedKnowledge> = gson.fromJson(json, type)
                 knowledge.forEach { (k, v) -> sharedKnowledgeBase[k] = v }
             }
 
             contributionJson?.let {
                 val json = String(Base64.decode(it, Base64.DEFAULT))
-                val type = object : TypeToken<Map<String, List<ModelContribution>>>() {}.type
+        val type = object : TypeToken<Map<String, List<ModelContribution>>>() {}.type
                 val contributions: Map<String, List<ModelContribution>> = gson.fromJson(json, type)
                 contributions.forEach { (k, v) -> agentContributions[k] = v.toMutableList() }
             }
@@ -544,7 +541,6 @@ class IncrementalLearningEngine {
         learningRate: Float = learningRates[capability] ?: DEFAULT_LEARNING_RATE
     ): Float {
         val key = "${agentId}:${capability}"
-
         val momentum = momentumBuffer[key] ?: 0f
         val newMomentum = MOMENTUM_FACTOR * momentum + (1 - MOMENTUM_FACTOR) * gradient
 

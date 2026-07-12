@@ -25,7 +25,7 @@ class StandardIntentToolExecutor(private val context: Context) {
         private const val TAG = "IntentToolExecutor"
 
         // Intent execution types
-        const val TYPE_ACTIVITY = "activity"
+                const val TYPE_ACTIVITY = "activity"
         const val TYPE_BROADCAST = "broadcast"
         const val TYPE_SERVICE = "service"
     }
@@ -51,7 +51,7 @@ class StandardIntentToolExecutor(private val context: Context) {
 
     suspend fun invoke(tool: AITool): ToolResult {
         // Validate parameters
-        val validationResult = validateParameters(tool)
+                val validationResult = validateParameters(tool)
         if (!validationResult.valid) {
             return ToolResult(
                     toolName = tool.name,
@@ -71,30 +71,30 @@ class StandardIntentToolExecutor(private val context: Context) {
 
         return try {
             // Create the intent
-            val intent = Intent()
+                val intent = Intent()
 
             // Set action if provided
-            if (!action.isNullOrBlank()) {
+                if (!action.isNullOrBlank()) {
                 intent.action = action
             }
 
             // Set data URI if provided
-            if (!uri.isNullOrBlank()) {
+                if (!uri.isNullOrBlank()) {
                 intent.data = Uri.parse(uri)
             }
 
             // Set package if provided
-            if (!packageName.isNullOrBlank()) {
+                if (!packageName.isNullOrBlank()) {
                 intent.`package` = packageName
             }
 
             // Set component if provided
-            if (!componentName.isNullOrBlank()) {
+                if (!componentName.isNullOrBlank()) {
                 applyComponentName(intent, componentName)
             }
 
             // Set flags if provided
-            if (!flags.isNullOrBlank()) {
+                if (!flags.isNullOrBlank()) {
                 try {
                     val flagsJson = JSONArray(flags)
                     var combinedFlags = 0
@@ -106,7 +106,7 @@ class StandardIntentToolExecutor(private val context: Context) {
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Error parsing flags", e)
                     // Try to parse as a single integer value
-                    try {
+                try {
                         intent.flags = flags.toInt()
                     } catch (e2: Exception) {
                         AppLogger.e(TAG, "Error parsing flags as integer", e2)
@@ -115,13 +115,13 @@ class StandardIntentToolExecutor(private val context: Context) {
             }
 
             // Set extras if provided
-            if (!extras.isNullOrBlank()) {
+                if (!extras.isNullOrBlank()) {
                 try {
                     val extrasJson = JSONObject(extras)
-                    val keys = extrasJson.keys()
+        val keys = extrasJson.keys()
                     while (keys.hasNext()) {
                         val key = keys.next()
-                        val value = extrasJson.get(key)
+        val value = extrasJson.get(key)
 
                         when (value) {
                             is String -> intent.putExtra(key, value)
@@ -132,9 +132,9 @@ class StandardIntentToolExecutor(private val context: Context) {
                             is Long -> intent.putExtra(key, value)
                             else -> {
                                 // Try to detect array types
-                                if (value is JSONArray) {
+                if (value is JSONArray) {
                                     // Handle various array types
-                                    if (value.length() > 0) {
+                if (value.length() > 0) {
                                         val firstItem = value.get(0)
                                         when (firstItem) {
                                             is String -> {
@@ -153,13 +153,13 @@ class StandardIntentToolExecutor(private val context: Context) {
                                             }
                                             else -> {
                                                 // Convert to string if type is unsupported
-                                                intent.putExtra(key, value.toString())
+                intent.putExtra(key, value.toString())
                                             }
                                         }
                                     }
                                 } else {
                                     // Convert to string if type is unsupported
-                                    intent.putExtra(key, value.toString())
+                intent.putExtra(key, value.toString())
                                 }
                             }
                         }
@@ -170,7 +170,7 @@ class StandardIntentToolExecutor(private val context: Context) {
             }
 
             // Check if intent is valid
-            if (intent.action == null && componentName.isNullOrBlank()) {
+                if (intent.action == null && componentName.isNullOrBlank()) {
                 return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -181,13 +181,13 @@ class StandardIntentToolExecutor(private val context: Context) {
 
             // Add FLAG_ACTIVITY_NEW_TASK for safety if not already set when starting activity
             // This is needed when starting activities from non-activity contexts
-            if (type == TYPE_ACTIVITY && intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK == 0) {
+                if (type == TYPE_ACTIVITY && intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK == 0) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
             // Execute the intent based on the requested type using withContext to ensure main
             // thread execution
-            try {
+                try {
                 val result =
                         withContext(Dispatchers.Main) {
                             when (type) {
@@ -203,7 +203,7 @@ class StandardIntentToolExecutor(private val context: Context) {
                                     "Service started successfully"
                                 }
                                 else -> { // Default to activity
-                                    context.startActivity(intent)
+                context.startActivity(intent)
                                     "Activity started successfully"
                                 }
                             }
@@ -270,7 +270,7 @@ class StandardIntentToolExecutor(private val context: Context) {
         }
 
         // Validate type parameter if provided
-        if (!type.isNullOrBlank() &&
+                if (!type.isNullOrBlank() &&
                         type != TYPE_ACTIVITY &&
                         type != TYPE_BROADCAST &&
                         type != TYPE_SERVICE
@@ -282,7 +282,7 @@ class StandardIntentToolExecutor(private val context: Context) {
         }
 
         // If type is service, component must be provided
-        if (type == TYPE_SERVICE && component.isNullOrBlank()) {
+                if (type == TYPE_SERVICE && component.isNullOrBlank()) {
             return ToolValidationResult(
                     valid = false,
                     errorMessage = "Component parameter is required when type is 'service'"

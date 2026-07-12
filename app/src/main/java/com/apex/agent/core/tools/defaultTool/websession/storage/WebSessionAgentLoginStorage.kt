@@ -55,7 +55,7 @@ internal class WebSessionAgentLoginStorage(
     fun saveCookies(siteKey: String, cookies: String, url: String = "") {
         try {
             val key = "cookies_${siteKey}"
-            val data = AgentLoginData(
+        val data = AgentLoginData(
                 cookies = cookies,
                 url = url,
                 timestamp = System.currentTimeMillis()
@@ -81,7 +81,7 @@ internal class WebSessionAgentLoginStorage(
     fun getCookies(siteKey: String): String {
         try {
             val key = "cookies_${siteKey}"
-            val jsonStr = prefs.getString(key, null) ?: return ""
+        val jsonStr = prefs.getString(key, null) ?: return ""
             
             val data = json.decodeFromString<AgentLoginData>(jsonStr)
             return data.cookies
@@ -120,7 +120,7 @@ internal class WebSessionAgentLoginStorage(
     fun getLastUpdateTime(siteKey: String): Long {
         try {
             val key = "cookies_${siteKey}"
-            val jsonStr = prefs.getString(key, null) ?: return 0L
+        val jsonStr = prefs.getString(key, null) ?: return 0L
             
             val data = json.decodeFromString<AgentLoginData>(jsonStr)
             return data.timestamp

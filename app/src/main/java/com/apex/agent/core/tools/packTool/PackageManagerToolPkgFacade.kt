@@ -235,7 +235,7 @@ internal class PackageManagerToolPkgFacade(
         val candidateContainers =
             if (preferImportedContainer) {
                 val imported = packageManager.getImportedPackageSetInternal()
-                val importedContainers =
+        val importedContainers =
                     subpackages
                         .map { it.containerPackageName }
                         .distinct()
@@ -297,7 +297,7 @@ internal class PackageManagerToolPkgFacade(
 
         fun resolveFromContainer(containerName: String): String? {
             val normalizedContainerName = packageManager.normalizePackageName(containerName)
-            val runtime = packageManager.toolPkgContainersInternal[normalizedContainerName] ?: return null
+        val runtime = packageManager.toolPkgContainersInternal[normalizedContainerName] ?: return null
             val resource =
                 runtime.resources.firstOrNull {
                     it.key.equals(key, ignoreCase = true)
@@ -332,7 +332,7 @@ internal class PackageManagerToolPkgFacade(
         val candidateContainers =
             if (preferImportedContainer) {
                 val imported = packageManager.getImportedPackageSetInternal()
-                val importedContainers =
+        val importedContainers =
                     subpackages
                         .map { it.containerPackageName }
                         .distinct()
@@ -483,12 +483,12 @@ internal class PackageManagerToolPkgFacade(
 
         return runCatching {
             val normalizedContainerPackageName = packageManager.normalizePackageName(containerPackageName)
-            val runtime =
+        val runtime =
                 packageManager.toolPkgContainersInternal[normalizedContainerPackageName]
                     ?: throw IllegalArgumentException("ToolPkg container not found: ${containerPackageName}")
 
             val getMainScriptStartTime = if (shouldLogTiming) messageTimingNow() else 0L
-            val script =
+        val script =
                 packageManager.getToolPkgMainScriptInternal(runtime.packageName)
                     ?: throw IllegalStateException("ToolPkg main script is unavailable: ${runtime.packageName}")
             if (shouldLogTiming) {
@@ -500,7 +500,7 @@ internal class PackageManagerToolPkgFacade(
             }
 
             val resolveFunctionSourceStartTime = if (shouldLogTiming) messageTimingNow() else 0L
-            val functionSource = inlineFunctionSource?.trim().orEmpty().ifBlank { null }
+        val functionSource = inlineFunctionSource?.trim().orEmpty().ifBlank { null }
             if (shouldLogTiming) {
                 logMessageTiming(
                     stage = "toolpkg.runMainHook.resolveFunctionSource",
@@ -510,7 +510,7 @@ internal class PackageManagerToolPkgFacade(
             }
 
             val timestampMs = System.currentTimeMillis()
-            val params = mutableMapOf<String, Any?>(
+        val params = mutableMapOf<String, Any?>(
                 "event" to resolvedEventName,
                 "eventName" to resolvedEventName,
                 "eventPayload" to eventPayload,
@@ -537,7 +537,7 @@ internal class PackageManagerToolPkgFacade(
             }
 
             val getExecutionEngineStartTime = if (shouldLogTiming) messageTimingNow() else 0L
-            val executionContextKey = resolveToolPkgExecutionContextKey(runtime.packageName, params)
+        val executionContextKey = resolveToolPkgExecutionContextKey(runtime.packageName, params)
             val executionEngine = packageManager.getToolPkgExecutionEngine(executionContextKey)
             if (shouldLogTiming) {
                 logMessageTiming(
@@ -548,7 +548,7 @@ internal class PackageManagerToolPkgFacade(
             }
 
             val executeScriptFunctionStartTime = if (shouldLogTiming) messageTimingNow() else 0L
-            val executionResult = executionEngine.executeScriptFunction(
+        val executionResult = executionEngine.executeScriptFunction(
                 script = script,
                 functionName = functionName,
                 params = params,
@@ -659,7 +659,7 @@ internal class PackageManagerToolPkgFacade(
 
         candidateContainers.forEach { containerName ->
             val runtime = packageManager.toolPkgContainersInternal[containerName] ?: return@forEach
-            val text =
+        val text =
                 packageManager.readToolPkgResourceBytes(runtime, normalizedPath)
                     ?.toString(StandardCharsets.UTF_8)
             if (!text.isNullOrEmpty()) {

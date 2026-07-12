@@ -45,7 +45,7 @@ class UpdateNotification private constructor(private val context: Context) {
 
     private val activeNotifications = ConcurrentHashMap<String, Int>()
     private val _notificationState = MutableStateFlow<Map<String, NotificationState>>(emptyMap())
-    val notificationState: StateFlow<Map<String, NotificationState>> = _notificationState.asStateFlow()
+        val notificationState: StateFlow<Map<String, NotificationState>> = _notificationState.asStateFlow()
 
     data class NotificationState(
         val skillId: String,
@@ -104,7 +104,7 @@ class UpdateNotification private constructor(private val context: Context) {
     ) {
         try {
             val title = "Update available for ${skillName}"
-            val message = "Update from ${currentVersion} to ${newVersion} (${formatFileSize(updateSize)})"
+        val message = "Update from ${currentVersion} to ${newVersion} (${formatFileSize(updateSize)})"
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID_UPDATES)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -155,11 +155,9 @@ class UpdateNotification private constructor(private val context: Context) {
     ) {
         try {
             val notificationId = NOTIFICATION_ID_DOWNLOAD_PROGRESS + skillId.hashCode()
-
-            val title = "Downloading ${skillName}"
+        val title = "Downloading ${skillName}"
             val message = "Version ${version}: ${formatFileSize(downloadedBytes)} / ${formatFileSize(totalBytes)}"
-
-            val notification = NotificationCompat.Builder(context, CHANNEL_ID_DOWNLOAD)
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID_DOWNLOAD)
                 .setSmallIcon(android.R.drawable.ic_menu_save)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -194,7 +192,7 @@ class UpdateNotification private constructor(private val context: Context) {
     fun showDownloadComplete(skillId: String, skillName: String, version: String) {
         try {
             val title = "Download complete for ${skillName}"
-            val message = "Version ${version} is ready to install"
+        val message = "Version ${version} is ready to install"
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID_DOWNLOAD)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -230,7 +228,7 @@ class UpdateNotification private constructor(private val context: Context) {
     fun showUpdateComplete(skillId: String, skillName: String, newVersion: String) {
         try {
             val title = "Update complete for ${skillName}"
-            val message = "Successfully updated to version ${newVersion}"
+        val message = "Successfully updated to version ${newVersion}"
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID_UPDATES)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -261,7 +259,7 @@ class UpdateNotification private constructor(private val context: Context) {
     fun showUpdateFailed(skillId: String, skillName: String, errorMessage: String) {
         try {
             val title = "Update failed for ${skillName}"
-            val message = "Error: ${errorMessage}"
+        val message = "Error: ${errorMessage}"
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID_UPDATES)
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)

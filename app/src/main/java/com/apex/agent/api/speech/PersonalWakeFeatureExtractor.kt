@@ -38,18 +38,16 @@ object PersonalWakeFeatureExtractor {
         if (frames.isEmpty()) return FloatArray(0)
 
         val mel = buildMelFilterBank(config)
-
         val logMels = ArrayList<FloatArray>(frames.size)
         for (frame in frames) {
             val pre = preEmphasis(frame, 0.97f)
-            val windowed = applyHann(pre)
+        val windowed = applyHann(pre)
             val mag2 = fftMagSquared(windowed, config.fftSize)
-
-            val feats = FloatArray(config.melBins)
+        val feats = FloatArray(config.melBins)
             for (i in 0 until config.melBins) {
                 var sum = 0f
                 val w = mel.weights[i]
-                val n = min(w.size, mag2.size)
+        val n = min(w.size, mag2.size)
                 for (k in 0 until n) {
                     sum += w[k] * mag2[k]
                 }
@@ -68,7 +66,7 @@ object PersonalWakeFeatureExtractor {
         val featSeq = Array(mfcc.size) { FloatArray(featureDim) }
         for (t in mfcc.indices) {
             val base1 = 0
-            val base2 = config.numMfcc
+        val base2 = config.numMfcc
             val base3 = config.numMfcc * 2
             for (i in 0 until config.numMfcc) {
                 featSeq[t][base1 + i] = mfcc[t][i]
@@ -96,9 +94,9 @@ object PersonalWakeFeatureExtractor {
         val dim = frames[0].size
         for (t in 0 until maxFrames) {
             val start = (t * n) / maxFrames
-            val end = ((t + 1) * n) / maxFrames
+        val end = ((t + 1) * n) / maxFrames
             val count = max(1, end - start)
-            val pooled = FloatArray(dim)
+        val pooled = FloatArray(dim)
             for (k in start until end) {
                 val src = frames[k]
                 for (i in 0 until dim) {
@@ -139,7 +137,7 @@ object PersonalWakeFeatureExtractor {
             val kk = k.toFloat()
             for (i in 0 until melBins) {
                 val ii = i.toFloat()
-                val angle = (Math.PI * kk * (ii + 0.5f) / m).toDouble()
+        val angle = (Math.PI * kk * (ii + 0.5f) / m).toDouble()
                 table[k][i] = kotlin.math.cos(angle).toFloat()
             }
         }
@@ -153,7 +151,7 @@ object PersonalWakeFeatureExtractor {
         val out = Array(t) { FloatArray(d) }
         for (i in 0 until t) {
             val prev = x[if (i > 0) i - 1 else 0]
-            val next = x[if (i + 1 < t) i + 1 else t - 1]
+        val next = x[if (i + 1 < t) i + 1 else t - 1]
             for (k in 0 until d) {
                 out[i][k] = (next[k] - prev[k]) * 0.5f
             }
@@ -190,7 +188,7 @@ object PersonalWakeFeatureExtractor {
         var nb = 0f
         for (i in 0 until n) {
             val va = a[i]
-            val vb = b[i]
+        val vb = b[i]
             dot += va * vb
             na += va * va
             nb += vb * vb
@@ -302,7 +300,7 @@ object PersonalWakeFeatureExtractor {
         var len = 2
         while (len <= n) {
             val ang = (-2.0 * Math.PI / len).toFloat()
-            val wlenRe = cos(ang)
+        val wlenRe = cos(ang)
             val wlenIm = sin(ang)
             var i = 0
             while (i < n) {
@@ -310,9 +308,9 @@ object PersonalWakeFeatureExtractor {
                 var wIm = 0f
                 for (k in 0 until len / 2) {
                     val uRe = re[i + k]
-                    val uIm = im[i + k]
+        val uIm = im[i + k]
                     val vRe = re[i + k + len / 2] * wRe - im[i + k + len / 2] * wIm
-                    val vIm = re[i + k + len / 2] * wIm + im[i + k + len / 2] * wRe
+        val vIm = re[i + k + len / 2] * wIm + im[i + k + len / 2] * wRe
 
                     re[i + k] = uRe + vRe
                     im[i + k] = uIm + vIm
@@ -320,7 +318,7 @@ object PersonalWakeFeatureExtractor {
                     im[i + k + len / 2] = uIm - vIm
 
                     val nextWRe = wRe * wlenRe - wIm * wlenIm
-                    val nextWIm = wRe * wlenIm + wIm * wlenRe
+        val nextWIm = wRe * wlenIm + wIm * wlenRe
                     wRe = nextWRe
                     wIm = nextWIm
                 }
@@ -337,7 +335,6 @@ object PersonalWakeFeatureExtractor {
         val fMax = if (config.fMax <= 0f) config.sampleRate / 2f else config.fMax
         val melMin = hzToMel(config.fMin)
         val melMax = hzToMel(fMax)
-
         val melPoints = FloatArray(config.melBins + 2)
         for (i in melPoints.indices) {
             melPoints[i] = melMin + (melMax - melMin) * i / (config.melBins + 1)
@@ -346,13 +343,13 @@ object PersonalWakeFeatureExtractor {
         val hzPoints = FloatArray(melPoints.size) { i -> melToHz(melPoints[i]) }
         val binPoints = IntArray(hzPoints.size) { i ->
             val freq = hzPoints[i]
-            val b = ((config.fftSize + 1) * freq / config.sampleRate).toInt()
+        val b = ((config.fftSize + 1) * freq / config.sampleRate).toInt()
             b.coerceIn(0, bins - 1)
         }
 
         for (m in 1..config.melBins) {
             val left = binPoints[m - 1]
-            val center = binPoints[m]
+        val center = binPoints[m]
             val right = binPoints[m + 1]
 
             if (center == left || right == center) continue

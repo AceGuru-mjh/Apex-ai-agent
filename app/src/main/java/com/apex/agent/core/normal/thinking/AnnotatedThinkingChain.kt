@@ -20,9 +20,9 @@ data class ThinkingStep(
     val index: Int,
     val type: StepType,
     val premise: String,        // 前提
-    val reasoning: String,      // 推理过程
-    val conclusion: String,     // 结论
-    val confidence: Float = 1.0f,
+                val reasoning: String,      // 推理过程
+                val conclusion: String,     // 结论
+                val confidence: Float = 1.0f,
     val evidence: List<String> = emptyList(),
     val assumptions: List<String> = emptyList(),
     val subQuestions: List<String> = emptyList()
@@ -30,13 +30,13 @@ data class ThinkingStep(
 
 enum class StepType {
     OBSERVATION,    // 观察
-    HYPOTHESIS,     // 假设
-    DEDUCTION,      // 演绎
-    INDUCTION,      // 归纳
-    ABDUCTION,      // 溯因
-    EVALUATION,     // 评估
-    DECISION,       // 决策
-    VERIFICATION    // 验证
+                HYPOTHESIS,     // 假设
+                DEDUCTION,      // 演绎
+                INDUCTION,      // 归纳
+                ABDUCTION,      // 溯因
+                EVALUATION,     // 评估
+                DECISION,       // 决策
+                VERIFICATION    // 验证
 }
 
 /**
@@ -123,7 +123,7 @@ class ThinkingChainParser {
         val steps = mutableListOf<ThinkingStep>()
 
         // 按步骤分隔符切分
-        val stepPattern = Regex("(?m)^(?:步骤\\s*\\d+[：:.]?|Step\\s*\\d+[:.]?|#\\s*\\d+|\\d+[.、)）])\\s*(.*)")
+                val stepPattern = Regex("(?m)^(?:步骤\\s*\\d+[：:.]?|Step\\s*\\d+[:.]?|#\\s*\\d+|\\d+[.、)）])\\s*(.*)")
         val chunks = splitIntoChunks(content, stepPattern)
 
         chunks.forEachIndexed { index, chunk ->
@@ -132,7 +132,7 @@ class ThinkingChainParser {
         }
 
         // 如果没有识别出步骤，把整个内容作为单步
-        if (steps.isEmpty() && content.isNotBlank()) {
+                if (steps.isEmpty() && content.isNotBlank()) {
             steps.add(ThinkingStep(
                 id = "step_0",
                 index = 0,
@@ -166,8 +166,7 @@ class ThinkingChainParser {
     }
 
     // ============ 内部方法 ============
-
-    private fun splitIntoChunks(content: String, stepPattern: Regex): List<String> {
+                private fun splitIntoChunks(content: String, stepPattern: Regex): List<String> {
         val lines = content.lines()
         val chunks = mutableListOf<String>()
         var current = StringBuilder()
@@ -262,13 +261,13 @@ class ThinkingChainParser {
 
     private fun extractFinalConclusion(content: String, steps: List<ThinkingStep>): String {
         // 尝试找"最终结论"标记
-        val patterns = listOf("最终结论", "final conclusion", "结论", "conclusion")
+                val patterns = listOf("最终结论", "final conclusion", "结论", "conclusion")
         for (kw in patterns) {
             val pattern = Regex("$kw[：:]\\s*(.*?)$", RegexOption.DOT_MATCHES_ALL)
             pattern.find(content)?.let { return it.groupValues[1].trim().take(300) }
         }
         // 否则取最后一步的结论
-        return steps.lastOrNull()?.conclusion ?: ""
+                return steps.lastOrNull()?.conclusion ?: ""
     }
 
     private fun extractTopic(content: String): String {

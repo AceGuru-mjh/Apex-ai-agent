@@ -52,13 +52,13 @@ class WakeWordManager(
     private val json = Json { ignoreUnknownKeys = true }
 
     private val _config = MutableStateFlow(WakeWordConfig())
-    val config: StateFlow<WakeWordConfig> = _config.asStateFlow()
+        val config: StateFlow<WakeWordConfig> = _config.asStateFlow()
 
     private val _isListening = MutableStateFlow(false)
-    val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
+        val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
 
     private val _lastDetectedWakeWord = MutableStateFlow<WakeWord?>(null)
-    val lastDetectedWakeWord: StateFlow<WakeWord?> = _lastDetectedWakeWord.asStateFlow()
+        val lastDetectedWakeWord: StateFlow<WakeWord?> = _lastDetectedWakeWord.asStateFlow()
 
     private var onWakeWordDetected: ((WakeWord) -> Unit)? = null
 
@@ -86,7 +86,7 @@ class WakeWordManager(
         coroutineScope.launch {
             dataStore.data.collect { prefs ->
                 val configJson = prefs[WAKE_WORDS_CONFIG]
-                val wakeWordsJson = prefs[CUSTOM_WAKE_WORDS]
+        val wakeWordsJson = prefs[CUSTOM_WAKE_WORDS]
 
                 val wakeWords = if (configJson != null) {
                     try {

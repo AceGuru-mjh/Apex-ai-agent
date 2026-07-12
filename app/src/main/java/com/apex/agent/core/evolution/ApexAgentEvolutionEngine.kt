@@ -34,7 +34,6 @@ class ApexAgentEvolutionEngine(
         userId: String
     ) = withContext(Dispatchers.IO) {
         val behaviorStr = agentBehavior.joinToString("\n")
-
         val memory = memoryRepository.createMemory(
             title = "智能体执行taskType行为",
             content = "智能体执行taskType行为：\n${behaviorStr}\n（用户userId的"
@@ -58,7 +57,6 @@ class ApexAgentEvolutionEngine(
         taskGoal: String
     ): Float = withContext(Dispatchers.IO) {
         val behaviorStr = agentBehavior.joinToString("\n")
-
         val completionScore = minOf(agentBehavior.size.toFloat() / 5, 1.0f) * 5
         val relevanceScore = if (behaviorStr.contains(taskGoal.substring(0, minOf(10, taskGoal.length)))) {
             5.0f
@@ -155,13 +153,11 @@ class ApexAgentEvolutionEngine(
         recordBehavior(agentBehavior, taskType, userId)
 
         val effectScore = evaluateEffect(agentBehavior, taskGoal)
-
         val currentStrategy = memoryRepository.generatePersonalizedStrategyPrompt(
             memoryRepository.getHonzonProfile(userId),
             taskType
         )
         val optimizedStrategy = optimizeStrategy(taskType, userId, currentStrategy, effectScore)
-
         val skillPath = skillEvolutionManager.extractSkill(
             agentBehavior = agentBehavior,
             taskType = taskType,
@@ -171,7 +167,6 @@ class ApexAgentEvolutionEngine(
         updateRLPolicy(taskType, agentBehavior, effectScore)
 
         val convergence = iterationCount >= 100 && effectScore >= 9.0f
-
         val result = EvolutionResult(
             optimizedStrategy = optimizedStrategy,
             skillPath = skillPath,
@@ -238,8 +233,7 @@ class ApexAgentEvolutionEngine(
         return reinforcementLearningEngine?.let { rlEngine ->
             try {
                 val state = State(features = context, context = taskType)
-                
-                val possibleActions = listOf(
+        val possibleActions = listOf(
                     Action(
                         type = ActionType.TASK_PLAN,
                         parameters = mapOf("taskType" to taskType),

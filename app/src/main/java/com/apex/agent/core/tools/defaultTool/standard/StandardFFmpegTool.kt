@@ -35,10 +35,10 @@ class StandardFFmpegToolExecutor(private val context: Context) : ToolExecutor {
             val startTime = System.currentTimeMillis()
 
             // 执行FFmpeg命令
-            val session = FFmpegKit.execute(command)
-            val returnCode = session.returnCode
+                val session = FFmpegKit.execute(command)
+        val returnCode = session.returnCode
             val output = session.output ?: ""
-            val duration = System.currentTimeMillis() - startTime
+        val duration = System.currentTimeMillis() - startTime
 
             if (ReturnCode.isSuccess(returnCode)) {
                 ToolResult(
@@ -97,15 +97,15 @@ class StandardFFmpegInfoToolExecutor : ToolExecutor {
     override fun invoke(tool: AITool): ToolResult {
         return try {
             val info = StringBuilder()
-            val startTime = System.currentTimeMillis()
+        val startTime = System.currentTimeMillis()
 
             // 获取FFmpeg版本信息
-            info.appendLine("FFmpeg version: ${FFmpegKitConfig.getVersion()}")
+                info.appendLine("FFmpeg version: ${FFmpegKitConfig.getVersion()}")
             info.appendLine("Build configuration: ${FFmpegKitConfig.getBuildDate()}")
 
             // 列出支持的编解码的
-           val codecsSession = FFmpegKit.execute("-codecs")
-            val codecsOutput = codecsSession.output ?: ""
+                val codecsSession = FFmpegKit.execute("-codecs")
+        val codecsOutput = codecsSession.output ?: ""
             val duration = System.currentTimeMillis() - startTime
 
             info.appendLine("\nSupported codecs:")
@@ -134,7 +134,7 @@ class StandardFFmpegInfoToolExecutor : ToolExecutor {
 
     override fun validateParameters(tool: AITool): ToolValidationResult {
         // 不需要参数
-      return ToolValidationResult(valid = true)
+                return ToolValidationResult(valid = true)
     }
 }
 
@@ -173,10 +173,10 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
         }
 
         // 构建FFmpeg命令
-        val commandBuilder = StringBuilder("-i \"${inputPath}\"")
+                val commandBuilder = StringBuilder("-i \"${inputPath}\"")
 
         // 添加可选参数
-      if (!videoCodec.isNullOrEmpty()) {
+                if (!videoCodec.isNullOrEmpty()) {
             commandBuilder.append(" -c:v ${videoCodec}")
         }
 
@@ -193,7 +193,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
         }
 
         // 添加输出文件
-        commandBuilder.append(" \"${outputPath}\"")
+                commandBuilder.append(" \"${outputPath}\"")
 
         val command = commandBuilder.toString()
 
@@ -201,15 +201,15 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
             val startTime = System.currentTimeMillis()
 
             // 执行FFmpeg命令
-            val session = FFmpegKit.execute(command)
-            val returnCode = session.returnCode
+                val session = FFmpegKit.execute(command)
+        val returnCode = session.returnCode
             val output = session.output ?: ""
-            val duration = System.currentTimeMillis() - startTime
+        val duration = System.currentTimeMillis() - startTime
 
             if (ReturnCode.isSuccess(returnCode)) {
                 // 获取输出文件的媒体信息
-               val mediaSession = FFprobeKit.getMediaInformation(outputPath)
-                val mediaInfo = mediaSession?.mediaInformation
+                val mediaSession = FFprobeKit.getMediaInformation(outputPath)
+        val mediaInfo = mediaSession?.mediaInformation
 
                 val ffmpegResult =
                         if (mediaInfo != null) {
@@ -243,7 +243,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                                         sampleRate =
                                                                 null, // We'll get this from FFprobe
                                                         // if needed
-                                                        channels =
+                channels =
                                                                 null // We'll get this from FFprobe
                                                         // if needed
                                                         )
@@ -251,12 +251,12 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                             .toMutableList()
 
                             // Get additional media information using FFprobe
-                            val ffprobeSession = FFprobeKit.getMediaInformation(outputPath)
-                            val ffprobeInfo = ffprobeSession?.mediaInformation
+                val ffprobeSession = FFprobeKit.getMediaInformation(outputPath)
+        val ffprobeInfo = ffprobeSession?.mediaInformation
 
                             if (ffprobeInfo != null) {
                                 // Update stream information with FFprobe data
-                                ffprobeInfo.streams.forEach { probeStream ->
+                ffprobeInfo.streams.forEach { probeStream ->
                                     when (probeStream.type) {
                                         "video" -> {
                                             val index =

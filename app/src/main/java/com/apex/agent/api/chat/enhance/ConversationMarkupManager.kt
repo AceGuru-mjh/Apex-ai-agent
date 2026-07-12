@@ -182,7 +182,7 @@ class ConversationMarkupManager {
 
         private fun containsStatusType(content: String, statusType: String): Boolean {
             val escapedType = Regex.escape(statusType)
-            val statusRegex = Regex(
+        val statusRegex = Regex(
                 "<status\\b[^>]*\\btype\\s*=\\s*\"${escapedType}\"[^>]*(?:/>|>[\\s\\S]*?</status>)",
                 setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
             )

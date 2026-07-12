@@ -14,7 +14,6 @@ data class PipelineStage(
         val IMPLEMENT = PipelineStage("实现阶段", "代码实现", 2)
         val REVIEW = PipelineStage("审查阶段", "代码审查和质量检查", 3)
         val VALIDATE = PipelineStage("验证阶段", "验证和测试", 4)
-
         val ALL = listOf(RESEARCH, PLAN, IMPLEMENT, REVIEW, VALIDATE)
     }
 }

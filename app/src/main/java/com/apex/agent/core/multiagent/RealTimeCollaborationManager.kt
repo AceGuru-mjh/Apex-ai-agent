@@ -33,13 +33,13 @@ class RealTimeCollaborationManager(private val context: Context) {
     private val operationHistory = ConcurrentHashMap<String, MutableList<Operation>>()
 
     private val _connectionState = MutableStateFlow<Map<String, ConnectionState>>(emptyMap())
-    val connectionState: StateFlow<Map<String, ConnectionState>> = _connectionState
+        val connectionState: StateFlow<Map<String, ConnectionState>> = _connectionState
 
     private val _collaborationEvents = MutableSharedFlow<CollaborationEvent>()
-    val collaborationEvents: SharedFlow<CollaborationEvent> = _collaborationEvents
+        val collaborationEvents: SharedFlow<CollaborationEvent> = _collaborationEvents
 
     private val _syncProgress = MutableStateFlow(SyncProgress())
-    val syncProgress: StateFlow<SyncProgress> = _syncProgress
+        val syncProgress: StateFlow<SyncProgress> = _syncProgress
 
     private var syncJob: Job? = null
 
@@ -76,7 +76,7 @@ class RealTimeCollaborationManager(private val context: Context) {
             val allAgents = (clocks.keys + other.clocks.keys)
             allAgents.forEach { agent ->
                 val thisTime = clocks[agent] ?: 0
-                val otherTime = other.clocks[agent] ?: 0
+        val otherTime = other.clocks[agent] ?: 0
                 if (thisTime > otherTime) thisGreater = true
                 if (otherTime > thisTime) otherGreater = true
             }
@@ -159,7 +159,6 @@ class RealTimeCollaborationManager(private val context: Context) {
 
     suspend fun createSession(taskId: String, initialParticipants: Set<String>): String {
         val sessionId = UUID.randomUUID().toString()
-
         val session = CollaborationSession(
             sessionId = sessionId,
             taskId = taskId,
@@ -287,7 +286,6 @@ class RealTimeCollaborationManager(private val context: Context) {
 
     suspend fun resolveConflict(sessionId: String, conflictId: String, resolution: ConflictRecord.ConflictResolution): Boolean {
         val conflict = findConflict(sessionId, conflictId) ?: return false
-
         val resolvedOp = when (resolution) {
             ConflictRecord.ConflictResolution.AUTO_MERGE -> {
                 crdtEngine.mergeOperations(conflict.operations)
@@ -352,14 +350,13 @@ class RealTimeCollaborationManager(private val context: Context) {
     private suspend fun performSync() {
         collaborationSessions.keys.forEach { sessionId ->
             val session = collaborationSessions[sessionId] ?: return@forEach
-
-            val remoteOps = webSocketManager.receiveOperations(sessionId)
+        val remoteOps = webSocketManager.receiveOperations(sessionId)
 
             remoteOps.forEach { remoteOp ->
                 session.vectorClock.merge(remoteOp.vectorClock)
 
                 val localOps = pendingOperations[sessionId] ?: emptyList()
-                val transformedOp = otEngine.transformAgainstHistory(remoteOp, localOps)
+        val transformedOp = otEngine.transformAgainstHistory(remoteOp, localOps)
 
                 if (transformedOp != null) {
                     crdtEngine.applyOperation(transformedOp)
@@ -595,7 +592,6 @@ class OTEngine {
         val docId = operation.payload["docId"] as? String ?: return false
         val position = operation.payload["position"] as? Int ?: 0
         val content = operation.payload["content"] as? String ?: ""
-
         val currentState = documentStates[docId] ?: ""
         val newState = StringBuilder(currentState).insert(position, content).toString()
         documentStates[docId] = newState
@@ -607,7 +603,6 @@ class OTEngine {
         val docId = operation.payload["docId"] as? String ?: return false
         val position = operation.payload["position"] as? Int ?: 0
         val length = operation.payload["length"] as? Int ?: 1
-
         val currentState = documentStates[docId] ?: ""
         if (position < 0 || position + length > currentState.length) {
             return false

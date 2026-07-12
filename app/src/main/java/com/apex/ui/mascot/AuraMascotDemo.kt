@@ -50,17 +50,17 @@ fun AuraMascotDemo(
     modifier: Modifier = Modifier,
 ) {
     // 1. 模拟真实状态源(实际使用时替换为真实模块 StateFlow)
-    val mockKernelState = remember { MutableStateFlow(MascotKernelState.RUNNING) }
-    val mockIsThinking = remember { MutableStateFlow(false) }
+                val mockKernelState = remember { MutableStateFlow(MascotKernelState.RUNNING) }
+        val mockIsThinking = remember { MutableStateFlow(false) }
     val mockIsExecuting = remember { MutableStateFlow(true) }
-    val mockIsRootActive = remember { MutableStateFlow(true) }
+        val mockIsRootActive = remember { MutableStateFlow(true) }
     val mockIsRemembering = remember { MutableStateFlow(false) }
-    val mockIsTooling = remember { MutableStateFlow(false) }
+        val mockIsTooling = remember { MutableStateFlow(false) }
     val mockIsSkilling = remember { MutableStateFlow(false) }
-    val mockIsMcping = remember { MutableStateFlow(false) }
+        val mockIsMcping = remember { MutableStateFlow(false) }
 
     // 2. 绑定真实状态源(首次进入时)
-    LaunchedEffect(sessionId) {
+                LaunchedEffect(sessionId) {
         integration.bindRealStateSources(
             sessionId = sessionId,
             sources = MascotStateSources(
@@ -78,11 +78,11 @@ fun AuraMascotDemo(
     }
 
     // 3. 获取当前形态
-    val controller = remember(sessionId) { integration.getController(sessionId) }
-    val state by controller.state.collectAsState()
+                val controller = remember(sessionId) { integration.getController(sessionId) }
+        val state by controller.state.collectAsState()
 
     // 4. 渲染水母
-    Box(
+                Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {

@@ -21,8 +21,7 @@ object ChatMarkupRegex {
     )
     private val randomTagCodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     private val randomTagCodeSource = SecureRandom()
-
-    val toolCallPattern = Regex(
+        val toolCallPattern = Regex(
         """<(${TOOL_TAG_NAME_REGEX_SOURCE})\b[^>]*name="([^"]+)"[^>]*>([\s\S]*)</\1>""",
         setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
     )
@@ -87,20 +86,16 @@ object ChatMarkupRegex {
     )
 
     val toolParamPattern = Regex("<param\\s+name=\"([^\"]+)\">([\\s\\S]*)</param>")
-
-    val nameAttr = Regex("name\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
+        val nameAttr = Regex("name\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
 
     val statusAttr = Regex("status\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
-
-    val typeAttr = Regex("type\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
+        val typeAttr = Regex("type\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
 
     val titleAttr = Regex("title\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
-
-    val subtitleAttr = Regex("subtitle\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
+        val subtitleAttr = Regex("subtitle\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
 
     val toolAttr = Regex("tool\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
-
-    val uuidAttr = Regex("uuid\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
+        val uuidAttr = Regex("uuid\\s*=\\s*\"([^\"]+)\"", RegexOption.IGNORE_CASE)
 
     val contentTag = Regex(
         "<content>([\\s\\S]*)</content>",
@@ -191,8 +186,7 @@ object ChatMarkupRegex {
     )
 
     val anyXmlTag = Regex("<[^>]*>")
-
-    val pruneToolResultContentPattern = Regex(
+        val pruneToolResultContentPattern = Regex(
         """<(${TOOL_RESULT_TAG_NAME_REGEX_SOURCE})\b(.*? status=["'](.*)["'].*)>(.*)</\1>""",
         setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
     )
@@ -241,7 +235,7 @@ object ChatMarkupRegex {
         return metaTag.findAll(content)
             .mapNotNull { match ->
                 val tagContent = match.value
-                val provider = metaProviderAttrRegex.find(tagContent)?.groupValues?.getOrNull(1)
+        val provider = metaProviderAttrRegex.find(tagContent)?.groupValues?.getOrNull(1)
                 if (!provider.equals(GEMINI_THOUGHT_SIGNATURE_PROVIDER, ignoreCase = true)) {
                     return@mapNotNull null
                 }
@@ -257,7 +251,7 @@ object ChatMarkupRegex {
     fun removeGeminiThoughtSignatureMeta(content: String): String {
         var removed = false
         val result = metaTag.replace(content) { match ->
-            val provider = metaProviderAttrRegex.find(match.value)?.groupValues?.getOrNull(1)
+        val provider = metaProviderAttrRegex.find(match.value)?.groupValues?.getOrNull(1)
             if (provider.equals(GEMINI_THOUGHT_SIGNATURE_PROVIDER, ignoreCase = true)) {
                 removed = true
                 ""

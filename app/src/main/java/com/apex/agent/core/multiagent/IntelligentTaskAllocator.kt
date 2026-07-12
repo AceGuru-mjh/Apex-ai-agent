@@ -52,12 +52,11 @@ class IntelligentTaskAllocator(private val context: Context) {
 
     fun allocateTask(request: AllocationRequest): AllocationResult {
         val taskId = request.taskId.ifEmpty { "task_${System.currentTimeMillis()}" }
-
         val cacheKey = "${request.taskDescription}_${request.taskFeature.category}_${request.taskFeature.difficulty}"
         cache[cacheKey]?.let { return it }
 
         val matches = agentProfiles.values.map { profile ->
-            val capScore = profile.capabilities.values.average().takeIf { it.isFinite() } ?: 0.0
+        val capScore = profile.capabilities.values.average().takeIf { it.isFinite() } ?: 0.0
             AgentMatch(
                 agentId = profile.agentId,
                 agentName = profile.agentId,
@@ -70,7 +69,6 @@ class IntelligentTaskAllocator(private val context: Context) {
         }.sortedByDescending { it.score }
 
         val primary = matches.firstOrNull() ?: AgentMatch(agentId = "sanxing_libu_hr", agentName = "Libu", score = 0.0)
-
         val result = AllocationResult(
             taskId = taskId,
             optimalAgent = primary,

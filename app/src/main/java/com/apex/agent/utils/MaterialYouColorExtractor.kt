@@ -299,7 +299,6 @@ object MaterialYouColorExtractor {
         val r = ((color shr 16) and 0xFF) / 255f
         val g = ((color shr 8) and 0xFF) / 255f
         val b = (color and 0xFF) / 255f
-
         val max = r.coerceAtLeast(g).coerceAtLeast(b)
         val min = r.coerceAtMost(g).coerceAtMost(b)
         var h = 0f
@@ -334,7 +333,7 @@ object MaterialYouColorExtractor {
             b = l
         } else {
             val hue = h / 360f
-            val q = if (l < 0.5f) l * (1 + s) else l + s - l * s
+        val q = if (l < 0.5f) l * (1 + s) else l + s - l * s
             val p = 2 * l - q
             r = hueToRgb(p, q, hue + 1f / 3f)
             g = hueToRgb(p, q, hue)

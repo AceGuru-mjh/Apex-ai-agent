@@ -110,7 +110,7 @@ object JsonUtils {
         if (json.isBlank() || path.isBlank()) return null
         return try {
             val trimmed = json.trim()
-            val root: Any = when {
+        val root: Any = when {
                 trimmed.startsWith("{") -> JSONObject(trimmed)
                 trimmed.startsWith("[") -> JSONArray(trimmed)
                 else -> return null
@@ -145,7 +145,7 @@ object JsonUtils {
     fun mergeJson(base: String, overlay: String): String {
         return try {
             val baseObj = JSONObject(base.trim())
-            val overlayObj = JSONObject(overlay.trim())
+        val overlayObj = JSONObject(overlay.trim())
             val merged = deepMerge(baseObj, overlayObj)
             merged.toString()
         } catch (e: Exception) {
@@ -374,7 +374,7 @@ object JsonUtils {
     private fun flattenJsonObject(obj: JSONObject, prefix: String, result: MutableMap<String, String>) {
         for (key in obj.keys()) {
             val fullKey = if (prefix.isEmpty()) key else "$prefix.$key"
-            val value = obj.get(key)
+        val value = obj.get(key)
             when (value) {
                 is JSONObject -> flattenJsonObject(value, fullKey, result)
                 is JSONArray -> flattenJsonArray(value, fullKey, result)
@@ -387,7 +387,7 @@ object JsonUtils {
     private fun flattenJsonArray(arr: JSONArray, prefix: String, result: MutableMap<String, String>) {
         for (i in 0 until arr.length()) {
             val fullKey = "$prefix[$i]"
-            val value = arr.get(i)
+        val value = arr.get(i)
             when (value) {
                 is JSONObject -> flattenJsonObject(value, fullKey, result)
                 is JSONArray -> flattenJsonArray(value, fullKey, result)

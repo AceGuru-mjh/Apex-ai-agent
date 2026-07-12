@@ -110,8 +110,7 @@ class WorkflowMonitor {
     )
 
     // ============ 内部状态 ============
-
-    private val totalExecutions = AtomicLong(0)
+                private val totalExecutions = AtomicLong(0)
     private val totalSuccess = AtomicLong(0)
     private val totalFailure = AtomicLong(0)
     private val totalCancelled = AtomicLong(0)
@@ -128,14 +127,13 @@ class WorkflowMonitor {
     private val latencyHistory = java.util.Collections.synchronizedList(mutableListOf<Long>())
 
     private val _snapshot = MutableStateFlow<MonitorSnapshot?>(null)
-    val snapshot: StateFlow<MonitorSnapshot?> = _snapshot.asStateFlow()
+        val snapshot: StateFlow<MonitorSnapshot?> = _snapshot.asStateFlow()
 
     private val maxRecentExecutions = 100
     private val maxLatencyHistory = 10_000
 
     // ============ 内部数据结构 ============
-
-    private data class WorkflowStatsInternal(
+                private data class WorkflowStatsInternal(
         val workflowId: String,
         val workflowName: String,
         var executionCount: Long = 0,
@@ -207,7 +205,7 @@ class WorkflowMonitor {
         activeExecutions.remove(threadId)
 
         // 更新工作流统计
-        workflowStats.compute(workflowId) { _, v ->
+                workflowStats.compute(workflowId) { _, v ->
             (v ?: WorkflowStatsInternal(workflowId, workflowName)).apply {
                 executionCount++
                 if (success) successCount++ else failureCount++
@@ -219,7 +217,7 @@ class WorkflowMonitor {
         }
 
         // 记录延迟
-        latencyHistory.add(durationMs)
+                latencyHistory.add(durationMs)
         if (latencyHistory.size > maxLatencyHistory) {
             synchronized(latencyHistory) {
                 while (latencyHistory.size > maxLatencyHistory) latencyHistory.removeAt(0)
@@ -227,7 +225,7 @@ class WorkflowMonitor {
         }
 
         // 记录最近执行
-        recentExecutions.add(ExecutionSummary(
+                recentExecutions.add(ExecutionSummary(
             threadId = threadId,
             workflowId = workflowId,
             workflowName = workflowName,
@@ -245,7 +243,7 @@ class WorkflowMonitor {
         }
 
         // 错误分布
-        if (!success && error != null) {
+                if (!success && error != null) {
             val errorType = classifyError(error)
             errorDistribution.computeIfAbsent(errorType) { AtomicLong(0) }.incrementAndGet()
         }
@@ -295,7 +293,7 @@ class WorkflowMonitor {
         }
 
         // 更新活跃执行的当前节点
-        activeExecutions[threadId]?.let { it.currentNodeId = nodeId }
+                activeExecutions[threadId]?.let { it.currentNodeId = nodeId }
 
         refreshSnapshot()
     }
@@ -366,8 +364,7 @@ class WorkflowMonitor {
     }
 
     // ============ 内部方法 ============
-
-    private fun refreshSnapshot() {
+                private fun refreshSnapshot() {
         val totals = ExecutionTotals(
             totalExecutions = totalExecutions.get(),
             successCount = totalSuccess.get(),
@@ -414,7 +411,6 @@ class WorkflowMonitor {
         }
 
         val errors = errorDistribution.mapValues { it.value.get() }
-
         val recent = recentExecutions.toList().reversed()
 
         val active = activeExecutions.values.map {

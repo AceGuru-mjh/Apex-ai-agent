@@ -15,7 +15,7 @@ class StateManager {
         taskStates[taskId] = status
 
         // 閫氱煡鐩戝惉鍄
-       if (oldStatus != status) {
+                if (oldStatus != status) {
             listeners.values.forEach { it.onTaskStatusChanged(taskId, status) }
         }
     }
@@ -29,7 +29,7 @@ class StateManager {
         agentStates[agentId] = status
 
         // 閫氱煡鐩戝惉鍄
-       if (oldStatus != status) {
+                if (oldStatus != status) {
             listeners.values.forEach { it.onAgentStatusChanged(agentId, status) }
         }
     }

@@ -34,10 +34,10 @@ data class ContextWindowState(
 
 enum class ContextPressure {
     SAFE,       // < 50%
-    MODERATE,   // 50-70%
-    HIGH,       // 70-85%
-    CRITICAL,   // 85-95%
-    OVERFLOW    // > 95%
+                MODERATE,   // 50-70%
+                HIGH,       // 70-85%
+                CRITICAL,   // 85-95%
+                OVERFLOW    // > 95%
 }
 
 /**
@@ -104,17 +104,17 @@ class ContextWindowVisualizer(
         }
 
         // 分层统计
-        val compression = compressor.compress(messages)
+                val compression = compressor.compress(messages)
         val layers = buildLayers(messages, compression)
 
         // 消息分类
-        val breakdown = buildMessageBreakdown(messages)
+                val breakdown = buildMessageBreakdown(messages)
 
         // Token 分布
-        val distribution = buildTokenDistribution(messages, systemPromptTokens)
+                val distribution = buildTokenDistribution(messages, systemPromptTokens)
 
         // 建议
-        val recommendations = generateRecommendations(pressure, breakdown, distribution, messages)
+                val recommendations = generateRecommendations(pressure, breakdown, distribution, messages)
 
         return ContextWindowState(
             totalTokens = totalTokens,
@@ -136,7 +136,7 @@ class ContextWindowVisualizer(
         sb.appendLine("═══ 上下文窗口 ═══")
 
         // 压力条
-        val barLength = 30
+                val barLength = 30
         val filled = (state.usageRatio * barLength).toInt().coerceIn(0, barLength)
         val bar = "█".repeat(filled) + "░".repeat(barLength - filled)
         val percentage = (state.usageRatio * 100).toInt()
@@ -151,7 +151,7 @@ class ContextWindowVisualizer(
         sb.appendLine()
 
         // 层级
-        sb.appendLine("消息层级:")
+                sb.appendLine("消息层级:")
         state.layers.forEach { layer ->
             val layerBar = "▓".repeat((layer.ratio * 20).toInt().coerceIn(0, 20))
             sb.appendLine("  ${layer.tier.name.padEnd(12)} $layerBar ${layer.messageCount}条 ${layer.tokenCount}tokens")
@@ -159,7 +159,7 @@ class ContextWindowVisualizer(
         sb.appendLine()
 
         // 消息分类
-        sb.appendLine("消息分类:")
+                sb.appendLine("消息分类:")
         with(state.messageBreakdown) {
             sb.appendLine("  用户: $userMessages | 助手: $assistantMessages | 系统: $systemMessages")
             sb.appendLine("  平均: ${avgTokensPerMessage.toInt()} tokens/条")
@@ -168,7 +168,7 @@ class ContextWindowVisualizer(
         sb.appendLine()
 
         // Token 分布
-        sb.appendLine("Token 分布:")
+                sb.appendLine("Token 分布:")
         with(state.tokenDistribution) {
             sb.appendLine("  系统提示: $systemPromptTokens (${(systemPromptTokens.toFloat() / total * 100).toInt()}%)")
             sb.appendLine("  用户内容: $userContentTokens (${(userContentTokens.toFloat() / total * 100).toInt()}%)")
@@ -179,7 +179,7 @@ class ContextWindowVisualizer(
         sb.appendLine()
 
         // 建议
-        if (state.recommendations.isNotEmpty()) {
+                if (state.recommendations.isNotEmpty()) {
             sb.appendLine("建议:")
             state.recommendations.forEach { sb.appendLine("  • $it") }
         }
@@ -205,7 +205,7 @@ class ContextWindowVisualizer(
                 ConversationMessage.Role.SYSTEM -> "⚙️"
             }
             val barLength = (msg.tokenCount.toFloat() / maxTokenCount * maxBarLength).toInt().coerceIn(1, maxBarLength)
-            val bar = "█".repeat(barLength)
+        val bar = "█".repeat(barLength)
             val importanceBar = "★".repeat((msg.importance * 5).toInt().coerceIn(0, 5))
 
             sb.append("$roleIcon ")
@@ -224,8 +224,7 @@ class ContextWindowVisualizer(
     }
 
     // ============ 内部方法 ============
-
-    private fun buildLayers(
+                private fun buildLayers(
         messages: List<ConversationMessage>,
         compression: com.apex.agent.core.normal.context.CompressionResult
     ): List<ContextLayer> {
@@ -234,7 +233,7 @@ class ContextWindowVisualizer(
 
         return com.apex.agent.core.normal.context.CompressionTier.values().map { tier ->
             val tierMessages = grouped[tier] ?: emptyList()
-            val tierTokens = tierMessages.sumOf { id ->
+        val tierTokens = tierMessages.sumOf { id ->
                 messages.find { it.id == id }?.tokenCount ?: 0
             }
             ContextLayer(
@@ -279,7 +278,7 @@ class ContextWindowVisualizer(
                 }
                 ConversationMessage.Role.SYSTEM -> {
                     // 系统消息中包含工具调用结果
-                    if (msg.content.contains("[tool_result]")) toolTokens += msg.tokenCount
+                if (msg.content.contains("[tool_result]")) toolTokens += msg.tokenCount
                 }
             }
         }

@@ -28,7 +28,7 @@ class PerformanceTester {
         val quantifier = TaskComplexityQuantifier()
         
         // 初始化Agent
-        val agents = SanxingAgentSystem.createStandardAgents()
+                val agents = SanxingAgentSystem.createStandardAgents()
         allocator.initializeAgentProfiles(agents)
 
         val executor = Executors.newFixedThreadPool(threadCount)
@@ -36,7 +36,6 @@ class PerformanceTester {
         val successful = AtomicInteger(0)
         val failed = AtomicInteger(0)
         val totalTime = AtomicLong(0)
-
         val tasks = listOf(
             "开发一个Android应用",
             "撰写产品文档",
@@ -56,7 +55,7 @@ class PerformanceTester {
             executor.submit {
                 try {
                     val taskDescription = tasks[i % tasks.size]
-                    val taskFeature = quantifier.quantifyTask(taskDescription)
+        val taskFeature = quantifier.quantifyTask(taskDescription)
                     val request = IntelligentTaskAllocator.AllocationRequest(
                         taskId = "test_task_${i}",
                         taskDescription = taskDescription,
@@ -65,7 +64,7 @@ class PerformanceTester {
                     )
 
                     val requestStartTime = System.currentTimeMillis()
-                    val result = allocator.allocateTask(request)
+        val result = allocator.allocateTask(request)
                     val requestEndTime = System.currentTimeMillis()
 
                     totalTime.addAndGet(requestEndTime - requestStartTime)
@@ -137,7 +136,7 @@ class PerformanceTester {
 
         for (i in 0 until requestCount) {
             val taskDescription = tasks[i % tasks.size]
-            val taskFeature = quantifier.quantifyTask(taskDescription)
+        val taskFeature = quantifier.quantifyTask(taskDescription)
             val request = IntelligentTaskAllocator.AllocationRequest(
                 taskId = "test_task_${i}",
                 taskDescription = taskDescription,
@@ -183,13 +182,13 @@ class PerformanceTester {
         )
 
         // 第一次请求（无缓存）
-        val startTime1 = System.currentTimeMillis()
+                val startTime1 = System.currentTimeMillis()
         allocator.allocateTask(request)
         val endTime1 = System.currentTimeMillis()
         val timeWithoutCache = endTime1 - startTime1
 
         // 第二次请求（有缓存）
-        val startTime2 = System.currentTimeMillis()
+                val startTime2 = System.currentTimeMillis()
         allocator.allocateTask(request)
         val endTime2 = System.currentTimeMillis()
         val timeWithCache = endTime2 - startTime2

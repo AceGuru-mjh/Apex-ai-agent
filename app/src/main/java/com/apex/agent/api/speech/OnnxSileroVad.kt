@@ -217,8 +217,7 @@ class OnnxSileroVad(
         val toClose = ArrayList<AutoCloseable>(4)
         try {
             val inputs = LinkedHashMap<String, OnnxTensor>()
-
-            val inputTensor = OnnxTensor.createTensor(
+        val inputTensor = OnnxTensor.createTensor(
                 env,
                 FloatBuffer.wrap(audioData),
                 audioTensorShape

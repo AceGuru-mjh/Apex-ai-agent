@@ -16,7 +16,7 @@ object ToolProgressBus {
     const val SUMMARY_PROGRESS_TOOL_NAME: String = "__SUMMARY__"
 
     private val _progress = MutableStateFlow<ToolProgressEvent?>(null)
-    val progress: StateFlow<ToolProgressEvent?> = _progress.asStateFlow()
+        val progress: StateFlow<ToolProgressEvent?> = _progress.asStateFlow()
 
     private fun priorityForTool(toolName: String): Int {
         return when (toolName) {

@@ -30,7 +30,7 @@ class AvatarControllerFactoryImpl : AvatarControllerFactory {
     override fun canCreateController(model: AvatarModel): Boolean {
         return when (model.type) {
             // AvatarType.DRAGONBONES -> model is ISkeletalAvatarModel
-            AvatarType.WEBP -> model is WebPAvatarModel
+                AvatarType.WEBP -> model is WebPAvatarModel
             AvatarType.MP4 -> model is Mp4AvatarModel
             AvatarType.MMD -> model is MmdAvatarModel
             AvatarType.GLTF -> model is GltfAvatarModel
@@ -41,7 +41,7 @@ class AvatarControllerFactoryImpl : AvatarControllerFactory {
     override val supportedTypes: List<String>
         get() = listOf(
             // AvatarType.DRAGONBONES.name,
-            AvatarType.WEBP.name,
+                AvatarType.WEBP.name,
             AvatarType.MP4.name,
             AvatarType.MMD.name,
             AvatarType.GLTF.name,

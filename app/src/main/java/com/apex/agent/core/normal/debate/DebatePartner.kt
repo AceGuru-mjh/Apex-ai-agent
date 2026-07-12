@@ -19,10 +19,10 @@ import java.util.concurrent.ConcurrentHashMap
 
 enum class DebateMode {
     PRO_CON,            // 正反方辩论
-    DEVILS_ADVOCATE,    // 魔鬼代言人（AI 反对用户）
-    SOCRATIC,           // 苏格拉底式（追问）
-    OXFORD_STYLE,       // 牛津式
-    CROSS_EXAMINATION   // 交叉质询
+                DEVILS_ADVOCATE,    // 魔鬼代言人（AI 反对用户）
+                SOCRATIC,           // 苏格拉底式（追问）
+                OXFORD_STYLE,       // 牛津式
+                CROSS_EXAMINATION   // 交叉质询
 }
 
 enum class DebateSide { PROPOSITION, OPPOSITION, NEUTRAL }
@@ -33,8 +33,8 @@ data class DebateTopic(
     val title: String,
     val description: String,
     val propositionSide: String,    // 正方立场
-    val oppositionSide: String,     // 反方立场
-    val category: String,
+                val oppositionSide: String,     // 反方立场
+                val category: String,
     val difficulty: Int
 )
 
@@ -42,9 +42,9 @@ data class Argument(
     val id: String,
     val side: DebateSide,
     val claim: String,              // 主张
-    val evidence: List<String>,     // 证据
-    val reasoning: String,          // 推理
-    val weaknesses: List<String> = emptyList()
+                val evidence: List<String>,     // 证据
+                val reasoning: String,          // 推理
+                val weaknesses: List<String> = emptyList()
 )
 
 data class DebateSession(
@@ -66,7 +66,7 @@ data class DebateScore(
     val userScore: Int,
     val aiScore: Int,
     val criteria: Map<String, Pair<Int, Int>>,  // 维度 -> (用户分, AI分)
-    val feedback: String,
+                val feedback: String,
     val winner: DebateSide?
 )
 
@@ -156,7 +156,6 @@ class DebatePartner {
         val session = sessions[sessionId] ?: return null
         val userArgs = session.arguments.filter { it.side == session.userSide }
         val aiArgs = session.arguments.filter { it.side == session.aiSide }
-
         val criteria = mapOf(
             "逻辑性" to (scoreLogic(userArgs) to scoreLogic(aiArgs)),
             "证据充分" to (scoreEvidence(userArgs) to scoreEvidence(aiArgs)),

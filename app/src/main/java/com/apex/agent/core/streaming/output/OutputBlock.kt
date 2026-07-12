@@ -389,7 +389,7 @@ fun blockToForm(block: OutputBlock): com.ai.assistance.aiterminal.terminal.masco
         is OutputBlock.ErrorBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.ERROR
         is OutputBlock.SuccessBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.SUCCESS
         // 狂暴块
-        is OutputBlock.BerserkBlock.MultiPathReasoningBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
+                is OutputBlock.BerserkBlock.MultiPathReasoningBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
         is OutputBlock.BerserkBlock.AdversarialBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
         is OutputBlock.BerserkBlock.SelfCorrectionBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
         is OutputBlock.BerserkBlock.TreeOfThoughtsBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK

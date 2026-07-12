@@ -226,9 +226,9 @@ class WebSocketManager {
     private fun handleReceivedMessage(text: String) {
         try {
             val json = JSONObject(text)
-            val type = json.getString("type")
+        val type = json.getString("type")
             val messageId = json.optString("messageId", "")
-            val taskId = json.optString("taskId", "")
+        val taskId = json.optString("taskId", "")
 
             when (type) {
                 MessageType.ACK.name -> {
@@ -240,7 +240,7 @@ class WebSocketManager {
                 }
                 else -> {
                     val payload = json.optJSONObject("payload")
-                    val message = WebSocketMessage(
+        val message = WebSocketMessage(
                         type = MessageType.valueOf(type),
                         messageId = messageId,
                         taskId = taskId,

@@ -49,7 +49,7 @@ class CrossAgentQualityEnhancer(
         }
 
         val review = aiService?.let {
-            val result = session.thinkAndProduce(
+        val result = session.thinkAndProduce(
                 agent = reviewer,
                 task = "Quality review of ${agentOutput.agent.name}'s work",
                 background = taskContext,
@@ -79,7 +79,7 @@ class CrossAgentQualityEnhancer(
                 outputs.forEach { (agentId, output) ->
                     if (agentId != reviewer.id) {
                         val agent = agents.find { it.id == agentId } ?: return@forEach
-                        val reviewPrompt = buildString {
+        val reviewPrompt = buildString {
                             appendLine("Context: $taskContext")
                             appendLine("Review ${agent.name}'s output: $output")
                         }
@@ -129,7 +129,7 @@ class CrossAgentQualityEnhancer(
             ?.key?.let { listOf(it) } ?: emptyList()
 
         val consensus = if (agreementRatio >= minAgreementRatio) {
-            val topOutput = outputs.maxByOrNull { (id, _) ->
+        val topOutput = outputs.maxByOrNull { (id, _) ->
                 reviews.filter { it.agentOutput.agent.id == id }.sumOf { it.score.toDouble() }
             }
             ConsensusResult(
@@ -142,7 +142,7 @@ class CrossAgentQualityEnhancer(
             )
         } else {
             val session = AgentThinkingSession(context, aiService)
-            val mediatorPrompt = buildString {
+        val mediatorPrompt = buildString {
                 appendLine("Task: $taskContext")
                 appendLine("\nAgent outputs and their peer reviews show disagreement.")
                 appendLine("Average quality score: $avgScore")

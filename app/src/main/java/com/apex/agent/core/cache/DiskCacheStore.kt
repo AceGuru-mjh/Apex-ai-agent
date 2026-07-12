@@ -89,7 +89,7 @@ class DiskCacheStore(
                 }
             }
             val deserialized = serializer.deserialize(jsonString) { it }
-            val updated = deserialized.recordAccess()
+        val updated = deserialized.recordAccess()
             index[key] = updated
             lock.write {
                 hits++
@@ -167,7 +167,7 @@ class DiskCacheStore(
     override fun evict(policy: CachePolicy): List<String> {
         lock.write {
             val evictedKeys = mutableListOf<String>()
-            val candidates = when (policy) {
+        val candidates = when (policy) {
                 is CachePolicy.TtlPolicy -> {
                     index.values.filter { it.isExpired() }.map { it.key }
                 }
@@ -230,12 +230,12 @@ class DiskCacheStore(
                 if (file.isFile && file.extension == "json") {
                     try {
                         val content = file.readText()
-                        val wrapper = serializer.json.decodeFromString<
+        val wrapper = serializer.json.decodeFromString<
                             CacheSerialization.JsonElement
                         >(content)
                         // 简化重建：仅记录 key 和文件存在性
-                        val key = file.nameWithoutExtension
-                        val entry = CacheEntry(
+                val key = file.nameWithoutExtension
+        val entry = CacheEntry(
                             key = key,
                             value = content,
                             createdAt = file.lastModified(),
@@ -288,7 +288,7 @@ class DiskCacheStore(
         if (file.exists()) {
             file.delete()
             // 清理空目录
-            file.parentFile?.let { parent ->
+                file.parentFile?.let { parent ->
                 if (parent.isDirectory && parent.listFiles().isNullOrEmpty()) {
                     parent.delete()
                     parent.parentFile?.let { grandParent ->
@@ -305,7 +305,7 @@ class DiskCacheStore(
     private fun evictIfNeeded() {
         if (maxSize > 0 && index.size > maxSize) {
             val overage = index.size - maxSize
-            val entries = index.values.sortedBy { it.lastAccessedAt }
+        val entries = index.values.sortedBy { it.lastAccessedAt }
             for (i in 0 until overage) {
                 if (i >= entries.size) break
                 val key = entries[i].key

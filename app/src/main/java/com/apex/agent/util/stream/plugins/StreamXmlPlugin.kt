@@ -22,7 +22,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
     private var startTagMatcher: StreamKmpGraph
     private var endTagMatcher: StreamKmpGraph? = null
     // Allow matching a new start tag immediately after we just closed an end tag, even if not at start of line
-    private var allowStartAfterEndTag: Boolean = false
+                private var allowStartAfterEndTag: Boolean = false
     private var allowStartAfterPunctuation: Boolean = false
     private var lastChar: Char = '\u0000'
 
@@ -39,7 +39,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                                     // Group 1: Capture the tag name. A valid tag name must start
                                     // with a letter.
                                     // This prevents matching comments (<!--) or closing tags (</).
-                                    group(GROUP_TAG_NAME) {
+                group(GROUP_TAG_NAME) {
                                         predicate("asciiXmlTagFirstChar") {
                                             it in 'A'..'Z' || it in 'a'..'z'
                                         }
@@ -50,7 +50,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                                         }
                                     }
                                     // Optional: Match attributes until the tag closes
-                                    greedyStar { notChar('>') }
+                greedyStar { notChar('>') }
                                     char('>')
                                 }
                         )
@@ -70,14 +70,14 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
 
         if (state == PluginState.PROCESSING) {
             // We are inside a tag, looking for the end tag.
-            val matcher = endTagMatcher!!
-            val result = matcher.processChar(c)
+                val matcher = endTagMatcher!!
+        val result = matcher.processChar(c)
 
             return when (result) {
                 is StreamKmpMatchResult.Match -> {
                     // End tag fully matched. Reset state and filter this last character if needed.StreamLogger.i("StreamXmlPlugin", "Found end tag. Switching to IDLE.")
                     // Enable one-time allowance for starting a new tag right after this end tag
-                    allowStartAfterEndTag = true
+                allowStartAfterEndTag = true
                     allowStartAfterPunctuation = false
                     reset()
                     finish(includeTagsInOutput)
@@ -85,12 +85,12 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                 is StreamKmpMatchResult.InProgress -> {
                     // We are in the middle of matching the end tag (e.g., '</', '</t', etc.).
                     // The emission of these characters depends on the flag.
-                    finish(includeTagsInOutput)
+                finish(includeTagsInOutput)
                 }
                 is StreamKmpMatchResult.NoMatch -> {
                     // The character `c` did not match the next char of the end tag.
                     // This means it's regular content between tags.
-                    finish(true)
+                finish(true)
                 }
             }
         } else {
@@ -105,14 +105,14 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                 }
             }
             // We are in IDLE or TRYING state, looking for a start tag.
-            val previousState = state
+                val previousState = state
             when (val result = startTagMatcher.processChar(c)) {
                 is StreamKmpMatchResult.Match -> {
                     val tagName = result.groups[GROUP_TAG_NAME]
                     if (tagName != null) {
                         if (lastChar == '/') {
                             // Treat self-closing tags like <br/> as plain text to avoid entering XML mode.
-                            reset()
+                reset()
                             return finish(true)
                         }
                         StreamLogger.i(
@@ -121,10 +121,10 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                         )
                         state = PluginState.PROCESSING
                         // Consuming this as a new start clears the post-end allowance
-                        allowStartAfterEndTag = false
+                allowStartAfterEndTag = false
                         allowStartAfterPunctuation = false
                         // We have a full start tag. Configure the end tag matcher.
-                        endTagMatcher =
+                endTagMatcher =
                                 StreamKmpGraphBuilder()
                                         .build(
                                                 kmpPattern {
@@ -136,7 +136,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                         startTagMatcher.reset()
                     } else {
                         // Should not happen, but as a safeguard:
-                        reset()
+                reset()
                     }
                     return finish(includeTagsInOutput)
                 }
@@ -146,19 +146,19 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                     // so only this potential sequence benefits from it
                     // (if it fails below, we will clear it)
                     // Keep it true while in-progress so subsequent chars can proceed
-                    allowStartAfterPunctuation = false
+                allowStartAfterPunctuation = false
                     return finish(includeTagsInOutput)
                 }
                 is StreamKmpMatchResult.NoMatch -> {
                     // If we were trying and the match failed, we must reset to idle.
-                    if (previousState == PluginState.TRYING) {
+                if (previousState == PluginState.TRYING) {
                         reset()
                     }
                     // Clear the allowance if we failed to start a new tag
-                    allowStartAfterEndTag = false
+                allowStartAfterEndTag = false
                     allowStartAfterPunctuation = false
                     // This is a default character, not part of a tag managed by this plugin.
-                    return finish(handleDefaultCharacter(c))
+                return finish(handleDefaultCharacter(c))
                 }
             }
         }
@@ -202,11 +202,11 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
 
     private fun isEmojiTrigger(c: Char): Boolean {
         // Most modern emojis are surrogate pairs in UTF-16. Treat either half as a trigger.
-        if (Character.isSurrogate(c)) {
+                if (Character.isSurrogate(c)) {
             return true
         }
         // BMP emoji/symbols (e.g. ☀, ，are usually "OTHER_SYMBOL".
-        return Character.getType(c) == Character.OTHER_SYMBOL.toInt()
+                return Character.getType(c) == Character.OTHER_SYMBOL.toInt()
     }
 
     private fun isEmojiContinuationChar(c: Char): Boolean = emojiContinuationChars.contains(c)

@@ -17,7 +17,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 }
                 if (typeof value === 'string') {
                     var normalized = value.trim().toLowerCase();
-                    if (normalized === 'true') {
+            if (normalized === 'true') {
                         return true;
                     }
                     if (normalized === 'false' || normalized === '') {
@@ -53,7 +53,6 @@ internal fun buildJavaClassBridgeDefinition(): String {
             var __javaInstanceFinalizer = new FinalizationRegistry(function(heldValue) {
                 finalizeInstanceProxy(heldValue);
             });
-
             function registerJsObject(value) {
                 __javaBridgeJsObjectCounter += 1;
                 var id = '__java_js_obj_' + __javaBridgeJsObjectCounter;
@@ -63,7 +62,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
 
             function releaseJsObject(objectId) {
                 var normalized = String(objectId || '').trim();
-                if (!normalized) {
+            if (!normalized) {
                     return false;
                 }
                 if (Object.prototype.hasOwnProperty.call(__javaBridgeJsObjectStore, normalized)) {
@@ -79,19 +78,18 @@ internal fun buildJavaClassBridgeDefinition(): String {
 
             function registerInstanceProxy(handle, proxyObject) {
                 var normalized = normalizeHandleValue(handle);
-                if (!normalized || !proxyObject || typeof proxyObject !== 'object') {
+            if (!normalized || !proxyObject || typeof proxyObject !== 'object') {
                     return;
                 }
 
                 var token = {};
-                var tokenSet = __javaHandleRegistrations.get(normalized);
-                if (!tokenSet) {
+            var tokenSet = __javaHandleRegistrations.get(normalized);
+            if (!tokenSet) {
                     tokenSet = new Set();
-                    __javaHandleRegistrations.set(normalized, tokenSet);
+            __javaHandleRegistrations.set(normalized, tokenSet);
                 }
                 tokenSet.add(token);
-
-                __javaInstanceFinalizer.register(
+            __javaInstanceFinalizer.register(
                     proxyObject,
                     {
                         handle: normalized,
@@ -103,35 +101,35 @@ internal fun buildJavaClassBridgeDefinition(): String {
 
             function clearInstanceHandleRegistrations(handle) {
                 var normalized = normalizeHandleValue(handle);
-                if (!normalized) {
+            if (!normalized) {
                     return;
                 }
 
                 var tokenSet = __javaHandleRegistrations.get(normalized);
-                if (!tokenSet) {
+            if (!tokenSet) {
                     return;
                 }
 
                 tokenSet.forEach(function(token) {
                     __javaInstanceFinalizer.unregister(token);
                 });
-                __javaHandleRegistrations.delete(normalized);
+            __javaHandleRegistrations.delete(normalized);
             }
 
             function releaseInstanceHandle(handle, ignoreErrors) {
                 var normalized = normalizeHandleValue(handle);
-                if (!normalized) {
+            if (!normalized) {
                     return false;
                 }
 
                 try {
                     var released = !!invokeBridge('__javaReleaseInstanceInternal', [normalized]);
-                    clearInstanceHandleRegistrations(normalized);
-                    return released;
+            clearInstanceHandleRegistrations(normalized);
+            return released;
                 } catch (error) {
                     if (ignoreErrors) {
                         clearInstanceHandleRegistrations(normalized);
-                        return false;
+            return false;
                     }
                     throw error;
                 }
@@ -143,22 +141,22 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 }
 
                 var normalized = normalizeHandleValue(heldValue.handle);
-                if (!normalized) {
+            if (!normalized) {
                     return;
                 }
 
                 var tokenSet = __javaHandleRegistrations.get(normalized);
-                if (!tokenSet) {
+            if (!tokenSet) {
                     return;
                 }
 
                 tokenSet.delete(heldValue.token);
-                if (tokenSet.size > 0) {
+            if (tokenSet.size > 0) {
                     return;
                 }
 
                 __javaHandleRegistrations.delete(normalized);
-                releaseInstanceHandle(normalized, true);
+            releaseInstanceHandle(normalized, true);
             }
 
             function normalizeInterfaceName(value) {
@@ -173,7 +171,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                             typeof value.className === 'string'
                         ) {
                             var classNameValue = String(value.className || '').trim();
-                            if (classNameValue) {
+            if (classNameValue) {
                                 return classNameValue;
                             }
                         }
@@ -186,7 +184,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                             typeof value.__javaClass === 'string'
                         ) {
                             var javaClassValue = String(value.__javaClass || '').trim();
-                            if (javaClassValue) {
+            if (javaClassValue) {
                                 return javaClassValue;
                             }
                         }
@@ -236,7 +234,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         .filter(Boolean);
                 }
                 var single = normalizeInterfaceName(interfaceNameOrNames);
-                if (!single) {
+            if (!single) {
                     return [];
                 }
                 return [single];
@@ -276,7 +274,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 }
 
                 var currentId = String(marker.__javaJsObjectId || '').trim();
-                if (
+            if (
                     currentId &&
                     Object.prototype.hasOwnProperty.call(__javaBridgeJsObjectStore, currentId)
                 ) {
@@ -285,7 +283,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 }
 
                 var jsValue = getJsInterfaceValue(marker);
-                if (jsValue === undefined) {
+            if (jsValue === undefined) {
                     throw new Error(
                         currentId
                             ? ('js interface implementation is unavailable: ' + currentId)
@@ -294,7 +292,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 }
 
                 var nextId = registerJsObject(jsValue);
-                marker.__javaJsObjectId = nextId;
+            marker.__javaJsObjectId = nextId;
                 return marker;
             }
 
@@ -304,12 +302,12 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     __javaJsObjectId: String(objectId || ''),
                     __javaInterfaces: normalizeInterfaceNames(interfaceNames)
                 };
-                return attachJsInterfaceValue(marker, jsValue);
+            return attachJsInterfaceValue(marker, jsValue);
             }
 
             function invokeRegisteredJsObject(objectId, methodName, args) {
                 var id = String(objectId || '').trim();
-                if (!id) {
+            if (!id) {
                     throw new Error('jsObjectId is required');
                 }
                 if (!Object.prototype.hasOwnProperty.call(__javaBridgeJsObjectStore, id)) {
@@ -318,7 +316,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
 
                 var target = __javaBridgeJsObjectStore[id];
                 var normalizedMethod = String(methodName || '').trim();
-                var normalizedArgs = Array.isArray(args)
+            var normalizedArgs = Array.isArray(args)
                     ? args.map(function(item) {
                         return wrapValue(item);
                     })
@@ -385,7 +383,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     });
                 }
                 var out = {};
-                for (var key in value) {
+            for (var key in value) {
                     if (Object.prototype.hasOwnProperty.call(value, key)) {
                         out[key] = unwrapValue(value[key]);
                     }
@@ -412,7 +410,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     });
                 }
                 var out = {};
-                for (var key in value) {
+            for (var key in value) {
                     if (Object.prototype.hasOwnProperty.call(value, key)) {
                         out[key] = wrapValue(value[key]);
                     }
@@ -450,17 +448,17 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         } finally {
                             if (callbackId) {
                                 releaseJsObject(callbackId);
-                                callbackId = '';
+            callbackId = '';
                             }
                         }
                     };
-                    callbackId = registerJsObject(promiseCallback);
-                    try {
+            callbackId = registerJsObject(promiseCallback);
+            try {
                         invoker(callbackId, argList);
                     } catch (error) {
                         if (callbackId) {
                             releaseJsObject(callbackId);
-                            callbackId = '';
+            callbackId = '';
                         }
                         throw error;
                     }
@@ -473,7 +471,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 }
 
                 var raw = NativeInterface[methodName].apply(NativeInterface, args || []);
-                var parsed;
+            var parsed;
                 try {
                     parsed = JSON.parse(String(raw || ''));
                 } catch (e) {
@@ -485,7 +483,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         parsed && typeof parsed.error === 'string' && parsed.error.length > 0
                             ? parsed.error
                             : ('Bridge call failed: ' + methodName);
-                    throw new Error(message);
+            throw new Error(message);
                 }
 
                 return wrapValue(parsed.data);
@@ -512,7 +510,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 }
 
                 var normalized = {};
-                if (
+            if (
                     typeof options.nativeLibraryDir === 'string' &&
                     options.nativeLibraryDir.trim().length > 0
                 ) {
@@ -526,7 +524,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         .filter(function(prefix) {
                             return prefix.length > 0;
                         });
-                    if (childFirstPrefixes.length > 0) {
+            if (childFirstPrefixes.length > 0) {
                         normalized.childFirstPrefixes = Array.from(new Set(childFirstPrefixes));
                     }
                 }
@@ -535,7 +533,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
 
             function loadExternalCode(methodName, path, options) {
                 var normalizedPath = String(path || '').trim();
-                if (!normalizedPath) {
+            if (!normalizedPath) {
                     throw new Error('external code path is required');
                 }
                 return invokeBridge(methodName, [
@@ -552,7 +550,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     handle: handle,
                     call: function(methodName) {
                         var args = Array.prototype.slice.call(arguments, 1);
-                        return invokeBridge('javaCallInstance', [
+            return invokeBridge('javaCallInstance', [
                             handle,
                             String(methodName || ''),
                             JSON.stringify(normalizeArgs(args))
@@ -560,7 +558,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     },
                     callSuspend: function(methodName) {
                         var args = Array.prototype.slice.call(arguments, 1);
-                        return scheduleSuspendCall(
+            return scheduleSuspendCall(
                             function(callbackId, payloadArgs) {
                                 invokeNativeSuspend('javaCallInstanceSuspend', [
                                     handle,
@@ -609,8 +607,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         return '[JavaObject ' + className + '#' + handle + ']';
                     }
                 };
-
-                var proxy = new Proxy(target, {
+            var proxy = new Proxy(target, {
                     get: function(obj, prop) {
                         if (prop in obj) {
                             return obj[prop];
@@ -633,7 +630,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         }
                         return function() {
                             var args = Array.prototype.slice.call(arguments);
-                            return invokeBridge('javaCallInstance', [
+            return invokeBridge('javaCallInstance', [
                                 handle,
                                 prop,
                                 JSON.stringify(normalizeArgs(args))
@@ -653,12 +650,11 @@ internal fun buildJavaClassBridgeDefinition(): String {
                             prop,
                             JSON.stringify(unwrapValue(value))
                         ]);
-                        return true;
+            return true;
                     }
                 });
-
-                registerInstanceProxy(handle, proxy);
-                return proxy;
+            registerInstanceProxy(handle, proxy);
+            return proxy;
             }
 
             function shouldFallbackToCompanion(message) {
@@ -666,7 +662,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     return false;
                 }
                 var text = String(message);
-                return (
+            return (
                     text.indexOf("method '") >= 0 &&
                     text.indexOf(" not found on ") >= 0
                 ) || (text.indexOf("no method '") >= 0 && text.indexOf(" matched on ") >= 0);
@@ -678,7 +674,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         className,
                         'Companion'
                     ]);
-                    if (
+            if (
                         companionInstance &&
                         typeof companionInstance[methodName] === 'function'
                     ) {
@@ -701,7 +697,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         throw e;
                     }
                     var instanceAttempt = callCompanionInstanceMethod(className, methodName, args);
-                    if (instanceAttempt && instanceAttempt.hit) {
+            if (instanceAttempt && instanceAttempt.hit) {
                         return instanceAttempt.value;
                     }
                     var companionClassName = className + '${'$'}Companion';
@@ -717,7 +713,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                                 throw e2;
                             }
                             var retryInstance = callCompanionInstanceMethod(className, methodName, args);
-                            if (retryInstance && retryInstance.hit) {
+            if (retryInstance && retryInstance.hit) {
                                 return retryInstance.value;
                             }
                             throw e2;
@@ -731,23 +727,22 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 var target = function() {
                     return target.newInstance.apply(target, arguments);
                 };
-
-                target.className = className;
+            target.className = className;
                 target.exists = function() {
                     return hasNative('javaClassExists') &&
                         normalizeBridgeBoolean(NativeInterface.javaClassExists(className));
                 };
-                target.newInstance = function() {
+            target.newInstance = function() {
                     var args = normalizeArgs(arguments);
-                    return invokeBridge('javaNewInstance', [className, JSON.stringify(args)]);
+            return invokeBridge('javaNewInstance', [className, JSON.stringify(args)]);
                 };
-                target.callStatic = function(methodName) {
+            target.callStatic = function(methodName) {
                     var args = Array.prototype.slice.call(arguments, 1);
-                    return callStaticWithCompanionFallback(className, methodName, args);
+            return callStaticWithCompanionFallback(className, methodName, args);
                 };
-                target.callSuspend = function(methodName) {
+            target.callSuspend = function(methodName) {
                     var args = Array.prototype.slice.call(arguments, 1);
-                    return scheduleSuspendCall(
+            return scheduleSuspendCall(
                         function(callbackId, payloadArgs) {
                             invokeNativeSuspend('javaCallStaticSuspend', [
                                 className,
@@ -759,24 +754,23 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         args
                     );
                 };
-                target.getStatic = function(fieldName) {
+            target.getStatic = function(fieldName) {
                     return invokeBridge('javaGetStaticField', [
                         className,
                         String(fieldName || '')
                     ]);
                 };
-                target.setStatic = function(fieldName, value) {
+            target.setStatic = function(fieldName, value) {
                     return invokeBridge('javaSetStaticField', [
                         className,
                         String(fieldName || ''),
                         JSON.stringify(unwrapValue(value))
                     ]);
                 };
-                target.toString = function() {
+            target.toString = function() {
                     return '[JavaClass ' + className + ']';
                 };
-
-                return new Proxy(target, {
+            return new Proxy(target, {
                     get: function(obj, prop) {
                         if (prop in obj) {
                             return obj[prop];
@@ -802,7 +796,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                             return createClassProxy(nestedClassName);
                         }
                         var nestedUpperClassName = className + '$' + prop.toUpperCase();
-                        if (
+            if (
                             nestedUpperClassName !== nestedClassName &&
                             classExistsRaw(nestedUpperClassName)
                         ) {
@@ -810,7 +804,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         }
                         return function() {
                             var args = Array.prototype.slice.call(arguments);
-                            return callStaticWithCompanionFallback(className, prop, args);
+            return callStaticWithCompanionFallback(className, prop, args);
                         };
                     },
                     apply: function(obj, _thisArg, args) {
@@ -832,7 +826,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                             prop,
                             JSON.stringify(unwrapValue(value))
                         ]);
-                        return true;
+            return true;
                     }
                 });
             }
@@ -841,22 +835,20 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 var pathParts = Array.isArray(parts) ? parts.slice() : [];
                 var target = function() {
                     var fullName = pathParts.join('.');
-                    if (!fullName) {
+            if (!fullName) {
                         throw new Error('cannot instantiate empty package path');
                     }
                     if (!classExistsRaw(fullName)) {
                         throw new Error('class not found: ' + fullName);
                     }
                     var cls = createClassProxy(fullName);
-                    return cls.newInstance.apply(cls, arguments);
+            return cls.newInstance.apply(cls, arguments);
                 };
-
-                target.path = pathParts.join('.');
-                target.toString = function() {
+            target.path = pathParts.join('.');
+            target.toString = function() {
                     return '[JavaPackage ' + target.path + ']';
                 };
-
-                return new Proxy(target, {
+            return new Proxy(target, {
                     get: function(obj, prop) {
                         if (prop in obj) {
                             return obj[prop];
@@ -872,33 +864,33 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         }
 
                         var nextParts = pathParts.concat([prop]);
-                        var candidate = nextParts.join('.');
-                        if (classExistsRaw(candidate)) {
+            var candidate = nextParts.join('.');
+            if (classExistsRaw(candidate)) {
                             return createClassProxy(candidate);
                         }
                         return createPackageProxy(nextParts);
                     },
                     apply: function(_obj, _thisArg, args) {
                         var fullName = pathParts.join('.');
-                        if (!fullName) {
+            if (!fullName) {
                             throw new Error('cannot call empty package path');
                         }
                         if (!classExistsRaw(fullName)) {
                             throw new Error('class not found: ' + fullName);
                         }
                         var cls = createClassProxy(fullName);
-                        return cls.newInstance.apply(cls, args || []);
+            return cls.newInstance.apply(cls, args || []);
                     },
                     construct: function(_obj, args) {
                         var fullName = pathParts.join('.');
-                        if (!fullName) {
+            if (!fullName) {
                             throw new Error('cannot construct empty package path');
                         }
                         if (!classExistsRaw(fullName)) {
                             throw new Error('class not found: ' + fullName);
                         }
                         var cls = createClassProxy(fullName);
-                        return cls.newInstance.apply(cls, args || []);
+            return cls.newInstance.apply(cls, args || []);
                     }
                 });
             }
@@ -906,7 +898,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
             var JavaApi = {
                 type: function(className) {
                     var normalized = String(className || '').trim();
-                    if (!normalized) {
+            if (!normalized) {
                         throw new Error('class name is required');
                     }
                     return createClassProxy(normalized);
@@ -919,7 +911,7 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 },
                 package: function(packageName) {
                     var normalized = String(packageName || '').trim();
-                    if (!normalized) {
+            if (!normalized) {
                         throw new Error('package name is required');
                     }
                     return createPackageProxy(normalized.split('.').filter(Boolean));
@@ -946,14 +938,14 @@ internal fun buildJavaClassBridgeDefinition(): String {
                         throw new Error('implement target must be a function or object');
                     }
                     var interfaceNames = normalizeInterfaceNames(interfaceNamesInput);
-                    return buildJsInterfaceMarker('', interfaceNames, actualImpl);
+            return buildJsInterfaceMarker('', interfaceNames, actualImpl);
                 },
                 proxy: function(interfaceNameOrNames, impl) {
                     return this.implement(interfaceNameOrNames, impl);
                 },
                 classExists: function(className) {
                     var normalized = String(className || '').trim();
-                    if (!normalized) {
+            if (!normalized) {
                         return false;
                     }
                     return classExistsRaw(normalized);
@@ -969,9 +961,9 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 },
                 callStatic: function(className, methodName) {
                     var normalizedClass = String(className || '').trim();
-                    var normalizedMethod = String(methodName || '').trim();
-                    var args = Array.prototype.slice.call(arguments, 2);
-                    return invokeBridge('javaCallStatic', [
+            var normalizedMethod = String(methodName || '').trim();
+            var args = Array.prototype.slice.call(arguments, 2);
+            return invokeBridge('javaCallStatic', [
                         normalizedClass,
                         normalizedMethod,
                         JSON.stringify(normalizeArgs(args))
@@ -979,9 +971,9 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 },
                 callSuspend: function(className, methodName) {
                     var normalizedClass = String(className || '').trim();
-                    var normalizedMethod = String(methodName || '').trim();
-                    var args = Array.prototype.slice.call(arguments, 2);
-                    return scheduleSuspendCall(
+            var normalizedMethod = String(methodName || '').trim();
+            var args = Array.prototype.slice.call(arguments, 2);
+            return scheduleSuspendCall(
                         function(callbackId, payloadArgs) {
                             invokeNativeSuspend('javaCallStaticSuspend', [
                                 normalizedClass,
@@ -995,8 +987,8 @@ internal fun buildJavaClassBridgeDefinition(): String {
                 },
                 newInstance: function(className) {
                     var normalizedClass = String(className || '').trim();
-                    var args = Array.prototype.slice.call(arguments, 1);
-                    return invokeBridge('javaNewInstance', [
+            var args = Array.prototype.slice.call(arguments, 1);
+            return invokeBridge('javaNewInstance', [
                         normalizedClass,
                         JSON.stringify(normalizeArgs(args))
                     ]);
@@ -1017,7 +1009,6 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     return '[JavaBridge]';
                 }
             };
-
             var Java = new Proxy(JavaApi, {
                 get: function(obj, prop) {
                     if (prop in obj) {
@@ -1039,12 +1030,11 @@ internal fun buildJavaClassBridgeDefinition(): String {
                     return createPackageProxy([prop]);
                 }
             });
-
             if (typeof globalThis !== 'undefined') {
                 globalThis.__ApexJavaBridgeInvokeJsObject = function(jsObjectId, methodName, args) {
                     return invokeRegisteredJsObject(jsObjectId, methodName, args);
                 };
-                globalThis.__ApexJavaBridgeReleaseJsObject = function(jsObjectId) {
+            globalThis.__ApexJavaBridgeReleaseJsObject = function(jsObjectId) {
                     return releaseJsObject(jsObjectId);
                 };
             }

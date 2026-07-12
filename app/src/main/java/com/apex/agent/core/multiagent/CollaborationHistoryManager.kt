@@ -133,7 +133,6 @@ class CollaborationHistoryManager {
 
     fun recordEvent(taskId: String, type: EventType, agentId: String?, description: String, metadata: Map<String, Any> = emptyMap()) {
         val history = histories[taskId] ?: return
-
         val event = HistoryEvent(
             timestamp = System.currentTimeMillis(),
             type = type,
@@ -156,7 +155,6 @@ class CollaborationHistoryManager {
 
     fun recordMessage(taskId: String, message: AgentMessage) {
         val history = histories[taskId] ?: return
-
         val updatedMessages = history.messages + message
         histories[taskId] = history.copy(messages = updatedMessages)
 
@@ -170,7 +168,6 @@ class CollaborationHistoryManager {
 
     fun addDecisionPoint(taskId: String, description: String, agentsInvolved: List<String>, options: List<DecisionOption>) {
         val history = histories[taskId] ?: return
-
         val decisionPoint = DecisionPoint(
             timestamp = System.currentTimeMillis(),
             taskId = taskId,
@@ -240,10 +237,8 @@ class CollaborationHistoryManager {
 
     fun stopRecording(taskId: String, status: CollaborationStatus) {
         val history = histories[taskId] ?: return
-
         val endTime = System.currentTimeMillis()
         val totalDuration = endTime - history.startTime
-
         val updatedMetrics = calculateMetrics(history, totalDuration)
         val updatedHistory = history.copy(
             endTime = endTime,
@@ -274,7 +269,7 @@ class CollaborationHistoryManager {
 
         history.agents.forEach { agent ->
             val agentMessages = history.messages.filter { it.sender == agent.name }
-            val agentDecisions = history.decisionPoints.filter { agent.id in it.agentsInvolved }
+        val agentDecisions = history.decisionPoints.filter { agent.id in it.agentsInvolved }
 
             agentContribution[agent.id] = AgentContribution(
                 agentId = agent.id,

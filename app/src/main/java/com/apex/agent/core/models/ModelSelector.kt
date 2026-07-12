@@ -26,14 +26,13 @@ class ModelSelector(private val context: Context) {
         companion object {
             fun detect(context: Context): DeviceCapabilities {
                 val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                val memInfo = ActivityManager.MemoryInfo()
+        val memInfo = ActivityManager.MemoryInfo()
                 activityManager.getMemoryInfo(memInfo)
 
                 val totalRAM = memInfo.totalMem
-                val availableRAM = memInfo.availMem
+        val availableRAM = memInfo.availMem
                 val cpuCores = Runtime.getRuntime().availableProcessors()
-
-                val isHighEnd = when {
+        val isHighEnd = when {
                     totalRAM >= 12 * 1024 * 1024 * 1024 -> true
                     cpuCores >= 8 && totalRAM >= 8 * 1024 * 1024 * 1024 -> true
                     else -> false
@@ -51,9 +50,9 @@ class ModelSelector(private val context: Context) {
             private fun detectGPUAcceleration(): Boolean {
                 return try {
                     val gpuInfo = StringBuilder()
-                    val process = Runtime.getRuntime().exec("getprop ro.hardware")
+        val process = Runtime.getRuntime().exec("getprop ro.hardware")
                     val reader = process.inputStream.bufferedReader()
-                    val hardware = reader.readLine() ?: ""
+        val hardware = reader.readLine() ?: ""
                     reader.close()
                     process.destroy()
 
@@ -111,7 +110,7 @@ class ModelSelector(private val context: Context) {
             if (model.quantization == null) true
             else {
                 val modelBits = model.quantization.bits
-                val suggestedBits = suggestedQuant.bits
+        val suggestedBits = suggestedQuant.bits
                 when (criteria) {
                     SelectionCriteria.SPEED, SelectionCriteria.MEMORY_EFFICIENCY -> modelBits <= suggestedBits
                     SelectionCriteria.QUALITY -> true
@@ -125,7 +124,7 @@ class ModelSelector(private val context: Context) {
             SelectionCriteria.QUALITY -> filteredModels.sortedByDescending { it.quantization?.bits ?: 0 }
             SelectionCriteria.BALANCED -> filteredModels.sortedBy {
                 val bits = it.quantization?.bits ?: 8
-                val sizeScore = kotlin.math.ln(it.sizeBytes.toDouble().coerceAtLeast(1.0))
+        val sizeScore = kotlin.math.ln(it.sizeBytes.toDouble().coerceAtLeast(1.0))
                 (bits * 10 + sizeScore).toInt()
             }
             SelectionCriteria.MEMORY_EFFICIENCY -> filteredModels.sortedBy { it.sizeBytes }

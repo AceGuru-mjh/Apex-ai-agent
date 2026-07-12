@@ -41,13 +41,13 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
     private val taskScheduler = TaskScheduler(subAgents)
 
     private val _gepaState = MutableStateFlow<GepaState>(GepaState.Idle)
-    val gepaState: StateFlow<GepaState> = _gepaState.asStateFlow()
+        val gepaState: StateFlow<GepaState> = _gepaState.asStateFlow()
 
     private val _currentMatchedSkill = MutableStateFlow<MatchedSkill?>(null)
-    val currentMatchedSkill: StateFlow<MatchedSkill?> = _currentMatchedSkill.asStateFlow()
+        val currentMatchedSkill: StateFlow<MatchedSkill?> = _currentMatchedSkill.asStateFlow()
 
     private val _executionResult = MutableStateFlow<ExecutionResult?>(null)
-    val executionResult: StateFlow<ExecutionResult?> = _executionResult.asStateFlow()
+        val executionResult: StateFlow<ExecutionResult?> = _executionResult.asStateFlow()
 
     private val complexityQuantifier = TaskComplexityQuantifier()
 
@@ -56,7 +56,7 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
             _gepaState.value = GepaState.Analyzing
 
             val taskFeature = complexityQuantifier.quantifyTask(taskDescription)
-            val mainTask = MainTask(
+        val mainTask = MainTask(
                 taskId = "task_${System.currentTimeMillis()}",
                 taskType = taskFeature.category,
                 description = taskDescription,
@@ -113,7 +113,7 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
             _gepaState.value = GepaState.Executing
 
             val taskFeature = complexityQuantifier.quantifyTask(taskDescription)
-            val mainTask = MainTask(
+        val mainTask = MainTask(
                 taskId = "task_${System.currentTimeMillis()}",
                 taskType = taskFeature.category,
                 description = taskDescription,
@@ -124,8 +124,7 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
             )
 
             val defaultStrategy = DefaultSubtaskDecompositionStrategy()
-
-            val result = taskScheduler.executeComplexTask(mainTask, defaultStrategy)
+        val result = taskScheduler.executeComplexTask(mainTask, defaultStrategy)
 
             val subtasks = defaultStrategy.decompose(mainTask)
             handleExecutionResult(mainTask, subtasks, result)

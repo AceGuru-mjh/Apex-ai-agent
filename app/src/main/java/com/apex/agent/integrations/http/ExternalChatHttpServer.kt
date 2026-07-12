@@ -285,7 +285,7 @@ class ExternalChatHttpServer(
                                 }
 
                                 val finalState = streamSession.responseStreamSession.currentState()
-                                val finalResponseText = finalResponse.toString().takeIf { it.isNotBlank() }
+        val finalResponseText = finalResponse.toString().takeIf { it.isNotBlank() }
                                 if (finalState is InputProcessingState.Error) {
                                     writeSseEvent(
                                         writer,
@@ -398,7 +398,7 @@ class ExternalChatHttpServer(
     private fun postCallback(callbackUrl: String, result: ExternalChatResult) {
         try {
             val requestBody = json.encodeToString(result).toRequestBody(JSON_MEDIA_TYPE)
-            val request = Request.Builder()
+        val request = Request.Builder()
                 .url(callbackUrl)
                 .post(requestBody)
                 .build()
@@ -476,7 +476,7 @@ class ExternalChatHttpServer(
 
         // application/json is defined as UTF-8 by default; keep requests usable
         // even when the caller omits `charset=utf-8`.
-        return StandardCharsets.UTF_8
+                return StandardCharsets.UTF_8
     }
 
     private fun jsonResponse(status: Response.Status, body: ExternalChatResult): Response {

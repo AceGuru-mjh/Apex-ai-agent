@@ -50,7 +50,6 @@ class DynamicAgentCreator {
 
     fun createAgentFromRequest(request: AgentCreationRequest): CreationResult {
         val description = request.description.lowercase()
-
         val inferredRole = inferAgentRole(description)
         val capabilities = inferCapabilities(description)
         val tools = inferTools(description, request.suggestedTools)
@@ -127,7 +126,6 @@ class DynamicAgentCreator {
 
     private fun inferTools(description: String, suggestedTools: List<String>): List<String> {
         val tools = mutableListOf<String>()
-
         val toolIndicators = mapOf(
             "tools" to listOf("工具", "调用", "tool", "execute", "执行"),
             "internet" to listOf("搜索", "查询", "互联置", "browse", "search", "web", "爬虫"),

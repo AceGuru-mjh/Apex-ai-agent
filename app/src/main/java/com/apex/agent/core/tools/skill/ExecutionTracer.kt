@@ -230,7 +230,7 @@ class ExecutionTracer private constructor(private val context: Context) {
     fun recordSession(session: SkillDebugger.DebugSession) {
         session.toolCalls.forEach { toolCall ->
             val eventType = if (toolCall.error != null) EventType.TOOL_CALL_ERROR else EventType.TOOL_CALL_END
-            val entry = TraceEntry(
+        val entry = TraceEntry(
                 sessionId = session.id,
                 skillName = session.skillName,
                 eventType = eventType,
@@ -294,7 +294,7 @@ class ExecutionTracer private constructor(private val context: Context) {
             val entry = toolCallEntries[i]
             if (entry.eventType == EventType.TOOL_CALL_START) {
                 val endEntry = toolCallEntries.getOrNull(i + 1)
-                val toolCallInfo = ToolCallInfo(
+        val toolCallInfo = ToolCallInfo(
                     id = java.util.UUID.randomUUID().toString(),
                     toolName = entry.toolName ?: "unknown",
                     input = entry.input ?: emptyMap(),
@@ -319,7 +319,6 @@ class ExecutionTracer private constructor(private val context: Context) {
         }
 
         val flowGraph = buildFlowGraph(toolCalls)
-
         val totalDuration = if (sessionEnd != null && sessionStart != null) {
             sessionEnd.timestamp - sessionStart.timestamp
         } else null
@@ -360,7 +359,6 @@ class ExecutionTracer private constructor(private val context: Context) {
 
     fun generateFlowDiagram(sessionId: String): String {
         val flow = buildExecutionFlow(sessionId) ?: return "No flow data available"
-
         val sb = StringBuilder()
         sb.appendLine("Execution Flow for Session: ${flow.sessionId}")
         sb.appendLine("Skill: ${flow.skillName}")
@@ -402,7 +400,6 @@ class ExecutionTracer private constructor(private val context: Context) {
 
     fun generateMermaidFlowChart(sessionId: String): String {
         val flow = buildExecutionFlow(sessionId) ?: return "No flow data available"
-
         val sb = StringBuilder()
         sb.appendLine("graph TD")
         sb.appendLine("    Start((Session Start))")
@@ -414,7 +411,7 @@ class ExecutionTracer private constructor(private val context: Context) {
         flow.toolCalls.forEach { toolCall ->
             nodeIndex++
             val nodeId = "Tool${nodeIndex}"
-            val statusClass = if (toolCall.error != null) "error" else "success"
+        val statusClass = if (toolCall.error != null) "error" else "success"
             sb.appendLine("    ${nodeId}(${nodeId}: ${toolCall.toolName}):::${statusClass}")
             sb.appendLine("    ${prevNodeId} --> ${nodeId}")
             prevNodeId = nodeId

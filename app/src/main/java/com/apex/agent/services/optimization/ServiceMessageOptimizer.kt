@@ -303,7 +303,7 @@ class ServiceMessageOptimizer private constructor() {
     private suspend fun batchProcessorLoop() {
         while (isRunning) {
             val batch = mutableListOf<MessageEnvelope>()
-            val deadline = System.currentTimeMillis() + config.batchMaxWaitMs
+        val deadline = System.currentTimeMillis() + config.batchMaxWaitMs
 
             while (batch.size < config.batchMaxSize && System.currentTimeMillis() < deadline) {
                 val msg = withTimeoutOrNull(config.batchMaxWaitMs) {

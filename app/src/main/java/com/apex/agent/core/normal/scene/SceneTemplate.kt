@@ -26,8 +26,8 @@ data class SceneTemplate(
     val systemPrompt: String,
     val recommendedTools: List<String> = emptyList(),
     val recommendedDepth: String = "standard",  // brief/standard/detailed/comprehensive
-    val recommendedStyle: String = "balanced",   // balanced/technical/conversational/academic
-    val suggestedParams: Map<String, Any> = emptyMap(),
+                val recommendedStyle: String = "balanced",   // balanced/technical/conversational/academic
+                val suggestedParams: Map<String, Any> = emptyMap(),
     val exampleQuestions: List<String> = emptyList(),
     val category: SceneCategory,
     val tags: List<String> = emptyList(),
@@ -46,8 +46,7 @@ class SceneTemplateRegistry {
 
     private val templates = ConcurrentHashMap<String, SceneTemplate>()
     private val activeTemplates = ConcurrentHashMap<String, String>()  // chatId -> templateId
-
-    init {
+                init {
         registerBuiltinTemplates()
     }
 
@@ -129,10 +128,9 @@ class SceneTemplateRegistry {
     }
 
     // ============ 预置模板 ============
-
-    private fun registerBuiltinTemplates() {
+                private fun registerBuiltinTemplates() {
         // 编程助手
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_programming",
             name = "programming",
             displayName = "编程助手",
@@ -158,7 +156,7 @@ class SceneTemplateRegistry {
         ))
 
         // 写作助手
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_writing",
             name = "writing",
             displayName = "写作助手",
@@ -183,7 +181,7 @@ class SceneTemplateRegistry {
         ))
 
         // 翻译
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_translation",
             name = "translation",
             displayName = "翻译专家",
@@ -207,7 +205,7 @@ class SceneTemplateRegistry {
         ))
 
         // 学习导师
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_learning",
             name = "learning",
             displayName = "学习导师",
@@ -231,7 +229,7 @@ class SceneTemplateRegistry {
         ))
 
         // 头脑风暴
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_brainstorming",
             name = "brainstorming",
             displayName = "头脑风暴",
@@ -256,7 +254,7 @@ class SceneTemplateRegistry {
         ))
 
         // 数据分析
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_analysis",
             name = "analysis",
             displayName = "数据分析",
@@ -280,7 +278,7 @@ class SceneTemplateRegistry {
         ))
 
         // 生产力
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_productivity",
             name = "productivity",
             displayName = "效率助手",
@@ -305,7 +303,7 @@ class SceneTemplateRegistry {
         ))
 
         // 个人助理
-        register(SceneTemplate(
+                register(SceneTemplate(
             id = "scene_personal",
             name = "personal",
             displayName = "个人助理",

@@ -100,7 +100,7 @@ class WebSearchProviderRegistry {
         val now = System.currentTimeMillis()
         return providers.filter { p ->
             val failures = failureCount[p.name] ?: 0
-            val lastFail = lastFailureTime[p.name] ?: 0
+        val lastFail = lastFailureTime[p.name] ?: 0
             if (failures >= maxFailures && now - lastFail < cooldownMs) {
                 false  // 冷却中
             } else if (failures >= maxFailures && now - lastFail >= cooldownMs) {
@@ -140,7 +140,7 @@ class WebSearchProviderRegistry {
         val now = System.currentTimeMillis()
         return providers.associate { p ->
             val failures = failureCount[p.name] ?: 0
-            val lastFail = lastFailureTime[p.name] ?: 0
+        val lastFail = lastFailureTime[p.name] ?: 0
             val status = when {
                 failures >= maxFailures && now - lastFail < cooldownMs ->
                     ProviderStatus.COOLING_DOWN(failures, cooldownMs - (now - lastFail))
@@ -181,13 +181,13 @@ object MemeHttpUtil {
         return try {
             val requestBuilder = Request.Builder().url(url).get()
             // 模拟浏览器 UA，避免被反爬
-            requestBuilder.addHeader("User-Agent", defaultUserAgent())
+                requestBuilder.addHeader("User-Agent", defaultUserAgent())
             requestBuilder.addHeader("Accept", "application/json, text/plain, */*")
             requestBuilder.addHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
             headers.forEach { (k, v) -> requestBuilder.addHeader(k, v) }
 
             val response = client.newCall(requestBuilder.build()).execute()
-            val body = response.body?.string() ?: ""
+        val body = response.body?.string() ?: ""
             HttpResult(
                 success = response.isSuccessful,
                 statusCode = response.code,
@@ -231,7 +231,7 @@ object MemeJsonUtil {
     fun parseArray(json: String): JSONArray? {
         return try {
             // 去除可能的 JSONP 包装
-            val cleaned = cleanJsonp(json)
+                val cleaned = cleanJsonp(json)
             JSONArray(cleaned)
         } catch (e: Exception) {
             null
@@ -256,9 +256,9 @@ object MemeJsonUtil {
     private fun cleanJsonp(json: String): String {
         val trimmed = json.trim()
         // 如果是 JSONP 格式 callback(...)
-        if (trimmed.contains("(") && trimmed.endsWith(")")) {
+                if (trimmed.contains("(") && trimmed.endsWith(")")) {
             val start = trimmed.indexOf("(")
-            val end = trimmed.lastIndexOf(")")
+        val end = trimmed.lastIndexOf(")")
             if (start in 0..end) {
                 return trimmed.substring(start + 1, end)
             }

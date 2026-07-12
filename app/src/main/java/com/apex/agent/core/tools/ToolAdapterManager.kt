@@ -11,15 +11,15 @@ import com.apex.core.tools.adapters.QuickSearchToolAdapter
 object ToolAdapterManager {
 
     // 工具执行历史
-    private val executionHistory = mutableListOf<ToolExecutionRecord>()
+                private val executionHistory = mutableListOf<ToolExecutionRecord>()
     private val MAX_HISTORY_SIZE = 100
     
     // 工具使用统计
-    private val usageStats = mutableMapOf<String, ToolUsageStat>()
+                private val usageStats = mutableMapOf<String, ToolUsageStat>()
 
     init {
         // 初始化时注册默认工具适配置
-       registerDefaultAdapters()
+                registerDefaultAdapters()
     }
 
     /**
@@ -36,11 +36,11 @@ object ToolAdapterManager {
     */
     private fun registerDefaultAdapters() {
         // 注册数据库工具适配置
-       ToolRegistry.register(DatabaseToolAdapter())
+                ToolRegistry.register(DatabaseToolAdapter())
         // 注册外部API工具适配置
-       ToolRegistry.register(ExternalApiToolAdapter())
+                ToolRegistry.register(ExternalApiToolAdapter())
         // 注册快捷搜索工具适配置
-       ToolRegistry.register(QuickSearchToolAdapter())
+                ToolRegistry.register(QuickSearchToolAdapter())
     }
 
     /**
@@ -55,7 +55,6 @@ object ToolAdapterManager {
      */
     suspend fun executeTool(toolName: String, parameters: Map<String, Any>): ToolResultData {
         val startTime = System.currentTimeMillis()
-        
         val tool = ToolRegistry.getTool(toolName)
         if (tool == null) {
             recordExecution(toolName, parameters, false, startTime, "工具不存，"
@@ -182,7 +181,7 @@ object ToolAdapterManager {
         executionHistory.add(record)
         
         // 限制历史记录大小
-        if (executionHistory.size > MAX_HISTORY_SIZE) {
+                if (executionHistory.size > MAX_HISTORY_SIZE) {
             executionHistory.removeAt(0)
         }
     }

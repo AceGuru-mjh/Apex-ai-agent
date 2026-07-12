@@ -30,7 +30,7 @@ class WorkflowEngine : WorkflowExecutor {
     private val pausedExecutions = ConcurrentHashMap<String, CompletableDeferred<Unit>>()
 
     private val _executionHistory = MutableStateFlow<List<WorkflowExecution>>(emptyList())
-    val executionHistory: StateFlow<List<WorkflowExecution>> = _executionHistory.asStateFlow()
+        val executionHistory: StateFlow<List<WorkflowExecution>> = _executionHistory.asStateFlow()
 
     override fun register(workflow: WorkflowDefinition) {
         registeredWorkflows[workflow.id] = workflow
@@ -69,7 +69,7 @@ class WorkflowEngine : WorkflowExecutor {
 
         try {
             val sorted = topologicalSort(workflow.nodes, workflow.edges)
-            val startNode = findStartNode(workflow.nodes) ?: sorted.firstOrNull()
+        val startNode = findStartNode(workflow.nodes) ?: sorted.firstOrNull()
             if (startNode == null) {
                 val err = "工作流中未找到任何节点"
                 return completeWithError(executionId, nodeResults, err, startTime)
@@ -92,7 +92,7 @@ class WorkflowEngine : WorkflowExecutor {
                 }
 
                 val nodeStart = System.currentTimeMillis()
-                val nodeResult = executeNode(node, context)
+        val nodeResult = executeNode(node, context)
                 nodeResult.executionTimeMs.let { System.currentTimeMillis() - nodeStart }
                 nodeResults[node.id] = nodeResult.copy(executionTimeMs = System.currentTimeMillis() - nodeStart)
 
@@ -103,7 +103,7 @@ class WorkflowEngine : WorkflowExecutor {
 
                 if (node.type == NodeType.PARALLEL) {
                     val branches = getOutgoingEdges(nodeId, workflow.edges)
-                    val deferredResults = branches.map { edge ->
+        val deferredResults = branches.map { edge ->
                         CoroutineScope(currentCoroutineContext()).async {
                             val branchResults = mutableMapOf<String, NodeResult>()
                             traverseBranch(edge.targetNodeId, workflow, context, branchResults, visited.toMutableSet(), executionId, startTime)
@@ -116,7 +116,7 @@ class WorkflowEngine : WorkflowExecutor {
 
                 if (node.type == NodeType.LOOP) {
                     val loopCount = (node.config["count"]?.toIntOrNull()) ?: 3
-                    val loopBodyEdges = getOutgoingEdges(nodeId, workflow.edges)
+        val loopBodyEdges = getOutgoingEdges(nodeId, workflow.edges)
                     if (loopBodyEdges.isNotEmpty()) {
                         repeat(loopCount) { i ->
                             if (!isActive()) return@repeat
@@ -274,13 +274,13 @@ class WorkflowEngine : WorkflowExecutor {
             }
             NodeType.ACTION -> {
                 val action = node.config["action"] ?: "noop"
-                val input = node.config["input"] ?: context[node.id] ?: ""
+        val input = node.config["input"] ?: context[node.id] ?: ""
                 context[node.id] = simulateAction(action, input)
                 NodeResult(nodeId = node.id, success = true, output = context[node.id])
             }
             NodeType.CONDITION -> {
                 val expr = node.config["expression"] ?: "true"
-                val result = evaluateCondition(expr, context)
+        val result = evaluateCondition(expr, context)
                 context["${node.id}_result"] = result.toString()
                 NodeResult(nodeId = node.id, success = true, output = result.toString())
             }
@@ -302,7 +302,7 @@ class WorkflowEngine : WorkflowExecutor {
             }
             NodeType.SUB_WORKFLOW -> {
                 val subId = node.config["workflowId"] ?: ""
-                val subWf = registeredWorkflows[subId]
+        val subWf = registeredWorkflows[subId]
                 if (subWf != null) {
                     val subResult = execute(subWf)
                     context["${node.id}_sub_success"] = subResult.success.toString()
@@ -349,14 +349,14 @@ class WorkflowEngine : WorkflowExecutor {
         val eqMatch = Regex("""\$\{(\w+)}\s*==\s*(.+)""").find(trimmed)
         if (eqMatch != null) {
             val key = eqMatch.groupValues[1]
-            val expected = eqMatch.groupValues[2].trim().removeSurrounding("\"")
+        val expected = eqMatch.groupValues[2].trim().removeSurrounding("\"")
             return context[key] == expected
         }
 
         val neqMatch = Regex("""\$\{(\w+)}\s*!=\s*(.+)""").find(trimmed)
         if (neqMatch != null) {
             val key = neqMatch.groupValues[1]
-            val expected = neqMatch.groupValues[2].trim().removeSurrounding("\"")
+        val expected = neqMatch.groupValues[2].trim().removeSurrounding("\"")
             return context[key] != expected
         }
 

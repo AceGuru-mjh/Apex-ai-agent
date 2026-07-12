@@ -42,15 +42,15 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun tap(tool: AITool): ToolResult {
         return executeWithCatch("tap", tool) {
             // 1. 验证参数
-            validateParameters(
+                validateParameters(
                 tool,
                 requiredParams = listOf("x", "y"),
                 optionalParams = listOf("display")
             )
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
-            val y = getRequiredParameter(tool, "y").toIntOrNull()
+                val x = getRequiredParameter(tool, "x").toIntOrNull()
+        val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -60,11 +60,11 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 3. 显示点击效果
-            showTapOverlay(x, y)
+                showTapOverlay(x, y)
 
             // 4. 执行点击命令
-            val displayArg = getDisplayArg(tool)
-            val command = "input ${displayArg}tap ${x} ${y}"
+                val displayArg = getDisplayArg(tool)
+        val command = "input ${displayArg}tap ${x} ${y}"
             val result = executeUiShellCommand(command)
 
             if (!result.success) {
@@ -76,7 +76,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 5. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 UIActionResultData(
@@ -94,15 +94,15 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun longPress(tool: AITool): ToolResult {
         return executeWithCatch("longPress", tool) {
             // 1. 验证参数
-            validateParameters(
+                validateParameters(
                 tool,
                 requiredParams = listOf("x", "y"),
                 optionalParams = listOf("duration", "display")
             )
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
-            val y = getRequiredParameter(tool, "y").toIntOrNull()
+                val x = getRequiredParameter(tool, "x").toIntOrNull()
+        val y = getRequiredParameter(tool, "y").toIntOrNull()
             val durationMs = getParameter(tool, "duration", "800").toIntOrNull() ?: 800
 
             if (x == null || y == null) {
@@ -113,11 +113,11 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 3. 显示长按效果
-            showTapOverlay(x, y)
+                showTapOverlay(x, y)
 
             // 4. 执行长按命令（使用swipe模拟长按的
-            val displayArg = getDisplayArg(tool)
-            val command = "input ${displayArg}swipe ${x} ${y} ${x} ${y} ${durationMs}"
+                val displayArg = getDisplayArg(tool)
+        val command = "input ${displayArg}swipe ${x} ${y} ${x} ${y} ${durationMs}"
             val result = executeUiShellCommand(command)
 
             if (!result.success) {
@@ -129,7 +129,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 5. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 UIActionResultData(
@@ -147,17 +147,17 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun swipe(tool: AITool): ToolResult {
         return executeWithCatch("swipe", tool) {
             // 1. 验证参数
-            validateParameters(
+                validateParameters(
                 tool,
                 requiredParams = listOf("start_x", "start_y", "end_x", "end_y"),
                 optionalParams = listOf("duration", "display")
             )
 
             // 2. 获取参数
-            val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
-            val startY = getRequiredParameter(tool, "start_y").toIntOrNull()
+                val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
+        val startY = getRequiredParameter(tool, "start_y").toIntOrNull()
             val endX = getRequiredParameter(tool, "end_x").toIntOrNull()
-            val endY = getRequiredParameter(tool, "end_y").toIntOrNull()
+        val endY = getRequiredParameter(tool, "end_y").toIntOrNull()
             val duration = getParameter(tool, "duration", "300").toIntOrNull() ?: 300
 
             if (startX == null || startY == null || endX == null || endY == null) {
@@ -168,11 +168,11 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 3. 显示滑动效果
-            showSwipeOverlay(startX, startY, endX, endY)
+                showSwipeOverlay(startX, startY, endX, endY)
 
             // 4. 执行滑动命令
-            val displayArg = getDisplayArg(tool)
-            val command = "input ${displayArg}swipe ${startX} ${startY} ${endX} ${endY} ${duration}"
+                val displayArg = getDisplayArg(tool)
+        val command = "input ${displayArg}swipe ${startX} ${startY} ${endX} ${endY} ${duration}"
             val result = executeUiShellCommand(command)
 
             if (!result.success) {
@@ -184,7 +184,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 5. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 UIActionResultData(
@@ -201,24 +201,24 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun setInputText(tool: AITool): ToolResult {
         return executeWithCatch("setInputText", tool) {
             // 1. 验证参数
-            validateParameters(
+                validateParameters(
                 tool,
                 requiredParams = listOf("text"),
                 optionalParams = listOf("display")
             )
 
             // 2. 获取参数
-            val text = getRequiredParameter(tool, "text")
+                val text = getRequiredParameter(tool, "text")
 
             // 3. 显示输入效果
-            showTextInputOverlay(text)
+                showTextInputOverlay(text)
 
             // 4. 清空输入的
-            executeUiShellCommand("input ${getDisplayArg(tool)}keyevent KEYCODE_CLEAR")
+                executeUiShellCommand("input ${getDisplayArg(tool)}keyevent KEYCODE_CLEAR")
             kotlinx.coroutines.delay(300)
 
             // 5. 如果文本为空，只清空
-            if (text.isEmpty()) {
+                if (text.isEmpty()) {
                 hideOverlay()
                 return@executeWithCatch UIToolsResult.Success(
                     UIActionResultData("textInput", "Successfully cleared input field")
@@ -226,7 +226,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 6. 设置剪贴板并粘贴
-            setClipboardText(text)
+                setClipboardText(text)
             kotlinx.coroutines.delay(100)
 
             val pasteResult = executeUiShellCommand("input ${getDisplayArg(tool)}keyevent KEYCODE_PASTE")
@@ -240,7 +240,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 7. 隐藏overlay并返回结果
-            hideOverlay()
+                hideOverlay()
             
             UIToolsResult.Success(
                 UIActionResultData(
@@ -257,17 +257,17 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun pressKey(tool: AITool): ToolResult {
         return executeWithCatch("pressKey", tool) {
             // 1. 验证参数
-            validateParameters(
+                validateParameters(
                 tool,
                 requiredParams = listOf("key_code"),
                 optionalParams = listOf("display")
             )
 
             // 2. 获取参数
-            val keyCode = getRequiredParameter(tool, "key_code")
+                val keyCode = getRequiredParameter(tool, "key_code")
 
             // 3. 执行按键命令
-            val result = executeUiShellCommand("input ${getDisplayArg(tool)}keyevent ${keyCode}")
+                val result = executeUiShellCommand("input ${getDisplayArg(tool)}keyevent ${keyCode}")
 
             if (!result.success) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -288,7 +288,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun getPageInfo(tool: AITool): ToolResult {
         return executeWithCatch("getPageInfo", tool) {
             // 1. 从shell获取UI数据
-            val uiData = getUIDataFromShell(tool)
+                val uiData = getUIDataFromShell(tool)
             
             if (uiData == null) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -298,13 +298,13 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 2. 提取焦点信息
-            val focusInfo = extractFocusInfoFromShell(uiData.windowInfo)
+                val focusInfo = extractFocusInfoFromShell(uiData.windowInfo)
 
             // 3. 简化布局
-            val simplifiedLayout = xmlParser.parseAndSimplify(uiData.uiXml)
+                val simplifiedLayout = xmlParser.parseAndSimplify(uiData.uiXml)
 
             // 4. 构建结果
-            val resultData = com.apex.agent.core.tools.UIPageResultData(
+                val resultData = com.apex.agent.core.tools.UIPageResultData(
                 packageName = focusInfo.packageName ?: "Unknown",
                 activityName = focusInfo.activityName ?: "Unknown",
                 uiElements = simplifiedLayout
@@ -427,7 +427,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             val match = pattern.find(windowInfo)
             if (match != null && match.groupValues.size >= 3) {
                 val packageName = match.groupValues[1]
-                val activityName = match.groupValues[2]
+        val activityName = match.groupValues[2]
                 AppLogger.d(TAG, "Extracted from pattern: ${packageName}/${activityName}")
                 return FocusInfo(packageName, activityName)
             }

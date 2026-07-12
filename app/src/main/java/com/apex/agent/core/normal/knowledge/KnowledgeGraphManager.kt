@@ -33,17 +33,17 @@ data class KnowledgeNode(
 
 enum class EntityType {
     PERSON,       // 人
-    ORGANIZATION, // 组织
-    LOCATION,     // 地点
-    CONCEPT,      // 概念
-    TECHNOLOGY,   // 技术
-    PRODUCT,      // 产品
-    EVENT,        // 事件
-    DATE,         // 日期
-    DOCUMENT,     // 文档
-    PROJECT,      // 项目
-    SKILL,        // 技能
-    OTHER
+                ORGANIZATION, // 组织
+                LOCATION,     // 地点
+                CONCEPT,      // 概念
+                TECHNOLOGY,   // 技术
+                PRODUCT,      // 产品
+                EVENT,        // 事件
+                DATE,         // 日期
+                DOCUMENT,     // 文档
+                PROJECT,      // 项目
+                SKILL,        // 技能
+                OTHER
 }
 
 /**
@@ -62,20 +62,20 @@ data class KnowledgeEdge(
 
 enum class RelationType {
     IS_A,              // 是一种
-    PART_OF,           // ...的一部分
-    WORKS_AT,          // 在...工作
-    KNOWS,             // 认识
-    CREATED,           // 创建了
-    USES,              // 使用
-    DEPENDS_ON,        // 依赖
-    RELATED_TO,        // 相关
-    LOCATED_IN,        // 位于
-    HAPPENED_ON,       // 发生于
-    MEMBER_OF,         // ...的成员
-    OWNER_OF,          // 拥有
-    SIMILAR_TO,        // 类似于
-    PARENT_OF,         // ...的父级
-    CUSTOM             // 自定义
+                PART_OF,           // ...的一部分
+                WORKS_AT,          // 在...工作
+                KNOWS,             // 认识
+                CREATED,           // 创建了
+                USES,              // 使用
+                DEPENDS_ON,        // 依赖
+                RELATED_TO,        // 相关
+                LOCATED_IN,        // 位于
+                HAPPENED_ON,       // 发生于
+                MEMBER_OF,         // ...的成员
+                OWNER_OF,          // 拥有
+                SIMILAR_TO,        // 类似于
+                PARENT_OF,         // ...的父级
+                CUSTOM             // 自定义
 }
 
 /**
@@ -119,7 +119,7 @@ class KnowledgeGraphManager {
     private val nodes = ConcurrentHashMap<String, KnowledgeNode>()
     private val edges = ConcurrentHashMap<String, KnowledgeEdge>()
     private val nameToId = ConcurrentHashMap<String, String>()  // name/alias -> id
-    private val adjacency = ConcurrentHashMap<String, MutableSet<String>>()  // nodeId -> edgeIds
+                private val adjacency = ConcurrentHashMap<String, MutableSet<String>>()  // nodeId -> edgeIds
 
     /**
      * 从文本中抽取知识
@@ -129,17 +129,17 @@ class KnowledgeGraphManager {
         val extractedEdges = mutableListOf<KnowledgeEdge>()
 
         // 1. 实体抽取（基于规则）
-        val entities = extractEntities(text)
+                val entities = extractEntities(text)
         for ((name, type) in entities) {
             val node = addOrUpdateNode(name, type)
             extractedNodes.add(node)
         }
 
         // 2. 关系抽取（基于模式）
-        val relations = extractRelations(text, entities)
+                val relations = extractRelations(text, entities)
         for ((source, relation, target) in relations) {
             val sourceNode = findOrCreateNode(source)
-            val targetNode = findOrCreateNode(target)
+        val targetNode = findOrCreateNode(target)
             val edge = addOrUpdateEdge(sourceNode.id, targetNode.id, relation)
             extractedEdges.add(edge)
         }
@@ -166,7 +166,7 @@ class KnowledgeGraphManager {
         val existingId = nameToId[name.lowercase()]
         if (existingId != null) {
             val existing = nodes[existingId]!!
-            val updated = existing.copy(
+        val updated = existing.copy(
                 mentionCount = existing.mentionCount + 1,
                 properties = existing.properties + properties,
                 confidence = (existing.confidence + 0.1f).coerceAtMost(1f)
@@ -192,7 +192,7 @@ class KnowledgeGraphManager {
      */
     fun addOrUpdateEdge(sourceId: String, targetId: String, relation: RelationType): KnowledgeEdge {
         // 查找是否已存在
-        val existing = edges.values.find {
+                val existing = edges.values.find {
             it.sourceId == sourceId && it.targetId == targetId && it.relation == relation
         }
         if (existing != null) {
@@ -263,11 +263,11 @@ class KnowledgeGraphManager {
             val edgeIds = adjacency[state.current] ?: continue
             for (edgeId in edgeIds) {
                 val edge = edges[edgeId] ?: continue
-                val nextNode = if (edge.sourceId == state.current) edge.targetId else edge.sourceId
+        val nextNode = if (edge.sourceId == state.current) edge.targetId else edge.sourceId
                 if (nextNode in visited) continue
 
                 val newPath = state.path + nextNode
-                val newEdges = state.edges + edge
+        val newEdges = state.edges + edge
                 val newWeight = state.totalWeight + edge.weight
 
                 if (nextNode == toId) {
@@ -289,7 +289,6 @@ class KnowledgeGraphManager {
         val visited = mutableSetOf<String>()
         val subNodes = mutableMapOf<String, KnowledgeNode>()
         val subEdges = mutableListOf<KnowledgeEdge>()
-
         val queue = ArrayDeque<Pair<String, Int>>()
         queue.add(nodeId to 0)
         visited.add(nodeId)
@@ -339,7 +338,7 @@ class KnowledgeGraphManager {
             val relations = getRelations(node.id).take(3)
             for (rel in relations) {
                 val otherId = if (rel.sourceId == node.id) rel.targetId else rel.sourceId
-                val other = nodes[otherId]
+        val other = nodes[otherId]
                 if (other != null) {
                     val direction = if (rel.sourceId == node.id) "→" else "←"
                     sb.appendLine("  $direction ${rel.relation} → ${other.name}")
@@ -350,12 +349,11 @@ class KnowledgeGraphManager {
     }
 
     // ============ 实体抽取 ============
-
-    private fun extractEntities(text: String): List<Pair<String, EntityType>> {
+                private fun extractEntities(text: String): List<Pair<String, EntityType>> {
         val entities = mutableListOf<Pair<String, EntityType>>()
 
         // 人名（简化：大写英文姓名 或 中文2-3字+说/表示）
-        Regex("([A-Z][a-z]+ [A-Z][a-z]+)").findAll(text)
+                Regex("([A-Z][a-z]+ [A-Z][a-z]+)").findAll(text)
             .map { it.value to EntityType.PERSON }
             .toList().let { entities.addAll(it) }
 
@@ -364,22 +362,22 @@ class KnowledgeGraphManager {
             .toList().let { entities.addAll(it) }
 
         // 组织（公司/团队后缀）
-        Regex("([\\u4e00-\\u9fa5A-Za-z]+(?:公司|团队|组织|集团|实验室|机构|Inc|Corp|LLC|Ltd))").findAll(text)
+                Regex("([\\u4e00-\\u9fa5A-Za-z]+(?:公司|团队|组织|集团|实验室|机构|Inc|Corp|LLC|Ltd))").findAll(text)
             .map { it.value to EntityType.ORGANIZATION }
             .toList().let { entities.addAll(it) }
 
         // 技术名词
-        Regex("\\b(Python|Kotlin|Java|JavaScript|TypeScript|React|Vue|Angular|Android|iOS|Docker|Kubernetes|TensorFlow|PyTorch|GPT|BERT)\\b").findAll(text)
+                Regex("\\b(Python|Kotlin|Java|JavaScript|TypeScript|React|Vue|Angular|Android|iOS|Docker|Kubernetes|TensorFlow|PyTorch|GPT|BERT)\\b").findAll(text)
             .map { it.value to EntityType.TECHNOLOGY }
             .toList().let { entities.addAll(it) }
 
         // 日期
-        Regex("(\\d{4}年\\d{1,2}月\\d{1,2}日|\\d{4}-\\d{2}-\\d{2}|明天|后天|今天|昨天)").findAll(text)
+                Regex("(\\d{4}年\\d{1,2}月\\d{1,2}日|\\d{4}-\\d{2}-\\d{2}|明天|后天|今天|昨天)").findAll(text)
             .map { it.value to EntityType.DATE }
             .toList().let { entities.addAll(it) }
 
         // 地点（简化：含"市"/"省"/"国家"后缀）
-        Regex("([\\u4e00-\\u9fa5]{2,5}(?:市|省|国家|区|县))").findAll(text)
+                Regex("([\\u4e00-\\u9fa5]{2,5}(?:市|省|国家|区|县))").findAll(text)
             .map { it.value to EntityType.LOCATION }
             .toList().let { entities.addAll(it) }
 
@@ -390,7 +388,7 @@ class KnowledgeGraphManager {
         val relations = mutableListOf<Triple<String, RelationType, String>>()
 
         // 模式匹配
-        val patterns = mapOf(
+                val patterns = mapOf(
             RelationType.WORKS_AT to Regex("([\\u4e00-\\u9fa5A-Za-z]+)\\s*(?:在|就职于|工作于)\\s*([\\u4e00-\\u9fa5A-Za-z]+公司|团队|组织)"),
             RelationType.CREATED to Regex("([\\u4e00-\\u9fa5A-Za-z]+)\\s*(?:创建了|发明了|开发了|写了)\\s*([\\u4e00-\\u9fa5A-Za-z]+)"),
             RelationType.USES to Regex("([\\u4e00-\\u9fa5A-Za-z]+)\\s*(?:使用|用|采用)\\s*([\\u4e00-\\u9fa5A-Za-z]+)"),
@@ -402,7 +400,7 @@ class KnowledgeGraphManager {
         for ((relation, regex) in patterns) {
             regex.findAll(text).forEach { match ->
                 val source = match.groupValues[1]
-                val target = match.groupValues[2]
+        val target = match.groupValues[2]
                 if (source.isNotBlank() && target.isNotBlank()) {
                     relations.add(Triple(source, relation, target))
                 }

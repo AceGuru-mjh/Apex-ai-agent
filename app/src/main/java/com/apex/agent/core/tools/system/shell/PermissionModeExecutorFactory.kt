@@ -41,13 +41,13 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
     private val mutex = Mutex()
 
     private val _executorCache = MutableStateFlow<Map<PermissionMode, ShellExecutor>>(emptyMap())
-    val executorCache: StateFlow<Map<PermissionMode, ShellExecutor>> = _executorCache.asStateFlow()
+        val executorCache: StateFlow<Map<PermissionMode, ShellExecutor>> = _executorCache.asStateFlow()
 
     private val _currentExecutor = MutableStateFlow<ShellExecutor?>(null)
-    val currentExecutor: StateFlow<ShellExecutor?> = _currentExecutor.asStateFlow()
+        val currentExecutor: StateFlow<ShellExecutor?> = _currentExecutor.asStateFlow()
 
     private val _isInitializing = MutableStateFlow(false)
-    val isInitializing: StateFlow<Boolean> = _isInitializing.asStateFlow()
+        val isInitializing: StateFlow<Boolean> = _isInitializing.asStateFlow()
 
     private val executorCreationTime = ConcurrentHashMap<PermissionMode, Long>()
 
@@ -61,7 +61,7 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
         val now = System.currentTimeMillis()
 
         // 检查缓存是否有数
-        if (cached != null) {
+                if (cached != null) {
             val creationTime = executorCreationTime[mode] ?: 0L
             if (now - creationTime < CACHE_TTL && cached.isAvailable()) {
                 AppLogger.v(TAG, "使用缓存的${mode.displayName} 执行器")
@@ -206,7 +206,7 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
         for (mode in PermissionMode.values()) {
             try {
                 val executor = getExecutor(mode)
-                val status = executor.hasPermission()
+        val status = executor.hasPermission()
                 result[mode] = executor to status
             } catch (e: Exception) {
                 AppLogger.w(TAG, "获取 ${mode.displayName} 执行器状态失败", e)

@@ -41,7 +41,7 @@ class WorkflowToolExecutor {
 
         registerHandler("set_variable") { config ->
             val name = config["name"]?.toString() ?: "variable"
-            val value = config["value"]?.toString() ?: ""
+        val value = config["value"]?.toString() ?: ""
             mapOf("name" to name, "value" to value)
         }
 
@@ -52,7 +52,7 @@ class WorkflowToolExecutor {
 
         registerHandler("http_request") { config ->
             val url = config["url"]?.toString() ?: throw IllegalArgumentException("url is required")
-            val method = config["method"]?.toString() ?: "GET"
+        val method = config["method"]?.toString() ?: "GET"
             val body = config["body"]?.toString()
 
             mapOf(
@@ -65,7 +65,7 @@ class WorkflowToolExecutor {
 
         registerHandler("notification") { config ->
             val title = config["title"]?.toString() ?: "Workflow Notification"
-            val content = config["content"]?.toString() ?: ""
+        val content = config["content"]?.toString() ?: ""
 
             mapOf(
                 "title" to title,
@@ -101,7 +101,6 @@ class WorkflowToolExecutor {
 
     suspend fun execute(toolName: String, config: Map<String, Any>): Any {
         val handler = toolHandlers[toolName] ?: throw IllegalArgumentException("Unknown tool: ${toolName}")
-
         val validation = handler.validate(config)
         if (!validation.isValid) {
             throw IllegalArgumentException("Tool validation failed: ${validation.errors}")

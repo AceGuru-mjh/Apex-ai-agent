@@ -13,9 +13,9 @@ object ConditionEvaluator {
 
         return try {
             val tokens = Tokenizer(trimmed).tokenize()
-            val parser = Parser(tokens)
+        val parser = Parser(tokens)
             val ast = parser.parseExpression()
-            val value = ast.eval(capabilities)
+        val value = ast.eval(capabilities)
             value.isTruthy()
         } catch (e: Exception) {
             AppLogger.w(TAG, "Condition evaluation failed: '${expression}' (${e.message})")
@@ -215,7 +215,7 @@ object ConditionEvaluator {
                 "<=" -> Value.Bool(left.eval(capabilities).compareTo(right.eval(capabilities)) <= 0)
                 "in" -> {
                     val item = left.eval(capabilities)
-                    val container = right.eval(capabilities)
+        val container = right.eval(capabilities)
                     val ok = (container as? Value.Array)?.items?.any { it == item } == true
                     Value.Bool(ok)
                 }

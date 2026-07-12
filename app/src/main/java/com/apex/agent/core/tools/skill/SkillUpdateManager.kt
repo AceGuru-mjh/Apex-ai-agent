@@ -39,10 +39,10 @@ class SkillUpdateManager private constructor(private val context: Context) {
     private val skillManager by lazy { SkillManager.getInstance(context) }
 
     private val _updateState = MutableStateFlow<Map<String, UpdateState>>(emptyMap())
-    val updateState: StateFlow<Map<String, UpdateState>> = _updateState.asStateFlow()
+        val updateState: StateFlow<Map<String, UpdateState>> = _updateState.asStateFlow()
 
     private val _availableUpdates = MutableStateFlow<List<UpdateInfo>>(emptyList())
-    val availableUpdates: StateFlow<List<UpdateInfo>> = _availableUpdates.asStateFlow()
+        val availableUpdates: StateFlow<List<UpdateInfo>> = _availableUpdates.asStateFlow()
 
     private val activeUpdates = ConcurrentHashMap<String, UpdateJob>()
 
@@ -180,7 +180,7 @@ class SkillUpdateManager private constructor(private val context: Context) {
     ): Result<File> = withContext(Dispatchers.IO) {
         try {
             val cacheDir = getUpdateCacheDir()
-            val outputFile = File(cacheDir, "${skillId}_${version}.zip")
+        val outputFile = File(cacheDir, "${skillId}_${version}.zip")
 
             if (outputFile.exists()) {
                 outputFile.delete()
@@ -276,7 +276,7 @@ class SkillUpdateManager private constructor(private val context: Context) {
             }
 
             val skillDir = skillManager.getAvailableSkills()[skillId]?.directory
-            val backupPath = if (skillDir != null && skillDir.exists()) {
+        val backupPath = if (skillDir != null && skillDir.exists()) {
                 createBackup(skillId, skillDir)
             } else null
 
@@ -367,7 +367,7 @@ class SkillUpdateManager private constructor(private val context: Context) {
     private fun createBackup(skillId: String, skillDir: File): String? {
         return try {
             val backupDir = getBackupDir()
-            val backupPath = File(backupDir, "${skillId}_${System.currentTimeMillis()}")
+        val backupPath = File(backupDir, "${skillId}_${System.currentTimeMillis()}")
             skillDir.copyRecursively(backupPath, overwrite = false)
             AppLogger.i(TAG, "Backup created at ${backupPath.absolutePath}")
             backupPath.absolutePath
@@ -468,7 +468,7 @@ class SkillUpdateManager private constructor(private val context: Context) {
     fun getCacheSize(): Long {
         return try {
             val cacheDir = getUpdateCacheDir()
-            val backupDir = getBackupDir()
+        val backupDir = getBackupDir()
             (cacheDir.walkTopDown().filter { it.isFile }.map { it.length() }.sum() +
                     backupDir.walkTopDown().filter { it.isFile }.map { it.length() }.sum())
         } catch (e: Exception) {

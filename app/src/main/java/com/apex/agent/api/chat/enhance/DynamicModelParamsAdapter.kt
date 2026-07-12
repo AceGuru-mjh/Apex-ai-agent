@@ -12,8 +12,8 @@ object DynamicModelParamsAdapter {
      */
     enum class ConversationScenario {
         PROFESSIONAL, // 专业严谨场景
-        CREATIVE,     // 创意创作场景
-        BALANCED      // 通用平衡场景
+                CREATIVE,     // 创意创作场景
+                BALANCED      // 通用平衡场景
     }
 
     /**
@@ -40,7 +40,7 @@ object DynamicModelParamsAdapter {
      */
     private val scenarioRules = listOf(
         // 专业严谨场景：代码、编程、计算、数据、法律、医疗等
-        ScenarioRule(
+                ScenarioRule(
             scenario = ConversationScenario.PROFESSIONAL,
             keywords = listOf(
                 "代码", "编程", "函数", "计算", "数据", "公式", "法律", "医疗",
@@ -55,7 +55,7 @@ object DynamicModelParamsAdapter {
             )
         ),
         // 创意创作场景：故事、小说、文案、广告、头脑风暴等
-        ScenarioRule(
+                ScenarioRule(
             scenario = ConversationScenario.CREATIVE,
             keywords = listOf(
                 "写一， "创作", "故事", "小说", "文案", "slogan", "广告，
@@ -90,7 +90,7 @@ object DynamicModelParamsAdapter {
         val inputLower = userInput.lowercase()
         
         // 检查每个规，
-       for (rule in scenarioRules) {
+                for (rule in scenarioRules) {
             if (matchesAnyKeyword(inputLower, rule.keywords)) {
                 AppLogger.d(TAG, "匹配到场，${rule.scenario.name}, 用户输入: ${userInput.take(50)}")
                 return rule.params
@@ -98,7 +98,7 @@ object DynamicModelParamsAdapter {
         }
         
         // 默认使用通用平衡场景
-        AppLogger.d(TAG, "使用默认平衡场景参数")
+                AppLogger.d(TAG, "使用默认平衡场景参数")
         return defaultParams
     }
 

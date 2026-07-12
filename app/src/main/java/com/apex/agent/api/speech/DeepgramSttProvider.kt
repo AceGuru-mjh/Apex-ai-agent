@@ -103,7 +103,7 @@ class DeepgramSttProvider(
                     throw IOException(context.getString(R.string.deepgram_stt_url_not_set))
                 }
                 if (!endpointUrl.startsWith("http://") && !endpointUrl.startsWith("https://")) {
-                    throw IOException(context.getString(R.string.deepgram_stt_url_invalid_scheme))
+                throw IOException(context.getString(R.string.deepgram_stt_url_invalid_scheme))
                 }
                 if (apiKey.isBlank()) {
                     throw IOException(context.getString(R.string.deepgram_stt_api_key_not_set))
@@ -159,7 +159,7 @@ class DeepgramSttProvider(
                 )
 
                 val file = File(context.cacheDir, "deepgram_stt_${UUID.randomUUID()}.wav")
-                val stream = FileOutputStream(file)
+        val stream = FileOutputStream(file)
                 stream.write(ByteArray(WAV_HEADER_SIZE))
 
                 pcmBytesWritten = 0
@@ -198,11 +198,11 @@ class DeepgramSttProvider(
                             }
 
                             val vadFrameSize = 512
-                            val vadFrame = ShortArray(vadFrameSize)
+        val vadFrame = ShortArray(vadFrameSize)
                             var vadFramePos = 0
 
                             val preRollSamples = SAMPLE_RATE / 2
-                            val preRoll = ShortArray(preRollSamples)
+        val preRoll = ShortArray(preRollSamples)
                             var preRollPos = 0
                             var preRollFilled = 0
 
@@ -388,14 +388,14 @@ class DeepgramSttProvider(
 
         try {
             val file = withContext(Dispatchers.IO) {
-                val out = File(context.cacheDir, "deepgram_stt_${UUID.randomUUID()}.wav")
+        val out = File(context.cacheDir, "deepgram_stt_${UUID.randomUUID()}.wav")
                 FileOutputStream(out).use { fos ->
                     fos.write(ByteArray(WAV_HEADER_SIZE))
                     val bytes = ByteArray(audioData.size * 2)
                     var idx = 0
                     for (f in audioData) {
                         val clamped = f.coerceIn(-1f, 1f)
-                        val s = (clamped * 32767f).toInt().toShort()
+        val s = (clamped * 32767f).toInt().toShort()
                         bytes[idx++] = (s.toInt() and 0xff).toByte()
                         bytes[idx++] = ((s.toInt() shr 8) and 0xff).toByte()
                     }
@@ -571,11 +571,11 @@ class DeepgramSttProvider(
             val trimmed = body.trim()
             if (trimmed.startsWith("{")) {
                 val json = JSONObject(trimmed)
-                val results = json.optJSONObject("results")
+        val results = json.optJSONObject("results")
                 val channels = results?.optJSONArray("channels")
-                val firstChannel = channels?.optJSONObject(0)
+        val firstChannel = channels?.optJSONObject(0)
                 val alternatives = firstChannel?.optJSONArray("alternatives")
-                val firstAlt = alternatives?.optJSONObject(0)
+        val firstAlt = alternatives?.optJSONObject(0)
                 val transcript = firstAlt?.optString("transcript", null)
                 if (!transcript.isNullOrBlank()) return transcript
                 return trimmed

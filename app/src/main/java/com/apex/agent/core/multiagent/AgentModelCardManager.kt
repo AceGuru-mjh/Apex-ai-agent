@@ -31,8 +31,7 @@ class AgentModelCardManager(private val context: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _modelCards = mutableListOf<ModelCard>()
     private val _roleCardMap = mutableMapOf<AgentRole, ModelCard>()
-
-    val modelCards: List<ModelCard>
+        val modelCards: List<ModelCard>
         get() = _modelCards.toList()
 
     val activeCards: List<ModelCard>
@@ -48,18 +47,18 @@ class AgentModelCardManager(private val context: Context) {
 
             prefs[KEY_MODEL_CARDS]?.let { json ->
                 val type = object : TypeToken<List<ModelCard>>() {}.type
-                val loadedCards: List<ModelCard> = gson.fromJson(json, type)
+        val loadedCards: List<ModelCard> = gson.fromJson(json, type)
                 _modelCards.clear()
                 _modelCards.addAll(loadedCards)
             }
 
             prefs[KEY_ROLE_MAPPINGS]?.let { json ->
                 val type = object : TypeToken<Map<String, String>>() {}.type
-                val mappings: Map<String, String> = gson.fromJson(json, type)
+        val mappings: Map<String, String> = gson.fromJson(json, type)
                 _roleCardMap.clear()
                 mappings.forEach { (roleName, cardId) ->
                     val role = try { AgentRole.valueOf(roleName) } catch (e: Exception) { null }
-                    val card = _modelCards.find { it.id == cardId }
+        val card = _modelCards.find { it.id == cardId }
                     if (role != null && card != null) {
                         _roleCardMap[role] = card
                     }

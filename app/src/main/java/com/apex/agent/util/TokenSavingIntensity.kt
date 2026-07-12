@@ -120,7 +120,7 @@ data class TokenSavingIntensity(
                 return getIntensity(currentLevel)
             }
             // 复杂任务时降级到级别5（标准）
-            return getIntensity(5)
+                return getIntensity(5)
         }
 
         /**

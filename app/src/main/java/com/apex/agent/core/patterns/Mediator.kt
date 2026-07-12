@@ -72,7 +72,7 @@ class AgentMediator(
             }
             DeliveryGuarantee.EXACTLY_ONCE -> {
                 val receivers = components.filter { it.name != sender.name }
-                val allDelivered = receivers.all { it.onEvent(event) }
+        val allDelivered = receivers.all { it.onEvent(event) }
                 if (!allDelivered) {
                     eventQueue.offer(event)
                     failedDeliveries.incrementAndGet()

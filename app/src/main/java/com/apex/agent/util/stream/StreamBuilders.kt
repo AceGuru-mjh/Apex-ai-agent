@@ -10,8 +10,7 @@ fun <T> emptyStream(): Stream<T> = object : AbstractStream<T>() {
     override suspend fun collect(collector: StreamCollector<T>) {
         StreamLogger.d("emptyStream", "收集空Stream")
         // 不发射任何，    }
-    
-    override suspend fun emitBufferedItem(item: T) {
+                override suspend fun emitBufferedItem(item: T) {
         // 空Stream不会有缓冲项
     }
 }
@@ -124,19 +123,19 @@ fun <T> stream(block: suspend StreamCollector<T>.() -> Unit): Stream<T> = object
             block(wrappedCollector)
         } catch (e: Exception) {
             // 对于协程取消异常，这是正常流程，应当向上抛出以停止流
-            if (e is kotlinx.coroutines.CancellationException) {
+                if (e is kotlinx.coroutines.CancellationException) {
                 StreamLogger.d("stream", "构建器Stream收集被取消）"
                 throw e
             }
             StreamLogger.e("stream", "构建器Stream收集出错", e)
             // 其他异常也应该抛出，以便上层可以处理
-            throw e
+                throw e
         } finally {
             // 流收集完成时标记为关间
-           markClosed()
+                markClosed()
             
             // 如果流在关闭时处于锁定状态，解锁以处理缓冲的数据
-            if (isLocked) {
+                if (isLocked) {
                 StreamLogger.i("stream", "流关闭时处于锁定状态，尝试解锁处理缓冲数据")
                 try {
                     unlock()
@@ -149,7 +148,7 @@ fun <T> stream(block: suspend StreamCollector<T>.() -> Unit): Stream<T> = object
     
     override suspend fun emitBufferedItem(item: T) {
         // 即使流已关闭，也尝试发送缓冲的数据
-        activeCollector?.emit(item)
+                activeCollector?.emit(item)
     }
 }
 

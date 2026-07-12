@@ -21,7 +21,7 @@ object TtsCleaner {
 
         return try {
             val regex = Regex(regexPattern)
-            val cleanedText = text.replace(regex, "")
+        val cleanedText = text.replace(regex, "")
             AppLogger.d(TAG, "clean(single): Original='${text}' | Pattern='${regexPattern}' | Cleaned='${cleanedText}'")
             cleanedText
         } catch (e: Exception) {
@@ -50,7 +50,7 @@ object TtsCleaner {
             if (pattern.isNotBlank()) {
                 try {
                     val regex = Regex(pattern)
-                    val beforeClean = cleanedText
+        val beforeClean = cleanedText
                     cleanedText = cleanedText.replace(regex, "")
                     if (beforeClean != cleanedText) {
                         AppLogger.d(TAG, "clean(list): Pattern[${index}]='${pattern}' matched | Before='${beforeClean}' | After='${cleanedText}'")

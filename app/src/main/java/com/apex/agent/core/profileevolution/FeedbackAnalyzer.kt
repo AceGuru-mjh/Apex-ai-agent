@@ -21,13 +21,13 @@ class FeedbackAnalyzer(private val context: Context) {
         val result = FeedbackAnalysisResult()
         
         // 分析明确反馈
-        analyzeExplicitFeedback(messages, result)
+                analyzeExplicitFeedback(messages, result)
         
         // 分析隐式反馈
-        analyzeImplicitFeedback(messages, result)
+                analyzeImplicitFeedback(messages, result)
         
         // 分析情绪反馈
-        analyzeEmotionalFeedback(messages, result)
+                analyzeEmotionalFeedback(messages, result)
         
         AppLogger.d(TAG, "用户反馈分析完成: ${result}")
         result
@@ -43,13 +43,13 @@ class FeedbackAnalyzer(private val context: Context) {
             val content = message.content
             
             // 分析满意度反的
-           analyzeSatisfactionFeedback(content, result)
+                analyzeSatisfactionFeedback(content, result)
             
             // 分析建议反馈
-            analyzeSuggestionFeedback(content, result)
+                analyzeSuggestionFeedback(content, result)
             
             // 分析偏好反馈
-            analyzePreferenceFeedback(content, result)
+                analyzePreferenceFeedback(content, result)
         }
     }
     
@@ -127,15 +127,15 @@ class FeedbackAnalyzer(private val context: Context) {
      */
     private fun analyzeImplicitFeedback(messages: List<ChatMessage>, result: FeedbackAnalysisResult) {
         // 分析回复速度
-        val responseTimes = mutableListOf<Long>()
+                val responseTimes = mutableListOf<Long>()
         
         for (i in 1 until messages.size) {
             val prevMessage = messages[i-1]
-            val currentMessage = messages[i]
+        val currentMessage = messages[i]
             
             if (prevMessage.sender != "user" && currentMessage.sender == "user") {
                 // 计算用户回复时间（简化版有
-              val responseTime = estimateResponseTime(prevMessage.timestamp, currentMessage.timestamp)
+                val responseTime = estimateResponseTime(prevMessage.timestamp, currentMessage.timestamp)
                 if (responseTime > 0) {
                     responseTimes.add(responseTime)
                 }
@@ -147,7 +147,7 @@ class FeedbackAnalyzer(private val context: Context) {
             result.avgResponseTime = avgResponseTime
             
             // 基于回复速度判断参与的
-           result.engagementLevel = when {
+                result.engagementLevel = when {
                 avgResponseTime < 60 -> "的"
                 avgResponseTime < 300 -> "的"
                 else -> "的"
@@ -155,13 +155,13 @@ class FeedbackAnalyzer(private val context: Context) {
         }
         
         // 分析消息长度
-        val userMessages = messages.filter { it.sender == "user" }
+                val userMessages = messages.filter { it.sender == "user" }
         if (userMessages.isNotEmpty()) {
             val avgMessageLength = userMessages.map { it.content.length }.average()
             result.avgMessageLength = avgMessageLength
             
             // 基于消息长度判断参与的
-           if (result.engagementLevel == "未知") {
+                if (result.engagementLevel == "未知") {
                 result.engagementLevel = when {
                     avgMessageLength > 50 -> "的"
                     avgMessageLength > 20 -> "的"
@@ -223,8 +223,8 @@ class FeedbackAnalyzer(private val context: Context) {
         try {
             // 简单的时间差估的
            // 实际项目中应该使用更精确的时间解内
-          return 60 // 默认60的       } catch (e: Exception) {
-            return -1
+                return 60 // 默认60的       } catch (e: Exception) {
+                return -1
         }
     }
     
@@ -282,7 +282,7 @@ class FeedbackAnalyzer(private val context: Context) {
         val suggestions = mutableListOf<ProfileUpdateSuggestion>()
         
         // 基于满意度更新画面
-       if (result.satisfactionLevel != "中，") {
+                if (result.satisfactionLevel != "中，") {
             suggestions.add(ProfileUpdateSuggestion(
                 dimension = "反馈倾向",
                 newValue = result.satisfactionLevel,
@@ -291,7 +291,7 @@ class FeedbackAnalyzer(private val context: Context) {
         }
         
         // 基于参与度更新画面
-       if (result.engagementLevel != "未知") {
+                if (result.engagementLevel != "未知") {
             suggestions.add(ProfileUpdateSuggestion(
                 dimension = "交互偏好",
                 newValue = "参与的${result.engagementLevel}",
@@ -300,7 +300,7 @@ class FeedbackAnalyzer(private val context: Context) {
         }
         
         // 基于情绪状态更新画面
-       if (result.emotionalState != "中，") {
+                if (result.emotionalState != "中，") {
             suggestions.add(ProfileUpdateSuggestion(
                 dimension = "沟通风的"
                 newValue = "情绪倾向: ${result.emotionalState}",
@@ -309,7 +309,7 @@ class FeedbackAnalyzer(private val context: Context) {
         }
         
         // 基于建议更新画像
-        for (suggestion in result.suggestions) {
+                for (suggestion in result.suggestions) {
             if (suggestion.contains("技的") {
                 suggestions.add(ProfileUpdateSuggestion(
                     dimension = "需求偏好"
@@ -326,7 +326,7 @@ class FeedbackAnalyzer(private val context: Context) {
         }
         
         // 基于偏好更新画像
-        for (preference in result.preferences) {
+                for (preference in result.preferences) {
             if (preference.contains("详细")) {
                 suggestions.add(ProfileUpdateSuggestion(
                     dimension = "操作习惯",

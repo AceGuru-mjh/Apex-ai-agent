@@ -28,8 +28,7 @@ class AgentTemplateManager(private val context: Context) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val gson = Gson()
     private val _templates = mutableMapOf<String, AgentTemplate>()
-
-    val templates: List<AgentTemplate>
+        val templates: List<AgentTemplate>
         get() = _templates.values.toList()
 
     val defaultTemplates: List<AgentTemplate>
@@ -51,7 +50,7 @@ class AgentTemplateManager(private val context: Context) {
             val prefs = context.templateDataStore.data.first()
             prefs[KEY_TEMPLATES]?.let { json ->
                 val type = object : TypeToken<List<AgentTemplate>>() {}.type
-                val loadedTemplates: List<AgentTemplate> = gson.fromJson(json, type)
+        val loadedTemplates: List<AgentTemplate> = gson.fromJson(json, type)
                 _templates.clear()
                 loadedTemplates.forEach { template -> _templates[template.id] = template }
             }

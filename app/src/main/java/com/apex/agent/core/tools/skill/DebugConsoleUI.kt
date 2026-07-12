@@ -42,7 +42,7 @@ class DebugConsoleUI private constructor(private val context: Context) {
     ) {
         fun toFormattedString(): String {
             val timeStr = SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(Date(timestamp))
-            val levelStr = when (level) {
+        val levelStr = when (level) {
                 ConsoleLevel.DEBUG -> "DBG"
                 ConsoleLevel.INFO -> "INF"
                 ConsoleLevel.WARNING -> "WRN"
@@ -50,7 +50,7 @@ class DebugConsoleUI private constructor(private val context: Context) {
                 ConsoleLevel.SUCCESS -> "OK "
             }
             val toolPrefix = toolName?.let { "[${it}] " } ?: ""
-            val sourceSuffix = source?.let { " (${it})" } ?: ""
+        val sourceSuffix = source?.let { " (${it})" } ?: ""
             return "${timeStr} ${levelStr}${toolPrefix}${message}${sourceSuffix}"
         }
     }
@@ -357,13 +357,13 @@ class DebugConsoleUI private constructor(private val context: Context) {
 
         session.toolCalls.forEachIndexed { index, toolCall ->
             val indent = "  ".repeat(toolCall.sequenceNumber)
-            val statusIcon = when {
+        val statusIcon = when {
                 toolCall.error != null -> "✓"
                 toolCall.durationMs != null -> "✓"
                 else -> "●"
             }
             val duration = toolCall.durationMs?.let { "${it}ms" } ?: "..."
-            val startTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(toolCall.startTime))
+        val startTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(toolCall.startTime))
 
             sb.appendLine("${indent}${index + 1}. ${statusIcon} [${startTime}] ${toolCall.toolName} (${duration})")
 
@@ -386,7 +386,7 @@ class DebugConsoleUI private constructor(private val context: Context) {
 
         variables.entries.sortedBy { it.key }.forEach { (name, value) ->
             val valueStr = value?.toString() ?: "null"
-            val displayValue = if (valueStr.length > 35) valueStr.take(32) + "..." else valueStr
+        val displayValue = if (valueStr.length > 35) valueStr.take(32) + "..." else valueStr
             sb.appendLine(String.format("%-25s %s", name, displayValue))
         }
 
@@ -404,9 +404,9 @@ class DebugConsoleUI private constructor(private val context: Context) {
 
         breakpoints.forEach { bp ->
             val id = bp.id.take(5)
-            val type = bp.type.name.take(12)
+        val type = bp.type.name.take(12)
             val target = bp.target.take(20)
-            val hitCount = bp.hitCount.get()
+        val hitCount = bp.hitCount.get()
             val enabledStr = if (bp.enabled) "✓ else "✓
             sb.appendLine(String.format("%-5s %-12s %-20s %d %s", id, type, target, hitCount, enabledStr))
         }

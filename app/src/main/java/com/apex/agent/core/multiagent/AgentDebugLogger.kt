@@ -29,9 +29,9 @@ class AgentDebugLogger {
     ) {
         fun toFormattedString(): String {
             val timeStr = dateFormat.format(Date(timestamp))
-            val agentInfo = if (agentId != null) "[${agentId}] " else ""
+        val agentInfo = if (agentId != null) "[${agentId}] " else ""
             val taskInfo = if (taskId != null) "[Task:${taskId}] " else ""
-            val throwableStr = throwable?.let { "\n${it.stackTraceToString()}" } ?: ""
+        val throwableStr = throwable?.let { "\n${it.stackTraceToString()}" } ?: ""
             return "${timeStr} ${level.tag}/${tag}: ${agentInfo}${taskInfo}${message}${throwableStr}"
         }
     }
@@ -162,7 +162,7 @@ class AgentDebugLogger {
         val searchQuery = if (caseSensitive) query else query.lowercase()
         return logs.filter { entry ->
             val message = if (caseSensitive) entry.message else entry.message.lowercase()
-            val tag = if (caseSensitive) entry.tag else entry.tag.lowercase()
+        val tag = if (caseSensitive) entry.tag else entry.tag.lowercase()
             message.contains(searchQuery) || tag.contains(searchQuery)
         }
     }
@@ -175,7 +175,6 @@ class AgentDebugLogger {
         val levelCounts = logs.groupBy { it.level }.mapValues { it.value.size }
         val agentCounts = agentLogs.mapValues { it.value.size }
         val taskCounts = taskLogs.mapValues { it.value.size }
-
         val errorLogs = logs.filter { it.level == LogLevel.ERROR }
         val errorWithThrowables = errorLogs.count { it.throwable != null }
 

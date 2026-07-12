@@ -130,7 +130,7 @@ class ResilientSubAgentWrapper(
 ) : SubAgent by delegate {
 
     private val _metricsFlow = MutableStateFlow(metrics)
-    val metricsFlow: StateFlow<AgentMetrics> = _metricsFlow.asStateFlow()
+        val metricsFlow: StateFlow<AgentMetrics> = _metricsFlow.asStateFlow()
 
     override suspend fun execute(task: SubTask): SubTaskResult {
         val config = delegate.getExecutionConfig()
@@ -218,10 +218,10 @@ class ResilientSubAgentWrapper(
 class DynamicAgentRegistry {
 
     private val _agents = MutableStateFlow<Map<String, SubAgent>>(emptyMap())
-    val agents: StateFlow<Map<String, SubAgent>> = _agents.asStateFlow()
+        val agents: StateFlow<Map<String, SubAgent>> = _agents.asStateFlow()
 
     private val _agentMetrics = MutableStateFlow<Map<String, AgentMetrics>>(emptyMap())
-    val agentMetrics: StateFlow<Map<String, AgentMetrics>> = _agentMetrics.asStateFlow()
+        val agentMetrics: StateFlow<Map<String, AgentMetrics>> = _agentMetrics.asStateFlow()
 
     fun registerAgent(agent: SubAgent): Boolean {
         val currentAgents = _agents.value.toMutableMap()

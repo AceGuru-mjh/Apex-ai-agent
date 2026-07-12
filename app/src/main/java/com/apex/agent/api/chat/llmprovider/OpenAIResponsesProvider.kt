@@ -67,7 +67,7 @@ class OpenAIResponsesProvider(
 
         for (i in 0 until messagesArray.length()) {
             val message = messagesArray.optJSONObject(i) ?: continue
-            val role = message.optString("role", "")
+        val role = message.optString("role", "")
             if (role.isEmpty()) {
                 continue
             }
@@ -172,7 +172,7 @@ object OpenAIResponsesPayloadAdapter {
 
         if (converted.has("response_format")) {
             val responseFormat = converted.get("response_format")
-            val textConfig = converted.optJSONObject("text") ?: JSONObject()
+        val textConfig = converted.optJSONObject("text") ?: JSONObject()
             textConfig.put("format", responseFormat)
             converted.put("text", textConfig)
             converted.remove("response_format")
@@ -200,7 +200,6 @@ object OpenAIResponsesPayloadAdapter {
         val textChunks = mutableListOf<String>()
         val reasoningChunks = mutableListOf<String>()
         val toolCalls = JSONArray()
-
         val output = jsonResponse.optJSONArray("output")
         if (output != null) {
             for (i in 0 until output.length()) {
@@ -235,7 +234,7 @@ object OpenAIResponsesPayloadAdapter {
                         if (summaryArray != null) {
                             for (j in 0 until summaryArray.length()) {
                                 val summaryPart = summaryArray.optJSONObject(j) ?: continue
-                                val text = summaryPart.optString("text", "")
+        val text = summaryPart.optString("text", "")
                                 if (text.isNotEmpty()) {
                                     reasoningChunks.add(text)
                                 }
@@ -266,7 +265,7 @@ object OpenAIResponsesPayloadAdapter {
 
         for (i in 0 until chatTools.length()) {
             val tool = chatTools.optJSONObject(i) ?: continue
-            val toolType = tool.optString("type", "")
+        val toolType = tool.optString("type", "")
             if (toolType != "function") {
                 converted.put(tool)
                 continue
@@ -303,7 +302,7 @@ object OpenAIResponsesPayloadAdapter {
 
         for (i in 0 until messages.length()) {
             val message = messages.optJSONObject(i) ?: continue
-            val role = message.optString("role", "")
+        val role = message.optString("role", "")
             if (role.isEmpty()) continue
 
             if (role == "tool") {
@@ -326,7 +325,7 @@ object OpenAIResponsesPayloadAdapter {
                 if (toolCalls != null && toolCalls.length() > 0) {
                     for (j in 0 until toolCalls.length()) {
                         val call = toolCalls.optJSONObject(j) ?: continue
-                        val function = call.optJSONObject("function") ?: continue
+        val function = call.optJSONObject("function") ?: continue
                         val name = function.optString("name", "")
                         if (name.isEmpty()) continue
 
@@ -347,7 +346,7 @@ object OpenAIResponsesPayloadAdapter {
             }
 
             val convertedContent = convertMessageContentForResponses(message.opt("content"))
-            val hasContent =
+        val hasContent =
                 when (convertedContent) {
                     is String -> convertedContent.isNotBlank()
                     is JSONArray -> convertedContent.length() > 0
@@ -455,7 +454,7 @@ object OpenAIResponsesPayloadAdapter {
                 val parts = mutableListOf<String>()
                 for (i in 0 until content.length()) {
                     val part = content.optJSONObject(i) ?: continue
-                    val type = part.optString("type", "")
+        val type = part.optString("type", "")
                     if (type == "text" || type == "output_text" || type == "input_text") {
                         val text = part.optString("text", "")
                         if (text.isNotEmpty()) {

@@ -29,15 +29,16 @@ object OCRUtils {
     private const val TAG = "OCRUtils"
 
     // 识别器缓   private var latinRecognizer: TextRecognizer? = null
-    private var chineseRecognizer: TextRecognizer? = null
+                private var chineseRecognizer: TextRecognizer? = null
     private var japaneseRecognizer: TextRecognizer? = null
     private var koreanRecognizer: TextRecognizer? = null
 
     /** 文本识别语言选项 */
     enum class Language {
-        LATIN, // 拉丁语系（英文、法文、德文等着        CHINESE, // 中文
-        JAPANESE, // 日文
-        KOREAN // 韩文
+        LATIN, // 拉丁语系（英文、法文、德文等着
+                CHINESE, // 中文
+                JAPANESE, // 日文
+                KOREAN // 韩文
     }
 
     /** 识别质量选项 */
@@ -76,13 +77,14 @@ object OCRUtils {
      * @return 经过处理的Bitmap，如果无需处理则返回原始Bitmap
      */
     private fun preprocessBitmap(bitmap: Bitmap): Bitmap {
-        // 对于高质量模式，我们放大图像。这可以显著提高小图像的OCR准确性，        // 我们使用一个缩放因子，但避免使图像过大       val scaleFactor = 2.0f
+        // 对于高质量模式，我们放大图像。这可以显著提高小图像的OCR准确性，        // 我们使用一个缩放因子，但避免使图像过大
+                val scaleFactor = 2.0f
         val maxDimension = 4096 // 限制最大尺寸以避免OOM
-
-        val newWidth = (bitmap.width * scaleFactor).toInt()
+                val newWidth = (bitmap.width * scaleFactor).toInt()
         val newHeight = (bitmap.height * scaleFactor).toInt()
 
-        // 如果图像已经足够大或放大后会超出限制，则不进行处       if (bitmap.width >= newWidth ||
+        // 如果图像已经足够大或放大后会超出限制，则不进行处
+                if (bitmap.width >= newWidth ||
                         bitmap.height >= newHeight ||
                         newWidth > maxDimension ||
                         newHeight > maxDimension
@@ -128,13 +130,14 @@ object OCRUtils {
 
         return try {
             val image = InputImage.fromBitmap(processedBitmap, 0)
-            val result = processImage(image, language)
+        val result = processImage(image, language)
             OCRResult.Success(result)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error recognizing text from bitmap: ${e.message}", e)
             OCRResult.Error(e.message ?: "Unknown error")
         } finally {
-            // 如果创建了新的Bitmap，则回收           if (processedBitmap !== bitmap) {
+            // 如果创建了新的Bitmap，则回收
+                if (processedBitmap !== bitmap) {
                 processedBitmap.recycle()
             }
         }
@@ -155,10 +158,11 @@ object OCRUtils {
             language: Language = Language.LATIN,
             quality: Quality = Quality.LOW
     ): OCRResult {
-        // 低质量模式直接使用MLKit的API，效率更       if (quality == Quality.LOW) {
+        // 低质量模式直接使用MLKit的API，效率更
+                if (quality == Quality.LOW) {
             return try {
                 val image = InputImage.fromFilePath(context, uri)
-                val result = processImage(image, language)
+        val result = processImage(image, language)
                 OCRResult.Success(result)
             } catch (e: IOException) {
                 AppLogger.e(TAG, "Error reading image: ${e.message}", e)
@@ -169,14 +173,15 @@ object OCRUtils {
             }
         }
 
-        // 高质量模式需要先加载Bitmap进行预处       return withContext(Dispatchers.IO) {
+        // 高质量模式需要先加载Bitmap进行预处
+                return withContext(Dispatchers.IO) {
             try {
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
                     val originalBitmap = BitmapFactory.decodeStream(inputStream)
                     if (originalBitmap != null) {
                         val result = recognizeTextFromBitmap(originalBitmap, language, quality)
                         originalBitmap.recycle() // 回收从输入流创建的Bitmap
-                        result
+                result
                     } else {
                         OCRResult.Error(context.getString(R.string.ocr_cannot_decode_bitmap_from_uri))
                     }
@@ -218,14 +223,14 @@ object OCRUtils {
             quality: Quality = Quality.LOW
     ): String {
         // 同时进行拉丁文和中文识别
-        val latinResult = recognizeTextFromBitmap(bitmap, Language.LATIN, quality)
+                val latinResult = recognizeTextFromBitmap(bitmap, Language.LATIN, quality)
         val chineseResult = recognizeTextFromBitmap(bitmap, Language.CHINESE, quality)
 
         val latinText = if (latinResult is OCRResult.Success) latinResult.getFullText() else ""
         val chineseText = if (chineseResult is OCRResult.Success) chineseResult.getFullText() else ""
 
         // 常见的包名格式转，
-       return when {
+                return when {
             latinText.isEmpty() -> chineseText
             chineseText.isEmpty() -> latinText
             latinText == chineseText -> latinText
@@ -267,14 +272,14 @@ object OCRUtils {
     @WorkerThread
     suspend fun recognizeText(context: Context, uri: Uri, quality: Quality = Quality.LOW): String {
         // 同时进行拉丁文和中文识别
-        val latinResult = recognizeTextFromUri(context, uri, Language.LATIN, quality)
+                val latinResult = recognizeTextFromUri(context, uri, Language.LATIN, quality)
         val chineseResult = recognizeTextFromUri(context, uri, Language.CHINESE, quality)
 
         val latinText = if (latinResult is OCRResult.Success) latinResult.getFullText() else ""
         val chineseText = if (chineseResult is OCRResult.Success) chineseResult.getFullText() else ""
 
         // 常见的包名格式转，
-       return when {
+                return when {
             latinText.isEmpty() -> chineseText
             chineseText.isEmpty() -> latinText
             latinText == chineseText -> latinText
@@ -320,7 +325,7 @@ object OCRUtils {
     suspend fun saveBitmapToTempFile(context: Context, bitmap: Bitmap): File? =
             withContext(Dispatchers.IO) {
                 val cacheDir = context.cacheDir
-                val tempFile = File(cacheDir, "ocr_temp_${System.currentTimeMillis()}.jpg")
+        val tempFile = File(cacheDir, "ocr_temp_${System.currentTimeMillis()}.jpg")
 
                 try {
                     FileOutputStream(tempFile).use { out ->

@@ -142,7 +142,6 @@ class BurstExecutionController private constructor() {
         val planId = "burst_${System.currentTimeMillis()}_${tasks.hashCode()}"
         val totalDuration = tasks.sumOf { it.timeoutMs }
         val parallelTasks = calculateOptimalParallelism(tasks)
-
         val cost = when (mode) {
             BurstMode.AGGRESSIVE -> 2.0
             BurstMode.BALANCED -> 1.0
@@ -232,7 +231,7 @@ class BurstExecutionController private constructor() {
                 val completion = CompletableDeferred<Map<String, Any>>()
                 scope?.launch(Dispatchers.Default) {
                     val fastPath = plan.tasks.take(plan.parallelism)
-                    val slowPath = plan.tasks.drop(plan.parallelism)
+        val slowPath = plan.tasks.drop(plan.parallelism)
                     val fastResults = fastPath.map { task ->
                         async {
                             try { results[task.id] = executor(task); recordSuccess(task) }
@@ -253,7 +252,7 @@ class BurstExecutionController private constructor() {
             }
             ExecutionStrategy.ADAPTIVE -> {
                 val strategy = selectOptimalStrategy(plan)
-                val adaptedPlan = plan.copy(strategy = strategy)
+        val adaptedPlan = plan.copy(strategy = strategy)
                 executePlan(adaptedPlan, executor)
             }
         }

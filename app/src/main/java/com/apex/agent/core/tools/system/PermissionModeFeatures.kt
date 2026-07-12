@@ -25,10 +25,10 @@ class PermissionConfigBackupManager(
     }
 
     private val _isBackingUp = MutableStateFlow(false)
-    val isBackingUp: Flow<Boolean> = _isBackingUp.asStateFlow()
+        val isBackingUp: Flow<Boolean> = _isBackingUp.asStateFlow()
 
     private val _isRestoring = MutableStateFlow(false)
-    val isRestoring: Flow<Boolean> = _isRestoring.asStateFlow()
+        val isRestoring: Flow<Boolean> = _isRestoring.asStateFlow()
 
     private val json = Json {
         prettyPrint = true
@@ -42,16 +42,16 @@ class PermissionConfigBackupManager(
         _isBackingUp.value = true
         return try {
             val config = getCurrentConfig()
-            val backupDir = getBackupDir()
+        val backupDir = getBackupDir()
             val backupFile = File(backupDir, BACKUP_FILE_NAME)
 
             // 创建目录
-            if (!backupDir.exists()) {
+                if (!backupDir.exists()) {
                 backupDir.mkdirs()
             }
 
             // 写入备份文件
-            val jsonString = json.encodeToString(config)
+                val jsonString = json.encodeToString(config)
             backupFile.writeText(jsonString)
 
             AppLogger.d(TAG, "配置备份成功: ${backupFile.absolutePath}")
@@ -78,10 +78,10 @@ class PermissionConfigBackupManager(
             }
 
             val jsonString = backupFile.readText()
-            val config = json.decodeFromString<PermissionConfig>(jsonString)
+        val config = json.decodeFromString<PermissionConfig>(jsonString)
 
             // 恢复配置
-            restoreConfigFromData(config)
+                restoreConfigFromData(config)
 
             AppLogger.d(TAG, "配置恢复成功")
             RestoreResult.Success
@@ -222,10 +222,10 @@ class SmartModeSwitcher(
     }
 
     private val _autoSwitchEnabled = MutableStateFlow(false)
-    val autoSwitchEnabled: Flow<Boolean> = _autoSwitchEnabled.asStateFlow()
+        val autoSwitchEnabled: Flow<Boolean> = _autoSwitchEnabled.asStateFlow()
 
     private val _switchHistory = MutableStateFlow<List<SwitchHistoryItem>>(emptyList())
-    val switchHistory: Flow<List<SwitchHistoryItem>> = _switchHistory.asStateFlow()
+        val switchHistory: Flow<List<SwitchHistoryItem>> = _switchHistory.asStateFlow()
 
     /**
      * 启用自动切换
@@ -292,7 +292,7 @@ class SmartModeSwitcher(
 
         _switchHistory.update { history ->
             val newHistory = (listOf(item) + history).take(20) // 保留最返0权
-            newHistory
+                newHistory
         }
 
         AppLogger.d(TAG, "记录模式切换: ${mode.displayName}")
@@ -312,9 +312,9 @@ class SmartModeSwitcher(
  */
 enum class UsageScenario {
     STANDARD, // 标准使用
-    AUTOMATION, // 自动化
-    DEBUG, // 调试
-    SYSTEM_ADMIN // 系统管理
+                AUTOMATION, // 自动化
+                DEBUG, // 调试
+                SYSTEM_ADMIN // 系统管理
 }
 
 /**
@@ -328,8 +328,8 @@ data class SwitchHistoryItem(
     val formattedTime: String
         get() {
             // 格式化时间戳
-            val date = java.util.Date(timestamp)
-            val format = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+                val date = java.util.Date(timestamp)
+        val format = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
             return format.format(date)
         }
 }
@@ -363,7 +363,7 @@ class PermissionModeAdvisor(
         val suggestions = mutableListOf<ModeSuggestion>()
 
         // 添加推荐模式
-        val recommended = getRecommendedMode()
+                val recommended = getRecommendedMode()
         if (recommended != PermissionMode.STANDARD) {
             suggestions.add(
                 ModeSuggestion(
@@ -375,7 +375,7 @@ class PermissionModeAdvisor(
         }
 
         // 添加当前模式
-        modeManager.currentMode.value?.let { current ->
+                modeManager.currentMode.value?.let { current ->
             if (current != recommended) {
                 suggestions.add(
                     ModeSuggestion(
@@ -388,7 +388,7 @@ class PermissionModeAdvisor(
         }
 
         // 添加可用模式
-        states.values.filter { it.isUsable }
+                states.values.filter { it.isUsable }
             .filterNot { it.mode == recommended || it.mode == modeManager.currentMode.value }
             .forEach { state ->
                 suggestions.add(

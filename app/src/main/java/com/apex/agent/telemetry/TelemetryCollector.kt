@@ -292,7 +292,7 @@ class TelemetryCollector private constructor() {
             events.removeAll(batch)
 
             val summary = computeSummary(batch)
-            val report = TelemetryReport(
+        val report = TelemetryReport(
                 reportId = UUID.randomUUID().toString(),
                 sessionId = currentSession?.sessionId ?: "no_session",
                 events = batch,

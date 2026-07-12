@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 object AppLogger {
 
     // Mirror com.apex.util.AppLogger priority constants
-    const val VERBOSE: Int = Log.VERBOSE
+                const val VERBOSE: Int = Log.VERBOSE
     const val DEBUG: Int = Log.DEBUG
     const val INFO: Int = Log.INFO
     const val WARN: Int = Log.WARN
@@ -28,13 +28,13 @@ object AppLogger {
     const val ASSERT: Int = Log.ASSERT
 
     // Log file configuration
-    private const val LOG_DIR_NAME = "logs"
+                private const val LOG_DIR_NAME = "logs"
     private const val LOG_FILE_NAME = "Apex.log"
     private const val PACKAGE_LOG_DIR_NAME = "packageLogs"
     private const val TOOLPKG_LOG_TAG = "ToolPkg"
 
     // Simple date formatter for log lines
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
+                private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
     private val startupFileDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US)
     private val packageIdRegexes = listOf(
         Pattern.compile("""\btoolPkgId=([A-Za-z0-9._:-]+)\b"""),
@@ -113,7 +113,7 @@ object AppLogger {
                 dir.mkdirs()
             }
             val startupMs = ApexApplication.appStartupTimeMs.takeIf { it > 0L } ?: System.currentTimeMillis()
-            val fileName = startupFileDateFormat.format(Date(startupMs)) + ".log"
+        val fileName = startupFileDateFormat.format(Date(startupMs)) + ".log"
             File(dir, fileName).also { file ->
                 packageLogFile = file
             }
@@ -234,7 +234,7 @@ object AppLogger {
     fun init(context: Context) {
         boundContext = context.applicationContext
         // Ensure log directory exists
-        try {
+                try {
             val dir = File(context.filesDir, LOG_DIR_NAME)
             if (!dir.exists()) {
                 dir.mkdirs()
@@ -279,7 +279,7 @@ object AppLogger {
         try {
             val appContext: Context = ApexApplication.instance.applicationContext
             val dir = File(appContext.filesDir, LOG_DIR_NAME)
-            val file = File(dir, LOG_FILE_NAME)
+        val file = File(dir, LOG_FILE_NAME)
             if (file.exists()) {
                 file.delete()
             }
@@ -291,12 +291,10 @@ object AppLogger {
     }
 
     // --- Internal helpers ---
-
-    private fun writeToFile(priority: Int, tag: String, msg: String, tr: Throwable) {
+                private fun writeToFile(priority: Int, tag: String, msg: String, tr: Throwable) {
         if (!enableFileLogging) return
 
         val file = resolveLogFile() ?: return
-
         val time = dateFormat.format(Date())
         val levelChar = when (priority) {
             VERBOSE -> 'V'

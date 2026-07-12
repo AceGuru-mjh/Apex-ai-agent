@@ -36,22 +36,21 @@ object WaifuMessageProcessor {
         if (content.isBlank()) return emptyList()
 
         // 正则表达式，用于匹配Markdown的图版[]() 和链接[]()
-        val markdownEntityRegex = Regex("""!?\[[^\]]*?\]\([^)]*?\)""")
+                val markdownEntityRegex = Regex("""!?\[[^\]]*?\]\([^)]*?\)""")
         val entities = mutableListOf<String>()
         val placeholderPrefix = "{MDENTITY:"
         val placeholderSuffix = "}"
 
         // 1. 将Markdown实体替换为占位符，以保护它们不被错误分割
-        var entityIndex = 0
+                var entityIndex = 0
         val contentWithPlaceholders = markdownEntityRegex.replace(content) {
-            val placeholder = "${placeholderPrefix}${entityIndex++}${placeholderSuffix}"
+        val placeholder = "${placeholderPrefix}${entityIndex++}${placeholderSuffix}"
             entities.add(it.value)
             placeholder
         }
         
         // 2. 首先分离表情包和文本内容（在处理占位符版本的内容上）
-        val segments = splitIntoSegments(contentWithPlaceholders)
-
+                val segments = splitIntoSegments(contentWithPlaceholders)
         val resultWithPlaceholders = mutableListOf<String>()
 
         for (segment in segments) {
@@ -76,7 +75,7 @@ object WaifuMessageProcessor {
                 }
 
                 // 对于文本内容，进行正常的清理和分句处理
-               val cleanedContent = cleanContentForWaifu(item)
+                val cleanedContent = cleanContentForWaifu(item)
 
                 if (cleanedContent.isBlank()) continue
 
@@ -98,7 +97,7 @@ object WaifuMessageProcessor {
                         .map { it.trim() }
 
                 // 如果需要移除标点符号，则处理每个句字
-               if (removePunctuation) {
+                if (removePunctuation) {
                     sentences =
                         sentences
                             .map { sentence ->
@@ -117,16 +116,16 @@ object WaifuMessageProcessor {
         }
         
         // 3.5. 合并仅包含标点符号的句子到前一，
-       val mergedResultWithPlaceholders = mutableListOf<String>()
+                val mergedResultWithPlaceholders = mutableListOf<String>()
         if (resultWithPlaceholders.isNotEmpty()) {
             mergedResultWithPlaceholders.add(resultWithPlaceholders[0])
             for (i in 1 until resultWithPlaceholders.size) {
                 val currentSentence = resultWithPlaceholders[i]
-                val trimmedSentence = currentSentence.trim()
+        val trimmedSentence = currentSentence.trim()
                 // 正则表达式匹配一个或多个结尾标点符号
                 if (trimmedSentence.isNotEmpty() && trimmedSentence.matches(Regex("^[。！？~，?…]+$"))) {
                     val lastIndex = mergedResultWithPlaceholders.size - 1
-                    val lastSentence = mergedResultWithPlaceholders[lastIndex]
+        val lastSentence = mergedResultWithPlaceholders[lastIndex]
                     if (!lastSentence.contains('\n') && !lastSentence.contains('\r')) {
                         mergedResultWithPlaceholders[lastIndex] = lastSentence + currentSentence
                     } else {
@@ -139,7 +138,7 @@ object WaifuMessageProcessor {
         }
         
         // 4. 将占位符恢复为原始的Markdown实体
-        val finalResult = mergedResultWithPlaceholders.map { sentence ->
+                val finalResult = mergedResultWithPlaceholders.map { sentence ->
             var currentSentence = sentence
             val placeholderRegex =
                 Regex(
@@ -147,7 +146,7 @@ object WaifuMessageProcessor {
                 )
             
             // 循环替换，以处理一个句子中可能存在的多个占位符
-            while (placeholderRegex.containsMatchIn(currentSentence)) {
+                while (placeholderRegex.containsMatchIn(currentSentence)) {
                 currentSentence = placeholderRegex.replace(currentSentence) { matchResult ->
                     val index = matchResult.groupValues[1].toInt()
                     
@@ -222,13 +221,13 @@ object WaifuMessageProcessor {
      */
     fun calculateSentenceDelay(characterCount: Int, baseDelayMs: Long): Long {
         // 基础计算：字符数 * 基础延迟
-        val baseDelay = characterCount * baseDelayMs
+                val baseDelay = characterCount * baseDelayMs
         
         // 添加一些变化和限制，
        // 1. 短句子（<5字符）最少延返0ms
         // 2. 长句子（>20字符）有上限3000ms
-        // 3. 添加一些随机变化（±20%）使延迟更自，       
-        val minDelay = 300L
+        // 3. 添加一些随机变化（±20%）使延迟更自，
+                val minDelay = 300L
         val maxDelay = 3000L
         
         val adjustedDelay = when {
@@ -238,7 +237,7 @@ object WaifuMessageProcessor {
         }
         
         // 添加±20%的随机变重
-       val variance = (adjustedDelay * 0.2).toLong()
+                val variance = (adjustedDelay * 0.2).toLong()
         val randomAdjustment = (-variance..variance).random()
         
         return (adjustedDelay + randomAdjustment).coerceAtLeast(minDelay)
@@ -256,7 +255,7 @@ object WaifuMessageProcessor {
                 .nativeMarkdownSplitByBlock()
                 .collect { blockGroup ->
                     val blockType = blockGroup.tag ?: MarkdownProcessorType.PLAIN_TEXT
-                    val sb = StringBuilder()
+        val sb = StringBuilder()
                     blockGroup.stream.collect { sb.append(it) }
                     val block = sb.toString()
                     if (block.isEmpty()) return@collect
@@ -292,27 +291,27 @@ object WaifuMessageProcessor {
         }
         
         // 检查是否包含表情包标签
-        val hasEmotionTags = content.contains(Regex("<emotion[^>]*>.*?</emotion>"))
+                val hasEmotionTags = content.contains(Regex("<emotion[^>]*>.*?</emotion>"))
         
         // 首先清理内容
-        val cleanedContent = cleanContentForWaifu(content)
+                val cleanedContent = cleanContentForWaifu(content)
         if (cleanedContent.isBlank()) return false
         
         // 检查是否包含句号、问号、感叹号、波浪号或省略号（与splitMessageBySentences保持一致）
-        val hasSentenceEnders = cleanedContent.contains(Regex("[。！，?~～…]|\\Q...\\E"))
+                val hasSentenceEnders = cleanedContent.contains(Regex("[。！，?~～…]|\\Q...\\E"))
         
         // 检查内容长度是否足够长（至将0个字符）
-        val isLongEnough = cleanedContent.length >= 10
+                val isLongEnough = cleanedContent.length >= 10
         
         // 检查是否包含多个句字这里不考虑标点符号移除，因为是判断是否需要分前
-        val sentences = splitMessageBySentences(content, removePunctuation = false) // 这里传入原始内容，因为splitMessageBySentences内部会清理
-       val hasMultipleSentences = sentences.size > 1
+                val sentences = splitMessageBySentences(content, removePunctuation = false) // 这里传入原始内容，因为splitMessageBySentences内部会清理
+        val hasMultipleSentences = sentences.size > 1
         
         // 如果有表情包标签，或者满足其他条件，就进行分句处理
-       val shouldSplit = hasEmotionTags || (hasSentenceEnders && isLongEnough && hasMultipleSentences)
+                val shouldSplit = hasEmotionTags || (hasSentenceEnders && isLongEnough && hasMultipleSentences)
         
         // 添加调试日志
-        com.apex.util.AppLogger.d("WaifuMessageProcessor", 
+                com.apex.util.AppLogger.d("WaifuMessageProcessor", 
             "shouldSplitMessage - 包含表情，${hasEmotionTags}, 句子数${sentences.size}, 结果: ${shouldSplit}")
         
         return shouldSplit
@@ -327,27 +326,27 @@ object WaifuMessageProcessor {
         if (content.isBlank()) return content
         
         // 匹配<emotion>标签的正则表达式
-        val emotionRegex = Regex("<emotion>([^<]+)</emotion>")
+                val emotionRegex = Regex("<emotion>([^<]+)</emotion>")
         
         return emotionRegex.replace(content) { matchResult ->
             val emotion = matchResult.groupValues[1].trim()
-            val emojiPath = getRandomEmojiPath(emotion)
+        val emojiPath = getRandomEmojiPath(emotion)
             
             if (emojiPath != null) {
                 // 判断是自定义表情（绝对路径）还是assets表情（相对路径）
                 val imageUrl = if (emojiPath.startsWith("/")) {
                     // 自定义表情：使用绝对路径
-                    val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
+                val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
                     "file://${encodedPath}"
                 } else {
                     // assets表情：使用相对路径
-                   val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
+                val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
                     "file:///android_asset/emoji/${encodedPath}"
                 }
                 "![${emotion}](${imageUrl})"
             } else {
                 // 如果找不到对应的表情，返回原始文件
-               matchResult.value
+                matchResult.value
             }
         }
     }
@@ -364,29 +363,29 @@ object WaifuMessageProcessor {
         val emotionRegex = Regex("<emotion>([^<]+)</emotion>")
         
         // 找到所有emotion标签的位置
-       val matches = emotionRegex.findAll(content)
+                val matches = emotionRegex.findAll(content)
         var lastEnd = 0
         
         for (match in matches) {
             // 添加emotion标签之前的文本（如果有的话）
-            val beforeText = content.substring(lastEnd, match.range.first).trim()
+                val beforeText = content.substring(lastEnd, match.range.first).trim()
             if (beforeText.isNotEmpty()) {
                 result.add(beforeText)
             }
             
             // 处理emotion标签
-            val emotion = match.groupValues[1].trim()
-            val emojiPath = getRandomEmojiPath(emotion)
+                val emotion = match.groupValues[1].trim()
+        val emojiPath = getRandomEmojiPath(emotion)
             
             if (emojiPath != null) {
                 // 判断是自定义表情（绝对路径）还是assets表情（相对路径）
                 val imageUrl = if (emojiPath.startsWith("/")) {
                     // 自定义表情：使用绝对路径
-                    val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
+                val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
                     "file://${encodedPath}"
                 } else {
                     // assets表情：使用相对路径
-                   val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
+                val encodedPath = emojiPath.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
                     "file:///android_asset/emoji/${encodedPath}"
                 }
                 result.add("![${emotion}](${imageUrl})")
@@ -396,13 +395,13 @@ object WaifuMessageProcessor {
         }
         
         // 添加最后一个emotion标签之后的文本（如果有的话）
-        val afterText = content.substring(lastEnd).trim()
+                val afterText = content.substring(lastEnd).trim()
         if (afterText.isNotEmpty()) {
             result.add(afterText)
         }
         
         // 如果没有找到任何emotion标签，返回原始内定
-       if (result.isEmpty()) {
+                if (result.isEmpty()) {
             result.add(content)
         }
         
@@ -418,7 +417,7 @@ object WaifuMessageProcessor {
     private fun getRandomEmojiPath(emotion: String): String? {
         try {
             // 只从自定义表情中查找
-            val customEmoji = try {
+                val customEmoji = try {
                 customEmojiRepository?.let { repo ->
                     runBlocking(Dispatchers.IO) {
                         val activePrompt = activePromptManager?.getActivePrompt() ?: return@runBlocking null
@@ -426,7 +425,7 @@ object WaifuMessageProcessor {
                         val emojis = repo.getEmojisForCategory(activePrompt, emotion).first()
                         if (emojis.isNotEmpty()) {
                             val randomEmoji = emojis.random()
-                            val file = repo.getEmojiFile(activePrompt, randomEmoji)
+        val file = repo.getEmojiFile(activePrompt, randomEmoji)
                             if (file.exists()) {
                                 com.apex.util.AppLogger.d("WaifuMessageProcessor", "使用自定义表，${file.absolutePath}")
                                 return@runBlocking file.absolutePath
@@ -441,12 +440,12 @@ object WaifuMessageProcessor {
             }
             
             // 如果找到自定义表情，直接返回（已经是完整路径，
-           if (customEmoji != null) {
+                if (customEmoji != null) {
                 return customEmoji
             }
             
             // 如果自定义表情中没有找到，则直接返回null
-            com.apex.util.AppLogger.w("WaifuMessageProcessor", "在自定义表情中未找到对于情绪 '${emotion}' 的表，"
+                com.apex.util.AppLogger.w("WaifuMessageProcessor", "在自定义表情中未找到对于情绪 '${emotion}' 的表，"
             return null
             
         } catch (e: Exception) {

@@ -210,7 +210,7 @@ object SystemUtils {
             }
         } catch (e: Exception) {
             // 重启失败时直接退出
-            killProcess()
+                killProcess()
         }
     }
 

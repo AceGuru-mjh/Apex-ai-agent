@@ -117,7 +117,7 @@ class EventDispatcher(
         scope.launch {
             for (event in dispatchChannel) {
                 val key = keyExtractor(event)
-                val channel = keyChannels.getOrPut(key) {
+        val channel = keyChannels.getOrPut(key) {
                     Channel<Any>(Channel.UNLIMITED).also { ch ->
                         scope.launch {
                             for (e in ch) {

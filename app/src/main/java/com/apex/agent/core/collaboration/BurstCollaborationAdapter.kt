@@ -71,7 +71,7 @@ class BurstCollaborationAdapter(
         agentCount: Int
     ): List<String> = withContext(Dispatchers.IO) {
         // 1) 在 framework 侧建立一次协作会话（PARALLEL 类型最契合 swarm 语义）
-        val session = runCatching {
+                val session = runCatching {
             framework.createSession(
                 name = "burst-swarm-$sessionId",
                 type = AgentCollaborationFramework.CollaborationType.PARALLEL,
@@ -83,7 +83,7 @@ class BurstCollaborationAdapter(
         if (session == null) {
             Log.w(TAG, "registerSwarmAgents: createSession failed, using local-only mode")
             // 降级：仍然返回本地虚拟 agentId，dispatchToAgent 走纯本地路径
-            val fallbackIds = (1..agentCount.coerceAtLeast(1)).map { "local-$sessionId-$it" }
+                val fallbackIds = (1..agentCount.coerceAtLeast(1)).map { "local-$sessionId-$it" }
             sessions[sessionId] = SwarmSessionState(
                 sessionId = sessionId,
                 taskId = taskId,
@@ -93,8 +93,8 @@ class BurstCollaborationAdapter(
         }
 
         // 2) 在 framework 侧注册 N 个虚拟 agent
-        val agentIds = (1..agentCount.coerceAtLeast(1)).map { idx ->
-            val agentId = "swarm-$sessionId-$idx"
+                val agentIds = (1..agentCount.coerceAtLeast(1)).map { idx ->
+        val agentId = "swarm-$sessionId-$idx"
             val agent = AgentCollaborationFramework.Agent(
                 id = agentId,
                 name = "Burst Swarm Agent #$idx",
@@ -126,7 +126,7 @@ class BurstCollaborationAdapter(
         processor: suspend (agentId: String, chunk: String) -> String
     ): String = withContext(Dispatchers.IO) {
         // 留痕：派发请求
-        runCatching {
+                runCatching {
             framework.sendMessage(
                 senderAgent = SYSTEM_AGENT_ID,
                 recipientAgent = agentId,
@@ -137,12 +137,12 @@ class BurstCollaborationAdapter(
         }.onFailure { Log.w(TAG, "dispatch sendMessage REQUEST failed: ${it.message}") }
 
         // 真正执行：本地调用 processor
-        val output = runCatching { processor(agentId, chunk) }
+                val output = runCatching { processor(agentId, chunk) }
             .onFailure { Log.w(TAG, "processor failed for agent=$agentId: ${it.message}") }
             .getOrDefault("")
 
         // 留痕：派发响应
-        runCatching {
+                runCatching {
             framework.sendMessage(
                 senderAgent = agentId,
                 recipientAgent = SYSTEM_AGENT_ID,
@@ -163,7 +163,7 @@ class BurstCollaborationAdapter(
         }
 
         // 把所有 framework task 标记为 COMPLETED（兜底清理）
-        state.frameworkTaskIds.forEach { taskId ->
+                state.frameworkTaskIds.forEach { taskId ->
             runCatching {
                 framework.updateTaskStatus(
                     taskId,
@@ -174,7 +174,7 @@ class BurstCollaborationAdapter(
 
         // 让 framework session 进入 COMPLETED
         // 注意：framework 没有 endSession/releaseSession API，只能通过 executeSession 兜底
-        runCatching { framework.executeSession(sessionId) }
+                runCatching { framework.executeSession(sessionId) }
             .onFailure { Log.w(TAG, "executeSession $sessionId failed: ${it.message}") }
 
         Log.d(TAG, "releaseSwarm: session=$sessionId released, agents=${state.agentIds.size}")

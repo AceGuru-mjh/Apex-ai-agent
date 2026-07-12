@@ -217,7 +217,7 @@ data class FileApplyResultData(
         sb.appendLine(operation.toString())
 
         // If diffContent is available, embed it in a custom XML-like tag for the renderer.
-        if (diffContent != null) {
+                if (diffContent != null) {
             val encodedDiff = diffContent.replace("&", "&").replace("<", "<").replace(">", ">")
             sb.append("<file-diff path=\"${operation.path}\" details=\"${operation.details}\">")
             sb.append("<![CDATA[${encodedDiff}]]>")

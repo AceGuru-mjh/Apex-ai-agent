@@ -107,7 +107,7 @@ fun <V> CacheManager<V>.tryGet(key: String): V? {
  */
 fun CacheManager<*>.hitRate(): Double {
     val s = stats()
-    val total = s.hits + s.misses
+        val total = s.hits + s.misses
     return if (total > 0) s.hits.toDouble() / total else 0.0
 }
 

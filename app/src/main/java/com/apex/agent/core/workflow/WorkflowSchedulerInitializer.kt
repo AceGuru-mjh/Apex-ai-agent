@@ -28,7 +28,7 @@ object WorkflowSchedulerInitializer {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val repository = WorkflowRepository(context.applicationContext)
-                val result = repository.getAllWorkflows()
+        val result = repository.getAllWorkflows()
                 
                 result.getOrNull()?.let { workflows ->
                     var scheduledCount = 0

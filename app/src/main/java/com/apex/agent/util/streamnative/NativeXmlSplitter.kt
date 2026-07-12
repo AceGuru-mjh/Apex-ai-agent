@@ -10,14 +10,13 @@ object NativeXmlSplitter {
 
     fun splitXmlTag(content: String): List<List<String>> {
         val results = mutableListOf<List<String>>()
-
         val segments = nativeSplitXmlSegments(content)
         if (segments.isEmpty()) return results
 
         var i = 0
         while (i + 2 < segments.size) {
             val type = segments[i]
-            val start = segments[i + 1]
+        val start = segments[i + 1]
             val end = segments[i + 2]
             i += 3
 
@@ -26,7 +25,7 @@ object NativeXmlSplitter {
             val chunk = content.substring(start, end)
             if (type == 1) {
                 val tagNameMatch = Regex("<([A-Za-z][A-Za-z0-9_]*)[\\s>]").find(chunk)
-                val tagName = tagNameMatch?.groupValues?.getOrNull(1) ?: "unknown"
+        val tagName = tagNameMatch?.groupValues?.getOrNull(1) ?: "unknown"
                 results.add(listOf(tagName, chunk))
             } else {
                 if (chunk.isNotBlank()) {

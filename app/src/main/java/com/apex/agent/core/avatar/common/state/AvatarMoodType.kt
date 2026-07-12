@@ -89,7 +89,7 @@ object AvatarMoodTypes {
         val result = mutableListOf<AvatarCustomMoodDefinition>()
         definitions.forEach { definition ->
             val normalizedKey = normalizeKey(definition.key)
-            val normalizedHint = definition.promptHint.trim()
+        val normalizedHint = definition.promptHint.trim()
             if (!isValidCustomKey(normalizedKey) || normalizedHint.isBlank()) {
                 return@forEach
             }

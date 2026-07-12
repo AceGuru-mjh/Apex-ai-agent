@@ -50,7 +50,6 @@ internal class UserscriptCookieService(
         val targetHost = targetUri?.host?.lowercase(Locale.ROOT)
         val targetPath = targetUri?.path?.ifBlank { "/" } ?: "/"
         val requestedName = details.optString("name").ifBlank { null }
-
         val visibleCookies =
             cookieManager.getCookie(targetUrl)
                 .orEmpty()
@@ -61,7 +60,7 @@ internal class UserscriptCookieService(
                         return@mapNotNull null
                     }
                     val name = part.substringBefore('=').trim()
-                    val value = part.substringAfter('=', "")
+        val value = part.substringAfter('=', "")
                     if (name.isBlank()) {
                         return@mapNotNull null
                     }
@@ -112,7 +111,6 @@ internal class UserscriptCookieService(
         val httpOnly = details.optBoolean("httpOnly", false)
         val expirationDate = details.optDouble("expirationDate").takeIf { !it.isNaN() }
         val session = details.optBoolean("session", expirationDate == null)
-
         val cookieString =
             buildString {
                 append(name)

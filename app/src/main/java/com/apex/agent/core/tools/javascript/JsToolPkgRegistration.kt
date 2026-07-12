@@ -133,7 +133,7 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
 
             function installGlobal(name, value) {
                 var key = String(name || '').trim();
-                if (!key || value === undefined) {
+            if (!key || value === undefined) {
                     return;
                 }
                 try { globalThis[key] = value; } catch (_e) {}
@@ -153,8 +153,8 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
 
             function copyObject(source, excludedKey) {
                 var output = {};
-                var keys = Object.keys(source || {});
-                for (var i = 0; i < keys.length; i += 1) {
+            var keys = Object.keys(source || {});
+            for (var i = 0; i < keys.length; i += 1) {
                     var key = keys[i];
                     if (key !== excludedKey) {
                         output[key] = source[key];
@@ -171,11 +171,11 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
 
             function resolveExportedFunctionName(fn) {
                 var exportsRef = getActiveExports();
-                if (!exportsRef || typeof exportsRef !== 'object') {
+            if (!exportsRef || typeof exportsRef !== 'object') {
                     return '';
                 }
                 var keys = Object.keys(exportsRef);
-                for (var i = 0; i < keys.length; i += 1) {
+            for (var i = 0; i < keys.length; i += 1) {
                     if (exportsRef[keys[i]] === fn) {
                         return keys[i];
                     }
@@ -186,7 +186,7 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
             function buildInlineFunctionName(definition) {
                 inlineHookCounter += 1;
                 var rawId = String((definition && definition.id) || 'hook');
-                var safeId = rawId.replace(/[^a-zA-Z0-9_$]/g, '_') || 'hook';
+            var safeId = rawId.replace(/[^a-zA-Z0-9_$]/g, '_') || 'hook';
                 return '__Apex_inline_hook_' + safeId + '_' + inlineHookCounter;
             }
 
@@ -195,13 +195,13 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
                     throw new Error(label + ' expects an object');
                 }
                 var normalized = copyObject(definition, fieldName);
-                var fn = definition[fieldName];
+            var fn = definition[fieldName];
                 if (typeof fn !== 'function') {
                     throw new Error(label + ' requires a function reference');
                 }
                 var exportedName = resolveExportedFunctionName(fn);
-                normalized[fieldName] = exportedName || buildInlineFunctionName(definition);
-                if (!exportedName) {
+            normalized[fieldName] = exportedName || buildInlineFunctionName(definition);
+            if (!exportedName) {
                     normalized.function_source = String(fn);
                 }
                 return normalized;
@@ -212,7 +212,7 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
                     throw new Error(label + ' expects an object');
                 }
                 var normalized = copyObject(definition, 'screen');
-                var screen = definition.screen;
+            var screen = definition.screen;
                 var path = '';
                 if (typeof screen === 'string') {
                     path = screen.trim().replace(/\\/g, '/');
@@ -237,12 +237,12 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
                 var normalized = fieldName
                     ? normalizeFunctionField(definition, fieldName, label)
                     : normalizeScreenField(definition, label);
-                requireNative(nativeMethod)(JSON.stringify(normalized));
+            requireNative(nativeMethod)(JSON.stringify(normalized));
             }
 
             function resolveCurrentToolPkgTarget() {
                 var callId = String(root.__ApexCurrentCallId || '').trim();
-                var callState =
+            var callState =
                     callId && typeof root.__ApexGetCallState === 'function'
                         ? root.__ApexGetCallState(callId)
                         : null;
@@ -262,7 +262,7 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
                 ];
                 for (var i = 0; i < candidates.length; i += 1) {
                     var value = String(candidates[i] || '').trim();
-                    if (value) {
+            if (value) {
                         return value;
                     }
                 }
@@ -271,11 +271,11 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
 
             function readToolPkgResource(key, outputFileName, internal) {
                 var resourceKey = String(key || '').trim();
-                if (!resourceKey) {
+            if (!resourceKey) {
                     return Promise.reject(new Error('resource key is required'));
                 }
                 var target = resolveCurrentToolPkgTarget();
-                if (!target) {
+            if (!target) {
                     return Promise.reject(new Error('package/toolpkg runtime target is empty'));
                 }
                 var path = requireNative('readToolPkgResource')(
@@ -284,7 +284,7 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
                     outputFileName == null ? '' : String(outputFileName).trim(),
                     internal === true ? 'true' : ''
                 );
-                if (typeof path === 'string' && path.trim()) {
+            if (typeof path === 'string' && path.trim()) {
                     return Promise.resolve(path);
                 }
                 return Promise.reject(new Error('resource not found: ' + resourceKey));
@@ -322,7 +322,6 @@ internal fun buildToolPkgRegistrationBridgeScript(): String {
                     registerWithNative(definition, apiName, nativeMethod, 'function');
                 };
             });
-
             installGlobal('ToolPkg', api);
         })();
     """.trimIndent()

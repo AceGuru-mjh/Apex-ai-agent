@@ -29,7 +29,7 @@ class VectorIndexManager<T : Item<Id, FloatArray>, Id : Any>(
             } catch (e: Exception) {
                 com.apex.util.AppLogger.e("VectorIndexManager", "Failed to load index, creating new one.", e)
                 // 如果加载失败，删除可能已损坏的文件并创建一个新，
-               indexFile.delete()
+                indexFile.delete()
                 HnswIndex
                     .newBuilder(dimensions, DistanceFunctions.FLOAT_COSINE_DISTANCE, maxElements)
                     .withRemoveEnabled()
@@ -75,7 +75,7 @@ class VectorIndexManager<T : Item<Id, FloatArray>, Id : Any>(
         if (indexFile != null && index != null) {
             try {
                 // 确保父目录存，
-               indexFile.parentFile?.mkdirs()
+                indexFile.parentFile?.mkdirs()
                 ObjectOutputStream(indexFile.outputStream()).use { it.writeObject(index) }
             } catch (e: IOException) {
                 com.apex.util.AppLogger.e("VectorIndexManager", "Failed to save index to ${indexFile.absolutePath}", e)

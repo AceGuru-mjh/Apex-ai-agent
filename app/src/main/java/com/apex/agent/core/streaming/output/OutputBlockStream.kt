@@ -135,8 +135,7 @@ class OutputBlockStream(
     }
 
     // ===== 文本块 =====
-
-    suspend fun emitText(role: OutputBlock.TextBlock.TextRole, content: String): String {
+                suspend fun emitText(role: OutputBlock.TextBlock.TextRole, content: String): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.TextBlock(id = id, role = role, content = content, status = OutputBlock.BlockStatus.COMPLETED, isStreaming = false, completedAt = System.currentTimeMillis()))
         return id
@@ -159,8 +158,7 @@ class OutputBlockStream(
     }
 
     // ===== 推理块 =====
-
-    suspend fun startReasoning(): String {
+                suspend fun startReasoning(): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ReasoningBlock(id = id))
         return id
@@ -177,8 +175,7 @@ class OutputBlockStream(
     }
 
     // ===== 命令块 =====
-
-    suspend fun startCommand(command: String, workingDir: String = ""): String {
+                suspend fun startCommand(command: String, workingDir: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.CommandBlock(id = id, command = command, workingDir = workingDir))
         return id
@@ -199,8 +196,7 @@ class OutputBlockStream(
     }
 
     // ===== 文件编辑块 =====
-
-    suspend fun emitFileEdit(
+                suspend fun emitFileEdit(
         filePath: String,
         operation: OutputBlock.FileEditBlock.FileOperation,
         diff: String = "",
@@ -220,8 +216,7 @@ class OutputBlockStream(
     }
 
     // ===== 工具调用块 =====
-
-    suspend fun startToolCall(toolName: String, category: OutputBlock.ToolCallBlock.ToolCategory, arguments: String = ""): String {
+                suspend fun startToolCall(toolName: String, category: OutputBlock.ToolCallBlock.ToolCategory, arguments: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ToolCallBlock(id = id, toolName = toolName, toolCategory = category, arguments = arguments, icon = category.icon))
         return id
@@ -233,16 +228,14 @@ class OutputBlockStream(
     }
 
     // ===== 记忆块 =====
-
-    suspend fun emitMemory(operation: OutputBlock.MemoryBlock.MemoryOperation, type: OutputBlock.MemoryBlock.MemoryType, key: String = "", value: String = "", resultCount: Int = 0): String {
+                suspend fun emitMemory(operation: OutputBlock.MemoryBlock.MemoryOperation, type: OutputBlock.MemoryBlock.MemoryType, key: String = "", value: String = "", resultCount: Int = 0): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.MemoryBlock(id = id, operation = operation, memoryType = type, key = key, value = value, resultCount = resultCount, status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis()))
         return id
     }
 
     // ===== 任务块 =====
-
-    suspend fun startTask(title: String, description: String = "", steps: List<String> = emptyList()): String {
+                suspend fun startTask(title: String, description: String = "", steps: List<String> = emptyList()): String {
         val id = UUID.randomUUID().toString()
         val taskSteps = steps.mapIndexed { i, title -> OutputBlock.TaskBlock.TaskStep(id = "${id}_step_$i", title = title) }
         addBlock(OutputBlock.TaskBlock(id = id, title = title, description = description, steps = taskSteps))
@@ -266,8 +259,7 @@ class OutputBlockStream(
     }
 
     // ===== 进度块 =====
-
-    suspend fun startProgress(label: String, total: Int, unit: String = ""): String {
+                suspend fun startProgress(label: String, total: Int, unit: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ProgressBlock(id = id, label = label, total = total, unit = unit))
         return id
@@ -284,8 +276,7 @@ class OutputBlockStream(
     }
 
     // ===== 错误/成功块 =====
-
-    suspend fun emitError(type: OutputBlock.ErrorBlock.ErrorType, message: String, stackTrace: String = "", suggestion: String = ""): String {
+                suspend fun emitError(type: OutputBlock.ErrorBlock.ErrorType, message: String, stackTrace: String = "", suggestion: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ErrorBlock(id = id, errorType = type, message = message, stackTrace = stackTrace, recoverySuggestion = suggestion))
         return id
@@ -462,8 +453,7 @@ class OutputBlockStream(
     }
 
     // ===== 清理 =====
-
-    fun clear() {
+                fun clear() {
         blockMap.clear()
         blockOrder.value = emptyList()
     }

@@ -351,12 +351,12 @@ sealed class ParameterValueDef {
 
     private fun evalExpression(expr: String, context: Map<String, Any>): String {
         // 简易表达式：${nodeId.field} 替换
-        var result = expr
+                var result = expr
         val regex = Regex("\\$\\{([^}]+)}")
         regex.findAll(expr).forEach { m ->
             val (ref) = m.destructured
             val parts = ref.split(".", limit = 2)
-            val v = context[parts[0]]
+        val v = context[parts[0]]
             val resolved = if (parts.size == 2 && v is Map<*, *>) v[parts[1]]?.toString() ?: ""
                           else v?.toString() ?: ""
             result = result.replace("\${$ref}", resolved)

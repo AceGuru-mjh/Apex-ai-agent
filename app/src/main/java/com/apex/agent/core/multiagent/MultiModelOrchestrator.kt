@@ -55,7 +55,7 @@ class MultiModelOrchestrator(private val context: Context) {
 
     private val configs = mutableMapOf<ModelProvider, ModelConfig>()
     private val _currentProvider = MutableStateFlow<ModelProvider>(ModelProvider.OPENAI)
-    val currentProvider: StateFlow<ModelProvider> = _currentProvider
+        val currentProvider: StateFlow<ModelProvider> = _currentProvider
 
     fun configureProvider(config: ModelConfig) {
         configs[config.provider] = config

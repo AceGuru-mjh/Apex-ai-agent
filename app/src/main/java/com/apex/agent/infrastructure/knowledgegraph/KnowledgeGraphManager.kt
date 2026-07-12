@@ -57,7 +57,7 @@ interface KnowledgeGraphManager {
 
         override fun snapshot(): KnowledgeGraph {
             val snapshotNodes = nodes.values.toList()
-            val snapshotEdges = edges.values.toList()
+        val snapshotEdges = edges.values.toList()
             return KnowledgeGraph(snapshotNodes, snapshotEdges)
         }
 

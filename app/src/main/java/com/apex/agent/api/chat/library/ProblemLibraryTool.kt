@@ -60,7 +60,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
         }
 
     // 将ProblemRecord转换为Memory
-    private fun convertToMemory(record: ProblemRecord): Memory {
+                private fun convertToMemory(record: ProblemRecord): Memory {
         return Memory(
                 uuid = record.uuid,
                 title = record.summary.ifEmpty { record.query.take(50) },
@@ -74,12 +74,11 @@ class ProblemLibraryTool private constructor(private val context: Context) {
     }
 
     // 将Memory转换为ProblemRecord
-    private fun convertToProblemRecord(memory: Memory): ProblemRecord {
+                private fun convertToProblemRecord(memory: Memory): ProblemRecord {
         // 尝试从内容中提取问题和解决方式
-      val contentParts = memory.content.split("\n\n")
+                val contentParts = memory.content.split("\n\n")
         val questionLabel = context.getString(R.string.problem_library_question_label)
         val solutionLabel = context.getString(R.string.problem_library_solution_label)
-
         val query =
                 if (contentParts.isNotEmpty() && contentParts[0].startsWith(questionLabel)) {
                     contentParts[0].substringAfter(questionLabel).trim()
@@ -95,7 +94,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
                 }
 
         // 提取工具信息 - 从标签中获取
-        val tools =
+                val tools =
                 memory.tags.filter { it.name.startsWith("tool:") }.map {
                     it.name.substringAfter("tool:")
                 }
@@ -138,7 +137,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
     }
 
     // 获取所有问题记的   @Deprecated("This method retrieves legacy data.")
-    fun getAllProblemRecords(): List<ProblemRecord> {
+                fun getAllProblemRecords(): List<ProblemRecord> {
         return kotlinx.coroutines.runBlocking(Dispatchers.IO) {
             try {
                 // 查询带有ProblemLibrary标签的所有Memory
@@ -152,20 +151,20 @@ class ProblemLibraryTool private constructor(private val context: Context) {
     }
 
     // 搜索问题的   @Deprecated("This search method uses a legacy data structure.")
-    suspend fun searchProblemLibrary(query: String): List<ProblemRecord> =
+                suspend fun searchProblemLibrary(query: String): List<ProblemRecord> =
             withContext(Dispatchers.IO) {
                 try {
                     if (query.isBlank()) {
                         // 如果查询为空，返回所有带ProblemLibrary标签的Memory
-                        val memories = memoryRepository.searchMemories("ProblemLibrary_Legacy")
+                val memories = memoryRepository.searchMemories("ProblemLibrary_Legacy")
                         return@withContext memories.map { convertToProblemRecord(it) }
                     }
 
                     // 使用MemoryRepository的语义搜的
-                  val memories = memoryRepository.searchMemories(query)
+                val memories = memoryRepository.searchMemories(query)
 
                     // 只返回带有ProblemLibrary标签的结果
-                   val filteredMemories =
+                val filteredMemories =
                             memories.filter { memory ->
                                 memory.tags.any { it.name == "ProblemLibrary_Legacy" }
                             }
@@ -204,8 +203,8 @@ class ProblemLibraryTool private constructor(private val context: Context) {
             withContext(Dispatchers.IO) {
                 try {
                     // 搜索问题的
-                   val searchResults = searchProblemLibrary(query).take(5) // 最多返回条记的
-                    if (searchResults.isEmpty()) {
+                val searchResults = searchProblemLibrary(query).take(5) // 最多返回条记的
+                if (searchResults.isEmpty()) {
                         return@withContext context.getString(R.string.problem_library_no_legacy_found)
                     }
 
@@ -228,14 +227,14 @@ class ProblemLibraryTool private constructor(private val context: Context) {
             result.appendLine("\nUUID: ${record.uuid}")
 
             // 优先显示摘要，如果没有则显示原始查询
-            if (record.summary.isNotEmpty()) {
+                if (record.summary.isNotEmpty()) {
                 result.appendLine(context.getString(R.string.problem_library_summary, record.summary))
             } else {
                 result.appendLine(context.getString(R.string.problem_library_query, record.query))
             }
 
             // 显示使用的工具
-          result.appendLine(
+                result.appendLine(
                 context.getString(
                     R.string.problem_library_using_tool,
                     record.tools.joinToString(", ")
@@ -243,7 +242,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
             )
 
             // 显示时间
-            result.appendLine(
+                result.appendLine(
                 context.getString(
                     R.string.problem_library_time,
                     SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(record.timestamp))

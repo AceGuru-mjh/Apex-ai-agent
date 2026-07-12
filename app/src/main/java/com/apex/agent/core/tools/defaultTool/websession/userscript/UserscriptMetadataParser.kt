@@ -3,9 +3,8 @@ package com.apex.agent.core.tools.defaultTool.websession.userscript
 internal object UserscriptMetadataParser {
     private val metadataBlockRegex =
         Regex("""(?m)^[ \t]*//[ \t]*==UserScript==\s*$([\s\S]*)(?m)^[ \t]*//[ \t]*==/UserScript==\s*$""")
-    private val metadataLineRegex = Regex("""^[ \t]*//[ \t]*@([A-Za-z0-9:_-]+)(?:[ \t]+(.*))?$""")
-
-    fun parse(rawSource: String): ParsedUserscriptMetadata {
+                private val metadataLineRegex = Regex("""^[ \t]*//[ \t]*@([A-Za-z0-9:_-]+)(?:[ \t]+(.*))?$""")
+                fun parse(rawSource: String): ParsedUserscriptMetadata {
         val match = metadataBlockRegex.find(rawSource)
             ?: throw IllegalArgumentException("Missing userscript metadata block")
         val block = match.groupValues[1]
@@ -14,7 +13,7 @@ internal object UserscriptMetadataParser {
 
         block.lineSequence().forEach { line ->
             val lineMatch = metadataLineRegex.find(line) ?: return@forEach
-            val key = lineMatch.groupValues[1].trim()
+        val key = lineMatch.groupValues[1].trim()
             val value = lineMatch.groupValues.getOrNull(2)?.trim().orEmpty()
             fields.getOrPut(key) { mutableListOf() }.add(value)
             rawHeaders += UserscriptHeaderEntry(key = key, value = value)
@@ -30,7 +29,7 @@ internal object UserscriptMetadataParser {
                     null
                 } else {
                     val resourceName = parts[0].trim()
-                    val url = parts[1].trim()
+        val url = parts[1].trim()
                     if (resourceName.isBlank() || url.isBlank()) {
                         null
                     } else {

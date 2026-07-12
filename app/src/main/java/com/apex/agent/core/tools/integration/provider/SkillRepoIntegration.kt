@@ -23,7 +23,7 @@ class SkillRepoIntegration : IntegrationProvider {
         version = "1.0.0",
         author = "Logistra AI",
         homepage = "https://skill-repo.logistra.ai",
-        enabled = true,
+                enabled = true,
         capabilities = listOf(
             IntegrationCapability("browse", "浏览技能, "浏览技能仓应, CapabilityType.BROWSE),
             IntegrationCapability("search", "搜索技能, "搜索技能仓应, CapabilityType.SEARCH),

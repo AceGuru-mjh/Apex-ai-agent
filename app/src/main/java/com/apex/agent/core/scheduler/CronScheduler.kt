@@ -45,7 +45,7 @@ class CronExpressionParser {
         val timeMatch = Regex("(\\d+):(\\d+)").find(input)
         return if (timeMatch != null) {
             val hour = timeMatch.groupValues[1]
-            val minute = timeMatch.groupValues[2]
+        val minute = timeMatch.groupValues[2]
             "${minute} ${hour} * * *"
         } else {
             "0 9 * * *"
@@ -134,7 +134,7 @@ class CronExpressionParser {
             minute == "*" -> (hour.toLongOrNull() ?: 1) * 60
             else -> {
                 val h = hour.toLongOrNull() ?: 0
-                val m = minute.toLongOrNull() ?: 0
+        val m = minute.toLongOrNull() ?: 0
                 h * 60 + m
             }
         }
@@ -194,7 +194,7 @@ class CronScheduler(private val context: Context) {
             }
 
             val intervalMinutes = parser.toIntervalMinutes(task.cronExpression)
-            val constraints = Constraints.Builder()
+        val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
                 .build()
 

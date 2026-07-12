@@ -45,7 +45,7 @@ class WorkflowExecutor(private val context: Context) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val _executions = ConcurrentHashMap<String, WorkflowExecution>()
     private val _currentExecution = MutableStateFlow<WorkflowExecution?>(null)
-    val currentExecution: StateFlow<WorkflowExecution?> = _currentExecution
+        val currentExecution: StateFlow<WorkflowExecution?> = _currentExecution
 
     val executions: List<WorkflowExecution>
         get() = _executions.values.toList()

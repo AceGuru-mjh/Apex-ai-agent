@@ -23,31 +23,31 @@ import java.util.concurrent.ConcurrentHashMap
  */
 enum class MemeType {
     // 中文网络梗
-    CHINESE_INTERNET,    // 中文网络梗（如：绝绝子、yyds、破防了）
-    CHINESE_CLASSIC,     // 中文经典梗（如：孔乙己、阿Q精神）
-    CHINESE_TV,          // 影视梗（如：臣妾做不到、真香）
+                CHINESE_INTERNET,    // 中文网络梗（如：绝绝子、yyds、破防了）
+                CHINESE_CLASSIC,     // 中文经典梗（如：孔乙己、阿Q精神）
+                CHINESE_TV,          // 影视梗（如：臣妾做不到、真香）
 
     // 英文网络梗
-    ENGLISH_INTERNET,    // 英文网络梗（如：lol, rofl, brain moment）
-    ENGLISH_CLASSIC,     // 英文经典梗（如：To be or not to be）
+                ENGLISH_INTERNET,    // 英文网络梗（如：lol, rofl, brain moment）
+                ENGLISH_CLASSIC,     // 英文经典梗（如：To be or not to be）
 
     // 程序员梗
-    PROGRAMMER,          // 程序员梗（如：hello world, 404, IT Crowd）
+                PROGRAMMER,          // 程序员梗（如：hello world, 404, IT Crowd）
 
     // 游戏梗
-    GAMING,              // 游戏梗（如：GG, AFK, 60帧）
+                GAMING,              // 游戏梗（如：GG, AFK, 60帧）
 
     // 动漫梗
-    ANIME,               // 动漫梗（如：中二病, 傲娇）
+                ANIME,               // 动漫梗（如：中二病, 傲娇）
 
     // 流行文化
-    POP_CULTURE,         // 流行文化梗
+                POP_CULTURE,         // 流行文化梗
 
     // 谐音梗
-    PUN,                 // 谐音梗
+                PUN,                 // 谐音梗
 
     // 自定义
-    CUSTOM               // 用户自定义梗
+                CUSTOM               // 用户自定义梗
 }
 
 /**
@@ -56,18 +56,18 @@ enum class MemeType {
 data class Meme(
     val id: String,
     val name: String,              // 梗名（如"yyds"）
-    val displayName: String,       // 显示名（如"永远的神"）
-    val type: MemeType,
+                val displayName: String,       // 显示名（如"永远的神"）
+                val type: MemeType,
     val keywords: List<String>,    // 触发关键词
-    val description: String,       // 梗的含义/出处
-    val usage: String,             // 使用场景
-    val example: String,           // 示例用法
-    val responses: List<String>,   // 可选回复模板
-    val appropriateScenes: Set<String>,  // 适用场景
-    val inappropriateScenes: Set<String>, // 不适用场景
-    val formalityLevel: Int,       // 0=正式可用, 1=半正式, 2=仅休闲
-    val popularity: Float = 0.5f,  // 热度 0-1
-    val createdAt: Long = System.currentTimeMillis(),
+                val description: String,       // 梗的含义/出处
+                val usage: String,             // 使用场景
+                val example: String,           // 示例用法
+                val responses: List<String>,   // 可选回复模板
+                val appropriateScenes: Set<String>,  // 适用场景
+                val inappropriateScenes: Set<String>, // 不适用场景
+                val formalityLevel: Int,       // 0=正式可用, 1=半正式, 2=仅休闲
+                val popularity: Float = 0.5f,  // 热度 0-1
+                val createdAt: Long = System.currentTimeMillis(),
     val tags: List<String> = emptyList()
 )
 
@@ -78,7 +78,7 @@ data class MemeDetectionResult(
     val detectedMemes: List<DetectedMeme>,
     val totalMemes: Int,
     val density: Float,            // 梗密度（梗数/文本长度）
-    val suggestedResponseTone: MemeResponseTone
+                val suggestedResponseTone: MemeResponseTone
 )
 
 data class DetectedMeme(
@@ -94,8 +94,8 @@ data class DetectedMeme(
 data class MemeResponseTone(
     val useMeme: Boolean,
     val memeDensity: Float,        // 建议梗密度
-    val types: Set<MemeType>,      // 建议使用的梗类型
-    val reason: String
+                val types: Set<MemeType>,      // 建议使用的梗类型
+                val reason: String
 )
 
 /**
@@ -116,18 +116,18 @@ data class MemeModeConfig(
     val intensity: MemeIntensity = MemeIntensity.BALANCED,
     val allowedTypes: Set<MemeType> = MemeType.values().toSet(),
     val blockedMemes: Set<String> = emptySet(),  // 屏蔽的梗 ID
-    val formalityOverride: Int? = null,  // 强制正式度
-    val autoDetectUserMeme: Boolean = true,
+                val formalityOverride: Int? = null,  // 强制正式度
+                val autoDetectUserMeme: Boolean = true,
     val respondWithMeme: Boolean = true,
     val maxMemesPerResponse: Int = 2
 )
 
 enum class MemeIntensity {
     OFF,          // 关闭玩梗
-    SUBTLE,       // 微妙（偶尔一梗）
-    BALANCED,     // 平衡（适度玩梗）
-    ENTHUSIASTIC, // 热情（经常玩梗）
-    MAXIMUM       // 最大化（句句有梗）
+                SUBTLE,       // 微妙（偶尔一梗）
+                BALANCED,     // 平衡（适度玩梗）
+                ENTHUSIASTIC, // 热情（经常玩梗）
+                MAXIMUM       // 最大化（句句有梗）
 }
 
 /**
@@ -144,8 +144,7 @@ class MemeModeEngine(
 
     private val memeDatabase = ConcurrentHashMap<String, Meme>()
     private val usageStats = ConcurrentHashMap<String, Int>()  // memeId -> 使用次数
-
-    init {
+                init {
         registerBuiltinMemes()
     }
 
@@ -233,7 +232,7 @@ class MemeModeEngine(
         val enhanced = injectMemes(baseResponse, usedMemes, detection.suggestedResponseTone.memeDensity)
 
         // 更新使用统计
-        usedMemes.forEach { usageStats[it.id] = (usageStats[it.id] ?: 0) + 1 }
+                usedMemes.forEach { usageStats[it.id] = (usageStats[it.id] ?: 0) + 1 }
 
         return MemeGenerationResult(
             content = enhanced,
@@ -276,7 +275,7 @@ class MemeModeEngine(
         }
 
         // 提供几个可用的梗
-        val availableMemes = memeDatabase.values
+                val availableMemes = memeDatabase.values
             .filter { it.type in detection.suggestedResponseTone.types }
             .filter { it.id !in config.blockedMemes }
             .sortedByDescending { it.popularity }
@@ -358,16 +357,15 @@ class MemeModeEngine(
     }
 
     // ============ 内部方法 ============
-
-    private fun decideResponseTone(detected: List<DetectedMeme>, density: Float): MemeResponseTone {
+                private fun decideResponseTone(detected: List<DetectedMeme>, density: Float): MemeResponseTone {
         if (config.intensity == MemeIntensity.OFF) {
             return MemeResponseTone(false, 0f, emptySet(), "玩梗已关闭")
         }
 
         // 如果用户用了梗，鼓励回应
-        if (detected.isNotEmpty()) {
+                if (detected.isNotEmpty()) {
             val types = detected.map { it.meme.type }.toSet()
-            val intensity = when (config.intensity) {
+        val intensity = when (config.intensity) {
                 MemeIntensity.SUBTLE -> 0.1f
                 MemeIntensity.BALANCED -> 0.3f
                 MemeIntensity.ENTHUSIASTIC -> 0.5f
@@ -383,7 +381,7 @@ class MemeModeEngine(
         }
 
         // 用户没用梗，根据 intensity 决定
-        return when (config.intensity) {
+                return when (config.intensity) {
             MemeIntensity.SUBTLE -> MemeResponseTone(false, 0f, emptySet(), "低强度模式，不主动玩梗")
             MemeIntensity.BALANCED -> MemeResponseTone(true, 0.15f, setOf(MemeType.CHINESE_INTERNET, MemeType.PROGRAMMER), "平衡模式，偶尔玩梗")
             MemeIntensity.ENTHUSIASTIC -> MemeResponseTone(true, 0.3f, MemeType.values().toSet(), "热情模式，适度玩梗")
@@ -411,9 +409,9 @@ class MemeModeEngine(
         val memePhrases = memes.map { it.responses.randomOrNull() ?: it.example }
 
         // 根据密度决定注入位置
-        if (density > 0.4f) {
+                if (density > 0.4f) {
             // 高密度：开头加一个，结尾加一个
-            if (memes.size >= 1) {
+                if (memes.size >= 1) {
                 result = "${memePhrases[0]} $result"
             }
             if (memes.size >= 2) {
@@ -421,7 +419,7 @@ class MemeModeEngine(
             }
         } else {
             // 低密度：只在结尾加一个
-            result = "$result ${memePhrases.first()}"
+                result = "$result ${memePhrases.first()}"
         }
 
         return result
@@ -525,11 +523,11 @@ class MemeModeEngine(
      */
     suspend fun explainMemeEnhanced(query: String): String {
         // 1. 先查本地梗库
-        val local = explainMeme(query)
+                val local = explainMeme(query)
         if (local != null) return local
 
         // 2. 本地没有，网络搜索
-        if (webSearchEnabled) {
+                if (webSearchEnabled) {
             val wiki = lookupMemeOnline(query)
             if (wiki.success) {
                 return buildString {
@@ -539,7 +537,7 @@ class MemeModeEngine(
             }
 
             // 3. 百科没有，用搜索结果
-            val search = searchMemeOnline(query)
+                val search = searchMemeOnline(query)
             if (search.success && search.items.isNotEmpty()) {
                 return buildString {
                     appendLine("【$query】（网络搜索结果）")
@@ -571,10 +569,9 @@ class MemeModeEngine(
     }
 
     // ============ 预置梗库 ============
-
-    private fun registerBuiltinMemes() {
+                private fun registerBuiltinMemes() {
         // === 中文网络梗 ===
-        addMeme(Meme(
+                addMeme(Meme(
             id = "meme_yyds",
             name = "yyds",
             displayName = "永远的神",
@@ -711,7 +708,7 @@ class MemeModeEngine(
         ))
 
         // === 程序员梗 ===
-        addMeme(Meme(
+                addMeme(Meme(
             id = "meme_helloworld",
             name = "hello world",
             displayName = "Hello World",
@@ -797,7 +794,7 @@ class MemeModeEngine(
         ))
 
         // === 英文网络梗 ===
-        addMeme(Meme(
+                addMeme(Meme(
             id = "meme_lol",
             name = "lol",
             displayName = "LOL (Laugh Out Loud)",
@@ -832,7 +829,7 @@ class MemeModeEngine(
         ))
 
         // === 游戏梗 ===
-        addMeme(Meme(
+                addMeme(Meme(
             id = "meme_gg",
             name = "gg",
             displayName = "GG (Good Game)",
@@ -867,7 +864,7 @@ class MemeModeEngine(
         ))
 
         // === 谐音梗 ===
-        addMeme(Meme(
+                addMeme(Meme(
             id = "meme_pun_duck",
             name = "鸭谐音",
             displayName = "鸭谐音梗",
@@ -885,7 +882,7 @@ class MemeModeEngine(
         ))
 
         // === 经典梗 ===
-        addMeme(Meme(
+                addMeme(Meme(
             id = "meme_kongyiji",
             name = "孔乙己",
             displayName = "孔乙己",

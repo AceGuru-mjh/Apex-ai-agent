@@ -16,7 +16,7 @@ class TaskScheduler(
     private val taskTimeoutMs: Long = 300000
 ) {
     private val _taskState = MutableStateFlow<TaskState>(TaskState.Idle)
-    val taskState: StateFlow<TaskState> = _taskState.asStateFlow()
+        val taskState: StateFlow<TaskState> = _taskState.asStateFlow()
 
     private val agentRegistry = DynamicAgentRegistry()
     private val taskCounter = AtomicInteger(0)
@@ -90,7 +90,7 @@ class TaskScheduler(
     private suspend fun executeSubTasksWithPool(subtasks: List<SubTask>): List<SubTaskResult> =
         coroutineScope {
             val results = ConcurrentHashMap.newKeySet<SubTaskResult>()
-            val completedCount = AtomicInteger(0)
+        val completedCount = AtomicInteger(0)
 
             subtasks.map { subtask ->
                 async(scope.coroutineContext) {
@@ -182,7 +182,7 @@ class LLMBasedDecompositionStrategy(
                 .removePrefix("```json").removePrefix("```")
                 .removeSuffix("```").trim()
             val regex = """\{[^}]+\}""".toRegex()
-            val matches = regex.findAll(cleanResult).toList()
+        val matches = regex.findAll(cleanResult).toList()
             if (matches.isEmpty()) {
                 DefaultSubtaskDecompositionStrategy().decompose(mainTask)
             } else {

@@ -28,8 +28,7 @@ class SessionStorage private constructor(context: Context) {
     }
 
     // ==================== Session CRUD ====================
-
-    suspend fun insertSession(session: SessionEntity) = withContext(Dispatchers.IO) {
+                suspend fun insertSession(session: SessionEntity) = withContext(Dispatchers.IO) {
         sessionDao.insertSession(session)
     }
 
@@ -68,8 +67,7 @@ class SessionStorage private constructor(context: Context) {
     }
 
     // ==================== Message CRUD ====================
-
-    suspend fun insertMessage(message: MessageEntity) = withContext(Dispatchers.IO) {
+                suspend fun insertMessage(message: MessageEntity) = withContext(Dispatchers.IO) {
         messageDao.insertMessage(message)
     }
 
@@ -120,8 +118,7 @@ class SessionStorage private constructor(context: Context) {
     }
 
     // ==================== BatchRun CRUD ====================
-
-    suspend fun insertBatchRun(batchRun: BatchRunEntity) = withContext(Dispatchers.IO) {
+                suspend fun insertBatchRun(batchRun: BatchRunEntity) = withContext(Dispatchers.IO) {
         batchRunDao.insertBatchRun(batchRun)
     }
 
@@ -152,8 +149,7 @@ class SessionStorage private constructor(context: Context) {
     }
 
     // ==================== RL Trajectory CRUD ====================
-
-    suspend fun insertRLTrajectory(trajectory: RLTrajectoryEntity) = withContext(Dispatchers.IO) {
+                suspend fun insertRLTrajectory(trajectory: RLTrajectoryEntity) = withContext(Dispatchers.IO) {
         rlTrajectoryDao.insertTrajectory(trajectory)
     }
 

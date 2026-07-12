@@ -27,7 +27,7 @@ class TerminalPreferences(private val context: Context) {
     }
 
     // ============ 命令历史 ============
-    val historyFlow: Flow<List<Pair<String, Long>>> = context.terminalDataStore.data.map { p ->
+                val historyFlow: Flow<List<Pair<String, Long>>> = context.terminalDataStore.data.map { p ->
         val json = p[K.HISTORY] ?: return@map emptyList()
         try {
             val arr = JSONArray(json)
@@ -47,7 +47,7 @@ class TerminalPreferences(private val context: Context) {
     }
 
     // ============ 别名 ============
-    val aliasesFlow: Flow<Map<String, Pair<String, String?>>> = context.terminalDataStore.data.map { p ->
+                val aliasesFlow: Flow<Map<String, Pair<String, String?>>> = context.terminalDataStore.data.map { p ->
         val json = p[K.ALIASES] ?: return@map emptyMap()
         try {
             val o = JSONObject(json)
@@ -69,7 +69,7 @@ class TerminalPreferences(private val context: Context) {
     }
 
     // ============ 代码段 ============
-    val snippetsFlow: Flow<List<com.apex.agent.presentation.enhancedterminal.data.Snippet>> = context.terminalDataStore.data.map { p ->
+                val snippetsFlow: Flow<List<com.apex.agent.presentation.enhancedterminal.data.Snippet>> = context.terminalDataStore.data.map { p ->
         val json = p[K.SNIPPETS] ?: return@map emptyList()
         try {
             val arr = JSONArray(json)
@@ -101,7 +101,7 @@ class TerminalPreferences(private val context: Context) {
     }
 
     // ============ 主题 ============
-    val themeIdFlow: Flow<String> = context.terminalDataStore.data.map { p ->
+                val themeIdFlow: Flow<String> = context.terminalDataStore.data.map { p ->
         p[K.THEME_ID] ?: "apex_dark"
     }
 
@@ -110,7 +110,7 @@ class TerminalPreferences(private val context: Context) {
     }
 
     // ============ 字体大小 ============
-    val fontSizeFlow: Flow<Int> = context.terminalDataStore.data.map { p ->
+                val fontSizeFlow: Flow<Int> = context.terminalDataStore.data.map { p ->
         p[K.FONT_SIZE] ?: 12
     }
 

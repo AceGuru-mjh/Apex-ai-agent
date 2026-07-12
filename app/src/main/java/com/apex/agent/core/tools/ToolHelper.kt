@@ -89,7 +89,7 @@ object ToolHelper {
         sb.appendLine("参数列表，"
         parameters.forEach { param ->
             val required = if (param.required) "[必需]" else "[可选]"
-            val defaultValue = if (param.defaultValue != null) "(默认，{param.defaultValue})" else ""
+        val defaultValue = if (param.defaultValue != null) "(默认，{param.defaultValue})" else ""
             
             sb.appendLine("  ${required} ${param.name} (${param.type}): ${param.description} ${defaultValue}")
         }

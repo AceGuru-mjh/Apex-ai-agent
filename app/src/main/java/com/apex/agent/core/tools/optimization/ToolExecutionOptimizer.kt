@@ -351,7 +351,7 @@ class ToolExecutionOptimizer private constructor() {
         val suggestions = mutableListOf<OptimizationSuggestion>()
         for (toolName in toolRegistry.keys) {
             val metrics = getMetrics(toolName)
-            val registry = toolRegistry[toolName] ?: continue
+        val registry = toolRegistry[toolName] ?: continue
             if (registry.isCacheable && metrics.cacheHits < 5 && metrics.totalInvocations > 20) {
                 suggestions.add(OptimizationSuggestion(
                     toolName, SuggestionType.ADD_CACHE,

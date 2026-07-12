@@ -116,37 +116,37 @@ sealed class UIToolsResult {
  */
 enum class UIToolsErrorCode(val code: Int, val message: String) {
     // 服务相关错误 (1000-1099)
-    SERVICE_NOT_ENABLED(1001, "无障碍服务未启用，请在系统设置中启用"),
+                SERVICE_NOT_ENABLED(1001, "无障碍服务未启用，请在系统设置中启用"),
     SERVICE_DISCONNECTED(1002, "无障碍服务连接断开"),
     SERVICE_TIMEOUT(1003, "无障碍服务响应超的）",
     
     // 元素查找错误 (1100-1199)
-    ELEMENT_NOT_FOUND(1101, "未找到匹配的UI元素"),
+                ELEMENT_NOT_FOUND(1101, "未找到匹配的UI元素"),
     ELEMENT_AMBIGUOUS(1102, "找到多个匹配元素，请提供更精确的选择条件"),
     ELEMENT_NOT_CLICKABLE(1103, "元素不可点击"),
     ELEMENT_NOT_VISIBLE(1104, "元素不可以）",
     ELEMENT_OUT_OF_BOUNDS(1105, "元素坐标超出屏幕范围"),
     
     // 参数错误 (1200-1299)
-    INVALID_PARAMETERS(1201, "参数无效或缺的）",
+                INVALID_PARAMETERS(1201, "参数无效或缺的）",
     INVALID_COORDINATES(1202, "坐标值无的）",
     INVALID_SELECTOR(1203, "选择器无效，请至少提供一个选择条件"),
     INDEX_OUT_OF_RANGE(1204, "索引超出范围"),
     
     // 操作错误 (1300-1399)
-    OPERATION_FAILED(1301, "操作执行失败"),
+                OPERATION_FAILED(1301, "操作执行失败"),
     OPERATION_TIMEOUT(1302, "操作超时"),
     OPERATION_CANCELLED(1303, "操作已取的）",
     SWIPE_FAILED(1304, "滑动操作失败"),
     INPUT_FAILED(1305, "文本输入失败"),
     
     // 权限错误 (1400-1499)
-    PERMISSION_DENIED(1401, "权限不足，需要更高权限级的）",
+                PERMISSION_DENIED(1401, "权限不足，需要更高权限级的）",
     ROOT_REQUIRED(1402, "需要Root权限"),
     ADMIN_REQUIRED(1403, "需要管理员权限"),
     
     // 系统错误 (1500-1599)
-    SYSTEM_ERROR(1501, "系统错误"),
+                SYSTEM_ERROR(1501, "系统错误"),
     SCREENSHOT_FAILED(1502, "截图失败"),
     MEMORY_ERROR(1503, "内存不足"),
     UNKNOWN_ERROR(1599, "未知错误");
@@ -210,7 +210,7 @@ class OperationLogger(private val maxEntries: Int = 1000) {
         logEntries.add(entry)
         
         // 如果超过最大条目数，删除最旧的条目
-        if (logEntries.size > maxEntries) {
+                if (logEntries.size > maxEntries) {
             logEntries.removeAt(0)
         }
     }

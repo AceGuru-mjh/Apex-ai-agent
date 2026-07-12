@@ -24,7 +24,7 @@ class AppInitializer(private val context: Context) {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     // [优化2] 用于跟踪顺序执行 vs 并行执行的耗时对比
-    private val taskDurations = java.util.concurrent.atomic.AtomicLong(0L)
+                private val taskDurations = java.util.concurrent.atomic.AtomicLong(0L)
 
     sealed class InitializationPhase(val priority: Int) {
         data object Critical : InitializationPhase(0)
@@ -47,7 +47,7 @@ class AppInitializer(private val context: Context) {
     
     private fun registerTasks() {
         // Critical phase - needs to be done early but can be async
-        initializationTasks.add(
+                initializationTasks.add(
             InitializationTask(
                 name = "CustomEmojiRepository",
                 phase = InitializationPhase.Critical,
@@ -61,7 +61,7 @@ class AppInitializer(private val context: Context) {
         )
         
         // Normal phase - can wait a bit
-        initializationTasks.add(
+                initializationTasks.add(
             InitializationTask(
                 name = "TextSegmenter",
                 phase = InitializationPhase.Normal,
@@ -124,7 +124,7 @@ class AppInitializer(private val context: Context) {
         )
         
         // Low phase - can wait longer
-        initializationTasks.add(
+                initializationTasks.add(
             InitializationTask(
                 name = "UserProfileManager",
                 phase = InitializationPhase.Low,
@@ -231,7 +231,7 @@ class AppInitializer(private val context: Context) {
 
     // [优化] 各阶段仍保持顺序（Critical→Normal→Low）以保证依赖关系
     // 但每个阶段内部的任务改为并发执行 (async + awaitAll)
-    fun startInitialization() {
+                fun startInitialization() {
         AppLogger.d(TAG, "Starting phased initialization [并发模式]")
         
         applicationScope.launch {
@@ -246,7 +246,7 @@ class AppInitializer(private val context: Context) {
     // [优化] 同阶段任务并发执行，而非顺序等待
     // 旧方式 forEach { task.task() } — 总耗时 = 各任务耗时之和
     // 新方式 async + awaitAll — 总耗时 ≈ 最慢单个任务耗时
-    private suspend fun executePhase(phase: InitializationPhase, delayMs: Long) {
+                private suspend fun executePhase(phase: InitializationPhase, delayMs: Long) {
         if (delayMs > 0) {
             delay(delayMs)
         }
@@ -286,11 +286,11 @@ class AppInitializer(private val context: Context) {
     }
 
     // 健康检查：轻量级反射调用（避免直接耦合）
-    private object HealthCheckBridge {
+                private object HealthCheckBridge {
         fun recordPhaseExecution(context: Context, phaseName: String, sequentialTotalMs: Long, actualParallelMs: Long) {
             try {
                 val healthClass = Class.forName("com.apex.agent.core.application.ArchitectureHealthCheck")
-                val healthInstance = healthClass.getMethod("getInstance", Context::class.java)
+        val healthInstance = healthClass.getMethod("getInstance", Context::class.java)
                     .invoke(null, context.applicationContext)
                 val method = healthClass.getMethod(
                     "recordPhaseExecution",

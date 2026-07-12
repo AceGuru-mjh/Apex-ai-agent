@@ -72,7 +72,7 @@ class NetworkOptimizer(private val name: String = "network-opt") {
                 activeConnections.incrementAndGet()
                 totalConnections.incrementAndGet()
                 val start = System.nanoTime()
-                val result = block()
+        val result = block()
                 recordLatency(System.nanoTime() - start)
                 recordEndpointSuccess(url)
                 return result
@@ -184,7 +184,7 @@ class DnsOptimizer(private val name: String = "dns-opt") {
         val start = System.nanoTime()
         return try {
             val addresses = performDnsResolution(hostname)
-            val elapsed = System.nanoTime() - start
+        val elapsed = System.nanoTime() - start
             resolutionTimes.add(elapsed)
             while (resolutionTimes.size > 100) resolutionTimes.poll()
 
@@ -278,7 +278,7 @@ class ConnectionPoolOptimizer(private val name: String = "conn-pool") {
     init {
         for (i in 0 until minPoolSize) {
             val id = connectionCounter.incrementAndGet()
-            val conn = PooledConnection(id, "pool-$name", 0, System.currentTimeMillis(), System.currentTimeMillis(), false)
+        val conn = PooledConnection(id, "pool-$name", 0, System.currentTimeMillis(), System.currentTimeMillis(), false)
             connections[id] = conn
             idleConnections.add(id)
             totalCreated.incrementAndGet()
@@ -454,7 +454,7 @@ class RetryWithBackoff(private val name: String = "retry-backoff") {
                     throw e
                 }
                 val jitter = delay * policy.jitterFactor * (Math.random() - 0.5)
-                val actualDelay = (delay + jitter).toLong().coerceIn(1, policy.maxDelayMs)
+        val actualDelay = (delay + jitter).toLong().coerceIn(1, policy.maxDelayMs)
                 logger.debug("Retry {}/{} after {}ms: {}", attempt + 1, policy.maxRetries, actualDelay, e.message)
                 delay(actualDelay)
                 delay = (delay * policy.backoffMultiplier).toLong().coerceAtMost(policy.maxDelayMs)
@@ -597,7 +597,7 @@ class RequestBatcher<T, R>(
 
     suspend fun submitAll(items: List<Pair<String, T>>): List<R> {
         val deferredList = items.map { (key, _) ->
-            val d = CompletableDeferred<R>()
+        val d = CompletableDeferred<R>()
             deferreds[key] = d
             key to d
         }

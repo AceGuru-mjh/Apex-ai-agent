@@ -215,7 +215,7 @@ class ReinforcementLearningPlanner(private val context: Context) {
             ?.forEach { file ->
                 try {
                     val json = JSONObject(file.readText())
-                    val goal = Goal(
+        val goal = Goal(
                         id = json.getString("id"),
                         name = json.getString("name"),
                         description = json.getString("description"),
@@ -251,7 +251,6 @@ class ReinforcementLearningPlanner(private val context: Context) {
         priority: Priority = Priority.MEDIUM
     ): Plan = withContext(Dispatchers.IO) {
         val goal = activeGoals[goalId] ?: throw IllegalArgumentException("目标不存在")
-
         val steps = generatePlanSteps(goal)
 
         val plan = Plan(
@@ -275,7 +274,6 @@ class ReinforcementLearningPlanner(private val context: Context) {
 
     private fun generatePlanSteps(goal: Goal): List<PlanStep> {
         val steps = mutableListOf<PlanStep>()
-
         val stepNames = listOf(
             "问题分析",
             "收集信息",
@@ -347,7 +345,7 @@ class ReinforcementLearningPlanner(private val context: Context) {
             ?.forEach { file ->
                 try {
                     val json = JSONObject(file.readText())
-                    val stepsJson = json.getJSONArray("steps")
+        val stepsJson = json.getJSONArray("steps")
                     val steps = mutableListOf<PlanStep>()
 
                     for (i in 0 until stepsJson.length()) {
@@ -403,7 +401,6 @@ class ReinforcementLearningPlanner(private val context: Context) {
 
     suspend fun startPlan(planId: String): Boolean = withContext(Dispatchers.IO) {
         val plan = activePlans[planId] ?: return@withContext false
-
         val updatedPlan = plan.copy(
             status = PlanStatus.IN_PROGRESS,
             startedAt = System.currentTimeMillis()
@@ -416,7 +413,6 @@ class ReinforcementLearningPlanner(private val context: Context) {
 
     suspend fun completePlan(planId: String, success: Boolean, feedback: String? = null): Float = withContext(Dispatchers.IO) {
         val plan = activePlans[planId] ?: return@withContext -1f
-
         val completedSteps = plan.steps.count { it.status == StepStatus.COMPLETED }
         val totalSteps = plan.steps.size
         val successRate = if (totalSteps > 0) completedSteps.toFloat() / totalSteps.toFloat() else 0f
@@ -560,7 +556,6 @@ class ReinforcementLearningPlanner(private val context: Context) {
 
     suspend fun updateGoalProgress(goalId: String, newValue: Float): Boolean = withContext(Dispatchers.IO) {
         val goal = activeGoals[goalId] ?: return@withContext false
-
         val updatedGoal = goal.copy(
             currentValue = newValue
         )

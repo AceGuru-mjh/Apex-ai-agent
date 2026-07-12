@@ -7,9 +7,9 @@ import org.json.JSONObject
  */
 enum class ProvenanceSource {
     MANUAL,           // 手动创建
-    AUTO_EXTRACTED,   // 自动提取
-    IMPORTED,         // 外部导入
-    EVOLVED           // 演化生成
+                AUTO_EXTRACTED,   // 自动提取
+                IMPORTED,         // 外部导入
+                EVOLVED           // 演化生成
 }
 
 /**

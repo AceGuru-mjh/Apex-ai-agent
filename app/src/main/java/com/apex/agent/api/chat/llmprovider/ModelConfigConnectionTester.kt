@@ -118,7 +118,7 @@ object ModelConfigConnectionTester {
 
                     suspend fun runToolCallTest(toolName: String) {
                         val toolTagName = ChatMarkupRegex.generateRandomToolTagName()
-                        val toolResultTagName = ChatMarkupRegex.generateRandomToolResultTagName()
+        val toolResultTagName = ChatMarkupRegex.generateRandomToolResultTagName()
                         val testHistory = mutableListOf("system" to "You are a helpful assistant.")
                         testHistory.add(
                             "assistant" to
@@ -145,7 +145,7 @@ object ModelConfigConnectionTester {
             if (configForTest.enableDirectImageProcessing) {
                 runCase(ModelConnectionTestType.IMAGE) {
                     val imageFile = AssetCopyUtils.copyAssetToCache(context, "test/1.jpg")
-                    val imageId = ImagePoolManager.addImage(imageFile.absolutePath)
+        val imageId = ImagePoolManager.addImage(imageFile.absolutePath)
                     if (imageId == "error") {
                         throw IllegalStateException("Failed to create test image")
                     }
@@ -173,7 +173,7 @@ object ModelConfigConnectionTester {
             if (configForTest.enableDirectAudioProcessing) {
                 runCase(ModelConnectionTestType.AUDIO) {
                     val audioFile = AssetCopyUtils.copyAssetToCache(context, "test/1.mp3")
-                    val audioId = MediaPoolManager.addMedia(audioFile.absolutePath, "audio/mpeg")
+        val audioId = MediaPoolManager.addMedia(audioFile.absolutePath, "audio/mpeg")
                     if (audioId == "error") {
                         throw IllegalStateException("Failed to create test audio")
                     }
@@ -201,7 +201,7 @@ object ModelConfigConnectionTester {
             if (configForTest.enableDirectVideoProcessing) {
                 runCase(ModelConnectionTestType.VIDEO) {
                     val videoFile = AssetCopyUtils.copyAssetToCache(context, "test/1.mp4")
-                    val videoId = MediaPoolManager.addMedia(videoFile.absolutePath, "video/mp4")
+        val videoId = MediaPoolManager.addMedia(videoFile.absolutePath, "video/mp4")
                     if (videoId == "error") {
                         throw IllegalStateException("Failed to create test video")
                     }

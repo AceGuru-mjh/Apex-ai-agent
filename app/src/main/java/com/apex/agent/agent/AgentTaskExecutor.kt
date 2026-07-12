@@ -125,8 +125,7 @@ class AgentTaskExecutor(
 
                 // 执行（带重试）
                 val result = executeWithRetry(agent, task, config, taskId, onStateUpdate)
-
-                val finalState = if (result.success) {
+        val finalState = if (result.success) {
                     TaskExecutionState.Completed(result)
                 } else {
                     TaskExecutionState.Failed(
@@ -209,8 +208,7 @@ class AgentTaskExecutor(
     }
 
     // ===== 内部方法 =====
-
-    private suspend fun executeWithRetry(
+                private suspend fun executeWithRetry(
         agent: SubAgent,
         task: SubTask,
         config: TaskExecutionConfig,
@@ -223,7 +221,7 @@ class AgentTaskExecutor(
         val totalAttempts = config.maxRetries + 1
         for (attempt in 1..totalAttempts) {
             // 检查是否已取消
-            kotlinx.coroutines.coroutineScope {
+                kotlinx.coroutines.coroutineScope {
                 ensureNotCancelled(taskId)
             }
 
@@ -255,12 +253,12 @@ class AgentTaskExecutor(
             lastResult = result
 
             // 成功则返回
-            if (result.success) {
+                if (result.success) {
                 return result
             }
 
             // 最后一次尝试不再等待
-            if (attempt < totalAttempts) {
+                if (attempt < totalAttempts) {
                 // 通知重试
                 if (config.enableProgress) {
                     val progressState = TaskExecutionState.Progress(

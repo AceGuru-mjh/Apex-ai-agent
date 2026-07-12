@@ -41,8 +41,7 @@ class SkillExtractor(
             }
 
             val subtaskJson = serializeSubtasks(subtasks)
-
-            val skill = SkillTemplate(
+        val skill = SkillTemplate(
                 taskType = mainTask.taskType,
                 taskDescription = mainTask.description,
                 subtaskStructure = subtaskJson,
@@ -83,7 +82,7 @@ class SkillExtractor(
                 )
 
             val newTotalExecutions = existingSkill.totalExecutions + 1
-            val newSuccessfulExecutions = existingSkill.successfulExecutions + if (taskResult.success) 1 else 0
+        val newSuccessfulExecutions = existingSkill.successfulExecutions + if (taskResult.success) 1 else 0
             val newSuccessRate = newSuccessfulExecutions.toFloat() / newTotalExecutions
 
             skillDao.updateSkillStats(

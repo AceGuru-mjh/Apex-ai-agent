@@ -132,7 +132,7 @@ class MemoryCacheStore<V>(
     override fun evict(policy: CachePolicy): List<String> {
         lock.write {
             val evictedKeys = mutableListOf<String>()
-            val candidates = when (policy) {
+        val candidates = when (policy) {
                 is CachePolicy.TtlPolicy -> {
                     store.values.filter { it.isExpired() }.map { it.key }
                 }
@@ -204,11 +204,11 @@ class MemoryCacheStore<V>(
     private fun evictIfNeeded() {
         if (maxSize > 0 && store.size > maxSize) {
             val overage = store.size - maxSize
-            val entries = store.values.sortedBy { it.lastAccessedAt }
+        val entries = store.values.sortedBy { it.lastAccessedAt }
             for (i in 0 until overage) {
                 if (i >= entries.size) break
                 val key = entries[i].key
-                val removed = store.remove(key)
+        val removed = store.remove(key)
                 if (removed != null) {
                     currentMemoryBytes -= removed.sizeBytes.coerceAtLeast(0)
                     evictions++

@@ -51,7 +51,7 @@ data class ExportFilter(
     val startDate: Long? = null,
     val endDate: Long? = null,
     val roles: Set<String> = emptySet(),  // 空=全部
-    val searchQuery: String? = null,
+                val searchQuery: String? = null,
     val tags: Set<String> = emptySet()
 )
 
@@ -151,8 +151,7 @@ class ConversationExporter {
     }
 
     // ============ 格式实现 ============
-
-    private fun exportToMarkdown(
+                private fun exportToMarkdown(
         messages: List<ExportMessage>,
         title: String,
         options: ExportOptions
@@ -379,14 +378,13 @@ class ConversationExporter {
         options: ExportOptions
     ): String {
         // PDF 生成需要专门库（如 iText/PDFBox），这里返回 HTML 作为占位
-        return exportToHtml(messages, title, options).also {
+                return exportToHtml(messages, title, options).also {
             // 添加 PDF 提示
         }
     }
 
     // ============ 辅助方法 ============
-
-    private fun applyFilter(messages: List<ExportMessage>, filter: ExportFilter): List<ExportMessage> {
+                private fun applyFilter(messages: List<ExportMessage>, filter: ExportFilter): List<ExportMessage> {
         return messages.filter { msg ->
             (filter.startDate == null || msg.timestamp >= filter.startDate) &&
             (filter.endDate == null || msg.timestamp <= filter.endDate) &&
@@ -430,26 +428,26 @@ class ConversationExporter {
     private fun markdownToHtml(md: String): String {
         var html = escapeHtml(md)
         // 代码块
-        html = Regex("```(\\w*)\\n([\\s\\S]*?)```").replace(html) { m ->
+                html = Regex("```(\\w*)\\n([\\s\\S]*?)```").replace(html) { m ->
             "<pre><code class=\"language-${m.groupValues[1]}\">${m.groupValues[2]}</code></pre>"
         }
         // 标题
-        html = Regex("^#{6}\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<h6>$1</h6>")
+                html = Regex("^#{6}\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<h6>$1</h6>")
         html = Regex("^#{5}\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<h5>$1</h5>")
         html = Regex("^#{4}\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<h4>$1</h4>")
         html = Regex("^#{3}\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<h3>$1</h3>")
         html = Regex("^#{2}\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<h2>$1</h2>")
         html = Regex("^#{1}\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<h1>$1</h1>")
         // 加粗
-        html = Regex("\\*\\*(.+?)\\*\\*").replace(html, "<strong>$1</strong>")
+                html = Regex("\\*\\*(.+?)\\*\\*").replace(html, "<strong>$1</strong>")
         // 斜体
-        html = Regex("\\*(.+?)\\*").replace(html, "<em>$1</em>")
+                html = Regex("\\*(.+?)\\*").replace(html, "<em>$1</em>")
         // 行内代码
-        html = Regex("`(.+?)`").replace(html, "<code>$1</code>")
+                html = Regex("`(.+?)`").replace(html, "<code>$1</code>")
         // 列表
-        html = Regex("^[-*+]\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<li>$1</li>")
+                html = Regex("^[-*+]\\s+(.+)$", RegexOption.MULTILINE).replace(html, "<li>$1</li>")
         // 段落
-        html = Regex("\n\n").replace(html, "</p><p>")
+                html = Regex("\n\n").replace(html, "</p><p>")
         return "<p>$html</p>"
     }
 

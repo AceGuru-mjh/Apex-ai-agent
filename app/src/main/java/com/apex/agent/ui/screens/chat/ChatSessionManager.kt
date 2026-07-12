@@ -95,7 +95,7 @@ class ChatSessionManager(context: Context) {
         s.messageCount = messageCount
         s.updatedAt = System.currentTimeMillis()
         // 如果标题是默认的"新对话"，自动用最后消息生成标题
-        if (s.title == "新对话" && lastMessage.isNotBlank()) {
+                if (s.title == "新对话" && lastMessage.isNotBlank()) {
             s.title = lastMessage.take(20).let { if (lastMessage.length > 20) "$it..." else it }
         }
         persist()

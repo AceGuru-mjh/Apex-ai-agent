@@ -134,13 +134,13 @@ class MtsEngine private constructor(
         if (orchestrator != null) {
             return withTimeout(timeoutMinutes * 60_000L) {
                 val startTime = System.currentTimeMillis()
-                val results = coroutineScope {
+        val results = coroutineScope {
                     calls.map { call ->
                         async { orchestrator.executeBerserk(call) }
                     }.map { it.await() }
                 }
                 val succeeded = results.count { it.outcome is ToolOutcome.Success }
-                val failed = results.count { it.outcome is ToolOutcome.Failure }
+        val failed = results.count { it.outcome is ToolOutcome.Failure }
                 val cancelled = results.count { it.outcome is ToolOutcome.Cancelled }
                 results.forEach { r ->
                     observability.recordCall(
@@ -192,7 +192,7 @@ class MtsEngine private constructor(
                         rawName = toolName
                     )
                     val plan = listOf(call)
-                    val summary = execute(plan, ExecutionContext(agentMode = AgentMode.BERSERK))
+        val summary = execute(plan, ExecutionContext(agentMode = AgentMode.BERSERK))
                     summary.results.firstOrNull()
                 }
             }.mapNotNull { it.await() }
@@ -202,7 +202,7 @@ class MtsEngine private constructor(
     val summary: String
         get() {
             val toolCount = registry.size()
-            val dist = modeDistribution
+        val dist = modeDistribution
             val metrics = observability.summary
             return """
 MTS Engine Status
@@ -245,9 +245,9 @@ $metrics
 
         fun build(): MtsEngine {
             val executor = SmartExecutor(registry, invoker, executorConfig)
-            val optimizer = PromptOptimizer(registry)
+        val optimizer = PromptOptimizer(registry)
             val adapter = ToolCallProtocolAdapter()
-            val orchestrator = BerserkModeOrchestrator(registry, invoker)
+        val orchestrator = BerserkModeOrchestrator(registry, invoker)
             return MtsEngine(registry, router, executor, optimizer, adapter, observability, orchestrator)
         }
     }

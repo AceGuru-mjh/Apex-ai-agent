@@ -59,7 +59,7 @@ object TimeUtils {
     fun formatTimestamp(millis: Long, pattern: String, timeZone: TimeZone): String {
         return try {
             val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
-            val zoneId = timeZone.toZoneId()
+        val zoneId = timeZone.toZoneId()
             LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), zoneId).format(formatter)
         } catch (_: Exception) {
             ""
@@ -76,7 +76,7 @@ object TimeUtils {
     fun parseTimestamp(dateString: String, pattern: String = DEFAULT_PATTERN): Long? {
         return try {
             val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
-            val localDateTime = LocalDateTime.parse(dateString, formatter)
+        val localDateTime = LocalDateTime.parse(dateString, formatter)
             localDateTime.atZone(defaultZoneId).toInstant().toEpochMilli()
         } catch (_: Exception) {
             null

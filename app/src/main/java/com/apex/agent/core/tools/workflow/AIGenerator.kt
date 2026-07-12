@@ -125,7 +125,6 @@ class AIGenerator {
 
     private fun extractTriggerConfig(description: String): Map<String, String> {
         val config = mutableMapOf<String, String>()
-
         val timeRegex = Regex("(\\d{1,2})点|(\\d{1,2}):(\\d{2})")
         timeRegex.find(description)?.let { match ->
             config["time"] = match.value
@@ -174,7 +173,6 @@ class AIGenerator {
 
     suspend fun suggestImprovements(workflow: Workflow): List<String> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<String>()
-
         val nodeTypes = workflow.nodes.map { it.type }.distinct()
         if (nodeTypes.size < 2) {
             suggestions.add("工作流较为简单，可以考虑添加更多节点")

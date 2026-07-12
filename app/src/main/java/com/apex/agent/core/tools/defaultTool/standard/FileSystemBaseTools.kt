@@ -29,7 +29,7 @@ open class FileSystemBaseTools(protected val context: Context) {
     }
 
     // Linux文件系统工具实例
-    protected val linuxTools: LinuxFileSystemTools by lazy {
+                protected val linuxTools: LinuxFileSystemTools by lazy {
         LinuxFileSystemTools(context)
     }
 
@@ -52,7 +52,7 @@ open class FileSystemBaseTools(protected val context: Context) {
         val environment = tool.parameters.find { it.name == "environment" }?.value
 
         // 如果是Linux环境，委托给LinuxFileSystemTools
-        if (isLinuxEnvironment(environment)) {
+                if (isLinuxEnvironment(environment)) {
             return linuxTools.listFiles(tool)
         }
         if (isSafEnvironment(environment)) {
@@ -91,7 +91,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             }
 
             val entries = mutableListOf<DirectoryListingData.FileEntry>()
-            val files = directory.listFiles() ?: emptyArray()
+        val files = directory.listFiles() ?: emptyArray()
 
             val dateFormat = SimpleDateFormat("MMM dd HH:mm", Locale.US)
 
@@ -132,12 +132,12 @@ open class FileSystemBaseTools(protected val context: Context) {
     protected fun getFilePermissions(file: File): String {
         // Java has limited capabilities for getting Unix-style file permissions
         // This is a simplified version that checks basic permissions
-        val canRead = if (file.canRead()) 'r' else '-'
+                val canRead = if (file.canRead()) 'r' else '-'
         val canWrite = if (file.canWrite()) 'w' else '-'
         val canExecute = if (file.canExecute()) 'x' else '-'
 
         // For simplicity, we'll use the same permissions for user, group, and others
-        return "${canRead}${canWrite}${canExecute}${canRead}-${canExecute}${canRead}-${canExecute}"
+                return "${canRead}${canWrite}${canExecute}${canRead}-${canExecute}${canRead}-${canExecute}"
     }
 
     /** Read file content */
@@ -230,7 +230,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             val file = File(path)
 
             // Create parent directory if it doesn't exist
-            file.parentFile?.let { parent ->
+                file.parentFile?.let { parent ->
                 if (!parent.exists()) {
                     parent.mkdirs()
                 }
@@ -283,7 +283,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             val file = File(path)
 
             // Create parent directory if it doesn't exist
-            file.parentFile?.let { parent ->
+                file.parentFile?.let { parent ->
                 if (!parent.exists()) {
                     parent.mkdirs()
                 }
@@ -333,7 +333,7 @@ open class FileSystemBaseTools(protected val context: Context) {
 
         return try {
             val file = File(path)
-            val exists = file.exists()
+        val exists = file.exists()
             AppLogger.d(TAG, "Checked file existence: ${path} -> ${exists}")
 
             return ToolResult(
@@ -461,10 +461,10 @@ open class FileSystemBaseTools(protected val context: Context) {
             }
 
             val startLine = startLineStr.toIntOrNull() ?: 1
-            val endLine = endLineStr.toIntOrNull() ?: 100
+        val endLine = endLineStr.toIntOrNull() ?: 100
 
             val content = readLinesFromFile(file, startLine - 1, endLine)
-            val totalLines = countFileLines(file)
+        val totalLines = countFileLines(file)
 
             AppLogger.d(TAG, "Read file part ${path}, lines ${startLine}-${endLine} of ${totalLines}")
 
@@ -499,7 +499,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             }
         }
         // Remove last newline if content is not empty
-        if (partContent.isNotEmpty()) {
+                if (partContent.isNotEmpty()) {
             partContent.setLength(partContent.length - 1)
         }
         return partContent.toString()

@@ -94,7 +94,7 @@ class DatabaseBatchProcessor(
         batches.incrementAndGet()
         val start = System.nanoTime()
         // In a real implementation, this would call the actual database handler
-        batchTimeNs.addAndGet(System.nanoTime() - start)
+                batchTimeNs.addAndGet(System.nanoTime() - start)
         written.addAndGet(batch.size.toLong())
         throughputCounter.addAndGet(batch.size)
     }
@@ -564,7 +564,7 @@ class DatabaseShardManager(
         val shardSize = Long.MAX_VALUE / shardCount
         for (i in 0 until shardCount) {
             val start = i * shardSize
-            val end = if (i == shardCount - 1) Long.MAX_VALUE else (i + 1) * shardSize - 1
+        val end = if (i == shardCount - 1) Long.MAX_VALUE else (i + 1) * shardSize - 1
             shardKeyRanges[i] = start..end
             shards[i] = ShardInfo(i, "shard-$i", true, 0.0, 0)
         }

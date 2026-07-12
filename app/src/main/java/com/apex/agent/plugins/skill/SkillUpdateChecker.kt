@@ -32,13 +32,13 @@ class SkillUpdateChecker private constructor(private val context: Context) {
     private val pluginManager = SkillPluginManager.getInstance(context)
 
     private val _availableUpdates = MutableStateFlow<List<SkillPluginUpdate>>(emptyList())
-    val availableUpdates: StateFlow<List<SkillPluginUpdate>> = _availableUpdates.asStateFlow()
+        val availableUpdates: StateFlow<List<SkillPluginUpdate>> = _availableUpdates.asStateFlow()
 
     private val _lastCheckTime = MutableStateFlow(0L)
-    val lastCheckTime: StateFlow<Long> = _lastCheckTime.asStateFlow()
+        val lastCheckTime: StateFlow<Long> = _lastCheckTime.asStateFlow()
 
     private val _isChecking = MutableStateFlow(false)
-    val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
+        val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
 
     private val notifiedUpdates = ConcurrentHashMap.newKeySet<String>()
 
@@ -88,7 +88,7 @@ class SkillUpdateChecker private constructor(private val context: Context) {
             AppLogger.i(TAG, "开始更新插件 ${update.pluginId} (${update.currentVersion} -> ${update.latestVersion})")
 
             val pluginManager = pluginManager
-            val existingPlugin = pluginManager.getPlugin(update.pluginId)
+        val existingPlugin = pluginManager.getPlugin(update.pluginId)
             if (existingPlugin == null) {
                 return@withContext Result.failure(Exception("插件 ${update.pluginId} 未安装"))
             }
@@ -97,8 +97,7 @@ class SkillUpdateChecker private constructor(private val context: Context) {
             pluginManager.unregisterPlugin(update.pluginId)
 
             val downloadedFile = marketplace.downloadPlugin(update.pluginId)
-
-            val loader = SkillPluginLoader.getInstance(context)
+        val loader = SkillPluginLoader.getInstance(context)
             val newPlugin = loader.loadPlugin(downloadedFile)
             newPlugin.onLoad(context)
 

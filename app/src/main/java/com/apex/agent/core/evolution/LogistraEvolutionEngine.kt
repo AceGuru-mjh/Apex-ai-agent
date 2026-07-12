@@ -39,7 +39,7 @@ class LogistraAgentEvolutionEngine(
         val behaviorStr = agentBehavior.joinToString("\n")
         
         // 记录到记忆系结
-       val memory = memoryRepository.createMemory(
+                val memory = memoryRepository.createMemory(
             title = "智能体执行taskType行为",
             content = "智能体执行taskType行为：\n${behaviorStr}\n（用户userId的"
             source = "apex_evolution",
@@ -49,7 +49,7 @@ class LogistraAgentEvolutionEngine(
         
         if (memory != null) {
             // 更新重要性为0.6f
-            memory.importance = 0.6f
+                memory.importance = 0.6f
             memory.initialStrength = 0.6f
             memory.memoryStrength = 0.6f
             memoryRepository.saveMemory(memory)
@@ -69,10 +69,10 @@ class LogistraAgentEvolutionEngine(
         taskGoal: String
     ): Float = withContext(Dispatchers.IO) {
         // 简化版评估逻辑（实际应该用LLM的
-       val behaviorStr = agentBehavior.joinToString("\n")
+                val behaviorStr = agentBehavior.joinToString("\n")
         
         // 基于行为完成度和目标匹配度进行评的
-       val completionScore = minOf(agentBehavior.size.toFloat() / 5, 1.0f) * 5
+                val completionScore = minOf(agentBehavior.size.toFloat() / 5, 1.0f) * 5
         val relevanceScore = if (behaviorStr.contains(taskGoal.substring(0, minOf(10, taskGoal.length)))) {
             5.0f
         } else {
@@ -101,11 +101,11 @@ class LogistraAgentEvolutionEngine(
         iterationCount++
         
         // 获取用户画像
-        val userProfile = memoryRepository.getHonzonProfile(userId)
+                val userProfile = memoryRepository.getHonzonProfile(userId)
         val nonEmptyDimensions = userProfile.getNonEmptyDimensions()
         
         // 生成优化策略（简化版，实际应该用LLM的
-       val optimizationLevel = when {
+                val optimizationLevel = when {
             effectScore < 6.0f -> "大幅优化"
             effectScore < 8.0f -> "小幅优化"
             else -> "微调"
@@ -148,7 +148,7 @@ class LogistraAgentEvolutionEngine(
         }
         
         // 记录优化后的策略到记的
-       val strategyMemory = memoryRepository.createMemory(
+                val strategyMemory = memoryRepository.createMemory(
             title = "优化的taskType策略（迭代iterationCount的"
             content = optimizedStrategy,
             source = "apex_evolution",
@@ -158,7 +158,7 @@ class LogistraAgentEvolutionEngine(
         
         if (strategyMemory != null) {
             // 更新重要性为0.8f
-            strategyMemory.importance = 0.8f
+                strategyMemory.importance = 0.8f
             strategyMemory.initialStrength = 0.8f
             strategyMemory.memoryStrength = 0.8f
             memoryRepository.saveMemory(strategyMemory)
@@ -187,28 +187,27 @@ class LogistraAgentEvolutionEngine(
         AppLogger.d(TAG, "Starting evolution loop for task: ${taskType}, user: ${userId}")
         
         // 1. 行为记录
-        recordBehavior(agentBehavior, taskType, userId)
+                recordBehavior(agentBehavior, taskType, userId)
         
         // 2. 效果评估
-        val effectScore = evaluateEffect(agentBehavior, taskGoal)
+                val effectScore = evaluateEffect(agentBehavior, taskGoal)
         
         // 3. 策略优化（基于当前用户的个性化策略的
-       val currentStrategy = memoryRepository.generatePersonalizedStrategyPrompt(
+                val currentStrategy = memoryRepository.generatePersonalizedStrategyPrompt(
             memoryRepository.getHonzonProfile(userId),
             taskType
         )
         val optimizedStrategy = optimizeStrategy(taskType, userId, currentStrategy, effectScore)
         
         // 4. 技能沉淀
-        val skillPath = skillEvolutionManager.extractSkill(
+                val skillPath = skillEvolutionManager.extractSkill(
             agentBehavior = agentBehavior,
             taskType = taskType,
             errorCases = errorCases
         )
         
         // 迭代收敛判断的0-500次迭代收敛）
-        val convergence = iterationCount >= 100 && effectScore >= 9.0f
-        
+                val convergence = iterationCount >= 100 && effectScore >= 9.0f
         val result = EvolutionResult(
             optimizedStrategy = optimizedStrategy,
             skillPath = skillPath,

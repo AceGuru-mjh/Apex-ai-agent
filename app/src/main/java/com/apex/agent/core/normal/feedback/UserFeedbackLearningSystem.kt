@@ -22,22 +22,22 @@ import java.util.concurrent.ConcurrentHashMap
  */
 enum class FeedbackType {
     // 显式反馈
-    THUMBS_UP,       // 点赞
-    THUMBS_DOWN,     // 点踩
-    STAR_RATING,     // 星级评分
-    TEXT_FEEDBACK,   // 文字反馈
-    REPORT_ISSUE,    // 问题报告
+                THUMBS_UP,       // 点赞
+                THUMBS_DOWN,     // 点踩
+                STAR_RATING,     // 星级评分
+                TEXT_FEEDBACK,   // 文字反馈
+                REPORT_ISSUE,    // 问题报告
 
     // 隐式反馈
-    ACCEPTED,        // 采纳（未编辑）
-    EDITED,          // 编辑后采纳
-    REGENERATED,     // 要求重新生成
-    COPIED,          // 复制了回答
-    IGNORED,         // 忽略（未互动）
-    LONG_DWELL,      // 长时间停留
-    QUICK_DISMISS,   // 快速关闭
-    FOLLOWED_UP,     // 追问
-    SWITCHED_TOPIC   // 切换话题
+                ACCEPTED,        // 采纳（未编辑）
+                EDITED,          // 编辑后采纳
+                REGENERATED,     // 要求重新生成
+                COPIED,          // 复制了回答
+                IGNORED,         // 忽略（未互动）
+                LONG_DWELL,      // 长时间停留
+                QUICK_DISMISS,   // 快速关闭
+                FOLLOWED_UP,     // 追问
+                SWITCHED_TOPIC   // 切换话题
 }
 
 /**
@@ -50,7 +50,7 @@ data class FeedbackRecord(
     val messageId: String,
     val type: FeedbackType,
     val value: Any? = null,           // 评分值/编辑内容/反馈文本
-    val originalContent: String? = null,
+                val originalContent: String? = null,
     val editedContent: String? = null,
     val context: FeedbackContext,
     val timestamp: Long = System.currentTimeMillis()
@@ -95,15 +95,15 @@ data class FeedbackInsight(
 
 enum class InsightType {
     PREFERRED_LENGTH,       // 偏好长度
-    PREFERRED_STYLE,        // 偏好风格
-    PREFERRED_DEPTH,        // 偏好深度
-    PREFERRED_FORMAT,       // 偏好格式
-    DISLIKED_PATTERN,       // 不喜欢的模式
-    HIGHLY_RATED_PATTERN,   // 高分模式
-    IMPROVEMENT_AREA,       // 改进方向
-    TOOL_PREFERENCE,        // 工具偏好
-    SCENE_PREFERENCE,       // 场景偏好
-    RESPONSE_TIME_SENSITIVITY  // 响应时间敏感度
+                PREFERRED_STYLE,        // 偏好风格
+                PREFERRED_DEPTH,        // 偏好深度
+                PREFERRED_FORMAT,       // 偏好格式
+                DISLIKED_PATTERN,       // 不喜欢的模式
+                HIGHLY_RATED_PATTERN,   // 高分模式
+                IMPROVEMENT_AREA,       // 改进方向
+                TOOL_PREFERENCE,        // 工具偏好
+                SCENE_PREFERENCE,       // 场景偏好
+                RESPONSE_TIME_SENSITIVITY  // 响应时间敏感度
 }
 
 /**
@@ -120,7 +120,7 @@ class UserFeedbackLearningSystem {
     fun record(feedback: FeedbackRecord) {
         feedbacks.computeIfAbsent(feedback.userId) { mutableListOf() }.add(feedback)
         // 触发学习
-        analyzeAndLearn(feedback.userId)
+                analyzeAndLearn(feedback.userId)
     }
 
     /**
@@ -178,16 +178,13 @@ class UserFeedbackLearningSystem {
         val positive = userFeedbacks.count { isPositive(it.type) }
         val negative = userFeedbacks.count { isNegative(it.type) }
         val neutral = total - positive - negative
-
         val ratings = userFeedbacks.filter { it.type == FeedbackType.STAR_RATING }
             .mapNotNull { (it.value as? Number)?.toFloat() }
         val avgRating = if (ratings.isNotEmpty()) ratings.average().toFloat() else 0f
-
         val editCount = userFeedbacks.count { it.type == FeedbackType.EDITED }
         val regenerateCount = userFeedbacks.count { it.type == FeedbackType.REGENERATED }
         val acceptedCount = userFeedbacks.count { it.type == FeedbackType.ACCEPTED }
         val responses = userFeedbacks.mapNotNull { it.context.assistantResponse }.distinct().size.coerceAtLeast(1)
-
         val byType = userFeedbacks.groupingBy { it.type }.eachCount()
 
         return FeedbackStats(
@@ -232,36 +229,34 @@ class UserFeedbackLearningSystem {
     private fun analyzeAndLearn(userId: String) {
         val userFeedbacks = feedbacks[userId] ?: return
         if (userFeedbacks.size < 5) return  // 至少 5 条反馈才开始学习
-
-        val newInsights = mutableListOf<FeedbackInsight>()
+                val newInsights = mutableListOf<FeedbackInsight>()
 
         // 分析 1: 偏好长度
-        newInsights.add(analyzePreferredLength(userFeedbacks))
+                newInsights.add(analyzePreferredLength(userFeedbacks))
 
         // 分析 2: 偏好风格
-        newInsights.add(analyzePreferredStyle(userFeedbacks))
+                newInsights.add(analyzePreferredStyle(userFeedbacks))
 
         // 分析 3: 偏好深度
-        newInsights.add(analyzePreferredDepth(userFeedbacks))
+                newInsights.add(analyzePreferredDepth(userFeedbacks))
 
         // 分析 4: 不喜欢的模式
-        analyzeDislikedPatterns(userFeedbacks)?.let { newInsights.add(it) }
+                analyzeDislikedPatterns(userFeedbacks)?.let { newInsights.add(it) }
 
         // 分析 5: 高分模式
-        analyzeHighlyRatedPatterns(userFeedbacks)?.let { newInsights.add(it) }
+                analyzeHighlyRatedPatterns(userFeedbacks)?.let { newInsights.add(it) }
 
         // 分析 6: 改进方向
-        analyzeImprovementAreas(userFeedbacks)?.let { newInsights.add(it) }
+                analyzeImprovementAreas(userFeedbacks)?.let { newInsights.add(it) }
 
         // 分析 7: 响应时间敏感度
-        newInsights.add(analyzeResponseTimeSensitivity(userFeedbacks))
+                newInsights.add(analyzeResponseTimeSensitivity(userFeedbacks))
 
         insights[userId] = newInsights.filter { it.confidence > 0.5f }.toMutableList()
     }
 
     // ============ 分析方法 ============
-
-    private fun analyzePreferredLength(feedbacks: List<FeedbackRecord>): FeedbackInsight {
+                private fun analyzePreferredLength(feedbacks: List<FeedbackRecord>): FeedbackInsight {
         val positive = feedbacks.filter { isPositive(it.type) }
         val negative = feedbacks.filter { isNegative(it.type) }
 
@@ -290,14 +285,14 @@ class UserFeedbackLearningSystem {
         val edited = feedbacks.filter { it.type == FeedbackType.EDITED }
 
         // 分析编辑模式：用户把什么改成了什么
-        var formalToCasual = 0
+                var formalToCasual = 0
         var casualToFormal = 0
         var addedEmoji = 0
         var removedEmoji = 0
 
         for (fb in edited) {
             val original = fb.originalContent ?: ""
-            val edited = fb.editedContent ?: ""
+        val edited = fb.editedContent ?: ""
 
             if (original.contains(Regex("尊敬的|烦请|敬请")) && edited.contains(Regex("嘿|哈喽|hi"))) formalToCasual++
             if (edited.contains(Regex("尊敬的|烦请|敬请")) && original.contains(Regex("嘿|哈喽|hi"))) casualToFormal++
@@ -345,7 +340,7 @@ class UserFeedbackLearningSystem {
         if (negative.size < 3) return null
 
         // 分析负面反馈的共同特征
-        val patterns = mutableMapOf<String, Int>()
+                val patterns = mutableMapOf<String, Int>()
 
         negative.forEach { fb ->
             val response = fb.context.assistantResponse
@@ -399,10 +394,10 @@ class UserFeedbackLearningSystem {
         if (edited.size < 3) return null
 
         // 分析用户常修改什么
-        val editTypes = mutableMapOf<String, Int>()
+                val editTypes = mutableMapOf<String, Int>()
         edited.forEach { fb ->
             val orig = fb.originalContent ?: ""
-            val edited = fb.editedContent ?: ""
+        val edited = fb.editedContent ?: ""
             when {
                 edited.length < orig.length * 0.8 -> editTypes["缩短"] = (editTypes["缩短"] ?: 0) + 1
                 edited.length > orig.length * 1.2 -> editTypes["扩充"] = (editTypes["扩充"] ?: 0) + 1
@@ -451,7 +446,7 @@ class UserFeedbackLearningSystem {
 
     private fun isPositive(type: FeedbackType): Boolean = type in setOf(
         FeedbackType.THUMBS_UP, FeedbackType.STAR_RATING,  // 评分视为正面（实际应判断值）
-        FeedbackType.ACCEPTED, FeedbackType.COPIED, FeedbackType.FOLLOWED_UP, FeedbackType.LONG_DWELL
+                FeedbackType.ACCEPTED, FeedbackType.COPIED, FeedbackType.FOLLOWED_UP, FeedbackType.LONG_DWELL
     )
 
     private fun isNegative(type: FeedbackType): Boolean = type in setOf(

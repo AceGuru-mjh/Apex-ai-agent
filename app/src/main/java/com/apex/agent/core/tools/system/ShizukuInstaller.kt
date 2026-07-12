@@ -22,7 +22,7 @@ class ShizukuInstaller {
         private const val SHIZUKU_PACKAGE_NAME = "moe.shizuku.privileged.api"
         
         // 缓存版本信息，避免重复计，
-       private var cachedInstalledVersion: String? = null
+                private var cachedInstalledVersion: String? = null
         private var cachedBundledVersion: String? = null
         private var cachedUpdateNeeded: Boolean? = null
         private var lastCheckTime: Long = 0
@@ -72,8 +72,8 @@ class ShizukuInstaller {
         fun installBundledShizuku(context: Context): Boolean {
             try {
                 // 记录是安装还是更文
-               val isUpdate = ShizukuAuthorizer.isShizukuInstalled(context)
-                val action = if (isUpdate) context.getString(R.string.shizuku_install_update) else context.getString(R.string.shizuku_install_install)
+                val isUpdate = ShizukuAuthorizer.isShizukuInstalled(context)
+        val action = if (isUpdate) context.getString(R.string.shizuku_install_update) else context.getString(R.string.shizuku_install_install)
 
                 AppLogger.d(TAG, "开，{action}内置Shizuku")
 
@@ -87,7 +87,7 @@ class ShizukuInstaller {
                 AppLogger.d(TAG, "APK提取成功: ${apkFile.absolutePath}, 大小: ${apkFile.length()} 字节")
 
                 // 生成APK的URI，考虑文件提供者权限
-               val apkUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val apkUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(
                         context,
                         "${context.packageName}.fileprovider",
@@ -114,7 +114,7 @@ class ShizukuInstaller {
                 context.startActivity(installIntent)
 
                 // 清除缓存，强制下次检测重新计，
-               clearCache()
+                clearCache()
 
                 return true
             } catch (e: Exception) {
@@ -130,7 +130,7 @@ class ShizukuInstaller {
          */
         fun getBundledShizukuVersion(context: Context): String {
             // 优先使用缓存
-            if (cachedBundledVersion != null && !isCacheExpired()) {
+                if (cachedBundledVersion != null && !isCacheExpired()) {
                 AppLogger.i(TAG, "从缓存获取内置Shizuku版本: ${cachedBundledVersion}")
                 return cachedBundledVersion!!
             }
@@ -158,14 +158,14 @@ class ShizukuInstaller {
          */
         fun getInstalledShizukuVersion(context: Context): String? {
             // 优先使用缓存
-            if (cachedInstalledVersion != null && !isCacheExpired()) {
+                if (cachedInstalledVersion != null && !isCacheExpired()) {
                 AppLogger.i(TAG, "从缓存获取已安装Shizuku版本: ${cachedInstalledVersion}")
                 return cachedInstalledVersion
             }
             
             try {
                 val packageManager = context.packageManager
-                val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     packageManager.getPackageInfo(SHIZUKU_PACKAGE_NAME, PackageManager.PackageInfoFlags.of(0))
                 } else {
                     @Suppress("DEPRECATION")
@@ -194,7 +194,7 @@ class ShizukuInstaller {
          */
         fun isShizukuUpdateNeeded(context: Context): Boolean {
             // 优先使用缓存
-            if (cachedUpdateNeeded != null && !isCacheExpired()) {
+                if (cachedUpdateNeeded != null && !isCacheExpired()) {
                 AppLogger.d(TAG, "从缓存获取Shizuku更新状态${cachedUpdateNeeded}")
                 return cachedUpdateNeeded!!
             }
@@ -210,7 +210,7 @@ class ShizukuInstaller {
             }
 
             val bundledVersion = getBundledShizukuVersion(context)
-            val unknown = context.getString(R.string.shizuku_install_unknown)
+        val unknown = context.getString(R.string.shizuku_install_unknown)
             if (bundledVersion == unknown) {
                 AppLogger.d(TAG, "无法获取内置版本信息，不建议更新")
                 cachedUpdateNeeded = false
@@ -221,13 +221,13 @@ class ShizukuInstaller {
             try {
                 // 提取主版本号部分 (例如 "13.5.0.r1234" -> "13.5.0")
                 val installedMainVersion = extractMainVersion(installedVersion)
-                val bundledMainVersion = extractMainVersion(bundledVersion)
+        val bundledMainVersion = extractMainVersion(bundledVersion)
                 // 将版本号分割为数字数据
-               val installed = installedMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
-                val bundled = bundledMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
+                val installed = installedMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
+        val bundled = bundledMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
 
                 // 比较主要版本，
-               for (i in 0 until minOf(installed.size, bundled.size)) {
+                for (i in 0 until minOf(installed.size, bundled.size)) {
                     if (bundled[i] > installed[i]) {
                         AppLogger.d(TAG, "需要更文内置版本 ${bundled[i]} > 已安装版有{installed[i]} (位置: ${i})")
                         cachedUpdateNeeded = true
@@ -243,7 +243,7 @@ class ShizukuInstaller {
                 }
 
                 // 如果前面的版本号都相同，但bundled有更多的版本号段，则认为需要更文
-               val updateNeeded = bundled.size > installed.size
+                val updateNeeded = bundled.size > installed.size
                 cachedUpdateNeeded = updateNeeded
                 updateCacheTimestamp()
                 return updateNeeded
@@ -261,8 +261,8 @@ class ShizukuInstaller {
          */
         private fun extractMainVersion(version: String): String {
             // 正则表达式匹配主版本号部，x.y.z)
-            val mainVersionRegex = """^(\d+)\.(\d+)\.(\d+)""".toRegex()
-            val matchResult = mainVersionRegex.find(version)
+                val mainVersionRegex = """^(\d+)\.(\d+)\.(\d+)""".toRegex()
+        val matchResult = mainVersionRegex.find(version)
             
             val result = matchResult?.value ?: version.split("-", ".", "+", " ").take(3).joinToString(".")
             return result

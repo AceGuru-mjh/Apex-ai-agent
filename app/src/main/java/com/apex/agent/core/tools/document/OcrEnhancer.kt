@@ -35,7 +35,7 @@ class OcrEnhancer {
                 ?: return@withContext OcrResult("", 0f, emptyList(), "auto")
 
             val inputImage = InputImage.fromBitmap(bitmap, 0)
-            val result = processTextRecognition(inputImage)
+        val result = processTextRecognition(inputImage)
 
             bitmap.recycle()
 
@@ -68,10 +68,10 @@ class OcrEnhancer {
                 ?: return@withContext TableOcrResult(emptyList(), 0f, "")
 
             val inputImage = InputImage.fromBitmap(bitmap, 0)
-            val result = processTextRecognition(inputImage)
+        val result = processTextRecognition(inputImage)
 
             val tables = detectTables(result)
-            val fullText = result.text
+        val fullText = result.text
 
             bitmap.recycle()
 
@@ -91,11 +91,11 @@ class OcrEnhancer {
                 ?: return@withContext HandwritingResult("", 0f, emptyList())
 
             val enhancedImage = enhanceImage(imageData)
-            val enhancedBitmap = ByteArrayInputStream(enhancedImage).use { BitmapFactory.decodeStream(it) }
+        val enhancedBitmap = ByteArrayInputStream(enhancedImage).use { BitmapFactory.decodeStream(it) }
                 ?: bitmap
 
             val inputImage = InputImage.fromBitmap(enhancedBitmap, 0)
-            val recognitionResult = processTextRecognition(inputImage)
+        val recognitionResult = processTextRecognition(inputImage)
 
             val words = mutableListOf<HandwritingWord>()
             recognitionResult.textBlocks.forEach { block ->
@@ -136,7 +136,7 @@ class OcrEnhancer {
                 ?: return@withContext imageData
 
             val contrast = 1.5f
-            val brightness = 20f
+        val brightness = 20f
             val colorMatrix = ColorMatrix(
                 floatArrayOf(
                     contrast, 0f, 0f, 0f, brightness,
@@ -147,7 +147,7 @@ class OcrEnhancer {
             )
 
             val outputBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(outputBitmap)
+        val canvas = Canvas(outputBitmap)
             val paint = Paint().apply {
                 colorFilter = ColorMatrixColorFilter(colorMatrix)
             }
@@ -199,7 +199,7 @@ class OcrEnhancer {
 
         sortedBlocks.forEachIndexed { index, block ->
             val currentBox = block.boundingBox
-            val nextBox = sortedBlocks.getOrNull(index + 1)?.boundingBox
+        val nextBox = sortedBlocks.getOrNull(index + 1)?.boundingBox
 
             currentRow.add(block)
 

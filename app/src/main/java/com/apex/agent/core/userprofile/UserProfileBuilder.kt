@@ -26,16 +26,16 @@ class UserProfileBuilder(
         AppLogger.d(TAG, "开始从对话历史构建用户画像: ${userId}, 消息数量: ${chatMessages.size}")
         
         // 获取现有用户画像
-        val profile = memoryRepository.getHonzonProfile(userId)
+                val profile = memoryRepository.getHonzonProfile(userId)
         
         // 分析对话内容
-        analyzeChatContent(chatMessages, profile)
+                analyzeChatContent(chatMessages, profile)
         
         // 分析对话模式
-        analyzeChatPatterns(chatMessages, profile)
+                analyzeChatPatterns(chatMessages, profile)
         
         // 分析用户偏好
-        analyzeUserPreferences(chatMessages, profile)
+                analyzeUserPreferences(chatMessages, profile)
         
         AppLogger.d(TAG, "用户画像构建完成，有效维的${profile.getNonEmptyDimensions().size}")
         profile
@@ -46,20 +46,20 @@ class UserProfileBuilder(
     */
     private fun analyzeChatContent(messages: List<ChatMessage>, profile: HonzonUserProfile) {
         // 过滤用户消息
-        val userMessages = messages.filter { it.sender == "user" }
+                val userMessages = messages.filter { it.sender == "user" }
         if (userMessages.isEmpty()) return
         
         // 提取职业信息
-        extractOccupation(userMessages, profile)
+                extractOccupation(userMessages, profile)
         
         // 提取兴趣爱好
-        extractInterests(userMessages, profile)
+                extractInterests(userMessages, profile)
         
         // 提取沟通风的
-       extractCommunicationStyle(userMessages, profile)
+                extractCommunicationStyle(userMessages, profile)
         
         // 提取需求偏好
-       extractNeeds(userMessages, profile)
+                extractNeeds(userMessages, profile)
     }
     
     /**
@@ -82,7 +82,7 @@ class UserProfileBuilder(
             val content = message.content
             
             // 检查关键词
-            for (keyword in occupationKeywords) {
+                for (keyword in occupationKeywords) {
                 if (content.contains(keyword)) {
                     profile.updateDimension("职业场景", keyword)
                     return
@@ -90,7 +90,7 @@ class UserProfileBuilder(
             }
             
             // 检查模型
-          for (pattern in occupationPatterns) {
+                for (pattern in occupationPatterns) {
                 val matcher = Pattern.compile(pattern).matcher(content)
                 if (matcher.find()) {
                     val occupation = matcher.group(1)?.trim() ?: matcher.group(2)?.trim()
@@ -152,15 +152,15 @@ class UserProfileBuilder(
             val content = message.content
             
             // 分析消息长度
-            if (content.length < 20) {
+                if (content.length < 20) {
                 conciseCount++
             } else if (content.length > 100) {
                 detailedCount++
             }
             
             // 分析语言风格
-            val formalKeywords = listOf("的 "谢谢", "您好", "请问", "麻烦的）
-            val casualKeywords = listOf("的 "的 "的 "呀", "的 "的）"
+                val formalKeywords = listOf("的 "谢谢", "您好", "请问", "麻烦的）
+        val casualKeywords = listOf("的 "的 "的 "呀", "的 "的）"
             
             for (keyword in formalKeywords) {
                 if (content.contains(keyword)) {
@@ -197,7 +197,6 @@ class UserProfileBuilder(
     */
     private fun extractNeeds(messages: List<ChatMessage>, profile: HonzonUserProfile) {
         val needs = mutableMapOf<String, Int>()
-        
         val needKeywords = mapOf(
             "技术支的to listOf("技能 "问题", "故障", "bug", "修复"),
             "信息查询" to listOf("查询", "搜索", "信息", "数据", "资料"),
@@ -234,11 +233,11 @@ class UserProfileBuilder(
      */
     private fun analyzeChatPatterns(messages: List<ChatMessage>, profile: HonzonUserProfile) {
         // 分析对话频率
-        val messageCount = messages.size
+                val messageCount = messages.size
         val avgLength = messages.map { it.content.length }.average()
         
         // 分析回复速度（简化版有
-      val responsePattern = when {
+                val responsePattern = when {
             messageCount > 50 -> "高频"
             messageCount > 20 -> "中频"
             else -> "低频"
@@ -259,7 +258,7 @@ class UserProfileBuilder(
      */
     private fun analyzeUserPreferences(messages: List<ChatMessage>, profile: HonzonUserProfile) {
         // 分析时间偏好
-        val hourDistribution = mutableMapOf<Int, Int>()
+                val hourDistribution = mutableMapOf<Int, Int>()
         for (message in messages) {
             val hour = message.timestamp.substring(11, 13).toIntOrNull() ?: 0
             hourDistribution[hour] = hourDistribution.getOrDefault(hour, 0) + 1
@@ -279,7 +278,7 @@ class UserProfileBuilder(
         }
         
         // 分析话题偏好
-        val topicKeywords = mapOf(
+                val topicKeywords = mapOf(
             "技能to listOf("技能 "编程", "软件", "硬件", "开的）",
             "生活" to listOf("生活", "日常", "家庭", "朋友", "娱乐"),
             "工作" to listOf("工作", "职场", "业务", "项目", "任务"),
@@ -313,7 +312,7 @@ class UserProfileBuilder(
     suspend fun saveProfile(userId: String, profile: HonzonUserProfile): Boolean = withContext(Dispatchers.IO) {
         try {
             // 保存每个维度
-            for ((dimension, value) in profile.getNonEmptyDimensions()) {
+                for ((dimension, value) in profile.getNonEmptyDimensions()) {
                 memoryRepository.updateHonzonProfile(userId, dimension, value)
             }
             AppLogger.d(TAG, "用户画像保存成功: ${userId}")

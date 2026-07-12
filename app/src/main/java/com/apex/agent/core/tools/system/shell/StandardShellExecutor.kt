@@ -19,19 +19,18 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
     companion object {
         private const val TAG = "StandardShellExecutor"
         private const val COMMAND_TIMEOUT = 30L //    }
-
-    override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.STANDARD
+                override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.STANDARD
 
     override fun isAvailable(): Boolean = true // 标准执行器始终可。
-    override fun hasPermission(): ShellExecutor.PermissionStatus =
+                override fun hasPermission(): ShellExecutor.PermissionStatus =
             ShellExecutor.PermissionStatus.granted() // 标准执行器不需要额外权。
-    override fun initialize() {
+                override fun initialize() {
         // 标准执行器不需要初始化
     }
 
     override fun requestPermission(onResult: (Boolean) -> Unit) {
         // 标准监听器不需要额外权限
-       onResult(true)
+                onResult(true)
     }
 
     override suspend fun executeCommand(
@@ -43,14 +42,15 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
 
                 try {
                     // 判断是否包含shell特殊字符
-                    if (containsShellOperators(command)) {
+                if (containsShellOperators(command)) {
                         return@withContext executeWithShell(command)
                     }
 
-                    // 使用Runtime执行简单命                   val process = Runtime.getRuntime().exec(command)
+                    // 使用Runtime执行简单命
+                val process = Runtime.getRuntime().exec(command)
 
                     // 设置超时
-                    val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
+                val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
                     if (!completed) {
                         process.destroy()
                         return@withContext ShellExecutor.CommandResult(
@@ -62,13 +62,13 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 读取标准输出
-                    val stdout =
+                val stdout =
                             BufferedReader(InputStreamReader(process.inputStream)).use {
                                 it.readText()
                             }
 
                     // 读取错误输出
-                    val stderr =
+                val stderr =
                             BufferedReader(InputStreamReader(process.errorStream)).use {
                                 it.readText()
                             }
@@ -101,10 +101,10 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
             withContext(Dispatchers.IO) {
                 try {
                     // 使用sh -c执行带有shell特性的命令
-                    val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
+                val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
 
                     // 设置超时
-                    val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
+                val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
                     if (!completed) {
                         process.destroy()
                         return@withContext ShellExecutor.CommandResult(
@@ -116,13 +116,13 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 读取标准输出
-                    val stdout =
+                val stdout =
                             BufferedReader(InputStreamReader(process.inputStream)).use {
                                 it.readText()
                             }
 
                     // 读取错误输出
-                    val stderr =
+                val stderr =
                             BufferedReader(InputStreamReader(process.errorStream)).use {
                                 it.readText()
                             }
@@ -130,7 +130,7 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                     val exitCode = process.exitValue()
 
                     // 对于grep命令，即使没有匹配也认为成功
-                    val success =
+                val success =
                             if (command.contains("grep")) {
                                 exitCode == 0 || exitCode == 1
                             } else {
@@ -161,7 +161,7 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
     */
     private fun containsShellOperators(command: String): Boolean {
         // 预处理：标记引号内的内容，避免检测引号内的操作符
-        var inSingleQuotes = false
+                var inSingleQuotes = false
         var inDoubleQuotes = false
         var escaped = false
         var i = 0
@@ -170,26 +170,27 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
             val c = command[i]
 
             // 处理转义字符
-            if (c == '\\' && !escaped) {
+                if (c == '\\' && !escaped) {
                 escaped = true
                 i++
                 continue
             }
 
             // 处理引号
-            if (c == '\'' && !escaped && !inDoubleQuotes) {
+                if (c == '\'' && !escaped && !inDoubleQuotes) {
                 inSingleQuotes = !inSingleQuotes
             } else if (c == '"' && !escaped && !inSingleQuotes) {
                 inDoubleQuotes = !inDoubleQuotes
             }
             // 只在不在引号内时检测操作符
-            else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {
+                else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {
                 // 检测管，
-               if (c == '|') {
+                if (c == '|') {
                     return true
                 }
 
-                // 检  操作               if (c == '&') {
+                // 检  操作
+                if (c == '&') {
                     return true
                 }
 
@@ -199,7 +200,7 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                 }
 
                 // 检测分前
-               if (c == ';') {
+                if (c == ';') {
                     return true
                 }
             }
@@ -269,7 +270,7 @@ private class StandardShellProcess(command: String) : ShellProcess {
          */
         private fun containsShellOperators(command: String): Boolean {
             // 预处理：标记引号内的内容，避免检测引号内的操作符
-            var inSingleQuotes = false
+                var inSingleQuotes = false
             var inDoubleQuotes = false
             var escaped = false
             var i = 0
@@ -292,20 +293,23 @@ private class StandardShellProcess(command: String) : ShellProcess {
                 }
                 // 只在不在引号内时检测操作符
                 else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {
-                    // 检测管                   if (c == '|') {
+                    // 检测管
+                if (c == '|') {
                         return true
                     }
 
-                    // 检  操作                   if (c == '&') {
+                    // 检  操作
+                if (c == '&') {
                         return true
                     }
 
                     // 检测重定向
-                    if (c == '>' || c == '<') {
+                if (c == '>' || c == '<') {
                         return true
                     }
 
-                    // 检测分                   if (c == ';') {
+                    // 检测分
+                if (c == ';') {
                         return true
                     }
                 }

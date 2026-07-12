@@ -53,7 +53,7 @@ class HermesCoreExtensions(private val name: String = "hermes-ext") {
         totalOperations.incrementAndGet()
         return try {
             val result = block()
-            val duration = (System.nanoTime() - start) / 1_000_000
+        val duration = (System.nanoTime() - start) / 1_000_000
             recordOperation(operationName, duration, true)
             result
         } catch (e: Exception) {
@@ -69,7 +69,7 @@ class HermesCoreExtensions(private val name: String = "hermes-ext") {
         totalOperations.incrementAndGet()
         return try {
             val result = block()
-            val duration = (System.nanoTime() - start) / 1_000_000
+        val duration = (System.nanoTime() - start) / 1_000_000
             recordOperation(operationName, duration, true)
             result
         } catch (e: Exception) {
@@ -293,7 +293,6 @@ class TaskExecutionOptimizer(private val name: String = "task-exec") {
             else -> 3
         }
         val isCacheable = durations.all { it < 1000 } && total > 10
-
         val profile = TaskProfile(
             taskType = taskType,
             averageDurationMs = avg.toLong(),
@@ -360,7 +359,6 @@ class MemoryOptimizer(private val name: String = "memory-opt") {
         val gcBeans = java.lang.management.ManagementFactory.getGarbageCollectorMXBeans()
         val totalGcCount = gcBeans.sumOf { it.collectionCount }
         val totalGcTime = gcBeans.sumOf { it.collectionTime.toLong() }
-
         val prevFree = previousFreeMemory.getAndSet(runtime.freeMemory())
         val prevTime = previousTime.getAndSet(System.nanoTime())
         val currentFree = runtime.freeMemory()

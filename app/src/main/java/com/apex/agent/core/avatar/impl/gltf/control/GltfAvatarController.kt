@@ -18,25 +18,25 @@ class GltfAvatarController(
     override val state: StateFlow<AvatarState> = _state.asStateFlow()
 
     private val _scale = MutableStateFlow(1.0f)
-    val scale: StateFlow<Float> = _scale.asStateFlow()
+        val scale: StateFlow<Float> = _scale.asStateFlow()
 
     private val _translateX = MutableStateFlow(0.0f)
-    val translateX: StateFlow<Float> = _translateX.asStateFlow()
+        val translateX: StateFlow<Float> = _translateX.asStateFlow()
 
     private val _translateY = MutableStateFlow(0.0f)
-    val translateY: StateFlow<Float> = _translateY.asStateFlow()
+        val translateY: StateFlow<Float> = _translateY.asStateFlow()
 
     private val _cameraPitch = MutableStateFlow(8.0f)
-    val cameraPitch: StateFlow<Float> = _cameraPitch.asStateFlow()
+        val cameraPitch: StateFlow<Float> = _cameraPitch.asStateFlow()
 
     private val _cameraYaw = MutableStateFlow(0.0f)
-    val cameraYaw: StateFlow<Float> = _cameraYaw.asStateFlow()
+        val cameraYaw: StateFlow<Float> = _cameraYaw.asStateFlow()
 
     private val _cameraDistanceScale = MutableStateFlow(0.5f)
-    val cameraDistanceScale: StateFlow<Float> = _cameraDistanceScale.asStateFlow()
+        val cameraDistanceScale: StateFlow<Float> = _cameraDistanceScale.asStateFlow()
 
     private val _cameraTargetHeight = MutableStateFlow(0.0f)
-    val cameraTargetHeight: StateFlow<Float> = _cameraTargetHeight.asStateFlow()
+        val cameraTargetHeight: StateFlow<Float> = _cameraTargetHeight.asStateFlow()
 
     private val _availableAnimations = MutableStateFlow(model.normalizedDeclaredAnimationNames)
     override val availableAnimations: List<String>
@@ -182,7 +182,7 @@ class GltfAvatarController(
         triggerAnimationMapping =
             mapping.entries.mapNotNull { (rawKey, rawAnimationName) ->
                 val key = AvatarMoodTypes.normalizeKey(rawKey)
-                val animationName = rawAnimationName.trim()
+        val animationName = rawAnimationName.trim()
                 if (key.isBlank() || animationName.isBlank()) {
                     return@mapNotNull null
                 }

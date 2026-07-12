@@ -38,7 +38,7 @@ class FileAgent : LifecycleAwareBaseSubAgent(
     override suspend fun onInitialize() {
         AppLogger.d(TAG, "Initializing FileAgent...")
         // 文件 Agent 无需特殊初始化，标记为已就绪
-        initialized = true
+                initialized = true
         AppLogger.i(TAG, "FileAgent initialized successfully")
     }
 
@@ -53,10 +53,10 @@ class FileAgent : LifecycleAwareBaseSubAgent(
 
     override suspend fun healthCheck(): Boolean {
         // 文件 Agent 健康条件：已初始化且文件系统可访问
-        if (!initialized) return false
+                if (!initialized) return false
         return try {
             // 简单检查：能否访问当前目录
-            java.io.File(".").exists()
+                java.io.File(".").exists()
         } catch (e: Exception) {
             AppLogger.w(TAG, "FileAgent health check failed: ${e.message}")
             false
@@ -70,7 +70,7 @@ class FileAgent : LifecycleAwareBaseSubAgent(
         return try {
             // 文件操作的实际执行由工具系统（AIToolHandler）处理，
             // 此处返回成功占位结果，实际工具调用在 TaskScheduler 层完成。
-            val result = SubTaskResult(
+                val result = SubTaskResult(
                 taskId = task.taskId,
                 success = true,
                 executionTime = System.currentTimeMillis() - startTime,
@@ -118,7 +118,7 @@ class GeneralAgent : LifecycleAwareBaseSubAgent(
     private var initialized = false
 
     // GeneralAgent 可以处理任何任务类型（兜底）
-    override fun canHandle(taskType: String): Boolean = true
+                override fun canHandle(taskType: String): Boolean = true
 
     override suspend fun onInitialize() {
         AppLogger.d(TAG, "Initializing GeneralAgent...")
@@ -144,7 +144,7 @@ class GeneralAgent : LifecycleAwareBaseSubAgent(
         return try {
             // 通用任务通过 LLM + 工具系统协作完成，
             // 此处返回成功占位结果，实际执行在 TaskScheduler 层。
-            val result = SubTaskResult(
+                val result = SubTaskResult(
                 taskId = task.taskId,
                 success = true,
                 executionTime = System.currentTimeMillis() - startTime,

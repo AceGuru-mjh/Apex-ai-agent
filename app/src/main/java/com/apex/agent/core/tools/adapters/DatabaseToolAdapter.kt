@@ -18,11 +18,10 @@ class DatabaseToolAdapter : ToolAdapter {
     private val connections = ConcurrentHashMap<String, Connection>()
     
     // 简单的查询缓存
-    private val queryCache = mutableMapOf<String, CachedQueryResult>()
+                private val queryCache = mutableMapOf<String, CachedQueryResult>()
     private val MAX_CACHE_SIZE = 50
     private val CACHE_EXPIRE_TIME = 5 * 60 * 1000L // 5分钟
-
-    override fun getName(): String {
+                override fun getName(): String {
         return "database"
     }
 
@@ -83,23 +82,23 @@ class DatabaseToolAdapter : ToolAdapter {
 
         try {
             // 如果连接已存在，先关间
-           connections[connectionId]?.let {
+                connections[connectionId]?.let {
                 if (!it.isClosed) {
                     it.close()
                 }
             }
 
             // 加载驱动
-            Class.forName(driver)
+                Class.forName(driver)
             
             // 创建连接
-            val connection = DriverManager.getConnection(url, username, password)
+                val connection = DriverManager.getConnection(url, username, password)
             
             // 设置连接属态
-           connection.autoCommit = true
+                connection.autoCommit = true
             
             // 保存连接
-            connections[connectionId] = connection
+                connections[connectionId] = connection
             
             StringResultData("成功连接到数据库，连接ID，connectionId")
         } catch (e: ClassNotFoundException) {
@@ -115,7 +114,6 @@ class DatabaseToolAdapter : ToolAdapter {
         val params = parameters["params"] as? List<*> ?: emptyList()
         val useCache = parameters["use_cache"] as? Boolean ?: true
         val timeout = (parameters["timeout"] as? Int ?: 30)
-
         val connection = connections[connectionId] 
             ?: return@withContext StringResultData("错误：未连接到数据库，请先执行connect操作")
         
@@ -124,7 +122,7 @@ class DatabaseToolAdapter : ToolAdapter {
         }
 
         // 检查缓字
-       val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
+                val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
         if (useCache) {
             queryCache[cacheKey]?.let { cached ->
                 if (System.currentTimeMillis() - cached.timestamp < CACHE_EXPIRE_TIME) {
@@ -144,11 +142,11 @@ class DatabaseToolAdapter : ToolAdapter {
             }
 
             val resultSet = statement.executeQuery()
-            val result = StringBuilder()
+        val result = StringBuilder()
 
             if (resultSet != null) {
                 val metaData = resultSet.metaData
-                val columnCount = metaData.columnCount
+        val columnCount = metaData.columnCount
 
                 // 输出列名
                 for (i in 1..columnCount) {
@@ -158,7 +156,7 @@ class DatabaseToolAdapter : ToolAdapter {
                 result.append("\n")
 
                 // 输出分隔，
-               for (i in 1..columnCount) {
+                for (i in 1..columnCount) {
                     val columnNameLength = metaData.getColumnName(i).length
                     result.append("-".repeat(columnNameLength))
                     if (i < columnCount) result.append("\t")
@@ -182,7 +180,7 @@ class DatabaseToolAdapter : ToolAdapter {
             statement.close()
 
             // 缓存结果
-            if (useCache) {
+                if (useCache) {
                 if (queryCache.size >= MAX_CACHE_SIZE) {
                     val oldestKey = queryCache.keys.firstOrNull()
                     oldestKey?.let { queryCache.remove(it) }
@@ -218,7 +216,7 @@ class DatabaseToolAdapter : ToolAdapter {
             }
 
             val affectedRows = statement.executeUpdate()
-            val generatedKeys = statement.generatedKeys
+        val generatedKeys = statement.generatedKeys
 
             val result = StringBuilder()
             result.append("${affectedRows}")

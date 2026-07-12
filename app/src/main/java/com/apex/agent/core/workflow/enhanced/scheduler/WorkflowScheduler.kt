@@ -86,7 +86,7 @@ class WorkflowScheduler(
     }
 
     private val _events = MutableSharedFlow<ScheduleEvent>(extraBufferCapacity = 64)
-    val events: SharedFlow<ScheduleEvent> = _events.asSharedFlow()
+        val events: SharedFlow<ScheduleEvent> = _events.asSharedFlow()
 
     private val jobs = ConcurrentHashMap<String, ScheduledJob>()
     private val jobCoroutines = ConcurrentHashMap<String, Job>()
@@ -94,7 +94,7 @@ class WorkflowScheduler(
 
     init {
         // 启动时从持久化加载
-        scope.launch {
+                scope.launch {
             persistor?.loadAll()?.forEach { job ->
                 if (job.enabled) startJobLoop(job)
                 jobs[job.id] = job
@@ -272,7 +272,7 @@ class WorkflowScheduler(
             var current = job
             while (true) {
                 val nextRun = current.nextRunAt ?: break
-                val now = System.currentTimeMillis()
+        val now = System.currentTimeMillis()
                 val waitMs = (nextRun - now).coerceAtLeast(0)
 
                 if (waitMs > 0) delay(waitMs)
@@ -325,7 +325,7 @@ class WorkflowScheduler(
         val start = System.currentTimeMillis()
         return try {
             val result = executor.execute(job.workflow, job.inputs)
-            val updated = jobs[job.id]?.copy(lastResult = result)
+        val updated = jobs[job.id]?.copy(lastResult = result)
             if (updated != null) {
                 jobs[job.id] = updated
                 persistor?.save(updated)

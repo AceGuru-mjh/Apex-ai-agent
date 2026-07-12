@@ -19,11 +19,11 @@ import java.util.concurrent.ConcurrentHashMap
 
 enum class BattleMode {
     DEBATE,          // 辩论
-    RAP_BATTLE,      // 说唱对战
-    POETRY_DUEL,     // 诗词对决
-    STORYTELLING,    // 故事接龙对决
-    EXPLAIN_OFF,     // 解释大比拼
-    PERSUASION       // 说服力对决
+                RAP_BATTLE,      // 说唱对战
+                POETRY_DUEL,     // 诗词对决
+                STORYTELLING,    // 故事接龙对决
+                EXPLAIN_OFF,     // 解释大比拼
+                PERSUASION       // 说服力对决
 }
 
 data class BattleContestant(
@@ -31,8 +31,8 @@ data class BattleContestant(
     val name: String,
     val avatar: String,
     val persona: String,            // 性格设定
-    val style: String,              // 说话风格
-    val catchphrase: String
+                val style: String,              // 说话风格
+                val catchphrase: String
 )
 
 data class BattleRound(
@@ -77,8 +77,7 @@ class BattleModeSystem {
     private val sessions = ConcurrentHashMap<String, BattleSession>()
     private val contestants = mutableListOf<BattleContestant>()
     private val leaderboard = ConcurrentHashMap<String, Int>()  // contestantId -> wins
-
-    init {
+                init {
         registerBuiltinContestants()
     }
 
@@ -134,12 +133,11 @@ class BattleModeSystem {
         val newScoreA = session.scoreA + if (winner == BattleSide.A) 1 else 0
         val newScoreB = session.scoreB + if (winner == BattleSide.B) 1 else 0
         val newStatus = if (session.currentRound >= session.maxRounds) BattleStatus.FINISHED else BattleStatus.ONGOING
-
         val updated = session.copy(rounds = rounds, scoreA = newScoreA, scoreB = newScoreB, status = newStatus)
         sessions[sessionId] = updated
 
         // 更新排行榜
-        if (newStatus == BattleStatus.FINISHED) {
+                if (newStatus == BattleStatus.FINISHED) {
             val winnerId = when {
                 newScoreA > newScoreB -> session.contestantA.id
                 newScoreB > newScoreA -> session.contestantB.id

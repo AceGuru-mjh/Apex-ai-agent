@@ -84,7 +84,7 @@ object ReflectionUtils {
     fun getStaticFieldValue(className: String, fieldName: String): Any? {
         return try {
             val clazz = Class.forName(className)
-            val field = clazz.getDeclaredField(fieldName)
+        val field = clazz.getDeclaredField(fieldName)
             field.isAccessible = true
             val modifiers = Field::class.java.getDeclaredField("modifiers")
             modifiers.isAccessible = true
@@ -105,7 +105,7 @@ object ReflectionUtils {
     fun setStaticFieldValue(className: String, fieldName: String, value: Any) {
         try {
             val clazz = Class.forName(className)
-            val field = clazz.getDeclaredField(fieldName)
+        val field = clazz.getDeclaredField(fieldName)
             field.isAccessible = true
             val modifiers = Field::class.java.getDeclaredField("modifiers")
             modifiers.isAccessible = true
@@ -127,7 +127,7 @@ object ReflectionUtils {
         val paramTypes = args.map { it?.javaClass ?: Any::class.java }.toTypedArray()
         return try {
             val clazz = Class.forName(className)
-            val method = clazz.getDeclaredMethod(methodName, *paramTypes)
+        val method = clazz.getDeclaredMethod(methodName, *paramTypes)
             method.isAccessible = true
             method.invoke(null, *args)
         } catch (e: Exception) {
@@ -226,7 +226,7 @@ object ReflectionUtils {
         val paramTypes = args.map { it?.javaClass ?: Any::class.java }.toTypedArray()
         return try {
             val clazz = Class.forName(className)
-            val constructor = clazz.getDeclaredConstructor(*paramTypes)
+        val constructor = clazz.getDeclaredConstructor(*paramTypes)
             constructor.isAccessible = true
             constructor.newInstance(*args)
         } catch (e: Exception) {

@@ -152,7 +152,7 @@ class SessionMemoryBridge(
         for (session in relevantSessions.take(3)) {
             sb.appendLine("- Previous task: ${session.content.take(100)}")
             val sessionEdges = kg.getNeighbors(session.id, maxDepth = 1)
-            val decisions = sessionEdges.map { it.first }.filter { it.type == NodeType.FACT }
+        val decisions = sessionEdges.map { it.first }.filter { it.type == NodeType.FACT }
             if (decisions.isNotEmpty()) {
                 sb.appendLine("  Relevant decisions:")
                 decisions.take(3).forEach { sb.appendLine("  * ${it.content.take(80)}") }

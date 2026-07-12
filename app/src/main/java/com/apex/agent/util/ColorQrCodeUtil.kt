@@ -60,7 +60,6 @@ object ColorQrCodeUtil {
         val version = chooseVersion(all.size, bitsPerSymbol)
         val qr = buildSkeletonQr(version)
         val dim = qr.matrix.width
-
         val functionPattern = buildFunctionPattern(version)
         val availableSymbols = dim * dim - countSetBits(functionPattern)
         val requiredSymbols = ceil(all.size * 8.0 / bitsPerSymbol).toInt()
@@ -71,13 +70,12 @@ object ColorQrCodeUtil {
         val sizeModules = dim + marginModules * 2
         val sizePx = sizeModules * moduleSizePx
         val pixels = IntArray(sizePx * sizePx) { Color.WHITE }
-
         val bitReader = BitReader(all)
 
         for (y in 0 until dim) {
             for (x in 0 until dim) {
                 val isFunction = functionPattern.get(x, y)
-                val color = if (isFunction) {
+        val color = if (isFunction) {
                     if (qr.matrix.get(x, y).toInt() == 1) Color.BLACK else Color.WHITE
                 } else {
                     val symbol = bitReader.readBits(bitsPerSymbol)
@@ -116,9 +114,9 @@ object ColorQrCodeUtil {
         for (colorCount in candidates) {
             try {
                 val bitsPerSymbol = bitsPerSymbol(colorCount)
-                val paletteCandidates = listOf(paletteFor(colorCount), paletteForLegacy(colorCount))
+        val paletteCandidates = listOf(paletteFor(colorCount), paletteForLegacy(colorCount))
                 val hueStep = 360f / (1 shl bitsPerSymbol)
-                val hueOffsets = if (colorCount == 16) {
+        val hueOffsets = if (colorCount == 16) {
                     listOf(
                         0f,
                         hueStep / 8f,
@@ -138,7 +136,7 @@ object ColorQrCodeUtil {
                     for (hueOffset in hueOffsets) {
                         try {
                             val headerSymbolsCount = requiredSymbolCount(HEADER_LEN, bitsPerSymbol)
-                            val headerSymbols = readSymbols(
+        val headerSymbols = readSymbols(
                                 bitmap = bitmap,
                                 transform = transform,
                                 functionPattern = functionPattern,
@@ -159,11 +157,11 @@ object ColorQrCodeUtil {
                             }
 
                             val payloadLen = readIntBE(headerBytes, 6)
-                            val expectedCrc = readIntBE(headerBytes, 10)
+        val expectedCrc = readIntBE(headerBytes, 10)
                             if (payloadLen < 0) throw ColorQrException("Invalid payload length")
 
                             val totalBytes = HEADER_LEN + payloadLen
-                            val totalSymbolsCount = requiredSymbolCount(totalBytes, bitsPerSymbol)
+        val totalSymbolsCount = requiredSymbolCount(totalBytes, bitsPerSymbol)
                             val symbols = readSymbols(
                                 bitmap = bitmap,
                                 transform = transform,
@@ -173,7 +171,7 @@ object ColorQrCodeUtil {
                                 maxSymbols = totalSymbolsCount,
                             )
                             val allBytes = decodeBytesFromSymbols(symbols, bitsPerSymbol, totalBytes)
-                            val payload = allBytes.copyOfRange(HEADER_LEN, totalBytes)
+        val payload = allBytes.copyOfRange(HEADER_LEN, totalBytes)
 
                             val actualCrc = crc32(payload)
                             if (actualCrc != expectedCrc) {
@@ -232,7 +230,7 @@ object ColorQrCodeUtil {
         val input = ByteArrayInputStream(bytes)
         GZIPInputStream(input).use { gis ->
             val out = ByteArrayOutputStream()
-            val buf = ByteArray(64 * 1024)
+        val buf = ByteArray(64 * 1024)
             while (true) {
                 val n = gis.read(buf)
                 if (n <= 0) break
@@ -245,7 +243,7 @@ object ColorQrCodeUtil {
     fun cropToQrRegion(bitmap: Bitmap, paddingRatio: Float = 0.25f): Bitmap? {
         return try {
             val detected = detectQr(bitmap)
-            val pts = detected.points
+        val pts = detected.points
             var minX = Float.POSITIVE_INFINITY
             var minY = Float.POSITIVE_INFINITY
             var maxX = Float.NEGATIVE_INFINITY
@@ -258,12 +256,11 @@ object ColorQrCodeUtil {
             }
 
             val w = maxX - minX
-            val h = maxY - minY
+        val h = maxY - minY
             val pad = max(w, h) * paddingRatio + 8f
-
-            val left = floor(minX - pad).toInt().coerceIn(0, bitmap.width - 1)
+        val left = floor(minX - pad).toInt().coerceIn(0, bitmap.width - 1)
             val top = floor(minY - pad).toInt().coerceIn(0, bitmap.height - 1)
-            val right = floor(maxX + pad).toInt().coerceIn(left + 1, bitmap.width)
+        val right = floor(maxX + pad).toInt().coerceIn(left + 1, bitmap.width)
             val bottom = floor(maxY + pad).toInt().coerceIn(top + 1, bitmap.height)
 
             Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top)
@@ -308,7 +305,6 @@ object ColorQrCodeUtil {
         val alignment = if (points.size >= 4) points[3] else null
 
         val dimMinusThree = dimension - 3.5f
-
         val bottomRightX: Float
         val bottomRightY: Float
         val sourceBottomRightX: Float
@@ -375,14 +371,14 @@ object ColorQrCodeUtil {
                 var centerIndex = 0
                 for (i in 0 until 5) {
                     val ox = samplePoints[i * 2]
-                    val oy = samplePoints[i * 2 + 1]
+        val oy = samplePoints[i * 2 + 1]
                     points[0] = x + ox
                     points[1] = y + oy
                     transform.transformPoints(points)
                     val px = points[0].roundToInt().coerceIn(0, bitmap.width - 1)
-                    val py = points[1].roundToInt().coerceIn(0, bitmap.height - 1)
+        val py = points[1].roundToInt().coerceIn(0, bitmap.height - 1)
                     val c = sampleColor(bitmap, px, py)
-                    val idx = nearestPaletteIndex(c, palette, hueOffsetDegrees)
+        val idx = nearestPaletteIndex(c, palette, hueOffsetDegrees)
                     if (i == 0) centerIndex = idx
                     counts[idx]++
                 }
@@ -418,7 +414,7 @@ object ColorQrCodeUtil {
             val py = (y + dy).coerceIn(0, bitmap.height - 1)
             for (dx in -1..1) {
                 val px = (x + dx).coerceIn(0, bitmap.width - 1)
-                val c = bitmap.getPixel(px, py)
+        val c = bitmap.getPixel(px, py)
                 Color.colorToHSV(c, hsv)
                 val sat = hsv[1]
                 if (sat > bestSat) {
@@ -457,7 +453,7 @@ object ColorQrCodeUtil {
 
         while (bitPos < requiredBits) {
             val byteIndex = bitPos ushr 3
-            val bitInByte = 7 - (bitPos and 7)
+        val bitInByte = 7 - (bitPos and 7)
             val b = readBit()
             out[byteIndex] = (out[byteIndex].toInt() or (b shl bitInByte)).toByte()
             bitPos++
@@ -480,9 +476,9 @@ object ColorQrCodeUtil {
         val requiredBits = totalBytes * 8
         for (v in 1..40) {
             val ver = Version.getVersionForNumber(v)
-            val dim = ver.dimensionForVersion
+        val dim = ver.dimensionForVersion
             val functionPattern = buildFunctionPattern(ver)
-            val reserved = countSetBits(functionPattern)
+        val reserved = countSetBits(functionPattern)
             val available = dim * dim - reserved
             if (available * bitsPerSymbol >= requiredBits) return ver
         }
@@ -494,12 +490,12 @@ object ColorQrCodeUtil {
         val bitMatrix = com.google.zxing.common.BitMatrix(dimension)
 
         // Finder patterns + separators
-        bitMatrix.setRegion(0, 0, 9, 9)
+                bitMatrix.setRegion(0, 0, 9, 9)
         bitMatrix.setRegion(dimension - 8, 0, 8, 9)
         bitMatrix.setRegion(0, dimension - 8, 9, 8)
 
         // Alignment patterns
-        val centers = version.alignmentPatternCenters
+                val centers = version.alignmentPatternCenters
         val max = centers.size
         for (x in 0 until max) {
             val cx = centers[x]
@@ -513,17 +509,17 @@ object ColorQrCodeUtil {
         }
 
         // Timing patterns
-        bitMatrix.setRegion(6, 9, 1, dimension - 17)
+                bitMatrix.setRegion(6, 9, 1, dimension - 17)
         bitMatrix.setRegion(9, 6, dimension - 17, 1)
 
         // Format information
-        bitMatrix.setRegion(0, 8, 9, 1)
+                bitMatrix.setRegion(0, 8, 9, 1)
         bitMatrix.setRegion(8, 0, 1, 9)
         bitMatrix.setRegion(dimension - 8, 8, 8, 1)
         bitMatrix.setRegion(8, dimension - 7, 1, 7)
 
         // Version information (v7+)
-        if (version.versionNumber > 6) {
+                if (version.versionNumber > 6) {
             bitMatrix.setRegion(dimension - 11, 0, 3, 6)
             bitMatrix.setRegion(0, dimension - 11, 6, 3)
         }
@@ -593,7 +589,7 @@ object ColorQrCodeUtil {
 
         if (palette.size >= 16) {
             val step = 360f / palette.size
-            val idx = (((hue + step / 2f) / step).toInt() % palette.size + palette.size) % palette.size
+        val idx = (((hue + step / 2f) / step).toInt() % palette.size + palette.size) % palette.size
             return idx
         }
 
@@ -604,12 +600,12 @@ object ColorQrCodeUtil {
         for (i in palette.indices) {
             Color.colorToHSV(palette[i], phsv)
             val dhRaw = abs(hue - phsv[0])
-            val dh = min(dhRaw, 360f - dhRaw) / 180f
+        val dh = min(dhRaw, 360f - dhRaw) / 180f
             val ds = sat - phsv[1]
-            val dv = value - phsv[2]
+        val dv = value - phsv[2]
 
             val hueWeight = if (sat < 0.20f) 0.5f else 4.0f
-            val score = hueWeight * dh * dh + 0.5f * ds * ds + 0.25f * dv * dv
+        val score = hueWeight * dh * dh + 0.5f * ds * ds + 0.25f * dv * dv
             if (score < bestScore) {
                 bestScore = score
                 best = i
@@ -664,7 +660,7 @@ object ColorQrCodeUtil {
         private fun readBit(): Int {
             if (byteIndex >= data.size) return 0
             val b = data[byteIndex].toInt() and 0xFF
-            val bit = (b shr (7 - bitInByte)) and 1
+        val bit = (b shr (7 - bitInByte)) and 1
             bitInByte++
             if (bitInByte == 8) {
                 bitInByte = 0

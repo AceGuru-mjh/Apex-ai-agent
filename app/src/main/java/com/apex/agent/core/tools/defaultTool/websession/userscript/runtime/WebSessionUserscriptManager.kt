@@ -496,7 +496,7 @@ internal class WebSessionUserscriptManager(
                 requestBuilder.header(key, value)
             }
             val response = requestClient.newCall(requestBuilder.get().build()).execute()
-            val bodyBytes =
+        val bodyBytes =
                 action.responseBody?.toByteArray(Charsets.UTF_8)
                     ?: response.body?.bytes()
                     ?: ByteArray(0)
@@ -549,7 +549,7 @@ internal class WebSessionUserscriptManager(
                 scope.launch {
                     runCatching {
                         val href = payload.optString("href", "")
-                        val isTopFrame = payload.optBoolean("isTopFrame", isMainFrame)
+        val isTopFrame = payload.optBoolean("isTopFrame", isMainFrame)
                         if (isMainFrame) {
                             onPageChanged(sessionId, href)
                         }
@@ -619,9 +619,9 @@ internal class WebSessionUserscriptManager(
                     return
                 }
                 val commandId = payload.optString("commandId", "").trim()
-                val title = payload.optString("title", "").trim()
+        val title = payload.optString("title", "").trim()
                 val userscriptId = payload.optLong("scriptId")
-                val binding = sessionBindings[sessionId]
+        val binding = sessionBindings[sessionId]
                 if (binding != null && commandId.isNotBlank() && title.isNotBlank()) {
                     binding.menuCommands[commandId] =
                         UserscriptPageMenuCommand(
@@ -644,7 +644,7 @@ internal class WebSessionUserscriptManager(
 
             "storage_set" -> {
                 val scriptId = payload.optLong("scriptId")
-                val key = payload.optString("key", "")
+        val key = payload.optString("key", "")
                 val valueJson = payload.optString("valueJson", "null")
                 if (scriptId > 0L && key.isNotBlank()) {
                     scope.launch {
@@ -660,7 +660,7 @@ internal class WebSessionUserscriptManager(
 
             "storage_set_many" -> {
                 val scriptId = payload.optLong("scriptId")
-                val values = payload.optJSONObject("values") ?: JSONObject()
+        val values = payload.optJSONObject("values") ?: JSONObject()
                 if (scriptId > 0L) {
                     scope.launch {
                         values.keys().forEach { key ->
@@ -677,7 +677,7 @@ internal class WebSessionUserscriptManager(
 
             "storage_delete" -> {
                 val scriptId = payload.optLong("scriptId")
-                val key = payload.optString("key", "")
+        val key = payload.optString("key", "")
                 if (scriptId > 0L && key.isNotBlank()) {
                     scope.launch {
                         deleteValueAndBroadcast(
@@ -691,7 +691,7 @@ internal class WebSessionUserscriptManager(
 
             "storage_delete_many" -> {
                 val scriptId = payload.optLong("scriptId")
-                val keys = payload.optJSONArray("keys") ?: org.json.JSONArray()
+        val keys = payload.optJSONArray("keys") ?: org.json.JSONArray()
                 if (scriptId > 0L) {
                     scope.launch {
                         for (index in 0 until keys.length()) {
@@ -1029,7 +1029,7 @@ internal class WebSessionUserscriptManager(
                     val cookie = cookieService.set(details, pageUrl)
                     
                     // Agent 登录存储：自动保字Cookie
-                    saveAgentLoginIfNeeded(pageUrl, details)
+                saveAgentLoginIfNeeded(pageUrl, details)
                     
                     postRpcSuccess(replyProxy, requestId, JSONObject().put("cookieJson", cookie.toJson().toString()))
                 }
@@ -1281,7 +1281,7 @@ internal class WebSessionUserscriptManager(
                     }
                 }
                 val body = response.body
-                val total = body?.contentLength()?.takeIf { it >= 0L } ?: 0L
+        val total = body?.contentLength()?.takeIf { it >= 0L } ?: 0L
                 val output = ByteArrayOutputStream()
                 if (body != null) {
                     body.byteStream().use { input ->
@@ -1320,7 +1320,7 @@ internal class WebSessionUserscriptManager(
                     }
                 }
                 val bytes = output.toByteArray()
-                val headersJson = JSONObject()
+        val headersJson = JSONObject()
                 response.headers.toMultimap().forEach { (key, values) ->
                     headersJson.put(key, values.joinToString(", "))
                 }
@@ -1381,7 +1381,7 @@ internal class WebSessionUserscriptManager(
                     return@launch
                 }
                 val eventType = if (error is java.io.InterruptedIOException) "timeout" else "error"
-                val errorPayload =
+        val errorPayload =
                     JSONObject()
                         .put("status", 0)
                         .put("statusText", error.message ?: eventType)
@@ -1659,11 +1659,11 @@ internal class WebSessionUserscriptManager(
         if (!isAiServiceSite(siteKey)) return
         
         // 提取完整的Cookie 字符为
-        val cookiesString = buildCookiesString(pageUrl)
+                val cookiesString = buildCookiesString(pageUrl)
         if (cookiesString.isEmpty()) return
         
         // 保存分Agent 登录存储
-        agentLoginStorage.saveCookies(siteKey, cookiesString, pageUrl)
+                agentLoginStorage.saveCookies(siteKey, cookiesString, pageUrl)
         AppLogger.d(TAG, "Auto-saved agent login for: ${siteKey}")
     }
     

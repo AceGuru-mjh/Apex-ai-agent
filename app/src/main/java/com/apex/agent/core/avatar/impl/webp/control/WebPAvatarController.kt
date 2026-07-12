@@ -23,14 +23,14 @@ class WebPAvatarController(
     override val state: StateFlow<AvatarState> = _state.asStateFlow()
 
     // Transform properties for scaling and positioning
-    private val _scale = MutableStateFlow(1.0f)
-    val scale: StateFlow<Float> = _scale.asStateFlow()
+                private val _scale = MutableStateFlow(1.0f)
+        val scale: StateFlow<Float> = _scale.asStateFlow()
 
     private val _translateX = MutableStateFlow(0.0f)
-    val translateX: StateFlow<Float> = _translateX.asStateFlow()
+        val translateX: StateFlow<Float> = _translateX.asStateFlow()
 
     private val _translateY = MutableStateFlow(0.0f)
-    val translateY: StateFlow<Float> = _translateY.asStateFlow()
+        val translateY: StateFlow<Float> = _translateY.asStateFlow()
 
     override val availableAnimations: List<String>
         get() = model.availableFiles
@@ -107,7 +107,7 @@ class WebPAvatarController(
         triggerAnimationMapping =
             mapping.entries.mapNotNull { (rawKey, rawAnimationName) ->
                 val key = AvatarMoodTypes.normalizeKey(rawKey)
-                val animationName = rawAnimationName.trim()
+        val animationName = rawAnimationName.trim()
                 if (key.isBlank() || animationName.isBlank()) {
                     return@mapNotNull null
                 }

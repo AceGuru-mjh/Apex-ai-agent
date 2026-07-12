@@ -91,7 +91,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                 AppLogger.d(TAG, "Executing command: ${command}")
 
                 // 使用更精确的方法检测shell操作，
-               if (containsShellOperators(command)) {
+                if (containsShellOperators(command)) {
                     AppLogger.d(
                             TAG,
                             "Command contains shell operators or redirections, executing with shell"
@@ -100,7 +100,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                 }
 
                 // 普通命令执行
-               return@withContext executeCommandDirect(command)
+                return@withContext executeCommandDirect(command)
             }
 
     /**
@@ -110,7 +110,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
     */
     private fun containsShellOperators(command: String): Boolean {
         // 预处理：标记引号内的内容，避免检测引号内的操作符
-        var inSingleQuotes = false
+                var inSingleQuotes = false
         var inDoubleQuotes = false
         var escaped = false
         var i = 0
@@ -119,38 +119,38 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             val c = command[i]
 
             // 处理转义字符
-            if (c == '\\' && !escaped) {
+                if (c == '\\' && !escaped) {
                 escaped = true
                 i++
                 continue
             }
 
             // 处理引号
-            if (c == '\'' && !escaped && !inDoubleQuotes) {
+                if (c == '\'' && !escaped && !inDoubleQuotes) {
                 inSingleQuotes = !inSingleQuotes
             } else if (c == '"' && !escaped && !inSingleQuotes) {
                 inDoubleQuotes = !inDoubleQuotes
             }
             // 只在不在引号内时检测操作符
-            else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {
+                else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {
                 // 检测管，
-               if (c == '|') {
+                if (c == '|') {
                     // 检查是不是 || 操作，
-                   if (i + 1 < command.length && command[i + 1] == '|') {
+                if (i + 1 < command.length && command[i + 1] == '|') {
                         return true
                     }
                     // 单个 | 管道，
-                   return true
+                return true
                 }
 
                 // 检，& 操作，
-               if (c == '&') {
+                if (c == '&') {
                     // 检查是不是 && 操作，
-                   if (i + 1 < command.length && command[i + 1] == '&') {
+                if (i + 1 < command.length && command[i + 1] == '&') {
                         return true
                     }
                     // 后台运行符号 &
-                    return true
+                return true
                 }
 
                 // 检测重定向
@@ -159,7 +159,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                 }
 
                 // 检测分前
-               if (c == ';') {
+                if (c == ';') {
                     return true
                 }
             }
@@ -204,12 +204,12 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     continue
                 } else {
                     // 对于其他异常，直接抛，
-                   throw e
+                throw e
                 }
             }
         }
         // 如果达到最大重试次数，抛出最后一个异常
-       throw lastException ?: IllegalStateException("Unknown error in retry operation")
+                throw lastException ?: IllegalStateException("Unknown error in retry operation")
     }
 
     /** 直接执行不包含特殊操作符的普通命，/
@@ -227,10 +227,10 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                     )
 
                     // 拆分命令行参数 使用更智能的解析方法
-                    val commandParts = parseCommand(command)
+                val commandParts = parseCommand(command)
 
                     // 创建进程
-                    process = service.newProcess(commandParts, null, null)
+                process = service.newProcess(commandParts, null, null)
 
                     if (process == null) {
                         return@withContext ShellExecutor.CommandResult(
@@ -241,8 +241,8 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 将ParcelFileDescriptor转换为InputStream
-                    val processClass = process::class.java
-                    val inputStream =
+                val processClass = process::class.java
+        val inputStream =
                             processClass.getMethod("getInputStream").invoke(process) as
                                     ParcelFileDescriptor?
                     val errorStream =
@@ -250,7 +250,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                     ParcelFileDescriptor?
 
                     // 使用重试逻辑读取标准输出和错误输出
-                   val stdout =
+                val stdout =
                             if (inputStream != null) {
                                 retryOperation {
                                     val stdoutStream = FileInputStream(inputStream.fileDescriptor)
@@ -273,7 +273,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     val exitCode = processClass.getMethod("waitFor").invoke(process) as Int
 
                     // 返回结果
-                    return@withContext ShellExecutor.CommandResult(
+                return@withContext ShellExecutor.CommandResult(
                             exitCode == 0,
                             stdout,
                             stderr,
@@ -291,7 +291,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     return@withContext ShellExecutor.CommandResult(false, "", "Error: ${e.message}")
                 } finally {
                     // 安全关闭文件描述，
-                   try {
+                try {
                         if (process != null) {
                             val processClass = process::class.java
                             try {
@@ -333,19 +333,19 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                     )
 
                     // 检测是否包含重定向操作符进行写入操作
-                   val containsRedirection = command.contains(">")
+                val containsRedirection = command.contains(">")
 
                     // 处理命令，确保使用完整路径
-                   val processedCommand =
+                val processedCommand =
                             if (command.contains("|") && command.contains("grep")) {
                                 // 替换 'grep' ，/system/bin/grep'，确保使用系统grep命令
-                                command.replace(" grep ", " /system/bin/grep ")
+                command.replace(" grep ", " /system/bin/grep ")
                             } else {
                                 command
                             }
 
                     // 构建增强的shell环境和命，
-                   val enhancedCommand =
+                val enhancedCommand =
                             if (containsRedirection) {
                                 // 为重定向操作添加更多环境支持
                                 "umask 0022 && PATH=\${PATH}:/system/bin:/system/xbin:/vendor/bin:/vendor/xbin && ${processedCommand}"
@@ -354,15 +354,15 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                             }
 
                     // 如果命令以单，'结尾（后台运行），我们只负责启动，不阻塞等待
-                    val trimmedForBg = enhancedCommand.trimEnd()
-                    val isBackground =
+                val trimmedForBg = enhancedCommand.trimEnd()
+        val isBackground =
                             trimmedForBg.endsWith("&") && !trimmedForBg.endsWith("&&")
 
                     val shellArgs = arrayOf("sh", "-e", "-c", enhancedCommand)
                     AppLogger.d(TAG, "Enhanced shell command: ${shellArgs.joinToString(", ", "[", "]")}")
 
                     // 创建进程
-                    val process =
+                val process =
                             service.newProcess(shellArgs, null, null)
                                     ?: return@withContext ShellExecutor.CommandResult(
                                             false,
@@ -370,8 +370,8 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                             "Failed to create process"
                                     )
                     // 处理输入输出出
-                   val processClass = process::class.java
-                    val inputStream =
+                val processClass = process::class.java
+        val inputStream =
                             processClass.getMethod("getInputStream").invoke(process) as
                                     ParcelFileDescriptor?
                     val errorStream =
@@ -381,7 +381,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     if (isBackground) {
                         AppLogger.d(TAG, "Detected background shell command (ending with '&'), not waiting for process")
                         // 对于后台命令，我们不读取输出，也不等待退出，只要进程创建成功就视为成务
-                       try {
+                try {
                             inputStream?.close()
                         } catch (e: Exception) {
                             AppLogger.e(TAG, "Error closing input stream for background shell command", e)
@@ -402,7 +402,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 使用重试逻辑读取标准输出和错误输出
-                   val stdout =
+                val stdout =
                             if (inputStream != null) {
                                 retryOperation {
                                     val stdoutStream = FileInputStream(inputStream.fileDescriptor)
@@ -425,7 +425,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     val exitCode = processClass.getMethod("waitFor").invoke(process) as Int
 
                     // 关闭文件描述，
-                   try {
+                try {
                         inputStream?.close()
                     } catch (e: Exception) {
                         AppLogger.e(TAG, "Error closing input stream in shell execution", e)
@@ -438,13 +438,13 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 确定命令是否成功
-                    val success =
+                val success =
                             when {
                                 // 如果命令包含grep，即使没有找到匹配也认为成功
-                                command.contains("grep") -> exitCode == 0 || exitCode == 1
+                command.contains("grep") -> exitCode == 0 || exitCode == 1
 
                                 // 对其他命令，只有exitCode=0才算成功
-                                else -> exitCode == 0
+                else -> exitCode == 0
                             }
 
                     return@withContext ShellExecutor.CommandResult(
@@ -465,7 +465,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             val connection = ShizukuAuthorizer.getOrResolveShizukuConnection() ?: return null
 
             // 检查缓存的服务是否可用
-            val cached = serviceCache[connection.uid]
+                val cached = serviceCache[connection.uid]
             if (cached != null) {
                 val isCachedAlive =
                         try {
@@ -514,32 +514,32 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             val c = command[i]
 
             // 处理转义字符
-            if (i < command.length - 1 && c == '\\') {
+                if (i < command.length - 1 && c == '\\') {
                 val nextChar = command[i + 1]
                 if (nextChar == '\'' || nextChar == '"') {
                     // 处理转义的引，
-                   currentArg.append(nextChar)
+                currentArg.append(nextChar)
                     i += 2
                     continue
                 }
             }
 
             // 处理单引，只有当不在双引号中时才处理单引号的开始和结束，
-            if (c == '\'' && !inDoubleQuotes) {
+                if (c == '\'' && !inDoubleQuotes) {
                 inSingleQuotes = !inSingleQuotes
                 i++
                 continue
             }
 
             // 处理双引，只有当不在单引号中时才处理双引号的开始和结束，
-            if (c == '"' && !inSingleQuotes) {
+                if (c == '"' && !inSingleQuotes) {
                 inDoubleQuotes = !inDoubleQuotes
                 i++
                 continue
             }
 
             // 处理空格 (只有当不在任何引号中时才分割参数，
-            if (c == ' ' && !inSingleQuotes && !inDoubleQuotes) {
+                if (c == ' ' && !inSingleQuotes && !inDoubleQuotes) {
                 if (currentArg.isNotEmpty()) {
                     result.add(currentArg.toString())
                     currentArg.clear()
@@ -549,17 +549,17 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             }
 
             // 正常字符
-            currentArg.append(c)
+                currentArg.append(c)
             i++
         }
 
         // 添加最后一个参数
-       if (currentArg.isNotEmpty()) {
+                if (currentArg.isNotEmpty()) {
             result.add(currentArg.toString())
         }
 
         // 检查未闭合的引，
-       if (inSingleQuotes || inDoubleQuotes) {
+                if (inSingleQuotes || inDoubleQuotes) {
             AppLogger.w(TAG, "Warning: Unclosed quotes in command: ${command}")
         }
 
@@ -613,7 +613,7 @@ private class ShizukuShellProcess(
             false
         } catch (e: Exception) {
             // IllegalThreadStateException means it's still running
-            true
+                true
         }
 
     override fun destroy() {

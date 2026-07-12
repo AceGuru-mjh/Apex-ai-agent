@@ -264,7 +264,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                 val pm = context.packageManager
                 try {
                     val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-                    val newPackages = mutableMapOf<String, String>()
+        val newPackages = mutableMapOf<String, String>()
                     for (app in apps) {
                         val appName =
                                 try {
@@ -297,7 +297,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
     }
 
     // UI操作反馈覆盖层（使用单例避免多窗口叠加）
-    protected val operationOverlay = UIOperationOverlay.getInstance(context)
+                protected val operationOverlay = UIOperationOverlay.getInstance(context)
 
     private var cachedMediaProjection: MediaProjection? = null
     private var cachedMediaProjectionCaptureManager: MediaProjectionCaptureManager? = null
@@ -431,14 +431,13 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
 
         return try {
             // 获取专用户UI_CONTROLLER 的AIService 实例
-            val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
-            val systemPrompt = buildUiAutomationSystemPrompt()
+                val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
+        val systemPrompt = buildUiAutomationSystemPrompt()
 
             val metrics = context.resources.displayMetrics
-            val screenWidth = metrics.widthPixels
+        val screenWidth = metrics.widthPixels
             val screenHeight = metrics.heightPixels
-
-            val agentConfig = AgentConfig(maxSteps = maxSteps)
+        val agentConfig = AgentConfig(maxSteps = maxSteps)
             val actionHandler = ActionHandler(
                 context = context,
                 screenWidth = screenWidth,
@@ -447,7 +446,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
             )
 
             val agentId = if (!requestedAgentId.isNullOrBlank()) requestedAgentId else "default"
-            val agent = PhoneAgent(
+        val agent = PhoneAgent(
                 context = context,
                 config = agentConfig,
                 uiService = uiService, // 传递专用的 AIService
@@ -457,8 +456,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
             )
 
             val pausedState = MutableStateFlow(false)
-
-            val finalMessage = agent.run(
+        val finalMessage = agent.run(
                 task = intent,
                 systemPrompt = systemPrompt,
                 isPausedFlow = pausedState,
@@ -472,7 +470,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
             }
 
             val success = !finalMessage.contains("Max steps reached") && !finalMessage.contains("Error")
-            val executionMessage = buildString {
+        val executionMessage = buildString {
                 appendLine("UI automation subagent run summary:")
                 appendLine("Intent: ${intent}")
                 appendLine("Steps executed: ${agent.stepCount} / ${agentConfig.maxSteps}")
@@ -541,9 +539,9 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                 SimpleDateFormat("yyyy-MM-dd EEEE", Locale.ENGLISH).format(Date())
             } else {
                 val calendar = Calendar.getInstance()
-                val sdf = SimpleDateFormat("yyyy年MM月dd的 Locale.getDefault())"
+        val sdf = SimpleDateFormat("yyyy年MM月dd的 Locale.getDefault())"
                 val datePart = sdf.format(Date())
-                val weekdayNames =
+        val weekdayNames =
                     arrayOf(
                         "星期。"
                         "星期一",
@@ -580,7 +578,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
 
         return try {
             val projection = MediaProjectionHolder.mediaProjection ?: return null
-            val manager =
+        val manager =
                 if (cachedMediaProjectionCaptureManager == null || cachedMediaProjection !== projection) {
                     try {
                         cachedMediaProjectionCaptureManager?.release()
@@ -612,11 +610,9 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
     protected open suspend fun captureScreenshotToFile(tool: AITool): Pair<String?, Pair<Int, Int>?> {
         return try {
             val screenshotDir = LogistraPaths.cleanOnExitDir()
-
-            val shortName = System.currentTimeMillis().toString().takeLast(4)
+        val shortName = System.currentTimeMillis().toString().takeLast(4)
             val file = File(screenshotDir, "${shortName}.png")
-
-            val manager = ensureMediaProjectionCaptureManager() ?: return Pair(null, null)
+        val manager = ensureMediaProjectionCaptureManager() ?: return Pair(null, null)
 
             var success = false
             var attempt = 0

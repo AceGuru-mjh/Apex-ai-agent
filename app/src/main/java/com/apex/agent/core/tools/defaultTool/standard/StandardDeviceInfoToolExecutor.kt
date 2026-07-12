@@ -22,43 +22,43 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
     override fun invoke(tool: AITool): ToolResult {
         return try {
             // Get basic device information
-            val deviceId =
+                val deviceId =
                     Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
             // Get device model and manufacturer
-            val model = Build.MODEL
-            val manufacturer = Build.MANUFACTURER
+                val model = Build.MODEL
+        val manufacturer = Build.MANUFACTURER
 
             // Get Android version
-            val androidVersion = Build.VERSION.RELEASE
-            val sdkVersion = Build.VERSION.SDK_INT
+                val androidVersion = Build.VERSION.RELEASE
+        val sdkVersion = Build.VERSION.SDK_INT
 
             // Get screen information
-            val displayMetrics = context.resources.displayMetrics
-            val screenWidth = displayMetrics.widthPixels
+                val displayMetrics = context.resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
             val screenHeight = displayMetrics.heightPixels
-            val screenResolution = "${screenWidth}x${screenHeight}"
+        val screenResolution = "${screenWidth}x${screenHeight}"
             val screenDensity = displayMetrics.density
 
             // Get memory information
-            val activityManager =
+                val activityManager =
                     context.getSystemService(Context.ACTIVITY_SERVICE) as
                             android.app.ActivityManager
             val memoryInfo = android.app.ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
             val availableMemory = formatSize(memoryInfo.availMem)
-            val totalMemory = formatSize(memoryInfo.totalMem)
+        val totalMemory = formatSize(memoryInfo.totalMem)
 
             // Get storage information
-            val statFs = StatFs(Environment.getExternalStorageDirectory().path)
-            val availableBlocks = statFs.availableBlocksLong
+                val statFs = StatFs(Environment.getExternalStorageDirectory().path)
+        val availableBlocks = statFs.availableBlocksLong
             val blockSize = statFs.blockSizeLong
-            val totalBlocks = statFs.blockCountLong
+        val totalBlocks = statFs.blockCountLong
             val availableStorage = formatSize(availableBlocks * blockSize)
-            val totalStorage = formatSize(totalBlocks * blockSize)
+        val totalStorage = formatSize(totalBlocks * blockSize)
 
             // Get battery information
-            var batteryLevel = 0
+                var batteryLevel = 0
             var isCharging = false
 
             try {
@@ -66,7 +66,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
                         context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
                 if (batteryIntent != null) {
                     val level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-                    val scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+        val scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
                     batteryLevel = (level * 100 / scale.toFloat()).toInt()
 
                     val status = batteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
@@ -79,10 +79,10 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
             }
 
             // Get CPU information
-            val cpuInfo =
+                val cpuInfo =
                     try {
                         val processBuilder = ProcessBuilder("getprop", "ro.product.cpu.abi")
-                        val process = processBuilder.start()
+        val process = processBuilder.start()
                         val reader =
                                 java.io.BufferedReader(
                                         java.io.InputStreamReader(process.inputStream)
@@ -96,11 +96,11 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
                     }
 
             // Get network information
-            val connectivityManager =
+                val connectivityManager =
                     context.getSystemService(Context.CONNECTIVITY_SERVICE) as
                             android.net.ConnectivityManager
             val activeNetwork = connectivityManager.activeNetwork
-            val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
 
             val networkType =
                     when {
@@ -121,7 +121,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
                     }
 
             // Collect additional system properties
-            val additionalInfo = mutableMapOf<String, String>()
+                val additionalInfo = mutableMapOf<String, String>()
             additionalInfo["Device name"] = Build.DEVICE
             additionalInfo["Product name"] = Build.PRODUCT
             additionalInfo["Hardware name"] = Build.HARDWARE
@@ -129,7 +129,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
             additionalInfo["Build time"] = java.util.Date(Build.TIME).toString()
 
             // Create result data object
-            val deviceInfoResult =
+                val deviceInfoResult =
                     DeviceInfoResultData(
                             deviceId = deviceId,
                             model = model,

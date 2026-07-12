@@ -26,7 +26,7 @@ class DocumentTools(private val context: Context) {
     suspend fun parseDocument(tool: AITool): ToolResult = withContext(Dispatchers.IO) {
         try {
             val filePath = tool.parameters.find { it.name == "file_path" }?.value ?: ""
-            val fileName = File(filePath).name
+        val fileName = File(filePath).name
 
             val parser = parserFactory.getParserForFile(fileName)
                 ?: return@withContext ToolResult(
@@ -41,7 +41,7 @@ class DocumentTools(private val context: Context) {
 
                 if (result.success) {
                     // 对提取的文本内容进行安全消毒
-                    var sanitizedTextContent = result.textContent
+                var sanitizedTextContent = result.textContent
                     if (result.textContent.isNotBlank()) {
                         try {
                             val sanitizeResult = inputSanitizer.sanitize(result.textContent)
@@ -92,7 +92,7 @@ class DocumentTools(private val context: Context) {
     suspend fun extractText(tool: AITool): ToolResult = withContext(Dispatchers.IO) {
         try {
             val filePath = tool.parameters.find { it.name == "file_path" }?.value ?: ""
-            val fileName = File(filePath).name
+        val fileName = File(filePath).name
 
             val parser = parserFactory.getParserForFile(fileName)
                 ?: return@withContext ToolResult(
@@ -107,7 +107,7 @@ class DocumentTools(private val context: Context) {
 
                 // 对提取的文本进行安全消毒
                 val sanitizedText = try {
-                    val sanitizeResult = inputSanitizer.sanitize(text)
+        val sanitizeResult = inputSanitizer.sanitize(text)
                     if (sanitizeResult.findings.isNotEmpty()) {
                         AppLogger.d(TAG, "文档提取内容消毒完成: 发现${sanitizeResult.findings.size}个安全问题")
                     }
@@ -115,7 +115,7 @@ class DocumentTools(private val context: Context) {
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "文档提取内容消毒失败，使用原始内定", e)
                     // 消毒失败时使用原始内容，不阻断流程
-                    text
+                text
                 }
 
                 ToolResult(
@@ -137,7 +137,7 @@ class DocumentTools(private val context: Context) {
     suspend fun summarizeVideo(tool: AITool): ToolResult = withContext(Dispatchers.IO) {
         try {
             val videoPath = tool.parameters.find { it.name == "video_path" }?.value ?: ""
-            val includeFrames = tool.parameters.find { it.name == "include_frames" }?.value?.toBoolean() ?: false
+        val includeFrames = tool.parameters.find { it.name == "include_frames" }?.value?.toBoolean() ?: false
 
             val result = videoSummarizer.generateSummary(
                 videoPath = videoPath,
@@ -183,8 +183,7 @@ class DocumentTools(private val context: Context) {
     suspend fun recognizeTable(tool: AITool): ToolResult = withContext(Dispatchers.IO) {
         try {
             val imagePath = tool.parameters.find { it.name == "image_path" }?.value ?: ""
-
-            val imageBytes = File(imagePath).readBytes()
+        val imageBytes = File(imagePath).readBytes()
             val result = ocrEnhancer.recognizeTable(imageBytes)
 
             if (result.tables.isNotEmpty()) {
@@ -226,8 +225,7 @@ class DocumentTools(private val context: Context) {
     suspend fun recognizeHandwriting(tool: AITool): ToolResult = withContext(Dispatchers.IO) {
         try {
             val imagePath = tool.parameters.find { it.name == "image_path" }?.value ?: ""
-
-            val imageBytes = File(imagePath).readBytes()
+        val imageBytes = File(imagePath).readBytes()
             val result = ocrEnhancer.recognizeHandwriting(imageBytes)
 
             ToolResult(

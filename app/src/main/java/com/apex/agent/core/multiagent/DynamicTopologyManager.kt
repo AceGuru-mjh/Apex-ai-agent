@@ -32,13 +32,13 @@ class DynamicTopologyManager(private val context: Context) {
     private val capabilityIndex = ConcurrentHashMap<String, MutableSet<String>>()
 
     private val _networkTopology = MutableStateFlow(NetworkTopology())
-    val networkTopology: StateFlow<NetworkTopology> = _networkTopology
+        val networkTopology: StateFlow<NetworkTopology> = _networkTopology
 
     private val _agentDiscovery = MutableSharedFlow<AgentDiscoveryEvent>()
-    val agentDiscovery: SharedFlow<AgentDiscoveryEvent> = _agentDiscovery
+        val agentDiscovery: SharedFlow<AgentDiscoveryEvent> = _agentDiscovery
 
     private val _roleAssignments = MutableStateFlow<Map<String, String>>(emptyMap())
-    val roleAssignments: StateFlow<Map<String, String>> = _roleAssignments
+        val roleAssignments: StateFlow<Map<String, String>> = _roleAssignments
 
     private var gossipJob: Job? = null
     private var discoveryJob: Job? = null
@@ -382,8 +382,7 @@ class DynamicTopologyManager(private val context: Context) {
 
         activeAgents.forEach { agent ->
             val targetAgent = selectRandomAgent(agent.agentId) ?: return@forEach
-
-            val gossipMessage = createGossipMessage(agent.agentId, targetAgent.agentId)
+        val gossipMessage = createGossipMessage(agent.agentId, targetAgent.agentId)
 
             gossipState[gossipMessage.messageId] = gossipMessage
 
@@ -421,7 +420,6 @@ class DynamicTopologyManager(private val context: Context) {
         if (message.ttl <= 0) return null
 
         val updatedMessage = message.copy(ttl = message.ttl - 1)
-
         val targetNode = agentRegistry[targetId]
         if (targetNode == null || targetNode.status == AgentNode.NodeStatus.OFFLINE) {
             return null
@@ -569,7 +567,7 @@ class DynamicTopologyManager(private val context: Context) {
         agentRegistry.keys.forEach { startAgent ->
             if (!visited.contains(startAgent)) {
                 val cluster = mutableSetOf<String>()
-                val queue = ArrayDeque<String>()
+        val queue = ArrayDeque<String>()
 
                 queue.add(startAgent)
                 visited.add(startAgent)

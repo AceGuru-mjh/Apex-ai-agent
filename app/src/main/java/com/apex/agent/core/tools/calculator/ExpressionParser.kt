@@ -68,7 +68,7 @@ class ExpressionParser(private val expression: String) {
     private fun parseAssignment(): ExpressionNode {
         if (currentTokenType == TokenType.IDENTIFIER) {
             val variableName = currentToken
-            val nextPos = position
+        val nextPos = position
             val nextChar = if (position < expression.length) expression[position] else ' '
 
             if (nextChar == '=') {
@@ -77,19 +77,20 @@ class ExpressionParser(private val expression: String) {
 
                 if (followingChar == '=') {
                     // è¿æ¯==è¿ç®ç¬¦ï¼ä¸æ¯èµå¼ï¼åºè¯¥èµ°é»è¾æè¡¨è¾¾å¼è·¯å¾
-                    return parseLogicalOr()
+                return parseLogicalOr()
                 }
 
                 // ç®åèµï¼?x = expr
                 nextToken() // è·³è¿=
                 nextToken() // è·åä¸ä¸ä¸ªtoken
-
-                val valueExpr = parseAssignment() // éå½è§£æå³ä¾§è¡¨è¾¾ï¼?               return AssignmentNode(variableName, valueExpr)
+                val valueExpr = parseAssignment() // éå½è§£æå³ä¾§è¡¨è¾¾ï¼?
+                return AssignmentNode(variableName, valueExpr)
             } else if (nextChar == '+' || nextChar == '-' || nextChar == '*' || nextChar == '/') {
                 if (position + 1 < expression.length && expression[position + 1] == '=') {
                     // å¤åèµï¼ x += expr, x -= expr, etc.
-                    val operator = nextChar.toString() + "="
-                    position += 2 // è·³è¿æä½ï¼?                   nextToken()
+                val operator = nextChar.toString() + "="
+                    position += 2 // è·³è¿æä½ï¼?
+                nextToken()
 
                     val valueExpr = parseAssignment()
                     return CompoundAssignmentNode(variableName, operator, valueExpr)
@@ -226,12 +227,11 @@ class ExpressionParser(private val expression: String) {
                     throw IllegalArgumentException("Expected ']' in array access")
                 }
                 nextToken() // è·³è¿]
-
                 expr = ArrayAccessNode(expr, index)
             } else if (currentToken == "." && peekNextToken() == "length") {
-                // ç¹æ®å¤ç .length å±æ§è®¿ï¼?               nextToken() // è·³è¿.
+                // ç¹æ®å¤ç .length å±æ§è®¿ï¼?
+                nextToken() // è·³è¿.
                 nextToken() // è·³è¿length
-
                 expr = FunctionCallNode("length", listOf(expr))
             } else {
                 break
@@ -256,14 +256,14 @@ class ExpressionParser(private val expression: String) {
                 // å½æ°è°ç¨
                 if (currentToken == "(") {
                     nextToken() // è·³è¿(
-                    val args = mutableListOf<ExpressionNode>()
+                val args = mutableListOf<ExpressionNode>()
 
                     if (currentToken != ")") {
                         args.add(parseExpression())
 
                         while (currentToken == ",") {
                             nextToken() // è·³è¿,
-                            args.add(parseExpression())
+                args.add(parseExpression())
                         }
                     }
 
@@ -272,16 +272,17 @@ class ExpressionParser(private val expression: String) {
                     }
                     nextToken() // è·³è¿ï¼?
 
-                    // ç¹æ®å¤ç convert å½æ°ï¼å®éè¦ä¸ä¸ªåæ°ï¼ä½ç¬¬2åç¬¬3ä¸ªæ¯å­ç¬¦ä¸?                   if (identifier.equals("convert", ignoreCase = true) && args.size >= 3) {
+                    // ç¹æ®å¤ç convert å½æ°ï¼å®éè¦ä¸ä¸ªåæ°ï¼ä½ç¬¬2åç¬¬3ä¸ªæ¯å­ç¬¦ä¸?
+                if (identifier.equals("convert", ignoreCase = true) && args.size >= 3) {
                         val fromUnit =
                                 (args[1] as? VariableNode)?.name ?: args[1].evaluate().toString()
                         val toUnit =
                                 (args[2] as? VariableNode)?.name ?: args[2].evaluate().toString()
 
-                        // å°åä½å­å¨ä¸ºä¸´æ¶åéä¾å½æ°ä½¿ï¼?                       ExpressionContext.setVariable("_convert_from", 0.0) // ä¼è¢«ç±»åè½¬æ¢ä¸ºå­ç¬¦ä¸²
-                        ExpressionContext.setVariable("_convert_to", 0.0) // åä¸
-
-                        return FunctionCallNode(identifier, listOf(args[0]))
+                        // å°åä½å­å¨ä¸ºä¸´æ¶åéä¾å½æ°ä½¿ï¼?
+                ExpressionContext.setVariable("_convert_from", 0.0) // ä¼è¢«ç±»åè½¬æ¢ä¸ºå­ç¬¦ä¸²
+                ExpressionContext.setVariable("_convert_to", 0.0) // åä¸
+                return FunctionCallNode(identifier, listOf(args[0]))
                     }
 
                     return FunctionCallNode(identifier, args)
@@ -290,21 +291,20 @@ class ExpressionParser(private val expression: String) {
                 // æ°å­¦å¯¹è±¡æ¹æ³è°ç¨
                 if (identifier == "Math" && currentToken == ".") {
                     nextToken() // è·³è¿.
-                    val methodName = currentToken
+                val methodName = currentToken
                     nextToken()
 
                     if (currentToken != "(") {
                         throw IllegalArgumentException("Expected '(' after Math.${methodName}")
                     }
                     nextToken() // è·³è¿(
-
-                    val args = mutableListOf<ExpressionNode>()
+                val args = mutableListOf<ExpressionNode>()
                     if (currentToken != ")") {
                         args.add(parseExpression())
 
                         while (currentToken == ",") {
                             nextToken() // è·³è¿,
-                            args.add(parseExpression())
+                args.add(parseExpression())
                         }
                     }
 
@@ -312,8 +312,7 @@ class ExpressionParser(private val expression: String) {
                         throw IllegalArgumentException("Expected ')' in Math.${methodName} call")
                     }
                     nextToken() // è·³è¿ï¼?
-
-                    return FunctionCallNode("Math.${methodName}", args)
+                return FunctionCallNode("Math.${methodName}", args)
                 }
 
                 // åéå¼ç¨
@@ -327,7 +326,6 @@ class ExpressionParser(private val expression: String) {
                     throw IllegalArgumentException("Expected ')'")
                 }
                 nextToken() // è·³è¿ï¼?
-
                 return expr
             }
             TokenType.LEFT_BRACKET -> {
@@ -339,7 +337,7 @@ class ExpressionParser(private val expression: String) {
 
                     while (currentToken == ",") {
                         nextToken() // è·³è¿,
-                        elements.add(parseExpression())
+                elements.add(parseExpression())
                     }
                 }
 
@@ -354,7 +352,8 @@ class ExpressionParser(private val expression: String) {
             TokenType.STRING -> {
                 val value = currentToken
                 nextToken()
-                // å­ç¬¦ä¸²èç¹å¤çä¸ºä¸ä¸ªåéèï¼?               return VariableNode(value)
+                // å­ç¬¦ä¸²èç¹å¤çä¸ºä¸ä¸ªåéèï¼?
+                return VariableNode(value)
             }
             TokenType.TEMPLATE_START -> {
                 return parseTemplate()
@@ -370,7 +369,7 @@ class ExpressionParser(private val expression: String) {
         val parts = mutableListOf<Any>()
 
         // æ·»å æ¨¡æ¿èµ·å§é¨å
-        parts.add(currentToken.substring(1)) // å»æå¼å§ç"
+                parts.add(currentToken.substring(1)) // å»æå¼å§ç"
         nextToken()
 
         while (currentTokenType == TokenType.TEMPLATE_MIDDLE ||
@@ -391,7 +390,7 @@ class ExpressionParser(private val expression: String) {
     /** è·åä¸ä¸ä¸ªè¯æ³åï¼?/
     private fun nextToken() {
         // è·³è¿ç©ºç½å­ç¬¦
-        while (position < expression.length && Character.isWhitespace(expression[position])) {
+                while (position < expression.length && Character.isWhitespace(expression[position])) {
             position++
         }
 
@@ -509,8 +508,7 @@ class ExpressionParser(private val expression: String) {
     private fun scanString(quoteChar: Char) {
         val start = position
         position++ // è·³è¿å¼å§çå¼å·
-
-        while (position < expression.length) {
+                while (position < expression.length) {
             val c = expression[position]
             position++
 
@@ -532,7 +530,7 @@ class ExpressionParser(private val expression: String) {
         position++ // è·³è¿å¼å§ç `
 
         // æ¥æ¾${æèç»æç`
-        while (position < expression.length) {
+                while (position < expression.length) {
             if (position + 1 < expression.length &&
                             expression[position] == '$' &&
                             expression[position + 1] == '{'
@@ -560,7 +558,7 @@ class ExpressionParser(private val expression: String) {
         position++
 
         // å¤çå¤å­ç¬¦æä½ç¬¦
-        if (position < expression.length) {
+                if (position < expression.length) {
             val nextChar = expression[position]
 
             if ((c == '+' ||
@@ -595,7 +593,8 @@ class ExpressionParser(private val expression: String) {
         nextToken()
         val nextToken = currentToken
 
-        // æ¢å¤ç¶æ?       position = savedPosition
+        // æ¢å¤ç¶æ?
+                position = savedPosition
         currentToken = savedToken
         currentTokenType = savedType
 

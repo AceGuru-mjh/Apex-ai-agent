@@ -59,7 +59,7 @@ fun EnhancedTerminalScreen(
     val scope = rememberCoroutineScope()
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
-    val inputFocus = remember { FocusRequester() }
+        val inputFocus = remember { FocusRequester() }
 
     LaunchedEffect(activeSession?.lines?.size) {
         val lines = activeSession?.lines ?: return@LaunchedEffect
@@ -122,7 +122,7 @@ fun EnhancedTerminalScreen(
                 LazyColumn(state = listState, modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     items(activeSession?.lines ?: emptyList()) { line ->
                         val lineIdx = activeSession!!.lines.indexOf(line)
-                        val isMatch = searchMatches.contains(lineIdx) && lineIdx == searchMatches.getOrNull(searchMatchIndex)
+        val isMatch = searchMatches.contains(lineIdx) && lineIdx == searchMatches.getOrNull(searchMatchIndex)
                         Row(Modifier.fillMaxWidth().background(if (isMatch) theme.promptColor.copy(alpha = 0.15f) else Color.Transparent)) {
                             val segments = remember(line.text) { AnsiParser.parse(line.text) }
                             if (segments.size == 1 && segments.first().color == null) {
@@ -136,7 +136,7 @@ fun EnhancedTerminalScreen(
 
                 AnimatedVisibility(visible = reverseSearchOpen) {
                     val match = viewModel.getReverseSearchMatch()
-                    val focus = remember { FocusRequester() }
+        val focus = remember { FocusRequester() }
                     LaunchedEffect(Unit) { focus.requestFocus() }
                     Surface(color = theme.backgroundColor) {
                         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -205,7 +205,7 @@ fun EnhancedTerminalScreen(
             }
 
             // 危险命令确认对话框
-            pendingDangerous?.let { danger ->
+                pendingDangerous?.let { danger ->
                 AlertDialog(
                     onDismissRequest = { viewModel.cancelDangerousCommand() },
                     icon = { Icon(Icons.Default.Warning, null, tint = Color(danger.level.color)) },
@@ -220,7 +220,7 @@ fun EnhancedTerminalScreen(
             }
 
             // 代码段编辑器 BottomSheet
-            if (snippetEditorOpen) {
+                if (snippetEditorOpen) {
                 SnippetEditorSheet(
                     existing = editingSnippet,
                     theme = theme,
@@ -251,7 +251,7 @@ private fun CommandPaletteOverlay(viewModel: EnhancedTerminalViewModel, onExecut
                 HorizontalDivider(color = Color(0xFF334155))
                 LazyColumn(Modifier.fillMaxWidth()) {
                     items(results.size) { idx -> val item = results[idx]; Row(Modifier.fillMaxWidth().background(if (idx == 0) Color(0xFF00E5FF).copy(alpha = 0.15f) else Color.Transparent).clickable { onExecute(item) }.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        val icon = when (item) { is CommandPaletteItem.HistoryItem -> "📜"; is CommandPaletteItem.QuickCommandItem -> item.cmd.icon; is CommandPaletteItem.AliasItem -> "🔗"; is CommandPaletteItem.SnippetItem -> "📝"; is CommandPaletteItem.BuiltInItem -> "⚡" }
+        val icon = when (item) { is CommandPaletteItem.HistoryItem -> "📜"; is CommandPaletteItem.QuickCommandItem -> item.cmd.icon; is CommandPaletteItem.AliasItem -> "🔗"; is CommandPaletteItem.SnippetItem -> "📝"; is CommandPaletteItem.BuiltInItem -> "⚡" }
                         Text(icon, fontSize = 14.sp); Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) { val title = when (item) { is CommandPaletteItem.HistoryItem -> item.command; is CommandPaletteItem.QuickCommandItem -> item.cmd.label; is CommandPaletteItem.AliasItem -> "${item.alias.alias} → ${item.alias.command}"; is CommandPaletteItem.SnippetItem -> item.snippet.name; is CommandPaletteItem.BuiltInItem -> item.name }; Text(title, color = Color.White, fontSize = 12.sp, fontFamily = FontFamily.Monospace, maxLines = 1); val desc = when (item) { is CommandPaletteItem.QuickCommandItem -> item.cmd.command; is CommandPaletteItem.AliasItem -> item.alias.description ?: ""; is CommandPaletteItem.SnippetItem -> item.snippet.content.take(40); is CommandPaletteItem.BuiltInItem -> item.description; else -> "" }; if (desc.isNotBlank()) Text(desc, color = Color(0xFF94A3B8), fontSize = 10.sp, maxLines = 1) }
                     }}
@@ -294,7 +294,7 @@ private fun SnippetEditorSheet(
             )
 
             // 名称
-            OutlinedTextField(
+                OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("名称", color = theme.commentColor) },
@@ -309,7 +309,7 @@ private fun SnippetEditorSheet(
             )
 
             // 语言
-            OutlinedTextField(
+                OutlinedTextField(
                 value = language,
                 onValueChange = { language = it },
                 label = { Text("语言", color = theme.commentColor) },
@@ -324,7 +324,7 @@ private fun SnippetEditorSheet(
             )
 
             // 内容(多行)
-            OutlinedTextField(
+                OutlinedTextField(
                 value = content,
                 onValueChange = { content = it },
                 label = { Text("命令内容(支持多行)", color = theme.commentColor) },
@@ -342,7 +342,7 @@ private fun SnippetEditorSheet(
             )
 
             // 标签
-            OutlinedTextField(
+                OutlinedTextField(
                 value = tagsText,
                 onValueChange = { tagsText = it },
                 label = { Text("标签(空格分隔)", color = theme.commentColor) },
@@ -357,7 +357,7 @@ private fun SnippetEditorSheet(
             )
 
             // 操作按钮
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = onClose,
                     modifier = Modifier.weight(1f),

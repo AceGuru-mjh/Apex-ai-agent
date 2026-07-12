@@ -66,7 +66,7 @@ class ConfigManager(
 
     init {
         defaultProvider.priority // 确保初始化
-        addProvider(0, defaultProvider)
+                addProvider(0, defaultProvider)
     }
 
     // ==================== 配置源管理 ====================
@@ -301,7 +301,7 @@ class ConfigManager(
         val snapshot = snapshot()
         for (path in snapshot.keys) {
             val configKey = registeredKeys[path] ?: ConfigKey(path = path)
-            val defaultValue = configKey.defaultValue
+        val defaultValue = configKey.defaultValue
             setWithSource(configKey, defaultValue, "reset")
         }
         for ((path, _) in snapshot) {
@@ -410,7 +410,7 @@ class ConfigManager(
         val result = mutableMapOf<String, Pair<String?, String?>>()
         for (path in allKeys) {
             val currentVal = current[path]
-            val otherVal = otherSnapshot[path]
+        val otherVal = otherSnapshot[path]
             if (currentVal != otherVal) {
                 result[path] = Pair(currentVal, otherVal)
             }
@@ -438,8 +438,7 @@ class ConfigManager(
     }
 
     // ==================== 内部实现 ====================
-
-    private fun getValue(key: ConfigKey): String? {
+                private fun getValue(key: ConfigKey): String? {
         lock.read {
             for ((_, sourceList) in providers) {
                 for (source in sourceList) {

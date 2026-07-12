@@ -32,7 +32,7 @@ class KnowledgeGraphManager(private val context: Context) {
     private val agentMemories = ConcurrentHashMap<String, MutableMap<String, LongTermMemory>>()
 
     private val _graphStats = MutableStateFlow(GraphStats())
-    val graphStats: StateFlow<GraphStats> = _graphStats
+        val graphStats: StateFlow<GraphStats> = _graphStats
 
     private val prefs = context.getSharedPreferences(GRAPH_DB_NAME, Context.MODE_PRIVATE)
 
@@ -234,14 +234,14 @@ class KnowledgeGraphManager(private val context: Context) {
                 )
 
                 val agentId = context["agentId"] as? String ?: return@launch
-                val sessionId = context["sessionId"] as? String ?: return@launch
+        val sessionId = context["sessionId"] as? String ?: return@launch
 
                 agentMemories[agentId]?.get(sessionId)?.let { memory ->
                     memory.learnedPatterns.add(pattern)
                     memory.keyInsights.add(insight)
 
                     val newSuccess = context["success"] as? Boolean ?: true
-                    val quality = (context["quality"] as? Float) ?: 0.5f
+        val quality = (context["quality"] as? Float) ?: 0.5f
                     val duration = (context["duration"] as? Long) ?: 0L
 
                     memory.performanceHistory.add(PerformanceRecord(
@@ -386,7 +386,7 @@ class KnowledgeGraphManager(private val context: Context) {
         scope.launch {
             try {
                 val nodeJson = gson.toJson(nodes.values.toList())
-                val edgeJson = gson.toJson(edges.mapValues { it.value.toList() })
+        val edgeJson = gson.toJson(edges.mapValues { it.value.toList() })
                 val memoryJson = gson.toJson(agentMemories.mapValues { it.value.toList() })
 
                 prefs.edit()
@@ -403,26 +403,26 @@ class KnowledgeGraphManager(private val context: Context) {
     private fun loadFromDisk() {
         try {
             val nodeJson = prefs.getString("nodes", null)
-            val edgeJson = prefs.getString("edges", null)
+        val edgeJson = prefs.getString("edges", null)
             val memoryJson = prefs.getString("memories", null)
 
             nodeJson?.let {
                 val json = String(Base64.decode(it, Base64.DEFAULT))
-                val type = object : TypeToken<List<KnowledgeNode>>() {}.type
+        val type = object : TypeToken<List<KnowledgeNode>>() {}.type
                 val nodeList: List<KnowledgeNode> = gson.fromJson(json, type)
                 nodeList.forEach { node -> nodes[node.id] = node }
             }
 
             edgeJson?.let {
                 val json = String(Base64.decode(it, Base64.DEFAULT))
-                val type = object : TypeToken<Map<String, List<KnowledgeEdge>>>() {}.type
+        val type = object : TypeToken<Map<String, List<KnowledgeEdge>>>() {}.type
                 val edgeMap: Map<String, List<KnowledgeEdge>> = gson.fromJson(json, type)
                 edgeMap.forEach { (k, v) -> edges[k] = v.toMutableList() }
             }
 
             memoryJson?.let {
                 val json = String(Base64.decode(it, Base64.DEFAULT))
-                val type = object : TypeToken<Map<String, Map<String, LongTermMemory>>>() {}.type
+        val type = object : TypeToken<Map<String, Map<String, LongTermMemory>>>() {}.type
                 val memoryMap: Map<String, Map<String, LongTermMemory>> = gson.fromJson(json, type)
                 memoryMap.forEach { (k, v) -> agentMemories[k] = v.toMutableMap() }
             }

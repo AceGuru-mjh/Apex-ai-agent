@@ -194,7 +194,7 @@ class DomainModelOptimizer private constructor() {
         val backwardPass = mutableMapOf<String, Long>()
         for (profile in sorted.reversed()) {
             val successors = edges.filter { it.from == profile.taskId }
-            val succMinStart = successors.minOfOrNull { backwardPass[it.to] ?: totalDuration } ?: totalDuration
+        val succMinStart = successors.minOfOrNull { backwardPass[it.to] ?: totalDuration } ?: totalDuration
             backwardPass[profile.taskId] = succMinStart - profile.estimatedDurationMs
         }
 
@@ -209,7 +209,7 @@ class DomainModelOptimizer private constructor() {
 
         for (profile in profiles) {
             val es = forwardPass[profile.taskId] ?: 0L
-            val ls = backwardPass[profile.taskId] ?: 0L
+        val ls = backwardPass[profile.taskId] ?: 0L
             val slack = ls - es
             nodes[profile.taskId] = ExecutionNode(
                 id = profile.taskId,

@@ -164,7 +164,7 @@ data class WorkflowDetailResultData(
         sb.appendLine("Connections (${connections.size}):")
         connections.forEach { conn ->
             val sourceName = nodes.find { it.id == conn.sourceNodeId }?.name ?: conn.sourceNodeId
-            val targetName = nodes.find { it.id == conn.targetNodeId }?.name ?: conn.targetNodeId
+        val targetName = nodes.find { it.id == conn.targetNodeId }?.name ?: conn.targetNodeId
             sb.append("  - ${sourceName} ，的${targetName}")
             if (conn.condition != null) {
                 sb.append(" (Condition: ${conn.condition})")

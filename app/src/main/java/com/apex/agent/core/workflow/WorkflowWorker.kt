@@ -36,7 +36,7 @@ class WorkflowWorker(
 
         return try {
             val repository = WorkflowRepository(applicationContext)
-            val result = repository.triggerWorkflow(workflowId, triggerNodeId)
+        val result = repository.triggerWorkflow(workflowId, triggerNodeId)
             
             if (result.isSuccess) {
                 AppLogger.d(TAG, "Workflow execution succeeded: ${result.getOrNull()}")

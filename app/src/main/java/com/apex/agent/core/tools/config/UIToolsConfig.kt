@@ -160,7 +160,7 @@ object UIToolsConfig {
             
             try {
                 val packageManager = context.packageManager
-                val installedApps = packageManager.getInstalledApplications(
+        val installedApps = packageManager.getInstalledApplications(
                     android.content.pm.PackageManager.GET_META_DATA
                 )
                 
@@ -169,11 +169,11 @@ object UIToolsConfig {
                 for (app in installedApps) {
                     try {
                         val appName = packageManager.getApplicationLabel(app).toString()
-                        val packageName = app.packageName
+        val packageName = app.packageName
                         
                         if (appName.isNotBlank() && packageName.isNotBlank()) {
                             // 只添加不在内置列表中的应用
-                            if (!BUILTIN_APP_PACKAGES.containsKey(appName)) {
+                if (!BUILTIN_APP_PACKAGES.containsKey(appName)) {
                                 newPackages[appName] = packageName
                             }
                         }
@@ -205,12 +205,11 @@ object UIToolsConfig {
     fun loadAppPackagesFromJson(context: Context, fileName: String = "app_packages.json"): Map<String, String> {
         return try {
             val inputStream = context.assets.open(fileName)
-            val reader = InputStreamReader(inputStream, "UTF-8")
+        val reader = InputStreamReader(inputStream, "UTF-8")
             val json = reader.use { it.readText() }
-            
-            val gson = Gson()
+        val gson = Gson()
             val type = object : TypeToken<Map<String, String>>() {}.type
-            val loadedPackages: Map<String, String> = gson.fromJson(json, type)
+        val loadedPackages: Map<String, String> = gson.fromJson(json, type)
             
             AppLogger.d(TAG, "件${fileName} 加载于${loadedPackages.size} 个应用包后")
             loadedPackages

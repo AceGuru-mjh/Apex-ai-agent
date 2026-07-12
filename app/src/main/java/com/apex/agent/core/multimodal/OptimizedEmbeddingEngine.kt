@@ -76,7 +76,6 @@ class OptimizedEmbeddingEngine(private val context: Context) {
 
     private fun generateTextEmbeddingOptimized(text: String): FloatArray {
         val embedding = FloatArray(EMBEDDING_DIMENSION)
-        
         val textBytes = text.toByteArray()
         val hash1 = text.hashCode().toLong()
         val hash2 = textBytes.fold(0L) { acc, byte -> acc * 31 + byte }
@@ -92,7 +91,6 @@ class OptimizedEmbeddingEngine(private val context: Context) {
 
     private fun generateSpeechEmbeddingOptimized(audioBase64: String): FloatArray {
         val embedding = FloatArray(EMBEDDING_DIMENSION)
-        
         val length = audioBase64.length.toLong()
         val hash = audioBase64.hashCode().toLong()
         
@@ -107,7 +105,6 @@ class OptimizedEmbeddingEngine(private val context: Context) {
 
     private fun generateImageEmbeddingOptimized(imageBase64: String): FloatArray {
         val embedding = FloatArray(EMBEDDING_DIMENSION)
-        
         val hash1 = imageBase64.hashCode().toLong()
         val hash2 = imageBase64.length.toLong()
         
@@ -122,7 +119,6 @@ class OptimizedEmbeddingEngine(private val context: Context) {
 
     private fun generateVideoEmbeddingOptimized(videoInfo: String): FloatArray {
         val embedding = FloatArray(EMBEDDING_DIMENSION)
-        
         val hash = videoInfo.hashCode().toLong()
         
         for (i in embedding.indices) {
@@ -136,7 +132,6 @@ class OptimizedEmbeddingEngine(private val context: Context) {
 
     private fun generateFileEmbeddingOptimized(fileInfo: String): FloatArray {
         val embedding = FloatArray(EMBEDDING_DIMENSION)
-        
         val hash = fileInfo.hashCode().toLong()
         
         for (i in embedding.indices) {
@@ -149,7 +144,6 @@ class OptimizedEmbeddingEngine(private val context: Context) {
 
     private fun generateStructuredEmbeddingOptimized(data: String): FloatArray {
         val embedding = FloatArray(EMBEDDING_DIMENSION)
-        
         val lines = data.split("\n").filter { it.isNotBlank() }
         val hash = lines.fold(0L) { acc, line -> acc * 31 + line.hashCode() }
         
@@ -215,7 +209,7 @@ class OptimizedEmbeddingEngine(private val context: Context) {
 
         var totalWeight = 0.0
         val weights = embeddings.map { embedding ->
-            val weight = baseWeights.getOrDefault(embedding.type, 1.0)
+        val weight = baseWeights.getOrDefault(embedding.type, 1.0)
             totalWeight += weight
             weight
         }

@@ -29,8 +29,7 @@ class SkillTaskQueue {
         NORMAL(NORMAL_PRIORITY),
         HIGH(7),
         HIGHEST(MAX_PRIORITY);
-
-        companion object {
+            companion object {
             fun fromValue(value: Int): Priority {
                 return entries.minByOrNull { kotlin.math.abs(it.value - value) } ?: NORMAL
             }
@@ -321,7 +320,7 @@ class SkillTaskQueue {
         }
 
         val estimatedWait = if (pendingTasks.isNotEmpty()) {
-            val avgTaskDuration = if (totalExecutionTime.get() > 0 && completedCount.get() > 0) {
+        val avgTaskDuration = if (totalExecutionTime.get() > 0 && completedCount.get() > 0) {
                 totalExecutionTime.get() / completedCount.get()
             } else 1000L
             pendingTasks.size * avgTaskDuration

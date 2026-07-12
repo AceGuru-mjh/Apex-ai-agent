@@ -62,7 +62,7 @@ private val lastThrottleTimes = ConcurrentHashMap<Class<*>, AtomicLong>()
  */
 fun <T : Any> EventBus.throttledEvent(event: T, minIntervalMs: Long) {
     val now = System.currentTimeMillis()
-    val lastTime = lastThrottleTimes.getOrPut(event.javaClass) { AtomicLong(0) }
+        val lastTime = lastThrottleTimes.getOrPut(event.javaClass) { AtomicLong(0) }
     if (now - lastTime.get() >= minIntervalMs) {
         lastTime.set(now)
         publish(event)

@@ -41,7 +41,7 @@ class SkillPluginLoader private constructor(private val context: Context) {
     private val pluginsRootDir: File
         get() {
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val ApexDir = File(downloadsDir, "Apex")
+        val ApexDir = File(downloadsDir, "Apex")
             val pluginsDir = File(ApexDir, SkillPluginConstants.PLUGIN_DIR)
             if (!pluginsDir.exists()) {
                 pluginsDir.mkdirs()
@@ -225,7 +225,7 @@ class SkillPluginLoader private constructor(private val context: Context) {
 
         return try {
             val content = configFile.readText()
-            val data = json.decodeFromString<PluginConfigData>(content)
+        val data = json.decodeFromString<PluginConfigData>(content)
             data.mainClass
         } catch (e: Exception) {
             null
@@ -347,7 +347,7 @@ class SkillPluginLoader private constructor(private val context: Context) {
 
 suspend fun SkillPluginLoader.discoverPlugins(): List<File> = withContext(Dispatchers.IO) {
     val pluginsDir = getPluginsDirectory()
-    val discovered = mutableListOf<File>()
+        val discovered = mutableListOf<File>()
 
     pluginsDir.listFiles()?.forEach { file ->
         when {

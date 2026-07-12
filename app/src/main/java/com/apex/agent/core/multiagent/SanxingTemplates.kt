@@ -29,15 +29,15 @@ enum class TemplateCategory(val displayName: String) {
  */
 data class TemplateConfig(
     // 激活的Agent列表（角色枚举名，
-    val activeAgentRoles: List<String>,
+                val activeAgentRoles: List<String>,
     // 任务初始提示词（用户发送消息前的预设）
-    val systemPrompt: String? = null,
+                val systemPrompt: String? = null,
     // 各Agent的特定配置覆目
-    val agentOverrides: Map<String, AgentOverride>? = null,
+                val agentOverrides: Map<String, AgentOverride>? = null,
     // 是否启用智能任务分配
-    val enableIntelligentAllocation: Boolean = true,
+                val enableIntelligentAllocation: Boolean = true,
     // 搜索相关配置（深度搜索模板用，
-    val searchConfig: SearchConfig? = null
+                val searchConfig: SearchConfig? = null
 )
 
 /**

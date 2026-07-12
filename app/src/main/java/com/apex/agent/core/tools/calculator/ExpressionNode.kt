@@ -148,7 +148,7 @@ data class TemplateStringNode(
             result.toDouble()
         } catch (e: NumberFormatException) {
             // JS的行为是返回NaN
-            Double.NaN
+                Double.NaN
         }
     }
 }

@@ -51,31 +51,31 @@ class DefaultErrorClassifier : ErrorClassifier {
 
         return when {
             // 权限类
-            typeName.contains("security") || typeName.contains("permission") ||
+                typeName.contains("security") || typeName.contains("permission") ||
                 typeName.contains("auth") || message.contains("unauthorized") ||
                 message.contains("forbidden") || message.contains("403") -> ErrorCategory.PERMISSION
 
             // 校验类
-            typeName.contains("illegalargument") || typeName.contains("validation") ||
+                typeName.contains("illegalargument") || typeName.contains("validation") ||
                 message.contains("invalid") || message.contains("bad request") ||
                 message.contains("400") -> ErrorCategory.VALIDATION
 
             // 超时
-            typeName.contains("timeout") || typeName.contains("cancelled") ||
+                typeName.contains("timeout") || typeName.contains("cancelled") ||
                 message.contains("timed out") || message.contains("deadline") -> ErrorCategory.TIMEOUT
 
             // 限流
-            message.contains("rate limit") || message.contains("too many requests") ||
+                message.contains("rate limit") || message.contains("too many requests") ||
                 message.contains("429") || message.contains("throttl") -> ErrorCategory.RATE_LIMIT
 
             // 网络
-            typeName.contains("ioexception") || typeName.contains("socket") ||
+                typeName.contains("ioexception") || typeName.contains("socket") ||
                 typeName.contains("connect") || message.contains("network") ||
                 message.contains("connection") || message.contains("503") ||
                 message.contains("502") || message.contains("504") -> ErrorCategory.NETWORK
 
             // 持久性
-            message.contains("not found") || message.contains("404") ||
+                message.contains("not found") || message.contains("404") ||
                 message.contains("gone") || message.contains("410") -> ErrorCategory.PERSISTENT
 
             else -> ErrorCategory.UNKNOWN
@@ -106,8 +106,7 @@ class CircuitBreaker(
     private val successCount = AtomicInteger(0)
     private val openedAt = AtomicLong(0)
     private val halfOpenTrials = AtomicInteger(0)
-
-    val currentState: State get() = state.get()
+        val currentState: State get() = state.get()
 
     /**
      * 检查是否允许请求通过
@@ -152,7 +151,7 @@ class CircuitBreaker(
         successCount.set(0)
         if (state.get() == State.HALF_OPEN) {
             // 半开状态下失败，重新熔断
-            if (state.compareAndSet(State.HALF_OPEN, State.OPEN)) {
+                if (state.compareAndSet(State.HALF_OPEN, State.OPEN)) {
                 openedAt.set(System.currentTimeMillis())
                 onStateChange?.invoke(State.HALF_OPEN, State.OPEN)
             }

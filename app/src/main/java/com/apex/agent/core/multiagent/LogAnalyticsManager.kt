@@ -83,7 +83,7 @@ class LogAnalyticsManager {
         logs[id] = entry
 
         // 更新统计数据
-        updateComponentStats(component, duration)
+                updateComponentStats(component, duration)
         updateAgentStats(agentId, level == LogLevel.ERROR, duration)
         updateTaskTypeStats(taskId, details?.get("difficulty") as? Int, duration, level != LogLevel.ERROR)
     }
@@ -103,7 +103,7 @@ class LogAnalyticsManager {
     private fun updateTaskTypeStats(taskId: String?, difficulty: Int?, duration: Long?, success: Boolean) {
         if (taskId != null && duration != null) {
             val taskType = taskId.split("_")[0] // 简单提取任务类，
-           taskTypeStats.computeIfAbsent(taskType) { mutableListOf() }.add(Triple(difficulty ?: 1, duration, success))
+                taskTypeStats.computeIfAbsent(taskType) { mutableListOf() }.add(Triple(difficulty ?: 1, duration, success))
         }
     }
 
@@ -137,9 +137,9 @@ class LogAnalyticsManager {
         }
 
         val agentStatsMap = agentStats.mapValues { (_, data) ->
-            val total = data.size
+        val total = data.size
             val successful = data.count { it.first }
-            val totalDuration = data.sumOf { it.second }
+        val totalDuration = data.sumOf { it.second }
             AgentStats(
                 totalTasks = total,
                 successfulTasks = successful,
@@ -150,9 +150,9 @@ class LogAnalyticsManager {
         }
 
         val taskTypeStatsMap = taskTypeStats.mapValues { (_, data) ->
-            val total = data.size
+        val total = data.size
             val successful = data.count { it.third }
-            val totalDifficulty = data.sumOf { it.first }
+        val totalDifficulty = data.sumOf { it.first }
             val totalDuration = data.sumOf { it.second }
             TaskTypeStats(
                 totalTasks = total,
@@ -264,19 +264,19 @@ class LogAnalyticsManager {
     }
 
     // 高级分析功能：识别系统瓶，   fun identifyBottlenecks(): List<Pair<String, Double>> {
-        return componentStats.map { (component, durations) ->
+                return componentStats.map { (component, durations) ->
             val avgDuration = durations.average()
             Pair(component, avgDuration)
         }.sortedByDescending { it.second }
     }
 
     // 高级分析功能：Agent性能排名
-    fun rankAgentsByPerformance(): List<Pair<String, Double>> {
+                fun rankAgentsByPerformance(): List<Pair<String, Double>> {
         return agentStats.map { (agentId, data) ->
             val successRate = data.count { it.first }.toDouble() / data.size
-            val avgDuration = data.sumOf { it.second }.toDouble() / data.size
+        val avgDuration = data.sumOf { it.second }.toDouble() / data.size
             val performanceScore = successRate * (1000 / (avgDuration + 1)) // 分数越高越好
-            Pair(agentId, performanceScore)
+                Pair(agentId, performanceScore)
         }.sortedByDescending { it.second }
     }
 }

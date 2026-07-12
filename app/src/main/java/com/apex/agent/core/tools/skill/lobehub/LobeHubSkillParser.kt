@@ -45,7 +45,7 @@ class LobeHubSkillParser {
         val lines = content.lines()
         
         // Check for frontmatter
-        if (lines.isNotEmpty() && lines[0].trim() == FRONTMATTER_DELIMITER) {
+                if (lines.isNotEmpty() && lines[0].trim() == FRONTMATTER_DELIMITER) {
             val endIndex = lines.drop(1).indexOfFirst { it.trim() == FRONTMATTER_DELIMITER }
             if (endIndex >= 0) {
                 val frontmatter = lines.subList(1, endIndex + 1)
@@ -59,7 +59,7 @@ class LobeHubSkillParser {
             }
         } else {
             // No frontmatter, try to parse from body
-            parseBody(lines, spec)
+                parseBody(lines, spec)
         }
 
         return spec
@@ -71,9 +71,9 @@ class LobeHubSkillParser {
     fun parseSkillFile(file: File): LobeHubSkillSpec {
         return try {
             val content = file.readText()
-            val spec = parseSkillMd(content)
+        val spec = parseSkillMd(content)
             // Use filename as identifier if not set
-            if (spec.identifier.isBlank()) {
+                if (spec.identifier.isBlank()) {
                 spec.copy(identifier = file.nameWithoutExtension)
             }
             spec
@@ -137,7 +137,7 @@ class LobeHubSkillParser {
                 }
                 trimmed.startsWith("identifier:") || trimmed.startsWith("name:") -> {
                     val key = if (trimmed.startsWith("identifier:")) "identifier" else "name"
-                    val value = trimmed.substringAfter(":").trim().unquote()
+        val value = trimmed.substringAfter(":").trim().unquote()
                     if (key == "identifier") identifier = value else name = value
                 }
                 trimmed.startsWith("description:") -> {
@@ -174,10 +174,10 @@ class LobeHubSkillParser {
 
     private fun parseBody(lines: List<String>, spec: LobeHubSkillSpec) {
         // Extract title (first # heading)
-        val title = lines.find { it.startsWith("# ") }?.substringAfter("# ") ?: ""
+                val title = lines.find { it.startsWith("# ") }?.substringAfter("# ") ?: ""
         
         // Extract sections
-        var currentSection = ""
+                var currentSection = ""
         var sectionContent = StringBuilder()
         val sections = mutableMapOf<String, String>()
         
@@ -204,12 +204,12 @@ class LobeHubSkillParser {
         }
 
         // Update spec with parsed sections
-        val description = sections["description"] ?: sections["概述"] ?: ""
+                val description = sections["description"] ?: sections["概述"] ?: ""
         val usage = sections["usage"] ?: sections["使用方法"] ?: sections["使用者輸具] ?: ""
         val inputs = sections["inputs"] ?: sections["輸入"] ?: ""
 
         // If no description in frontmatter, use body
-        if (spec.description.isBlank() && description.isNotBlank()) {
+                if (spec.description.isBlank() && description.isNotBlank()) {
             spec.description = description
         }
     }

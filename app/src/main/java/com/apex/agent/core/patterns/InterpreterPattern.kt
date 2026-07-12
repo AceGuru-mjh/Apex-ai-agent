@@ -261,7 +261,7 @@ class ExpressionParser(private val input: String) {
             }
             input[pos] == '"' || input[pos] == '\'' -> {
                 val quote = input[pos]; pos++
-                val start = pos
+        val start = pos
                 while (pos < input.length && input[pos] != quote) pos++
                 val str = input.substring(start, pos)
                 if (pos < input.length) pos++

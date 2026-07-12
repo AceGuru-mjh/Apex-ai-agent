@@ -24,15 +24,15 @@ import java.util.concurrent.ConcurrentHashMap
  */
 enum class GameType {
     TEXT_ADVENTURE,   // 文字冒险
-    RIDDLE,           // 猜谜
-    QUIZ,             // 知识问答
-    ROLE_PLAY,        // 角色扮演
-    TWENTY_QUESTIONS, // 二十问
-    WORD_CHAIN,       // 单词接龙
-    STORY_CHAIN,      // 故事接龙
-    WOULD_YOU_RATHER, // 二选一
-    TRIVIA,           // 冷知识
-    IMPROV            // 即兴表演
+                RIDDLE,           // 猜谜
+                QUIZ,             // 知识问答
+                ROLE_PLAY,        // 角色扮演
+                TWENTY_QUESTIONS, // 二十问
+                WORD_CHAIN,       // 单词接龙
+                STORY_CHAIN,      // 故事接龙
+                WOULD_YOU_RATHER, // 二选一
+                TRIVIA,           // 冷知识
+                IMPROV            // 即兴表演
 }
 
 /**
@@ -40,10 +40,10 @@ enum class GameType {
  */
 enum class GameState {
     IDLE,             // 未开始
-    PLAYING,          // 进行中
-    WAITING_INPUT,    // 等待玩家输入
-    PAUSED,           // 暂停
-    ENDED             // 已结束
+                PLAYING,          // 进行中
+                WAITING_INPUT,    // 等待玩家输入
+                PAUSED,           // 暂停
+                ENDED             // 已结束
 }
 
 /**
@@ -107,7 +107,7 @@ data class Question(
     val id: String,
     val category: String,
     val difficulty: Int,  // 1-5
-    val question: String,
+                val question: String,
     val answer: String,
     val options: List<String> = emptyList(),
     val hints: List<String> = emptyList(),
@@ -185,14 +185,14 @@ class ConversationGameEngine {
         val updatedHistory = session.history + updatedMove
 
         // 更新分数
-        val updatedScore = if (result is MoveResult.Correct) {
+                val updatedScore = if (result is MoveResult.Correct) {
             session.score.toMutableMap().apply {
                 this[player] = (this[player] ?: 0) + result.points
             }.toMap()
         } else session.score
 
         // 检查游戏结束
-        val newRound = if (result is MoveResult.Correct || result is MoveResult.Victory) {
+                val newRound = if (result is MoveResult.Correct || result is MoveResult.Victory) {
             session.round + 1
         } else session.round
 
@@ -204,8 +204,8 @@ class ConversationGameEngine {
         }
 
         // 切换玩家
-        val nextPlayer = if (players > 1) {
-            val idx = session.players.indexOf(player)
+                val nextPlayer = if (players > 1) {
+        val idx = session.players.indexOf(player)
             session.players[(idx + 1) % session.players.size]
         } else player
 
@@ -322,8 +322,7 @@ class ConversationGameEngine {
     }
 
     // ============ 游戏处理器 ============
-
-    private fun handleRiddleInput(session: GameSession, player: String, input: String): MoveResult {
+                private fun handleRiddleInput(session: GameSession, player: String, input: String): MoveResult {
         val q = session.gameData["currentQuestion"] as? Question ?: return MoveResult.Continue("无题目")
         return if (input.trim().equals(q.answer, ignoreCase = true)) {
             MoveResult.Correct("答对了！答案就是「${q.answer}」", 10)
@@ -391,7 +390,7 @@ class ConversationGameEngine {
 
     private fun handleTextAdventure(session: GameSession, player: String, input: String): MoveResult {
         // 简化的文字冒险
-        val scenes = mapOf(
+                val scenes = mapOf(
             "十字路口" to "你选择往${input}走，前方出现了...",
             "森林" to "你进入了森林，听到奇怪的声音...",
             "城堡" to "你来到一座古堡前，门虚掩着..."
@@ -424,8 +423,7 @@ class ConversationGameEngine {
     }
 
     // ============ 初始化 ============
-
-    private fun initializeGameData(type: GameType): Map<String, Any> {
+                private fun initializeGameData(type: GameType): Map<String, Any> {
         return when (type) {
             GameType.RIDDLE -> mapOf("currentQuestion" to questionBank.filter { it.category == "riddle" }.randomOrNull() ?: Question("1", "riddle", 1, "?", "?"))
             GameType.QUIZ -> mapOf("currentQuestion" to questionBank.filter { it.category == "quiz" }.randomOrNull() ?: Question("1", "quiz", 1, "?", "?"))
@@ -466,7 +464,7 @@ class ConversationGameEngine {
 
     private fun loadBuiltinQuestions() {
         // 谜语
-        questionBank.addAll(listOf(
+                questionBank.addAll(listOf(
             Question("r1", "riddle", 1, "千条线，万条线，落到水里看不见", "雨", hints = listOf("和天气有关", "从天上掉下来")),
             Question("r2", "riddle", 1, "麻屋子，红帐子，里面住着白胖子", "花生", hints = listOf("是一种食物", "有壳")),
             Question("r3", "riddle", 2, "有时圆，有时弯，白天看不见，晚上亮闪闪", "月亮", hints = listOf("在天上", "和夜晚有关")),
@@ -474,14 +472,14 @@ class ConversationGameEngine {
             Question("r5", "riddle", 3, "一物生得真奇怪，腰里长着一口袋，孩子袋里吃奶奶，奶奶带着孩子来", "袋鼠", hints = listOf("动物", "澳洲"))
         ))
         // 知识问答
-        questionBank.addAll(listOf(
+                questionBank.addAll(listOf(
             Question("q1", "quiz", 1, "地球上最大的海洋是？", "太平洋", options = listOf("大西洋", "太平洋", "印度洋", "北冰洋")),
             Question("q2", "quiz", 2, "Python 语言的创始人是？", "Guido van Rossum", options = listOf("James Gosling", "Guido van Rossum", "Bjarne Stroustrup", "Brendan Eich")),
             Question("q3", "quiz", 1, "一年的平方根大约是？", "19", options = listOf("18", "19", "20", "21")),
             Question("q4", "quiz", 3, "相对论的提出者是？", "爱因斯坦", options = listOf("牛顿", "爱因斯坦", "霍金", "伽利略"))
         ))
         // 冷知识
-        questionBank.addAll(listOf(
+                questionBank.addAll(listOf(
             Question("t1", "trivia", 1, "蜗牛有多少颗牙齿？", "25600", explanation = "蜗牛有约 25600 颗微小牙齿"),
             Question("t2", "trivia", 2, "章鱼有几个心脏？", "3", explanation = "章鱼有 3 个心脏"),
             Question("t3", "trivia", 1, "蜂鸟不能做什么？", "走路", explanation = "蜂鸟腿太短不能走路"),

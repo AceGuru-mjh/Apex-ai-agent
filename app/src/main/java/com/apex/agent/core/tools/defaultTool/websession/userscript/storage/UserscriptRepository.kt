@@ -293,13 +293,13 @@ internal class UserscriptRepository private constructor(
         val payloads =
             matched.mapNotNull { entity ->
                 val source = runCatching { File(entity.scriptFilePath).readText() }.getOrNull() ?: return@mapNotNull null
-                val metadata = entityToMetadata(entity)
+        val metadata = entityToMetadata(entity)
                 val values =
                     store.getValuesForScript(entity.id).associate { value ->
                         value.storageKey to value.valueJson
                     }
                 val resourceEntities = resourcesByScript[entity.id].orEmpty().sortedBy { it.resourceKey }
-                val requireBodies =
+        val requireBodies =
                     resourceEntities
                         .filter { it.entryType == ENTRY_TYPE_REQUIRE }
                         .mapNotNull { resource -> runCatching { File(resource.localPath).readText() }.getOrNull() }
@@ -312,7 +312,7 @@ internal class UserscriptRepository private constructor(
                                 null
                             } else {
                                 val bytes = file.readBytes()
-                                val mimeType = resource.mimeType ?: "application/octet-stream"
+        val mimeType = resource.mimeType ?: "application/octet-stream"
                                 val dataUrl =
                                     "data:${mimeType};base64," +
                                         Base64.encodeToString(bytes, Base64.NO_WRAP)
@@ -426,7 +426,7 @@ internal class UserscriptRepository private constructor(
         val requireResources =
             metadata.requires.mapIndexed { index, entry ->
                 val absoluteUrl = resolveRemoteUrl(sourceUrl, entry.url)
-                val target =
+        val target =
                     File(
                         cacheDir,
                         "${buildSafeCachePrefix(metadata)}_require_${index.toString().padStart(4, '0')}.js"
@@ -448,7 +448,7 @@ internal class UserscriptRepository private constructor(
         val namedResources =
             metadata.resources.mapIndexed { index, entry ->
                 val absoluteUrl = resolveRemoteUrl(sourceUrl, entry.url)
-                val extension = MimeTypeMap.getFileExtensionFromUrl(absoluteUrl).takeIf { !it.isNullOrBlank() }
+        val extension = MimeTypeMap.getFileExtensionFromUrl(absoluteUrl).takeIf { !it.isNullOrBlank() }
                 val target =
                     File(
                         cacheDir,
@@ -581,8 +581,8 @@ internal class UserscriptRepository private constructor(
             throw IllegalArgumentException("Empty remote dependency URL")
         }
         if (trimmed.startsWith("http://", ignoreCase = true) ||
-            trimmed.startsWith("https://", ignoreCase = true) ||
-            trimmed.startsWith("data:", ignoreCase = true)
+                trimmed.startsWith("https://", ignoreCase = true) ||
+                trimmed.startsWith("data:", ignoreCase = true)
         ) {
             return trimmed
         }
@@ -594,9 +594,9 @@ internal class UserscriptRepository private constructor(
     private fun fetchRemoteAsset(url: String, targetFile: File): FetchedAsset {
         if (url.startsWith("data:", ignoreCase = true)) {
             val header = url.substringAfter("data:", "").substringBefore(',', "")
-            val payload = url.substringAfter(',', "")
+        val payload = url.substringAfter(',', "")
             val mimeType = header.substringBefore(';', "application/octet-stream")
-            val bytes =
+        val bytes =
                 if (header.contains(";base64", ignoreCase = true)) {
                     Base64.decode(payload, Base64.DEFAULT)
                 } else {
@@ -657,9 +657,9 @@ internal class UserscriptRepository private constructor(
         val max = maxOf(candidateParts.size, currentParts.size)
         for (index in 0 until max) {
             val left = candidateParts.getOrNull(index).orEmpty()
-            val right = currentParts.getOrNull(index).orEmpty()
+        val right = currentParts.getOrNull(index).orEmpty()
             val leftNumber = left.toLongOrNull()
-            val rightNumber = right.toLongOrNull()
+        val rightNumber = right.toLongOrNull()
             val comparison =
                 when {
                     leftNumber != null && rightNumber != null -> leftNumber.compareTo(rightNumber)

@@ -22,8 +22,7 @@ class SkillEvolutionEngine(
                 ?: return@withContext EvolutionResult(false, "Skill not found")
 
             val evolvedSubtasks = evolveSubtasks(skill.subtaskStructure, executionFeedback)
-
-            val evolvedSkill = skill.copy(
+        val evolvedSkill = skill.copy(
                 subtaskStructure = evolvedSubtasks,
                 version = skill.version + 1,
                 updatedAt = System.currentTimeMillis()
@@ -48,14 +47,14 @@ class SkillEvolutionEngine(
 
             repeat(config.generations) { generation ->
                 val fitnessScores = population.map { Individual(it, calculateFitness(it, feedback)) }
-                val sorted = fitnessScores.sortedByDescending { it.fitness }
+        val sorted = fitnessScores.sortedByDescending { it.fitness }
 
                 if (sorted.first().fitness >= config.targetFitness) {
                     return serializeSubtasks(sorted.first().chromosome)
                 }
 
                 val selected = selection(sorted)
-                val offspring = crossover(selected)
+        val offspring = crossover(selected)
                 val mutated = mutation(offspring)
 
                 population.clear()
@@ -196,11 +195,11 @@ class SkillEvolutionEngine(
 
         for (i in population.indices step 2) {
             val parent1 = population.getOrElse(i) { population.last() }
-            val parent2 = population.getOrElse(i + 1) { parent1 }
+        val parent2 = population.getOrElse(i + 1) { parent1 }
 
             if (Random.nextFloat() < config.crossoverRate) {
                 val crossPoint = min(parent1.size, parent2.size).coerceAtLeast(1)
-                val child1 = parent1.take(crossPoint) + parent2.drop(crossPoint)
+        val child1 = parent1.take(crossPoint) + parent2.drop(crossPoint)
                 val child2 = parent2.take(crossPoint) + parent1.drop(crossPoint)
                 offspring.add(child1)
                 offspring.add(child2)
@@ -243,19 +242,18 @@ class SkillEvolutionEngine(
             var mergedCount = 0
 
             val groupedSkills = skills.groupBy { skill ->
-                val subtasks = parseSubtasks(skill.subtaskStructure)
+        val subtasks = parseSubtasks(skill.subtaskStructure)
                 subtasks.map { it.taskType }.joinToString(",")
             }
 
             groupedSkills.values.forEach { group ->
                 if (group.size > 1) {
                     val bestSkill = group.maxByOrNull { it.successRate } ?: return@forEach
-
-                    val others = group.filter { it.id != bestSkill.id }
+        val others = group.filter { it.id != bestSkill.id }
 
                     others.forEach { skill ->
                         val mergedExecutions = bestSkill.totalExecutions + skill.totalExecutions
-                        val mergedSuccesses = bestSkill.successfulExecutions + skill.successfulExecutions
+        val mergedSuccesses = bestSkill.successfulExecutions + skill.successfulExecutions
                         val newSuccessRate = if (mergedExecutions > 0) {
                             mergedSuccesses.toFloat() / mergedExecutions
                         } else bestSkill.successRate

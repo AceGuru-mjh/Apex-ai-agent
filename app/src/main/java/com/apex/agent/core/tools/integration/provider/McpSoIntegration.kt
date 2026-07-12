@@ -32,7 +32,7 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
         version = "1.0.0",
         author = "mcp.so",
         homepage = "https://mcp.so",
-        logoUrl = null,
+                logoUrl = null,
         enabled = true,
         capabilities = listOf(
             IntegrationCapability("browse", "浏览服务, "按分类浏?MCP 服务, CapabilityType.BROWSE),
@@ -72,7 +72,7 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
     override suspend fun getDetail(id: String): Result<UnifiedItem> {
         return runBlocking(Dispatchers.IO) {
             // search by exact name/id first
-            apiClient.searchServers(id).fold(
+                apiClient.searchServers(id).fold(
                 onSuccess = { servers ->
                     val match = servers.firstOrNull { it.id == id || it.name == id }
                     if (match != null) {
@@ -135,7 +135,7 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
     override suspend fun uninstall(installedId: String): Result<String> {
         return runBlocking(Dispatchers.IO) {
             val localServer = MCPLocalServer.getInstance(context)
-            val allMetadata = localServer.getAllPluginMetadata()
+        val allMetadata = localServer.getAllPluginMetadata()
             val target = allMetadata.values.find {
                 it.id == installedId || it.name.equals(installedId, ignoreCase = true)
             }
@@ -160,7 +160,7 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
     override suspend fun listInstalled(): Result<List<UnifiedItem>> {
         return runBlocking(Dispatchers.IO) {
             val localServer = MCPLocalServer.getInstance(context)
-            val allMetadata = localServer.getAllPluginMetadata()
+        val allMetadata = localServer.getAllPluginMetadata()
             val items = allMetadata.values
                 .filter { it.marketConfig != null || it.id.startsWith("mcpso_") }
                 .map { meta ->

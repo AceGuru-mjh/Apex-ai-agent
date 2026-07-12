@@ -17,10 +17,10 @@ package com.apex.agent.core.normal.skimming
 
 enum class SkimLevel {
     HEADLINE_ONLY,   // 仅标题
-    TLDR,            // 一句话总结
-    KEY_POINTS,      // 要点列表
-    SUMMARY,         // 简短摘要
-    FULL             // 完整内容
+                TLDR,            // 一句话总结
+                KEY_POINTS,      // 要点列表
+                SUMMARY,         // 简短摘要
+                FULL             // 完整内容
 }
 
 data class SkimResult(
@@ -86,7 +86,7 @@ class SkimModeProcessor {
 
     private fun extractHeadline(text: String): String {
         // 取第一个标题或第一句话
-        val firstLine = text.lines().firstOrNull { it.isNotBlank() } ?: ""
+                val firstLine = text.lines().firstOrNull { it.isNotBlank() } ?: ""
         return when {
             firstLine.matches(Regex("^#+\\s+.+")) -> firstLine.removePrefix("#").trim()
             firstLine.length < 50 -> firstLine
@@ -96,7 +96,7 @@ class SkimModeProcessor {
 
     private fun generateTLDR(text: String): String {
         // 取最重要的句子（第一个完整句子）
-        val sentences = text.split(Regex("[。.！!？?\\n]")).filter { it.isNotBlank() }
+                val sentences = text.split(Regex("[。.！!？?\\n]")).filter { it.isNotBlank() }
         val firstSentence = sentences.firstOrNull() ?: text.take(100)
         return if (firstSentence.length > 80) firstSentence.take(80) + "..." else firstSentence
     }
@@ -104,15 +104,15 @@ class SkimModeProcessor {
     private fun extractKeyPoints(text: String): List<String> {
         val points = mutableListOf<String>()
         // 已有列表项
-        Regex("(?:^|\\n)[-*•]\\s+(.+)", RegexOption.MULTILINE).findAll(text).forEach {
+                Regex("(?:^|\\n)[-*•]\\s+(.+)", RegexOption.MULTILINE).findAll(text).forEach {
             points.add(it.groupValues[1].trim())
         }
         // 标题
-        Regex("(?:^|\\n)#+\\s+(.+)", RegexOption.MULTILINE).findAll(text).forEach {
+                Regex("(?:^|\\n)#+\\s+(.+)", RegexOption.MULTILINE).findAll(text).forEach {
             points.add(it.groupValues[1].trim())
         }
         // 如果没有，从句子提取
-        if (points.isEmpty()) {
+                if (points.isEmpty()) {
             val sentences = text.split(Regex("[。.！!？?\\n]")).filter { it.isNotBlank() && it.length > 10 }
             points.addAll(sentences.take(3))
         }

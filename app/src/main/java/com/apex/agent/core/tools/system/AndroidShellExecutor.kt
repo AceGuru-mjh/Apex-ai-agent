@@ -62,16 +62,14 @@ class AndroidShellExecutor {
             val ctx = context ?: return CommandResult(false, "", "Context not initialized")
 
             // 如果调用方显式指定了身份，就直接向下传递；否则使用默认身份
-            val identity = identityOverride ?: ShellIdentity.DEFAULT
-
-            val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
+                val identity = identityOverride ?: ShellIdentity.DEFAULT
+        val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
             AppLogger.d(TAG, "Using preferred permission level: ${preferredLevel}, identity=${identity}")
 
             val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
-
-            val preferredExecutor = ShellExecutorFactory.getExecutor(ctx, actualLevel)
+        val preferredExecutor = ShellExecutorFactory.getExecutor(ctx, actualLevel)
             val permStatus = preferredExecutor.hasPermission()
-            val executorAvailable = preferredExecutor.isAvailable()
+        val executorAvailable = preferredExecutor.isAvailable()
 
             if (executorAvailable && permStatus.granted) {
                 val result = preferredExecutor.executeCommand(command, identity)
@@ -86,14 +84,13 @@ class AndroidShellExecutor {
 
         suspend fun startShellProcess(command: String): ShellProcess {
             val ctx = context ?: throw IllegalStateException("Context not initialized")
-
-            val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
+        val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
             AppLogger.d(TAG, "Starting process with preferred permission level: ${preferredLevel}")
 
             val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
-            val preferredExecutor = ShellExecutorFactory.getExecutor(ctx, actualLevel)
+        val preferredExecutor = ShellExecutorFactory.getExecutor(ctx, actualLevel)
             val permStatus = preferredExecutor.hasPermission()
-            val executorAvailable = preferredExecutor.isAvailable()
+        val executorAvailable = preferredExecutor.isAvailable()
 
             if (executorAvailable && permStatus.granted) {
                 return preferredExecutor.startProcess(command)

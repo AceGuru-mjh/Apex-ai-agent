@@ -229,13 +229,11 @@ class SkillExecutionContext(
         val completed = taskMetrics.values.count { it.state == TaskState.COMPLETED }
         val failed = taskMetrics.values.count { it.state == TaskState.FAILED }
         val cancelled = taskMetrics.values.count { it.state == TaskState.CANCELLED }
-
         val totalDuration = taskMetrics.values
             .filter { it.endTime > 0 }
             .sumOf { it.durationMs }
 
         val avgDuration = if (completed > 0) totalDuration / completed else 0L
-
         val peakMemory = taskMetrics.values
             .map { it.memoryUsageMb }
             .maxOrNull() ?: 0L

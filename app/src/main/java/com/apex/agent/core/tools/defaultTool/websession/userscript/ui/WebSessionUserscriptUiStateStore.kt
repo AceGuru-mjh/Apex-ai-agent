@@ -22,7 +22,7 @@ internal class WebSessionUserscriptUiStateStore(
     initialSupportState: UserscriptSupportState
 ) {
     private val mutableState = MutableStateFlow(WebSessionUserscriptUiState(supportState = initialSupportState))
-    val state: StateFlow<WebSessionUserscriptUiState> = mutableState.asStateFlow()
+        val state: StateFlow<WebSessionUserscriptUiState> = mutableState.asStateFlow()
 
     fun updateSupportState(value: UserscriptSupportState) {
         mutableState.update { current -> current.copy(supportState = value) }

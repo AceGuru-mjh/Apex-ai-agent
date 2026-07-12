@@ -125,13 +125,13 @@ class SkillEventTrigger private constructor() {
     private val activeExecutions = ConcurrentHashMap<String, Job>()
 
     private val _triggersFlow = MutableStateFlow<List<EventTrigger>>(emptyList())
-    val triggersFlow: StateFlow<List<EventTrigger>> = _triggersFlow.asStateFlow()
+        val triggersFlow: StateFlow<List<EventTrigger>> = _triggersFlow.asStateFlow()
 
     private val _triggerEvents = MutableSharedFlow<TriggerEvent>()
-    val triggerEvents: SharedFlow<TriggerEvent> = _triggerEvents.asSharedFlow()
+        val triggerEvents: SharedFlow<TriggerEvent> = _triggerEvents.asSharedFlow()
 
     private val _activeExecutionsCount = MutableStateFlow(0)
-    val activeExecutionsCount: StateFlow<Int> = _activeExecutionsCount.asStateFlow()
+        val activeExecutionsCount: StateFlow<Int> = _activeExecutionsCount.asStateFlow()
 
     private val eventBus = SkillEventBus.getInstance()
     private val workflowEngine = WorkflowEngine.getInstance()
@@ -264,7 +264,7 @@ class SkillEventTrigger private constructor() {
 
             ConditionType.REGEX -> {
                 val fieldValue = eventData[condition.field ?: ""]?.toString() ?: ""
-                val pattern = condition.regex ?: condition.pattern ?: ""
+        val pattern = condition.regex ?: condition.pattern ?: ""
                 try {
                     Regex(pattern).matches(fieldValue)
                 } catch (e: Exception) {
@@ -274,13 +274,13 @@ class SkillEventTrigger private constructor() {
 
             ConditionType.GREATER_THAN -> {
                 val fieldValue = eventData[condition.field ?: ""]?.toString()?.toDoubleOrNull() ?: 0.0
-                val compareValue = condition.value?.toDoubleOrNull() ?: 0.0
+        val compareValue = condition.value?.toDoubleOrNull() ?: 0.0
                 fieldValue > compareValue
             }
 
             ConditionType.LESS_THAN -> {
                 val fieldValue = eventData[condition.field ?: ""]?.toString()?.toDoubleOrNull() ?: 0.0
-                val compareValue = condition.value?.toDoubleOrNull() ?: 0.0
+        val compareValue = condition.value?.toDoubleOrNull() ?: 0.0
                 fieldValue < compareValue
             }
 
@@ -350,7 +350,6 @@ class SkillEventTrigger private constructor() {
 
     fun updateTrigger(triggerId: String, updates: (EventTrigger) -> EventTrigger): EventTrigger? {
         val trigger = triggers[triggerId] ?: return null
-
         val updatedTrigger = updates(trigger)
         triggers[triggerId] = updatedTrigger
 
@@ -408,7 +407,6 @@ class SkillEventTrigger private constructor() {
 
     private fun executeTrigger(trigger: EventTrigger, eventData: Map<String, Any>) {
         val now = System.currentTimeMillis()
-
         val lastTriggered = triggerCooldowns[trigger.id] ?: 0
         if (now - lastTriggered < trigger.cooldownMs) {
             val remainingMs = trigger.cooldownMs - (now - lastTriggered)
@@ -467,8 +465,7 @@ class SkillEventTrigger private constructor() {
             }
 
             val endTime = System.currentTimeMillis()
-
-            val execution = TriggerExecution(
+        val execution = TriggerExecution(
                 triggerId = trigger.id,
                 triggerName = trigger.name,
                 workflowId = trigger.targetWorkflowId,
@@ -526,13 +523,13 @@ class SkillEventTrigger private constructor() {
 
             ActionType.NOTIFY -> {
                 val title = action.config["title"] ?: "Trigger Notification"
-                val content = action.config["content"] ?: "Trigger was executed"
+        val content = action.config["content"] ?: "Trigger was executed"
                 AppLogger.d(TAG, "[Trigger Notify] ${title}: ${content}")
             }
 
             ActionType.UPDATE_STATE -> {
                 val key = action.config["key"]
-                val value = action.config["value"]
+        val value = action.config["value"]
                 if (key != null && value != null) {
                     AppLogger.d(TAG, "[Trigger State] Updated ${key} = ${value}")
                 }

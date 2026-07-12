@@ -149,7 +149,7 @@ class SystemIntegrationOptimizer(private val name: String = "sys-integration") {
     private suspend fun performHealthChecks() {
         for ((id, point) in integrations) {
             val status = checkHealth(point)
-            val history = healthHistory[id]
+        val history = healthHistory[id]
             history?.add(status)
             while (history != null && history.size > maxHistorySize) history.removeAt(0)
 
@@ -221,7 +221,7 @@ class ApiCallOptimizer(private val name: String = "api-optimizer") {
 
         endpoints.computeIfPresent(url) { _, endpoint ->
             val sorted = latencySamples[url]?.sorted() ?: emptyList()
-            val p95 = sorted.getOrNull((sorted.size * 0.95).toInt()) ?: latencyMs
+        val p95 = sorted.getOrNull((sorted.size * 0.95).toInt()) ?: latencyMs
             val errorRate = if (endpoint.callCount > 0)
                 (endpoint.errorRate * 0.95 + (if (success) 0.0 else 0.05)) else (if (success) 0.0 else 1.0)
             endpoint.copy(
@@ -561,7 +561,7 @@ class ServiceMeshOptimizer(private val name: String = "service-mesh") {
         return when (rule.strategy) {
             RoutingStrategy.ROUND_ROBIN -> {
                 val counter = roundRobinCounters.getOrPut(serviceName) { AtomicInteger(0) }
-                val index = counter.getAndIncrement() % healthyTargets.size
+        val index = counter.getAndIncrement() % healthyTargets.size
                 healthyTargets[index.coerceIn(0, healthyTargets.lastIndex)]
             }
             RoutingStrategy.LEAST_CONNECTIONS -> healthyTargets.minByOrNull { it.activeConnections }
@@ -569,7 +569,7 @@ class ServiceMeshOptimizer(private val name: String = "service-mesh") {
             RoutingStrategy.RANDOM -> healthyTargets.randomOrNull()
             RoutingStrategy.WEIGHTED -> {
                 val weights = rule.weight
-                val totalWeight = healthyTargets.sumOf { weights[it.serviceId] ?: 1 }
+        val totalWeight = healthyTargets.sumOf { weights[it.serviceId] ?: 1 }
                 var random = (0 until totalWeight).random()
                 healthyTargets.firstOrNull {
                     random -= weights[it.serviceId] ?: 1
@@ -594,7 +594,7 @@ class ServiceMeshOptimizer(private val name: String = "service-mesh") {
     fun recordError(serviceId: String) {
         services.computeIfPresent(serviceId) { _, node ->
             val newErrorRate = node.errorRate * 0.9 + 0.1
-            val newStatus = when {
+        val newStatus = when {
                 newErrorRate > 0.5 -> HealthStatus.UNHEALTHY
                 newErrorRate > 0.2 -> HealthStatus.DEGRADED
                 else -> node.healthStatus

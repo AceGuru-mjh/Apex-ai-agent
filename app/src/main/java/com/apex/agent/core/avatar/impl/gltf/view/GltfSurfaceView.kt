@@ -269,7 +269,7 @@ class GltfSurfaceView @JvmOverloads constructor(
     private fun renderFrame(frameTimeNanos: Long) {
         try {
             // Re-apply camera each frame because ModelViewer.render() internally updates camera from manipulator.
-            applyCameraPose()
+                applyCameraPose()
             applyAnimation(frameTimeNanos)
             modelViewer.render(frameTimeNanos)
         } catch (e: Exception) {
@@ -460,7 +460,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         if (buffers != null) {
             for (index in 0 until buffers.length()) {
                 val bufferObj = buffers.optJSONObject(index) ?: continue
-                val uri = bufferObj.optString("uri").trim()
+        val uri = bufferObj.optString("uri").trim()
                 if (!uri.startsWith("data:", ignoreCase = true)) {
                     continue
                 }
@@ -468,7 +468,7 @@ class GltfSurfaceView @JvmOverloads constructor(
                 val bytes = decodeDataUriToByteArray(uri)
                 inlineDir.mkdirs()
                 val fileName = "buffer_${index}.bin"
-                val outputFile = File(inlineDir, fileName)
+        val outputFile = File(inlineDir, fileName)
                 if (!outputFile.exists() || outputFile.length() != bytes.size.toLong()) {
                     outputFile.writeBytes(bytes)
                 }
@@ -482,7 +482,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         if (images != null) {
             for (index in 0 until images.length()) {
                 val imageObj = images.optJSONObject(index) ?: continue
-                val uri = imageObj.optString("uri").trim()
+        val uri = imageObj.optString("uri").trim()
                 val declaredMimeType = canonicalizeImageMimeType(imageObj.optString("mimeType").trim())
                 if (declaredMimeType.isNotEmpty() && declaredMimeType != imageObj.optString("mimeType").trim().lowercase()) {
                     imageObj.put("mimeType", declaredMimeType)
@@ -493,9 +493,9 @@ class GltfSurfaceView @JvmOverloads constructor(
                 }
 
                 val bytes = decodeDataUriToByteArray(uri)
-                val dataUriMimeType = inferDataUriMimeType(uri)
+        val dataUriMimeType = inferDataUriMimeType(uri)
                 val sniffedMimeType = inferMimeTypeFromBytes(bytes)
-                val effectiveMimeType = declaredMimeType
+        val effectiveMimeType = declaredMimeType
                     .ifBlank { dataUriMimeType }
                     .ifBlank { sniffedMimeType }
                 if (declaredMimeType.isBlank() && effectiveMimeType.isNotBlank()) {
@@ -508,7 +508,7 @@ class GltfSurfaceView @JvmOverloads constructor(
                     file.isFile && file.name.startsWith("image_${index}.") && file.extension.lowercase() != imageExt.lowercase()
                 }?.forEach { stale -> runCatching { stale.delete() } }
                 val fileName = "image_${index}.${imageExt}"
-                val outputFile = File(inlineDir, fileName)
+        val outputFile = File(inlineDir, fileName)
                 if (!outputFile.exists() || outputFile.length() != bytes.size.toLong()) {
                     outputFile.writeBytes(bytes)
                 }
@@ -521,7 +521,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         if (images != null && bufferViews != null && buffers != null) {
             for (index in 0 until images.length()) {
                 val imageObj = images.optJSONObject(index) ?: continue
-                val uri = imageObj.optString("uri").trim()
+        val uri = imageObj.optString("uri").trim()
                 if (uri.isNotEmpty()) {
                     continue
                 }
@@ -540,15 +540,15 @@ class GltfSurfaceView @JvmOverloads constructor(
                     continue
                 }
                 val bufferViewObj = bufferViews.optJSONObject(bufferViewIndex) ?: continue
-                val bufferIndex = bufferViewObj.optInt("buffer", -1)
+        val bufferIndex = bufferViewObj.optInt("buffer", -1)
                 val byteOffset = bufferViewObj.optInt("byteOffset", 0)
-                val byteLength = bufferViewObj.optInt("byteLength", -1)
+        val byteLength = bufferViewObj.optInt("byteLength", -1)
                 if (bufferIndex < 0 || byteLength <= 0 || byteOffset < 0) {
                     continue
                 }
 
                 val bufferBytes = bufferBytesCache.getOrPut(bufferIndex) {
-                    val bufferObj = buffers.optJSONObject(bufferIndex)
+        val bufferObj = buffers.optJSONObject(bufferIndex)
                     val bufferUri = bufferObj?.optString("uri").orEmpty().trim()
                     when {
                         bufferUri.isEmpty() -> ByteArray(0)
@@ -565,7 +565,7 @@ class GltfSurfaceView @JvmOverloads constructor(
                 }
 
                 val sampleSize = min(64, byteLength)
-                val sample = bufferBytes.copyOfRange(byteOffset, byteOffset + sampleSize)
+        val sample = bufferBytes.copyOfRange(byteOffset, byteOffset + sampleSize)
                 val sniffedMimeType = inferMimeTypeFromBytes(sample)
                 if (sniffedMimeType.isNotEmpty()) {
                     imageObj.put("mimeType", sniffedMimeType)
@@ -586,7 +586,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         val textureDiagnostics = collectTextureDiagnostics(root, sourceBaseDir)
         if (textureDiagnostics.materialsWithTextureRefs == 0 && textureDiagnostics.externalImageFileCount > 0) {
             val samples = textureDiagnostics.sampleExternalImageFiles.joinToString()
-            val unsupportedSamples = textureDiagnostics.sampleUnsupportedExternalImageFiles.joinToString()
+        val unsupportedSamples = textureDiagnostics.sampleUnsupportedExternalImageFiles.joinToString()
             AppLogger.w(
                 TAG,
                 "glTF has no texture references but directory has image files. " +
@@ -597,7 +597,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         }
 
         val preparedFile = if (changed) {
-            val normalizedFile = File(workspaceDir, "normalized.gltf")
+        val normalizedFile = File(workspaceDir, "normalized.gltf")
             normalizedFile.writeText(toNormalizedGltfJson(root))
             normalizedFile
         } else {
@@ -629,7 +629,7 @@ class GltfSurfaceView @JvmOverloads constructor(
     private fun toNormalizedGltfJson(root: JSONObject): String {
         // Filament's glTF URI / mime parsing can mis-handle escaped slashes like `\/`.
         // Serialize JSON without slash escaping so values stay as `inline/...` and `image/png`.
-        return root.toString().replace("\\/", "/")
+                return root.toString().replace("\\/", "/")
     }
 
     private fun autoLinkMissingBaseColorTextures(
@@ -675,9 +675,9 @@ class GltfSurfaceView @JvmOverloads constructor(
             }
 
             val materialName = material.optString("name").trim()
-            val matchedFile = findBestTextureFileForMaterial(materialName, candidateFiles) ?: continue
+        val matchedFile = findBestTextureFileForMaterial(materialName, candidateFiles) ?: continue
             val textureIndex = textureIndexBySourceName.getOrPut(matchedFile.name) {
-                val imageIndex = images.length()
+        val imageIndex = images.length()
                 val copiedName = "auto_image_${imageIndex}.${matchedFile.extension.lowercase()}"
                 inlineDir.mkdirs()
                 val copiedFile = File(inlineDir, copiedName)
@@ -710,7 +710,7 @@ class GltfSurfaceView @JvmOverloads constructor(
             // This model family often ships without proper glTF texture bindings and with high metallic
             // factors, which causes near-black shading when environment lighting is reduced.
             // Normalize to a non-metal workflow when we auto-link external baseColor textures.pbr.put("metallicFactor", 0.0)
-            val roughness = pbr.optDouble("roughnessFactor", 1.0)
+                val roughness = pbr.optDouble("roughnessFactor", 1.0)
             if (!roughness.isNaN() && roughness < 0.82) {
                 pbr.put("roughnessFactor", 0.82)
             }
@@ -763,7 +763,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         rgba[3] = source?.optDouble(3, 1.0)?.toFloat() ?: 1f
 
         // Match MMD preview's brighter look by lifting base color before rendering.
-        val lift = 1.22f
+                val lift = 1.22f
         val maxRgb = 1.6f
         val lifted = JSONArray()
         lifted.put((rgba[0] * lift).coerceIn(0f, maxRgb).toDouble())
@@ -836,7 +836,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         var bestFile: File? = null
         for (candidate in candidates) {
             val normalizedCandidate = normalizeNameForMatch(candidate.nameWithoutExtension)
-            val aliasScore = aliases.maxOfOrNull { alias ->
+        val aliasScore = aliases.maxOfOrNull { alias ->
                 if (normalizedCandidate.contains(alias)) alias.length * 20 else Int.MIN_VALUE
             } ?: Int.MIN_VALUE
             if (aliasScore == Int.MIN_VALUE) {
@@ -947,7 +947,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         val extensionNames = extensions.keys()
         while (extensionNames.hasNext()) {
             val extensionName = extensionNames.next()
-            val extensionValue = extensions.optJSONObject(extensionName) ?: continue
+        val extensionValue = extensions.optJSONObject(extensionName) ?: continue
             val extensionKeys = extensionValue.keys()
             while (extensionKeys.hasNext()) {
                 val key = extensionKeys.next()
@@ -999,7 +999,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         val hints = LinkedHashMap<String, String>()
         for (index in 0 until images.length()) {
             val image = images.optJSONObject(index) ?: continue
-            val uri = image.optString("uri").trim()
+        val uri = image.optString("uri").trim()
             val mimeType = canonicalizeImageMimeType(image.optString("mimeType").trim())
             if (uri.isNotEmpty() && mimeType.isNotEmpty()) {
                 hints[uri] = mimeType
@@ -1100,7 +1100,7 @@ class GltfSurfaceView @JvmOverloads constructor(
 
         for (index in 0 until animationCount) {
             val rawName = runCatching { animator.getAnimationName(index) }.getOrNull().orEmpty().trim()
-            val safeName = if (rawName.isBlank()) "Animation ${index}" else rawName
+        val safeName = if (rawName.isBlank()) "Animation ${index}" else rawName
             names.add(safeName)
             nameIndexMap[safeName] = index
 
@@ -1165,7 +1165,7 @@ class GltfSurfaceView @JvmOverloads constructor(
 
     private fun setupTransparentSurface() {
         // Keep transparent composition but avoid onTop mode, which is more crash-prone on some drivers.holder.setFormat(PixelFormat.TRANSLUCENT)
-        setZOrderOnTop(true)
+                setZOrderOnTop(true)
 
         val clearOptions = Renderer.ClearOptions().apply {
             clear = true
@@ -1269,19 +1269,18 @@ class GltfSurfaceView @JvmOverloads constructor(
     private fun applyCameraPose() {
         runCatching {
             val pitchRadians = Math.toRadians(cameraPitchDegrees.toDouble())
-            val yawRadians = Math.toRadians(cameraYawDegrees.toDouble())
+        val yawRadians = Math.toRadians(cameraYawDegrees.toDouble())
             val rawDistance = BASE_CAMERA_DISTANCE * cameraDistanceScale.toDouble()
-            val distance = if (abs(rawDistance) < CAMERA_DISTANCE_EPSILON) {
+        val distance = if (abs(rawDistance) < CAMERA_DISTANCE_EPSILON) {
                 CAMERA_DISTANCE_EPSILON
             } else {
                 rawDistance
             }
 
             val targetY = cameraTargetY + cameraTargetHeightOffset.toDouble()
-
-            val horizontalFactor = cos(pitchRadians)
+        val horizontalFactor = cos(pitchRadians)
             val eyeX = cameraTargetX + distance * horizontalFactor * sin(yawRadians)
-            val eyeY = targetY + distance * sin(pitchRadians)
+        val eyeY = targetY + distance * sin(pitchRadians)
             val eyeZ = cameraTargetZ + distance * horizontalFactor * cos(yawRadians)
 
             applyManipulatorPose(
@@ -1306,7 +1305,7 @@ class GltfSurfaceView @JvmOverloads constructor(
             )
 
             // Always apply model-space orbit fallback so pitch/yaw works even when manipulator behavior differs by device.
-            applyModelOrbitFallback(pitchDegrees = cameraPitchDegrees, yawDegrees = cameraYawDegrees)
+                applyModelOrbitFallback(pitchDegrees = cameraPitchDegrees, yawDegrees = cameraYawDegrees)
         }.onFailure { error ->
             dispatchError("Failed to apply glTF camera: ${error.message ?: "unknown error"}")
         }
@@ -1330,7 +1329,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         }
         return runCatching {
             val viewportWidth = max(width, 1)
-            val viewportHeight = max(height, 1)
+        val viewportHeight = max(height, 1)
             val manipulator = Manipulator.Builder()
                 .viewport(viewportWidth, viewportHeight)
                 .targetPosition(targetX, targetY, targetZ)
@@ -1363,14 +1362,13 @@ class GltfSurfaceView @JvmOverloads constructor(
         }
 
         val transformManager = modelViewer.engine.transformManager
-
         val rootEntity = asset.root
         val rootInstance = transformManager.getInstance(rootEntity)
         if (rootInstance != 0) {
             val rootTransform = transformManager.getTransform(rootInstance, FloatArray(16))
-            val transformIsFinite = rootTransform.all(::isFiniteFloat)
+        val transformIsFinite = rootTransform.all(::isFiniteFloat)
             val tx = rootTransform[12]
-            val tz = rootTransform[14]
+        val tz = rootTransform[14]
             if (transformIsFinite && isFiniteFloat(tx) && isFiniteFloat(tz)) {
                 baseRootTransform = rootTransform
                 cameraTargetX = tx.toDouble()
@@ -1535,8 +1533,8 @@ class GltfSurfaceView @JvmOverloads constructor(
             .replace('\\', '/')
         val decoded = Uri.decode(normalizedSeparators).trim()
         if (decoded.startsWith("file://", ignoreCase = true)) {
-            val parsed = Uri.parse(decoded)
-            val parsedPath = parsed.path
+                val parsed = Uri.parse(decoded)
+        val parsedPath = parsed.path
             if (!parsedPath.isNullOrBlank()) {
                 return parsedPath
             }
@@ -1585,7 +1583,7 @@ class GltfSurfaceView @JvmOverloads constructor(
     private fun readFileToDirectByteBuffer(file: File): ByteBuffer {
         RandomAccessFile(file, "r").use { raf ->
             val channel = raf.channel
-            val size = channel.size()
+        val size = channel.size()
             require(size > 0L) { "Empty glTF resource file: ${file.absolutePath}" }
             require(size <= Int.MAX_VALUE.toLong()) { "glTF resource too large: ${file.absolutePath}" }
             return channel
@@ -1617,7 +1615,7 @@ class GltfSurfaceView @JvmOverloads constructor(
 
         if (resourceUri.startsWith("data:", ignoreCase = true)) {
             val metadata = resourceUri.substringBefore(',')
-            val mimeInDataUri = canonicalizeImageMimeType(
+        val mimeInDataUri = canonicalizeImageMimeType(
                 metadata
                 .removePrefix("data:")
                 .substringBefore(';')

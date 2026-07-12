@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 data class ShortcutCommand(
     val id: String,
     val name: String,           // 命令名（不含 /）
-    val displayName: String,
+                val displayName: String,
     val description: String,
     val icon: String,
     val category: CommandCategory,
@@ -31,16 +31,16 @@ data class ShortcutCommand(
     val aliases: List<String> = emptyList(),
     val parameters: List<CommandParameter> = emptyList(),
     val usage: String = "",     // 用法说明
-    val example: String = ""    // 示例
+                val example: String = ""    // 示例
 )
 
 enum class CommandCategory {
     AI_OPERATION,    // AI 操作（翻译/总结/解释）
-    CONVERSATION,    // 对话管理（清空/分支/导出）
-    TOOL,            // 工具调用
-    NAVIGATION,      // 导航
-    UTILITY,         // 实用工具
-    CUSTOM           // 用户自定义
+                CONVERSATION,    // 对话管理（清空/分支/导出）
+                TOOL,            // 工具调用
+                NAVIGATION,      // 导航
+                UTILITY,         // 实用工具
+                CUSTOM           // 用户自定义
 }
 
 /**
@@ -150,7 +150,6 @@ class ShortcutCommandRegistry {
         val parts = trimmed.removePrefix("/").split(Regex("\\s+"), limit = 2)
         val cmdName = parts[0].lowercase()
         val argsStr = if (parts.size > 1) parts[1] else ""
-
         val command = commands[cmdName] ?: return null
         val arguments = parseArguments(argsStr, command.parameters)
 
@@ -261,8 +260,7 @@ class ShortcutCommandRegistry {
     }
 
     // ============ 参数解析 ============
-
-    private fun parseArguments(argsStr: String, params: List<CommandParameter>): Map<String, String> {
+                private fun parseArguments(argsStr: String, params: List<CommandParameter>): Map<String, String> {
         if (argsStr.isBlank()) return emptyMap()
         if (params.isEmpty()) return mapOf("input" to argsStr)
 
@@ -270,14 +268,14 @@ class ShortcutCommandRegistry {
         val tokens = tokenizeArgs(argsStr)
 
         // 简化：按位置赋值
-        var paramIdx = 0
+                var paramIdx = 0
         var i = 0
         while (i < tokens.size && paramIdx < params.size) {
             val param = params[paramIdx]
             if (tokens[i].startsWith("--")) {
                 // 命名参数 --name value
                 val name = tokens[i].removePrefix("--")
-                val paramDef = params.find { it.name == name }
+        val paramDef = params.find { it.name == name }
                 if (paramDef != null && i + 1 < tokens.size) {
                     result[name] = tokens[i + 1]
                     i += 2
@@ -293,7 +291,7 @@ class ShortcutCommandRegistry {
         }
 
         // 填充默认值
-        for (param in params) {
+                for (param in params) {
             if (param.name !in result && param.defaultValue != null) {
                 result[param.name] = param.defaultValue
             }
@@ -324,10 +322,9 @@ class ShortcutCommandRegistry {
     }
 
     // ============ 预置命令 ============
-
-    private fun registerBuiltinCommands() {
+                private fun registerBuiltinCommands() {
         // AI 操作
-        register(ShortcutCommand(
+                register(ShortcutCommand(
             id = "cmd_translate",
             name = "translate",
             displayName = "翻译",
@@ -402,7 +399,7 @@ class ShortcutCommandRegistry {
         ))
 
         // 对话管理
-        register(ShortcutCommand(
+                register(ShortcutCommand(
             id = "cmd_clear",
             name = "clear",
             displayName = "清空对话",
@@ -441,7 +438,7 @@ class ShortcutCommandRegistry {
         ))
 
         // 工具
-        register(ShortcutCommand(
+                register(ShortcutCommand(
             id = "cmd_search",
             name = "search",
             displayName = "搜索历史",
@@ -456,7 +453,7 @@ class ShortcutCommandRegistry {
         ))
 
         // 实用工具
-        register(ShortcutCommand(
+                register(ShortcutCommand(
             id = "cmd_help",
             name = "help",
             displayName = "帮助",

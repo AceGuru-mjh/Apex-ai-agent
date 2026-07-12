@@ -106,7 +106,6 @@ class AdaptiveWindowManager(
         forceExtended: Boolean = false
     ): WindowConfig {
         val complexity = detectComplexity(currentInput, contextMessages)
-
         val baseMessageCount = when (complexity) {
             TaskComplexity.TRIVIAL -> 2
             TaskComplexity.SIMPLE -> 4
@@ -203,7 +202,7 @@ class AdaptiveWindowManager(
         fun learnFromInteraction(messages: List<com.apex.data.model.Message>, complexity: TaskComplexity) {
             if (complexity == TaskComplexity.TRIVIAL || complexity == TaskComplexity.SIMPLE) {
                 val lastUserMsg = messages.lastOrNull { it.role.lowercase() == "user" }?.content ?: return
-                val shortPattern = lastUserMsg.take(30).lowercase().trim()
+        val shortPattern = lastUserMsg.take(30).lowercase().trim()
                 if (shortPattern.isNotBlank() && shortPattern !in learnedPatterns) {
                     learnedPatterns[shortPattern] = complexity
                     if (learnedPatterns.size > 100) {

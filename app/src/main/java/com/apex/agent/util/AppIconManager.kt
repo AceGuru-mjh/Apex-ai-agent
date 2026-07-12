@@ -32,7 +32,8 @@ else {
     /**     * 修复组件状态，避免 IDE 启动入口被禁用导致无法从 Android Studio 拉起应用，
     */    fun ensureComponentState(context: Context): Boolean {
         val packageManager = context.packageManager        return runCatching {
-            setAliasEnabled(packageManager, context, ideLaunchAliasClassName, true)            val simpleEnabled = isAliasEnabled(context, simpleLauncherAliasClassName, defaultEnabled = false)            val defaultLauncherEnabled = isAliasEnabled(                context,                defaultLauncherAliasClassName,                defaultEnabled = true            )            if (simpleEnabled && defaultLauncherEnabled) {
+            setAliasEnabled(packageManager, context, ideLaunchAliasClassName, true)            val simpleEnabled = isAliasEnabled(context, simpleLauncherAliasClassName, defaultEnabled = false)
+        val defaultLauncherEnabled = isAliasEnabled(                context,                defaultLauncherAliasClassName,                defaultEnabled = true            )            if (simpleEnabled && defaultLauncherEnabled) {
                 setAliasEnabled(packageManager, context, defaultLauncherAliasClassName, false)
 }
 else if (!simpleEnabled && !defaultLauncherEnabled) {

@@ -19,10 +19,10 @@ class MultiAgentWorkspaceViewModel(
     private val multiAgentManager = MultiAgentManager(context)
 
     private val _uiState = MutableStateFlow(WorkspaceUiState())
-    val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
+        val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<WorkspaceEvent>()
-    val events: SharedFlow<WorkspaceEvent> = _events.asSharedFlow()
+        val events: SharedFlow<WorkspaceEvent> = _events.asSharedFlow()
 
     init {
         loadInitialData()
@@ -34,7 +34,7 @@ class MultiAgentWorkspaceViewModel(
             
             try {
                 val agents = collaborationFramework.getAgents()
-                val sessions = collaborationFramework.getSessions()
+        val sessions = collaborationFramework.getSessions()
                 val tasks = collaborationFramework.getTasks()
                 
                 _uiState.update { state ->
@@ -198,8 +198,7 @@ class MultiAgentWorkspaceViewModel(
         viewModelScope.launch {
             try {
                 val currentSession = _uiState.value.currentSession ?: return@launch
-                
-                val message = collaborationFramework.sendMessage(
+        val message = collaborationFramework.sendMessage(
                     senderAgent = "USER",
                     recipientAgent = null,
                     content = content,
@@ -228,8 +227,7 @@ class MultiAgentWorkspaceViewModel(
                 delay((500..1500).random().toLong())
                 
                 val response = generateAgentResponse(agent, userMessage)
-                
-                val message = collaborationFramework.sendMessage(
+        val message = collaborationFramework.sendMessage(
                     senderAgent = agent.id,
                     recipientAgent = "USER",
                     content = response,
@@ -270,7 +268,7 @@ class MultiAgentWorkspaceViewModel(
                 }
                 
                 val agentIds = _uiState.value.agents.map { it.id }
-                val session = collaborationFramework.createSession(name, frameworkType, goal, agentIds)
+        val session = collaborationFramework.createSession(name, frameworkType, goal, agentIds)
                 
                 _uiState.update { state ->
                     state.copy(sessions = state.sessions + session.toSessionModel())

@@ -432,27 +432,26 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     const refValue = ${quoteJs(ref)};
                     ${browserRefResolverScript()}
                     const resolved = __apex-agentResolveRef(refValue);
-                    if (!resolved || !resolved.element) {
+            if (!resolved || !resolved.element) {
                         return JSON.stringify({ ok: false, error: "ref_not_found", ref: refValue });
                     }
                     const target = resolved.element;
                     const targetWindow = resolved.window || window;
                     const anchor = target.closest('a[href]');
-                    try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+            try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     const rect = target.getBoundingClientRect();
-                    const x = rect.left + rect.width / 2;
+            const x = rect.left + rect.width / 2;
                     const y = rect.top + rect.height / 2;
 
                     try { target.focus({ preventScroll: true }); } catch (_) {}
 
                     const buttonValue = ${buttonValue};
-                    const buttonsValue = ${buttonsValue};
-                    const altKey = ${if (altKey) "true" else "false"};
-                    const ctrlKey = ${if (controlKey) "true" else "false"};
-                    const metaKey = ${if (metaKey) "true" else "false"};
-                    const shiftKey = ${if (shiftKey) "true" else "false"};
-
-                    function emit(type, detail) {
+            const buttonsValue = ${buttonsValue};
+            const altKey = ${if (altKey) "true" else "false"};
+            const ctrlKey = ${if (controlKey) "true" else "false"};
+            const metaKey = ${if (metaKey) "true" else "false"};
+            const shiftKey = ${if (shiftKey) "true" else "false"};
+            function emit(type, detail) {
                         try {
                             const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
                             target.dispatchEvent(new MouseEventCtor(type, {
@@ -477,33 +476,31 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
                     function clickOnce(detail) {
                         emit("mousedown", detail);
-                        emit("mouseup", detail);
-                        emit("click", detail);
+            emit("mouseup", detail);
+            emit("click", detail);
                     }
 
                     let activationMethod = "mouse_event";
-                    let activationTag = String(target.tagName || "").toLowerCase();
-                    const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
+            let activationTag = String(target.tagName || "").toLowerCase();
+            const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
                         buttonValue === 0 && !altKey && !ctrlKey && !metaKey && !shiftKey &&
                         !!anchor && typeof anchor.click === "function";
-
-                    setTimeout(() => {
+            setTimeout(() => {
                         try {
                             if (nativeAnchorClickEligible) {
                                 activationMethod = "native_anchor_click";
-                                activationTag = String(anchor.tagName || "").toLowerCase();
-                                anchor.click();
+            activationTag = String(anchor.tagName || "").toLowerCase();
+            anchor.click();
                             } else if (${if (doubleClick) "true" else "false"}) {
                                 clickOnce(1);
-                                clickOnce(2);
-                                emit("dblclick", 2);
+            clickOnce(2);
+            emit("dblclick", 2);
                             } else {
                                 clickOnce(1);
                             }
                         } catch (_) {}
                     }, 0);
-
-                    return JSON.stringify({
+            return JSON.stringify({
                         ok: true,
                         ref: refValue,
                         button: ${quoteJs(button)},
@@ -521,7 +518,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
         return try {
             val raw = evaluateJavascriptSync(webView, script, DEFAULT_TIMEOUT_MS.coerceIn(2_000L, 8_000L))
-            val decoded = decodeJsResult(raw)
+        val decoded = decodeJsResult(raw)
             JSONObject(decoded)
         } catch (e: Exception) {
             JSONObject().put("ok", false).put("error", e.message ?: "click_dispatch_error")
@@ -536,14 +533,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     const refValue = ${quoteJs(ref)};
                     ${browserRefResolverScript()}
                     const resolved = __apex-agentResolveRef(refValue);
-                    if (!resolved || !resolved.element) {
+            if (!resolved || !resolved.element) {
                         return JSON.stringify({ ok: false, error: "ref_not_found" });
                     }
                     const target = resolved.element;
                     const targetWindow = resolved.window || window;
                     try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     const rect = target.getBoundingClientRect();
-                    const x = rect.left + rect.width / 2;
+            const x = rect.left + rect.width / 2;
                     const y = rect.top + rect.height / 2;
                     ["pointerover", "mouseover", "mouseenter", "mousemove"].forEach((type) => {
                         try {
@@ -558,7 +555,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                             }));
                         } catch (_) {}
                     });
-                    return JSON.stringify({ ok: true, ref: refValue });
+            return JSON.stringify({ ok: true, ref: refValue });
                 } catch (e) {
                     return JSON.stringify({ ok: false, error: String(e) });
                 }
@@ -574,8 +571,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 try {
                     ${browserRefResolverScript()}
                     const startResolved = __apex-agentResolveRef(${quoteJs(startRef)});
-                    const endResolved = __apex-agentResolveRef(${quoteJs(endRef)});
-                    const start = startResolved && startResolved.element;
+            const endResolved = __apex-agentResolveRef(${quoteJs(endRef)});
+            const start = startResolved && startResolved.element;
                     const end = endResolved && endResolved.element;
                     if (!start || !end) {
                         return JSON.stringify({ ok: false, error: !start ? "start_ref_not_found" : "end_ref_not_found" });
@@ -585,8 +582,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     try { start.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     try { end.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     const DataTransferCtor = startWindow.DataTransfer || endWindow.DataTransfer || (typeof DataTransfer === "function" ? DataTransfer : null);
-                    const DragEventCtor = startWindow.DragEvent || endWindow.DragEvent || (typeof DragEvent === "function" ? DragEvent : null);
-                    const EventCtor = startWindow.Event || endWindow.Event || Event;
+            const DragEventCtor = startWindow.DragEvent || endWindow.DragEvent || (typeof DragEvent === "function" ? DragEvent : null);
+            const EventCtor = startWindow.Event || endWindow.Event || Event;
                     const dataTransfer = typeof DataTransferCtor === "function" ? new DataTransferCtor() : null;
                     const dispatchDrag = (target, type) => {
                         try {
@@ -596,21 +593,21 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                                 composed: true,
                                 dataTransfer
                             }) : new EventCtor(type, { bubbles: true, cancelable: true, composed: true });
-                            target.dispatchEvent(event);
+            target.dispatchEvent(event);
                         } catch (_) {
                             try {
                                 const fallback = new EventCtor(type, { bubbles: true, cancelable: true, composed: true });
-                                fallback.dataTransfer = dataTransfer;
+            fallback.dataTransfer = dataTransfer;
                                 target.dispatchEvent(fallback);
                             } catch (_) {}
                         }
                     };
-                    dispatchDrag(start, "dragstart");
-                    dispatchDrag(end, "dragenter");
-                    dispatchDrag(end, "dragover");
-                    dispatchDrag(end, "drop");
-                    dispatchDrag(start, "dragend");
-                    return JSON.stringify({ ok: true, startRef: ${quoteJs(startRef)}, endRef: ${quoteJs(endRef)} });
+            dispatchDrag(start, "dragstart");
+            dispatchDrag(end, "dragenter");
+            dispatchDrag(end, "dragover");
+            dispatchDrag(end, "drop");
+            dispatchDrag(start, "dragend");
+            return JSON.stringify({ ok: true, startRef: ${quoteJs(startRef)}, endRef: ${quoteJs(endRef)} });
                 } catch (e) {
                     return JSON.stringify({ ok: false, error: String(e) });
                 }
@@ -649,27 +646,26 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             (function() {
                 try {
                     const selectorValue = ${quoteJs(selector)};
-                    const target = document.querySelector(selectorValue);
-                    if (!target) {
+            const target = document.querySelector(selectorValue);
+            if (!target) {
                         return JSON.stringify({ ok: false, error: "selector_not_found", selector: selectorValue });
                     }
                     const targetWindow = target.ownerDocument && target.ownerDocument.defaultView ? target.ownerDocument.defaultView : window;
                     const anchor = target.closest('a[href]');
-                    try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+            try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     const rect = target.getBoundingClientRect();
-                    const x = rect.left + rect.width / 2;
+            const x = rect.left + rect.width / 2;
                     const y = rect.top + rect.height / 2;
 
                     try { target.focus({ preventScroll: true }); } catch (_) {}
 
                     const buttonValue = ${buttonValue};
-                    const buttonsValue = ${buttonsValue};
-                    const altKey = ${if (altKey) "true" else "false"};
-                    const ctrlKey = ${if (controlKey) "true" else "false"};
-                    const metaKey = ${if (metaKey) "true" else "false"};
-                    const shiftKey = ${if (shiftKey) "true" else "false"};
-
-                    function emit(type, detail) {
+            const buttonsValue = ${buttonsValue};
+            const altKey = ${if (altKey) "true" else "false"};
+            const ctrlKey = ${if (controlKey) "true" else "false"};
+            const metaKey = ${if (metaKey) "true" else "false"};
+            const shiftKey = ${if (shiftKey) "true" else "false"};
+            function emit(type, detail) {
                         try {
                             const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
                             target.dispatchEvent(new MouseEventCtor(type, {
@@ -694,39 +690,37 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
                     function clickOnce(detail) {
                         emit("mousedown", detail);
-                        emit("mouseup", detail);
-                        emit("click", detail);
+            emit("mouseup", detail);
+            emit("click", detail);
                     }
 
                     let activationMethod = "mouse_event";
-                    let activationTag = String(target.tagName || "").toLowerCase();
-                    const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
+            let activationTag = String(target.tagName || "").toLowerCase();
+            const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
                         buttonValue === 0 && !altKey && !ctrlKey && !metaKey && !shiftKey &&
                         !!anchor && typeof anchor.click === "function";
-
-                    setTimeout(() => {
+            setTimeout(() => {
                         try {
                             if (nativeAnchorClickEligible) {
                                 activationMethod = "anchor_click";
-                                activationTag = String(anchor.tagName || "").toLowerCase();
-                                anchor.click();
-                                return;
+            activationTag = String(anchor.tagName || "").toLowerCase();
+            anchor.click();
+            return;
                             }
                             clickOnce(1);
-                            if (${if (doubleClick) "true" else "false"}) {
+            if (${if (doubleClick) "true" else "false"}) {
                                 emit("mousedown", 2);
-                                emit("mouseup", 2);
-                                emit("click", 2);
-                                emit("dblclick", 2);
+            emit("mouseup", 2);
+            emit("click", 2);
+            emit("dblclick", 2);
                             }
                             if (buttonValue === 0 && typeof target.click === "function") {
                                 activationMethod = "native_click";
-                                target.click();
+            target.click();
                             }
                         } catch (_) {}
                     }, 0);
-
-                    return JSON.stringify({
+            return JSON.stringify({
                         ok: true,
                         selector: selectorValue,
                         button: ${quoteJs(button)},
@@ -745,7 +739,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
     internal fun runJsonScript(webView: WebView, script: String, fallbackError: String): JSONObject? {
         return try {
             val raw = evaluateJavascriptSync(webView, script, DEFAULT_TIMEOUT_MS.coerceIn(2_000L, 8_000L))
-            val decoded = decodeJsResult(raw)
+        val decoded = decodeJsResult(raw)
             JSONObject(decoded)
         } catch (e: Exception) {
             JSONObject().put("ok", false).put("error", e.message ?: fallbackError)
@@ -760,7 +754,6 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val allowed = setOf("Alt", "Control", "ControlOrMeta", "Meta", "Shift")
         val parsed = linkedSetOf<String>()
         val invalid = mutableListOf<String>()
-
         val arr =
             try {
                 JSONArray(raw)
@@ -794,10 +787,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
     private fun browserFileUpload(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
-
         val rawPaths = param(tool, "paths")?.trim().orEmpty()
         val shouldCancel = rawPaths.isBlank()
-
         val files: List<File> =
             if (shouldCancel) {
                 emptyList()
@@ -1439,7 +1430,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         return when (action) {
             "list" -> {
                 val registry = buildPageRegistry()
-                val session = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
+        val session = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
                 ok(
                     tool.name,
                     buildBrowserResponse(
@@ -1477,7 +1468,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     ensureSessionAttachedOnMain(targetId)
                 }
                 val session = sessions[targetId] ?: return error(tool.name, "Tab index out of range: ${index}")
-                val settlement = settleBrowserAction(session, captureActionMarkers(session))
+        val settlement = settleBrowserAction(session, captureActionMarkers(session))
                 ok(
                     tool.name,
                     buildSettledBrowserResponse(
@@ -1489,7 +1480,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
             "close" -> {
                 val requestedIndex = param(tool, "index")?.trim()?.toIntOrNull()
-                val targetId =
+        val targetId =
                     when {
                         requestedIndex != null -> sessionIdAtIndex(requestedIndex)
                         else -> resolvePreferredSessionId()
@@ -1498,7 +1489,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     return error(tool.name, "Failed to close tab")
                 }
                 val registry = buildPageRegistry()
-                val active = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
+        val active = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
                 ok(
                     tool.name,
                     buildBrowserResponse(

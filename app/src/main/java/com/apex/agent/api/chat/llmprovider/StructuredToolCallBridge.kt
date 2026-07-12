@@ -204,7 +204,7 @@ internal object StructuredToolCallBridge {
                         val validCount = minOf(resultsList.size, openToolCallIds.size)
                         repeat(validCount) { index ->
                             val result = resultsList[index]
-                            val toolMessage = JSONObject().apply {
+        val toolMessage = JSONObject().apply {
                                 put("role", "tool")
                                 put("tool_call_id", openToolCallIds[index])
                                 if (!result.name.isNullOrBlank()) {
@@ -313,14 +313,14 @@ internal object StructuredToolCallBridge {
 
         for (i in 0 until toolCalls.length()) {
             val toolCall = toolCalls.optJSONObject(i) ?: continue
-            val function = toolCall.optJSONObject("function") ?: continue
+        val function = toolCall.optJSONObject("function") ?: continue
             val name = function.optString("name", "")
             if (name.isBlank()) {
                 continue
             }
 
             val argumentsRaw = function.optString("arguments", "")
-            val paramsObj = kotlin.runCatching {
+        val paramsObj = kotlin.runCatching {
                 JSONObject(argumentsRaw)
             }.getOrNull()
 
@@ -335,7 +335,7 @@ internal object StructuredToolCallBridge {
                 val keys = paramsObj.keys()
                 while (keys.hasNext()) {
                     val key = keys.next()
-                    val value = paramsObj.opt(key)
+        val value = paramsObj.opt(key)
                     xml.append("\n<param name=\"")
                         .append(key)
                         .append("\">")
@@ -443,7 +443,7 @@ internal object StructuredToolCallBridge {
         val normalized = JSONArray()
         for (i in 0 until source.length()) {
             val item = source.optJSONObject(i) ?: continue
-            val normalizedCall = normalizeSingleToolCall(item, i) ?: continue
+        val normalizedCall = normalizeSingleToolCall(item, i) ?: continue
             normalized.put(normalizedCall)
         }
         return normalized
@@ -504,17 +504,17 @@ internal object StructuredToolCallBridge {
 
         matches.forEach { match ->
             val toolName = match.groupValues[2]
-            val toolBody = match.groupValues[3]
+        val toolBody = match.groupValues[3]
 
             val params = JSONObject()
             ChatMarkupRegex.toolParamPattern.findAll(toolBody).forEach { paramMatch ->
                 val paramName = paramMatch.groupValues[1]
-                val paramValue = XmlEscaper.unescape(paramMatch.groupValues[2].trim())
+        val paramValue = XmlEscaper.unescape(paramMatch.groupValues[2].trim())
                 params.put(paramName, paramValue)
             }
 
             val toolNamePart = sanitizeToolCallId(toolName)
-            val hashPart = stableIdHashPart("${toolName}:${params}")
+        val hashPart = stableIdHashPart("${toolName}:${params}")
             val callId = sanitizeToolCallId("call_${toolNamePart}_${hashPart}_${callIndex}")
 
             toolCalls.put(JSONObject().apply {
@@ -538,7 +538,7 @@ internal object StructuredToolCallBridge {
 
         for (i in 0 until toolCalls.length()) {
             val toolCall = toolCalls.optJSONObject(i) ?: continue
-            val function = toolCall.optJSONObject("function")
+        val function = toolCall.optJSONObject("function")
             if (function == null) {
                 wrappedToolCalls.put(toolCall)
                 continue
@@ -551,7 +551,7 @@ internal object StructuredToolCallBridge {
             }
 
             val rawArguments = function.optString("arguments", "{}")
-            val originalArguments = JSONObject(if (rawArguments.isBlank()) "{}" else rawArguments)
+        val originalArguments = JSONObject(if (rawArguments.isBlank()) "{}" else rawArguments)
             val wrappedFunction = JSONObject(function.toString()).apply {
                 put("name", "package_proxy")
                 put(
@@ -582,7 +582,7 @@ internal object StructuredToolCallBridge {
 
         matches.forEach { match ->
             val fullContent = match.groupValues[2].trim()
-            val contentMatch = ChatMarkupRegex.contentTag.find(fullContent)
+        val contentMatch = ChatMarkupRegex.contentTag.find(fullContent)
             val resultContent = if (contentMatch != null) {
                 contentMatch.groupValues[1].trim()
             } else {

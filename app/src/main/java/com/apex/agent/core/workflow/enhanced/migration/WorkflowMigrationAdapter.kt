@@ -66,20 +66,17 @@ class WorkflowMigrationAdapter {
         val warnings = mutableListOf<String>()
         val nodes = mutableListOf<EnhancedNode>()
         val connections = mutableListOf<EnhancedConnection>()
-
         val oldNodes = obj["nodes"] as? JsonArray
         val oldConns = obj["connections"] as? JsonArray
-
         val idMap = mutableMapOf<String, String>()  // 旧ID -> 新ID
-
-        oldNodes?.forEach { nodeElem ->
+                oldNodes?.forEach { nodeElem ->
             val nodeObj = nodeElem.jsonObject
-            val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val newId = "enode_${System.currentTimeMillis()}_${nodes.size}"
             idMap[oldId] = newId
 
             val name = nodeObj["name"]?.jsonPrimitive?.contentOrNull ?: "未命名节点"
-            val typeStr = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "EXECUTE"
+        val typeStr = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "EXECUTE"
             val newType = when (typeStr.uppercase()) {
                 "TRIGGER" -> EnhancedNodeType.TRIGGER
                 "EXECUTE" -> EnhancedNodeType.EXECUTE
@@ -93,7 +90,7 @@ class WorkflowMigrationAdapter {
             }
 
             val config = parseOldNodeConfig(nodeObj, newType)
-            val position = parsePosition(nodeObj["position"])
+        val position = parsePosition(nodeObj["position"])
 
             nodes.add(EnhancedNode(
                 id = newId,
@@ -106,7 +103,7 @@ class WorkflowMigrationAdapter {
 
         oldConns?.forEach { connElem ->
             val connObj = connElem.jsonObject
-            val sourceId = connObj["sourceNodeId"]?.jsonPrimitive?.contentOrNull
+        val sourceId = connObj["sourceNodeId"]?.jsonPrimitive?.contentOrNull
             val targetId = connObj["targetNodeId"]?.jsonPrimitive?.contentOrNull
             if (sourceId == null || targetId == null) return@forEach
 
@@ -120,7 +117,7 @@ class WorkflowMigrationAdapter {
             }
 
             val condStr = connObj["condition"]?.jsonPrimitive?.contentOrNull ?: "ON_SUCCESS"
-            val newCond = when (condStr.uppercase()) {
+        val newCond = when (condStr.uppercase()) {
                 "ON_SUCCESS", "SUCCESS" -> ConnectionConditionDef.ON_SUCCESS
                 "ON_ERROR", "ERROR" -> ConnectionConditionDef.ON_ERROR
                 "TRUE" -> ConnectionConditionDef.TRUE
@@ -156,23 +153,21 @@ class WorkflowMigrationAdapter {
         val warnings = mutableListOf<String>()
         val nodes = mutableListOf<EnhancedNode>()
         val connections = mutableListOf<EnhancedConnection>()
-
         val defObj = obj["definition"]?.jsonObject ?: obj
         val oldNodes = defObj["nodes"] as? JsonArray ?: run {
             return MigrationResult(null, emptyList(), listOf("Skill Workflow 缺少 nodes 字段"))
         }
         val oldConns = defObj["connections"] as? JsonArray ?: JsonArray(emptyList())
-
         val idMap = mutableMapOf<String, String>()
 
         oldNodes.forEach { nodeElem ->
             val nodeObj = nodeElem.jsonObject
-            val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val newId = "enode_${System.currentTimeMillis()}_${nodes.size}"
             idMap[oldId] = newId
 
             val name = nodeObj["name"]?.jsonPrimitive?.contentOrNull ?: "节点"
-            val typeStr = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "EXECUTE"
+        val typeStr = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "EXECUTE"
             val newType = when (typeStr.uppercase()) {
                 "TRIGGER" -> EnhancedNodeType.TRIGGER
                 "EXECUTE" -> EnhancedNodeType.EXECUTE
@@ -183,7 +178,7 @@ class WorkflowMigrationAdapter {
             }
 
             val config = parseOldNodeConfig(nodeObj, newType)
-            val position = parsePosition(nodeObj["position"])
+        val position = parsePosition(nodeObj["position"])
 
             nodes.add(EnhancedNode(
                 id = newId, name = name, type = newType, config = config, position = position
@@ -192,12 +187,11 @@ class WorkflowMigrationAdapter {
 
         oldConns.forEach { connElem ->
             val connObj = connElem.jsonObject
-            val sourceId = connObj["sourceNodeId"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val sourceId = connObj["sourceNodeId"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val targetId = connObj["targetNodeId"]?.jsonPrimitive?.contentOrNull ?: return@forEach
-            val newSource = idMap[sourceId] ?: return@forEach
+        val newSource = idMap[sourceId] ?: return@forEach
             val newTarget = idMap[targetId] ?: return@forEach
-
-            val condStr = connObj["condition"]?.jsonPrimitive?.contentOrNull ?: "ON_SUCCESS"
+        val condStr = connObj["condition"]?.jsonPrimitive?.contentOrNull ?: "ON_SUCCESS"
             val newCond = ConnectionConditionDef.fromString(condStr)
 
             connections.add(EnhancedConnection(sourceNodeId = newSource, targetNodeId = newTarget, condition = newCond))
@@ -222,20 +216,18 @@ class WorkflowMigrationAdapter {
         val warnings = mutableListOf<String>()
         val nodes = mutableListOf<EnhancedNode>()
         val connections = mutableListOf<EnhancedConnection>()
-
         val oldNodes = obj["nodes"] as? JsonArray ?: JsonArray(emptyList())
         val oldEdges = obj["edges"] as? JsonArray ?: JsonArray(emptyList())
-
         val idMap = mutableMapOf<String, String>()
 
         oldNodes.forEach { nodeElem ->
             val nodeObj = nodeElem.jsonObject
-            val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val newId = "enode_${System.currentTimeMillis()}_${nodes.size}"
             idMap[oldId] = newId
 
             val label = nodeObj["label"]?.jsonPrimitive?.contentOrNull ?: "节点"
-            val typeStr = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "ACTION"
+        val typeStr = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "ACTION"
             val newType = when (typeStr.uppercase()) {
                 "START" -> EnhancedNodeType.TRIGGER
                 "END" -> EnhancedNodeType.END
@@ -275,11 +267,11 @@ class WorkflowMigrationAdapter {
 
         oldEdges.forEach { edgeElem ->
             val edgeObj = edgeElem.jsonObject
-            val sourceId = edgeObj["sourceNodeId"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val sourceId = edgeObj["sourceNodeId"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val targetId = edgeObj["targetNodeId"]?.jsonPrimitive?.contentOrNull ?: return@forEach
-            val newSource = idMap[sourceId] ?: return@forEach
+        val newSource = idMap[sourceId] ?: return@forEach
             val newTarget = idMap[targetId] ?: return@forEach
-            val condStr = edgeObj["condition"]?.jsonPrimitive?.contentOrNull
+        val condStr = edgeObj["condition"]?.jsonPrimitive?.contentOrNull
             val newCond = if (condStr == null) ConnectionConditionDef.ON_SUCCESS
                          else ConnectionConditionDef.fromString(condStr)
             connections.add(EnhancedConnection(sourceNodeId = newSource, targetNodeId = newTarget, condition = newCond))
@@ -304,19 +296,17 @@ class WorkflowMigrationAdapter {
         val warnings = mutableListOf<String>()
         val nodes = mutableListOf<EnhancedNode>()
         val connections = mutableListOf<EnhancedConnection>()
-
         val n8nNodes = obj["nodes"] as? JsonArray ?: JsonArray(emptyList())
         val n8nConns = obj["connections"] as? JsonObject ?: JsonObject(emptyMap())
-
         val idMap = mutableMapOf<String, String>()
 
         n8nNodes.forEach { nodeElem ->
             val nodeObj = nodeElem.jsonObject
-            val name = nodeObj["name"]?.jsonPrimitive?.contentOrNull ?: "节点"
+        val name = nodeObj["name"]?.jsonPrimitive?.contentOrNull ?: "节点"
             val n8nType = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "n8n-nodes-base.noOp"
 
             // n8n 节点类型映射
-            val (newType, warning) = when {
+                val (newType, warning) = when {
                 n8nType.contains("trigger", ignoreCase = true) -> EnhancedNodeType.TRIGGER to null
                 n8nType.contains("if", ignoreCase = true) -> EnhancedNodeType.CONDITION to null
                 n8nType.contains("switch", ignoreCase = true) -> EnhancedNodeType.CONDITION to null
@@ -332,8 +322,7 @@ class WorkflowMigrationAdapter {
 
             val newId = "enode_${System.currentTimeMillis()}_${nodes.size}"
             idMap[name] = newId  // n8n 用 name 作为连接引用
-
-            val parameters = (nodeObj["parameters"] as? JsonObject)?.let { p ->
+                val parameters = (nodeObj["parameters"] as? JsonObject)?.let { p ->
                 p.entries.associate { it.key to (it.value.jsonPrimitive.contentOrNull ?: "") }
             } ?: emptyMap()
 
@@ -353,15 +342,15 @@ class WorkflowMigrationAdapter {
         }
 
         // n8n connections 格式: { "源节点名": { "main": [[{ "node": "目标节点名", "type": "main", "index": 0 }]] } }
-        n8nConns.forEach { (sourceName, connData) ->
+                n8nConns.forEach { (sourceName, connData) ->
             val sourceId = idMap[sourceName] ?: return@forEach
-            val mainConns = (connData as? JsonObject)?.get("main") as? JsonArray ?: return@forEach
+        val mainConns = (connData as? JsonObject)?.get("main") as? JsonArray ?: return@forEach
             mainConns.forEach { outputArray ->
                 (outputArray as? JsonArray)?.forEach { outputElem ->
                     val outputObj = outputElem.jsonObject
-                    val targetName = outputObj["node"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val targetName = outputObj["node"]?.jsonPrimitive?.contentOrNull ?: return@forEach
                     val targetId = idMap[targetName] ?: return@forEach
-                    val condType = outputObj["type"]?.jsonPrimitive?.contentOrNull ?: "main"
+        val condType = outputObj["type"]?.jsonPrimitive?.contentOrNull ?: "main"
                     val newCond = if (condType == "main") ConnectionConditionDef.ON_SUCCESS
                                  else ConnectionConditionDef.ALWAYS
                     connections.add(EnhancedConnection(sourceNodeId = sourceId, targetNodeId = targetId, condition = newCond))
@@ -385,7 +374,6 @@ class WorkflowMigrationAdapter {
         val warnings = mutableListOf<String>()
         val nodes = mutableListOf<EnhancedNode>()
         val connections = mutableListOf<EnhancedConnection>()
-
         val difyGraph = obj["graph"]?.jsonObject ?: obj
         val difyNodes = difyGraph["nodes"] as? JsonArray ?: JsonArray(emptyList())
         val difyEdges = difyGraph["edges"] as? JsonArray ?: JsonArray(emptyList())
@@ -394,12 +382,12 @@ class WorkflowMigrationAdapter {
 
         difyNodes.forEach { nodeElem ->
             val nodeObj = nodeElem.jsonObject
-            val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val oldId = nodeObj["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val newId = "enode_${System.currentTimeMillis()}_${nodes.size}"
             idMap[oldId] = newId
 
             val title = (nodeObj["data"] as? JsonObject)?.get("title")?.jsonPrimitive?.contentOrNull ?: "节点"
-            val difyType = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "custom"
+        val difyType = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "custom"
 
             val newType = when {
                 difyType == "start" || difyType.contains("start", true) -> EnhancedNodeType.TRIGGER
@@ -431,11 +419,11 @@ class WorkflowMigrationAdapter {
 
         difyEdges.forEach { edgeElem ->
             val edgeObj = edgeElem.jsonObject
-            val sourceId = edgeObj["source"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+        val sourceId = edgeObj["source"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val targetId = edgeObj["target"]?.jsonPrimitive?.contentOrNull ?: return@forEach
-            val newSource = idMap[sourceId] ?: return@forEach
+        val newSource = idMap[sourceId] ?: return@forEach
             val newTarget = idMap[targetId] ?: return@forEach
-            val sourceHandle = edgeObj["sourceHandle"]?.jsonPrimitive?.contentOrNull
+        val sourceHandle = edgeObj["sourceHandle"]?.jsonPrimitive?.contentOrNull
             val newCond = when (sourceHandle?.lowercase()) {
                 "true", "if_true" -> ConnectionConditionDef.TRUE
                 "false", "if_false" -> ConnectionConditionDef.FALSE
@@ -454,8 +442,7 @@ class WorkflowMigrationAdapter {
     }
 
     // ============ 格式识别 ============
-
-    private fun isN8nFormat(obj: JsonObject): Boolean {
+                private fun isN8nFormat(obj: JsonObject): Boolean {
         val hasNodes = obj["nodes"] is JsonArray
         val hasConns = obj["connections"] is JsonObject
         val firstNode = (obj["nodes"] as? JsonArray)?.firstOrNull()?.jsonObject
@@ -493,8 +480,7 @@ class WorkflowMigrationAdapter {
     }
 
     // ============ 辅助方法 ============
-
-    private fun parseOldNodeConfig(nodeObj: JsonObject, type: EnhancedNodeType): EnhancedNodeConfig {
+                private fun parseOldNodeConfig(nodeObj: JsonObject, type: EnhancedNodeType): EnhancedNodeConfig {
         val configObj = nodeObj["config"] as? JsonObject
         val configMap = configObj?.entries?.associate { e ->
             e.key to (e.value.jsonPrimitive.contentOrNull ?: "")
@@ -503,7 +489,7 @@ class WorkflowMigrationAdapter {
         return when (type) {
             EnhancedNodeType.TRIGGER -> {
                 val triggerTypeStr = configMap["triggerType"] ?: "MANUAL"
-                val triggerType = runCatching { TriggerTypeDef.valueOf(triggerTypeStr.uppercase()) }
+        val triggerType = runCatching { TriggerTypeDef.valueOf(triggerTypeStr.uppercase()) }
                     .getOrDefault(TriggerTypeDef.MANUAL)
                 EnhancedNodeConfig(
                     triggerConfig = TriggerConfigDef(triggerType = triggerType)

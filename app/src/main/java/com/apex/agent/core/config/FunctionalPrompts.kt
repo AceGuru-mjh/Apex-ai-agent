@@ -126,7 +126,7 @@ object FunctionalPrompts {
         Example:
         If 'Original File Content' is: `line 1\nline 2`
         And 'Intended Changes' is: `// ... existing code ...\nnew line 3`
-        Your final output must be: `line 1\nline 2\nnew line 3`
+                Your final output must be: `line 1\nline 2\nnew line 3`
     """
 
     const val FILE_BINDING_MERGE_PROMPT_CN = """
@@ -137,7 +137,7 @@ object FunctionalPrompts {
         2. 不要添加任何解释，也不要输出 Markdown 代码块（例如 ```）。
          示例，        如果“原始文件内容”为：`line 1\nline 2`
          “预期修改”为：`// ... existing code ...\nnew line 3`
-         那么你的最终输出必须是：`line 1\nline 2\nnew line 3`
+                那么你的最终输出必须是：`line 1\nline 2\nnew line 3`
     """
 
     fun fileBindingMergePrompt(useEnglish: Boolean): String {

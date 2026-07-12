@@ -39,10 +39,10 @@ class SkillPermissionHook private constructor(private val context: Context) {
     private val skillPermissionManager = SkillPermissionManager.getInstance(context)
 
     private val _permissionRequest = MutableStateFlow<SkillPermissionRequest?>(null)
-    val permissionRequest: MutableStateFlow<SkillPermissionRequest?> = _permissionRequest
+        val permissionRequest: MutableStateFlow<SkillPermissionRequest?> = _permissionRequest
 
     private val _pendingSkillPermissions = MutableStateFlow<Map<String, List<PackagePermission>>>(emptyMap())
-    val pendingSkillPermissions = _pendingSkillPermissions.asStateFlow()
+        val pendingSkillPermissions = _pendingSkillPermissions.asStateFlow()
 
     private var onPermissionRequestListener: ((String, List<PackagePermission>, (Boolean) -> Unit) -> Unit)? = null
 

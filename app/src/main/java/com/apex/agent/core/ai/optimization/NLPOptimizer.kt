@@ -150,7 +150,7 @@ class NLPOptimizer private constructor() {
         private val PARAMETER_PATTERN = Regex("--?(\\w+)[=:]?[\"']?([^\"'\\s]+)?[\"']?", RegexOption.IGNORE_CASE)
         private val FILE_PATH_PATTERN = Regex("(?:/[\\w.\\-]+)+|(?:[A-Za-z]:\\[\\w.\\-]+(?:\\[\\w.\\-]+)*)", RegexOption.IGNORE_CASE)
         private val URL_PATTERN = Regex("https?://[\\w.-]+(:\\d+)?(/[\\w./%-]*)?", RegexOption.IGNORE_CASE)
-        private val EMAIL_PATTERN = Regex("[\\w.-]+@[\\w.-]+\\.\\w{2,}", RegexOption.IGNORE_CASE)
+                private val EMAIL_PATTERN = Regex("[\\w.-]+@[\\w.-]+\\.\\w{2,}", RegexOption.IGNORE_CASE)
     }
 
     private fun loadLanguageProfiles(): List<LanguageProfile> = listOf(
@@ -183,7 +183,7 @@ class NLPOptimizer private constructor() {
 
         if (config.enableCache) {
             val normalized = normalizeText(text)
-            val cached = intentCache[normalized]
+        val cached = intentCache[normalized]
             if (cached != null && (System.currentTimeMillis() - cached.timestampMs) < config.cacheTtlMs) {
                 cacheHits.incrementAndGet()
                 intentCounts.computeIfAbsent(cached.intent.action) { AtomicInteger(0) }.incrementAndGet()
@@ -207,7 +207,7 @@ class NLPOptimizer private constructor() {
             val match = pattern.find(text.trim())
             if (match != null) {
                 val action = match.groupValues[0].lowercase().substringBefore(" ")
-                val target = match.groupValues[1]
+        val target = match.groupValues[1]
                 val confidence = calculateConfidence(action, target, tokens)
                 if (confidence > bestConfidence) {
                     if (bestConfidence > 0) alternatives.add(bestAction)
@@ -287,9 +287,9 @@ class NLPOptimizer private constructor() {
         var bestScore = 0.0
         for (profile in languageProfiles) {
             val matches = tokens.count { profile.wordPattern.matches(it) }
-            val stopWords = tokens.count { profile.stopWords.contains(it.lowercase()) }
+        val stopWords = tokens.count { profile.stopWords.contains(it.lowercase()) }
             val commonWords = tokens.count { profile.commonWords.contains(it.lowercase()) }
-            val score = (matches.toDouble() / max(tokens.size, 1)) * 0.5 +
+        val score = (matches.toDouble() / max(tokens.size, 1)) * 0.5 +
                     (stopWords.toDouble() / max(tokens.size, 1)) * 0.3 +
                     (commonWords.toDouble() / max(tokens.size, 1)) * 0.2
             if (score > bestScore) {
@@ -324,7 +324,7 @@ class NLPOptimizer private constructor() {
         val params = mutableMapOf<String, String>()
         for (match in PARAMETER_PATTERN.findAll(text)) {
             val key = match.groupValues[1].lowercase()
-            val value = match.groupValues[2].ifEmpty { "true" }
+        val value = match.groupValues[2].ifEmpty { "true" }
             params[key] = value
         }
         params

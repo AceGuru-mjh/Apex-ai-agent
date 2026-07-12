@@ -298,7 +298,7 @@ class HotReloader private constructor(private val context: Context) {
 
         if (filePath.startsWith(skillsDir.absolutePath)) {
             val relativePath = filePath.substring(skillsDir.absolutePath.length)
-            val parts = relativePath.split(File.separator)
+        val parts = relativePath.split(File.separator)
             return if (parts.size > 1) parts[1] else null
         }
 

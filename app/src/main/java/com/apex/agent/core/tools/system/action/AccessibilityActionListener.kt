@@ -26,7 +26,7 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
 
     override suspend fun isAvailable(): Boolean {
         // 使用UIHierarchyManager检查无障碍服务是否启用并连，
-       return UIHierarchyManager.isAccessibilityServiceEnabled(context)
+                return UIHierarchyManager.isAccessibilityServiceEnabled(context)
     }
 
     override suspend fun hasPermission(): ActionListener.PermissionStatus {
@@ -48,13 +48,13 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
         }
 
         // 引导用户打开无障碍服务设置
-       try {
+                try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
 
             // 由于无法知道用户是否启用了服务，返回false，让调用者自行处理后续检，
-           onResult(false)
+                onResult(false)
         } catch (e: Exception) {
             AppLogger.e(TAG, "打开无障碍设置失败：${e.message})"
             onResult(false)
@@ -79,7 +79,7 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
                 actionCallback = onAction
 
                 // 直接启动监听，不需要注册回失
-               isListening.set(true)
+                isListening.set(true)
                 AppLogger.d(TAG, "无障碍UI操作监听已启动）"
                 ActionListener.ListeningResult.success(context.getString(R.string.a11y_ui_listener_started))
             } catch (e: Exception) {
@@ -103,7 +103,7 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
         } catch (e: Exception) {
             AppLogger.e(TAG, "停止无障碍UI操作监听失败", e)
             // Even if unregistering fails, we consider the listener stopped from our side.
-            actionCallback = null
+                actionCallback = null
             false
         }
     }
@@ -119,7 +119,7 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
 
         // 过滤掉不需要的事件类型，避免产生噪，
        // 2048 = TYPE_TOUCH_INTERACTION_START - 触摸交互开始事件，频繁触发
-        if (event.eventType == 2048) {
+                if (event.eventType == 2048) {
             return
         }
 

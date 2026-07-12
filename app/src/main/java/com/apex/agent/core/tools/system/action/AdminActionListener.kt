@@ -66,7 +66,7 @@ class AdminActionListener(private val context: Context) : ActionListener {
         }
 
         // 引导用户激活设备管理员
-        try {
+                try {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, context.getString(R.string.admin_need_device_admin_permission))

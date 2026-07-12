@@ -183,7 +183,7 @@ data class SanxingAgent(
 
 data class ApiEndpointConfig(
     var endpoint: String = "https://api.openai.com/v1/chat/completions",
-    var apiKey: String = "",
+                var apiKey: String = "",
     var timeout: Int = 60,
     var retryCount: Int = 3,
     var rateLimit: Int = 100

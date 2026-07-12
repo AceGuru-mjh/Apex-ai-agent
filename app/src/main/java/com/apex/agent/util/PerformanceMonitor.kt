@@ -25,7 +25,7 @@ class PerformanceMonitor private constructor(
     private val context: Context
 ) {
     private val _metrics = MutableStateFlow(PerformanceMetrics())
-    val metrics: StateFlow<PerformanceMetrics> = _metrics.asStateFlow()
+        val metrics: StateFlow<PerformanceMetrics> = _metrics.asStateFlow()
 
     private val memoryBean: MemoryMXBean = ManagementFactory.getMemoryMXBean()
 
@@ -94,9 +94,9 @@ class PerformanceMonitor private constructor(
     fun updateMetrics() {
         try {
             val memoryUsage = memoryBean.heapMemoryUsage
-            val usedMemoryMb = memoryUsage.used / (1024 * 1024).toFloat()
+        val usedMemoryMb = memoryUsage.used / (1024 * 1024).toFloat()
             val maxMemoryMb = memoryUsage.max / (1024 * 1024).toFloat()
-            val memoryPercent = if (maxMemoryMb > 0) usedMemoryMb / maxMemoryMb else 0f
+        val memoryPercent = if (maxMemoryMb > 0) usedMemoryMb / maxMemoryMb else 0f
 
             val threadCount = Thread.activeCount()
 

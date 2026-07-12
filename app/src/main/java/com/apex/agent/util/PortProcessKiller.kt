@@ -30,7 +30,7 @@ object PortProcessKiller {
 
         return runCatching {
             val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
-            val output =
+        val output =
                 BufferedReader(InputStreamReader(process.inputStream)).use { reader ->
                     reader.readLines()
                 }
@@ -39,7 +39,7 @@ object PortProcessKiller {
                     reader.readText().trim()
                 }
             val exitCode = process.waitFor()
-            val killedPids = output.mapNotNull { it.trim().toIntOrNull() }.distinct()
+        val killedPids = output.mapNotNull { it.trim().toIntOrNull() }.distinct()
 
             if (killedPids.isNotEmpty()) {
                 AppLogger.w(TAG, "Killed listener processes on port ${port}: ${killedPids}")

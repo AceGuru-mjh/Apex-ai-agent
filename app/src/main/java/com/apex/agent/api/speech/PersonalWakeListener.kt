@@ -99,7 +99,7 @@ class PersonalWakeListener(
                 SpeechPrerollStore.appendPcm(buffer, read)
 
                 val isSpeechFrame = read == config.frameSize && vad.isSpeech(buffer)
-                val chunkMs = (read * 1000L) / config.sampleRate
+        val chunkMs = (read * 1000L) / config.sampleRate
 
                 if (!isSpeechFrame && !seenSpeech) {
                     val frameRms = computeRms(buffer, read)
@@ -351,10 +351,10 @@ class PersonalWakeListener(
 
         for (i in 1..n) {
             val jStart = max(1, i - bandW)
-            val jEnd = min(m, i + bandW)
+        val jEnd = min(m, i + bandW)
             for (j in jStart..jEnd) {
                 val cost = cosineDistance(a[i - 1], b[j - 1])
-                val bestPrev = min(dp[i - 1][j], min(dp[i][j - 1], dp[i - 1][j - 1]))
+        val bestPrev = min(dp[i - 1][j], min(dp[i][j - 1], dp[i - 1][j - 1]))
                 dp[i][j] = cost + bestPrev
             }
         }
@@ -372,7 +372,7 @@ class PersonalWakeListener(
         var nb = 0f
         for (i in 0 until n) {
             val va = a[i]
-            val vb = b[i]
+        val vb = b[i]
             dot += va * vb
             na += va * va
             nb += vb * vb

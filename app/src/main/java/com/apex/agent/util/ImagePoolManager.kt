@@ -153,7 +153,7 @@ object ImagePoolManager {
     ): String {
         return try {
             val normalized = normalizeBase64Input(base64, mimeType)
-            val bytes = Base64.decode(normalized.base64, Base64.DEFAULT)
+        val bytes = Base64.decode(normalized.base64, Base64.DEFAULT)
             val bitmap = decodeBitmapFromBytes(bytes) ?: run {
                 AppLogger.e(TAG, "无法，base64 解码为位置）"
                 return "error"
@@ -286,7 +286,7 @@ object ImagePoolManager {
             }
 
             val finalFormat = resolveOutputFormat(workingBitmap, resolvedOptions.outputFormat)
-            val outputBitmap =
+        val outputBitmap =
                 if (finalFormat == ImageOutputFormat.JPEG && workingBitmap.hasAlpha()) {
                     val flattened = flattenAlphaForJpeg(workingBitmap)
                     if (flattened !== workingBitmap) {
@@ -315,7 +315,7 @@ object ImagePoolManager {
                     ImageOutputFormat.AUTO -> error("AUTO must be resolved before encoding")
                 }
             val detectedFinalMimeType = detectImageMimeTypeFromBytes(finalBytes)
-            val finalMimeType = detectedFinalMimeType ?: declaredFinalMimeType
+        val finalMimeType = detectedFinalMimeType ?: declaredFinalMimeType
             if (detectedFinalMimeType != null &&
                 !detectedFinalMimeType.equals(declaredFinalMimeType, ignoreCase = true)
             ) {
@@ -381,7 +381,7 @@ object ImagePoolManager {
             val commaIndex = trimmed.indexOf(',')
             if (commaIndex > 0) {
                 val header = trimmed.substring(5, commaIndex)
-                val headerMimeType = header.substringBefore(';').trim()
+        val headerMimeType = header.substringBefore(';').trim()
                 return NormalizedBase64Input(
                     base64 = trimmed.substring(commaIndex + 1),
                     mimeType = headerMimeType.ifBlank { mimeType.ifBlank { "image/png" } }
@@ -605,7 +605,7 @@ object ImagePoolManager {
 
         try {
             val dataFile = File(dir, "${id}.dat")
-            val metaFile = File(dir, "${id}.meta")
+        val metaFile = File(dir, "${id}.meta")
             FileOutputStream(dataFile).use { it.write(imageData.base64.toByteArray()) }
             val meta =
                 JSONObject()
@@ -624,14 +624,14 @@ object ImagePoolManager {
 
         return try {
             val dataFile = File(dir, "${id}.dat")
-            val metaFile = File(dir, "${id}.meta")
+        val metaFile = File(dir, "${id}.meta")
 
             if (!dataFile.exists() || !metaFile.exists()) {
                 return null
             }
 
             val base64 = dataFile.readText()
-            val meta = JSONObject(metaFile.readText())
+        val meta = JSONObject(metaFile.readText())
             ImageData(
                 base64 = base64,
                 mimeType = meta.optString("mimeType", "image/png"),
@@ -654,7 +654,7 @@ object ImagePoolManager {
             var loadedCount = 0
             for (file in files) {
                 val id = file.nameWithoutExtension
-                val imageData = loadFromDisk(id) ?: continue
+        val imageData = loadFromDisk(id) ?: continue
                 imagePool[id] = imageData
                 loadedCount++
             }

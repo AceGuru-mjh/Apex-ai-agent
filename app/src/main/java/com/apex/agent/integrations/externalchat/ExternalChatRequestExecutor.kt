@@ -157,7 +157,7 @@ class ExternalChatRequestExecutor(context: Context) {
 
         if (!request.createNewChat && request.chatId.isNullOrBlank() && !request.createIfNone) {
             val listResult = chatTool.listChats(AITool(name = "list_chats"))
-            val currentChatId = (listResult.result as? ChatListResultData)?.currentChatId
+        val currentChatId = (listResult.result as? ChatListResultData)?.currentChatId
             if (currentChatId.isNullOrBlank()) {
                 return PreparationResult.Failed(
                     ExternalChatResult(

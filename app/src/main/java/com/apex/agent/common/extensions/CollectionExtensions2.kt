@@ -15,7 +15,7 @@ import kotlin.random.Random
 fun <T> Iterable<T>.chunkedWhile(predicate: (T) -> Boolean): List<List<T>> {
     if (this is Collection && isEmpty()) return emptyList()
     val result = mutableListOf<List<T>>()
-    val current = mutableListOf<T>()
+        val current = mutableListOf<T>()
     var lastState: Boolean? = null
     for (element in this) {
         val state = predicate(element)
@@ -53,7 +53,7 @@ fun <T> Iterable<T>.takeUntil(predicate: (T) -> Boolean): List<T> {
  */
 fun <T> Iterable<T>.dropUntil(predicate: (T) -> Boolean): List<T> {
     val list = this.toList()
-    val index = list.indexOfFirst(predicate)
+        val index = list.indexOfFirst(predicate)
     return if (index >= 0) list.drop(index) else emptyList()
 }
 
@@ -81,7 +81,7 @@ fun <T> Iterable<T>.intersperse(element: T): List<T> {
  */
 fun <T> Iterable<T>.findDuplicates(): List<T> {
     val seen = mutableSetOf<T>()
-    val duplicates = mutableListOf<T>()
+        val duplicates = mutableListOf<T>()
     for (element in this) {
         if (!seen.add(element)) {
             duplicates.add(element)
@@ -147,7 +147,7 @@ fun <T> Iterable<T>.hasCycle(nextExtractor: (T) -> T?): Boolean {
  */
 fun <T> Iterable<T>.topologicalSort(dependencyExtractor: (T) -> Iterable<T>): List<T>? {
     val sorted = mutableListOf<T>()
-    val visited = mutableSetOf<Int>()
+        val visited = mutableSetOf<Int>()
     val visiting = mutableSetOf<Int>()
 
     fun dfs(node: T): Boolean {
@@ -325,7 +325,7 @@ fun <T, K> Iterable<T>.groupByCount(transform: (T) -> K): Map<K, Int> {
  */
 fun <T> Iterable<T>.symmetricDifference(other: Iterable<T>): Set<T> {
     val setA = this.toSet()
-    val setB = other.toSet()
+        val setB = other.toSet()
     return (setA - setB) union (setB - setA)
 }
 
@@ -391,9 +391,9 @@ fun <T> Iterable<T>.joinTo(prefix: String = "", separator: String = ", ", suffix
  */
 fun <K, V> toMap(keys: Iterable<K>, values: Iterable<V>): Map<K, V> {
     val keyList = keys.toList()
-    val valueList = values.toList()
+        val valueList = values.toList()
     val size = minOf(keyList.size, valueList.size)
-    val map = mutableMapOf<K, V>()
+        val map = mutableMapOf<K, V>()
     for (i in 0 until size) {
         map[keyList[i]] = valueList[i]
     }
@@ -410,9 +410,9 @@ fun <K, V> toMap(keys: Iterable<K>, values: Iterable<V>): Map<K, V> {
  */
 fun <T, U> Iterable<T>.zipAll(other: Iterable<U>, defaultLeft: T, defaultRight: U): List<Pair<T, U>> {
     val listA = this.toList()
-    val listB = other.toList()
+        val listB = other.toList()
     val maxSize = maxOf(listA.size, listB.size)
-    val result = mutableListOf<Pair<T, U>>()
+        val result = mutableListOf<Pair<T, U>>()
     for (i in 0 until maxSize) {
         val a = if (i < listA.size) listA[i] else defaultLeft
         val b = if (i < listB.size) listB[i] else defaultRight
@@ -451,7 +451,7 @@ fun <T> MutableCollection<T>.addIfAbsent(element: T): Boolean {
  */
 fun <T, K> Iterable<T>.distinctBy(transform: (T) -> K): List<T> {
     val seen = mutableSetOf<K>()
-    val result = mutableListOf<T>()
+        val result = mutableListOf<T>()
     for (element in this) {
         val key = transform(element)
         if (key in seen) continue

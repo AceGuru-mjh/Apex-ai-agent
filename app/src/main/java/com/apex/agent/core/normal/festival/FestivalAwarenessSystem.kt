@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentHashMap
 
 enum class FestivalType {
     LUNAR,           // 农历节日
-    SOLAR,           // 公历节日
-    SOLAR_TERM,      // 节气
-    INTERNATIONAL,   // 国际节日
-    MEMORIAL,        // 纪念日
-    TRADITIONAL      // 传统节日
+                SOLAR,           // 公历节日
+                SOLAR_TERM,      // 节气
+                INTERNATIONAL,   // 国际节日
+                MEMORIAL,        // 纪念日
+                TRADITIONAL      // 传统节日
 }
 
 data class Festival(
@@ -33,11 +33,11 @@ data class Festival(
     val name: String,
     val type: FestivalType,
     val datePattern: String,        // "M-D" 公历 或 "L-M-D" 农历
-    val greeting: String,
+                val greeting: String,
     val customs: List<String>,      // 习俗
-    val foods: List<String>,        // 节日食物
-    val blessing: String,           // 祝福语
-    val emoji: String,
+                val foods: List<String>,        // 节日食物
+                val blessing: String,           // 祝福语
+                val emoji: String,
     val description: String,
     val durationDays: Int = 1       // 持续天数
 )
@@ -45,10 +45,10 @@ data class Festival(
 data class SolarTerm(
     val id: String,
     val name: String,               // 节气名
-    val meaning: String,            // 含义
-    val month: Int,                 // 公历月份
-    val day: Int,                   // 公历日期（近似）
-    val customs: List<String>,
+                val meaning: String,            // 含义
+                val month: Int,                 // 公历月份
+                val day: Int,                   // 公历日期（近似）
+                val customs: List<String>,
     val healthTips: List<String>    // 养生建议
 )
 
@@ -150,7 +150,7 @@ class FestivalAwarenessSystem {
 
     private fun parseDate(pattern: String, cal: Calendar): Pair<Int, Int> {
         // 简化：仅支持 "M-D" 格式
-        val parts = pattern.split("-")
+                val parts = pattern.split("-")
         return if (parts.size == 2) (parts[0].toIntOrNull() ?: 1) to (parts[1].toIntOrNull() ?: 1) else 1 to 1
     }
 

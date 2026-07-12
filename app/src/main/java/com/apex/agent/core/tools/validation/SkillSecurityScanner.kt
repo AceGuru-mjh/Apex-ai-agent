@@ -115,11 +115,11 @@ class SkillSecurityScanner(private val context: Context) {
 
         private val SUSPICIOUS_URL_PATTERNS = listOf(
             Pattern.compile("https?://[\\w.-]+(?:\\.[\\w.-]+)+[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]+(?:\\.[a-z]{2,})?/"),
-            Pattern.compile("https?://(?:\\d{1,3}\\.){3}\\d{1,3}"),
-            Pattern.compile("https?://localhost(?:\\:\\d+)?"),
-            Pattern.compile("https?://(?:10\\.|172\\.(?:1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.)"),
-            Pattern.compile("file://"),
-            Pattern.compile("content://")
+                Pattern.compile("https?://(?:\\d{1,3}\\.){3}\\d{1,3}"),
+                Pattern.compile("https?://localhost(?:\\:\\d+)?"),
+                Pattern.compile("https?://(?:10\\.|172\\.(?:1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.)"),
+                Pattern.compile("file://"),
+                Pattern.compile("content://")
         )
 
         private val DANGEROUS_FILE_OPERATIONS = listOf(
@@ -152,7 +152,7 @@ class SkillSecurityScanner(private val context: Context) {
 
         DANGEROUS_PATTERNS.forEach { patternInfo ->
             val pattern = Pattern.compile(patternInfo.regex, Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
-            val matcher = pattern.matcher(scriptContent)
+        val matcher = pattern.matcher(scriptContent)
             while (matcher.find()) {
                 val snippet = matcher.group().take(100)
                 dangerPatterns.add(
@@ -170,10 +170,10 @@ class SkillSecurityScanner(private val context: Context) {
 
         SENSITIVE_APIS.forEach { apiInfo ->
             val pattern = Pattern.compile(Pattern.quote(apiInfo.apiName), Pattern.CASE_INSENSITIVE)
-            val matcher = pattern.matcher(scriptContent)
+        val matcher = pattern.matcher(scriptContent)
             while (matcher.find()) {
                 val lineNum = getLineNumber(scriptContent, matcher.start())
-                val contextStart = maxOf(0, matcher.start() - 30)
+        val contextStart = maxOf(0, matcher.start() - 30)
                 val contextEnd = minOf(scriptContent.length, matcher.end() + 30)
                 sensitiveApiCalls.add(
                     SensitiveApiCall(
@@ -191,7 +191,7 @@ class SkillSecurityScanner(private val context: Context) {
             val matcher = urlPattern.matcher(scriptContent)
             while (matcher.find()) {
                 val url = matcher.group()
-                val isSuspicious = isSuspiciousUrl(url)
+        val isSuspicious = isSuspiciousUrl(url)
                 networkRequests.add(
                     NetworkRequest(
                         url = url,
@@ -235,7 +235,6 @@ class SkillSecurityScanner(private val context: Context) {
         }
 
         val isPassed = riskLevel != RiskLevel.CRITICAL && riskLevel != RiskLevel.HIGH
-
         val recommendations = mutableListOf<String>()
         if (dangerPatterns.any { it.type == DangerPatternType.EVAL_USAGE }) {
             recommendations.add("Avoid using eval(). Consider using safer alternatives like JSON.parse for data or functions for logic.")
@@ -273,7 +272,7 @@ class SkillSecurityScanner(private val context: Context) {
 
         DANGEROUS_PATTERNS.forEach { patternInfo ->
             val pattern = Pattern.compile(patternInfo.regex, Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
-            val matcher = pattern.matcher(scriptContent)
+        val matcher = pattern.matcher(scriptContent)
             while (matcher.find()) {
                 val snippet = matcher.group().take(100)
                 dangerPatterns.add(
@@ -291,10 +290,10 @@ class SkillSecurityScanner(private val context: Context) {
 
         SENSITIVE_APIS.forEach { apiInfo ->
             val pattern = Pattern.compile(Pattern.quote(apiInfo.apiName), Pattern.CASE_INSENSITIVE)
-            val matcher = pattern.matcher(scriptContent)
+        val matcher = pattern.matcher(scriptContent)
             while (matcher.find()) {
                 val lineNum = getLineNumber(scriptContent, matcher.start())
-                val contextStart = maxOf(0, matcher.start() - 30)
+        val contextStart = maxOf(0, matcher.start() - 30)
                 val contextEnd = minOf(scriptContent.length, matcher.end() + 30)
                 sensitiveApiCalls.add(
                     SensitiveApiCall(
@@ -312,7 +311,7 @@ class SkillSecurityScanner(private val context: Context) {
             val matcher = urlPattern.matcher(scriptContent)
             while (matcher.find()) {
                 val url = matcher.group()
-                val isSuspicious = isSuspiciousUrl(url)
+        val isSuspicious = isSuspiciousUrl(url)
                 networkRequests.add(
                     NetworkRequest(
                         url = url,

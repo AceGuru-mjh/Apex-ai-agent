@@ -318,7 +318,7 @@ object CollectionUtils {
         val random = Random(seed)
         for (i in mutable.indices.reversed()) {
             val j = random.nextInt(i + 1)
-            val temp = mutable[i]
+        val temp = mutable[i]
             mutable[i] = mutable[j]
             mutable[j] = temp
         }

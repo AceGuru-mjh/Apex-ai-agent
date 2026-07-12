@@ -30,7 +30,7 @@ class WeightConfigManager {
 
     init {
         // 初始化预定义配置
-        initPredefinedConfigs()
+                initPredefinedConfigs()
     }
 
     private fun initPredefinedConfigs() {
@@ -144,7 +144,7 @@ class WeightConfigManager {
         }
         
         // 如果用户配置不存在，返回默认配置
-        return defaultWeights
+                return defaultWeights
     }
 
     private fun normalizeWeights(weights: Map<String, Double>): Map<String, Double> {
@@ -199,7 +199,7 @@ class WeightConfigManager {
     }
 
     // 为特定任务类型推荐权重配，   fun recommendConfigForTaskType(taskType: String): String {
-        return when (taskType) {
+                return when (taskType) {
             "coding", "development" -> "capability-focused"
             "writing", "content" -> "skill-matched"
             "data", "analysis" -> "resource-optimized"

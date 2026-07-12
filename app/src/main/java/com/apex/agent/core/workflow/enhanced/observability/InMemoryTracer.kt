@@ -163,7 +163,7 @@ class InMemoryTracer(
         val queue = spansByThread.computeIfAbsent(span.threadId) { ConcurrentLinkedQueue() }
         queue.add(record)
         // 限制大小，FIFO 淘汰
-        while (queue.size > maxSpansPerThread) queue.poll()
+                while (queue.size > maxSpansPerThread) queue.poll()
         activeSpans.remove(span.spanId)
     }
 

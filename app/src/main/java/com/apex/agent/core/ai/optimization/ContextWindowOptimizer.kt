@@ -174,7 +174,7 @@ class ContextWindowOptimizer private constructor() {
                         .minByOrNull { it.timestampMs }
                     if (oldestNonSystem != null) {
                         val summary = summarizeText(oldestNonSystem.content)
-                        val summaryTokens = estimateTokens(summary)
+        val summaryTokens = estimateTokens(summary)
                         segments = segments.map {
                             if (it.id == oldestNonSystem.id) it.copy(content = summary, tokenCount = summaryTokens)
                             else it
@@ -205,7 +205,7 @@ class ContextWindowOptimizer private constructor() {
                     val toCluster = segments.filter { it.segmentType != SegmentType.SYSTEM_PROMPT }
                     if (toCluster.size >= 3) {
                         val clusterSize = (toCluster.size / 2).coerceAtLeast(1)
-                        val toRemove = toCluster.take(clusterSize)
+        val toRemove = toCluster.take(clusterSize)
                         segments = segments.filter { it !in toRemove }
                         appliedPrunes.add("semantic_cluster:removed_${clusterSize}")
                     }
@@ -275,7 +275,7 @@ class ContextWindowOptimizer private constructor() {
             sentences.size <= 4 -> sentences.take(2).joinToString(" ") + "..."
             else -> {
                 val first = sentences.first()
-                val last = sentences.last()
+        val last = sentences.last()
                 "$first ... $last"
             }
         }
@@ -285,7 +285,7 @@ class ContextWindowOptimizer private constructor() {
         val queryWords = query.lowercase().split(Regex("\\s+")).toSet()
         contextSegments.map { segment ->
             val contentWords = segment.content.lowercase().split(Regex("\\s+")).toSet()
-            val common = queryWords.intersect(contentWords)
+        val common = queryWords.intersect(contentWords)
             val score = if (queryWords.isNotEmpty()) common.size.toDouble() / queryWords.size else 0.0
             SemanticScore(
                 segmentId = segment.id,

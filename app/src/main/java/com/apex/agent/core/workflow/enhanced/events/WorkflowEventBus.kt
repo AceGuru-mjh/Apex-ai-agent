@@ -73,7 +73,7 @@ class WorkflowEventBus(
     private val extraBufferCapacity: Int = 256
 ) {
     private val _events = MutableSharedFlow<WorkflowEvent>(extraBufferCapacity = extraBufferCapacity)
-    val events: SharedFlow<WorkflowEvent> = _events.asSharedFlow()
+        val events: SharedFlow<WorkflowEvent> = _events.asSharedFlow()
 
     private val subscriptions = ConcurrentHashMap<String, EventSubscription>()
     private val dedupStore = ConcurrentHashMap<String, Long>()
@@ -84,7 +84,7 @@ class WorkflowEventBus(
      */
     suspend fun publish(event: WorkflowEvent) {
         // 去重（基于 dedupKey）
-        if (event is WorkflowEvent.External) {
+                if (event is WorkflowEvent.External) {
             val dedupKey = event.payload.takeIf { it is String }?.toString()
             if (dedupKey != null && dedupStore.containsKey(dedupKey)) {
                 val age = System.currentTimeMillis() - (dedupStore[dedupKey] ?: 0)

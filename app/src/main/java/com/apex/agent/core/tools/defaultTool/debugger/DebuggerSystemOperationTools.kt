@@ -43,7 +43,7 @@ open class DebuggerSystemOperationTools(context: Context) :
 
         return try {
             val command = "settings put ${namespace} ${setting} ${value}"
-            val result = AndroidShellExecutor.executeShellCommand(command)
+        val result = AndroidShellExecutor.executeShellCommand(command)
 
             if (result.success) {
                 val resultData =
@@ -99,7 +99,7 @@ open class DebuggerSystemOperationTools(context: Context) :
 
         return try {
             val command = "settings get ${namespace} ${setting}"
-            val result = AndroidShellExecutor.executeShellCommand(command)
+        val result = AndroidShellExecutor.executeShellCommand(command)
 
             if (result.success) {
                 val resultData =
@@ -169,7 +169,7 @@ open class DebuggerSystemOperationTools(context: Context) :
 
         return try {
             val command = "pm install -r ${apkPath}"
-            val result = AndroidShellExecutor.executeShellCommand(command)
+        val result = AndroidShellExecutor.executeShellCommand(command)
 
             if (result.success && result.stdout.contains("Success")) {
                 val resultData =
@@ -241,7 +241,7 @@ open class DebuggerSystemOperationTools(context: Context) :
 
             if (result.success && result.stdout.contains("Success")) {
                 val details = if (keepData) "(keep data)" else ""
-                val resultData =
+        val resultData =
                     AppOperationData(
                         operationType = "uninstall",
                         packageName = packageName,
@@ -293,17 +293,17 @@ open class DebuggerSystemOperationTools(context: Context) :
                 // 使用 am start 命令而不？monkey，避免修改系统设置（如屏幕旋转）
                 // 先获取应用户Activity，然后使，n 参数启动
                 val resolveCmd = "cmd package resolve-activity --brief ${packageName} 2>/dev/null | tail -n 1"
-                val resolveResult = AndroidShellExecutor.executeShellCommand(resolveCmd)
+        val resolveResult = AndroidShellExecutor.executeShellCommand(resolveCmd)
                 
                 if (resolveResult.success && resolveResult.stdout.isNotBlank()) {
                     val output = resolveResult.stdout.trim()
                     // resolve-activity 返回格式可能是：package/activity 或只？activity
                     // 也可能返回多行，最后一行是组件，
-                   val lines = output.lines().filter { it.isNotBlank() && !it.startsWith("name=") }
-                    val mainActivity = lines.lastOrNull()?.trim() ?: output.trim()
+                val lines = output.lines().filter { it.isNotBlank() && !it.startsWith("name=") }
+        val mainActivity = lines.lastOrNull()?.trim() ?: output.trim()
                     
                     // 如果返回的是完整组件名（package/activity），直接使用
-                    command = if (mainActivity.contains('/')) {
+                command = if (mainActivity.contains('/')) {
                         "am start -n ${mainActivity}"
                     } else {
                         // 如果只返回了 Activity 名，拼接包名
@@ -312,7 +312,7 @@ open class DebuggerSystemOperationTools(context: Context) :
                     AppLogger.d(TAG, "Resolved main Activity: ${mainActivity}, using command: ${command}")
                 } else {
                     // 如果无法解析 Activity，返回错，
-                   return ToolResult(
+                return ToolResult(
                         toolName = tool.name,
                         success = false,
                         result = StringResultData(""),
@@ -327,7 +327,7 @@ open class DebuggerSystemOperationTools(context: Context) :
 
             if (result.success) {
                 val details = if (activity.isNotBlank()) "Activity: ${activity}" else ""
-                val resultData =
+        val resultData =
                     AppOperationData(
                         operationType = "start",
                         packageName = packageName,
@@ -374,7 +374,7 @@ open class DebuggerSystemOperationTools(context: Context) :
 
         return try {
             val command = "am force-stop ${packageName}"
-            val result = AndroidShellExecutor.executeShellCommand(command)
+        val result = AndroidShellExecutor.executeShellCommand(command)
 
             if (result.success) {
                 val resultData =
@@ -426,7 +426,7 @@ open class DebuggerSystemOperationTools(context: Context) :
 
             if (result.success) {
                 val lines = result.stdout.split("\n")
-                val notifications = mutableListOf<NotificationData.Notification>()
+        val notifications = mutableListOf<NotificationData.Notification>()
 
                 var currentPackage = ""
                 var currentText = ""

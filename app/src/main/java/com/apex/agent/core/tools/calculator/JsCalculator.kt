@@ -17,7 +17,7 @@ class JsCalculator {
         fun evaluate(expression: String): Double {
             try {
                 val parser = ExpressionParser(expression)
-                val expressionTree = parser.parse()
+        val expressionTree = parser.parse()
                 return expressionTree.evaluate()
             } catch (e: Exception) {
                 throw IllegalArgumentException("Error evaluating expression: ${e.message}", e)

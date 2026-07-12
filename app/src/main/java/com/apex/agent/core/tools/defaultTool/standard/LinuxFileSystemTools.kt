@@ -147,7 +147,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             
             // 特殊文件类型处理（图片、PDF等）暂时不支持在Linux环境
             // 因为这些需要Android本地文件访问
-            if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
+                if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -157,7 +157,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             // 检查文件是否是文本文件（如果启用了 text_only的
-           if (textOnly) {
+                if (textOnly) {
                 val sample = fs.readFileSample(path, 512)
                 if (sample == null || !FileUtils.isTextLike(sample)) {
                     return ToolResult(
@@ -246,7 +246,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
-            val size = fs.getFileSize(path)
+        val size = fs.getFileSize(path)
 
             ToolResult(
                 toolName = tool.name,
@@ -297,7 +297,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             val isDirectory = fs.isDirectory(path)
-            val size = fs.getFileSize(path)
+        val size = fs.getFileSize(path)
 
             return ToolResult(
                 toolName = tool.name,
@@ -364,18 +364,18 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             val fileExt = path.substringAfterLast('.', "").lowercase()
 
             // 特殊文件类型不支的
-           if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
+                if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
                 // 对于特殊类型，先尝试读取完整文件
                 return readFileFull(tool)
             }
 
             // 检查文件大将
-           val fileSize = fs.getFileSize(path)
-            val maxFileSizeBytes = ToolExecutionLimits.MAX_FILE_READ_BYTES
+                val fileSize = fs.getFileSize(path)
+        val maxFileSizeBytes = ToolExecutionLimits.MAX_FILE_READ_BYTES
 
             if (fileSize > maxFileSizeBytes) {
                 // 文件过大，读取限制大将
-               val content = fs.readFileWithLimit(path, maxFileSizeBytes.toInt())
+                val content = fs.readFileWithLimit(path, maxFileSizeBytes.toInt())
                 if (content == null) {
                     return ToolResult(
                         toolName = tool.name,
@@ -448,11 +448,11 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             // 获取总行为
-          val totalLines = fs.getLineCount(path)
+                val totalLines = fs.getLineCount(path)
 
             // 计算实际的行号范围（行号。开始）
-            val startLine = maxOf(1, startLineParam).coerceIn(1, maxOf(1, totalLines))
-            val endLine =
+                val startLine = maxOf(1, startLineParam).coerceIn(1, maxOf(1, totalLines))
+        val endLine =
                 (endLineParam
                         ?: (startLine + ToolExecutionLimits.DEFAULT_FILE_READ_PART_LINES - 1))
                     .coerceIn(startLine, maxOf(1, totalLines))
@@ -482,9 +482,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     path = path,
                     content = contentWithLineNumbers,
                     partIndex = 0, // 保留兼容性，但不再使的
-                   totalParts = 1, // 保留兼容性，但不再使的
-                   startLine = startLine - 1, // 转为0-based
-                    endLine = endLine,
+                totalParts = 1, // 保留兼容性，但不再使的
+                startLine = startLine - 1, // 转为0-based
+                endLine = endLine,
                     totalLines = totalLines,
                     env = "linux"
                 ),
@@ -596,8 +596,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
 
         return try {
             // 解码base64内容
-            val bytes = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT)
-            val result = fs.writeFileBytes(path, bytes)
+                val bytes = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT)
+        val result = fs.writeFileBytes(path, bytes)
 
             if (!result.success) {
                 return ToolResult(
@@ -995,7 +995,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
 
             if (!fs.isDirectory(basePath)) {
                 val fileName = basePath.substringAfterLast('/')
-                val regex = globToRegex(pattern, caseInsensitive = false)
+        val regex = globToRegex(pattern, caseInsensitive = false)
                 val files = if (regex.matches(fileName)) listOf(basePath) else emptyList()
 
                 ToolProgressBus.update(tool.name, 1f, "Search completed, found ${files.size}")
@@ -1083,7 +1083,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             val fileType = if (fileInfo.isDirectory) "directory" else "file"
-            val rawInfo = buildString {
+        val rawInfo = buildString {
                 appendLine("File: ${path}")
                 appendLine("Size: ${fileInfo.size} bytes")
                 appendLine("Type: ${fileType}")
@@ -1215,7 +1215,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
 
         if (isFile) {
             val parent = path.substringBeforeLast('/', "")
-            val fileName = path.substringAfterLast('/')
+        val fileName = path.substringAfterLast('/')
             val searchPath = if (parent.isNotBlank()) parent else "/"
             return grepContextAgentic(
                 toolName = tool.name,

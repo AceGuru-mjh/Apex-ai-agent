@@ -125,7 +125,7 @@ object ToolboxPlugin : ApexPlugin {
     private val runtimeChangeListener =
         PackageManager.ToolPkgRuntimeChangeListener {
             val context = ApexApplication.instance.applicationContext
-            val packageManager = PackageManager.getInstance(context, AIToolHandler.getInstance(context))
+        val packageManager = PackageManager.getInstance(context, AIToolHandler.getInstance(context))
             ToolPkgAppLifecycleHookPlugin.syncToolPkgRegistrations(
                 packageManager.getImportedToolPkgContainerRuntimes()
             )

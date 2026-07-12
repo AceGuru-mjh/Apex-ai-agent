@@ -202,7 +202,7 @@ class WorkingMemoryManager {
         val session = sessions[sessionId] ?: error("Session not found: $sessionId")
         return getLock(sessionId).withLock {
             val count = artifactCounter.merge(sessionId, 1, Int::plus) ?: 1
-            val artifact = Artifact(
+        val artifact = Artifact(
                 id = "artifact_${sessionId}_$count",
                 name = name,
                 type = type,

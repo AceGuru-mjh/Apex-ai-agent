@@ -40,7 +40,6 @@ class SkillVersionManager(private val context: Context) {
         val stable = versions.filter { it.status == LogistraSkillSpecV2.SkillStatus.STABLE }
         val candidates = versions.filter { it.status == LogistraSkillSpecV2.SkillStatus.CANDIDATE }
         val exploration = versions.filter { it.status == LogistraSkillSpecV2.SkillStatus.EXPLORATION }
-
         val rand = Math.random()
         return when {
             rand < 0.7 && stable.isNotEmpty() -> stable.random()
@@ -60,14 +59,14 @@ class SkillVersionManager(private val context: Context) {
         if (allVersions.isEmpty()) return
 
         // 简单的优胜劣汰逻辑：如的Candidate 版本的平均评分超的Stable 版本 10%，则晋升
-        val stable = allVersions.find { it.status == LogistraSkillSpecV2.SkillStatus.STABLE }
+                val stable = allVersions.find { it.status == LogistraSkillSpecV2.SkillStatus.STABLE }
         val bestCandidate = allVersions
             .filter { it.status == LogistraSkillSpecV2.SkillStatus.CANDIDATE }
             .maxByOrNull { it.metadata.fitnessHistory.map { h -> h.score }.average() }
 
         if (stable != null && bestCandidate != null) {
             val stableScore = stable.metadata.fitnessHistory.map { it.score }.average()
-            val candidateScore = bestCandidate.metadata.fitnessHistory.map { it.score }.average()
+        val candidateScore = bestCandidate.metadata.fitnessHistory.map { it.score }.average()
 
             if (candidateScore > stableScore * 1.1) {
                 AppLogger.d("SkillVersionManager", "Promoting candidate ${bestCandidate.metadata.version} to STABLE for ${skillId}")

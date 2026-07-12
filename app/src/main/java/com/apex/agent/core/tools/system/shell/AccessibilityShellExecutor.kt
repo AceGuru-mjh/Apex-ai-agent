@@ -63,13 +63,13 @@ class AccessibilityShellExecutor(private val context: Context) : ShellExecutor {
         }
 
         // 引导用户打开无障碍服务设置
-       try {
+                try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
 
             // 由于无法知道用户是否启用了服务，返回false，让调用者自行处理后续检，
-           onResult(false)
+                onResult(false)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error opening accessibility settings", e)
             onResult(false)
@@ -109,7 +109,7 @@ class AccessibilityShellExecutor(private val context: Context) : ShellExecutor {
                 // 这里仅作为一个框架，实际实现将根据应用程序需求而定
 
                 // 目前只返回错误信，
-               return@withContext ShellExecutor.CommandResult(
+                return@withContext ShellExecutor.CommandResult(
                         false,
                         "",
                         "Accessibility service cannot directly execute shell commands. Command was: ${command}",
@@ -121,7 +121,8 @@ class AccessibilityShellExecutor(private val context: Context) : ShellExecutor {
                 // if (command.startsWith("tap")) {
                 //     // 解析坐标
                 //     // 执行点击
-                //     return@withContext ShellExecutor.CommandResult(true, "Tap executed", "", 0)
+                //
+                return@withContext ShellExecutor.CommandResult(true, "Tap executed", "", 0)
                 // }
             }
 }
@@ -138,7 +139,7 @@ private class AccessibilityShellProcess(
     
     override val stdout: Flow<String> = callbackFlow {
         // 无障碍服务不能执行真正的shell命令，返回错误信，
-       trySend("Accessibility service cannot execute shell commands directly")
+                trySend("Accessibility service cannot execute shell commands directly")
         completed = true
         close()
         awaitClose { }

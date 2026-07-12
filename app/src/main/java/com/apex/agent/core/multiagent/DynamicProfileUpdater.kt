@@ -9,9 +9,10 @@ class DynamicProfileUpdater {
 
     data class ProfileUpdateConfig(
         val agentId: String,
-        val updateInterval: Long = 60, // 默认60??        val minSamples: Int = 5, // 最小样本数
-        val learningRate: Double = 0.1, // 学习，
-       val enabled: Boolean = true
+        val updateInterval: Long = 60, // 默认60??
+                val minSamples: Int = 5, // 最小样本数
+                val learningRate: Double = 0.1, // 学习，
+                val enabled: Boolean = true
     )
 
     data class TaskExecutionData(
@@ -44,7 +45,8 @@ class DynamicProfileUpdater {
         val dataList = executionData.getOrPut(agentId) { mutableListOf() }
         dataList.add(data)
         
-        // 限制数据量，只保留最，0??        if (dataList.size > 100) {
+        // 限制数据量，只保留最，0??
+                if (dataList.size > 100) {
             executionData[agentId] = dataList.takeLast(100).toMutableList()
         }
     }
@@ -72,38 +74,38 @@ class DynamicProfileUpdater {
         }
 
         // 按任务类别分，
-       val dataByCategory = dataList.groupBy { it.taskCategory }
+                val dataByCategory = dataList.groupBy { it.taskCategory }
 
         dataByCategory.forEach { (category, data) ->
             // 计算该类别的统计数据
-            val successRate = data.count { it.success }.toDouble() / data.size
-            val avgQualityScore = data.map { it.qualityScore }.average()
+                val successRate = data.count { it.success }.toDouble() / data.size
+        val avgQualityScore = data.map { it.qualityScore }.average()
             val avgCompletionTime = data.map { it.completionTime }.average()
-            val avgUserFeedback = data.filter { it.userFeedback != null }.map { it.userFeedback!! }.average()
+        val avgUserFeedback = data.filter { it.userFeedback != null }.map { it.userFeedback!! }.average()
 
             // 计算综合得分
-            val综合得分 = successRate * 0.4 + avgQualityScore * 0.3 + 
+                val综合得分 = successRate * 0.4 + avgQualityScore * 0.3 + 
                            (1 - avgCompletionTime / 60000) * 0.2 + // 60秒为基准
                            (if (avgUserFeedback > 0) avgUserFeedback / 5 * 0.1 else 0.05)
 
             // 更新能力评分
-            val profile = profileManager.getProfile(agentId)
+                val profile = profileManager.getProfile(agentId)
             if (profile != null) {
                 val currentScore = profile.capabilityScores.getOrDefault(category, 1.0)
-                val newScore = currentScore * (1 - config.learningRate) + 综合得分 * config.learningRate
+        val newScore = currentScore * (1 - config.learningRate) + 综合得分 * config.learningRate
                 profile.capabilityScores[category] = newScore.coerceIn(0.1, 2.0)
 
                 // 更新技能标，
-               if (综合得分 > 0.7) {
+                if (综合得分 > 0.7) {
                     // 添加相关技能标，
-                   val skills = getSkillsForCategory(category)
+                val skills = getSkillsForCategory(category)
                     skills.forEach { profile.skillTags.add(it) }
                 }
             }
         }
 
         // 清理旧数，
-       executionData[agentId] = dataList.takeLast(config.minSamples * 2).toMutableList()
+                executionData[agentId] = dataList.takeLast(config.minSamples * 2).toMutableList()
     }
 
     private fun getSkillsForCategory(category: String): List<String> {
@@ -135,7 +137,7 @@ class DynamicProfileUpdater {
         }
 
         // 按天分组
-        val dataByDay = recentData.groupBy { it.timestamp / (24 * 60 * 60 * 1000) }
+                val dataByDay = recentData.groupBy { it.timestamp / (24 * 60 * 60 * 1000) }
 
         return dataByDay.map { (_, dayData) ->
             dayData.map { it.qualityScore }.average()
@@ -153,7 +155,7 @@ class DynamicProfileUpdater {
 
         dataByCategory.forEach { (category, data) ->
             val successRate = data.count { it.success }.toDouble() / data.size
-            val avgQualityScore = data.map { it.qualityScore }.average()
+        val avgQualityScore = data.map { it.qualityScore }.average()
             performance[category] = successRate * 0.5 + avgQualityScore * 0.5
         }
 

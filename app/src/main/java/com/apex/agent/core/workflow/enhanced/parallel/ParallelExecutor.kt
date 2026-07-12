@@ -77,7 +77,7 @@ object Aggregators {
 class ParallelExecutor {
 
     private val _events = MutableSharedFlow<ParallelExecutionEvent>(extraBufferCapacity = 64)
-    val events: SharedFlow<ParallelExecutionEvent> = _events.asSharedFlow()
+        val events: SharedFlow<ParallelExecutionEvent> = _events.asSharedFlow()
 
     /**
      * Fan-out：将 items 列表分裂成 N 个并行执行
@@ -97,7 +97,6 @@ class ParallelExecutor {
         val semaphore = Semaphore(maxConcurrency.coerceAtLeast(1))
         val results = ConcurrentHashMap<Int, R>()
         val failures = ConcurrentHashMap<Int, Throwable>()
-
         val deferred = items.mapIndexed { idx, item ->
             async {
                 semaphore.withPermit {

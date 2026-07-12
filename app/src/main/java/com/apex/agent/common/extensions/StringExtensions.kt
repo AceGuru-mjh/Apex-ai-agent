@@ -78,7 +78,7 @@ fun String.isPhone(): Boolean {
 fun String.isUrl(): Boolean {
     if (isBlank()) return false
     val regex = Regex("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
-    return regex.matches(this)
+                return regex.matches(this)
 }
 
 /**
@@ -100,7 +100,7 @@ fun String.isNumeric(): Boolean {
 fun String.toCamelCase(): String {
     if (isEmpty()) return this
     val separators = Regex("[_\\s-]")
-    val parts = split(separators).filter { it.isNotEmpty() }
+        val parts = split(separators).filter { it.isNotEmpty() }
     if (parts.isEmpty()) return ""
     return parts.first().lowercase() + parts.drop(1).joinToString("") {
         it.replaceFirstChar { c -> c.uppercase() }

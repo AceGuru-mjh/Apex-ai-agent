@@ -45,7 +45,7 @@ object PersonalWakeEnrollment {
 
         try {
             val buffer = ShortArray(frameSize)
-            val speech = ArrayList<Short>()
+        val speech = ArrayList<Short>()
 
             var seenSpeech = false
             var silenceMsAfterSpeech = 0L

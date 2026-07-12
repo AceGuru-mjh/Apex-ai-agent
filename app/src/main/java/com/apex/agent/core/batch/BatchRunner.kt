@@ -39,7 +39,7 @@ class DatasetLoader {
     suspend fun loadJsonlFile(filePath: String): List<DatasetItem> {
         return withContext(Dispatchers.IO) {
             val items = mutableListOf<DatasetItem>()
-            val logger = LoggerFactory.getLogger(DatasetLoader::class.java)
+        val logger = LoggerFactory.getLogger(DatasetLoader::class.java)
             val file = File(filePath)
 
             if (!file.exists()) {
@@ -65,7 +65,7 @@ class DatasetLoader {
     suspend fun loadFromAssets(context: Any, assetPath: String): List<DatasetItem> {
         return withContext(Dispatchers.IO) {
             val items = mutableListOf<DatasetItem>()
-            val logger = LoggerFactory.getLogger(DatasetLoader::class.java)
+        val logger = LoggerFactory.getLogger(DatasetLoader::class.java)
 
             val androidContext = context as? android.content.Context
             if (androidContext == null) {
@@ -204,7 +204,6 @@ class BatchRunner {
         val channel = Channel<DatasetLoader.DatasetItem>(capacity = batchSize)
         val results = mutableListOf<ProcessingResult>()
         val errors = mutableListOf<ErrorInfo>()
-        
         val dispatcher = Dispatchers.Default.limitedParallelism(batchSize)
 
         val producerJob = launch(dispatcher) {
@@ -342,7 +341,7 @@ class CheckpointManager {
             checkpoints[batchId] = checkpoint
 
             val json = Json.encodeToString(checkpoint)
-            val file = File(getCheckpointPath(batchId))
+        val file = File(getCheckpointPath(batchId))
             file.parentFile?.mkdirs()
             FileWriter(file).use { it.write(json) }
 
@@ -359,7 +358,7 @@ class CheckpointManager {
 
             try {
                 val json = FileReader(file).readText()
-                val checkpoint = Json.decodeFromString<Checkpoint>(json)
+        val checkpoint = Json.decodeFromString<Checkpoint>(json)
                 checkpoints[batchId] = checkpoint
                 checkpoint
             } catch (e: Exception) {
@@ -387,7 +386,7 @@ class CheckpointManager {
             ?.mapNotNull { file ->
                 try {
                     val json = FileReader(file).readText()
-                    val checkpoint = Json.decodeFromString<Checkpoint>(json)
+        val checkpoint = Json.decodeFromString<Checkpoint>(json)
                     CheckpointSummary(
                         batchId = checkpoint.batchId,
                         progress = checkpoint.completed.toDouble() / checkpoint.total,

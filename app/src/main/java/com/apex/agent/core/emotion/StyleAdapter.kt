@@ -215,7 +215,6 @@ class StyleAdapter(private val context: Context) {
         var bestStyle = ConversationStyle.CASUAL
         var confidence = 0.5f
         val reasons = mutableListOf<String>()
-
         val emotionStyle = emotionToStyleMapping[emotionProfile.primaryEmotion]
         if (emotionStyle != null) {
             val emotionWeight = emotionProfile.confidence
@@ -254,7 +253,6 @@ class StyleAdapter(private val context: Context) {
         }
 
         val samplePhrases = styleTransitionPhrases[bestStyle] ?: emptyList()
-
         val reasoning = reasons.joinToString("，")
 
         AppLogger.d(TAG, "风格适配完成: ${bestStyle} (置信应 ${confidence})")
@@ -337,7 +335,6 @@ class StyleAdapter(private val context: Context) {
 
     fun detectStyleFromContent(content: String): ConversationStyle {
         val lowerContent = content.lowercase()
-
         val formalIndicators = listOf("试, "悬, "感谢", "尊敬", "特此", "调")
         val casualIndicators = listOf("嘲, "响, "呀", "后, "嘲, "响")
         val techIndicators = listOf("代码", "函数", "算法", "api", "接口", "实现")
@@ -363,7 +360,7 @@ class StyleAdapter(private val context: Context) {
     ) {
         fun recordStyleUsage(style: ConversationStyle): UserStylePreferences {
             val newHistory = (styleHistory + style).takeLast(10)
-            val newChangeCount = if (newHistory.size >= 2 && newHistory.last() != newHistory[newHistory.size - 2]) {
+        val newChangeCount = if (newHistory.size >= 2 && newHistory.last() != newHistory[newHistory.size - 2]) {
                 styleChangeCount + 1
             } else {
                 styleChangeCount

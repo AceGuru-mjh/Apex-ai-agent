@@ -262,7 +262,6 @@ class IntegrationTool(private val context: Context) : ToolAdapter {
 
     private suspend fun executeListInstalled(parameters: Map<String, Any>): ToolResultData {
         val providerId = (parameters["provider"] as? String)?.trim()?.takeIf { it.isNotBlank() }
-
         val targets = if (providerId != null) {
             listOfNotNull(IntegrationManager.getProvider(providerId))
         } else {

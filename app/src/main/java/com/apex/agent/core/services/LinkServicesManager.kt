@@ -262,7 +262,7 @@ class LinkServicesManager private constructor(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 val url = URL("${baseUrl}/${endpoint.removePrefix("/")}")
-                val connection = url.openConnection() as HttpURLConnection
+        val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.doOutput = true
                 connection.connectTimeout = CONNECTION_TIMEOUT

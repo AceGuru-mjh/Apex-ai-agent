@@ -85,7 +85,7 @@ abstract class BaseJsonPlugin : StreamPlugin {
     private fun finishProcessing() {
         StreamLogger.d(this::class.java.simpleName, "JSON structure complete.")
         // The reset will be called by the collector loop when it sees the IDLE state.
-        reset()
+                reset()
     }
 
     override fun initPlugin(): Boolean {

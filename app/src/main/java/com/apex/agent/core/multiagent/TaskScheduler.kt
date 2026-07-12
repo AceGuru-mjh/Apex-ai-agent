@@ -17,19 +17,19 @@ class TaskScheduler(private val context: Context) {
         }
 
     private val _tasks = MutableStateFlow<List<ScheduledTask>>(emptyList())
-    val tasks: StateFlow<List<ScheduledTask>> = _tasks.asStateFlow()
+        val tasks: StateFlow<List<ScheduledTask>> = _tasks.asStateFlow()
 
     private val _taskQueue = MutableStateFlow<List<ScheduledTask>>(emptyList())
-    val taskQueue: StateFlow<List<ScheduledTask>> = _taskQueue.asStateFlow()
+        val taskQueue: StateFlow<List<ScheduledTask>> = _taskQueue.asStateFlow()
 
     private val _runningTasks = MutableStateFlow<Set<String>>(emptySet())
-    val runningTasks: StateFlow<Set<String>> = _runningTasks.asStateFlow()
+        val runningTasks: StateFlow<Set<String>> = _runningTasks.asStateFlow()
 
     private val taskExecutors = ConcurrentHashMap<String, TaskExecutor>()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private val _taskEvents = MutableSharedFlow<TaskEvent>()
-    val taskEvents: SharedFlow<TaskEvent> = _taskEvents.asSharedFlow()
+        val taskEvents: SharedFlow<TaskEvent> = _taskEvents.asSharedFlow()
 
     init {
         loadTasks()
@@ -103,7 +103,7 @@ class TaskScheduler(private val context: Context) {
 
             try {
                 val result = executeTaskWithTimeout(task)
-                val duration = System.currentTimeMillis() - startTime
+        val duration = System.currentTimeMillis() - startTime
 
                 val completedTask = task.copy(
                     status = TaskState.COMPLETED,

@@ -86,7 +86,6 @@ class ConflictResolver {
         options: List<AgentOption>
     ): Conflict {
         val severity = calculateSeverity(type, agentsInvolved.size)
-
         val conflict = Conflict(
             id = generateConflictId(),
             type = type,
@@ -113,10 +112,8 @@ class ConflictResolver {
 
     fun resolveByVoting(conflictId: String): Resolution? {
         val conflict = conflicts[conflictId] ?: return null
-
         val votingResult = performVoting(conflict.options)
         val chosenOption = votingResult.winner
-
         val resolution = Resolution(
             strategy = ResolutionStrategy.VOTING,
             chosenOption = chosenOption,
@@ -135,7 +132,6 @@ class ConflictResolver {
         supervisorReasoning: String
     ): Resolution? {
         val conflict = conflicts[conflictId] ?: return null
-
         val bestOption = conflict.options.maxByOrNull { it.score }
 
         val resolution = Resolution(
@@ -152,7 +148,6 @@ class ConflictResolver {
 
     fun resolveByConsensus(conflictId: String, consensusOption: AgentOption, reasoning: String): Resolution? {
         val conflict = conflicts[conflictId] ?: return null
-
         val resolution = Resolution(
             strategy = ResolutionStrategy.CONSENSUS_BUILDING,
             chosenOption = consensusOption,
@@ -167,14 +162,12 @@ class ConflictResolver {
 
     fun resolveByWeightedScoring(conflictId: String, criteriaWeights: Map<String, Double>): Resolution? {
         val conflict = conflicts[conflictId] ?: return null
-
         val scoredOptions = conflict.options.map { option ->
             val weightedScore = calculateWeightedScore(option, criteriaWeights)
             option.copy(score = weightedScore)
         }
 
         val bestOption = scoredOptions.maxByOrNull { it.score }
-
         val resolution = Resolution(
             strategy = ResolutionStrategy.WEIGHTED_SCORING,
             chosenOption = bestOption,
@@ -189,7 +182,6 @@ class ConflictResolver {
 
     fun escalateConflict(conflictId: String): Conflict? {
         val conflict = conflicts[conflictId] ?: return null
-
         val escalatedConflict = conflict.copy(
             status = ConflictStatus.ESCALATED,
             severity = when (conflict.severity) {
@@ -215,7 +207,6 @@ class ConflictResolver {
 
     private fun updateConflictResolution(conflictId: String, resolution: Resolution) {
         val conflict = conflicts[conflictId] ?: return
-
         val resolvedConflict = conflict.copy(
             status = ConflictStatus.RESOLVED,
             resolution = resolution
@@ -243,7 +234,7 @@ class ConflictResolver {
         }
 
         val votedOptions = options.map { option ->
-            val votes = (options.size - option.score.toInt()).coerceIn(0, options.size - 1)
+        val votes = (options.size - option.score.toInt()).coerceIn(0, options.size - 1)
             allVotes[option.agentId] = votes
             option.copy(votes = votes)
         }
@@ -330,7 +321,6 @@ class ConflictResolver {
         val byType = conflicts.values.groupBy { it.type }.mapValues { it.value.size }
         val byStatus = conflicts.values.groupBy { it.status }.mapValues { it.value.size }
         val bySeverity = conflicts.values.groupBy { it.severity }.mapValues { it.value.size }
-
         val resolutionRate = if (conflicts.isNotEmpty()) {
             conflicts.values.count { it.status == ConflictStatus.RESOLVED }.toDouble() / conflicts.size
         } else {

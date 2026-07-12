@@ -183,12 +183,12 @@ class MetricsCollector private constructor(
         val gcTime = ManagementFactory.getGarbageCollectorMXBeans().sumOf { it.collectionTime.toLong() }
 
         val processCpu = try {
-            val method = osBean.javaClass.getMethod("getProcessCpuLoad")
+        val method = osBean.javaClass.getMethod("getProcessCpuLoad")
             (method.invoke(osBean) as? Double) ?: -1.0
         } catch (e: Exception) { -1.0 }
 
         val openFds = try {
-            val method = osBean.javaClass.getMethod("getOpenFileDescriptorCount")
+        val method = osBean.javaClass.getMethod("getOpenFileDescriptorCount")
             (method.invoke(osBean) as? Long) ?: -1L
         } catch (e: Exception) { -1L }
 
@@ -482,7 +482,7 @@ class ResourceMonitor(private val name: String = "resource-monitor") {
         val memoryPercent = usedMemory.toDouble() / maxMemory * 100.0
 
         val cpu = try {
-            val method = osBean.javaClass.getMethod("getProcessCpuLoad")
+        val method = osBean.javaClass.getMethod("getProcessCpuLoad")
             ((method.invoke(osBean) as? Double) ?: 0.0).coerceAtLeast(0.0) * 100.0
         } catch (e: Exception) { 0.0 }
 
@@ -627,7 +627,7 @@ class PerformanceReport(private val name: String = "report") {
             metricName: String = "system"
         ): PerformanceReport {
             val report = PerformanceReport(metricName)
-            val metrics = collector.getLatestMetrics()
+        val metrics = collector.getLatestMetrics()
             if (metrics != null) {
                 report.addSection("CPU", mapOf(
                     "usage" to "${"%.1f".format(metrics.cpuUsagePercent)}%",

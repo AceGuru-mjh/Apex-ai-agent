@@ -89,14 +89,13 @@ internal suspend fun PermissionModeManager.checkAllModesOptimized(
     forceRefresh: Boolean = false
 ): BatchDetectionResult {
     val startTime = System.currentTimeMillis()
-
-    val states = mutableMapOf<PermissionMode, PermissionModeState>()
+        val states = mutableMapOf<PermissionMode, PermissionModeState>()
 
     // 并行检测独立的模式
-    for (mode in PermissionMode.values()) {
+                for (mode in PermissionMode.values()) {
         if (!forceRefresh) {
             // 尝试使用缓存
-            val cached = stateCache.get(mode)
+                val cached = stateCache.get(mode)
             if (cached != null) {
                 states[mode] = cached
                 continue
@@ -104,13 +103,13 @@ internal suspend fun PermissionModeManager.checkAllModesOptimized(
         }
 
         // 检测模式状态
-        val state = checkModeInternal(mode)
+                val state = checkModeInternal(mode)
         states[mode] = state
         stateCache.put(mode, state)
     }
 
     // 更新状态流
-    _modeStates.update { states }
+                _modeStates.update { states }
     notifyStateChanges(states.values)
 
     val duration = System.currentTimeMillis() - startTime
@@ -164,7 +163,7 @@ class PermissionModePerformanceMonitor {
         checkCount++
 
         // 保留最返00条记当
-        if (checkTimes.size > 100) {
+                if (checkTimes.size > 100) {
             checkTimes.removeAt(0)
         }
     }
@@ -250,8 +249,7 @@ suspend fun PermissionModeManager.checkAllModesWithMonitor(
     forceRefresh: Boolean = false
 ): BatchDetectionResult {
     val startTime = System.currentTimeMillis()
-
-    val result = checkAllModesOptimized(forceRefresh)
+        val result = checkAllModesOptimized(forceRefresh)
 
     performanceMonitor.recordCheckTime(result.durationMs)
 

@@ -218,7 +218,7 @@ object SyntaxCheckUtil {
                         stringChar = ch
                     } else if (ch == stringChar) {
                         // 检查是否转义
-                        var escapeCount = 0
+                var escapeCount = 0
                         var j = i - 1
                         while (j >= 0 && line[j] == '\\') { escapeCount++; j-- }
                         if (escapeCount % 2 == 0) {
@@ -288,7 +288,7 @@ object SyntaxCheckUtil {
             }
 
             // 统计块内的花括号嵌套
-            if (inBlock) {
+                if (inBlock) {
                 for (ch in trimmed) {
                     if (ch == '{') bracketDepth++
                     if (ch == '}') bracketDepth--
@@ -332,7 +332,7 @@ object SyntaxCheckUtil {
                 // 检查属性行是否包含冒号
                 if (inBlock && trimmed.contains(":") && !trimmed.startsWith("/*") && !trimmed.endsWith("{")) {
                     val colonIndex = trimmed.indexOf(':')
-                    val propertyName = trimmed.substring(0, colonIndex).trim()
+        val propertyName = trimmed.substring(0, colonIndex).trim()
                     if (propertyName.isEmpty()) {
                         errors.add(SyntaxError(lineIndex + 1, 1, "Empty property name", SyntaxError.Severity.WARNING))
                     }
@@ -417,7 +417,7 @@ object SyntaxCheckUtil {
             if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEachIndexed
 
             // 检查块关键字开头的语句是否以冒号结尾
-            val keyword = pythonBlockKeywords.firstOrNull { trimmed.startsWith("$it ") || trimmed.startsWith("$it:") }
+                val keyword = pythonBlockKeywords.firstOrNull { trimmed.startsWith("$it ") || trimmed.startsWith("$it:") }
             if (keyword != null) {
                 // 提取关键字后的部分
                 val afterKeyword = trimmed.removePrefix(keyword).trim()
@@ -525,11 +525,10 @@ object SyntaxCheckUtil {
             }
         } catch (e: org.json.JSONException) {
             // 尝试从异常消息中提取行号和列号
-            val message = e.message ?: "Unknown JSON error"
-            val lineMatch = Regex("""at line (\d+)""").find(message)
+                val message = e.message ?: "Unknown JSON error"
+        val lineMatch = Regex("""at line (\d+)""").find(message)
             val colMatch = Regex("""column (\d+)""").find(message)
-
-            val line = lineMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
+        val line = lineMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
             val col = colMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
             errors.add(SyntaxError(line, col, message))
         } catch (e: Exception) {
@@ -575,11 +574,11 @@ object SyntaxCheckUtil {
         if (lines.isEmpty()) return
         val firstLine = lines[0].trim()
         // 如果第一行看起来像 XML 声明但不是有效的声明
-        if (firstLine.startsWith("<?") && !firstLine.startsWith("<?xml")) {
+                if (firstLine.startsWith("<?") && !firstLine.startsWith("<?xml")) {
             errors.add(SyntaxError(1, 1, "XML declaration should be '<?xml ... ?>', found '${firstLine.substring(0, minOf(firstLine.length, 20))}'", SyntaxError.Severity.WARNING))
         }
         // 检查声明是否闭合
-        if (firstLine.startsWith("<?xml") && !firstLine.endsWith("?>")) {
+                if (firstLine.startsWith("<?xml") && !firstLine.endsWith("?>")) {
             errors.add(SyntaxError(1, 1, "XML declaration not properly closed"))
         }
     }
@@ -600,10 +599,9 @@ object SyntaxCheckUtil {
 
         tagPattern.findAll(cleanedContent).forEach { match ->
             val isClosing = match.groupValues[1] == "/"
-            val tagName = match.groupValues[2].lowercase()
+        val tagName = match.groupValues[2].lowercase()
             val isSelfClosing = match.groupValues[4] == "/"
-
-            val position = match.range.first
+        val position = match.range.first
             var line = 1
             var col = 1
             var currentPos = 0
@@ -750,7 +748,7 @@ object SyntaxCheckUtil {
             if (trimmed.isEmpty() || trimmed.startsWith("--") || trimmed.startsWith("/*")) return@forEachIndexed
 
             // 检查每行中出现的 SQL 关键字
-            val words = trimmed.split(Regex("\\s+"))
+                val words = trimmed.split(Regex("\\s+"))
             for (word in words) {
                 val cleanWord = word.replace(Regex("[^a-zA-Z]"), "")
                 if (cleanWord.length >= 3 && cleanWord.uppercase() in sqlKeywords) {
@@ -761,7 +759,7 @@ object SyntaxCheckUtil {
         }
 
         // 如果同时出现大写和小写关键字，给出警告
-        if (upperCount > 0 && lowerCount > 0) {
+                if (upperCount > 0 && lowerCount > 0) {
             errors.add(
                 SyntaxError(
                     1, 1,
@@ -817,7 +815,7 @@ object SyntaxCheckUtil {
                         stringStartCol = colIdx
                     } else {
                         // 检查是否为连续两个单引号（SQL 转义）
-                        if (i + 1 < content.length && content[i + 1] == '\'') {
+                if (i + 1 < content.length && content[i + 1] == '\'') {
                             i += 2
                             colIdx += 2
                             continue
@@ -1141,7 +1139,7 @@ object SyntaxCheckUtil {
             if (trimmed == "return" && lineIndex < lines.size - 1) {
                 val nextLine = lines[lineIndex + 1].trim()
                 if (nextLine.isNotEmpty() && !nextLine.startsWith("//") && !nextLine.startsWith("/*")) {
-                    errors.add(
+                errors.add(
                         SyntaxError(
                             lineIndex + 1,
                             line.indexOf("return") + 1,
@@ -1170,7 +1168,7 @@ object SyntaxCheckUtil {
 
         tagPattern.findAll(cleanedContent).forEach { match ->
             val isClosing = match.groupValues[1] == "/"
-            val tagName = match.groupValues[2].lowercase()
+        val tagName = match.groupValues[2].lowercase()
 
             val position = match.range.first
             var line = 1

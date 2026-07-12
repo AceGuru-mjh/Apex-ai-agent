@@ -107,7 +107,7 @@ object NetworkUtils {
      */
     fun isVpnConnected(context: Context): Boolean {
         // 方法一：通过 ConnectivityManager 检查 VPN 传输层
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork
         if (network != null) {
             val capabilities = connectivityManager.getNetworkCapabilities(network)
@@ -117,7 +117,7 @@ object NetworkUtils {
         }
 
         // 方法二：通过检查系统网络接口中的 VPN 接口作为补充
-        return try {
+                return try {
             val interfaces = NetworkInterface.getNetworkInterfaces()
             while (interfaces.hasMoreElements()) {
                 val networkInterface = interfaces.nextElement()
@@ -176,10 +176,10 @@ object NetworkUtils {
     fun getWifiSsid(context: Context): String? {
         return try {
             val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val connectionInfo = wifiManager.connectionInfo
+        val connectionInfo = wifiManager.connectionInfo
             val ssid = connectionInfo.ssid
             // 去除可能的引号
-            if (ssid != null && ssid != WifiInfo.UNKNOWN_SSID) {
+                if (ssid != null && ssid != WifiInfo.UNKNOWN_SSID) {
                 ssid.removeSurrounding("\"")
             } else {
                 null
@@ -215,8 +215,8 @@ object NetworkUtils {
     fun getIpAddress(context: Context): String? {
         return try {
             // 优先通过 WiFiManager 获取
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val wifiInfo = wifiManager.connectionInfo
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val wifiInfo = wifiManager.connectionInfo
             val ipInt = wifiInfo.ipAddress
             if (ipInt != 0) {
                 return String.format(
@@ -229,8 +229,8 @@ object NetworkUtils {
             }
 
             // 备用：遍历网络接口获取 IPv4 地址
-            val interfaces = NetworkInterface.getNetworkInterfaces()
-            val addresses = mutableListOf<InetAddress>()
+                val interfaces = NetworkInterface.getNetworkInterfaces()
+        val addresses = mutableListOf<InetAddress>()
             while (interfaces.hasMoreElements()) {
                 val networkInterface = interfaces.nextElement()
                 if (networkInterface.isUp && !networkInterface.isLoopback) {
@@ -244,7 +244,7 @@ object NetworkUtils {
                 }
             }
             // 优先返回非本地链接地址
-            addresses.firstOrNull { !it.isLinkLocalAddress }?.hostAddress
+                addresses.firstOrNull { !it.isLinkLocalAddress }?.hostAddress
                 ?: addresses.firstOrNull()?.hostAddress
         } catch (e: Exception) {
             null

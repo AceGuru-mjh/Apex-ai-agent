@@ -166,9 +166,9 @@ class AsyncBatchProcessor<T, R>(
 
         try {
             val concurrency = maxConcurrency.coerceAtMost(items.size)
-            val chunkSize = (items.size + concurrency - 1) / concurrency
+        val chunkSize = (items.size + concurrency - 1) / concurrency
             val chunks = items.chunked(chunkSize)
-            val keyChunks = keys.chunked(chunkSize)
+        val keyChunks = keys.chunked(chunkSize)
 
             val deferreds = chunks.mapIndexed { index, chunk ->
                 batchScope.async {
@@ -177,7 +177,7 @@ class AsyncBatchProcessor<T, R>(
             }
 
             val allResults = deferreds.awaitAll().flatten()
-            val resultIter = allResults.iterator()
+        val resultIter = allResults.iterator()
 
             var idx = 0
             for (key in keys) {
@@ -213,7 +213,7 @@ class AsyncCollector<T>(
     private val buffer = ConcurrentLinkedQueue<T>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val _flow = MutableSharedFlow<List<T>>(replay = 0, extraBufferCapacity = 64)
-    val flow: SharedFlow<List<T>> = _flow.asSharedFlow()
+        val flow: SharedFlow<List<T>> = _flow.asSharedFlow()
 
     private val collected = AtomicLong(0)
     private val drained = AtomicLong(0)
@@ -265,7 +265,7 @@ class AsyncDebouncer<T>(
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
     private val _flow = MutableSharedFlow<T>(replay = 0, extraBufferCapacity = 64)
-    val flow: SharedFlow<T> = _flow.asSharedFlow()
+        val flow: SharedFlow<T> = _flow.asSharedFlow()
     private var pendingValue: T? = null
     private var lastEmitTime = 0L
     private val mutex = Any()
@@ -276,7 +276,7 @@ class AsyncDebouncer<T>(
         }
         scope.launch {
             val now = System.currentTimeMillis()
-            val elapsed = now - lastEmitTime
+        val elapsed = now - lastEmitTime
             if (elapsed >= intervalMs) {
                 synchronized(mutex) {
                     pendingValue?.let {
@@ -336,7 +336,7 @@ class AsyncThrottler(
 
         private fun refill() {
             val now = System.nanoTime()
-            val last = lastRefillNs.get()
+        val last = lastRefillNs.get()
             val elapsedSec = (now - last) / 1_000_000_000.0
             if (elapsedSec >= 1.0 && lastRefillNs.compareAndSet(last, now)) {
                 val toAdd = (elapsedSec * refillRate).toInt().coerceAtLeast(1)

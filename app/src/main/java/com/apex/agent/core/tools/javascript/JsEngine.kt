@@ -298,7 +298,7 @@ class JsEngine(private val context: Context) {
                         var root = typeof globalThis !== 'undefined'
                             ? globalThis
                             : (typeof window !== 'undefined' ? window : this);
-                        if (typeof root.__ApexCancelCallSession === 'function') {
+            if (typeof root.__ApexCancelCallSession === 'function') {
                             root.__ApexCancelCallSession(${safeCallId}, ${safeReason});
                         }
                     })();
@@ -391,11 +391,11 @@ class JsEngine(private val context: Context) {
                 var root = typeof globalThis !== 'undefined'
                     ? globalThis
                     : (typeof window !== 'undefined' ? window : this);
-                var expose = typeof root.__ApexExpose === 'function'
+            var expose = typeof root.__ApexExpose === 'function'
                     ? root.__ApexExpose
                     : function(name, value) {
                         var key = String(name || '').trim();
-                        if (!key || value === undefined) {
+            if (!key || value === undefined) {
                             return;
                         }
                         try { root[key] = value; } catch (_error) {}
@@ -446,7 +446,7 @@ class JsEngine(private val context: Context) {
                         ${JSONObject.quote(methodName)},
                         ${safeArgsJson}
                     );
-                    return JSON.stringify({
+            return JSON.stringify({
                         success: true,
                         data: __result
                     });
@@ -526,7 +526,7 @@ class JsEngine(private val context: Context) {
     }
 
     // 预定义的错误消息，避免重复创建字符串
-    private val EMPTY_BRIDGE_RESPONSE = "empty bridge response"
+                private val EMPTY_BRIDGE_RESPONSE = "empty bridge response"
     private val INVALID_BRIDGE_RESPONSE_FORMAT = "invalid bridge response format"
     private val BRIDGE_CALL_FAILED = "bridge call failed"
     
@@ -538,7 +538,7 @@ class JsEngine(private val context: Context) {
             val token = JSONTokener(raw).nextValue()
             if (token is JSONObject) {
                 val success = token.optBoolean("success", false)
-                val data = token.opt("data")
+        val data = token.opt("data")
                 val error = token.optString("error").ifBlank { null }
                 if (success) {
                     Pair(null, data)
@@ -676,7 +676,7 @@ class JsEngine(private val context: Context) {
         }
 
         // 使用 supervisorScope 确保任务失败不会影响其他任务
-        engineScope.launch {
+                engineScope.launch {
             kotlinx.coroutines.supervisorScope {
                 try {
                     launchQuickJsFunctionCall(
@@ -971,7 +971,7 @@ class JsEngine(private val context: Context) {
                             var root = typeof globalThis !== 'undefined'
                                 ? globalThis
                                 : (typeof window !== 'undefined' ? window : this);
-                            if (typeof root.__ApexClearAllTimers === 'function') {
+            if (typeof root.__ApexClearAllTimers === 'function') {
                                 root.__ApexClearAllTimers();
                             }
                         })();
@@ -1438,7 +1438,7 @@ class JsEngine(private val context: Context) {
         fun registerImageFromBase64(base64: String, mimeType: String): String {
             return try {
                 val finalMime = if (mimeType.isNotBlank()) mimeType else "image/png"
-                val id = ImagePoolManager.addImageFromBase64(base64, finalMime)
+        val id = ImagePoolManager.addImageFromBase64(base64, finalMime)
                 if (id != "error") {
                     "<link type=\"image\" id=\"${id}\"></link>"
                 } else {
@@ -1605,7 +1605,7 @@ class JsEngine(private val context: Context) {
                 }
 
                 val logMessage = extractErrorLogMessage(error)
-                val enrichedLogMessage = withToolPkgCodeContext(session, logMessage)
+        val enrichedLogMessage = withToolPkgCodeContext(session, logMessage)
                 AppLogger.e(TOOLPKG_TAG, withToolPkgPluginTag(session, "JS ERROR: ${enrichedLogMessage}"))
                 session.executionListener?.onFailed(callId, error)
 
@@ -1649,7 +1649,7 @@ class JsEngine(private val context: Context) {
                     }
                     if (errorJson.has("error") && errorJson.has("message")) {
                         val errorType = errorJson.getString("error")
-                        val errorMsg = errorJson.getString("message")
+        val errorMsg = errorJson.getString("message")
                         var message = "${errorType}: ${errorMsg}"
                         if (errorJson.has("details")) {
                             val details = errorJson.getJSONObject("details")
@@ -1738,15 +1738,15 @@ class JsEngine(private val context: Context) {
     fun destroy() {
         try {
             // 确保任何挂起的回调被完成
-            cancelAllExecutionSessions("Engine destroyed")
+                cancelAllExecutionSessions("Engine destroyed")
             toolCallInterface.detachJavaBridgeLifecycle()
 
             // 清理Bitmap注册，
-           bitmapRegistry.values.forEach { it.recycle() }
+                bitmapRegistry.values.forEach { it.recycle() }
             bitmapRegistry.clear()
 
             // 清理二进制数据注册表
-            binaryDataRegistry.clear()
+                binaryDataRegistry.clear()
             javaObjectRegistry.clear()
 
             try {

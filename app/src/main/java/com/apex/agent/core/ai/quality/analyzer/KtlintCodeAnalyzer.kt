@@ -56,7 +56,6 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
 
     private fun checkBasicSyntax(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
-
         val openBraces = code.count { it == '{' }
         val closeBraces = code.count { it == '}' }
         if (openBraces != closeBraces) {
@@ -83,7 +82,6 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
 
     private fun checkNamingConventions(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
-
         val classPattern = Regex("""class\s+([a-z]\w*)""")
         classPattern.findAll(code).forEach { match ->
             issues.add(
@@ -138,7 +136,6 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
 
     private fun checkPotentialIssues(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
-
         val forceUnwrapCount = code.split("!!").size - 1
         if (forceUnwrapCount > 0) {
             issues.add(
@@ -210,7 +207,7 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
     private fun checkTodoFixes(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
         val todoPattern = Regex("""//\s*(TODO|FIXME|HACK|XXX)\b""", RegexOption.IGNORE_CASE)
-        code.lines().forEachIndexed { index, line ->
+                code.lines().forEachIndexed { index, line ->
             if (todoPattern.containsMatchIn(line)) {
                 val match = todoPattern.find(line)
                 issues.add(

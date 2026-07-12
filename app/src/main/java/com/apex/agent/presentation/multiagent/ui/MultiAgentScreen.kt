@@ -175,7 +175,7 @@ private fun TopologyPanel(topology: CollaborationTopology, modifier: Modifier = 
                 val w = size.width; val h = size.height
                 topology.edges.forEach { edge ->
                     val from = topology.nodes.find { it.agentId == edge.fromId }
-                    val to = topology.nodes.find { it.agentId == edge.toId }
+        val to = topology.nodes.find { it.agentId == edge.toId }
                     if (from != null && to != null) {
                         drawLine(color = Color(edge.color), start = androidx.compose.ui.geometry.Offset(from.x * w, from.y * h), end = androidx.compose.ui.geometry.Offset(to.x * w, to.y * h), strokeWidth = 2f)
                     }

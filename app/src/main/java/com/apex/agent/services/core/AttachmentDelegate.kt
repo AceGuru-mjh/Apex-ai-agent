@@ -36,12 +36,12 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
     }
 
     // State for attachments
-    private val _attachments = MutableStateFlow<List<AttachmentInfo>>(emptyList())
-    val attachments: StateFlow<List<AttachmentInfo>> = _attachments
+                private val _attachments = MutableStateFlow<List<AttachmentInfo>>(emptyList())
+        val attachments: StateFlow<List<AttachmentInfo>> = _attachments
 
     // Events
-    private val _toastEvent = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val toastEvent: SharedFlow<String> = _toastEvent
+                private val _toastEvent = MutableSharedFlow<String>(extraBufferCapacity = 1)
+        val toastEvent: SharedFlow<String> = _toastEvent
 
     /** Adds multiple attachments in one shot (dedup by filePath) */
     fun addAttachments(attachments: List<AttachmentInfo>) {
@@ -61,18 +61,18 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
      */
     fun createAttachmentReference(attachment: AttachmentInfo): String {
         // Generate XML reference for the attachment
-        val attachmentRef = StringBuilder("<attachment ")
+                val attachmentRef = StringBuilder("<attachment ")
         attachmentRef.append("id=\"${attachment.filePath}\" ")
         attachmentRef.append("filename=\"${attachment.fileName}\" ")
         attachmentRef.append("type=\"${attachment.mimeType}\" ")
 
         // Add size property
-        if (attachment.fileSize > 0) {
+                if (attachment.fileSize > 0) {
             attachmentRef.append("size=\"${attachment.fileSize}\" ")
         }
 
         // Add content property (if exists)
-        if (attachment.content.isNotEmpty()) {
+                if (attachment.content.isNotEmpty()) {
             attachmentRef.append("content=\"${attachment.content}\" ")
         }
 
@@ -86,7 +86,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
             withContext(Dispatchers.IO) {
                 try {
                     val fileName = "camera_${System.currentTimeMillis()}.jpg"
-                    val tempFile = createTempFileFromUri(uri, fileName)
+        val tempFile = createTempFileFromUri(uri, fileName)
 
                     if (tempFile != null) {
                         AppLogger.d(TAG, "Successfully created temp file from camera URI: ${tempFile.absolutePath}")
@@ -135,24 +135,24 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                     }
 
                     // 检查是否是媒体选择器特殊路径
-                   if (filePath.contains("/sdcard/.transforms/synthetic/picker/") ||
+                if (filePath.contains("/sdcard/.transforms/synthetic/picker/") ||
                                     filePath.contains("/com.android.providers.media.photopicker/")
                     ) {
                         AppLogger.d(TAG, "Detected media picker special path: ${filePath}")
 
                         try {
                             // 尝试从特殊路径提取实际URI
-                            val actualUri = extractMediaStoreUri(filePath)
+                val actualUri = extractMediaStoreUri(filePath)
                             if (actualUri != null) {
                                 // 使用提取出的URI创建临时文件
-                                val fileName = filePath.substringAfterLast('/')
-                                val tempFile = createTempFileFromUri(actualUri, fileName)
+                val fileName = filePath.substringAfterLast('/')
+        val tempFile = createTempFileFromUri(actualUri, fileName)
 
                                 if (tempFile != null) {
                                     AppLogger.d(TAG, "Successfully created temp file from media picker path: ${tempFile.absolutePath}")
 
                                     // 创建附件对象
-                                    val mimeType =
+                val mimeType =
                                             getMimeTypeFromPath(tempFile.name) ?: "image/jpeg"
                                     val attachmentInfo =
                                             AttachmentInfo(
@@ -163,7 +163,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                                             )
 
                                     // 添加到附件列行
-                                   val currentList = _attachments.value
+                val currentList = _attachments.value
                                     if (!currentList.any { it.filePath == tempFile.absolutePath }) {
                                         _attachments.value = currentList + attachmentInfo
                                     }
@@ -182,16 +182,16 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                     }
 
                     // Check if it's a content URI path
-                    if (filePath.startsWith("content://")) {
-                        val uri = Uri.parse(filePath)
+                if (filePath.startsWith("content://")) {
+                val uri = Uri.parse(filePath)
                         AppLogger.d(TAG, "Handling content URI: ${uri}")
 
                         // Get file metadata from ContentResolver
-                        val fileName = getFileNameFromUri(uri)
-                        val mimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
+                val fileName = getFileNameFromUri(uri)
+        val mimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
 
                         // Always create a temporary file for content URIs to ensure persistent access
-                        AppLogger.d(TAG, "Copying content URI to a local temporary file.")
+                AppLogger.d(TAG, "Copying content URI to a local temporary file.")
                         val tempFile = createTempFileFromUri(uri, fileName)
 
                         if (tempFile != null && tempFile.exists()) {
@@ -205,7 +205,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                                 )
 
                             // Add to attachment list
-                            val currentList = _attachments.value
+                val currentList = _attachments.value
                             if (!currentList.any { it.filePath == tempFile.absolutePath }) {
                                 _attachments.value = currentList + attachmentInfo
                             }
@@ -216,18 +216,18 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                         }
                     } else {
                         // Handle as regular file path
-                        val file = java.io.File(filePath)
+                val file = java.io.File(filePath)
                         if (!file.exists()) {
                             _toastEvent.emit(context.getString(R.string.attachment_file_not_exist))
                             return@withContext
                         }
 
                         val fileName = file.name
-                        val fileSize = file.length()
+        val fileSize = file.length()
                         val mimeType = getMimeTypeFromPath(filePath) ?: "application/octet-stream"
 
                         // 图片文件使用绝对路径
-                        val actualFilePath =
+                val actualFilePath =
                                 if (mimeType.startsWith("image/")) {
                                     file.absolutePath
                                 } else {
@@ -243,7 +243,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                                 )
 
                         // Add to attachment list
-                        val currentList = _attachments.value
+                val currentList = _attachments.value
                         if (!currentList.any { it.filePath == actualFilePath }) {
                             _attachments.value = currentList + attachmentInfo
                         }
@@ -260,20 +260,20 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
     private fun extractMediaStoreUri(filePath: String): Uri? {
         try {
             // 从文件名中提取媒体ID
-            val mediaId = filePath.substringAfterLast('/').substringBefore('.')
+                val mediaId = filePath.substringAfterLast('/').substringBefore('.')
             if (mediaId.toLongOrNull() != null) {
                 // 构造MediaStore URI
                 return Uri.parse("content://media/external/images/media/${mediaId}")
             }
 
             // 尝试通过直接构造content URI
-            if (filePath.contains("com.android.providers.media.photopicker")) {
+                if (filePath.contains("com.android.providers.media.photopicker")) {
                 val path = "content://com.android.providers.media.photopicker/media/${mediaId}"
                 return Uri.parse(path)
             }
 
             // 最后尝试直接将路径转为URI
-            return Uri.parse("file://${filePath}")
+                return Uri.parse("file://${filePath}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to extract media URI: ${filePath}", e)
             return null
@@ -287,15 +287,15 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                     val fileExtension = fileName.substringAfterLast('.', "jpg")
 
                     // 使用外部存储Download/Apex/cleanOnExit目录，而不是缓存目当
-                   val externalDir = ApexPaths.cleanOnExitDir()
+                val externalDir = ApexPaths.cleanOnExitDir()
 
                     // 确保目录存在
-                    if (!externalDir.exists()) {
+                if (!externalDir.exists()) {
                         externalDir.mkdirs()
                     }
 
                     // 确保.nomedia文件存在，防止媒体扫，
-                   val noMediaFile = java.io.File(externalDir, ".nomedia")
+                val noMediaFile = java.io.File(externalDir, ".nomedia")
                     if (!noMediaFile.exists()) {
                         noMediaFile.createNewFile()
                     }
@@ -346,7 +346,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
             withContext(Dispatchers.IO) {
                 try {
                     val screenshotTool = AITool(name = "capture_screenshot", parameters = emptyList())
-                    val screenshotResult = toolHandler.executeTool(screenshotTool)
+        val screenshotResult = toolHandler.executeTool(screenshotTool)
                     if (!screenshotResult.success) {
                         _toastEvent.emit(context.getString(R.string.attachment_screen_content_failed, screenshotResult.error ?: context.getString(R.string.attachment_screenshot_failed)))
                         return@withContext
@@ -361,7 +361,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                     val imageOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                     BitmapFactory.decodeFile(screenshotPath, imageOptions)
                     val screenshotWidth = imageOptions.outWidth
-                    val screenshotHeight = imageOptions.outHeight
+        val screenshotHeight = imageOptions.outHeight
                     val positionInfo =
                         if (screenshotWidth > 0 && screenshotHeight > 0) {
                             context.getString(R.string.attachment_location_full_screen, screenshotWidth, screenshotHeight)
@@ -381,7 +381,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                     }
 
                     val captureId = "screen_ocr_${System.currentTimeMillis()}"
-                    val content =
+        val content =
                         buildString {
                             append(context.getString(R.string.attachment_screen_content))
                             append(positionInfo)
@@ -405,7 +405,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                     _toastEvent.emit(context.getString(R.string.attachment_screen_content_added))
 
                     // 清理临时截图文件
-                    try {
+                try {
                         File(screenshotPath).delete()
                     } catch (_: Exception) {}
                 } catch (e: Exception) {
@@ -419,26 +419,26 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
             withContext(Dispatchers.IO) {
                 try {
                     // 创建工具参数
-                    val toolParams =
+                val toolParams =
                             listOf(
                                     ToolParameter("limit", limit.toString()),
                                     ToolParameter("include_ongoing", "true")
                             )
 
                     // 创建工具
-                    val notificationsToolTask =
+                val notificationsToolTask =
                             AITool(name = "get_notifications", parameters = toolParams)
 
                     // 执行工具
-                    val result = toolHandler.executeTool(notificationsToolTask)
+                val result = toolHandler.executeTool(notificationsToolTask)
 
                     if (result.success) {
                         // 生成唯一ID
-                        val captureId = "notifications_${System.currentTimeMillis()}"
-                        val notificationsContent = result.result.toString()
+                val captureId = "notifications_${System.currentTimeMillis()}"
+        val notificationsContent = result.result.toString()
 
                         // 创建附件信息
-                        val attachmentInfo =
+                val attachmentInfo =
                                 AttachmentInfo(
                                         filePath = captureId,
                                         fileName = "notifications.json",
@@ -448,7 +448,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                                 )
 
                         // 添加到附件列行
-                       val currentList = _attachments.value
+                val currentList = _attachments.value
                         _attachments.value = currentList + attachmentInfo
 
                         _toastEvent.emit(context.getString(R.string.attachment_notifications_added))
@@ -466,25 +466,25 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
             withContext(Dispatchers.IO) {
                 try {
                     // 创建工具参数
-                    val toolParams =
+                val toolParams =
                             listOf(
                                     ToolParameter("high_accuracy", highAccuracy.toString()),
                                     ToolParameter("timeout", "10") // 10秒超，                           )
 
                     // 创建工具
-                    val locationToolTask =
+                val locationToolTask =
                             AITool(name = "get_device_location", parameters = toolParams)
 
                     // 执行工具
-                    val result = toolHandler.executeTool(locationToolTask)
+                val result = toolHandler.executeTool(locationToolTask)
 
                     if (result.success) {
                         // 生成唯一ID
-                        val captureId = "location_${System.currentTimeMillis()}"
-                        val locationContent = result.result.toString()
+                val captureId = "location_${System.currentTimeMillis()}"
+        val locationContent = result.result.toString()
 
                         // 创建附件信息
-                        val attachmentInfo =
+                val attachmentInfo =
                                 AttachmentInfo(
                                         filePath = captureId,
                                         fileName = "location.json",
@@ -494,7 +494,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                                 )
 
                         // 添加到附件列行
-                       val currentList = _attachments.value
+                val currentList = _attachments.value
                         _attachments.value = currentList + attachmentInfo
 
                         _toastEvent.emit(context.getString(R.string.attachment_location_added))
@@ -512,11 +512,11 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
             withContext(Dispatchers.IO) {
                 try {
                     val captureId = "time_${System.currentTimeMillis()}"
-                    val timeText =
+        val timeText =
                         SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
                     val content = context.getString(R.string.attachment_current_time, timeText)
-                    val attachmentInfo =
+        val attachmentInfo =
                         AttachmentInfo(
                             filePath = captureId,
                             fileName = "time.txt",
@@ -548,13 +548,13 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                     }
 
                     // 生成唯一ID
-                    val captureId = "memory_context_${System.currentTimeMillis()}"
+                val captureId = "memory_context_${System.currentTimeMillis()}"
 
                     // 构建XML格式的记忆上下文
-                    val memoryContext = buildMemoryContextXml(folderPaths)
+                val memoryContext = buildMemoryContextXml(folderPaths)
 
                     // 创建附件信息
-                    val attachmentInfo =
+                val attachmentInfo =
                             AttachmentInfo(
                                     filePath = captureId,
                                     fileName = "memory_context.xml",
@@ -564,7 +564,7 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                             )
 
                     // 添加到附件列行
-                   val currentList = _attachments.value
+                val currentList = _attachments.value
                     _attachments.value = currentList + attachmentInfo
 
                     val folderCountText = if (folderPaths.size == 1) {
@@ -604,40 +604,40 @@ ${foldersText}
     private fun getFilePathFromUri(uri: Uri): String? {
         try {
             // 尝试直接从URI获取路径
-            if (uri.scheme == "file") {
+                if (uri.scheme == "file") {
                 return uri.path
             }
 
             // 对于content URI，使用不同的方法尝试获取实际路径
-            if (uri.scheme == "content") {
+                if (uri.scheme == "content") {
                 // 特殊处理: Downloads提供程序URI
                 if (uri.authority == "com.android.providers.downloads.documents") {
                     val id = android.provider.DocumentsContract.getDocumentId(uri)
 
                     // 处理raw:前缀，直接解码路径
-                   if (id.startsWith("raw:")) {
+                if (id.startsWith("raw:")) {
                         val decodedPath = java.net.URLDecoder.decode(id.substring(4), "UTF-8")
                         AppLogger.d(TAG, "Downloads document URI resolved to: ${decodedPath}")
                         return decodedPath
                     }
 
                     // 处理msf:前缀
-                    else if (id.startsWith("msf:")) {
+                else if (id.startsWith("msf:")) {
                         // MediaStore format.
-                        val mediaId = id.substring(4)
+                val mediaId = id.substring(4)
                         // We can't know from the URI alone if it's an image, video, or audio file.
                         // So we'll use the generic files table.
-                        val contentUri = android.provider.MediaStore.Files.getContentUri("external")
-                        val selection = "_id=?"
+                val contentUri = android.provider.MediaStore.Files.getContentUri("external")
+        val selection = "_id=?"
                         val selectionArgs = arrayOf(mediaId)
                         return getDataColumn(contentUri, selection, selectionArgs)
                     }
 
                     // 普通ID，使用下载内容URI
-                    else {
+                else {
                         val contentUri = android.content.ContentUris.withAppendedId(
                             Uri.parse("content://downloads/public_downloads"),
-                            id.toLong()
+                id.toLong()
                         )
                         return getDataColumn(contentUri, null, null)
                     }
@@ -646,16 +646,16 @@ ${foldersText}
                 // 方法1: 通过DocumentsContract获取路径 (API 19+)
                 try {
                     val docId = android.provider.DocumentsContract.getDocumentId(uri)
-                    val split = docId.split(":")
+        val split = docId.split(":")
                     val type = split[0]
 
                     // 对于外部存储文件
-                    if ("primary".equals(type, ignoreCase = true)) {
+                if ("primary".equals(type, ignoreCase = true)) {
                         return "/sdcard/${split[1]}"
                     }
 
                     // 对于SD，
-                   if ("sdcard".equals(type, ignoreCase = true) && split.size > 1) {
+                if ("sdcard".equals(type, ignoreCase = true) && split.size > 1) {
                         return "/storage/sdcard1/${split[1]}"
                     }
                 } catch (e: Exception) {

@@ -38,11 +38,11 @@ class MultiApiKeyProvider(
                 ?: throw IllegalStateException("Config with ID ${configId} not found")
             
             // 筛选出启用的key
-            val enabledKeys = config.apiKeyPool.filter { it.isEnabled }
+                val enabledKeys = config.apiKeyPool.filter { it.isEnabled }
             AppLogger.d("ApiKeyProvider", "Config ${config.name}: Found ${enabledKeys.size} enabled keys out of ${config.apiKeyPool.size} total keys")
 
             val hasAnyAvailabilityMark = enabledKeys.any { it.availabilityStatus != ApiKeyAvailabilityStatus.UNTESTED }
-            val candidateKeys =
+        val candidateKeys =
                 if (hasAnyAvailabilityMark) {
                     enabledKeys.filter { it.availabilityStatus == ApiKeyAvailabilityStatus.AVAILABLE }
                 } else {
@@ -69,13 +69,13 @@ class MultiApiKeyProvider(
             }
 
             // 从当前索引开始寻找下一个有效的key
-            val startIndex = config.currentKeyIndex % candidateKeys.size
-            val selectedKey = candidateKeys[startIndex]
+                val startIndex = config.currentKeyIndex % candidateKeys.size
+        val selectedKey = candidateKeys[startIndex]
             
             AppLogger.d("ApiKeyProvider", "Config ${config.name}: Using key ${startIndex + 1}/${candidateKeys.size} - '${selectedKey.name}' (sk-...${selectedKey.key.takeLast(4)})")
 
             // 更新并保存下一个索，
-           val nextIndex = (startIndex + 1) % candidateKeys.size
+                val nextIndex = (startIndex + 1) % candidateKeys.size
             modelConfigManager.updateConfigKeyIndex(configId, nextIndex)
 
             selectedKey.key

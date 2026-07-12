@@ -64,7 +64,7 @@ object AssetCopyUtils {
 
         fileList.forEach { fileName ->
             val assetPath = "${assetDir}/${fileName}"
-            val targetFile = File(targetDir, fileName)
+        val targetFile = File(targetDir, fileName)
             assetManager.open(assetPath).use { inputStream ->
                 FileOutputStream(targetFile).use { outputStream ->
                     inputStream.copyTo(outputStream)
@@ -101,7 +101,7 @@ object AssetCopyUtils {
 
         entries.forEach { entry ->
             val assetPath = "${assetDir}/${entry}"
-            val outputFile = File(targetDir, entry)
+        val outputFile = File(targetDir, entry)
             val children = assetManager.list(assetPath)
             if (!children.isNullOrEmpty()) {
                 copyAssetDirRecursive(context, assetPath, outputFile, overwrite = true)

@@ -77,7 +77,7 @@ class StickyEventBus(
         delegate.publish(event)
 
         val flow = stickyFlows.getOrPut(clazz) {
-            val f = MutableSharedFlow<Any>(replay = 1, extraBufferCapacity = 64)
+        val f = MutableSharedFlow<Any>(replay = 1, extraBufferCapacity = 64)
             scope.launch {
                 val df = delegate.subscribe(clazz as Class<Any>)
                 delegateFlows[clazz] = df

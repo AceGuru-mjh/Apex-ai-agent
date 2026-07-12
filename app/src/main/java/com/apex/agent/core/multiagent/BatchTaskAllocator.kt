@@ -41,9 +41,9 @@ class BatchTaskAllocator {
     suspend fun allocateBatch(request: BatchAllocationRequest): BatchAllocationResult =
         withContext(scope.coroutineContext) {
             val startTime = System.currentTimeMillis()
-            val results = ConcurrentHashMap.newKeySet<Pair<Int, IntelligentTaskAllocator.AllocationResult>>()
+        val results = ConcurrentHashMap.newKeySet<Pair<Int, IntelligentTaskAllocator.AllocationResult>>()
             val successfulCount = AtomicInteger(0)
-            val failedCount = AtomicInteger(0)
+        val failedCount = AtomicInteger(0)
             val semaphore = Semaphore(request.maxParallelism)
 
             request.tasks.mapIndexed { index, taskRequest ->
@@ -52,7 +52,7 @@ class BatchTaskAllocator {
                         val taskStartTime = System.currentTimeMillis()
                         try {
                             val result = performanceOptimizer.optimizeAllocation(allocator, taskRequest)
-                            val taskTime = System.currentTimeMillis() - taskStartTime
+        val taskTime = System.currentTimeMillis() - taskStartTime
                             executionStats.computeIfAbsent(taskRequest.taskFeature.category) { mutableListOf() } += taskTime
                             results.add(index to result)
                             successfulCount.incrementAndGet()
@@ -88,7 +88,7 @@ class BatchTaskAllocator {
 
         suspend fun processNextTasks() {
             val readyTasks = synchronized(pendingTasks) {
-                val ready = pendingTasks.filter { task ->
+        val ready = pendingTasks.filter { task ->
                     dependencies.getOrDefault(task.taskId, emptyList())
                         .all { completedTasks.contains(it) }
                 }

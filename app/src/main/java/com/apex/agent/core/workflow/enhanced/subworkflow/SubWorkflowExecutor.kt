@@ -9,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap
 data class SubWorkflowInvocation(
     val subWorkflowId: String,
     val subWorkflowVersion: Int? = null,          // null=最新
-    val inputs: Map<String, Any> = emptyMap(),
+                val inputs: Map<String, Any> = emptyMap(),
     val waitForCompletion: Boolean = true,        // false=fire-and-forget
-    val timeoutMs: Long = 5 * 60_000L,
+                val timeoutMs: Long = 5 * 60_000L,
     val inheritContext: Boolean = false,
     val parentThreadId: String,
     val parentNodeId: String
@@ -94,7 +94,6 @@ class DelegatingSubWorkflowExecutor(
 
     override suspend fun invoke(invocation: SubWorkflowInvocation): SubWorkflowResult {
         val subThreadId = "sub_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
-
         val record = SubWorkflowExecution(
             subThreadId = subThreadId,
             subWorkflowId = invocation.subWorkflowId,
@@ -108,7 +107,7 @@ class DelegatingSubWorkflowExecutor(
 
         if (!invocation.waitForCompletion) {
             // Fire-and-forget: 异步启动后立即返回
-            return SubWorkflowResult.AsyncStarted(subThreadId)
+                return SubWorkflowResult.AsyncStarted(subThreadId)
         }
 
         return try {

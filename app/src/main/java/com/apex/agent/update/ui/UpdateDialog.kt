@@ -160,7 +160,7 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
             .verticalScroll(rememberScrollState())
     ) {
         // 版本号
-        Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 "发现新版本",
                 style = MaterialTheme.typography.titleMedium,
@@ -187,7 +187,7 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         // SHA-256 校验状态徽章
-        if (state.expectedSha256 != null) {
+                if (state.expectedSha256 != null) {
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
@@ -206,7 +206,7 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
         }
         Spacer(Modifier.height(16.dp))
         // 更新日志
-        Text(
+                Text(
             "更新内容",
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
@@ -214,7 +214,7 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
         )
         Spacer(Modifier.height(8.dp))
         // 简单 Markdown 渲染：按行展示，遇到 - 开头作为列表项
-        val lines = state.changelog.lines().take(60)
+                val lines = state.changelog.lines().take(60)
         lines.forEach { line ->
             val trimmed = line.trim()
             if (trimmed.isEmpty()) {

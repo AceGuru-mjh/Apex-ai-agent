@@ -40,17 +40,17 @@ import java.util.Locale
 @Composable
 fun ApexMainScaffold() {
     val context = LocalContext.current
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentTab by remember { mutableStateOf(ApexTab.CHAT) }
 
     // 热更新状态：用于在"设置"导航项上显示红点 Badge
-    val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
-    val updateState by hotUpdateManager.state.collectAsState()
+                val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
+        val updateState by hotUpdateManager.state.collectAsState()
     val hasUpdate = updateState is UpdateState.UpdateAvailable
 
     // 会话管理
-    val sessionManager = remember { ChatSessionManager(context) }
+                val sessionManager = remember { ChatSessionManager(context) }
     var sessions by remember { mutableStateOf(sessionManager.listAll()) }
     var currentSessionId by remember { mutableStateOf<String?>(null) }
     var showSearchField by remember { mutableStateOf(false) }
@@ -58,10 +58,10 @@ fun ApexMainScaffold() {
     var renamingSession by remember { mutableStateOf<ChatSession?>(null) }
 
     // 筛选
-    val displaySessions = if (searchQuery.isBlank()) sessions else sessionManager.search(searchQuery)
+                val displaySessions = if (searchQuery.isBlank()) sessions else sessionManager.search(searchQuery)
 
     // 新建对话
-    val onNewChat: () -> Unit = {
+                val onNewChat: () -> Unit = {
         val newSession = sessionManager.create()
         currentSessionId = newSession.id
         currentTab = ApexTab.CHAT
@@ -70,21 +70,21 @@ fun ApexMainScaffold() {
     }
 
     // 切换对话
-    val onSwitchChat: (String) -> Unit = { id ->
+                val onSwitchChat: (String) -> Unit = { id ->
         currentSessionId = id
         currentTab = ApexTab.CHAT
         scope.launch { drawerState.close() }
     }
 
     // 删除对话
-    val onDeleteChat: (String) -> Unit = { id ->
+                val onDeleteChat: (String) -> Unit = { id ->
         sessionManager.delete(id)
         if (currentSessionId == id) currentSessionId = null
         sessions = sessionManager.listAll()
     }
 
     // 置顶
-    val onTogglePin: (String) -> Unit = { id ->
+                val onTogglePin: (String) -> Unit = { id ->
         sessionManager.togglePin(id)
         sessions = sessionManager.listAll()
     }
@@ -167,7 +167,7 @@ fun ApexMainScaffold() {
                         icon = {
                             if (tab == ApexTab.SETTINGS && hasUpdate) {
                                 // 发现新版本时，在设置图标右上角加红点 Badge
-                                BadgedBox(badge = { Badge() }) {
+                BadgedBox(badge = { Badge() }) {
                                     Icon(tab.icon, tab.description)
                                 }
                             } else {
@@ -219,7 +219,7 @@ fun ApexMainScaffold() {
     }
 
     // 重命名弹窗
-    renamingSession?.let { session ->
+                renamingSession?.let { session ->
         var newTitle by remember(session.id) { mutableStateOf(session.title) }
         AlertDialog(
             onDismissRequest = { renamingSession = null },
@@ -255,7 +255,7 @@ private fun SessionItem(
     onRename: () -> Unit
 ) {
     val dateFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
-    val bg = if (isActive) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent
+        val bg = if (isActive) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent
     val fg = if (isActive) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
 
     Row(
@@ -299,7 +299,7 @@ private fun SessionItem(
         }
 
         // 操作菜单
-        IconButton(onClick = onPin, modifier = Modifier.size(32.dp)) {
+                IconButton(onClick = onPin, modifier = Modifier.size(32.dp)) {
             Icon(
                 Icons.Default.PushPin,
                 if (session.pinned) "取消置顶" else "置顶",

@@ -49,7 +49,7 @@ inline fun <reified T> ConfigManager.watchTyped(key: ConfigKey): Flow<T?> = call
  */
 fun ConfigManager.toProperties(): Properties {
     val props = Properties()
-    val snapshot = snapshot()
+        val snapshot = snapshot()
     for ((key, value) in snapshot) {
         if (value != null) {
             props.setProperty(key, value)
@@ -71,7 +71,7 @@ fun ConfigManager.toMap(): Map<String, String> {
  */
 fun ConfigManager.maskSecrets(): Map<String, String?> {
     val snapshot = snapshot()
-    val knownKeys = ConfigConstants.allKeysByPath
+        val knownKeys = ConfigConstants.allKeysByPath
     return snapshot.mapValues { (path, value) ->
         val configKey = knownKeys[path]
         if (configKey?.secret == true && value != null) {
@@ -89,7 +89,7 @@ fun ConfigManager.logSummary(): String {
     val sb = StringBuilder()
     sb.appendLine("========== 配置摘要 ==========")
     val snapshot = snapshot()
-    val knownKeys = ConfigConstants.allKeysByPath
+        val knownKeys = ConfigConstants.allKeysByPath
     val sortedPaths = snapshot.keys.sorted()
     for (path in sortedPaths) {
         val rawValue = snapshot[path]
@@ -201,7 +201,7 @@ internal fun convertValue(value: String?, type: ConfigType): Any? {
 
 private fun parseDuration(value: String): Long {
     val regex = Regex("^(\\d+)(ns|us|ms|s|m|h|d)$")
-    val match = regex.find(value.trim()) ?: throw IllegalArgumentException("无效的持续时间格式: $value")
+        val match = regex.find(value.trim()) ?: throw IllegalArgumentException("无效的持续时间格式: $value")
     val amount = match.groupValues[1].toLong()
     return when (match.groupValues[2]) {
         "ns" -> amount
@@ -217,7 +217,7 @@ private fun parseDuration(value: String): Long {
 
 private fun parseBytes(value: String): Long {
     val regex = Regex("^(\\d+)(B|KB|MB|GB|TB)$", RegexOption.IGNORE_CASE)
-    val match = regex.find(value.trim()) ?: throw IllegalArgumentException("无效的字节大小格式: $value")
+        val match = regex.find(value.trim()) ?: throw IllegalArgumentException("无效的字节大小格式: $value")
     val amount = match.groupValues[1].toLong()
     return when (match.groupValues[2].uppercase()) {
         "B" -> amount
@@ -231,7 +231,7 @@ private fun parseBytes(value: String): Long {
 
 private fun parseMap(value: String): Map<String, String> {
     val result = mutableMapOf<String, String>()
-    val pairs = value.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val pairs = value.split(",").map { it.trim() }.filter { it.isNotEmpty() }
     for (pair in pairs) {
         val eqIdx = pair.indexOf('=')
         if (eqIdx > 0) {

@@ -265,7 +265,6 @@ class EnhancedAIGenerator {
 
     private fun extractTriggerConfig(description: String): Map<String, String> {
         val config = mutableMapOf<String, String>()
-
         val timePattern = Pattern.compile("(\\d{1,2})[点时]|(\\d{1,2}):(\\d{2})")
         val matcher = timePattern.matcher(description)
         if (matcher.find()) {

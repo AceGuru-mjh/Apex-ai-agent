@@ -127,19 +127,19 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             val description = tool.parameters.find { it.name == "description" }?.value ?: ""
-            val nodesJson = tool.parameters.find { it.name == "nodes" }?.value
+        val nodesJson = tool.parameters.find { it.name == "nodes" }?.value
             val connectionsJson = tool.parameters.find { it.name == "connections" }?.value
-            val enabled = tool.parameters.find { it.name == "enabled" }?.value?.toBoolean() ?: true
+        val enabled = tool.parameters.find { it.name == "enabled" }?.value?.toBoolean() ?: true
 
             // 解析节点
-            val nodes = if (!nodesJson.isNullOrBlank()) {
+                val nodes = if (!nodesJson.isNullOrBlank()) {
                 parseNodes(nodesJson)
             } else {
                 emptyList()
             }
 
             // 解析连接
-            val connections = if (!connectionsJson.isNullOrBlank()) {
+                val connections = if (!connectionsJson.isNullOrBlank()) {
                 parseConnections(connectionsJson, nodes)
             } else {
                 emptyList()
@@ -277,7 +277,7 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // 获取现有工作的
-          val existingResult = workflowRepository.getWorkflowById(workflowId)
+                val existingResult = workflowRepository.getWorkflowById(workflowId)
             if (existingResult.isFailure || existingResult.getOrNull() == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -290,22 +290,22 @@ class StandardWorkflowTools(private val context: Context) {
             val existingWorkflow = existingResult.getOrThrow()
 
             // 更新字段（如果提供了新值）
-            val name = tool.parameters.find { it.name == "name" }?.value ?: existingWorkflow.name
-            val description = tool.parameters.find { it.name == "description" }?.value ?: existingWorkflow.description
+                val name = tool.parameters.find { it.name == "name" }?.value ?: existingWorkflow.name
+        val description = tool.parameters.find { it.name == "description" }?.value ?: existingWorkflow.description
             val nodesJson = tool.parameters.find { it.name == "nodes" }?.value
-            val connectionsJson = tool.parameters.find { it.name == "connections" }?.value
+        val connectionsJson = tool.parameters.find { it.name == "connections" }?.value
             val enabledParam = tool.parameters.find { it.name == "enabled" }?.value
-            val enabled = if (enabledParam != null) enabledParam.toBoolean() else existingWorkflow.enabled
+        val enabled = if (enabledParam != null) enabledParam.toBoolean() else existingWorkflow.enabled
 
             // 解析节点（如果提供了的
-           val nodes = if (!nodesJson.isNullOrBlank()) {
+                val nodes = if (!nodesJson.isNullOrBlank()) {
                 parseNodes(nodesJson)
             } else {
                 existingWorkflow.nodes
             }
 
             // 解析连接（如果提供了的
-           val connections = if (!connectionsJson.isNullOrBlank()) {
+                val connections = if (!connectionsJson.isNullOrBlank()) {
                 parseConnections(connectionsJson, nodes)
             } else {
                 existingWorkflow.connections
@@ -445,7 +445,7 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // 获取现有工作的
-          val existingResult = workflowRepository.getWorkflowById(workflowId)
+                val existingResult = workflowRepository.getWorkflowById(workflowId)
             if (existingResult.isFailure || existingResult.getOrNull() == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -456,16 +456,13 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             val existingWorkflow = existingResult.getOrThrow()
-
-            val nameParam = tool.parameters.find { it.name == "name" }?.value
+        val nameParam = tool.parameters.find { it.name == "name" }?.value
             val descriptionParam = tool.parameters.find { it.name == "description" }?.value
-            val enabledParam = tool.parameters.find { it.name == "enabled" }?.value
+        val enabledParam = tool.parameters.find { it.name == "enabled" }?.value
             val enabled = if (enabledParam != null) enabledParam.toBoolean() else existingWorkflow.enabled
-
-            val nodePatchesJson = tool.parameters.find { it.name == "node_patches" }?.value
+        val nodePatchesJson = tool.parameters.find { it.name == "node_patches" }?.value
             val connectionPatchesJson = tool.parameters.find { it.name == "connection_patches" }?.value
-
-            val nodes = existingWorkflow.nodes.toMutableList()
+        val nodes = existingWorkflow.nodes.toMutableList()
             val connections = existingWorkflow.connections.toMutableList()
 
             fun buildNodeDetailResult(savedWorkflow: Workflow): ToolResult {
@@ -494,14 +491,14 @@ class StandardWorkflowTools(private val context: Context) {
                 if (patchObj == null) return existing
 
                 val x = if (patchObj.has("x")) patchObj.optDouble("x", existing.x.toDouble()).toFloat() else existing.x
-                val y = if (patchObj.has("y")) patchObj.optDouble("y", existing.y.toDouble()).toFloat() else existing.y
+        val y = if (patchObj.has("y")) patchObj.optDouble("y", existing.y.toDouble()).toFloat() else existing.y
                 return NodePosition(x = x, y = y)
             }
 
             fun mergeStringMap(existing: Map<String, String>, patchObj: JSONObject): Map<String, String> {
                 if (patchObj == null) return existing
                 val merged = existing.toMutableMap()
-                val keys = patchObj.keys()
+        val keys = patchObj.keys()
                 while (keys.hasNext()) {
                     val k = keys.next()
                     merged[k] = patchObj.optString(k, "")
@@ -515,7 +512,7 @@ class StandardWorkflowTools(private val context: Context) {
             ): Map<String, ParameterValue> {
                 if (patchObj == null) return existing
                 val merged = existing.toMutableMap()
-                val keys = patchObj.keys()
+        val keys = patchObj.keys()
                 while (keys.hasNext()) {
                     val k = keys.next()
                     merged[k] = parseParameterValue(patchObj.opt(k))
@@ -534,13 +531,13 @@ class StandardWorkflowTools(private val context: Context) {
                 ensureSameType(existingNode, patchObj)
 
                 val name = if (patchObj.has("name")) patchObj.optString("name", existingNode.name) else existingNode.name
-                val description = if (patchObj.has("description")) patchObj.optString("description", existingNode.description) else existingNode.description
+        val description = if (patchObj.has("description")) patchObj.optString("description", existingNode.description) else existingNode.description
                 val position = mergePosition(existingNode.position, patchObj.optJSONObject("position"))
 
                 return when (existingNode) {
                     is TriggerNode -> {
                         val triggerType = if (patchObj.has("triggerType")) patchObj.optString("triggerType", existingNode.triggerType) else existingNode.triggerType
-                        val triggerConfig = mergeStringMap(existingNode.triggerConfig, patchObj.optJSONObject("triggerConfig"))
+        val triggerConfig = mergeStringMap(existingNode.triggerConfig, patchObj.optJSONObject("triggerConfig"))
                         existingNode.copy(
                             name = name,
                             description = description,
@@ -551,7 +548,7 @@ class StandardWorkflowTools(private val context: Context) {
                     }
                     is ExecuteNode -> {
                         val actionType = if (patchObj.has("actionType")) patchObj.optString("actionType", existingNode.actionType) else existingNode.actionType
-                        val actionConfig = mergeParameterValueMap(existingNode.actionConfig, patchObj.optJSONObject("actionConfig"))
+        val actionConfig = mergeParameterValueMap(existingNode.actionConfig, patchObj.optJSONObject("actionConfig"))
                         val jsCode = if (patchObj.has("jsCode")) {
                             when (val raw = patchObj.opt("jsCode")) {
                                 null, JSONObject.NULL -> null
@@ -572,9 +569,9 @@ class StandardWorkflowTools(private val context: Context) {
                     }
                     is ConditionNode -> {
                         val left = if (patchObj.has("left")) parseParameterValue(patchObj.opt("left")) else existingNode.left
-                        val right = if (patchObj.has("right")) parseParameterValue(patchObj.opt("right")) else existingNode.right
+        val right = if (patchObj.has("right")) parseParameterValue(patchObj.opt("right")) else existingNode.right
                         val operator = if (patchObj.has("operator")) {
-                            val operatorRaw = patchObj.optString("operator", existingNode.operator.name)
+        val operatorRaw = patchObj.optString("operator", existingNode.operator.name)
                             try {
                                 ConditionOperator.valueOf(operatorRaw.trim().uppercase())
                             } catch (_: Exception) {
@@ -595,7 +592,7 @@ class StandardWorkflowTools(private val context: Context) {
                     }
                     is LogicNode -> {
                         val operator = if (patchObj.has("operator")) {
-                            val operatorRaw = patchObj.optString("operator", existingNode.operator.name)
+        val operatorRaw = patchObj.optString("operator", existingNode.operator.name)
                             try {
                                 LogicOperator.valueOf(operatorRaw.trim().uppercase())
                             } catch (_: Exception) {
@@ -614,7 +611,7 @@ class StandardWorkflowTools(private val context: Context) {
                     }
                     is ExtractNode -> {
                         val source = if (patchObj.has("source")) parseParameterValue(patchObj.opt("source")) else existingNode.source
-                        val mode = if (patchObj.has("mode")) {
+        val mode = if (patchObj.has("mode")) {
                             val modeRaw = patchObj.optString("mode", existingNode.mode.name)
                             try {
                                 ExtractMode.valueOf(modeRaw.trim().uppercase())
@@ -625,21 +622,20 @@ class StandardWorkflowTools(private val context: Context) {
                             existingNode.mode
                         }
                         val expression = if (patchObj.has("expression")) patchObj.optString("expression", existingNode.expression) else existingNode.expression
-                        val group = if (patchObj.has("group")) patchObj.optInt("group", existingNode.group) else existingNode.group
+        val group = if (patchObj.has("group")) patchObj.optInt("group", existingNode.group) else existingNode.group
                         val defaultValue = if (patchObj.has("defaultValue")) patchObj.optString("defaultValue", existingNode.defaultValue) else existingNode.defaultValue
-
-                        val others = if (patchObj.has("others")) parseParameterValueList(patchObj.opt("others")) else existingNode.others
+        val others = if (patchObj.has("others")) parseParameterValueList(patchObj.opt("others")) else existingNode.others
                         val startIndex = if (patchObj.has("startIndex")) patchObj.optInt("startIndex", existingNode.startIndex) else existingNode.startIndex
-                        val length = if (patchObj.has("length")) patchObj.optInt("length", existingNode.length) else existingNode.length
+        val length = if (patchObj.has("length")) patchObj.optInt("length", existingNode.length) else existingNode.length
                         val randomMin = if (patchObj.has("randomMin")) patchObj.optInt("randomMin", existingNode.randomMin) else existingNode.randomMin
-                        val randomMax = if (patchObj.has("randomMax")) patchObj.optInt("randomMax", existingNode.randomMax) else existingNode.randomMax
+        val randomMax = if (patchObj.has("randomMax")) patchObj.optInt("randomMax", existingNode.randomMax) else existingNode.randomMax
                         val randomStringLength =
                             if (patchObj.has("randomStringLength")) patchObj.optInt("randomStringLength", existingNode.randomStringLength) else existingNode.randomStringLength
                         val randomStringCharset =
                             if (patchObj.has("randomStringCharset")) patchObj.optString("randomStringCharset", existingNode.randomStringCharset) else existingNode.randomStringCharset
 
                         val useFixed = if (patchObj.has("useFixed")) patchObj.optBoolean("useFixed", existingNode.useFixed) else existingNode.useFixed
-                        val fixedValue = if (patchObj.has("fixedValue")) patchObj.optString("fixedValue", existingNode.fixedValue) else existingNode.fixedValue
+        val fixedValue = if (patchObj.has("fixedValue")) patchObj.optString("fixedValue", existingNode.fixedValue) else existingNode.fixedValue
 
                         existingNode.copy(
                             name = name,
@@ -665,13 +661,13 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // Apply node patches
-            if (!nodePatchesJson.isNullOrBlank()) {
+                if (!nodePatchesJson.isNullOrBlank()) {
                 val patchArray = JSONArray(nodePatchesJson)
                 for (i in 0 until patchArray.length()) {
                     val patchObj = patchArray.getJSONObject(i)
-                    val op = patchObj.optString("op", "").trim().lowercase()
+        val op = patchObj.optString("op", "").trim().lowercase()
                     val patchId = patchObj.optString("id", "").trim()
-                    val nodeObj = patchObj.optJSONObject("node")
+        val nodeObj = patchObj.optJSONObject("node")
 
                     when (op) {
                         "add" -> {
@@ -705,17 +701,16 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // Apply connection patches
-            if (!connectionPatchesJson.isNullOrBlank()) {
+                if (!connectionPatchesJson.isNullOrBlank()) {
                 val nodeIdList = nodes.map { it.id }
-                val nodeIdSet = nodeIdList.toSet()
+        val nodeIdSet = nodeIdList.toSet()
                 val nodeNameToIds = nodes.groupBy { it.name.trim() }.mapValues { (_, v) -> v.map { it.id } }
-
-                val patchArray = JSONArray(connectionPatchesJson)
+        val patchArray = JSONArray(connectionPatchesJson)
                 for (i in 0 until patchArray.length()) {
                     val patchObj = patchArray.getJSONObject(i)
-                    val op = patchObj.optString("op", "").trim().lowercase()
+        val op = patchObj.optString("op", "").trim().lowercase()
                     val patchId = patchObj.optString("id", "").trim()
-                    val connObj = patchObj.optJSONObject("connection")
+        val connObj = patchObj.optJSONObject("connection")
 
                     when (op) {
                         "add" -> {
@@ -735,7 +730,7 @@ class StandardWorkflowTools(private val context: Context) {
                             if (existingIndex < 0) throw IllegalArgumentException("Connection not found: ${id}")
 
                             val existingConn = connections[existingIndex]
-                            val merged = JSONObject().apply {
+        val merged = JSONObject().apply {
                                 put("id", existingConn.id)
                                 put("sourceNodeId", existingConn.sourceNodeId)
                                 put("targetNodeId", existingConn.targetNodeId)
@@ -767,7 +762,7 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // 清理非法连接（例如节点被删掉后）
-            val nodeIdSet = nodes.map { it.id }.toSet()
+                val nodeIdSet = nodes.map { it.id }.toSet()
             connections.removeAll { it.sourceNodeId !in nodeIdSet || it.targetNodeId !in nodeIdSet || it.sourceNodeId == it.targetNodeId }
 
             val updatedWorkflow = existingWorkflow.copy(
@@ -907,11 +902,11 @@ class StandardWorkflowTools(private val context: Context) {
     private fun parseNodes(nodesJson: String): List<WorkflowNode> {
         return try {
             val jsonArray = JSONArray(nodesJson)
-            val nodes = mutableListOf<WorkflowNode>()
+        val nodes = mutableListOf<WorkflowNode>()
 
             for (i in 0 until jsonArray.length()) {
                 val nodeObj = jsonArray.getJSONObject(i)
-                val node = parseNode(nodeObj)
+        val node = parseNode(nodeObj)
                 if (node != null) {
                     nodes.add(node)
                 }
@@ -937,12 +932,12 @@ class StandardWorkflowTools(private val context: Context) {
                 inferNodeType(nodeObj)
             }
             val id = nodeObj.optString("id", UUID.randomUUID().toString())
-            val name = nodeObj.optString("name", "")
+        val name = nodeObj.optString("name", "")
             val description = nodeObj.optString("description", "")
             
             // 解析位置
-            val positionObj = nodeObj.optJSONObject("position")
-            val position = if (positionObj != null) {
+                val positionObj = nodeObj.optJSONObject("position")
+        val position = if (positionObj != null) {
                 NodePosition(
                     x = positionObj.optDouble("x", 0.0).toFloat(),
                     y = positionObj.optDouble("y", 0.0).toFloat()
@@ -954,7 +949,7 @@ class StandardWorkflowTools(private val context: Context) {
             when (type) {
                 "trigger" -> {
                     val triggerType = nodeObj.optString("triggerType", "manual")
-                    val triggerConfigObj = nodeObj.optJSONObject("triggerConfig")
+        val triggerConfigObj = nodeObj.optJSONObject("triggerConfig")
                     val triggerConfig = if (triggerConfigObj != null) {
                         jsonObjectToStringMap(triggerConfigObj)
                     } else {
@@ -972,7 +967,7 @@ class StandardWorkflowTools(private val context: Context) {
                 }
                 "execute" -> {
                     val actionType = nodeObj.optString("actionType", "")
-                    val actionConfigObj = nodeObj.optJSONObject("actionConfig")
+        val actionConfigObj = nodeObj.optJSONObject("actionConfig")
                     val actionConfig = if (actionConfigObj != null) {
                         jsonObjectToParameterValueMap(actionConfigObj)
                     } else {
@@ -992,14 +987,14 @@ class StandardWorkflowTools(private val context: Context) {
                 }
                 "condition" -> {
                     val operatorRaw = nodeObj.optString("operator", "EQ")
-                    val operator = try {
+        val operator = try {
                         ConditionOperator.valueOf(operatorRaw.trim().uppercase())
                     } catch (_: Exception) {
                         ConditionOperator.EQ
                     }
 
                     val left = parseParameterValue(nodeObj.opt("left"))
-                    val right = parseParameterValue(nodeObj.opt("right"))
+        val right = parseParameterValue(nodeObj.opt("right"))
 
                     ConditionNode(
                         id = id,
@@ -1013,7 +1008,7 @@ class StandardWorkflowTools(private val context: Context) {
                 }
                 "logic" -> {
                     val operatorRaw = nodeObj.optString("operator", nodeObj.optString("operatorLogic", "AND"))
-                    val operator = try {
+        val operator = try {
                         LogicOperator.valueOf(operatorRaw.trim().uppercase())
                     } catch (_: Exception) {
                         LogicOperator.AND
@@ -1029,30 +1024,30 @@ class StandardWorkflowTools(private val context: Context) {
                 }
                 "extract" -> {
                     val modeRaw = nodeObj.optString("mode", "REGEX")
-                    val mode = try {
+        val mode = try {
                         ExtractMode.valueOf(modeRaw.trim().uppercase())
                     } catch (_: Exception) {
                         ExtractMode.REGEX
                     }
 
                     val expression = nodeObj.optString("expression", nodeObj.optString("pattern", nodeObj.optString("path", "")))
-                    val group = nodeObj.optInt("group", 0)
+        val group = nodeObj.optInt("group", 0)
                     val defaultValue = nodeObj.optString("defaultValue", "")
-                    val source = parseParameterValue(nodeObj.opt("source"))
+        val source = parseParameterValue(nodeObj.opt("source"))
 
                     val others = parseParameterValueList(nodeObj.opt("others"))
-                    val startIndex = nodeObj.optInt("startIndex", 0)
+        val startIndex = nodeObj.optInt("startIndex", 0)
                     val length = nodeObj.optInt("length", -1)
-                    val randomMin = nodeObj.optInt("randomMin", 0)
+        val randomMin = nodeObj.optInt("randomMin", 0)
                     val randomMax = nodeObj.optInt("randomMax", 100)
-                    val randomStringLength = nodeObj.optInt("randomStringLength", 8)
+        val randomStringLength = nodeObj.optInt("randomStringLength", 8)
                     val randomStringCharset = nodeObj.optString(
                         "randomStringCharset",
                         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
                     )
 
                     val useFixed = nodeObj.optBoolean("useFixed", false)
-                    val fixedValue = nodeObj.optString("fixedValue", "")
+        val fixedValue = nodeObj.optString("fixedValue", "")
 
                     ExtractNode(
                         id = id,
@@ -1114,14 +1109,14 @@ class StandardWorkflowTools(private val context: Context) {
     private fun parseConnections(connectionsJson: String, nodes: List<WorkflowNode>): List<WorkflowNodeConnection> {
         return try {
             val jsonArray = JSONArray(connectionsJson)
-            val connections = mutableListOf<WorkflowNodeConnection>()
+        val connections = mutableListOf<WorkflowNodeConnection>()
             val nodeIdList = nodes.map { it.id }
-            val nodeIdSet = nodeIdList.toSet()
+        val nodeIdSet = nodeIdList.toSet()
             val nodeNameToIds = nodes.groupBy { it.name.trim() }.mapValues { (_, v) -> v.map { it.id } }
 
             for (i in 0 until jsonArray.length()) {
                 val connObj = jsonArray.getJSONObject(i)
-                val connection = parseConnection(connObj, nodeIdList, nodeIdSet, nodeNameToIds)
+        val connection = parseConnection(connObj, nodeIdList, nodeIdSet, nodeNameToIds)
                 if (connection != null && connection.sourceNodeId != connection.targetNodeId) {
                     connections.add(connection)
                 }
@@ -1149,9 +1144,9 @@ class StandardWorkflowTools(private val context: Context) {
     ): WorkflowNodeConnection? {
         return try {
             val id = connObj.optString("id", UUID.randomUUID().toString())
-            val sourceNodeId = resolveNodeId(connObj, true, nodeIdList, nodeIdSet, nodeNameToIds)
+        val sourceNodeId = resolveNodeId(connObj, true, nodeIdList, nodeIdSet, nodeNameToIds)
             val targetNodeId = resolveNodeId(connObj, false, nodeIdList, nodeIdSet, nodeNameToIds)
-            val condition = connObj.optString("condition", null)
+        val condition = connObj.optString("condition", null)
 
             if (sourceNodeId.isBlank() || targetNodeId.isBlank()) {
                 AppLogger.w(TAG, "Connection missing source or target node ID")

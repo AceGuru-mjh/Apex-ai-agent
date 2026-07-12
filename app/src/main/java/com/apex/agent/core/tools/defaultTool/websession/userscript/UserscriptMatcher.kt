@@ -75,9 +75,9 @@ internal object UserscriptMatcher {
         }
         return runCatching {
             val uri = Uri.parse(url)
-            val scheme = uri.scheme?.lowercase(Locale.ROOT).orEmpty()
+        val scheme = uri.scheme?.lowercase(Locale.ROOT).orEmpty()
             val host = uri.host?.lowercase(Locale.ROOT).orEmpty()
-            val fullPath =
+        val fullPath =
                 buildString {
                     append(uri.encodedPath ?: "/")
                     uri.encodedQuery?.takeIf { it.isNotBlank() }?.let {
@@ -91,9 +91,9 @@ internal object UserscriptMatcher {
                 }
 
             val schemePart = trimmed.substringBefore("://")
-            val afterScheme = trimmed.substringAfter("://", "")
-            val hostPart = afterScheme.substringBefore("/")
-            val pathPart = afterScheme.substringAfter("/", "")
+        val afterScheme = trimmed.substringAfter("://", "")
+                val hostPart = afterScheme.substringBefore("/")
+        val pathPart = afterScheme.substringAfter("/", "")
 
             val schemeMatches =
                 when (schemePart) {
@@ -105,7 +105,7 @@ internal object UserscriptMatcher {
             }
 
             val normalizedHost = hostPart.lowercase(Locale.ROOT)
-            val hostMatches =
+        val hostMatches =
                 when {
                     normalizedHost == "*" -> host.isNotBlank()
                     normalizedHost.startsWith("*.") -> {

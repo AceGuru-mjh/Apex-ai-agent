@@ -43,7 +43,7 @@ class SecurityManager @Inject constructor(
     private fun ensureKeyExists() {
         if (!keyStore.containsAlias(KEYSTORE_ALIAS)) {
             val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
-            val spec = KeyGenParameterSpec.Builder(
+        val spec = KeyGenParameterSpec.Builder(
                 KEYSTORE_ALIAS,
                 KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
             )
@@ -62,7 +62,7 @@ class SecurityManager @Inject constructor(
     fun encryptAndStoreApiKey(agentId: String, apiKey: String): Boolean {
         return try {
             val encrypted = encrypt(apiKey)
-            val json = org.json.JSONObject(securePrefs.getString(ENCRYPTED_KEYS_KEY, "{}"))
+        val json = org.json.JSONObject(securePrefs.getString(ENCRYPTED_KEYS_KEY, "{}"))
             json.put(agentId, encrypted)
             securePrefs.edit().putString(ENCRYPTED_KEYS_KEY, json.toString()).apply()
             logAuditEvent(AuditAction.API_KEY_STORED, agentId, "API key stored")
@@ -76,7 +76,7 @@ class SecurityManager @Inject constructor(
     fun retrieveApiKey(agentId: String): String? {
         return try {
             val json = org.json.JSONObject(securePrefs.getString(ENCRYPTED_KEYS_KEY, "{}"))
-            val encrypted = json.optString(agentId, null) ?: return null
+        val encrypted = json.optString(agentId, null) ?: return null
             decrypt(encrypted).also {
                 logAuditEvent(AuditAction.API_KEY_RETRIEVED, agentId, "API key retrieved")
             }

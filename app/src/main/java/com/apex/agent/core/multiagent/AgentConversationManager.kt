@@ -30,8 +30,7 @@ class AgentConversationManager(private val context: Context) {
     private val gson = Gson()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _conversations = mutableMapOf<String, AgentConversation>()
-
-    val conversations: List<AgentConversation>
+        val conversations: List<AgentConversation>
         get() = _conversations.values.filter { !it.isArchived }.sortedByDescending { it.lastActivity }
 
     val starredConversations: List<AgentConversation>
@@ -49,7 +48,7 @@ class AgentConversationManager(private val context: Context) {
             val prefs = context.conversationDataStore.data.first()
             prefs[KEY_CONVERSATIONS]?.let { json ->
                 val type = object : TypeToken<List<AgentConversation>>() {}.type
-                val loadedConversations: List<AgentConversation> = gson.fromJson(json, type)
+        val loadedConversations: List<AgentConversation> = gson.fromJson(json, type)
                 _conversations.clear()
                 loadedConversations.forEach { conv -> _conversations[conv.id] = conv }
             }

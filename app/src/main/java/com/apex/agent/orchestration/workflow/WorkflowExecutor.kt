@@ -33,7 +33,7 @@ class WorkflowExecutor @Inject constructor() {
             }
 
             val node = createExecutableNode(nodeEntity)
-            val results = node.execute(context)
+        val results = node.execute(context)
 
             var nextId: String? = null
             var success = true

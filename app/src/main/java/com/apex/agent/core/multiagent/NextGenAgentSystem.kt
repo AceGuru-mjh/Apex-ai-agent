@@ -81,7 +81,7 @@ class NextGenAgentSystem private constructor(private val context: Context) {
             onProgress("?? 完成推理...")
 
             val skills = pluginSystem.getAvailableSkills()
-            val relevantSkill = skills.firstOrNull { skill ->
+        val relevantSkill = skills.firstOrNull { skill ->
                 userInput.contains(skill.name, ignoreCase = true)
             }
 

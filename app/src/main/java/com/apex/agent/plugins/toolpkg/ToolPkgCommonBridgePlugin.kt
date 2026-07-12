@@ -117,7 +117,7 @@ private object ToolPkgMessageProcessingBridgePlugin : MessageProcessingPlugin {
 
         for ((index, hook) in registeredHooks.withIndex()) {
             val hookProbeStartTime = messageTimingNow()
-            val hookKey = "${hook.containerPackageName}:${hook.pluginId}"
+        val hookKey = "${hook.containerPackageName}:${hook.pluginId}"
             val probeDecoded =
                 runMessageProcessingHook(
                     manager = manager,
@@ -134,7 +134,7 @@ private object ToolPkgMessageProcessingBridgePlugin : MessageProcessingPlugin {
             }
 
             val parseProbeResultStartTime = messageTimingNow()
-            val probeResult = parseMessageProcessingResult(probeDecoded)
+        val probeResult = parseMessageProcessingResult(probeDecoded)
             logMessageTiming(
                 stage = "toolpkg.messageProcessing.parseProbeResult",
                 startTimeMs = parseProbeResultStartTime,
@@ -156,7 +156,7 @@ private object ToolPkgMessageProcessingBridgePlugin : MessageProcessingPlugin {
             )
 
             val createExecutionStartTime = messageTimingNow()
-            val execution = createStreamingExecution(
+        val execution = createStreamingExecution(
                 manager = manager,
                 hook = hook,
                 eventPayload = baseEventPayload,
@@ -215,7 +215,6 @@ private object ToolPkgMessageProcessingBridgePlugin : MessageProcessingPlugin {
         val totalStartTime = messageTimingNow()
         val hookKey = "${hook.containerPackageName}:${hook.pluginId}"
         val isProbeOnly = eventPayload["probeOnly"] == true
-
         val runMainHookStartTime = messageTimingNow()
         val result =
             withContext(Dispatchers.IO) {
@@ -551,9 +550,9 @@ private object ToolPkgXmlRenderBridgePlugin : XmlRenderPlugin {
             }
             is JSONObject -> {
                 val handled = decoded.optBoolean("handled", true)
-                val text = decoded.optString("text").ifBlank { decoded.optString("content") }.trim()
+        val text = decoded.optString("text").ifBlank { decoded.optString("content") }.trim()
                 val composeDslRaw = decoded.opt("composeDsl")
-                val composeDsl = parseComposeDslResult(composeDslRaw)
+        val composeDsl = parseComposeDslResult(composeDslRaw)
                 ToolPkgXmlRenderHookObjectResult(
                     handled = handled,
                     text = text.ifBlank { null },
@@ -822,7 +821,7 @@ private object ToolPkgInputMenuToggleBridgePlugin : InputMenuTogglePlugin {
         val specs = mutableListOf<InputMenuSpec>()
         for (index in 0 until array.length()) {
             val item = array.opt(index) as? JSONObject ?: continue
-            val id = item.optString("id").trim()
+        val id = item.optString("id").trim()
             val title = item.optString("title").trim()
             if (id.isBlank() || title.isBlank()) {
                 continue

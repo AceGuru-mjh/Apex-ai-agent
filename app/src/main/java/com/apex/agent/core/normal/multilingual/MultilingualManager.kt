@@ -58,18 +58,18 @@ data class LanguageDetectionResult(
 
 enum class Script {
     LATIN,           // 拉丁字母
-    CJK_SIMPLIFIED,  // 简体汉字
-    CJK_TRADITIONAL, // 繁体汉字
-    HIRAGANA,        // 平假名
-    KATAKANA,        // 片假名
-    KANJI,           // 日文汉字
-    HANGUL,          // 韩文
-    CYRILLIC,        // 西里尔字母
-    ARABIC,          // 阿拉伯字母
-    DEVANAGARI,      // 天城文
-    THAI,            // 泰文
-    GREEK,           // 希腊字母
-    OTHER
+                CJK_SIMPLIFIED,  // 简体汉字
+                CJK_TRADITIONAL, // 繁体汉字
+                HIRAGANA,        // 平假名
+                KATAKANA,        // 片假名
+                KANJI,           // 日文汉字
+                HANGUL,          // 韩文
+                CYRILLIC,        // 西里尔字母
+                ARABIC,          // 阿拉伯字母
+                DEVANAGARI,      // 天城文
+                THAI,            // 泰文
+                GREEK,           // 希腊字母
+                OTHER
 }
 
 /**
@@ -85,8 +85,8 @@ data class LanguageConfig(
 
 enum class ResponseLanguagePolicy {
     MATCH_USER,          // 匹配用户语言
-    ALWAYS_PREFERRED,    // 始终用偏好语言
-    MIXED_IF_USER_MIXED  // 用户混合时也混合
+                ALWAYS_PREFERRED,    // 始终用偏好语言
+                MIXED_IF_USER_MIXED  // 用户混合时也混合
 }
 
 /**
@@ -107,7 +107,7 @@ class MultilingualManager(
         val totalChars = text.length.toFloat().coerceAtLeast(1f)
 
         // 按字符统计语言
-        var chineseSimplified = 0
+                var chineseSimplified = 0
         var chineseTraditional = 0
         var japanese = 0
         var korean = 0
@@ -124,7 +124,7 @@ class MultilingualManager(
                 // CJK 统一表意文字
                 code in 0x4e00..0x9fff -> {
                     // 简化：无法精确区分简繁，按偏好判断
-                    if (config.preferredLanguage == Language.CHINESE_TRADITIONAL) chineseTraditional++
+                if (config.preferredLanguage == Language.CHINESE_TRADITIONAL) chineseTraditional++
                     else chineseSimplified++
                 }
                 // 日文假名
@@ -148,7 +148,7 @@ class MultilingualManager(
         }
 
         // 计算语言比例
-        if (chineseSimplified > 0) ratios[Language.CHINESE_SIMPLIFIED] = chineseSimplified / totalChars
+                if (chineseSimplified > 0) ratios[Language.CHINESE_SIMPLIFIED] = chineseSimplified / totalChars
         if (chineseTraditional > 0) ratios[Language.CHINESE_TRADITIONAL] = chineseTraditional / totalChars
         if (japanese > 0) ratios[Language.JAPANESE] = japanese / totalChars
         if (korean > 0) ratios[Language.KOREAN] = korean / totalChars
@@ -159,7 +159,7 @@ class MultilingualManager(
         if (thai > 0) ratios[Language.THAI] = thai / totalChars
 
         // 排序
-        val sorted = ratios.entries.sortedByDescending { it.value }
+                val sorted = ratios.entries.sortedByDescending { it.value }
         val primary = sorted.firstOrNull()?.key ?: Language.UNKNOWN
         val secondary = sorted.getOrNull(1)?.key
         val isMixed = sorted.size > 1 && (sorted.getOrNull(1)?.value ?: 0f) > 0.2f
@@ -180,7 +180,7 @@ class MultilingualManager(
      */
     fun decideResponseLanguage(detection: LanguageDetectionResult, userId: String): Language {
         // 更新用户语言统计
-        if (config.learningEnabled) {
+                if (config.learningEnabled) {
             val stats = userLanguageStats.computeIfAbsent(userId) { mutableMapOf() }
             stats[detection.primaryLanguage] = (stats[detection.primaryLanguage] ?: 0) + 1
             if (detection.secondaryLanguage != null) {
@@ -271,8 +271,7 @@ class MultilingualManager(
     enum class TextDirection { LTR, RTL }
 
     // ============ 内部方法 ============
-
-    private fun detectScripts(text: String): Set<Script> {
+                private fun detectScripts(text: String): Set<Script> {
         val scripts = mutableSetOf<Script>()
         for (c in text) {
             val code = c.code

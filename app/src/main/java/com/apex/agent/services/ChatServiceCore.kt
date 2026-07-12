@@ -40,7 +40,7 @@ class ChatServiceCore(
     // EnhancedAIService 实例（全局单例，   private var enhancedAiService: EnhancedAIService? = null
 
     // 委托实例
-    private lateinit var messageProcessingDelegate: MessageProcessingDelegate
+                private lateinit var messageProcessingDelegate: MessageProcessingDelegate
     private lateinit var chatHistoryDelegate: ChatHistoryDelegate
     private lateinit var apiConfigDelegate: ApiConfigDelegate
     private lateinit var tokenStatisticsDelegate: TokenStatisticsDelegate
@@ -53,7 +53,7 @@ class ChatServiceCore(
     // 回调：当 EnhancedAIService 初始化或更新，   private var onEnhancedAiServiceReady: ((EnhancedAIService) -> Unit)? = null
     
     // 额外，onTurnComplete 回调（用于悬浮窗通知应用等场景）
-    private var additionalOnTurnComplete: ((String?, Int, Int, Int) -> Unit)? = null
+                private var additionalOnTurnComplete: ((String?, Int, Int, Int) -> Unit)? = null
     private var uiBridge: ChatServiceUiBridge = EmptyChatServiceUiBridge
 
     init {
@@ -63,36 +63,36 @@ class ChatServiceCore(
     
     private fun initializeDelegates() {
         // 初始，UI 状态委，
-       uiStateDelegate = UiStateDelegate()
+                uiStateDelegate = UiStateDelegate()
         
         // 初始，API 配置委托
-        apiConfigDelegate = ApiConfigDelegate(
+                apiConfigDelegate = ApiConfigDelegate(
             context = context,
             coroutineScope = coroutineScope,
             onConfigChanged = { service ->
                 enhancedAiService = service
                 // 当服务初始化后，设置 token 统计收集后
-               tokenStatisticsDelegate.setupCollectors()
+                tokenStatisticsDelegate.setupCollectors()
                 // 通知外部监听于
-               onEnhancedAiServiceReady?.invoke(service)
+                onEnhancedAiServiceReady?.invoke(service)
                 AppLogger.d(TAG, "EnhancedAIService 已更新）"
             }
         )
 
         // 初始，Token 统计委托
-        tokenStatisticsDelegate = TokenStatisticsDelegate(
+                tokenStatisticsDelegate = TokenStatisticsDelegate(
             coroutineScope = coroutineScope,
             getEnhancedAiService = { enhancedAiService }
         )
 
         // 初始化附件委，
-       attachmentDelegate = AttachmentDelegate(
+                attachmentDelegate = AttachmentDelegate(
             context = context,
             toolHandler = AIToolHandler.getInstance(context)
         )
 
         // 初始化聊天历史委，
-       chatHistoryDelegate = ChatHistoryDelegate(
+                chatHistoryDelegate = ChatHistoryDelegate(
             context = context,
             coroutineScope = coroutineScope,
             selectionMode = selectionMode,
@@ -130,7 +130,7 @@ class ChatServiceCore(
         }
 
         // 初始化消息处理委，
-       messageProcessingDelegate = MessageProcessingDelegate(
+                messageProcessingDelegate = MessageProcessingDelegate(
             context = context,
             coroutineScope = coroutineScope,
             getEnhancedAiService = { enhancedAiService },
@@ -175,7 +175,7 @@ class ChatServiceCore(
         )
 
         // 初始化消息协调委，
-       messageCoordinationDelegate = MessageCoordinationDelegate(
+                messageCoordinationDelegate = MessageCoordinationDelegate(
             context = context,
             coroutineScope = coroutineScope,
             chatHistoryDelegate = chatHistoryDelegate,
@@ -226,9 +226,9 @@ class ChatServiceCore(
     /** 取消当前消息 */
     fun cancelCurrentMessage() {
         // 先取消总结（如果正在进行）
-        messageCoordinationDelegate.cancelSummary()
+                messageCoordinationDelegate.cancelSummary()
         // 然后取消“当前聊天”的消息处理
-        val chatId = chatHistoryDelegate.currentChatId.value
+                val chatId = chatHistoryDelegate.currentChatId.value
         if (chatId != null) {
             messageProcessingDelegate.cancelMessage(chatId)
         }
@@ -342,7 +342,7 @@ class ChatServiceCore(
     // ========== StateFlow 暴露 ==========
 
     // 消息处理相关
-    val userMessage: StateFlow<TextFieldValue>
+                val userMessage: StateFlow<TextFieldValue>
         get() = messageProcessingDelegate.userMessage
 
     val isLoading: StateFlow<Boolean>
@@ -367,7 +367,7 @@ class ChatServiceCore(
         get() = messageCoordinationDelegate.isSummarizing
 
     // 聊天历史相关
-    val chatHistory: StateFlow<List<ChatMessage>>
+                val chatHistory: StateFlow<List<ChatMessage>>
         get() = chatHistoryDelegate.chatHistory
 
     val currentChatId: StateFlow<String?>
@@ -380,7 +380,7 @@ class ChatServiceCore(
         get() = chatHistoryDelegate.showChatHistorySelector
 
     // API 配置相关
-    val enableThinkingMode: StateFlow<Boolean>
+                val enableThinkingMode: StateFlow<Boolean>
         get() = apiConfigDelegate.enableThinkingMode
 
     val enableThinkingGuidance: StateFlow<Boolean>
@@ -405,7 +405,7 @@ class ChatServiceCore(
         get() = apiConfigDelegate.enableTools
 
     // Token 统计相关
-    val cumulativeInputTokensFlow: StateFlow<Int>
+                val cumulativeInputTokensFlow: StateFlow<Int>
         get() = tokenStatisticsDelegate.cumulativeInputTokensFlow
 
     val cumulativeOutputTokensFlow: StateFlow<Int>
@@ -418,7 +418,7 @@ class ChatServiceCore(
         get() = tokenStatisticsDelegate.perRequestTokenCountFlow
 
     // 附件相关
-    val attachments: StateFlow<List<AttachmentInfo>>
+                val attachments: StateFlow<List<AttachmentInfo>>
         get() = attachmentDelegate.attachments
 
     val attachmentToastEvent: SharedFlow<String>
@@ -449,7 +449,7 @@ class ChatServiceCore(
     fun setOnEnhancedAiServiceReady(callback: (EnhancedAIService) -> Unit) {
         onEnhancedAiServiceReady = callback
         // 如果已经初始化，立即调用回调
-        enhancedAiService?.let { callback(it) }
+                enhancedAiService?.let { callback(it) }
     }
     
     /** 设置额外，onTurnComplete 回调（用于悬浮窗通知应用等场景） */

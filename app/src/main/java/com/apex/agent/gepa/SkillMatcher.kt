@@ -61,8 +61,7 @@ class SkillMatcher(
     private fun createMatchedSkill(skill: SkillTemplate): MatchedSkill? {
         return try {
             val subtaskList = deserializeSubtasks(skill.subtaskStructure)
-
-            val suggestedSubtasks = subtaskList.mapIndexed { index, map ->
+        val suggestedSubtasks = subtaskList.mapIndexed { index, map ->
                 SubTask(
                     taskId = map["taskId"] as? String ?: "subtask_${index}",
                     taskType = map["taskType"] as? String ?: "general",
@@ -100,10 +99,8 @@ class SkillMatcher(
         val successWeight = 0.6
         val usageWeight = 0.3
         val recencyWeight = 0.1
-
         val successScore = skill.successRate.toDouble()
         val usageScore = (skill.totalExecutions.coerceAtMost(100) / 100.0)
-
         val ageInDays = (System.currentTimeMillis() - skill.updatedAt) / (1000 * 60 * 60 * 24)
         val recencyScore = (7 - ageInDays.coerceAtMost(7).toDouble()) / 7.0
 

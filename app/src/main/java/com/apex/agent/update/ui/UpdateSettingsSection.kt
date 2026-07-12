@@ -47,9 +47,9 @@ fun UpdateSettingsSection(
     onShowUpdateDialog: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+        val scope = rememberCoroutineScope()
     val manager = remember { HotUpdateManager.getInstance(context) }
-    val registry = remember { MirrorSourceRegistry.getInstance(context) }
+        val registry = remember { MirrorSourceRegistry.getInstance(context) }
 
     val mirrors by registry.mirrorsFlow.collectAsState()
     val state by manager.state.collectAsState()
@@ -64,7 +64,7 @@ fun UpdateSettingsSection(
     var testResults by remember { mutableStateOf<Map<String, MirrorTestResult>>(emptyMap()) }
 
     // 加载偏好
-    LaunchedEffect(Unit) {
+                LaunchedEffect(Unit) {
         registry.load()
         autoCheck = UpdateSettings.isAutoCheckEnabled(context)
         includePre = UpdateSettings.isIncludePrerelease(context)
@@ -334,7 +334,7 @@ private fun AddMirrorDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var urlTemplate by remember { mutableStateOf("https://") }
-    var description by remember { mutableStateOf("") }
+                var description by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf(false) }
     var urlError by remember { mutableStateOf(false) }
 
@@ -346,7 +346,7 @@ private fun AddMirrorDialog(
                 Text(
                     "URL 模板中使用 {url} 作为 GitHub 原始下载地址占位符。" +
                         "例如 https://ghproxy.com/{url}",
-                    style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(12.dp))

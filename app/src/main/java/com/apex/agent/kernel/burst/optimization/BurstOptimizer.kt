@@ -82,7 +82,6 @@ class BurstOptimizer(private val name: String = "burst-optimizer") {
         val kernelState = BurstKernel.getState()
         val schedulerMetrics = BurstKernel.run { /* would get from scheduler */ }
         val now = System.currentTimeMillis()
-
         val taskTypes = taskExecutionTimes.keys.toList()
         val totalTasks = taskTypes.sumOf {
             (taskSuccessCount[it]?.get() ?: 0) + (taskFailureCount[it]?.get() ?: 0)
@@ -135,7 +134,7 @@ class BurstOptimizer(private val name: String = "burst-optimizer") {
         val bottlenecks = mutableListOf<String>()
         val highFailureTypes = taskFailureCount.filter { (type, count) ->
             val success = taskSuccessCount[type]?.get() ?: 0
-            val total = count.get() + success
+        val total = count.get() + success
             total > MIN_TASKS_FOR_ANALYSIS && count.get().toDouble() / total > 0.3
         }
         if (highFailureTypes.isNotEmpty()) {
@@ -143,7 +142,7 @@ class BurstOptimizer(private val name: String = "burst-optimizer") {
         }
 
         val slowTaskTypes = taskExecutionTimes.filter { (type, time) ->
-            val count = (taskSuccessCount[type]?.get() ?: 0) + (taskFailureCount[type]?.get() ?: 0)
+        val count = (taskSuccessCount[type]?.get() ?: 0) + (taskFailureCount[type]?.get() ?: 0)
             count > MIN_TASKS_FOR_ANALYSIS && time.get().toDouble() / count > 5000
         }
         if (slowTaskTypes.isNotEmpty()) {
@@ -424,7 +423,7 @@ class BurstCacheOptimizer(private val name: String = "cache-optimizer") {
         synchronized(lock) {
             while (cache.size >= config.maxEntries || currentMemory.get() + value.size > config.maxMemoryBytes) {
                 val oldest = cache.entries.firstOrNull()?.key ?: break
-                val removed = cache.remove(oldest)
+        val removed = cache.remove(oldest)
                 if (removed != null) {
                     currentMemory.addAndGet(-removed.size.toLong())
                     evictions.incrementAndGet()
@@ -504,7 +503,6 @@ class BurstExecutionPlanner(private val name: String = "execution-planner") {
         val order = topologicalSort(planned)
         val totalDuration = planned.sumOf { it.estimatedDurationMs }
         val parallelism = calculateParallelism(planned)
-
         val plan = ExecutionPlan(
             planId = planId,
             tasks = planned,
@@ -519,7 +517,7 @@ class BurstExecutionPlanner(private val name: String = "execution-planner") {
 
     suspend fun optimizePlan(plan: ExecutionPlan): ExecutionPlan {
         val optimized = plan.tasks.map { task ->
-            val deps = findDependencies(task, plan.tasks)
+        val deps = findDependencies(task, plan.tasks)
             task.copy(dependencies = deps)
         }
 
@@ -624,7 +622,6 @@ class BurstPerformanceMonitor(private val name: String = "burst-perf-monitor") {
         val failed = failedCount.get()
         val total = completed + failed
         val windowDuration = 10.0
-
         val snapshot = PerformanceSnapshot(
             timestamp = System.currentTimeMillis(),
             tasksCompleted = completed,

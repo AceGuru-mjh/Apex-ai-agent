@@ -96,7 +96,7 @@ internal class UserscriptJsonStore private constructor(context: Context) {
     suspend fun insertValue(value: UserscriptValueEntity) {
         mutex.withLock {
             val state = readValueState(value.userscriptId)
-            val nextValues = state.values.filterNot { it.storageKey == value.storageKey } + value
+        val nextValues = state.values.filterNot { it.storageKey == value.storageKey } + value
             writeValueState(value.userscriptId, state.copy(values = nextValues))
         }
     }
@@ -107,7 +107,7 @@ internal class UserscriptJsonStore private constructor(context: Context) {
     ) {
         mutex.withLock {
             val state = readValueState(scriptId)
-            val nextValues = state.values.filterNot { it.storageKey == key }
+        val nextValues = state.values.filterNot { it.storageKey == key }
             if (nextValues.isEmpty()) {
                 valuesFile(scriptId).delete()
             } else {
@@ -119,7 +119,7 @@ internal class UserscriptJsonStore private constructor(context: Context) {
     suspend fun insertUserscript(entity: UserscriptEntity): Long =
         mutex.withLock {
             val state = stateFlow.value
-            val nextId = state.nextScriptId
+        val nextId = state.nextScriptId
             val inserted = entity.copy(id = nextId)
             writeStoreState(
                 state.copy(
@@ -176,7 +176,7 @@ internal class UserscriptJsonStore private constructor(context: Context) {
     suspend fun insertLog(log: UserscriptLogEntity): Long =
         mutex.withLock {
             val state = logFlow.value
-            val nextId = state.nextLogId
+        val nextId = state.nextLogId
             val inserted = log.copy(id = nextId)
             writeLogState(
                 state.copy(

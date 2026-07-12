@@ -152,7 +152,7 @@ object ModelRegistry {
     fun getModelOptions(): List<ModelOption> {
         return getAllLocalModels().map { model ->
             val sizeStr = model.displaySize
-            val quantStr = if (model.quantization != null) " [${model.quantization.displayName}]" else ""
+        val quantStr = if (model.quantization != null) " [${model.quantization.displayName}]" else ""
             val typeStr = when {
                 model.isLlama -> " (llama.cpp)"
                 model.isMNN -> " (MNN)"

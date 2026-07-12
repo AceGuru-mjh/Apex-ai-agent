@@ -48,7 +48,7 @@ class MainApkBridgeImpl : IApkBridgeInternal {
                     "diagnostics/startLogCapture" -> buildOk { f.startLogCapture() }
                     "diagnostics/getRecentLogs" -> {
                         val max = args["maxLines"]?.jsonPrimitive?.content?.toIntOrNull() ?: 500
-                        val r = f.getRecentLogs(max)
+        val r = f.getRecentLogs(max)
                         buildResult(r) { list ->
                             buildJsonObject {
                                 put("count", list.size)
@@ -67,7 +67,7 @@ class MainApkBridgeImpl : IApkBridgeInternal {
                     }
                     "diagnostics/readLogFile" -> {
                         val name = args["fileName"]?.jsonPrimitive?.content ?: ""
-                        val max = args["maxLines"]?.jsonPrimitive?.content?.toIntOrNull() ?: 1000
+        val max = args["maxLines"]?.jsonPrimitive?.content?.toIntOrNull() ?: 1000
                         buildResult(f.readLogFile(name, max)) { JsonPrimitive(it) }
                     }
                     "diagnostics/deleteLogFile" -> {
@@ -140,7 +140,7 @@ class MainApkBridgeImpl : IApkBridgeInternal {
                     }
                     "diagnostics/dumpHeap" -> {
                         val name = args["fileName"]?.jsonPrimitive?.content ?: "apex-heap.hprof"
-                        val path = f.dumpHeap(name)
+        val path = f.dumpHeap(name)
                         buildJsonObject { put("success", true); put("path", path) }.toString()
                     }
                     else -> buildJsonObject {

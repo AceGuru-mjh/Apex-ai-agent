@@ -100,8 +100,7 @@ class SkillUsageTracker private constructor(private val context: Context) {
     private var isInitialized = false
 
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-
-    val usageDataFlow: Flow<Map<String, SkillUsageData>> = context.skillUsageDataStore.data.map { preferences ->
+        val usageDataFlow: Flow<Map<String, SkillUsageData>> = context.skillUsageDataStore.data.map { preferences ->
         val dataJson = preferences[KEY_USAGE_DATA] ?: "{}"
         try {
             json.decodeFromString<Map<String, SkillUsageData>>(dataJson)
@@ -137,9 +136,9 @@ class SkillUsageTracker private constructor(private val context: Context) {
     private suspend fun loadFromDataStore() {
         context.skillUsageDataStore.data.first().let { preferences ->
             val usageJson = preferences[KEY_USAGE_DATA] ?: "{}"
-            val toolCallsJson = preferences[KEY_TOOL_CALLS] ?: "{}"
+        val toolCallsJson = preferences[KEY_TOOL_CALLS] ?: "{}"
             val execTimesJson = preferences[KEY_EXECUTION_TIMES] ?: "[]"
-            val successFailJson = preferences[KEY_SUCCESS_FAILURES] ?: "{}"
+        val successFailJson = preferences[KEY_SUCCESS_FAILURES] ?: "{}"
             val dailyStatsJson = preferences[KEY_DAILY_STATS] ?: "{}"
 
             cachedUsageData = try {

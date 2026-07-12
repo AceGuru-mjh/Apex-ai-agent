@@ -52,7 +52,7 @@ class ProjectStructureAnalyzer {
         
         return when {
             // Android Gradle 项目
-            fileNames.contains("build.gradle.kts") || fileNames.contains("build.gradle") -> {
+                fileNames.contains("build.gradle.kts") || fileNames.contains("build.gradle") -> {
                 if (paths.any { it.contains("app/src/main") }) {
                     ProjectType.ANDROID_GRADLE
                 } else {
@@ -61,21 +61,21 @@ class ProjectStructureAnalyzer {
             }
             
             // Java Maven 项目
-            fileNames.contains("pom.xml") -> ProjectType.JAVA_MAVEN
+                fileNames.contains("pom.xml") -> ProjectType.JAVA_MAVEN
             
             // Node.js 项目
-            fileNames.contains("package.json") -> ProjectType.NODE_JS
+                fileNames.contains("package.json") -> ProjectType.NODE_JS
             
             // Python 项目
-            fileNames.contains("requirements.txt") || 
+                fileNames.contains("requirements.txt") || 
             fileNames.contains("setup.py") ||
             fileNames.contains("pyproject.toml") -> ProjectType.PYTHON
             
             // Rust 项目
-            fileNames.contains("Cargo.toml") -> ProjectType.RUST
+                fileNames.contains("Cargo.toml") -> ProjectType.RUST
             
             // Go 项目
-            fileNames.contains("go.mod") || fileNames.contains("go.sum") -> ProjectType.GO
+                fileNames.contains("go.mod") || fileNames.contains("go.sum") -> ProjectType.GO
             
             else -> ProjectType.UNKNOWN
         }
@@ -121,7 +121,7 @@ class ProjectStructureAnalyzer {
         
         return when {
             // README 文件 - 最高优先级
-            name.startsWith("readme") -> KeyFile(
+                name.startsWith("readme") -> KeyFile(
                 path = file.path,
                 importance = 1.0f,
                 category = "Documentation",
@@ -129,7 +129,7 @@ class ProjectStructureAnalyzer {
             )
             
             // 构建配置文件
-            name == "build.gradle.kts" || name == "build.gradle" -> KeyFile(
+                name == "build.gradle.kts" || name == "build.gradle" -> KeyFile(
                 path = file.path,
                 importance = 0.9f,
                 category = "Build Configuration",
@@ -151,7 +151,7 @@ class ProjectStructureAnalyzer {
             )
             
             // 主入口文件
-            path.contains("src/main") && (name.endsWith(".kt") || name.endsWith(".java")) -> {
+                path.contains("src/main") && (name.endsWith(".kt") || name.endsWith(".java")) -> {
                 if (name.contains("Main") || name.contains("App") || name.contains("Application")) {
                     KeyFile(
                         path = file.path,
@@ -165,7 +165,7 @@ class ProjectStructureAnalyzer {
             }
             
             // 配置文件
-            name == ".gitignore" -> KeyFile(
+                name == ".gitignore" -> KeyFile(
                 path = file.path,
                 importance = 0.7f,
                 category = "Configuration",
@@ -180,7 +180,7 @@ class ProjectStructureAnalyzer {
             )
             
             // 测试文件
-            path.contains("test") || path.contains("spec") -> KeyFile(
+                path.contains("test") || path.contains("spec") -> KeyFile(
                 path = file.path,
                 importance = 0.5f,
                 category = "Test",
@@ -199,8 +199,7 @@ class ProjectStructureAnalyzer {
         
         // 这里需要实际读取文件内容来解析依赖
         // 暂时返回空列表，后续可以实现
-        
-        return dependencies
+                return dependencies
     }
     
     /**
@@ -211,17 +210,17 @@ class ProjectStructureAnalyzer {
         
         return when {
             // MVVM 架构（Android，
-            paths.any { it.contains("/view/") } &&
+                paths.any { it.contains("/view/") } &&
             paths.any { it.contains("/viewmodel/") } &&
             paths.any { it.contains("/model/") } -> "MVVM"
             
             // Clean Architecture
-            paths.any { it.contains("/domain/") } &&
+                paths.any { it.contains("/domain/") } &&
             paths.any { it.contains("/data/") } &&
             paths.any { it.contains("/presentation/") } -> "Clean Architecture"
             
             // MVC
-            paths.any { it.contains("/controller/") } &&
+                paths.any { it.contains("/controller/") } &&
             paths.any { it.contains("/model/") } &&
             paths.any { it.contains("/view/") } -> "MVC"
             

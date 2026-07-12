@@ -17,70 +17,70 @@ class EnhancedTerminalViewModel @Inject constructor(
     private val prefs = TerminalPreferences(context)
 
     private val _sessions = MutableStateFlow<List<TerminalSession>>(emptyList())
-    val sessions: StateFlow<List<TerminalSession>> = _sessions
+        val sessions: StateFlow<List<TerminalSession>> = _sessions
 
     private val _activeSessionId = MutableStateFlow<String?>(null)
-    val activeSessionId: StateFlow<String?> = _activeSessionId
+        val activeSessionId: StateFlow<String?> = _activeSessionId
 
     val activeSession: StateFlow<TerminalSession?> = combine(_sessions, _activeSessionId) { s, id -> s.firstOrNull { it.id == id } }
         .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
     private val _globalHistory = MutableStateFlow<List<Pair<String, Long>>>(emptyList())
-    val globalHistory: StateFlow<List<Pair<String, Long>>> = _globalHistory
+        val globalHistory: StateFlow<List<Pair<String, Long>>> = _globalHistory
 
     private val _aliases = MutableStateFlow(DefaultAliases.all.associateBy { it.alias }.toMutableMap())
-    val aliases: StateFlow<Map<String, CommandAlias>> = _aliases
+        val aliases: StateFlow<Map<String, CommandAlias>> = _aliases
 
     private val _quickCommands = MutableStateFlow(DefaultQuickCommands.all)
-    val quickCommands: StateFlow<List<QuickCommand>> = _quickCommands
+        val quickCommands: StateFlow<List<QuickCommand>> = _quickCommands
 
     private val _snippets = MutableStateFlow<List<Snippet>>(emptyList())
-    val snippets: StateFlow<List<Snippet>> = _snippets
+        val snippets: StateFlow<List<Snippet>> = _snippets
 
     private val _paletteOpen = MutableStateFlow(false)
-    val paletteOpen: StateFlow<Boolean> = _paletteOpen
+        val paletteOpen: StateFlow<Boolean> = _paletteOpen
     private val _paletteQuery = MutableStateFlow("")
-    val paletteQuery: StateFlow<String> = _paletteQuery
+        val paletteQuery: StateFlow<String> = _paletteQuery
 
     private val _historyIndex = MutableStateFlow(-1)
 
     private val _reverseSearchOpen = MutableStateFlow(false)
-    val reverseSearchOpen: StateFlow<Boolean> = _reverseSearchOpen
+        val reverseSearchOpen: StateFlow<Boolean> = _reverseSearchOpen
     private val _reverseSearchQuery = MutableStateFlow("")
-    val reverseSearchQuery: StateFlow<String> = _reverseSearchQuery
+        val reverseSearchQuery: StateFlow<String> = _reverseSearchQuery
 
     private val _themeId = MutableStateFlow("apex_dark")
-    val theme: StateFlow<TerminalTheme> = _themeId.map { TerminalThemes.byId(it) }.stateIn(viewModelScope, SharingStarted.Lazily, TerminalThemes.all.first())
+        val theme: StateFlow<TerminalTheme> = _themeId.map { TerminalThemes.byId(it) }.stateIn(viewModelScope, SharingStarted.Lazily, TerminalThemes.all.first())
 
     private val _fontSize = MutableStateFlow(12)
-    val fontSize: StateFlow<Int> = _fontSize
+        val fontSize: StateFlow<Int> = _fontSize
 
     private val _completionResults = MutableStateFlow<List<String>>(emptyList())
-    val completionResults: StateFlow<List<String>> = _completionResults
+        val completionResults: StateFlow<List<String>> = _completionResults
     private val _completionIndex = MutableStateFlow(-1)
-    val completionIndex: StateFlow<Int> = _completionIndex
+        val completionIndex: StateFlow<Int> = _completionIndex
 
     private val _searchOpen = MutableStateFlow(false)
-    val searchOpen: StateFlow<Boolean> = _searchOpen
+        val searchOpen: StateFlow<Boolean> = _searchOpen
     private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery
+        val searchQuery: StateFlow<String> = _searchQuery
     private val _searchMatches = MutableStateFlow<List<Int>>(emptyList())
-    val searchMatches: StateFlow<List<Int>> = _searchMatches
+        val searchMatches: StateFlow<List<Int>> = _searchMatches
     private val _searchMatchIndex = MutableStateFlow(-1)
-    val searchMatchIndex: StateFlow<Int> = _searchMatchIndex
+        val searchMatchIndex: StateFlow<Int> = _searchMatchIndex
 
     private val tabCompleter = TabCompleter({ _aliases.value }, { _quickCommands.value }, { _globalHistory.value })
 
     // === 危险命令确认 ===
-    private val _pendingDangerousCommand = MutableStateFlow<DangerousCommandDetector.DetectionResult?>(null)
-    val pendingDangerousCommand: StateFlow<DangerousCommandDetector.DetectionResult?> = _pendingDangerousCommand
+                private val _pendingDangerousCommand = MutableStateFlow<DangerousCommandDetector.DetectionResult?>(null)
+        val pendingDangerousCommand: StateFlow<DangerousCommandDetector.DetectionResult?> = _pendingDangerousCommand
     private var pendingCommandText: String? = null
 
     // === 代码段编辑器 ===
-    private val _snippetEditorOpen = MutableStateFlow(false)
-    val snippetEditorOpen: StateFlow<Boolean> = _snippetEditorOpen
+                private val _snippetEditorOpen = MutableStateFlow(false)
+        val snippetEditorOpen: StateFlow<Boolean> = _snippetEditorOpen
     private val _editingSnippet = MutableStateFlow<Snippet?>(null)
-    val editingSnippet: StateFlow<Snippet?> = _editingSnippet
+        val editingSnippet: StateFlow<Snippet?> = _editingSnippet
 
     init {
         createSession()
@@ -151,8 +151,7 @@ class EnhancedTerminalViewModel @Inject constructor(
     }
 
     // === 代码段编辑器 ===
-
-    fun openSnippetEditor(existing: Snippet? = null) {
+                fun openSnippetEditor(existing: Snippet? = null) {
         _editingSnippet.value = existing
         _snippetEditorOpen.value = true
     }
@@ -250,7 +249,7 @@ class EnhancedTerminalViewModel @Inject constructor(
     private suspend fun executeShell(sessionId: String, command: String) {
         try {
             val dir = java.io.File(getCurrentDir(sessionId).let { if (it == "~") System.getProperty("user.home") ?: "/" else it })
-            val process = ProcessBuilder(listOf("sh", "-c", command)).directory(dir).redirectErrorStream(true).start()
+        val process = ProcessBuilder(listOf("sh", "-c", command)).directory(dir).redirectErrorStream(true).start()
             val reader = process.inputStream.bufferedReader()
             var line = reader.readLine()
             while (line != null) { addOutput(sessionId, line); line = reader.readLine() }

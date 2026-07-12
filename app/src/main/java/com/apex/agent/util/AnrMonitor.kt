@@ -43,11 +43,13 @@ class AnrMonitor(
 ) {
     companion object {
         // 默认阈值设置
-       private const val ANR_THRESHOLD_MS = 1000L     // 1秒，标准ANR阈，        private const val WARNING_THRESHOLD_MS = 500L // 0.5秒，警告阈，        private const val SAMPLING_INTERVAL_MS = 100L  // 100毫秒采样间隔
-        private const val MAX_STACK_TRACES = 10        // 最大堆栈跟踪数
+                private const val ANR_THRESHOLD_MS = 1000L     // 1秒，标准ANR阈，
+                private const val WARNING_THRESHOLD_MS = 500L // 0.5秒，警告阈，
+                private const val SAMPLING_INTERVAL_MS = 100L  // 100毫秒采样间隔
+                private const val MAX_STACK_TRACES = 10        // 最大堆栈跟踪数
         
         // 主线程名，
-       private const val MAIN_THREAD_NAME = "main"
+                private const val MAIN_THREAD_NAME = "main"
     }
     
     private val running = AtomicBoolean(false)
@@ -56,22 +58,22 @@ class AnrMonitor(
     private val mainThreadHandler = Handler(Looper.getMainLooper())
     
     // 后备方案：如果协程有问题，使用ScheduledExecutorService
-    private var scheduledExecutor: ScheduledExecutorService? = null
+                private var scheduledExecutor: ScheduledExecutorService? = null
     
     // 记录ANR次数和严重程，   private val anrCount = AtomicInteger(0)
-    private val warningCount = AtomicInteger(0)
+                private val warningCount = AtomicInteger(0)
     private val maxBlockDuration = AtomicLong(0)
     
     // 堆栈跟踪历史
-    private val stackTraces = mutableListOf<Pair<Long, String>>()
+                private val stackTraces = mutableListOf<Pair<Long, String>>()
     
     // 跟踪调用者信，   private val callerInfo = ConcurrentHashMap<String, String>()
     
     // 最后一次获取到的主线程引用
-    private var mainThread: Thread? = null
+                private var mainThread: Thread? = null
     
     // 上次ANR的分析结果，用于去重
-    private var lastAnrAnalysis: String? = null
+                private var lastAnrAnalysis: String? = null
     
     /**
      * 开始ANR监控
@@ -86,7 +88,7 @@ class AnrMonitor(
         lastResponseTime.set(System.currentTimeMillis())
         
         // 尝试获取主线程引，
-       try {
+                try {
             mainThread = getMainThread()
             AppLogger.d(tag, "已获取主线程引用: ${mainThread}")
         } catch (e: Exception) {
@@ -95,7 +97,7 @@ class AnrMonitor(
         
         try {
             // 尝试启动协程监控
-            monitoringJob = coroutineScope.launch(Dispatchers.Default) {
+                monitoringJob = coroutineScope.launch(Dispatchers.Default) {
                 while (running.get()) {
                     checkMainThreadHealth()
                     delay(SAMPLING_INTERVAL_MS)
@@ -103,7 +105,7 @@ class AnrMonitor(
             }
         } catch (e: Exception) {
             // 如果协程启动失败，使用线程池作为备选方法
-           AppLogger.e(tag, "协程启动失败，使用备选线程池监控", e)
+                AppLogger.e(tag, "协程启动失败，使用备选线程池监控", e)
             startUsingExecutor()
         }
     }
@@ -143,7 +145,7 @@ class AnrMonitor(
         scheduledExecutor?.shutdown()
         
         // 如果有记录到ANR，保存报，
-       if (anrCount.get() > 0 || warningCount.get() > 0) {
+                if (anrCount.get() > 0 || warningCount.get() > 0) {
             saveAnrReport()
         }
     }
@@ -196,20 +198,22 @@ class AnrMonitor(
         
         if (timeSinceLastResponse > WARNING_THRESHOLD_MS) {
             // 主线程可能被阻塞
-            val message = context.getString(R.string.anr_main_thread_not_responding, timeSinceLastResponse)
+                val message = context.getString(R.string.anr_main_thread_not_responding, timeSinceLastResponse)
             
             if (timeSinceLastResponse > ANR_THRESHOLD_MS) {
-                // 已超过ANR阈，                AppLogger.e(tag, "${message} - 可能发生ANR!")
+                // 已超过ANR阈，
+                AppLogger.e(tag, "${message} - 可能发生ANR!")
                 anrCount.incrementAndGet()
                 
                 // 记录堆栈跟踪 - 使用增强的堆栈捕，
-               captureFullThreadDump()
+                captureFullThreadDump()
                 
                 if (timeSinceLastResponse > maxBlockDuration.get()) {
                     maxBlockDuration.set(timeSinceLastResponse)
                 }
             } else {
-                // 超过警告阈值但未到ANR阈，                AppLogger.w(tag, "${message} - 警告")
+                // 超过警告阈值但未到ANR阈，
+                AppLogger.w(tag, "${message} - 警告")
                 warningCount.incrementAndGet()
             }
         }
@@ -225,12 +229,12 @@ class AnrMonitor(
                     .drop(3) // 跳过前三个元素（VM相关调用于                   .joinToString("\n") { "    at ${it}" }
                     
                 val timeStamp = System.currentTimeMillis()
-                val trace = Pair(timeStamp, stackTrace)
+        val trace = Pair(timeStamp, stackTrace)
                 
                 synchronized(stackTraces) {
                     stackTraces.add(trace)
                     // 限制堆栈历史数量
-                    if (stackTraces.size > MAX_STACK_TRACES) {
+                if (stackTraces.size > MAX_STACK_TRACES) {
                         stackTraces.removeAt(0)
                     }
                 }
@@ -251,11 +255,11 @@ class AnrMonitor(
     private fun getMainThread(): Thread? {
         try {
             // 尝试方法1：通过Looper的对应线程
-           Looper.getMainLooper().thread?.let { return it }
+                Looper.getMainLooper().thread?.let { return it }
             
             // 尝试方法2：遍历所有线程查找main线程
-            val threadGroup = Thread.currentThread().threadGroup ?: return null
-            val threadCount = threadGroup.activeCount()
+                val threadGroup = Thread.currentThread().threadGroup ?: return null
+        val threadCount = threadGroup.activeCount()
             val threads = arrayOfNulls<Thread>(threadCount)
             threadGroup.enumerate(threads)
             
@@ -272,15 +276,15 @@ class AnrMonitor(
     private fun captureFullThreadDump() {
         try {
             val sbDump = StringBuilder()
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
             
             sbDump.append(context.getString(R.string.anr_thread_dump_header, dateFormat.format(Date())))
             
             // 首先获取主线程信，
-           val mainThreadStack: String = mainThread?.let {
+                val mainThreadStack: String = mainThread?.let {
                 try {
                     val stackTraceElements = it.stackTrace
-                    val stackStr = stackTraceElements.joinToString("\n") { element -> "    at ${element}" }
+        val stackStr = stackTraceElements.joinToString("\n") { element -> "    at ${element}" }
                     context.getString(R.string.anr_main_thread_with_state, it.name, it.state, stackStr)
                 } catch (e: Exception) {
                     context.getString(R.string.anr_cannot_get_main_thread_stack, e.message ?: "")
@@ -288,35 +292,35 @@ class AnrMonitor(
             } ?: context.getString(R.string.anr_cannot_get_main_thread_ref)
             
             // 添加主线程信，
-           sbDump.append(context.getString(R.string.anr_main_thread_section, mainThreadStack))
+                sbDump.append(context.getString(R.string.anr_main_thread_section, mainThreadStack))
             
             // 添加主线程分前
-           val analysis = analyzeStackTrace(mainThreadStack)
+                val analysis = analyzeStackTrace(mainThreadStack)
             
             // 检查是否和上次ANR相同，如果相同则不输出
-           if (analysis == lastAnrAnalysis) {
+                if (analysis == lastAnrAnalysis) {
                 AppLogger.w(tag, "检测到重复的ANR，跳过输出）"
                 return
             }
             
             // 更新上次ANR分析结果
-            lastAnrAnalysis = analysis
+                lastAnrAnalysis = analysis
 
             sbDump.append(context.getString(R.string.anr_analysis_section, analysis))
 
             // 获取并添加调用者信，
-           if (callerInfo.isNotEmpty()) {
+                if (callerInfo.isNotEmpty()) {
                 sbDump.append(context.getString(R.string.anr_recent_call_info))
                 callerInfo.forEach { (_, info) -> sbDump.append("${info}\n") }
                 sbDump.append("\n")
             }
             
             // 保存线程转储
-            val timestamp = System.currentTimeMillis()
-            val trace = Pair(timestamp, sbDump.toString())
+                val timestamp = System.currentTimeMillis()
+        val trace = Pair(timestamp, sbDump.toString())
             
             // 更新堆栈跟踪历史
-            synchronized(stackTraces) {
+                synchronized(stackTraces) {
                 stackTraces.add(trace)
                 if (stackTraces.size > MAX_STACK_TRACES) {
                     stackTraces.removeAt(0)
@@ -324,12 +328,12 @@ class AnrMonitor(
             }
             
             // 输出到日忆
-           AppLogger.e(tag, "检测到ANR! 完整线程转储:\n${sbDump}")
+                AppLogger.e(tag, "检测到ANR! 完整线程转储:\n${sbDump}")
             
         } catch (e: Exception) {
             AppLogger.e(tag, "捕获线程转储失败", e)
             // 失败时尝试旧方法
-            captureMainThreadStack()
+                captureMainThreadStack()
         }
     }
     
@@ -343,7 +347,7 @@ class AnrMonitor(
         
         for (line in stackTrace.lines()) {
             // 匹配堆栈行格，at package.Class.method(File.java:line)
-            val atIndex = line.indexOf("at ")
+                val atIndex = line.indexOf("at ")
             if (atIndex >= 0) {
                 val stackPart = line.substring(atIndex + 3).trim()
                 // 只保留com.apex包的堆栈
@@ -354,7 +358,7 @@ class AnrMonitor(
         }
         
         // 输出捕捉到的堆栈，
-       if (lines.isNotEmpty()) {
+                if (lines.isNotEmpty()) {
             analysis.append(context.getString(R.string.anr_package_calls, targetPackage, lines.size))
             lines.forEach { line ->
                 analysis.append("${line}\n")
@@ -372,10 +376,9 @@ class AnrMonitor(
     private fun saveAnrReport() {
         try {
             val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-            val timestamp = dateFormat.format(Date())
+        val timestamp = dateFormat.format(Date())
             val fileName = "anr_report_${timestamp}.txt"
-            
-            val file = File(context.getExternalFilesDir("anr_reports"), fileName)
+        val file = File(context.getExternalFilesDir("anr_reports"), fileName)
             file.parentFile?.mkdirs()
             
             FileOutputStream(file).use { fos ->

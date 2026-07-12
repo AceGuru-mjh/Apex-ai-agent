@@ -65,7 +65,6 @@ class ReflectionSystem(private val context: Context) {
 
     fun analyzePerformanceTrends(agentId: String): Map<String, Any> {
         val agentReflections = reflections.filter { it.agentId == agentId }
-
         val successRate = if (agentReflections.isNotEmpty()) {
             agentReflections.count { it.type == ReflectionType.SUCCESS }.toFloat() / agentReflections.size
         } else {

@@ -29,7 +29,7 @@ internal object ToolPkgMainRegistrationScriptParser {
                         )
                 )
             val uiModules = parseRegisteredUiModules(captured.toolboxUiModules)
-            val appLifecycleHooks = parseRegisteredAppLifecycleHooks(captured.appLifecycleHooks)
+        val appLifecycleHooks = parseRegisteredAppLifecycleHooks(captured.appLifecycleHooks)
             val messageProcessingPlugins =
                 parseRegisteredFunctionHooks(
                     registrations = captured.messageProcessingPlugins,
@@ -128,7 +128,7 @@ internal object ToolPkgMainRegistrationScriptParser {
                 }
 
             val id = item.optString("id").trim()
-            val screen = item.optString("screen").trim()
+        val screen = item.optString("screen").trim()
             if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOLBOX_UI_MODULE}[${index}].id is required")
             }
@@ -137,7 +137,7 @@ internal object ToolPkgMainRegistrationScriptParser {
             }
 
             val runtime = item.optString("runtime").trim().ifBlank { TOOLPKG_RUNTIME_COMPOSE_DSL }
-            val title = parseLocalizedText(item.opt("title"), fallback = id)
+        val title = parseLocalizedText(item.opt("title"), fallback = id)
             modules.add(
                 ToolPkgRegisteredUiModule(
                     id = id,
@@ -165,9 +165,9 @@ internal object ToolPkgMainRegistrationScriptParser {
                     )
                 }
             val id = item.optString("id").trim()
-            val event = item.optString("event").trim()
+        val event = item.optString("event").trim()
             val functionName = item.optString("function").trim()
-            val functionSource = item.optString("function_source").trim().ifBlank { null }
+        val functionSource = item.optString("function_source").trim().ifBlank { null }
 
             if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].id is required")
@@ -207,7 +207,7 @@ internal object ToolPkgMainRegistrationScriptParser {
                     )
                 }
             val id = item.optString("id").trim()
-            val functionName = item.optString("function").trim()
+        val functionName = item.optString("function").trim()
             val functionSource = item.optString("function_source").trim().ifBlank { null }
 
             if (id.isBlank()) {
@@ -244,9 +244,9 @@ internal object ToolPkgMainRegistrationScriptParser {
                     )
                 }
             val id = item.optString("id").trim()
-            val tagName = item.optString("tag").trim()
+        val tagName = item.optString("tag").trim()
             val functionName = item.optString("function").trim()
-            val functionSource = item.optString("function_source").trim().ifBlank { null }
+        val functionSource = item.optString("function_source").trim().ifBlank { null }
 
             if (id.isBlank()) {
                 throw IllegalArgumentException("${registryName}[${index}].id is required")
@@ -292,10 +292,10 @@ internal object ToolPkgMainRegistrationScriptParser {
             }
         if (json != null) {
             val values = linkedMapOf<String, String>()
-            val keys = json.keys()
+        val keys = json.keys()
             while (keys.hasNext()) {
                 val key = keys.next()
-                val value = json.optString(key).trim()
+        val value = json.optString(key).trim()
                 if (value.isNotBlank()) {
                     values[key] = value
                 }

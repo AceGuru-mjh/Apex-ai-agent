@@ -27,7 +27,7 @@ class AgentVisualizationManager(private val context: Context) {
     private val workflowEditor = WorkflowEditor()
 
     private val _visualizationState = MutableStateFlow(VisualizationState())
-    val visualizationState: StateFlow<VisualizationState> = _visualizationState
+        val visualizationState: StateFlow<VisualizationState> = _visualizationState
 
     init {
         initializeVisualization()
@@ -139,7 +139,7 @@ class AgentVisualizationManager(private val context: Context) {
         }
 
         val clusters = topology.clusters.mapIndexed { index, cluster ->
-            val centerX = cluster.map { nodeId ->
+        val centerX = cluster.map { nodeId ->
                 nodes.find { it.agentId == nodeId }?.x ?: 0f
             }.average().toFloat()
             val centerY = cluster.map { nodeId ->
@@ -354,9 +354,9 @@ class PerformanceMonitor {
 
     fun generateReport(): AgentVisualizationManager.PerformanceReport {
         val agentMetrics = metricsHistory.mapValues { (agentId, samples) ->
-            val completed = samples.count { it.metric == "TASK_COMPLETED" }
+        val completed = samples.count { it.metric == "TASK_COMPLETED" }
             val inProgress = samples.count { it.metric == "TASK_STARTED" } - completed
-            val avgResponse = samples.filter { it.metric == "TASK_COMPLETED" }.size.toFloat()
+        val avgResponse = samples.filter { it.metric == "TASK_COMPLETED" }.size.toFloat()
 
             AgentVisualizationManager.PerformanceMetrics.AgentPerformance(
                 agentId = agentId,

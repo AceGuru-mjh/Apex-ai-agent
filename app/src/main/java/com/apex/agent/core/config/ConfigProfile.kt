@@ -170,7 +170,7 @@ class ConfigProfileManager(
         val diff = mutableMapOf<String, Pair<String?, String?>>()
         for (key in allKeys) {
             val fromVal = from.overrides[key]
-            val toVal = to.overrides[key]
+        val toVal = to.overrides[key]
             if (fromVal != toVal) {
                 diff[key] = Pair(fromVal, toVal)
             }

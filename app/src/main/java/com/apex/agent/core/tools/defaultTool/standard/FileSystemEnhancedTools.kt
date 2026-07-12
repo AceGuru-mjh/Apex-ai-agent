@@ -66,7 +66,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 }
 
                 val results = mutableListOf<JSONObject>()
-                val fileRegex = Regex(filePattern.replace("*", ".*"))
+        val fileRegex = Regex(filePattern.replace("*", ".*"))
                 val contentRegex = if (contentPattern.isNotEmpty()) {
                     if (ignoreCase) {
                         Regex(contentPattern, RegexOption.IGNORE_CASE)
@@ -148,7 +148,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
         val targetPath = tool.parameters.find { it.name == "target_path" }?.value ?: ""
         val newNamePattern = tool.parameters.find { it.name == "new_name_pattern" }?.value ?: ""
         val environment = tool.parameters.find { it.name == "environment" }?.value
-
         val pathList = if (paths.startsWith("[")) {
             try {
                 val jsonArray = JSONArray(paths)
@@ -184,8 +183,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
 
                 for ((index, srcPath) in pathList.withIndex()) {
                     val srcFile = File(srcPath)
-
-                    val result = JSONObject().apply {
+        val result = JSONObject().apply {
                         put("source", srcPath)
                         put("success", true)
                         put("operation", operation)
@@ -292,7 +290,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
         val format = tool.parameters.find { it.name == "format" }?.value ?: "zip"
         val compressionLevel = tool.parameters.find { it.name == "compression_level" }?.value?.toInt() ?: 8
         val environment = tool.parameters.find { it.name == "environment" }?.value
-
         val pathList = if (paths.startsWith("[")) {
             try {
                 val jsonArray = JSONArray(paths)
@@ -341,7 +338,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                     }
 
                     val compressedSize = outputFile.length()
-                    val compressionRatio = if (originalSize > 0) {
+        val compressionRatio = if (originalSize > 0) {
                         "%.1f%%".format(100 - (compressedSize * 100) / originalSize)
                     } else "0%"
 
@@ -384,7 +381,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
     private fun addFileToZip(zipOut: ZipOutputStream, file: File, path: String) {
         if (file.isDirectory) {
             val dirPath = if (path.isBlank()) file.name + "/" else "${path}${file.name}/"
-            val entry = ZipEntry(dirPath)
+        val entry = ZipEntry(dirPath)
             zipOut.putNextEntry(entry)
             zipOut.closeEntry()
 
@@ -393,7 +390,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             }
         } else {
             val filePath = if (path.isBlank()) file.name else "${path}${file.name}"
-            val entry = ZipEntry(filePath)
+        val entry = ZipEntry(filePath)
             entry.time = file.lastModified()
             zipOut.putNextEntry(entry)
             FileInputStream(file).use { fis ->
@@ -512,7 +509,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
         return try {
             withContext(Dispatchers.IO) {
                 val sourceDir = File(sourcePath)
-                val targetDir = File(targetPath)
+        val targetDir = File(targetPath)
                 if (!sourceDir.isDirectory) {
                     return@withContext ToolResult(
                         toolName = tool.name,
@@ -525,10 +522,9 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 targetDir.mkdirs()
 
                 val copiedFiles = mutableListOf<String>()
-                val deletedFiles = mutableListOf<String>()
+        val deletedFiles = mutableListOf<String>()
                 val skippedFiles = mutableListOf<String>()
-
-                val existingInTarget = mutableSetOf<String>()
+        val existingInTarget = mutableSetOf<String>()
                 targetDir.listFiles()?.forEach { f ->
                     existingInTarget.add(f.relativeTo(targetDir).path)
                 }

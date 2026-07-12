@@ -44,7 +44,7 @@ class SessionStartHook : SessionLifecycleHook {
         withContext(Dispatchers.IO) {
             try {
                 val filesDir = context.filesDir
-                val summaryFiles = filesDir.listFiles { file ->
+        val summaryFiles = filesDir.listFiles { file ->
                     file.name.startsWith(SUMMARY_FILE_PREFIX) &&
                         file.name.endsWith(SUMMARY_FILE_SUFFIX)
                 } ?: return@withContext null
@@ -77,7 +77,7 @@ class SessionStartHook : SessionLifecycleHook {
             val envState = mutableMapOf<String, String>()
 
             // 检测网络连接状态
-            try {
+                try {
                 val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
                 envState["networkAvailable"] = isNetworkAvailable.toString()
                 envState["networkType"] = if (isNetworkAvailable) {
@@ -91,7 +91,7 @@ class SessionStartHook : SessionLifecycleHook {
             }
 
             // 检测可用模型列行
-            try {
+                try {
                 val modelsDir = File(context.filesDir, "models")
                 if (modelsDir.exists()) {
                     val modelFiles = modelsDir.listFiles { file ->
@@ -109,9 +109,9 @@ class SessionStartHook : SessionLifecycleHook {
             }
 
             // 检测当前权限模式
-            try {
+                try {
                 val prefs = context.getSharedPreferences("permission_mode_prefs", Context.MODE_PRIVATE)
-                val currentMode = prefs.getString("current_permission_mode", "standard") ?: "standard"
+        val currentMode = prefs.getString("current_permission_mode", "standard") ?: "standard"
                 envState["permissionMode"] = currentMode
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Failed to detect permission mode", e)

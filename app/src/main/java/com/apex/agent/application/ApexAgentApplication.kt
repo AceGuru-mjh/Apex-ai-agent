@@ -121,13 +121,13 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
     }
 
     // 应用级协程作用域
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+                private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // 懒加载数据库实例
-    private val database by lazy { AppDatabase.getDatabase(this) }
+                private val database by lazy { AppDatabase.getDatabase(this) }
     
     // 应用初始化器
-    private lateinit var appInitializer: AppInitializer
+                private lateinit var appInitializer: AppInitializer
 
     private fun configureOpenMpEnvironment() {
         try {
@@ -145,7 +145,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
     // 新代码: 主线程仅保留8项关键UI初始化，其余全移到后台IO协程并行执行
     // 预期收益: 主线程阻塞时间 70%~85% 缩减
     // ============================================================
-    override fun onCreate() {
+                override fun onCreate() {
         super.onCreate()
         val startTime = System.currentTimeMillis()
         appStartupTimeMs = startTime
@@ -159,10 +159,10 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         // 诊断服务 — 已合并到主 APK（原 :apk:diagnostics 独立模块）
         // 注册到 TypedServiceRegistry 让其他 APK 跨进程调用
         // ============================================================
-        val diagnosticsFacade = com.apex.agent.diagnostics.DiagnosticsServiceFacade(this)
+                val diagnosticsFacade = com.apex.agent.diagnostics.DiagnosticsServiceFacade(this)
         com.apex.sdk.bridge.TypedServiceRegistry.register<com.apex.agent.diagnostics.DiagnosticsServiceFacade>(diagnosticsFacade)
         // 接管全局未捕获异常 → 写入崩溃报告
-        val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
+                val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             try {
                 diagnosticsFacade.reportCrash(thread, throwable)
@@ -170,16 +170,16 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             previousHandler?.uncaughtException(thread, throwable)
         }
         // 启动日志采集
-        try { diagnosticsFacade.startLogCapture() } catch (_: Throwable) {}
+                try { diagnosticsFacade.startLogCapture() } catch (_: Throwable) {}
 
         // 注册主 APK 的 BridgeImpl（让其他 APK 可通过 Bridge 调用 diagnostics/* 等方法）
-        com.apex.sdk.bridge.BridgeConnection.registerService(
+                com.apex.sdk.bridge.BridgeConnection.registerService(
             "main",
             com.apex.sdk.bridge.ApkBridgeStubAdapter(MainApkBridgeImpl())
         )
 
         // [优化1] 健康检查：启动关键路径测量
-        val health = ArchitectureHealthCheck.getInstance(this)
+                val health = ArchitectureHealthCheck.getInstance(this)
         health.beginColdStart()
 
         // ============================================================
@@ -188,7 +188,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         // ============================================================
 
         // Initialize theme manager (critical for UI)
-        ThemeManager.init(this)
+                ThemeManager.init(this)
         AppLogger.d(TAG, "【启动计时】主题管理器初始化完成 - ${System.currentTimeMillis() - startTime}ms")
 
         enableStrictMode()
@@ -198,7 +198,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         AppIconManager.ensureComponentState(this)
 
         // Reset previous log on each cold start to prevent infinite log growth
-        val isCrashReportRecoveryStartup = CrashRecoveryState.consumePendingCrashReportLaunch(this)
+                val isCrashReportRecoveryStartup = CrashRecoveryState.consumePendingCrashReportLaunch(this)
         if (!isCrashReportRecoveryStartup) {
             AppLogger.resetLogFile()
         }
@@ -213,11 +213,11 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         AppLogger.d(TAG, "【启动计时】实例初始化完成 - ${System.currentTimeMillis() - startTime}ms")
 
         // Set global exception handler before any other initializations
-        setupUncaughtExceptionHandler()
+                setupUncaughtExceptionHandler()
         AppLogger.d(TAG, "【启动计时】全局异常处理器设置完成 - ${System.currentTimeMillis() - startTime}ms")
 
         // Initialize the JSON serializer (needed for many operations)
-        json = Json {
+                json = Json {
             serializersModule = SerializationSetup.module
             ignoreUnknownKeys = true
             isLenient = true
@@ -227,23 +227,23 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         AppLogger.d(TAG, "【启动计时】JSON序列化器初始化完成 - ${System.currentTimeMillis() - startTime}ms")
 
         // Initialize and apply language settings (must be before getting string resources)
-        initializeAppLanguage()
+                initializeAppLanguage()
         AppLogger.d(TAG, "【启动计时】语言设置初始化完成 - ${System.currentTimeMillis() - startTime}ms")
 
         // Initialize ObjectBox database (lightweight, runs on main thread)
-        initObjectBox()
+                initObjectBox()
         AppLogger.d(TAG, "【启动计时】ObjectBox 初始化完成 - ${System.currentTimeMillis() - startTime}ms")
 
         // ============================================================
         // [非关键路径] 所有剩余初始化移到后台协程，多子任务并行执行
         // 不阻塞主线程/第一次界面绘制
         // ============================================================
-        applicationScope.launch(Dispatchers.IO) {
+                applicationScope.launch(Dispatchers.IO) {
             val bgStart = System.currentTimeMillis()
 
             // 子阶段A：偏好设置/权限/Shell（IO密集，可并行）
-            val prefsDeferred = async(start = CoroutineStart.DEFAULT) {
-                val defaultProfileName = applicationContext.getString(R.string.default_profile)
+                val prefsDeferred = async(start = CoroutineStart.DEFAULT) {
+        val defaultProfileName = applicationContext.getString(R.string.default_profile)
                 initUserPreferencesManager(applicationContext, defaultProfileName)
                 initAndroidPermissionPreferences(applicationContext)
                 PermissionModeIntegration.initialize(applicationContext)
@@ -252,13 +252,13 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             }
 
             // 子阶段B：UI生命周期管理（轻量，独立并行）
-            val uiLifeDeferred = async(start = CoroutineStart.DEFAULT) {
+                val uiLifeDeferred = async(start = CoroutineStart.DEFAULT) {
                 ActivityLifecycleManager.initialize(this@ApexAgentApplication)
                 AppLogger.d(TAG, "【后台初始化】ActivityLifecycleManager - ${System.currentTimeMillis() - bgStart}ms")
             }
 
             // 子阶段C：聊天核心（依赖prefsDeferred的完成）
-            val chatDeferred = async(start = CoroutineStart.DEFAULT) {
+                val chatDeferred = async(start = CoroutineStart.DEFAULT) {
                 prefsDeferred.await()
                 AIMessageManager.initialize(this@ApexAgentApplication)
                 PluginRegistry.initializeBuiltins()
@@ -273,26 +273,26 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             }
 
             // 子阶段D：Shower Environment（较重的配置）
-            val showerDeferred = async(start = CoroutineStart.DEFAULT) {
+                val showerDeferred = async(start = CoroutineStart.DEFAULT) {
                 configureShowerEnvironment()
                 LanguageFactory.init()
                 AppLogger.d(TAG, "【后台初始化】ShowerEnvironment+LanguageFactory - ${System.currentTimeMillis() - bgStart}ms")
             }
 
             // 子阶段E：Waifu消息处理器
-            val waifuDeferred = async(start = CoroutineStart.DEFAULT) {
+                val waifuDeferred = async(start = CoroutineStart.DEFAULT) {
                 WaifuMessageProcessor.initialize(applicationContext)
                 AppLogger.d(TAG, "【后台初始化】WaifuMessageProcessor - ${System.currentTimeMillis() - bgStart}ms")
             }
 
             // 子阶段F：图片加载器（OkHttp + Coil，IO较重）
-            val imageDeferred = async(Dispatchers.IO) {
+                val imageDeferred = async(Dispatchers.IO) {
                 initGlobalImageLoader()
                 AppLogger.d(TAG, "【后台初始化】全局图片加载器 - ${System.currentTimeMillis() - bgStart}ms")
             }
 
             // 子阶段G：池管理器（文件IO）
-            val poolDeferred = async(Dispatchers.IO) {
+                val poolDeferred = async(Dispatchers.IO) {
                 ImagePoolManager.initialize(filesDir, preloadNow = false)
                 MediaPoolManager.initialize(filesDir, preloadNow = false)
                 SkillRepoZipPoolManager.initialize(filesDir)
@@ -300,7 +300,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             }
 
             // 子阶段H：会话生命周期钩子注册
-            val hooksDeferred = async(Dispatchers.IO) {
+                val hooksDeferred = async(Dispatchers.IO) {
                 try {
                     HookRegistry.register(SessionStartHook())
                     HookRegistry.register(PreCompactHook())
@@ -312,39 +312,39 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             }
 
             // 先确保UI生命周期就绪（保证Activity进入后能track）
-            uiLifeDeferred.await()
+                uiLifeDeferred.await()
 
             // 聊天核心就绪后启动分阶段初始化器
-            chatDeferred.await()
+                chatDeferred.await()
             appInitializer = AppInitializer(applicationContext)
             appInitializer.startInitialization()
 
             // 其他后台子任务并发等待（不阻塞界面）
-            showerDeferred.await()
+                showerDeferred.await()
             waifuDeferred.await()
             imageDeferred.await()
             poolDeferred.await()
             hooksDeferred.await()
 
             // === 最低优先级：第一次界面绘制完成后再执行 ===
-            launchCleanOnExitCleanup()
+                launchCleanOnExitCleanup()
             startGlobalAIForegroundServiceIfNeeded()
             com.apex.agent.data.supabase.SupabaseSyncManager.initialize(applicationContext)
 
             // 初始化 BurstKernel —— 通过 Hilt EntryPoint 取 adapter，激活 SWARM 协作
-            initializeBurstKernel()
+                initializeBurstKernel()
 
             // 初始化热更新：加载镜像源并按需后台检查
-            initializeHotUpdate()
+                initializeHotUpdate()
 
             val totalBg = System.currentTimeMillis() - bgStart
             AppLogger.d(TAG, "【后台初始化】全部完成 - 总耗时: ${totalBg}ms")
 
             // [优化1] 健康检查：后台初始化完成
-            health.endBackgroundInit()
+                health.endBackgroundInit()
 
             // 延迟5秒后输出一次完整架构健康度报告 (仅调试开发环境）
-            delay(5000)
+                delay(5000)
             health.reportHealth()
         }
 
@@ -384,7 +384,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             val manager = getSystemService(NotificationManager::class.java)
 
             // AI 前台服务通知渠道
-            val aiServiceChannel = NotificationChannel(
+                val aiServiceChannel = NotificationChannel(
                 "AI_SERVICE_CHANNEL",
                 getString(R.string.service_Apex_running),
                 NotificationManager.IMPORTANCE_LOW
@@ -394,7 +394,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             manager.createNotificationChannel(aiServiceChannel)
 
             // AI 回复完成通知渠道（无声无振动）
-            val replySilentChannel = NotificationChannel(
+                val replySilentChannel = NotificationChannel(
                 "AI_REPLY_COMPLETE_CHANNEL_silent",
                 getString(R.string.service_chat_complete_reminder),
                 NotificationManager.IMPORTANCE_HIGH
@@ -614,7 +614,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         try {
             applicationScope.launch(Dispatchers.IO) {
                 val alwaysListeningEnabled = WakeWordPreferences(applicationContext).alwaysListeningEnabledFlow.first()
-                val externalHttpEnabled = ExternalHttpApiPreferences.getInstance(applicationContext).enabledFlow.first()
+        val externalHttpEnabled = ExternalHttpApiPreferences.getInstance(applicationContext).enabledFlow.first()
                 if ((!alwaysListeningEnabled && !externalHttpEnabled) || AIForegroundService.isRunning.get()) {
                     return@launch
                 }
@@ -653,7 +653,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             }
 
             // 通过 Hilt EntryPoint 取 adapter —— 不需要把整个 Application 改成 @AndroidEntryPoint
-            val adapter: com.apex.agent.data.burstmode.swarm.IBurstCollaborationFramework? = try {
+                val adapter: com.apex.agent.data.burstmode.swarm.IBurstCollaborationFramework? = try {
                 val entryPoint = dagger.hilt.android.EntryPointAccessors.fromApplication(
                     this,
                     BurstKernelInitializerEntryPoint::class.java
@@ -688,7 +688,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
     private fun initializeHotUpdate() {
         try {
             val manager = com.apex.agent.update.HotUpdateManager.getInstance(applicationContext)
-            val registry = com.apex.agent.update.MirrorSourceRegistry.getInstance(applicationContext)
+        val registry = com.apex.agent.update.MirrorSourceRegistry.getInstance(applicationContext)
 
             applicationScope.launch(Dispatchers.IO) {
                 // 1. 加载镜像源
@@ -747,10 +747,10 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
     private fun initializeAppLanguage() {
         try {
             // 同步获取已保存的语言设置
-            val languageCode = runBlocking(Dispatchers.IO) {
+                val languageCode = runBlocking(Dispatchers.IO) {
                 try {
                     // 使用更安全的方式检查preferencesManager
-                    val manager = runCatching { preferencesManager }.getOrNull()
+                val manager = runCatching { preferencesManager }.getOrNull()
                     if (manager != null) {
                         manager.appLanguage.first()
                     } else {
@@ -765,9 +765,9 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             AppLogger.d(TAG, "获取语言设置: ${languageCode}")
 
             // 立即应用语言设置
-            val locale = LocaleUtils.getLocaleForLanguageCode(languageCode, this)
+                val locale = LocaleUtils.getLocaleForLanguageCode(languageCode, this)
             // 设置默认语言
-            Locale.setDefault(locale)
+                Locale.setDefault(locale)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 // Android 13+ 使用AppCompatDelegate API
@@ -796,13 +796,13 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
     override fun attachBaseContext(base: Context) {
         configureOpenMpEnvironment()
         // 在基础上下文附加前应用语言设置
-        try {
+                try {
             val code = LocaleUtils.getCurrentLanguage(base)
-            val locale = LocaleUtils.getLocaleForLanguageCode(code, base)
+        val locale = LocaleUtils.getLocaleForLanguageCode(code, base)
             val config = Configuration(base.resources.configuration)
 
             // 设置语言配置
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 val localeList = LocaleList(locale)
                 LocaleList.setDefault(localeList)
                 config.setLocales(localeList)
@@ -812,7 +812,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
             }
 
             // 使用createConfigurationContext创建新的上下文
-            val context = base.createConfigurationContext(config)
+                val context = base.createConfigurationContext(config)
             super.attachBaseContext(context)
             AppLogger.d(TAG, "成功应用基础上下文语言: ${code}")
         } catch (e: Exception) {
@@ -840,7 +840,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         }
 
         // 清理终端管理器和SSH连接
-        try {
+                try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Terminal.getInstance(applicationContext).destroy()
                 AppLogger.d(TAG, "应用终止，已清理所有终端会话和SSH连接")
@@ -850,7 +850,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         }
         
         // 在应用终止时关闭LocalWebServer服务
-        try {
+                try {
             val webServer = LocalWebServer.getInstance(applicationContext, LocalWebServer.ServerType.WORKSPACE)
             if (webServer.isRunning()) {
                 webServer.stop()
@@ -861,7 +861,7 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
         }
 
         // 在应用终止时，关闭虚拟显示器Overlay并断开Shower WebSocket连接
-        try {
+                try {
             VirtualDisplayOverlay.hideAll()
         } catch (e: Exception) {
             AppLogger.e(TAG, "终止时隐藏 VirtualDisplayOverlay 失败: ${e.message}", e)

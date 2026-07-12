@@ -26,12 +26,12 @@ class WorkflowScheduler(private val context: Context) {
         private const val WORK_NAME_PREFIX = "workflow_"
         
         // Schedule types
-        const val SCHEDULE_TYPE_INTERVAL = "interval"
+                const val SCHEDULE_TYPE_INTERVAL = "interval"
         const val SCHEDULE_TYPE_SPECIFIC_TIME = "specific_time"
         const val SCHEDULE_TYPE_CRON = "cron"
         
         // Config keys
-        const val CONFIG_SCHEDULE_TYPE = "schedule_type"
+                const val CONFIG_SCHEDULE_TYPE = "schedule_type"
         const val CONFIG_INTERVAL_MS = "interval_ms"
         const val CONFIG_SPECIFIC_TIME = "specific_time"
         const val CONFIG_CRON_EXPRESSION = "cron_expression"
@@ -40,7 +40,7 @@ class WorkflowScheduler(private val context: Context) {
         const val CONFIG_ENABLED = "enabled"
         
         // WorkManager data keys
-        const val KEY_TRIGGER_NODE_ID = "trigger_node_id"
+                const val KEY_TRIGGER_NODE_ID = "trigger_node_id"
     }
 
     private val workManager: WorkManager by lazy { 
@@ -52,7 +52,7 @@ class WorkflowScheduler(private val context: Context) {
      */
     fun scheduleWorkflow(workflow: Workflow): Boolean {
         // Find the trigger node
-        val triggerNode = workflow.nodes.filterIsInstance<TriggerNode>()
+                val triggerNode = workflow.nodes.filterIsInstance<TriggerNode>()
             .firstOrNull { it.triggerType == "schedule" }
 
         if (triggerNode == null) {
@@ -93,8 +93,7 @@ class WorkflowScheduler(private val context: Context) {
         }
 
         // Minimum interval is 15 minutes per WorkManager restrictions
-        val intervalMinutes = (intervalMs / 60000).coerceAtLeast(15)
-
+                val intervalMinutes = (intervalMs / 60000).coerceAtLeast(15)
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
             .build()
@@ -200,10 +199,10 @@ class WorkflowScheduler(private val context: Context) {
         if (repeat) {
             // For repeated cron, we use the interval between executions
             // This is a simplified approach - ideally we'd reschedule after each execution
-            val intervalMs = calculateCronInterval(cronExpression)
+                val intervalMs = calculateCronInterval(cronExpression)
             if (intervalMs != null && intervalMs >= 15 * 60 * 1000) {
                 val intervalMinutes = intervalMs / 60000
-                val workRequest = PeriodicWorkRequestBuilder<WorkflowWorker>(
+        val workRequest = PeriodicWorkRequestBuilder<WorkflowWorker>(
                     intervalMinutes, TimeUnit.MINUTES
                 )
                     .setConstraints(constraints)
@@ -305,7 +304,7 @@ class WorkflowScheduler(private val context: Context) {
         for (format in formats) {
             try {
                 val sdf = SimpleDateFormat(format, Locale.getDefault())
-                val date = sdf.parse(dateTimeStr)
+        val date = sdf.parse(dateTimeStr)
                 if (date != null) {
                     return date.time
                 }
@@ -337,12 +336,11 @@ class WorkflowScheduler(private val context: Context) {
         val dayOfMonth = parts[2]
         val month = parts[3]
         val dayOfWeek = parts[4]
-
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.MINUTE, 1) // Start from next minute
 
         // Simple cron pattern matching
-        return when {
+                return when {
             // Daily at specific time: "0 0 * * *"
             minute.matches("\\d+".toRegex()) && hour.matches("\\d+".toRegex()) && 
             dayOfMonth == "*" && month == "*" && dayOfWeek == "*" -> {
@@ -352,7 +350,7 @@ class WorkflowScheduler(private val context: Context) {
             minute == "0" && hour.startsWith("*/") && 
             dayOfMonth == "*" && month == "*" && dayOfWeek == "*" -> {
                 val hourInterval = hour.substring(2).toIntOrNull() ?: return null
-                val nextTime = Calendar.getInstance()
+        val nextTime = Calendar.getInstance()
                 nextTime.add(Calendar.HOUR_OF_DAY, hourInterval)
                 nextTime.set(Calendar.MINUTE, 0)
                 nextTime.set(Calendar.SECOND, 0)
@@ -362,7 +360,7 @@ class WorkflowScheduler(private val context: Context) {
             minute.startsWith("*/") && hour == "*" && 
             dayOfMonth == "*" && month == "*" && dayOfWeek == "*" -> {
                 val minuteInterval = minute.substring(2).toIntOrNull() ?: return null
-                val nextTime = Calendar.getInstance()
+        val nextTime = Calendar.getInstance()
                 nextTime.add(Calendar.MINUTE, minuteInterval)
                 nextTime.set(Calendar.SECOND, 0)
                 nextTime.timeInMillis
@@ -385,7 +383,7 @@ class WorkflowScheduler(private val context: Context) {
         calendar.set(Calendar.MILLISECOND, 0)
 
         // If time has passed today, schedule for tomorrow
-        if (calendar.timeInMillis <= System.currentTimeMillis()) {
+                if (calendar.timeInMillis <= System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
 
@@ -405,16 +403,16 @@ class WorkflowScheduler(private val context: Context) {
 
         return when {
             // Daily
-            minute.matches("\\d+".toRegex()) && hour.matches("\\d+".toRegex()) -> {
+                minute.matches("\\d+".toRegex()) && hour.matches("\\d+".toRegex()) -> {
                 24 * 60 * 60 * 1000L
             }
             // Every N hours
-            minute == "0" && hour.startsWith("*/") -> {
+                minute == "0" && hour.startsWith("*/") -> {
                 val hourInterval = hour.substring(2).toLongOrNull() ?: return null
                 hourInterval * 60 * 60 * 1000
             }
             // Every N minutes
-            minute.startsWith("*/") && hour == "*" -> {
+                minute.startsWith("*/") && hour == "*" -> {
                 val minuteInterval = minute.substring(2).toLongOrNull() ?: return null
                 minuteInterval * 60 * 1000
             }

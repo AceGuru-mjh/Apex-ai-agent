@@ -10,28 +10,30 @@ class CalculatorTest {
         /** 运行测试示例 */
         fun runTests() {
             // 基本算术
-            testExpression("2 + 3 * 4", "14")
+                testExpression("2 + 3 * 4", "14")
             testExpression("(2 + 3) * 4", "20")
             testExpression("10 / 2 - 3", "2")
 
-            // JavaScript特，            testExpression("2 ** 3", "8") // 指数运算
-            testExpression("true ? 10 : 20", "10") // 三元运算，
-           testExpression("false ? 10 : 20", "20")
+            // JavaScript特，
+                testExpression("2 ** 3", "8") // 指数运算
+                testExpression("true ? 10 : 20", "10") // 三元运算，
+                testExpression("false ? 10 : 20", "20")
             testExpression("Math.sin(Math.PI / 2)", "1") // Math函数
 
             // 变量
-            JsCalculator.setVariable("x", 5.0)
+                JsCalculator.setVariable("x", 5.0)
             testExpression("x + 10", "15")
-            testExpression("x *= 2", "10") // 复合赋，            testExpression("x", "10") // 检查变量值是否已更新
+            testExpression("x *= 2", "10") // 复合赋，
+                testExpression("x", "10") // 检查变量值是否已更新
 
             // 模板字符为
-           testExpression("\${10 + 20}", "30")
+                testExpression("\${10 + 20}", "30")
 
             // 日期函数
-            testExpression("now() > 0", "1") // 当前时间戳必须大，
+                testExpression("now() > 0", "1") // 当前时间戳必须大，
 
             // 清理
-            JsCalculator.clearVariables()
+                JsCalculator.clearVariables()
 
             println("所有测试完于")
         }

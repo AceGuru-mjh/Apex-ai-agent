@@ -43,12 +43,12 @@ class MistralProvider(
 
         matches.forEach { match ->
             val toolName = match.groupValues[2]
-            val toolBody = match.groupValues[3]
+        val toolBody = match.groupValues[3]
             val params = JSONObject()
 
             ChatMarkupRegex.toolParamPattern.findAll(toolBody).forEach { paramMatch ->
                 val paramName = paramMatch.groupValues[1]
-                val paramValue = unescapeXml(paramMatch.groupValues[2].trim())
+        val paramValue = unescapeXml(paramMatch.groupValues[2].trim())
                 params.put(paramName, paramValue)
             }
 

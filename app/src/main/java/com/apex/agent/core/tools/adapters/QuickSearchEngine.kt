@@ -37,9 +37,9 @@ object QuickSearchEngine {
     )
 
     // 搜索结果缓存
-    private val searchCache = ConcurrentHashMap<String, CachedResult>()
+                private val searchCache = ConcurrentHashMap<String, CachedResult>()
     private const val CACHE_EXPIRE = 10 * 60 * 1000L // 10分钟
-    private const val MAX_CACHE_SIZE = 100
+                private const val MAX_CACHE_SIZE = 100
     private const val CLEANUP_BATCH_SIZE = 30
 
     private data class CachedResult(
@@ -48,7 +48,7 @@ object QuickSearchEngine {
     )
 
     // OkHttp客户端
-    private val client by lazy {
+                private val client by lazy {
         OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(45, TimeUnit.SECONDS)
@@ -100,7 +100,7 @@ object QuickSearchEngine {
         val query = keyword.trim()
         
         // 边界情况处理：空查询
-        if (query.isEmpty()) {
+                if (query.isEmpty()) {
             return@withContext SearchResponse(
                 success = false,
                 query = "",
@@ -111,7 +111,7 @@ object QuickSearchEngine {
         }
         
         // 边界情况处理：查询过知
-        if (query.length < 2) {
+                if (query.length < 2) {
             return@withContext SearchResponse(
                 success = false,
                 query = query,
@@ -122,10 +122,10 @@ object QuickSearchEngine {
         }
         
         // 边界情况处理：结果数量验试
-        val safeCount = count.coerceIn(1, 20)
+                val safeCount = count.coerceIn(1, 20)
 
         // 检查缓字
-        val cacheKey = "${query}_${safeCount}"
+                val cacheKey = "${query}_${safeCount}"
         searchCache[cacheKey]?.let { cached ->
             if (System.currentTimeMillis() - cached.timestamp < CACHE_EXPIRE) {
                 AppLogger.d(TAG, "使用缓存: ${query}")
@@ -139,8 +139,8 @@ object QuickSearchEngine {
 
         try {
             // 构建请求
-            val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
-            val url = "https://cn.bing.com/search?q=${encodedQuery}"
+                val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
+        val url = "https://cn.bing.com/search?q=${encodedQuery}"
 
             val request = Request.Builder()
                 .url(url)
@@ -150,10 +150,10 @@ object QuickSearchEngine {
                 .build()
 
             // 执行请求
-            val response = client.newCall(request).execute()
+                val response = client.newCall(request).execute()
             
             // 检查响应状态
-            if (!response.isSuccessful) {
+                if (!response.isSuccessful) {
                 return@withContext SearchResponse(
                     success = false,
                     query = query,
@@ -166,7 +166,7 @@ object QuickSearchEngine {
             val html = response.body?.string() ?: ""
             
             // 检查HTML内容
-            if (html.isEmpty()) {
+                if (html.isEmpty()) {
                 return@withContext SearchResponse(
                     success = false,
                     query = query,
@@ -177,9 +177,8 @@ object QuickSearchEngine {
             }
 
             // 解析结果
-            val results = parseSearchResults(html, safeCount)
-            
-            val searchResponse = if (results.isEmpty()) {
+                val results = parseSearchResults(html, safeCount)
+        val searchResponse = if (results.isEmpty()) {
                 // 空结果但请求成功
                 SearchResponse(
                     success = true,
@@ -198,7 +197,7 @@ object QuickSearchEngine {
             }
 
             // 清理旧缓存并存储新结果
-            cleanOldCacheIfNeeded()
+                cleanOldCacheIfNeeded()
             searchCache[cacheKey] = CachedResult(searchResponse, System.currentTimeMillis())
 
             AppLogger.d(TAG, "搜索完成，找分{results.size}个结果")
@@ -242,8 +241,8 @@ object QuickSearchEngine {
 
         try {
             // 匹配搜索结果项
-            val itemPattern = Regex("""<li[^>]*class="[^"]*b_algo[^"]*"[^>]*>[\s\S]*?<\/li>""")
-            val items = itemPattern.findAll(html).take(maxCount)
+                val itemPattern = Regex("""<li[^>]*class="[^"]*b_algo[^"]*"[^>]*>[\s\S]*?<\/li>""")
+        val items = itemPattern.findAll(html).take(maxCount)
 
             for (item in items) {
                 val itemHtml = item.value
@@ -260,7 +259,7 @@ object QuickSearchEngine {
                 // 清理URL（去掉bing的跟踪参数）
                 if (url.startsWith("http")) {
                     // 如果是bing的跳转链接，尝试提取真实URL
-                    if (url.contains("bing.com")) {
+                if (url.contains("bing.com")) {
                         val ueMatch = Regex("""\?.*u=([^&]+)""").find(url)
                         if (ueMatch != null) {
                             val encodedUrl = ueMatch.groupValues[1]

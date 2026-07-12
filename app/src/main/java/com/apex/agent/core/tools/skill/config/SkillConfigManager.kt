@@ -40,16 +40,16 @@ class SkillConfigManager private constructor(private val context: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _isInitialized = MutableStateFlow(false)
-    val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
+        val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
 
     private val _activeSkillConfig = MutableStateFlow<SkillConfig?>(null)
-    val activeSkillConfig: StateFlow<SkillConfig?> = _activeSkillConfig.asStateFlow()
+        val activeSkillConfig: StateFlow<SkillConfig?> = _activeSkillConfig.asStateFlow()
 
     private val _configTemplates = MutableStateFlow<Map<String, List<ConfigItem>>>(emptyMap())
-    val configTemplates: StateFlow<Map<String, List<ConfigItem>>> = _configTemplates.asStateFlow()
+        val configTemplates: StateFlow<Map<String, List<ConfigItem>>> = _configTemplates.asStateFlow()
 
     private val _pendingChanges = MutableStateFlow<Map<String, String>>(emptyMap())
-    val pendingChanges: StateFlow<Map<String, String>> = _pendingChanges.asStateFlow()
+        val pendingChanges: StateFlow<Map<String, String>> = _pendingChanges.asStateFlow()
 
     suspend fun initialize() {
         if (_isInitialized.value) return

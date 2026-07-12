@@ -19,7 +19,7 @@ class MultiChannelSystem @Inject constructor(
 
     private val adapters = mutableMapOf<CommunicationChannel, ChannelAdapter>()
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
-    val messages: StateFlow<List<Message>> = _messages
+        val messages: StateFlow<List<Message>> = _messages
 
     fun registerAdapter(adapter: ChannelAdapter) {
         adapters[adapter.channel] = adapter

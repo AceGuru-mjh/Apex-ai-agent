@@ -170,9 +170,9 @@ internal object ToolPkgPromptHookBridge {
         var current = context
         hooks.forEach { hook ->
             val resolvedHookId = hook.hookId
-            val resolvedContainer = hook.containerPackageName
+        val resolvedContainer = hook.containerPackageName
             val resolvedFunction = hook.functionName
-            val result =
+        val result =
                 manager.runToolPkgMainHook(
                     containerPackageName = resolvedContainer,
                     functionName = resolvedFunction,
@@ -471,7 +471,7 @@ internal object ToolPkgPromptHookBridge {
         val result = mutableListOf<PromptTurn>()
         for (index in 0 until jsonArray.length()) {
             val item = jsonArray.opt(index) as? JSONObject ?: continue
-            val kind =
+        val kind =
                 item.optString("kind")
                     .trim()
                     .takeIf { it.isNotBlank() }

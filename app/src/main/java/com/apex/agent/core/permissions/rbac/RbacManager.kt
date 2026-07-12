@@ -57,7 +57,6 @@ class RbacManager private constructor(private val context: Context) {
         val adminRole = repo.insertRole(Role(name = "admin", description = "管理命- 高级权限", level = 4, isSystem = true))
         val userRole = repo.insertRole(Role(name = "user", description = "普通用成- 标准权限", level = 1, isSystem = true))
         val guestRole = repo.insertRole(Role(name = "guest", description = "访客 - 只读权限", level = 0, isSystem = true))
-
         val permIds = mutableMapOf<String, Long>()
         for (perm in defaultPermissions()) {
             permIds[perm.name] = repo.insertPermission(perm)

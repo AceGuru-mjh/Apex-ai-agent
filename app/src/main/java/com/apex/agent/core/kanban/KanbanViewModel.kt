@@ -84,13 +84,13 @@ class KanbanViewModel(
     )
 
     private val _uiState = MutableStateFlow(buildUiState())
-    val uiState: StateFlow<KanbanUiState> = _uiState.asStateFlow()
+        val uiState: StateFlow<KanbanUiState> = _uiState.asStateFlow()
 
     private val _selectedTask = MutableStateFlow<KanbanTask?>(null)
-    val selectedTask: StateFlow<KanbanTask?> = _selectedTask.asStateFlow()
+        val selectedTask: StateFlow<KanbanTask?> = _selectedTask.asStateFlow()
 
     private val _boardEvent = MutableStateFlow<BoardEvent?>(null)
-    val boardEvent: StateFlow<BoardEvent?> = _boardEvent.asStateFlow()
+        val boardEvent: StateFlow<BoardEvent?> = _boardEvent.asStateFlow()
 
     /**
      * 刷新 UI 状态

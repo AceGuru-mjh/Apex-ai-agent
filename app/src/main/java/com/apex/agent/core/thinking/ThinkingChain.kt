@@ -153,7 +153,7 @@ data class ThinkingChain(
 
         fun parseFromXml(thinkXml: String): ThinkingChain {
             val chain = ThinkingChain()
-            val cleanContent = thinkXml.replace("<think>", "").replace("</think>", "")
+        val cleanContent = thinkXml.replace("<think>", "").replace("</think>", "")
                 .replace("<thinking>", "").replace("</thinking>", "").trim()
 
             val lines = cleanContent.split("\n")

@@ -160,7 +160,7 @@ internal object JsNativeInterfaceDelegates {
             }
             else -> {
                 val jsonString = resultData.toJson()
-                val jsonData =
+        val jsonData =
                     try {
                         Json.parseToJsonElement(jsonString)
                     } catch (_e: Exception) {
@@ -234,7 +234,7 @@ internal object JsNativeInterfaceDelegates {
                 return@guard
             }
             val payload = JSONObject(valuesJson)
-            val preferences = EnvPreferences.getInstance(context)
+        val preferences = EnvPreferences.getInstance(context)
             payload.keys().forEach { rawKey ->
                 applyEnvValue(preferences, rawKey, payload.opt(rawKey)?.toString())
             }
@@ -294,7 +294,7 @@ internal object JsNativeInterfaceDelegates {
             }
 
             val preferImportedBool = !preferImported.equals("false", ignoreCase = true)
-            val resolvedPackageName =
+        val resolvedPackageName =
                 normalizeNonBlank(packageName)?.let { candidate ->
                     packageManager.findPreferredPackageNameForSubpackageId(
                         candidate,
@@ -328,7 +328,7 @@ internal object JsNativeInterfaceDelegates {
             failureMessage = "Error reading toolpkg resource from JS: package/subpackage=${packageNameOrSubpackageId}, resource=${resourceKey}"
         ) {
             val target = normalizeNonBlank(packageNameOrSubpackageId) ?: return@guard ""
-            val key = normalizeNonBlank(resourceKey) ?: return@guard ""
+        val key = normalizeNonBlank(resourceKey) ?: return@guard ""
             val fileName = normalizeNonBlank(outputFileName)
                 ?: packageManager.getToolPkgResourceOutputFileName(
                     packageNameOrSubpackageId = target,
@@ -337,7 +337,7 @@ internal object JsNativeInterfaceDelegates {
                 )
                 ?: "${key}.bin"
             val safeName = fileName.substringAfterLast('/').substringAfterLast('\\').ifBlank { "${key}.bin" }
-            val outputDir =
+        val outputDir =
                 if (parseBooleanFlag(internal)) {
                     ApexPaths.cleanOnExitInternalDir(context)
                 } else {
@@ -345,7 +345,7 @@ internal object JsNativeInterfaceDelegates {
                 }
 
             val outputFile = File(outputDir, safeName)
-            val copied =
+        val copied =
                 packageManager.copyToolPkgResourceToFile(target, key, outputFile) ||
                     packageManager.copyToolPkgResourceToFileBySubpackageId(
                         subpackageId = target,
@@ -367,7 +367,7 @@ internal object JsNativeInterfaceDelegates {
             failureMessage = "Error reading toolpkg text resource from JS: package/subpackage=${packageNameOrSubpackageId}, path=${resourcePath}"
         ) {
             val target = normalizeNonBlank(packageNameOrSubpackageId) ?: return@guard ""
-            val path = normalizeNonBlank(resourcePath) ?: return@guard ""
+        val path = normalizeNonBlank(resourcePath) ?: return@guard ""
             packageManager.readToolPkgTextResource(
                 packageNameOrSubpackageId = target,
                 resourcePath = path
@@ -465,7 +465,7 @@ internal object JsNativeInterfaceDelegates {
             val inflater = java.util.zip.Inflater(true)
             inflater.setInput(compressedData)
             val outputStream = ByteArrayOutputStream()
-            val buffer = ByteArray(1024)
+        val buffer = ByteArray(1024)
 
             while (!inflater.finished()) {
                 val count = inflater.inflate(buffer)
@@ -542,7 +542,7 @@ internal object JsNativeInterfaceDelegates {
             } catch (e: Exception) {
                 AppLogger.e(TAG, "[Async] Error preparing tool call: ${e.message}", e)
                 val rawMessage = e.message?.trim().orEmpty()
-                val finalMessage =
+        val finalMessage =
                     if (rawMessage.equals("Tool name cannot be empty", ignoreCase = true)) {
                         "Tool name cannot be empty"
                     } else {
@@ -637,12 +637,12 @@ internal object JsNativeInterfaceDelegates {
         Thread {
             try {
                 val args = Json.decodeFromString(ListSerializer(JsonElement.serializer()), argsJson)
-                val result: Any? =
+        val result: Any? =
                     when (operation.lowercase()) {
                         "read" -> {
                             AppLogger.d(TAG, "Entering 'read' operation in image_processing.")
                             val data = args[0].jsonPrimitive.content
-                            val decodedBytes: ByteArray
+        val decodedBytes: ByteArray
                             if (data.startsWith(binaryHandlePrefix)) {
                                 val handle = data.substring(binaryHandlePrefix.length)
                                 AppLogger.d(TAG, "Reading image from binary handle: ${handle}")
@@ -685,7 +685,7 @@ internal object JsNativeInterfaceDelegates {
                         }
                         "create" -> {
                             val width = args[0].jsonPrimitive.int
-                            val height = args[1].jsonPrimitive.int
+        val height = args[1].jsonPrimitive.int
                             val bitmap =
                                 Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                             val id = UUID.randomUUID().toString()
@@ -696,26 +696,26 @@ internal object JsNativeInterfaceDelegates {
                             val id = args[0].jsonPrimitive.content
                             AppLogger.d(TAG, "Attempting to crop bitmap with ID: ${id}")
                             val x = args[1].jsonPrimitive.int
-                            val y = args[2].jsonPrimitive.int
+        val y = args[2].jsonPrimitive.int
                             val w = args[3].jsonPrimitive.int
-                            val h = args[4].jsonPrimitive.int
+        val h = args[4].jsonPrimitive.int
                             val originalBitmap =
                                 bitmapRegistry[id]
                                     ?: throw Exception("Source bitmap not found for crop (ID: ${id})")
                             val croppedBitmap = Bitmap.createBitmap(originalBitmap, x, y, w, h)
-                            val newId = UUID.randomUUID().toString()
+        val newId = UUID.randomUUID().toString()
                             bitmapRegistry[newId] = croppedBitmap
                             newId
                         }
                         "composite" -> {
                             val baseId = args[0].jsonPrimitive.content
-                            val srcId = args[1].jsonPrimitive.content
+        val srcId = args[1].jsonPrimitive.content
                             AppLogger.d(
                                 TAG,
                                 "Attempting to composite with base ID: ${baseId} and src ID: ${srcId}"
                             )
                             val x = args[2].jsonPrimitive.int
-                            val y = args[3].jsonPrimitive.int
+        val y = args[3].jsonPrimitive.int
                             val baseBitmap =
                                 bitmapRegistry[baseId]
                                     ?: throw Exception(
@@ -746,11 +746,11 @@ internal object JsNativeInterfaceDelegates {
                             val id = args[0].jsonPrimitive.content
                             AppLogger.d(TAG, "Attempting to getBase64 for bitmap with ID: ${id}")
                             val mime = args.getOrNull(1)?.jsonPrimitive?.content ?: "image/jpeg"
-                            val bitmap =
+        val bitmap =
                                 bitmapRegistry[id]
                                     ?: throw Exception("Bitmap not found for getBase64 (ID: ${id})")
                             val outputStream = ByteArrayOutputStream()
-                            val format =
+        val format =
                                 if (mime == "image/png") {
                                     Bitmap.CompressFormat.PNG
                                 } else {
@@ -794,7 +794,7 @@ internal object JsNativeInterfaceDelegates {
             when (algorithm.lowercase()) {
                 "md5" -> {
                     val input = args.getOrNull(0) ?: ""
-                    val md = MessageDigest.getInstance("MD5")
+        val md = MessageDigest.getInstance("MD5")
                     val digest = md.digest(input.toByteArray(Charsets.UTF_8))
                     digest.joinToString("") { "%02x".format(it) }
                 }
@@ -802,18 +802,18 @@ internal object JsNativeInterfaceDelegates {
                     when (operation.lowercase()) {
                         "decrypt" -> {
                             val data = args.getOrNull(0) ?: ""
-                            val keyHex =
+        val keyHex =
                                 args.getOrNull(1)
                                     ?: throw IllegalArgumentException(
                                         "Missing key for AES decryption"
                                     )
 
                             val keyBytes = keyHex.toByteArray(Charsets.UTF_8)
-                            val secretKey = SecretKeySpec(keyBytes, "AES")
+        val secretKey = SecretKeySpec(keyBytes, "AES")
                             val cipher = Cipher.getInstance("AES/ECB/NoPadding")
                             cipher.init(Cipher.DECRYPT_MODE, secretKey)
                             val decodedData = Base64.decode(data, Base64.DEFAULT)
-                            val decryptedWithPadding = cipher.doFinal(decodedData)
+        val decryptedWithPadding = cipher.doFinal(decodedData)
 
                             if (decryptedWithPadding.isEmpty()) {
                                 return ""

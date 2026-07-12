@@ -39,7 +39,7 @@ data class ProviderProfile(
     fun getHostname(): String {
         return hostname ?: run {
             val url = baseUrl.removePrefix("https://").removePrefix("http://")
-            url.split("/")[0]
+                url.split("/")[0]
         }
     }
 
@@ -60,7 +60,7 @@ data class ProviderProfile(
             val url = if (modelsUrl.isNotEmpty()) modelsUrl else "${baseUrl}/models"
             try {
                 val client = OkHttpClient()
-                val request = Request.Builder()
+        val request = Request.Builder()
                     .url(url)
                     .apply {
                         apiKey?.let {
@@ -254,7 +254,7 @@ class ProviderRegistry private constructor() {
     fun findProviderByUrl(url: String): ProviderProfile? {
         ensureInitialized()
         val hostname = url.removePrefix("https://").removePrefix("http://").split("/")[0]
-        return findProviderByHostname(hostname)
+                return findProviderByHostname(hostname)
     }
 
     fun findProvidersByModel(modelId: String): List<ProviderProfile> {

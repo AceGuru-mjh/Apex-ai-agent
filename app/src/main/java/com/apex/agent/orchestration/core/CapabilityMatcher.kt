@@ -85,9 +85,9 @@ class CapabilityMatcher @Inject constructor() {
         val lowerQuery = query.lowercase()
         val queryTerms = lowerQuery.split(" ", "_", "-", "\n").filter { it.length > 2 }.toSet()
         val scored = candidates.map { (id, description) ->
-            val lowerDesc = description.lowercase()
+        val lowerDesc = description.lowercase()
             val descTerms = lowerDesc.split(" ", "_", "-", "\n").filter { it.length > 2 }.toSet()
-            val intersection = queryTerms.intersect(descTerms).size
+        val intersection = queryTerms.intersect(descTerms).size
             val jaccard = if (queryTerms.union(descTerms).isEmpty()) 0f
             else intersection.toFloat() / queryTerms.union(descTerms).size
             id to jaccard

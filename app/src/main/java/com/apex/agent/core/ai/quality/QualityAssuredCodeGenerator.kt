@@ -99,7 +99,7 @@ class QualityAssuredCodeGenerator(
         }
         
         // 达到最大尝试次数，返回最佳结果或抛出异常
-        if (bestResult != null) {
+                if (bestResult != null) {
             bestResult.copy(warnings = listOf("Quality threshold not met after ${maxAttempts} attempts"))
         } else {
             throw CodeGenerationException(
@@ -144,12 +144,12 @@ class QualityAssuredCodeGenerator(
         val issues = mutableListOf<String>()
         
         // 1. 基本语法检查
-        if (code.isBlank()) {
+                if (code.isBlank()) {
             issues.add("Generated code is empty")
         }
         
         // 2. 检查是否包含必要的导入
-        if (task.requiredImports.isNotEmpty()) {
+                if (task.requiredImports.isNotEmpty()) {
             task.requiredImports.forEach { import ->
                 if (!code.contains(import)) {
                     issues.add("Missing import: ${import}")
@@ -158,14 +158,14 @@ class QualityAssuredCodeGenerator(
         }
         
         // 3. 检查是否满足约束条件
-        task.constraints.forEach { constraint ->
+                task.constraints.forEach { constraint ->
             if (!checkConstraint(code, constraint)) {
                 issues.add("Constraint not met: ${constraint}")
             }
         }
         
         // 4. 静态分析（如果有）
-        val analysisResult = codeAnalyzer?.analyze(code, task.language)
+                val analysisResult = codeAnalyzer?.analyze(code, task.language)
         analysisResult?.issues?.forEach { issue ->
             issues.add("${issue.severity}: ${issue.message}")
         }
@@ -178,14 +178,13 @@ class QualityAssuredCodeGenerator(
     }
     
     // ==================== 私有方法 ====================
-    
-    private suspend fun generateCode(task: CodeGenerationTask, attempt: Int): String {
+                private suspend fun generateCode(task: CodeGenerationTask, attempt: Int): String {
         val prompt = if (attempt == 0) {
             // 首次尝试：使用标准提示
-            buildInitialPrompt(task)
+                buildInitialPrompt(task)
         } else {
             // 首次尝试：使用标准提示
-            buildImprovedPrompt(task, attempt)
+                buildImprovedPrompt(task, attempt)
         }
         
         return llamaEngine.generate(prompt)
@@ -265,7 +264,7 @@ class QualityAssuredCodeGenerator(
         var score = 1.0f
         
         // 1. 基本语法检查
-        analysisResult.issues.forEach { issue ->
+                analysisResult.issues.forEach { issue ->
             score -= when (issue.severity) {
                 IssueSeverity.CRITICAL -> 0.3f
                 IssueSeverity.ERROR -> 0.2f
@@ -275,15 +274,15 @@ class QualityAssuredCodeGenerator(
         }
         
         // 2. 检查是否包含必要的导入
-        if (code.length < 10) score -= 0.2f // 太短可能不完整
-        if (code.length > 10000) score -= 0.1f // 太长可能冗余
+                if (code.length < 10) score -= 0.2f // 太短可能不完整
+                if (code.length > 10000) score -= 0.1f // 太长可能冗余
         
         // 3. 检查是否满足约束条件
-        val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
+                val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
         score -= unmetConstraints * 0.1f
         
         // 4. 静态分析（如果有）
-        if (task.requiredImports.isNotEmpty()) {
+                if (task.requiredImports.isNotEmpty()) {
             val missingImports = task.requiredImports.count { !code.contains(it) }
             score -= missingImports * 0.1f
         }
@@ -300,7 +299,7 @@ class QualityAssuredCodeGenerator(
     private fun checkConstraint(code: String, constraint: String): Boolean {
         // 达到最大尝试次数，返回最佳结果或抛出异常
         // 实际项目中应该有更复杂的逻辑
-        return when {
+                return when {
             constraint.contains("tail recursion", ignoreCase = true) -> {
                 code.contains("tailrec", ignoreCase = true)
             }

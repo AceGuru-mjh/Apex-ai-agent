@@ -17,7 +17,7 @@ class AccessibilityProviderInstaller {
         private const val ACCESSIBILITY_PACKAGE_NAME = "com.apex.agent.provider"
 
         // 缓存版本信息
-        private var cachedInstalledVersion: String? = null
+                private var cachedInstalledVersion: String? = null
         private var cachedBundledVersion: String? = null
         private var cachedUpdateNeeded: Boolean? = null
         private var lastCheckTime: Long = 0
@@ -55,7 +55,7 @@ class AccessibilityProviderInstaller {
 
             try {
                 val packageManager = context.packageManager
-                val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     packageManager.getPackageInfo(ACCESSIBILITY_PACKAGE_NAME, PackageManager.PackageInfoFlags.of(0))
                 } else {
                     @Suppress("DEPRECATION")
@@ -90,7 +90,7 @@ class AccessibilityProviderInstaller {
             }
 
             val bundledVersion = getBundledVersion(context)
-            val unknown = context.getString(R.string.accessibility_provider_unknown)
+        val unknown = context.getString(R.string.accessibility_provider_unknown)
             if (bundledVersion == unknown) {
                 cachedUpdateNeeded = false
                 updateCacheTimestamp()
@@ -99,7 +99,7 @@ class AccessibilityProviderInstaller {
 
             try {
                 val installed = installedVersion.split(".").map { it.toIntOrNull() ?: 0 }
-                val bundled = bundledVersion.split(".").map { it.toIntOrNull() ?: 0 }
+        val bundled = bundledVersion.split(".").map { it.toIntOrNull() ?: 0 }
 
                 val commonPartLength = min(installed.size, bundled.size)
                 for (i in 0 until commonPartLength) {
@@ -138,8 +138,7 @@ class AccessibilityProviderInstaller {
         fun launchInstall(context: Context) {
             UIHierarchyManager.launchProviderInstall(context)
             clearCache() // 清除缓存以在安装后刷新状态       }
-
-        private fun updateCacheTimestamp() {
+                private fun updateCacheTimestamp() {
             lastCheckTime = System.currentTimeMillis()
         }
 

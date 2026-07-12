@@ -77,7 +77,7 @@ class CloudEmbeddingService(
             val responseBody = response.body?.string().orEmpty()
             if (!response.isSuccessful) {
                 val detail = extractErrorMessage(responseBody).ifBlank { response.message.ifBlank { "请求失败" } }
-                val message = context.getString(R.string.memory_embedding_error_http, response.code, detail)
+        val message = context.getString(R.string.memory_embedding_error_http, response.code, detail)
                 AppLogger.w(TAG, "${message}, body=${responseBody}")
                 throw CloudEmbeddingException(message)
             }
@@ -93,7 +93,7 @@ class CloudEmbeddingService(
 
         return try {
             val root = JSONObject(responseBody)
-            val data = root.optJSONArray("data")
+        val data = root.optJSONArray("data")
                 ?: throw CloudEmbeddingException(
                     context.getString(R.string.memory_embedding_error_missing_data, truncate(responseBody))
                 )

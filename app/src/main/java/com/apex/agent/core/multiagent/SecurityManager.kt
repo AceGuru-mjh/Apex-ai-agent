@@ -44,7 +44,7 @@ class SecurityManager(private val context: Context) {
     private fun ensureKeyExists() {
         if (!keyStore.containsAlias(KEYSTORE_ALIAS)) {
             val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
-            val keyGenSpec = KeyGenParameterSpec.Builder(
+        val keyGenSpec = KeyGenParameterSpec.Builder(
                 KEYSTORE_ALIAS,
                 KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
             )
@@ -66,8 +66,7 @@ class SecurityManager(private val context: Context) {
     fun encryptAndStoreApiKey(agentId: String, apiKey: String): Boolean {
         return try {
             val encryptedData = encrypt(apiKey)
-
-            val encryptedKeysJson = JSONObject(securePrefs.getString(ENCRYPTED_API_KEYS_KEY, "{}"))
+        val encryptedKeysJson = JSONObject(securePrefs.getString(ENCRYPTED_API_KEYS_KEY, "{}"))
             encryptedKeysJson.put(agentId, encryptedData)
 
             securePrefs.edit()
@@ -87,7 +86,7 @@ class SecurityManager(private val context: Context) {
     fun retrieveApiKey(agentId: String): String? {
         return try {
             val encryptedKeysJson = JSONObject(securePrefs.getString(ENCRYPTED_API_KEYS_KEY, "{}"))
-            val encryptedData = encryptedKeysJson.optString(agentId, null) ?: return null
+        val encryptedData = encryptedKeysJson.optString(agentId, null) ?: return null
 
             val decrypted = decrypt(encryptedData)
 
@@ -137,7 +136,6 @@ class SecurityManager(private val context: Context) {
         SecureRandom().nextBytes(iv)
 
         val encryptedBytes = cipher.doFinal(plainText.toByteArray(StandardCharsets.UTF_8))
-
         val combined = ByteArray(iv.size + encryptedBytes.size)
         System.arraycopy(iv, 0, combined, 0, iv.size)
         System.arraycopy(encryptedBytes, 0, combined, iv.size, encryptedBytes.size)
@@ -147,7 +145,6 @@ class SecurityManager(private val context: Context) {
 
     private fun decrypt(encryptedData: String): String {
         val combined = Base64.decode(encryptedData, Base64.NO_WRAP)
-
         val iv = ByteArray(IV_SIZE)
         System.arraycopy(combined, 0, iv, 0, IV_SIZE)
 
@@ -184,9 +181,9 @@ class SecurityManager(private val context: Context) {
         filter?.let { f ->
             filteredLog = filteredLog.filter { entry ->
                 val matchesAction = f.actions.isEmpty() || entry.action in f.actions
-                val matchesTarget = f.targetId.isEmpty() || entry.targetId == f.targetId
+        val matchesTarget = f.targetId.isEmpty() || entry.targetId == f.targetId
                 val matchesStartTime = f.startTime == null || entry.timestamp >= f.startTime
-                val matchesEndTime = f.endTime == null || entry.timestamp <= f.endTime
+        val matchesEndTime = f.endTime == null || entry.timestamp <= f.endTime
 
                 matchesAction && matchesTarget && matchesStartTime && matchesEndTime
             }

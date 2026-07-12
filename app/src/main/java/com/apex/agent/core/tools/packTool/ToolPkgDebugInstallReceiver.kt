@@ -61,7 +61,7 @@ class ToolPkgDebugInstallReceiver : BroadcastReceiver() {
 
         try {
             val aiToolHandler = AIToolHandler.getInstance(context)
-            val packageManager = PackageManager.getInstance(context, aiToolHandler)
+        val packageManager = PackageManager.getInstance(context, aiToolHandler)
             val result =
                 packageManager.installDebugToolPkg(
                     containerPackageName = packageName,

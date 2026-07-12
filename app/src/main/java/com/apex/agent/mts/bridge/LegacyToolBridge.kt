@@ -299,7 +299,7 @@ class LegacyToolBridge(context: Context) {
                 errorRecovery = FailureStrategy.RETRY_ONCE
             ),
             // Network / Web tools
-            ToolSpec(
+                ToolSpec(
                 id = "network:visit_web", name = "visit_web", displayName = "Visit Website",
                 description = "Fetch and extract content from a web page URL.",
                 category = ToolCategories.NETWORK,
@@ -333,7 +333,7 @@ class LegacyToolBridge(context: Context) {
                 parallelSafe = true
             ),
             // UI tools
-            ToolSpec(
+                ToolSpec(
                 id = "ui:click_element", name = "click_element", displayName = "Click UI Element",
                 description = "Click a UI element identified by resource ID, class name, or bounds.",
                 category = ToolCategories.UI,
@@ -411,7 +411,7 @@ class LegacyToolBridge(context: Context) {
                 parallelSafe = false
             ),
             // Device tools
-            ToolSpec(
+                ToolSpec(
                 id = "device:device_info", name = "device_info", displayName = "Device Info",
                 description = "Get detailed device information including hardware, software, and status.",
                 category = ToolCategories.DEVICE,
@@ -457,7 +457,7 @@ class LegacyToolBridge(context: Context) {
                 parallelSafe = false
             ),
             // Browser tools
-            ToolSpec(
+                ToolSpec(
                 id = "browser:browser_snapshot", name = "browser_snapshot", displayName = "Browser Snapshot",
                 description = "Capture a full accessibility snapshot of the current browser page.",
                 category = ToolCategories.BROWSER,
@@ -480,7 +480,7 @@ class LegacyToolBridge(context: Context) {
                 errorRecovery = FailureStrategy.FALLBACK_CHAIN
             ),
             // Shell / Terminal
-            ToolSpec(
+                ToolSpec(
                 id = "system:execute_shell", name = "execute_shell", displayName = "Execute Shell Command",
                 description = "Execute a shell command on the device and return the output.",
                 category = ToolCategories.SYSTEM,
@@ -495,7 +495,7 @@ class LegacyToolBridge(context: Context) {
                 parallelSafe = false
             ),
             // Memory tools
-            ToolSpec(
+                ToolSpec(
                 id = "memory:query_memory", name = "query_memory", displayName = "Query Memory",
                 description = "Search the memory/knowledge base for relevant information.",
                 category = ToolCategories.MEMORY,
@@ -524,7 +524,7 @@ class LegacyToolBridge(context: Context) {
                 parallelSafe = false
             ),
             // Calculate
-            ToolSpec(
+                ToolSpec(
                 id = "system:calculate", name = "calculate", displayName = "Calculate",
                 description = "Evaluate a mathematical expression and return the result.",
                 category = ToolCategories.SYSTEM,
@@ -537,7 +537,7 @@ class LegacyToolBridge(context: Context) {
                 parallelSafe = true
             ),
             // Workflow tools
-            ToolSpec(
+                ToolSpec(
                 id = "workflow:get_all_workflows", name = "get_all_workflows", displayName = "List Workflows",
                 description = "Get all available workflow definitions.",
                 category = ToolCategories.WORKFLOW,
@@ -559,7 +559,7 @@ class LegacyToolBridge(context: Context) {
                 parallelSafe = false
             ),
             // Chat tools
-            ToolSpec(
+                ToolSpec(
                 id = "chat:send_message_to_ai", name = "send_message_to_ai", displayName = "Send Message to AI",
                 description = "Send a message to an AI agent in a parallel conversation.",
                 category = ToolCategories.CHAT,
@@ -574,7 +574,7 @@ class LegacyToolBridge(context: Context) {
                 errorRecovery = FailureStrategy.FALLBACK_CHAIN
             ),
             // Media tools
-            ToolSpec(
+                ToolSpec(
                 id = "media:ffmpeg_execute", name = "ffmpeg_execute", displayName = "FFmpeg Execute",
                 description = "Execute FFmpeg commands for media processing.",
                 category = ToolCategories.MEDIA,

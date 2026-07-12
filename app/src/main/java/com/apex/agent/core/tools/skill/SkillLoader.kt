@@ -88,7 +88,7 @@ class SkillLoader private constructor(private val context: Context) {
             }
 
             val skillPackage = try {
-                val availableSkills = skillManager.getAvailableSkills()
+        val availableSkills = skillManager.getAvailableSkills()
                 availableSkills[skillName] ?: run {
                     notifyLoadFailed(skillName, "Skill not found: ${skillName}")
                     statsLoadErrors.incrementAndGet()
@@ -111,7 +111,7 @@ class SkillLoader private constructor(private val context: Context) {
             }
 
             val loadDuration = System.currentTimeMillis() - startTime
-            val loadedSkill = LoadedSkill(
+        val loadedSkill = LoadedSkill(
                 skillPackage = skillPackage,
                 loadedAt = System.currentTimeMillis(),
                 loadDurationMs = loadDuration,

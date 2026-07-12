@@ -19,13 +19,13 @@ class PromptOptimizer {
     ): String {
         return buildString {
             // 系统指令 - 设定角色和标出
-            appendLine("You are an expert ${language} developer with deep knowledge of best practices.")
+                appendLine("You are an expert ${language} developer with deep knowledge of best practices.")
             appendLine("Write clean, efficient, and well-documented code.")
             appendLine("Follow Android/Kotlin conventions and design patterns.")
             appendLine()
             
             // 上下文信息
-            if (context != null) {
+                if (context != null) {
                 if (context.imports.isNotEmpty()) {
                     appendLine("Available imports:")
                     context.imports.forEach { appendLine("- ${it}") }
@@ -48,7 +48,7 @@ class PromptOptimizer {
             }
             
             // Few-shot 示例（从经验记忆中获取）
-            if (examples.isNotEmpty()) {
+                if (examples.isNotEmpty()) {
                 appendLine("Examples of good solutions:")
                 examples.take(3).forEachIndexed { index, example ->
                     appendLine("Example ${index + 1}:")
@@ -62,19 +62,19 @@ class PromptOptimizer {
             }
             
             // 约束条件
-            if (constraints.isNotEmpty()) {
+                if (constraints.isNotEmpty()) {
                 appendLine("Constraints:")
                 constraints.forEach { appendLine("- ${it}") }
                 appendLine()
             }
             
             // 当前任务
-            appendLine("Task:")
+                appendLine("Task:")
             appendLine(task)
             appendLine()
             
             // 输出格式要求
-            appendLine("Output requirements:")
+                appendLine("Output requirements:")
             appendLine("1. Provide only the code implementation")
             appendLine("2. Include necessary imports")
             appendLine("3. Add brief comments for complex logic")

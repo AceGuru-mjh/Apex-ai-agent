@@ -26,33 +26,33 @@ object ShizukuManager {
     private val mainHandler = Handler(Looper.getMainLooper())
 
     // 状态流
-    private val _isInitialized = MutableStateFlow(false)
-    val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
+                private val _isInitialized = MutableStateFlow(false)
+        val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
 
     private val _isShizukuInstalled = MutableStateFlow(false)
-    val isShizukuInstalled: StateFlow<Boolean> = _isShizukuInstalled.asStateFlow()
+        val isShizukuInstalled: StateFlow<Boolean> = _isShizukuInstalled.asStateFlow()
 
     private val _isServiceAvailable = MutableStateFlow(false)
-    val isServiceAvailable: StateFlow<Boolean> = _isServiceAvailable.asStateFlow()
+        val isServiceAvailable: StateFlow<Boolean> = _isServiceAvailable.asStateFlow()
 
     private val _isPermissionGranted = MutableStateFlow(false)
-    val isPermissionGranted: StateFlow<Boolean> = _isPermissionGranted.asStateFlow()
+        val isPermissionGranted: StateFlow<Boolean> = _isPermissionGranted.asStateFlow()
 
     private val _isSuiBackend = MutableStateFlow(false)
-    val isSuiBackend: StateFlow<Boolean> = _isSuiBackend.asStateFlow()
+        val isSuiBackend: StateFlow<Boolean> = _isSuiBackend.asStateFlow()
 
     private val _currentUid = MutableStateFlow(-1)
-    val currentUid: StateFlow<Int> = _currentUid.asStateFlow()
+        val currentUid: StateFlow<Int> = _currentUid.asStateFlow()
 
     private val _lastError = MutableStateFlow<String?>(null)
-    val lastError: StateFlow<String?> = _lastError.asStateFlow()
+        val lastError: StateFlow<String?> = _lastError.asStateFlow()
 
     // 监听器标计
-    private var binderReceivedListenerRegistered = false
+                private var binderReceivedListenerRegistered = false
     private var permissionRequestListenerRegistered = false
 
     // 状态监听器
-    private val stateChangeListeners = mutableSetOf<() -> Unit>()
+                private val stateChangeListeners = mutableSetOf<() -> Unit>()
 
     /**
      * 初始化Shizuku 管理器
@@ -151,12 +151,12 @@ object ShizukuManager {
         }
 
         // 检查SUI 后端
-        if (checkIsSuiBackend()) {
+                if (checkIsSuiBackend()) {
             return true
         }
 
         // 检查Shizuku 化
-        return try {
+                return try {
             pm?.getPackageInfo(SHIZUKU_PACKAGE, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
@@ -217,7 +217,7 @@ object ShizukuManager {
                 }
                 else -> {
                     val result = Shizuku.checkSelfPermission()
-                    val granted = result == PackageManager.PERMISSION_GRANTED
+        val granted = result == PackageManager.PERMISSION_GRANTED
                     if (!granted) {
                         _lastError.value = "Shizuku 权限未授于"
                     }

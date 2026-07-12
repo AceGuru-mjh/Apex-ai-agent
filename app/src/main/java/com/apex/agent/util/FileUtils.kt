@@ -36,7 +36,7 @@ object FileUtils {
     private const val BACKGROUND_VIDEOS_DIR = "background_videos"
 
     // List of common video file extensions
-    private val VIDEO_EXTENSIONS = listOf("mp4", "3gp", "webm", "mkv", "avi", "mov", "flv", "wmv")
+                private val VIDEO_EXTENSIONS = listOf("mp4", "3gp", "webm", "mkv", "avi", "mov", "flv", "wmv")
 
     private val TEXT_BASED_EXTENSIONS = setOf(
         "txt", "md", "log", "ini", "env", "csv", "tsv", "text", "me",
@@ -107,7 +107,7 @@ object FileUtils {
         try {
             file.inputStream().use { input ->
                 val buffer = ByteArray(minOf(sampleSize.toLong(), file.length()).toInt())
-                val bytesRead = input.read(buffer)
+        val bytesRead = input.read(buffer)
 
                 if (bytesRead <= 0) {
                     return true
@@ -257,7 +257,7 @@ object FileUtils {
             }
 
             val originalExtension = getFileExtensionFromUri(context, uri) ?: "dat"
-            val file = File(context.filesDir, "${uniqueName}_${UUID.randomUUID()}.${originalExtension}")
+        val file = File(context.filesDir, "${uniqueName}_${UUID.randomUUID()}.${originalExtension}")
             outputStream = FileOutputStream(file)
 
             val buffer = ByteArray(4 * 1024)
@@ -304,7 +304,7 @@ object FileUtils {
                 val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
                 if (nameIndex >= 0) {
                     val fileName = cursor.getString(nameIndex)
-                    val fileExtension = fileName?.substringAfterLast('.', "")
+        val fileExtension = fileName?.substringAfterLast('.', "")
                     if (!fileExtension.isNullOrEmpty() && fileExtension.length <= 10) {
                         return@withContext fileExtension.lowercase()
                     }
@@ -334,7 +334,7 @@ object FileUtils {
         try {
             context.contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
                 val fileSize = pfd.statSize
-                val maxSizeBytes = maxSizeMB * 1024 * 1024L
+        val maxSizeBytes = maxSizeMB * 1024 * 1024L
                 return fileSize <= maxSizeBytes
             }
         } catch (e: Exception) {
@@ -831,7 +831,7 @@ object FileUtils {
         if (a.length() != b.length()) return a.length().coerceAtLeast(b.length()) - a.length().coerceAtMost(b.length())
         return try {
             val bytesA = a.readBytes()
-            val bytesB = b.readBytes()
+        val bytesB = b.readBytes()
             var diffCount = 0L
             for (i in bytesA.indices) {
                 if (bytesA[i] != bytesB[i]) diffCount++
@@ -880,9 +880,9 @@ object FileUtils {
     fun chmod(file: File, mode: String): Boolean {
         return try {
             val permissions = mutableSetOf<PosixFilePermission>()
-            val owner = mode[0].digitToInt()
+        val owner = mode[0].digitToInt()
             val group = mode[1].digitToInt()
-            val other = mode[2].digitToInt()
+        val other = mode[2].digitToInt()
             if (owner and 4 != 0) permissions.add(PosixFilePermission.OWNER_READ)
             if (owner and 2 != 0) permissions.add(PosixFilePermission.OWNER_WRITE)
             if (owner and 1 != 0) permissions.add(PosixFilePermission.OWNER_EXECUTE)

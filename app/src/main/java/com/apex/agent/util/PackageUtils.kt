@@ -61,7 +61,7 @@ object PackageUtils {
     fun getAppName(context: Context): String? {
         return try {
             val packageManager = context.packageManager
-            val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
+        val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
             packageManager.getApplicationLabel(applicationInfo).toString()
         } catch (e: PackageManager.NameNotFoundException) {
             null
@@ -87,7 +87,7 @@ object PackageUtils {
     fun getApplicationIcon(context: Context): Drawable? {
         return try {
             val packageManager = context.packageManager
-            val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
+        val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
             applicationInfo.loadIcon(packageManager)
         } catch (e: PackageManager.NameNotFoundException) {
             null
@@ -120,7 +120,7 @@ object PackageUtils {
     fun getAppInstallTime(context: Context, packageName: String? = null): Long {
         return try {
             val pkg = packageName ?: context.packageName
-            val packageInfo = context.packageManager.getPackageInfo(pkg, 0)
+        val packageInfo = context.packageManager.getPackageInfo(pkg, 0)
             packageInfo.firstInstallTime
         } catch (e: PackageManager.NameNotFoundException) {
             -1L
@@ -137,7 +137,7 @@ object PackageUtils {
     fun getAppUpdateTime(context: Context, packageName: String? = null): Long {
         return try {
             val pkg = packageName ?: context.packageName
-            val packageInfo = context.packageManager.getPackageInfo(pkg, 0)
+        val packageInfo = context.packageManager.getPackageInfo(pkg, 0)
             packageInfo.lastUpdateTime
         } catch (e: PackageManager.NameNotFoundException) {
             -1L
@@ -197,11 +197,11 @@ object PackageUtils {
     fun getSignatureHash(context: Context, packageName: String? = null): String? {
         return try {
             val pkg = packageName ?: context.packageName
-            val packageInfo = context.packageManager.getPackageInfo(pkg, PackageManager.GET_SIGNATURES)
+        val packageInfo = context.packageManager.getPackageInfo(pkg, PackageManager.GET_SIGNATURES)
             val signatures = packageInfo.signatures
             if (signatures != null && signatures.isNotEmpty()) {
                 val cert = signatures[0].toByteArray()
-                val md = MessageDigest.getInstance("SHA-1")
+        val md = MessageDigest.getInstance("SHA-1")
                 val digest = md.digest(cert)
                 CryptoUtils.byteArrayToHex(digest)
             } else {
@@ -258,7 +258,7 @@ object PackageUtils {
     fun getAppTargetSdk(context: Context, packageName: String? = null): Int {
         return try {
             val pkg = packageName ?: context.packageName
-            val applicationInfo = context.packageManager.getApplicationInfo(pkg, 0)
+        val applicationInfo = context.packageManager.getApplicationInfo(pkg, 0)
             applicationInfo.targetSdkVersion
         } catch (e: PackageManager.NameNotFoundException) {
             -1
@@ -275,7 +275,7 @@ object PackageUtils {
     fun getAppMinSdk(context: Context, packageName: String? = null): Int {
         return try {
             val pkg = packageName ?: context.packageName
-            val applicationInfo = context.packageManager.getApplicationInfo(pkg, 0)
+        val applicationInfo = context.packageManager.getApplicationInfo(pkg, 0)
             @Suppress("DEPRECATION")
             applicationInfo.minSdkVersion
         } catch (e: PackageManager.NameNotFoundException) {

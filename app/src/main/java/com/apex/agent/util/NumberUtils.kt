@@ -724,7 +724,7 @@ object NumberUtils {
 
         fun convertHundreds(num: Int): String {
             val result = StringBuilder()
-            val h = num / 100
+        val h = num / 100
             val remainder = num % 100
             if (h > 0) result.append("${ones[h]} hundred ")
             if (remainder > 0) {
@@ -741,7 +741,7 @@ object NumberUtils {
             val chunk = num % 1000
             if (chunk > 0) {
                 val chunkStr = convertHundreds(chunk)
-                val scale = scales[scaleIndex]
+        val scale = scales[scaleIndex]
                 result.add(if (scale.isNotEmpty()) "$chunkStr $scale" else chunkStr)
             }
             num /= 1000

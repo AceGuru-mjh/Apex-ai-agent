@@ -188,7 +188,7 @@ data class GrepResultData(
             sb.appendLine("No matches found")
         } else {
             // Set display limit - show up to 30 match groups
-            val maxDisplayMatches = 30
+                val maxDisplayMatches = 30
             var displayedMatches = 0
             var collapsedMatches = 0
 
@@ -196,20 +196,20 @@ data class GrepResultData(
                 val remainingSlots = maxDisplayMatches - displayedMatches
                 if (remainingSlots <= 0) {
                     // Count remaining collapsed matches
-                    collapsedMatches += fileMatch.lineMatches.size
+                collapsedMatches += fileMatch.lineMatches.size
                     continue
                 }
 
                 sb.appendLine("File: ${fileMatch.filePath}")
 
                 val matchesToShow = fileMatch.lineMatches.take(remainingSlots)
-                val matchesCollapsedInFile = fileMatch.lineMatches.size - matchesToShow.size
+        val matchesCollapsedInFile = fileMatch.lineMatches.size - matchesToShow.size
 
                 matchesToShow.forEach { lineMatch ->
                     // If context is available, show full context
-                    if (lineMatch.matchContext != null && lineMatch.matchContext.isNotBlank()) {
+                if (lineMatch.matchContext != null && lineMatch.matchContext.isNotBlank()) {
                         val contextLines = lineMatch.matchContext.lines()
-                        val isPreNumberedContext =
+        val isPreNumberedContext =
                             contextLines.any { it.isNotBlank() } &&
                                 contextLines.all { it.isBlank() || parsePreNumberedLineNumber(it) != null }
 
@@ -228,7 +228,7 @@ data class GrepResultData(
 
                             contextLines.forEachIndexed { idx, contextLine ->
                                 val actualLineNum = lineMatch.lineNumber - centerIndex + idx
-                                val lineNumStr = String.format("%6d", actualLineNum)
+        val lineNumStr = String.format("%6d", actualLineNum)
 
                                 if (idx == centerIndex) {
                                     sb.appendLine("${lineNumStr}|>${contextLine}")
@@ -240,7 +240,7 @@ data class GrepResultData(
                         sb.appendLine() // Add blank line after each match block
                     } else {
                         // No context, show only matching line
-                        val lineNumStr = String.format("%6d", lineMatch.lineNumber)
+                val lineNumStr = String.format("%6d", lineMatch.lineNumber)
                         sb.appendLine("${lineNumStr}| ${lineMatch.lineContent}")
                     }
                     displayedMatches++

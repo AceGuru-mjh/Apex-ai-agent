@@ -20,15 +20,15 @@ class ContentRecommender(private val context: Context, private val interestAnaly
         val interestProfile = interestAnalyzer.analyzeInterests(messages, userProfile)
         
         // 生成推荐内容
-        val recommendations = mutableListOf<ContentRecommendation>()
+                val recommendations = mutableListOf<ContentRecommendation>()
         
         // 基于主要兴趣生成推荐
-        interestProfile.primaryInterest?.let {
+                interestProfile.primaryInterest?.let {
             recommendations.addAll(generateRecommendationsForInterest(it))
         }
         
         // 基于其他兴趣生成推荐
-        for (interest in interestProfile.topInterests.drop(1)) {
+                for (interest in interestProfile.topInterests.drop(1)) {
             recommendations.addAll(generateRecommendationsForInterest(interest).take(2))
         }
         
@@ -250,7 +250,6 @@ class ContentRecommender(private val context: Context, private val interestAnaly
      */
     suspend fun generateInterestOpening(userId: String, messages: List<ChatMessage>, userProfile: HonzonUserProfile? = null): String = withContext(Dispatchers.IO) {
         val interestProfile = interestAnalyzer.analyzeInterests(messages, userProfile)
-        
         val primaryInterest = interestProfile.primaryInterest
         
         if (primaryInterest != null) {

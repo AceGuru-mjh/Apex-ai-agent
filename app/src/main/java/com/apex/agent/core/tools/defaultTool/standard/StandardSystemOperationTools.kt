@@ -153,7 +153,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             }
 
             val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            val pendingIntent = if (launchIntent != null) {
+        val pendingIntent = if (launchIntent != null) {
                 PendingIntent.getActivity(
                     context,
                     0,
@@ -184,7 +184,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             }
 
             val notification = builder.build()
-            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val id = (System.currentTimeMillis() and 0x7FFFFFFF).toInt()
             manager.notify(id, notification)
 
@@ -233,7 +233,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(context)) {
             // 自动打开系统设置页面引导用户授权
-            try {
+                try {
                 val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
                     data = Uri.parse("package:${context.packageName}")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -371,7 +371,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
         return try {
             val installFile = stageApkForInstallIfNeeded(file)
-            val apkUri =
+        val apkUri =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(
                         context,
@@ -463,14 +463,14 @@ open class StandardSystemOperationTools(private val context: Context) {
                         ?: false
         return try {
             val pm = context.packageManager
-            val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+        val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
             val appDetails = mutableListOf<String>()
 
             apps.forEach { appInfo ->
                 val isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
                 if (includeSystemApps || !isSystemApp) {
                     val packageName = appInfo.packageName
-                    val appName =
+        val appName =
                             try {
                                 appInfo.loadLabel(pm).toString()
                             } catch (e: Exception) {
@@ -486,7 +486,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             }
 
             val sortedAppDetails = appDetails.sorted()
-            val resultData = AppListData(
+        val resultData = AppListData(
                 includesSystemApps = includeSystemApps, 
                 packages = sortedAppDetails
             )
@@ -531,7 +531,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
                 val details = if (activityName.isNotBlank()) "Activity: $activityName" else ""
-                val resultData = AppOperationData(
+        val resultData = AppOperationData(
                     operationType = "start",
                     packageName = packageName,
                     success = true,
@@ -609,7 +609,6 @@ open class StandardSystemOperationTools(private val context: Context) {
             Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
                 ?: ""
         val myPackageName = context.packageName
-
         val hasNotificationAccess = enabledListeners
             .split(":")
             .asSequence()
@@ -711,7 +710,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
         return try {
             val endTime = System.currentTimeMillis()
-            val startTime = endTime - sinceHours * 60L * 60L * 1000L
+        val startTime = endTime - sinceHours * 60L * 60L * 1000L
             val usageStatsManager =
                 context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             val rawStats =
@@ -735,7 +734,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                         }
 
                         val lastTimeUsed = stats.maxOfOrNull { it.lastTimeUsed } ?: 0L
-                        val applicationInfo =
+        val applicationInfo =
                             try {
                                 context.packageManager.getApplicationInfo(packageName, 0)
                             } catch (_: PackageManager.NameNotFoundException) {
@@ -818,7 +817,8 @@ open class StandardSystemOperationTools(private val context: Context) {
                 tool.parameters.find { it.name == "include_address" }?.value?.toBoolean() ?: true
 
         return try {
-            // 检查位置权??            val hasFineLocationPermission =
+            // 检查位置权??
+                val hasFineLocationPermission =
                     context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                             android.content.pm.PackageManager.PERMISSION_GRANTED
 
@@ -827,7 +827,8 @@ open class StandardSystemOperationTools(private val context: Context) {
                             android.Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
-            // 如果没有任何位置权限，返回错??            if (!hasFineLocationPermission && !hasCoarseLocationPermission) {
+            // 如果没有任何位置权限，返回错??
+                if (!hasFineLocationPermission && !hasCoarseLocationPermission) {
                 return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -836,17 +837,19 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
 
-            // 根据精度要求和权限情况决定使用哪种精??            val actualHighAccuracy = highAccuracy && hasFineLocationPermission
+            // 根据精度要求和权限情况决定使用哪种精??
+                val actualHighAccuracy = highAccuracy && hasFineLocationPermission
 
             // 使用Dispatchers.Main确保在主线程上执行位置操??            @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-            val locationResult =
+                val locationResult =
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                         kotlinx.coroutines.suspendCancellableCoroutine<Location?> { continuation ->
                             val locationManager =
                                     context.getSystemService(Context.LOCATION_SERVICE) as
                                             LocationManager
 
-                            // 选择合适的位置提供??                            val provider =
+                            // 选择合适的位置提供??
+                val provider =
                                     when {
                                         actualHighAccuracy &&
                                                 locationManager.isProviderEnabled(
@@ -866,7 +869,8 @@ open class StandardSystemOperationTools(private val context: Context) {
                                 return@suspendCancellableCoroutine
                             }
 
-                            // 尝试获取最后已知位??                            val lastKnownLocation =
+                            // 尝试获取最后已知位??
+                val lastKnownLocation =
                                     try {
                                         if (actualHighAccuracy && hasFineLocationPermission) {
                                             locationManager.getLastKnownLocation(
@@ -890,7 +894,8 @@ open class StandardSystemOperationTools(private val context: Context) {
                                         null
                                     }
 
-                            // 如果有最后已知位置且足够新（10分钟内），直接返??                            if (lastKnownLocation != null &&
+                            // 如果有最后已知位置且足够新（10分钟内），直接返??
+                if (lastKnownLocation != null &&
                                             System.currentTimeMillis() - lastKnownLocation.time <
                                                     10 * 60 * 1000
                             ) {
@@ -899,7 +904,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                             }
 
                             // 否则请求位置更新
-                            val locationListener =
+                val locationListener =
                                     object : android.location.LocationListener {
                                         override fun onLocationChanged(location: Location) {
                                             locationManager.removeUpdates(this)
@@ -909,7 +914,8 @@ open class StandardSystemOperationTools(private val context: Context) {
                                         }
 
                                         override fun onProviderDisabled(provider: String) {
-                                            // 如果提供者被禁用，尝试使用最后已知位??                                            if (!continuation.isCompleted) {
+                                            // 如果提供者被禁用，尝试使用最后已知位??
+                if (!continuation.isCompleted) {
                                                 if (lastKnownLocation != null) {
                                                     continuation.resume(lastKnownLocation) {
                                                         AppLogger.e(TAG, "位置请求取消", it)
@@ -936,23 +942,24 @@ open class StandardSystemOperationTools(private val context: Context) {
 
                             try {
                                 // 设置位置请求参数
-                                locationManager.requestLocationUpdates(
+                locationManager.requestLocationUpdates(
                                         provider,
                                         0, // 最小时间间隔
-                                        0f, // 最小距离变化
-                                        locationListener
+                0f, // 最小距离变化
+                locationListener
                                 )
 
                                 // 设置超时
-                                kotlinx.coroutines.GlobalScope.launch {
+                kotlinx.coroutines.GlobalScope.launch {
                                     delay(timeout * 1000L)
                                     // 在主线程上移除更新和恢复协程
-                                    kotlinx.coroutines.withContext(
+                kotlinx.coroutines.withContext(
                                             kotlinx.coroutines.Dispatchers.Main
                                     ) {
                                         if (!continuation.isCompleted) {
                                             locationManager.removeUpdates(locationListener)
-                                            // 如果超时，尝试使用最后已知位置                                            continuation.resume(lastKnownLocation) {
+                                            // 如果超时，尝试使用最后已知位置
+                continuation.resume(lastKnownLocation) {
                                                 AppLogger.e(TAG, "位置请求取消", it)
                                             }
                                         }
@@ -960,9 +967,10 @@ open class StandardSystemOperationTools(private val context: Context) {
                                 }
 
                                 // 如果协程被取消，移除位置更新
-                                continuation.invokeOnCancellation {
+                continuation.invokeOnCancellation {
                                     try {
-                                        // 确保在主线程上移除位置更新                                        kotlinx.coroutines.runBlocking(
+                                        // 确保在主线程上移除位置更新
+                kotlinx.coroutines.runBlocking(
                                                 kotlinx.coroutines.Dispatchers.Main
                                         ) { locationManager.removeUpdates(locationListener) }
                                     } catch (e: Exception) {
@@ -977,7 +985,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                     }
 
             // 处理位置结果
-            if (locationResult == null) {
+                if (locationResult == null) {
                 return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -989,7 +997,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             val resultData =
                     if (includeAddress) {
                         // 获取地址信息
-                        val addressInfo =
+                val addressInfo =
                                 getAddressFromLocation(
                                         locationResult.latitude,
                                         locationResult.longitude
@@ -1041,7 +1049,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             val geocoder = Geocoder(context, Locale.getDefault())
 
             // 尝试获取地址
-            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+                val addresses = geocoder.getFromLocation(latitude, longitude, 1)
 
             if (addresses != null && addresses.isNotEmpty()) {
                 val address = addresses[0]
@@ -1059,14 +1067,15 @@ open class StandardSystemOperationTools(private val context: Context) {
         }
 
         // 如果无法获取地址信息，返回空对象
-        return AddressInfo("", "", "", "", "")
+                return AddressInfo("", "", "", "", "")
     }
 
     /** 地址信息数据??*/
     data class AddressInfo(
             val address: String, // 完整地址
-            val city: String, // 城市
-            val province: String, // ????            val country: String, // 国家
-            val postalCode: String // 邮政编码
+                val city: String, // 城市
+                val province: String, // ????
+                val country: String, // 国家
+                val postalCode: String // 邮政编码
     )
 }

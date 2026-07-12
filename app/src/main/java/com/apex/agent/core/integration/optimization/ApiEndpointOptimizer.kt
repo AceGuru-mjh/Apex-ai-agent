@@ -198,7 +198,7 @@ class ApiEndpointOptimizer private constructor() {
         circuitBreakers.compute(key) { _, state ->
             if (state != null) {
                 val newFailureCount = state.failureCount + 1
-                val newState = when {
+        val newState = when {
                     newFailureCount >= config.circuitBreakerThreshold -> CircuitState.OPEN
                     state.state == CircuitState.OPEN && state.openSinceMs != null &&
                         System.currentTimeMillis() - state.openSinceMs > 30000L -> CircuitState.HALF_OPEN
@@ -298,7 +298,7 @@ class ApiEndpointOptimizer private constructor() {
     fun getAllMetrics(): List<ApiMetrics> {
         endpointProfiles.keys.map { key ->
             val parts = key.split(":")
-            val path = parts.getOrElse(0) { "/unknown" }
+        val path = parts.getOrElse(0) { "/unknown" }
             val method = try { HttpMethod.valueOf(parts.getOrElse(1) { "GET" }) } catch (_: Exception) { HttpMethod.GET }
             getMetrics(path, method)
         }
@@ -308,9 +308,9 @@ class ApiEndpointOptimizer private constructor() {
         val suggestions = mutableListOf<ApiOptimizationSuggestion>()
         for ((key, profile) in endpointProfiles) {
             val parts = key.split(":")
-            val path = parts[0]
+        val path = parts[0]
             val method = try { HttpMethod.valueOf(parts[1]) } catch (_: Exception) { HttpMethod.GET }
-            val metrics = getMetrics(path, method)
+        val metrics = getMetrics(path, method)
             val breaker = circuitBreakers[key]
 
             if (profile.cacheable && metrics.cacheHitRate < 0.3 && metrics.requestRatePerSecond > 2) {
@@ -381,7 +381,7 @@ class ApiEndpointOptimizer private constructor() {
 
         private fun refill(limit: Int, refillRate: Int) {
             val now = System.currentTimeMillis()
-            val elapsed = now - lastRefillMs
+        val elapsed = now - lastRefillMs
             if (elapsed >= 1000L) {
                 val toAdd = (elapsed / 1000L * refillRate).toInt()
                 tokens = (tokens + toAdd).coerceAtMost(limit)

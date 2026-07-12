@@ -65,7 +65,7 @@ class TaskSchedulerOptimizer(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val isRunning = AtomicBoolean(false)
     private val _activeCount = MutableStateFlow(0)
-    val activeCount: StateFlow<Int> = _activeCount.asStateFlow()
+        val activeCount: StateFlow<Int> = _activeCount.asStateFlow()
 
     private val totalScheduled = AtomicLong(0)
     private val totalCompleted = AtomicLong(0)
@@ -227,7 +227,7 @@ class TaskSchedulerOptimizer(
 
     private fun launchTask(entry: ScheduledTask) {
         val job = scope.launch {
-            val startWait = System.nanoTime()
+        val startWait = System.nanoTime()
             val startExec = System.nanoTime()
             _activeCount.value = activeTasks.size
 
@@ -375,7 +375,7 @@ class DependencyGraph(private val name: String = "dep-graph") {
 
         for (nodeId in order) {
             val node = nodes[nodeId] ?: continue
-            val level = if (node.dependencies.isEmpty()) 0
+        val level = if (node.dependencies.isEmpty()) 0
             else (node.dependencies.mapNotNull { nodeLevels[it] }.maxOrNull() ?: 0) + 1
             nodeLevels[nodeId] = level
             while (levels.size <= level) levels.add(mutableListOf())
@@ -429,7 +429,7 @@ class WorkStealingExecutor(
         if (!isRunning.compareAndSet(false, true)) return
         for (i in 0 until workerCount) {
             val workerIndex = i
-            val thread = Thread({
+        val thread = Thread({
                 while (isRunning.get()) {
                     processWorker(workerIndex)
                 }
@@ -498,7 +498,7 @@ class WorkStealingExecutor(
     private fun stealWork(myIndex: Int): WorkItem? {
         for (i in 1 until workerCount) {
             val targetIndex = (myIndex + i) % workerCount
-            val item = queues[targetIndex].poll()
+        val item = queues[targetIndex].poll()
             if (item != null) return item
         }
         return null
@@ -539,7 +539,7 @@ class TaskBatcher<T, R>(
 
     suspend fun submitAll(items: List<Pair<String, T>>): List<R> {
         val deferreds = items.map { (key, _) ->
-            val deferred = CompletableDeferred<R>()
+        val deferred = CompletableDeferred<R>()
             deferredResults[key] = deferred
             key to deferred
         }
@@ -614,7 +614,7 @@ class PriorityQueue<T : Comparable<T>>(
         var child = index
         while (child > 0) {
             val parent = (child - 1) / 2
-            val compare = if (reverse) heap[parent] < heap[child] else heap[child] < heap[parent]
+        val compare = if (reverse) heap[parent] < heap[child] else heap[child] < heap[parent]
             if (compare) break
             swap(child, parent)
             child = parent
@@ -705,7 +705,7 @@ class TimerWheel(
         while (isRunning.get()) {
             try {
                 val tick = currentTick.get()
-                val queue = wheel[tick]
+        val queue = wheel[tick]
                 val tasks = mutableListOf<TimerTask>()
                 while (true) { queue.poll()?.let { tasks.add(it) } ?: break }
                 for (task in tasks) {

@@ -69,7 +69,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
         }
 
         // 引导用户激活设备管理员
-        try {
+                try {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, context.getString(R.string.admin_shell_requires_permission))
@@ -77,7 +77,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
             context.startActivity(intent)
 
             // 由于无法知道用户是否激活了管理员，返回false，让调用者自行处理后续检，
-           onResult(false)
+                onResult(false)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error opening device admin settings", e)
             onResult(false)
@@ -108,7 +108,6 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
 
                 // 设备管理员API不能直接执行shell命令，但可以执行一些系统操作
                // 这里实现将根据实际可用的管理员API而定
-
                 try {
                     when {
                         command.startsWith("lockscreen") -> {
@@ -130,7 +129,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
                             )
                         }
                         // 可以添加更多设备管理员API支持的操作
-                       else -> {
+                else -> {
                             return@withContext ShellExecutor.CommandResult(
                                     false,
                                     "",
@@ -168,7 +167,7 @@ private class AdminShellProcess(
     
     init {
         // 异步执行命令
-        CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.IO).launch {
             result = executor.executeCommand(command, ShellIdentity.DEFAULT)
             exitCode = result?.exitCode ?: -1
             completed = true

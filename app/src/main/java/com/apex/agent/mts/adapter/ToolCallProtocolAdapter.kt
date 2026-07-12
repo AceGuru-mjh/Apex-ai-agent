@@ -76,7 +76,7 @@ class ToolCallProtocolAdapter {
         val sb = StringBuilder()
         for ((i, result) in results.withIndex()) {
             val call = toolCalls.find { it.toolCallId == result.toolCallId }
-            val toolName = call?.rawName ?: result.toolName
+        val toolName = call?.rawName ?: result.toolName
             sb.appendLine("<result tool=\"$toolName\" id=\"${result.toolCallId}\">")
             when (val outcome = result.outcome) {
                 is ToolOutcome.Success -> {
@@ -244,18 +244,18 @@ class ToolCallProtocolAdapter {
         val results = mutableListOf<ParsedToolCall>()
         try {
             val json = JSONObject(response)
-            val choices = json.optJSONArray("choices") ?: return results
+        val choices = json.optJSONArray("choices") ?: return results
             for (i in 0 until choices.length()) {
                 val choice = choices.getJSONObject(i)
-                val delta = choice.optJSONObject("delta") ?: choice.optJSONObject("message") ?: continue
+        val delta = choice.optJSONObject("delta") ?: choice.optJSONObject("message") ?: continue
                 val toolCalls = delta.optJSONArray("tool_calls") ?: continue
                 for (j in 0 until toolCalls.length()) {
                     val tc = toolCalls.getJSONObject(j)
-                    val id = tc.optString("id", UUID.randomUUID().toString())
+        val id = tc.optString("id", UUID.randomUUID().toString())
                     val fn = tc.optJSONObject("function") ?: continue
-                    val name = fn.optString("name", "")
+        val name = fn.optString("name", "")
                     val argsStr = fn.optString("arguments", "{}")
-                    val args = try {
+        val args = try {
                         JSONObject(argsStr).toMap()
                     } catch (_: Exception) {
                         emptyMap()
@@ -277,14 +277,14 @@ class ToolCallProtocolAdapter {
         val results = mutableListOf<ParsedToolCall>()
         try {
             val json = JSONObject(response)
-            val content = json.optJSONArray("content") ?: return results
+        val content = json.optJSONArray("content") ?: return results
             for (i in 0 until content.length()) {
                 val block = content.getJSONObject(i)
                 if (block.optString("type") != "tool_use") continue
                 val id = block.optString("id", UUID.randomUUID().toString())
-                val name = block.optString("name", "")
+        val name = block.optString("name", "")
                 val input = block.optJSONObject("input")?.toMap() ?: emptyMap()
-                val spec = registry(name)
+        val spec = registry(name)
                 if (spec != null) {
                     results.add(ParsedToolCall(id, spec, input, name))
                 }
@@ -303,13 +303,13 @@ class ToolCallProtocolAdapter {
 
         for (match in toolPattern.findAll(response)) {
             val name = match.groupValues[1]
-            val body = match.groupValues[2]
+        val body = match.groupValues[2]
             val args = mutableMapOf<String, Any?>()
             for (pm in paramPattern.findAll(body)) {
                 args[pm.groupValues[1]] = pm.groupValues[2].trim()
             }
             val spec = registry(name)
-            val id = UUID.randomUUID().toString()
+        val id = UUID.randomUUID().toString()
             if (spec != null) {
                 results.add(ParsedToolCall(id, spec, args, name))
             }

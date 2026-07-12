@@ -103,10 +103,10 @@ class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
     private fun executeShizukuCommand(command: String): ShellExecutor.CommandResult {
         return try {
             val builder = Shizuku.newProcessBuilder(arrayOf("sh", "-c", command))
-            val process = builder.start()
+        val process = builder.start()
 
             val stdout = process.inputStream.bufferedReader().readText()
-            val stderr = process.errorStream.bufferedReader().readText()
+        val stderr = process.errorStream.bufferedReader().readText()
             val exitCode = process.waitFor()
 
             ShellExecutor.CommandResult(

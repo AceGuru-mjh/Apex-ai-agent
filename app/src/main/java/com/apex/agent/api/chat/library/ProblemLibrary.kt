@@ -38,7 +38,7 @@ object ProblemLibrary {
     @Volatile private var isInitialized = false
 
     // --- Data classes for parsing the new structured analysis ---
-    private data class ParsedLink(val sourceTitle: String, val targetTitle: String, val type: String, val description: String, val weight: Float = 1.0f)
+                private data class ParsedLink(val sourceTitle: String, val targetTitle: String, val type: String, val description: String, val weight: Float = 1.0f)
     private data class ParsedEntity(val title: String, val content: String, val tags: List<String>, val aliasFor: String?, val folderPath: String)
     private data class ParsedUpdate(val titleToUpdate: String, val newContent: String, val reason: String, val newCredibility: Float?, val newImportance: Float)
     private data class ParsedMerge(val sourceTitles: List<String>, val newTitle: String, val newContent: String, val newTags: List<String>, val folderPath: String, val reason: String)
@@ -114,10 +114,10 @@ object ProblemLibrary {
     private suspend fun autoCategorizeMemories(context: Context, aiService: AIService) {
         mutex.withLock {
             val profileId = preferencesManager.activeProfileIdFlow.first()
-            val memoryRepository = MemoryRepository(context, profileId)
+        val memoryRepository = MemoryRepository(context, profileId)
             
             val allMemories = memoryRepository.getAllMemories()
-            val uncategorizedMemories = allMemories.filter { memory ->
+        val uncategorizedMemories = allMemories.filter { memory ->
                 memory.folderPath.isNullOrEmpty()
             }
             
@@ -129,10 +129,10 @@ object ProblemLibrary {
             AppLogger.d(TAG, "找到 ${uncategorizedMemories.size} 条未分类记忆，开始批量分果.")
             
             // 获取现有文件夹列行
-          val existingFolders = memoryRepository.getAllFolderPaths()
+                val existingFolders = memoryRepository.getAllFolderPaths()
             
             // 分批处理（每的条）
-            val batches = uncategorizedMemories.chunked(10)
+                val batches = uncategorizedMemories.chunked(10)
             batches.forEachIndexed { batchIndex: Int, batch: List<Memory> ->
                 try {
                     AppLogger.d(TAG, "处理${{batchIndex + 1} 批记忆（${{batch.size} 条）...")
@@ -165,7 +165,7 @@ object ProblemLibrary {
         )
 
         val userMessage = FunctionalPrompts.memoryAutoCategorizeUserMessage(useEnglish)
-            val messages = listOf(Pair("system", systemPrompt), Pair("user", userMessage)).toPromptTurns()
+        val messages = listOf(Pair("system", systemPrompt), Pair("user", userMessage)).toPromptTurns()
         val result = StringBuilder()
         
         withContext(Dispatchers.IO) {
@@ -178,7 +178,7 @@ object ProblemLibrary {
         }
         
         // 更新 token 统计
-        apiPreferences?.updateTokensForProviderModel(
+                apiPreferences?.updateTokensForProviderModel(
             aiService.providerModel,
             aiService.inputTokenCount,
             aiService.outputTokenCount,
@@ -186,10 +186,10 @@ object ProblemLibrary {
         )
         
         // Update request count
-        apiPreferences?.incrementRequestCountForProviderModel(aiService.providerModel)
+                apiPreferences?.incrementRequestCountForProviderModel(aiService.providerModel)
         
         // 解析 AI 返回复JSON 并更新记的
-       parseAndApplyCategorization(result.toString(), memories, repository)
+                parseAndApplyCategorization(result.toString(), memories, repository)
     }
 
     /**
@@ -205,23 +205,23 @@ object ProblemLibrary {
             if (cleanJson.isEmpty() || !cleanJson.startsWith("[")) return
             
             val jsonArray = JSONArray(cleanJson)
-            val titleToFolderMap = mutableMapOf<String, String>()
+        val titleToFolderMap = mutableMapOf<String, String>()
             
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
-                val title = obj.getString("title")
+        val title = obj.getString("title")
                 val folder = obj.getString("folder")
                 titleToFolderMap[title] = folder
             }
             
             // 为每个记忆更新分类和重新生成 embedding
-            memories.forEach { memory ->
+                memories.forEach { memory ->
                 val newFolder = titleToFolderMap[memory.title]
                 if (newFolder != null) {
                     AppLogger.d(TAG, "更新记忆 '${memory.title}' 的分类为: ${newFolder}")
                     
                     // 直接调用 updateMemory，它会自动重新生成embedding
-                    repository.updateMemory(
+                repository.updateMemory(
                         memory = memory,
                         newTitle = memory.title,
                         newContent = memory.content,
@@ -246,16 +246,16 @@ object ProblemLibrary {
     ) {
         mutex.withLock {
             val profileId = preferencesManager.activeProfileIdFlow.first()
-            val memoryRepository = MemoryRepository(context, profileId)
+        val memoryRepository = MemoryRepository(context, profileId)
 
             // Prune tool results to reduce token usage
-            val prunedContent =
+                val prunedContent =
                 ChatUtils.stripGeminiThoughtSignatureMeta(
                     pruneToolResultContent(context, content)
                 )
 
             // Process conversation history: remove system messages and clean user messages
-            val processedHistory = conversationHistory
+                val processedHistory = conversationHistory
                 .filter { it.first != "system" }
                 .map { (role, msgContent) ->
                     val cleanedContent = if (role == "user") {
@@ -280,7 +280,7 @@ object ProblemLibrary {
             }
 
             // Generate the graph analysis from the conversation
-            val analysis = generateAnalysis(
+                val analysis = generateAnalysis(
                 context = context,
                 aiService = aiService,
                 query = query,
@@ -291,16 +291,16 @@ object ProblemLibrary {
             )
 
             // If analysis is empty (trivial conversation), abort early.
-            if (analysis.mainProblem == null && analysis.extractedEntities.isEmpty() && analysis.updatedEntities.isEmpty() && analysis.mergedEntities.isEmpty()) {
+                if (analysis.mainProblem == null && analysis.extractedEntities.isEmpty() && analysis.updatedEntities.isEmpty() && analysis.mergedEntities.isEmpty()) {
                 AppLogger.d(TAG, "分析结果为空，判断为无需记忆的对话，跳过保存的）"
                 return@withLock
             }
 
             // Create a map to track all memories (new and updated) for linking
-            val createdMemories = mutableMapOf<String, Memory>()
+                val createdMemories = mutableMapOf<String, Memory>()
 
             // First, apply any merges to existing memories
-            if (analysis.mergedEntities.isNotEmpty()) {
+                if (analysis.mergedEntities.isNotEmpty()) {
                 AppLogger.d(TAG, "开始合${{analysis.mergedEntities.size} 组记的.")
                 analysis.mergedEntities.forEach { merge ->
                     AppLogger.d(TAG, "正在合并: ${merge.sourceTitles.joinToString(", ")} -> '${merge.newTitle}'. 原因: ${merge.reason}")
@@ -318,7 +318,7 @@ object ProblemLibrary {
             }
 
             // Second, apply any updates to existing memories
-            if (analysis.updatedEntities.isNotEmpty()) {
+                if (analysis.updatedEntities.isNotEmpty()) {
                 AppLogger.d(TAG, "开始更失{analysis.updatedEntities.size} 个现有记的.")
                 analysis.updatedEntities.forEach { update ->
                     val memoryToUpdate = memoryRepository.findMemoryByTitle(update.titleToUpdate)
@@ -327,7 +327,7 @@ object ProblemLibrary {
                         val updatedMemory = memoryRepository.updateMemory(
                                 memory = memoryToUpdate,
                                 newTitle = memoryToUpdate.title, // For now, let's not change the title
-                                newContent = update.newContent,
+                newContent = update.newContent,
                                 newCredibility = update.newCredibility ?: memoryToUpdate.credibility,
                                 newImportance = update.newImportance ?: memoryToUpdate.importance
                         )
@@ -341,7 +341,7 @@ object ProblemLibrary {
             }
 
             // Update user preferences (this logic remains)
-            if (analysis.userPreferences.isNotEmpty()) {
+                if (analysis.userPreferences.isNotEmpty()) {
                 try {
                     withContext(Dispatchers.IO) {
                         updateUserPreferencesFromAnalysis(context, analysis.userPreferences)
@@ -353,7 +353,7 @@ object ProblemLibrary {
             }
 
             // Save the graph structure to the MemoryRepository
-            if (analysis.mainProblem == null) {
+                if (analysis.mainProblem == null) {
                 AppLogger.w(TAG, "分析结果中缺少main_problem，跳过保存记忆图的）"
                 return@withLock
             }
@@ -365,7 +365,7 @@ object ProblemLibrary {
             try {
                 // 1. Create main problem memory
                 val mainProblemMemory = analysis.mainProblem?.let { mainProblem ->
-                    val existingMemory = memoryRepository.findMemoryByTitle(mainProblem.title)
+        val existingMemory = memoryRepository.findMemoryByTitle(mainProblem.title)
                     if (existingMemory != null) {
                         AppLogger.d(TAG, "1. 发现同名核心记忆，更新内字${mainProblem.title}'")
                         existingMemory.content = mainProblem.content
@@ -377,7 +377,7 @@ object ProblemLibrary {
                             title = mainProblem.title,
                             content = mainProblem.content,
                             importance = 0.8f, // Main problems are highly important
-                            credibility = 1.0f,
+                credibility = 1.0f,
                             folderPath = mainProblem.folderPath ?: ""
                         )
                         memoryRepository.saveMemory(memory)
@@ -399,7 +399,7 @@ object ProblemLibrary {
                     if (!entity.aliasFor.isNullOrBlank()) {
                         // This entity is an alias for an existing one, as determined by the LLM.AppLogger.d(TAG, "   -> LLM 识别此实体为 '${entity.aliasFor}' 的别名，")
                         // Try to find the canonical memory, first in the ones we just created, then in the DB.
-                        memory = createdMemories[entity.aliasFor] ?: memoryRepository.findMemoryByTitle(entity.aliasFor)
+                memory = createdMemories[entity.aliasFor] ?: memoryRepository.findMemoryByTitle(entity.aliasFor)
 
                         if (memory != null) {
                             AppLogger.d(TAG, "   -> 复用已存在的记忆节点 (ID: ${memory.id}).")
@@ -410,7 +410,7 @@ object ProblemLibrary {
                     }
 
                     // If it's not an alias, or if the original for the alias wasn't found, create a new memory.
-                    if (memory == null) {
+                if (memory == null) {
                         AppLogger.d(TAG, "   -> 创建新的记忆节点的）"
                         memory = Memory(
                             title = entity.title,
@@ -426,18 +426,18 @@ object ProblemLibrary {
 
                     // Map the title of the entity (whether it's an alias or new) to the resolved memory object.
                     // This ensures that links pointing to the alias title will resolve to the correct canonical memory.
-                    createdMemories[entity.title] = memory
+                createdMemories[entity.title] = memory
                 }
 
                 // 3. Create links between the memories
                 AppLogger.d(TAG, "3. 开始创建记忆链接.")
                 analysis.links.forEach { link ->
                     // Try to find source: first in newly created/updated memories, then in existing DB
-                    val source = createdMemories[link.sourceTitle] 
+                val source = createdMemories[link.sourceTitle] 
                         ?: memoryRepository.findMemoryByTitle(link.sourceTitle)
                     
                     // Try to find target: first in newly created/updated memories, then in existing DB
-                    val target = createdMemories[link.targetTitle] 
+                val target = createdMemories[link.targetTitle] 
                         ?: memoryRepository.findMemoryByTitle(link.targetTitle)
                     
                     if (source != null && target != null) {
@@ -472,7 +472,7 @@ object ProblemLibrary {
     ): ParsedAnalysis {
         try {
             val useEnglish = LocaleUtils.getCurrentLanguage(context).lowercase().startsWith("en")
-            val currentPreferences = withContext(Dispatchers.IO) {
+        val currentPreferences = withContext(Dispatchers.IO) {
                 var preferences = ""
                 preferencesManager.getUserPreferencesFlow().take(1).collect { profile ->
                     preferences = buildPreferencesText(context, profile)
@@ -482,8 +482,8 @@ object ProblemLibrary {
 
             // --- Hybrid Strategy: Local rough search + LLM final decision ---
             // 1. Use a compact search query (question-focused) for rough candidate selection.
-            val contextQuery = buildCandidateSearchQuery(query, solution)
-            val searchConfig = MemorySearchSettingsPreferences(context, profileId).load()
+                val contextQuery = buildCandidateSearchQuery(query, solution)
+        val searchConfig = MemorySearchSettingsPreferences(context, profileId).load()
             val candidateMemories = memoryRepository.searchMemories(
                 query = contextQuery,
                 scoreMode = searchConfig.scoreMode,
@@ -521,9 +521,8 @@ object ProblemLibrary {
             }
 
             // 2. Proactively find duplicates among candidates and instruct LLM to merge them
-            val duplicatesPromptPart = findAndDescribeDuplicates(candidateMemories, memoryRepository, useEnglish)
-
-            val existingMemoriesPrompt = if (candidateMemories.isNotEmpty()) {
+                val duplicatesPromptPart = findAndDescribeDuplicates(candidateMemories, memoryRepository, useEnglish)
+        val existingMemoriesPrompt = if (candidateMemories.isNotEmpty()) {
                 FunctionalPrompts.knowledgeGraphExistingMemoriesPrefix(useEnglish) +
                     candidateMemories.joinToString("\n") { "- \"${it.title}\": ${it.content.take(150).replace("\n", " ")}..." }
             } else {
@@ -531,8 +530,8 @@ object ProblemLibrary {
             }
 
             // 获取现有文件夹列行
-          val existingFolders = memoryRepository.getAllFolderPaths()
-            val existingFoldersPrompt = FunctionalPrompts.knowledgeGraphExistingFoldersPrompt(
+                val existingFolders = memoryRepository.getAllFolderPaths()
+        val existingFoldersPrompt = FunctionalPrompts.knowledgeGraphExistingFoldersPrompt(
                 existingFolders = existingFolders,
                 useEnglish = useEnglish
             )
@@ -546,7 +545,7 @@ object ProblemLibrary {
             )
 
             val analysisMessage = buildAnalysisMessage(context, query, solution, conversationHistory, useEnglish)
-            val messages = listOf(Pair("system", systemPrompt), Pair("user", analysisMessage)).toPromptTurns()
+        val messages = listOf(Pair("system", systemPrompt), Pair("user", analysisMessage)).toPromptTurns()
             val result = StringBuilder()
 
             withContext(Dispatchers.IO) {
@@ -566,7 +565,7 @@ object ProblemLibrary {
             )
             
             // Update request count
-            apiPreferences?.incrementRequestCountForProviderModel(aiService.providerModel)
+                apiPreferences?.incrementRequestCountForProviderModel(aiService.providerModel)
 
             return parseAnalysisResult(context, ChatUtils.removeThinkingContent(result.toString()))
         } catch (e: Exception) {
@@ -585,7 +584,7 @@ object ProblemLibrary {
         val conciseSolution = normalizeCandidateSearchText(solution, maxLen = 180)
 
         // 优先问题文本，附带少量解答上下文（避免历史记录噪声）的
-       return if (conciseSolution.isNotBlank()) {
+                return if (conciseSolution.isNotBlank()) {
             "${selectedQuestion}\n${conciseSolution}"
         } else {
             selectedQuestion
@@ -594,7 +593,6 @@ object ProblemLibrary {
 
     private fun extractCoreQuestionText(rawQuery: String): String {
         val compact = rawQuery.replace("\r\n", "\n")
-
         val cn = Regex("(?s)问题\\s*[的]\\s*(.+)(?:\\n\\s*解决方案\\s*[的]|\\z)")
             .find(compact)
             ?.groupValues
@@ -710,18 +708,18 @@ object ProblemLibrary {
             if (cleanJson.isEmpty() || !cleanJson.startsWith("{")) return ParsedAnalysis(null)
 
             // Handle the case where AI decides not to extract any knowledge
-            if (cleanJson == "{}") {
+                if (cleanJson == "{}") {
                 return ParsedAnalysis(null)
             }
 
             val json = JSONObject(cleanJson)
             
             // 【新增】输的AI 返回的完的JSON 指令
-            AppLogger.d(TAG, "AI 返回的完的JSON 指令:\n${json.toString(2)}")
+                AppLogger.d(TAG, "AI 返回的完的JSON 指令:\n${json.toString(2)}")
 
             // Parse main_problem from "main" array
-            val mainProblem = json.optJSONArray("main")?.let {
-                val tags = it.optJSONArray(2)?.let { tagsArray -> List(tagsArray.length()) { i -> tagsArray.getString(i) } } ?: emptyList()
+                val mainProblem = json.optJSONArray("main")?.let {
+        val tags = it.optJSONArray(2)?.let { tagsArray -> List(tagsArray.length()) { i -> tagsArray.getString(i) } } ?: emptyList()
                 ParsedEntity(
                     title = it.getString(0),
                     content = it.getString(1),
@@ -732,10 +730,10 @@ object ProblemLibrary {
             }
 
             // Parse extracted_entities from "new" array
-            val extractedEntities = json.optJSONArray("new")?.let { entitiesArray ->
+                val extractedEntities = json.optJSONArray("new")?.let { entitiesArray ->
                 List(entitiesArray.length()) { i ->
                     val entityArr = entitiesArray.getJSONArray(i)
-                    val tags = entityArr.optJSONArray(2)?.let { tagsArray -> List(tagsArray.length()) { j -> tagsArray.getString(j) } } ?: emptyList()
+        val tags = entityArr.optJSONArray(2)?.let { tagsArray -> List(tagsArray.length()) { j -> tagsArray.getString(j) } } ?: emptyList()
                     val aliasFor = if (!entityArr.isNull(4)) entityArr.getString(4) else null
                     ParsedEntity(
                         title = entityArr.getString(0),
@@ -748,7 +746,7 @@ object ProblemLibrary {
             } ?: emptyList()
 
             // Parse links from "links" array
-            val links = json.optJSONArray("links")?.let { linksArray ->
+                val links = json.optJSONArray("links")?.let { linksArray ->
                 List(linksArray.length()) { i ->
                     val linkArr = linksArray.getJSONArray(i)
                     ParsedLink(
@@ -762,10 +760,10 @@ object ProblemLibrary {
             } ?: emptyList()
 
             // Parse updated_entities from "update" array
-            val updatedEntities = json.optJSONArray("update")?.let { updatesArray ->
+                val updatedEntities = json.optJSONArray("update")?.let { updatesArray ->
                 List(updatesArray.length()) { i ->
                     val updateArr = updatesArray.getJSONArray(i)
-                    val credibility = if (!updateArr.isNull(3)) updateArr.getDouble(3).toFloat() else null
+        val credibility = if (!updateArr.isNull(3)) updateArr.getDouble(3).toFloat() else null
                     val importance = if (!updateArr.isNull(4)) updateArr.getDouble(4).toFloat() else null
                     ParsedUpdate(
                         titleToUpdate = updateArr.getString(0),
@@ -778,10 +776,10 @@ object ProblemLibrary {
             } ?: emptyList()
 
             // Parse merge_entities from "merge" array
-            val mergedEntities = json.optJSONArray("merge")?.let { mergeArray ->
+                val mergedEntities = json.optJSONArray("merge")?.let { mergeArray ->
                 List(mergeArray.length()) { i ->
                     val mergeObj = mergeArray.getJSONObject(i)
-                    val sourceTitles = mergeObj.getJSONArray("source_titles").let { titles ->
+        val sourceTitles = mergeObj.getJSONArray("source_titles").let { titles ->
                         List(titles.length()) { j -> titles.getString(j) }
                     }
                     ParsedMerge(
@@ -841,7 +839,7 @@ object ProblemLibrary {
             val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
             parts.add(context.getString(R.string.profile_birth_date, dateFormat.format(java.util.Date(profile.birthDate))))
             val today = java.util.Calendar.getInstance()
-            val birthCal = java.util.Calendar.getInstance().apply { timeInMillis = profile.birthDate }
+        val birthCal = java.util.Calendar.getInstance().apply { timeInMillis = profile.birthDate }
             var age = today.get(java.util.Calendar.YEAR) - birthCal.get(java.util.Calendar.YEAR)
             if (today.get(java.util.Calendar.DAY_OF_YEAR) < birthCal.get(java.util.Calendar.DAY_OF_YEAR)) {
                 age--
@@ -875,7 +873,7 @@ object ProblemLibrary {
         if (birthDateMatch != null) {
             try {
                 val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-                val date = extractValue(birthDateMatch)?.let { dateFormat.parse(it) }
+        val date = extractValue(birthDateMatch)?.let { dateFormat.parse(it) }
                 if (date != null) birthDateTimestamp = date.time
             } catch (e: Exception) {
                 AppLogger.e(TAG, "解析出生日期失败: ${e.message}")

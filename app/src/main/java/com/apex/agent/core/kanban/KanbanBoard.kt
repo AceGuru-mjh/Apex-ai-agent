@@ -248,7 +248,7 @@ class TaskDispatcher {
             
             targetColumn?.workerRole?.let { role ->
                 val workers = workerRegistry.getWorkersByRole(role)
-                val availableWorker = selectWorker(workers, task)
+        val availableWorker = selectWorker(workers, task)
                 
                 availableWorker?.let {
                     logger.info("Dispatching task ${task.id} to worker ${it.name}")

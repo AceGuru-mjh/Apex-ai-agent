@@ -24,8 +24,8 @@ data class MacroStep(
     val arguments: Map<String, MacroValue>,
     val description: String = "",
     val condition: String? = null,  // 执行条件表达式
-    val onSuccess: String? = null,  // 成功后动作（continue/stop/skip_next）
-    val onFailure: String? = "stop" // 失败后动作（continue/stop/retry）
+                val onSuccess: String? = null,  // 成功后动作（continue/stop/skip_next）
+                val onFailure: String? = "stop" // 失败后动作（continue/stop/retry）
 )
 
 /**
@@ -36,8 +36,7 @@ sealed class MacroValue {
     data class Reference(val stepId: String, val jsonPath: String? = null) : MacroValue()
     data class InputParam(val paramName: String) : MacroValue()
     data class Template(val template: String) : MacroValue()  // 支持 ${param} 和 ${step.output}
-
-    fun resolve(inputs: Map<String, String>, stepOutputs: Map<String, Any>): String = when (this) {
+                fun resolve(inputs: Map<String, String>, stepOutputs: Map<String, Any>): String = when (this) {
         is Literal -> value
         is Reference -> {
             val output = stepOutputs[stepId]
@@ -128,7 +127,7 @@ class ToolMacroExecutor(
 
         try {
             // 校验必填参数
-            val missingParams = macro.inputParams.filter { param ->
+                val missingParams = macro.inputParams.filter { param ->
                 param.required && inputs[param.name].isNullOrBlank() && param.defaultValue.isNullOrBlank()
             }
             if (missingParams.isNotEmpty()) {
@@ -143,12 +142,12 @@ class ToolMacroExecutor(
             }
 
             // 合并默认值
-            val effectiveInputs = macro.inputParams.associate { param ->
+                val effectiveInputs = macro.inputParams.associate { param ->
                 param.name to (inputs[param.name] ?: param.defaultValue ?: "")
             } + inputs
 
             // 按顺序执行步骤
-            for (step in macro.steps) {
+                for (step in macro.steps) {
                 // 检查条件
                 if (step.condition != null && !evaluateCondition(step.condition, effectiveInputs, stepOutputs)) {
                     continue
@@ -171,7 +170,7 @@ class ToolMacroExecutor(
                         }
                         "retry" -> {
                             // 简化：重试一次
-                            toolExecutor(step.toolName, resolvedArgs)
+                toolExecutor(step.toolName, resolvedArgs)
                         }
                         else -> throw e  // stop
                     }
@@ -184,7 +183,7 @@ class ToolMacroExecutor(
                 when (step.onSuccess) {
                     "stop" -> break
                     "skip_next" -> continue  // 跳过下一个
-                    else -> { /* continue 正常 */ }
+                else -> { /* continue 正常 */ }
                 }
             }
 
@@ -216,7 +215,7 @@ class ToolMacroExecutor(
         outputs: Map<String, Any>
     ): Boolean {
         // 简化条件求值：支持 ${param} == 'value' 格式
-        val regex = Regex("\\$\\{([^}]+)}\\s*(==|!=)\\s*'([^']+)'")
+                val regex = Regex("\\$\\{([^}]+)}\\s*(==|!=)\\s*'([^']+)'")
         val match = regex.find(condition) ?: return true
         val (ref, op, value) = match.destructured
         val parts = ref.split(".")
@@ -322,7 +321,7 @@ class ToolMacroRegistry {
      */
     fun registerBuiltinMacros() {
         // 文件分析宏
-        create(
+                create(
             name = "analyze_file",
             displayName = "分析文件",
             description = "读取文件 → 分析内容 → 生成报告",
@@ -359,7 +358,7 @@ class ToolMacroRegistry {
         )
 
         // 翻译宏
-        create(
+                create(
             name = "translate",
             displayName = "翻译文本",
             description = "读取文本 → 翻译 → 写入",

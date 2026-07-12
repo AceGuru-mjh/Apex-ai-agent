@@ -37,7 +37,7 @@ object SystemToolPrompts {
     }
     
     // ==================== 基础工具 ====================
-    val basicTools = SystemToolPromptCategory(
+                val basicTools = SystemToolPromptCategory(
         categoryName = "Available tools",
         tools = listOf(
             ToolPrompt(
@@ -83,7 +83,7 @@ object SystemToolPrompts {
     )
     
     // ==================== 文件系统工具 ====================
-    val fileSystemTools = SystemToolPromptCategory(
+                val fileSystemTools = SystemToolPromptCategory(
         categoryName = "File System Tools",
         tools = listOf(
             ToolPrompt(
@@ -397,7 +397,7 @@ object SystemToolPrompts {
     )
     
     // ==================== HTTP工具 ====================
-    val httpTools = SystemToolPromptCategory(
+                val httpTools = SystemToolPromptCategory(
         categoryName = "HTTP Tools",
         tools = listOf(
             ToolPrompt(
@@ -424,7 +424,7 @@ object SystemToolPrompts {
  """,
                 parametersStructured = listOf(
                     // ==================== Core Access Mode ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "visit_mode",
                         type = "string",
                         description = "Visit mode: direct_url (visit new URL) | follow_link (follow from history) | batch_urls (batch visit)",
@@ -432,7 +432,7 @@ object SystemToolPrompts {
                     ),
                     
                     // --- direct_url mode parameters ---
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "url",
                         type = "string",
                         description = "Required if visit_mode=direct_url. Webpage URL to visit",
@@ -440,7 +440,7 @@ object SystemToolPrompts {
                     ),
                     
                     // --- follow_link mode parameters ---
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "visit_key",
                         type = "string",
                         description = "Required if visit_mode=follow_link. visitKey from previous visit_web result",
@@ -454,11 +454,11 @@ object SystemToolPrompts {
                     ),
                     
                     // --- batch_urls mode parameters ---
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "batch_urls",
                         type = "string",
                         description = "Required if visit_mode=batch_urls. JSON array of URLs, e.g. [\"https://a.com\", \"https://b.com\"]",
-                        required = false
+                required = false
                     ),
                     ToolParameterSchema(
                         name = "batch_concurrency",
@@ -469,7 +469,7 @@ object SystemToolPrompts {
                     ),
                     
                     // ==================== Content Extraction ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "preset",
                         type = "string",
                         description = "Optional preset: article (extract main content) | search (extract search results) | screenshot_full (full page screenshot)",
@@ -483,7 +483,7 @@ object SystemToolPrompts {
                     ToolParameterSchema(name = "extract_structured_data", type = "boolean", description = "Extract JSON-LD/microdata", required = false, default = "false"),
                     
                     // ==================== Page Interaction ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "page_actions",
                         type = "string",
                         description = "Optional JSON array of page interaction actions. Example: [{\"action\":\"fill\", \"selector\":\"#username\", \"value\":\"user\"}, {\"action\":\"click\", \"selector\":\"#login\"}, {\"action\":\"select\", \"selector\":\"#country\", \"value\":\"us\"}, {\"action\":\"keyboard\", \"keys\":\"Enter\"}]",
@@ -492,14 +492,14 @@ object SystemToolPrompts {
                     ToolParameterSchema(name = "scroll_to", type = "string", description = "Scroll to: top (top) | bottom (bottom) | element:CSS selector | JSON {\"x\":0, \"y\":500}", required = false),
                     
                     // ==================== Wait & Timeout ====================
-                    ToolParameterSchema(name = "wait_for_type", type = "string", description = "Wait condition type: element (element) | text (text) | timeout (timeout)", required = false),
+                ToolParameterSchema(name = "wait_for_type", type = "string", description = "Wait condition type: element (element) | text (text) | timeout (timeout)", required = false),
                     ToolParameterSchema(name = "wait_for_selector", type = "string", description = "CSS selector (for wait_for_type=element)", required = false),
                     ToolParameterSchema(name = "wait_for_text", type = "string", description = "Text to wait for (for wait_for_type=text)", required = false),
                     ToolParameterSchema(name = "wait_for_timeout_ms", type = "integer", description = "Wait timeout in milliseconds, default 5000", required = false, default = "5000"),
                     ToolParameterSchema(name = "timeout_ms", type = "integer", description = "Request timeout in milliseconds, default 30000", required = false, default = "30000"),
                     
                     // ==================== Session Management ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "session_id",
                         type = "string",
                         description = "Optional session ID for persistence (cookies, localStorage). Reuse to continue a session; omit for temp session",
@@ -514,29 +514,29 @@ object SystemToolPrompts {
                     ),
                     
                     // ==================== Reliability ====================
-                    ToolParameterSchema(name = "retry_count", type = "integer", description = "Max retries on failure, default 0", required = false, default = "0"),
+                ToolParameterSchema(name = "retry_count", type = "integer", description = "Max retries on failure, default 0", required = false, default = "0"),
                     ToolParameterSchema(name = "retry_delay_ms", type = "integer", description = "Delay between retries in ms, default 1000", required = false, default = "1000"),
                     ToolParameterSchema(name = "retry_on_status", type = "string", description = "JSON array of HTTP status codes to retry, default [408,429,500,502,503,504]", required = false, default = "[408,429,500,502,503,504]"),
                     ToolParameterSchema(name = "retry_on_error", type = "string", description = "JSON array of error types to retry, default [\"timeout\",\"network_error\"]", required = false, default = "[\"timeout\",\"network_error\"]"),
                     
                     // ==================== Observability ====================
-                    ToolParameterSchema(name = "debug_mode", type = "boolean", description = "Return full debug logs (request/response headers, timings, stacktrace)", required = false, default = "false"),
+                ToolParameterSchema(name = "debug_mode", type = "boolean", description = "Return full debug logs (request/response headers, timings, stacktrace)", required = false, default = "false"),
                     ToolParameterSchema(name = "error_screenshot", type = "boolean", description = "Capture screenshot on failure", required = false, default = "false"),
                     ToolParameterSchema(name = "screenshot", type = "string", description = "Legacy screenshot param: full | visible | JSON {\"selector\":\"...\", \"filename\":\"...\"}", required = false),
                     
                     // ==================== Caching ====================
-                    ToolParameterSchema(name = "cache_control", type = "string", description = "Cache policy: default (default) | no_cache (no cache) | force_cache (force cache) | refresh_cache (refresh cache)", required = false, default = "default"),
+                ToolParameterSchema(name = "cache_control", type = "string", description = "Cache policy: default (default) | no_cache (no cache) | force_cache (force cache) | refresh_cache (refresh cache)", required = false, default = "default"),
                     ToolParameterSchema(name = "cache_ttl_ms", type = "integer", description = "Cache TTL in milliseconds, default 300000 (5min)", required = false, default = "300000"),
                     
                     // ==================== Network Configuration ====================
-                    ToolParameterSchema(name = "headers", type = "string", description = "Optional HTTP headers as JSON object, e.g. {\"Referer\":\"...\"}", required = false),
+                ToolParameterSchema(name = "headers", type = "string", description = "Optional HTTP headers as JSON object, e.g. {\"Referer\":\"...\"}", required = false),
                     ToolParameterSchema(name = "user_agent_preset", type = "string", description = "Quick select UA: desktop/android/iphone/ipad/mobile/tablet", required = false),
                     ToolParameterSchema(name = "user_agent", type = "string", description = "Full custom User-Agent", required = false),
                     ToolParameterSchema(name = "proxy", type = "string", description = "Proxy server: http://host:port or socks5://host:port", required = false),
-                    ToolParameterSchema(name = "cookies", type = "string", description = "Legacy: Cookies as JSON object (prefer session_id)", required = false),
+                ToolParameterSchema(name = "cookies", type = "string", description = "Legacy: Cookies as JSON object (prefer session_id)", required = false),
                     
                     // ==================== Output Format ====================
-                    ToolParameterSchema(name = "response_format", type = "string", description = "Response format: structured (default) | plain_text | markdown", required = false, default = "structured"),
+                ToolParameterSchema(name = "response_format", type = "string", description = "Response format: structured (default) | plain_text | markdown", required = false, default = "structured"),
                     ToolParameterSchema(name = "include_all_links", type = "boolean", description = "Extract all links vs only relevant", required = false, default = "false"),
                     ToolParameterSchema(name = "include_image_links", type = "boolean", description = "Include image links in result (alias of extract_images)", required = false, default = "false")
                 )
@@ -598,7 +598,7 @@ object SystemToolPrompts {
  """,
                 parametersStructured = listOf(
                     // ==================== 核心访问模式 ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "visit_mode",
                         type = "string",
                         description = "访问模式：direct_url (访问新URL) | follow_link (从历史结果跳转| batch_urls (批量访问，",
@@ -606,7 +606,7 @@ object SystemToolPrompts {
                     ),
                     
                     // --- direct_url 模式参数 ---
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "url",
                         type = "string",
                         description = "visit_mode=direct_url 时必填。要访问的网页URL",
@@ -614,7 +614,7 @@ object SystemToolPrompts {
                     ),
                     
                     // --- follow_link 模式参数 ---
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "visit_key",
                         type = "string",
                         description = "visit_mode=follow_link 时必填。上一为visit_web 返回的visitKey",
@@ -628,11 +628,11 @@ object SystemToolPrompts {
                     ),
                     
                     // --- batch_urls 模式参数 ---
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "batch_urls",
                         type = "string",
                         description = "visit_mode=batch_urls 时必填。URL的JSON数组，例如[\"https://a.com\", \"https://b.com\"]",
-                        required = false
+                required = false
                     ),
                     ToolParameterSchema(
                         name = "batch_concurrency",
@@ -643,7 +643,7 @@ object SystemToolPrompts {
                     ),
                     
                     // ==================== 内容提取 ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "preset",
                         type = "string",
                         description = "可选预设：article (提取正文，| search (提取搜索结果，| screenshot_full (全屏截图，",
@@ -657,7 +657,7 @@ object SystemToolPrompts {
                     ToolParameterSchema(name = "extract_structured_data", type = "boolean", description = "提取JSON-LD/微数据", required = false, default = "false"),
                     
                     // ==================== 页面交互 ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "page_actions",
                         type = "string",
                         description = "可选页面交互动作JSON数组。示例：[{\"action\":\"fill\", \"selector\":\"#username\", \"value\":\"user\"}, {\"action\":\"click\", \"selector\":\"#login\"}, {\"action\":\"select\", \"selector\":\"#country\", \"value\":\"cn\"}, {\"action\":\"keyboard\", \"keys\":\"Enter\"}]",
@@ -666,14 +666,14 @@ object SystemToolPrompts {
                     ToolParameterSchema(name = "scroll_to", type = "string", description = "滚动到：top (顶部，| bottom (底部，| element:CSS选择器| JSON {\"x\":0, \"y\":500}", required = false),
                     
                     // ==================== 等待与超时===================
-                    ToolParameterSchema(name = "wait_for_type", type = "string", description = "等待条件类型：element|text|timeout", required = false),
+                ToolParameterSchema(name = "wait_for_type", type = "string", description = "等待条件类型：element|text|timeout", required = false),
                     ToolParameterSchema(name = "wait_for_selector", type = "string", description = "CSS选择器（wait_for_type=element时使用）"), required = false),
                     ToolParameterSchema(name = "wait_for_text", type = "string", description = "要等待的文本（wait_for_type=text时使用）"), required = false),
                     ToolParameterSchema(name = "wait_for_timeout_ms", type = "integer", description = "等待超时时间（毫秒），默认5000", required = false, default = "5000"),
                     ToolParameterSchema(name = "timeout_ms", type = "integer", description = "请求超时时间（毫秒），默认30000", required = false, default = "30000"),
                     
                     // ==================== 会话管理 ====================
-                    ToolParameterSchema(
+                ToolParameterSchema(
                         name = "session_id",
                         type = "string",
                         description = "可选会话ID，用于持久化（Cookie、本地存储）。复用可继续会话；不传则为临时会话。",
@@ -688,29 +688,29 @@ object SystemToolPrompts {
                     ),
                     
                     // ==================== 可靠态===================
-                    ToolParameterSchema(name = "retry_count", type = "integer", description = "失败时最大重试次数，默认0", required = false, default = "0"),
+                ToolParameterSchema(name = "retry_count", type = "integer", description = "失败时最大重试次数，默认0", required = false, default = "0"),
                     ToolParameterSchema(name = "retry_delay_ms", type = "integer", description = "重试间隔（毫秒），默认000", required = false, default = "1000"),
                     ToolParameterSchema(name = "retry_on_status", type = "string", description = "触发重试的HTTP状态码JSON数组，默认[408,429,500,502,503,504]", required = false, default = "[408,429,500,502,503,504]"),
                     ToolParameterSchema(name = "retry_on_error", type = "string", description = "触发重试的错误类型JSON数组，默认[\"timeout\",\"network_error\"]", required = false, default = "[\"timeout\",\"network_error\"]"),
                     
                     // ==================== 可观测态===================
-                    ToolParameterSchema(name = "debug_mode", type = "boolean", description = "返回完整调试日志（请求响应头、耗时、堆栈"), required = false, default = "false"),
+                ToolParameterSchema(name = "debug_mode", type = "boolean", description = "返回完整调试日志（请求响应头、耗时、堆栈"), required = false, default = "false"),
                     ToolParameterSchema(name = "error_screenshot", type = "boolean", description = "失败时捕获截回", required = false, default = "false"),
                     ToolParameterSchema(name = "screenshot", type = "string", description = "旧版截图参数：full | visible | JSON {\"selector\":\"...\", \"filename\":\"...\"}", required = false),
                     
                     // ==================== 缓存 ====================
-                    ToolParameterSchema(name = "cache_control", type = "string", description = "缓存策略：default (默认，| no_cache (无缓字| force_cache (强制缓存，| refresh_cache (刷新缓存，", required = false, default = "default"),
+                ToolParameterSchema(name = "cache_control", type = "string", description = "缓存策略：default (默认，| no_cache (无缓字| force_cache (强制缓存，| refresh_cache (刷新缓存，", required = false, default = "default"),
                     ToolParameterSchema(name = "cache_ttl_ms", type = "integer", description = "缓存有效期（毫秒），默认300000，分钟，", required = false, default = "300000"),
                     
                     // ==================== 网络配置 ====================
-                    ToolParameterSchema(name = "headers", type = "string", description = "可选HTTP请求头，JSON对象，例如{\"Referer\":\"...\"}", required = false),
+                ToolParameterSchema(name = "headers", type = "string", description = "可选HTTP请求头，JSON对象，例如{\"Referer\":\"...\"}", required = false),
                     ToolParameterSchema(name = "user_agent_preset", type = "string", description = "快速选择UA：desktop/android/iphone/ipad/mobile/tablet", required = false),
                     ToolParameterSchema(name = "user_agent", type = "string", description = "完整自定义User-Agent", required = false),
                     ToolParameterSchema(name = "proxy", type = "string", description = "代理服务器：http://host:port 成socks5://host:port", required = false),
-                    ToolParameterSchema(name = "cookies", type = "string", description = "旧版：Cookie的JSON对象（推荐使用session_id，", required = false),
+                ToolParameterSchema(name = "cookies", type = "string", description = "旧版：Cookie的JSON对象（推荐使用session_id，", required = false),
                     
                     // ==================== 输出格式 ====================
-                    ToolParameterSchema(name = "response_format", type = "string", description = "响应格式：structured (默认，| plain_text | markdown", required = false, default = "structured"),
+                ToolParameterSchema(name = "response_format", type = "string", description = "响应格式：structured (默认，| plain_text | markdown", required = false, default = "structured"),
                     ToolParameterSchema(name = "include_all_links", type = "boolean", description = "提取所有链接还是仅相关链接", required = false, default = "false"),
                     ToolParameterSchema(name = "include_image_links", type = "boolean", description = "在结果中包含图片链接（extract_images的别名"), required = false, default = "false")
                 )
@@ -740,7 +740,7 @@ object SystemToolPrompts {
     )
     
     // ==================== 记忆库工具===================
-    val memoryTools = SystemToolPromptCategory(
+                val memoryTools = SystemToolPromptCategory(
         categoryName = "Memory and Memory Library Tools",
         tools = listOf(
             ToolPrompt(

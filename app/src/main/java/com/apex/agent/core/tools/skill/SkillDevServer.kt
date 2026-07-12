@@ -234,7 +234,6 @@ class SkillDevServer private constructor(
         val params = session.parameters
 
         val body = readRequestBody(session)
-
         val apiRequest = ApiRequest(
             method = method,
             path = uri,
@@ -316,7 +315,6 @@ class SkillDevServer private constructor(
         val settings = config.getServerSettings()
 
         val mimeType = getMimeType(uri)
-
         val workspaceDir = config.getDevWorkspaceDirectory()
         val file = File(workspaceDir, uri)
 
@@ -337,7 +335,7 @@ class SkillDevServer private constructor(
     private fun serveFile(file: File, mimeType: String, enableCors: Boolean, corsOrigins: List<String>): Response {
         return try {
             val bytes = file.readBytes()
-            val inputStream = ByteArrayInputStream(bytes)
+        val inputStream = ByteArrayInputStream(bytes)
             val response = newFixedLengthResponse(Response.Status.OK, mimeType, inputStream, bytes.size.toLong())
 
             if (enableCors) {
@@ -352,7 +350,6 @@ class SkillDevServer private constructor(
 
     private fun listSkills(): Response {
         val skills = skillManager.getAvailableSkills()
-
         val json = JSONObject()
         val skillsArray = JSONArray()
 
@@ -402,15 +399,14 @@ class SkillDevServer private constructor(
     private fun reloadSkill(body: String): Response {
         return try {
             val request = if (body.isNullOrBlank()) null else JSONObject(body)
-            val skillName = request?.optString("skillName")
+        val skillName = request?.optString("skillName")
 
             if (skillName.isNullOrBlank()) {
                 return badRequest("Missing skillName parameter")
             }
 
             val success = hotReloader.reloadSkill(skillName)
-
-            val json = JSONObject()
+        val json = JSONObject()
             json.put("success", success)
             json.put("skillName", skillName)
 
@@ -465,10 +461,10 @@ private fun executeTool(toolName: String, body: String): Response {
         val request = if (body.isNullOrBlank()) null else JSONObject(body)
 
         // 通过注入的 toolExecutor 执行真实工具调用；如果未注入则返回占位响应。
-        val executor = toolExecutor
+                val executor = toolExecutor
         if (executor != null) {
             val result = kotlinx.coroutines.runBlocking(Dispatchers.IO) { executor.execute(toolName, request) }
-            val json = JSONObject()
+        val json = JSONObject()
             json.put("toolName", toolName)
             json.put("success", result.success)
             json.put("output", result.output)
@@ -478,7 +474,7 @@ private fun executeTool(toolName: String, body: String): Response {
             jsonResponse(json)
         } else {
             // 未注入 executor：返回明确的占位响应，提示集成方向
-            val json = JSONObject()
+                val json = JSONObject()
             json.put("toolName", toolName)
             json.put("success", false)
             json.put("message", "Tool execution placeholder - inject ToolExecutor via setToolExecutor() for actual execution")
@@ -678,7 +674,7 @@ private fun executeTool(toolName: String, body: String): Response {
             override fun run() {
                 try {
                     val input = socket.getInputStream().bufferedReader()
-                    val output = socket.getOutputStream().bufferedWriter()
+        val output = socket.getOutputStream().bufferedWriter()
 
                     val requestLine = input.readLine() ?: return
 
@@ -705,8 +701,7 @@ private fun executeTool(toolName: String, body: String): Response {
                 }
 
                 val webSocketKey = headers["sec-websocket-key"] ?: return
-
-                val response = buildString {
+        val response = buildString {
                     append("HTTP/1.1 101 Switching Protocols\r\n")
                     append("Upgrade: websocket\r\n")
                     append("Connection: Upgrade\r\n")
@@ -723,7 +718,7 @@ private fun executeTool(toolName: String, body: String): Response {
 
             private fun handleMessages() {
                 val input = socket.getInputStream()
-                val output = socket.getOutputStream()
+        val output = socket.getOutputStream()
 
                 while (isRunning.get() && isHandshakeComplete) {
                     try {
@@ -740,10 +735,10 @@ private fun executeTool(toolName: String, body: String): Response {
 
             private fun readFrame(input: java.io.InputStream): Frame? {
                 val firstByte = input.read() ?: return null
-                val opcode = firstByte and 0x0F
+        val opcode = firstByte and 0x0F
 
                 val secondByte = input.read()
-                val isMasked = (secondByte and 0x80) != 0
+        val isMasked = (secondByte and 0x80) != 0
                 var payloadLength = secondByte and 0x7F
 
                 if (payloadLength == 126) {
@@ -773,7 +768,7 @@ private fun executeTool(toolName: String, body: String): Response {
             fun send(message: String) {
                 try {
                     val output = socket.getOutputStream()
-                    val payload = message.toByteArray(Charsets.UTF_8)
+        val payload = message.toByteArray(Charsets.UTF_8)
 
                     output.write(0x81)
                     output.write(payload.size)
@@ -806,7 +801,7 @@ private fun executeTool(toolName: String, body: String): Response {
 
             private fun generateAcceptKey(key: String): String {
                 val concat = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-                val digest = java.security.MessageDigest.getInstance("SHA-1").digest(concat.toByteArray())
+        val digest = java.security.MessageDigest.getInstance("SHA-1").digest(concat.toByteArray())
                 return java.util.Base64.getEncoder().encodeToString(digest)
             }
         }

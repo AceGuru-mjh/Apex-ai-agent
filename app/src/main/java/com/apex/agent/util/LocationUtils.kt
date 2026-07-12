@@ -49,7 +49,7 @@ object LocationUtils {
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     suspend fun isDeviceInMainlandChina(context: Context): Boolean {
         // 快速、无需权限的启发式检测
-        getCountryIsoByTelephony(context)?.let { iso ->
+                getCountryIsoByTelephony(context)?.let { iso ->
             if (iso.equals("CN", true)) return true
         }
         if (isChinaTimezone()) return true
@@ -204,9 +204,9 @@ object LocationUtils {
     private fun getCountryIsoByTelephony(context: Context): String? {
         return try {
             val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            val networkIso = tm.networkCountryIso?.trim()
+        val networkIso = tm.networkCountryIso?.trim()
             val simIso = tm.simCountryIso?.trim()
-            val iso = (networkIso?.ifBlank { null } ?: simIso?.ifBlank { null })
+        val iso = (networkIso?.ifBlank { null } ?: simIso?.ifBlank { null })
             iso?.uppercase(Locale.ROOT)
         } catch (e: Exception) {
             AppLogger.w(TAG, "Telephony country ISO unavailable", e)

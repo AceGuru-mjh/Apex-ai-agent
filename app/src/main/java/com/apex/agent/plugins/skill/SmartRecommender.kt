@@ -73,7 +73,6 @@ class SmartRecommender private constructor(private val context: Context) {
         includeSources: Set<RecommendationSource> = RecommendationSource.entries.toSet()
     ): RecommenderResult = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
-
         val candidates = getCandidateSkills()
         val scores = mutableMapOf<String, SkillScoreComponents>()
 
@@ -99,7 +98,6 @@ class SmartRecommender private constructor(private val context: Context) {
             .take(limit)
 
         val explanations = recommendations.associate { it.skillName to it.reason }
-
         val metadata = RecommendationMetadata(
             totalCandidates = candidates.size,
             generationTimeMs = System.currentTimeMillis() - startTime,
@@ -231,7 +229,7 @@ class SmartRecommender private constructor(private val context: Context) {
 
         userProfile.skillAffinityScores.forEach { (usedSkill, affinity) ->
             val similarity = getSkillSimilarity(skillName, usedSkill)
-            val score = affinity * similarity
+        val score = affinity * similarity
             maxScore = maxOf(maxScore, score)
         }
 
@@ -252,7 +250,7 @@ class SmartRecommender private constructor(private val context: Context) {
                     Instant.now()
                 )
                 val recencyWeight = RECENCY_DECAY.pow(daysSinceUse / 7)
-                val similarity = getSkillSimilarity(skillName, usedSkill)
+        val similarity = getSkillSimilarity(skillName, usedSkill)
                 score += recencyWeight * similarity * (data.totalInvocations / 100.0)
             }
         }
@@ -372,7 +370,6 @@ class SmartRecommender private constructor(private val context: Context) {
         val usageData = usageTracker.getSkillUsageData(skillName)
         val patterns = usageAnalyzer.analyzeUsagePatterns(skillName)
         val userProfile = usageAnalyzer.buildUserBehaviorProfile("current_user")
-
         val explanation = StringBuilder()
         explanation.append("Recommendation for: ${skillName}\n\n")
 

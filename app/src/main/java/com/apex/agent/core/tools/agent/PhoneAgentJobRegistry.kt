@@ -17,7 +17,7 @@ object PhoneAgentJobRegistry {
             existing
                 ?: run {
                     val newSet = Collections.newSetFromMap(ConcurrentHashMap<Job, Boolean>())
-                    val raced = jobsByAgentId.putIfAbsent(agentId, newSet)
+        val raced = jobsByAgentId.putIfAbsent(agentId, newSet)
                     raced ?: newSet
                 }
         set.add(job)

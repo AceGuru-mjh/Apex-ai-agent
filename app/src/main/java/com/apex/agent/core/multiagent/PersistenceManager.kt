@@ -20,7 +20,7 @@ class PersistenceManager(private val context: Context) {
 
     init {
         // 确保数据目录存在
-        if (!dataDir.exists()) {
+                if (!dataDir.exists()) {
             dataDir.mkdirs()
         }
     }

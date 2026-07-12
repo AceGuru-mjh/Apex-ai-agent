@@ -29,18 +29,18 @@ data class UserNickname(
 
 enum class NicknameOrigin {
     USER_SET,           // 用户自定义
-    AI_SUGGESTED,       // AI 建议
-    DERIVED_FROM_NAME,  // 从真名推导
-    INSIDE_JOKE,        // 内部梗
-    RANDOM              // 随机
+                AI_SUGGESTED,       // AI 建议
+                DERIVED_FROM_NAME,  // 从真名推导
+                INSIDE_JOKE,        // 内部梗
+                RANDOM              // 随机
 }
 
 enum class FormalityLevel {
     FORMAL,      // 正式（X 先生/女士）
-    POLITE,      // 礼貌（您）
-    FRIENDLY,    // 友好（你）
-    INTIMATE,    // 亲切（昵称）
-    CASUAL       // 随意（兄弟/姐妹）
+                POLITE,      // 礼貌（您）
+                FRIENDLY,    // 友好（你）
+                INTIMATE,    // 亲切（昵称）
+                CASUAL       // 随意（兄弟/姐妹）
 }
 
 data class Relationship(
@@ -53,15 +53,15 @@ data class Relationship(
 
 enum class RelationshipType {
     NEW_USER,         // 新用户
-    ACQUAINTANCE,     // 熟人
-    FRIEND,           // 朋友
-    CLOSE_FRIEND,     // 密友
-    CONFIDANT,        // 知己
-    MENTOR,           // 师长
-    STUDENT,          // 学生
-    COLLEAGUE,        // 同事
-    FAMILY,           // 家人
-    PARTNER           // 伴侣
+                ACQUAINTANCE,     // 熟人
+                FRIEND,           // 朋友
+                CLOSE_FRIEND,     // 密友
+                CONFIDANT,        // 知己
+                MENTOR,           // 师长
+                STUDENT,          // 学生
+                COLLEAGUE,        // 同事
+                FAMILY,           // 家人
+                PARTNER           // 伴侣
 }
 
 data class RelationshipMilestone(
@@ -75,12 +75,12 @@ data class RelationshipMilestone(
 
 enum class MilestoneType {
     FIRST_MEETING,       // 初次见面
-    FIRST_NAME_USAGE,    // 第一次称呼名字
-    INSIDE_JOKE_FORMED,  // 形成内部梗
-    TRUST_MILESTONE,     // 信任里程碑
-    SHARED_SECRET,       // 共享秘密
-    HELPED_WITH,         // 帮助过的事
-    CELEBRATION          // 共同庆祝
+                FIRST_NAME_USAGE,    // 第一次称呼名字
+                INSIDE_JOKE_FORMED,  // 形成内部梗
+                TRUST_MILESTONE,     // 信任里程碑
+                SHARED_SECRET,       // 共享秘密
+                HELPED_WITH,         // 帮助过的事
+                CELEBRATION          // 共同庆祝
 }
 
 data class SharedMemory(
@@ -96,12 +96,12 @@ data class SharedMemory(
 
 enum class MemoryCategory {
     FUNNY,        // 搞笑
-    TOUCHING,     // 感动
-    IMPORTANT,    // 重要
-    PERSONAL,     // 个人
-    GOAL,         // 目标
-    FEAR,         // 担忧
-    DREAM         // 梦想
+                TOUCHING,     // 感动
+                IMPORTANT,    // 重要
+                PERSONAL,     // 个人
+                GOAL,         // 目标
+                FEAR,         // 担忧
+                DREAM         // 梦想
 }
 
 class NicknameRelationshipSystem {
@@ -129,14 +129,14 @@ class NicknameRelationshipSystem {
         val suggestions = mutableListOf<String>()
         if (realName != null) {
             // 从真名推导
-            if (realName.length >= 2) {
+                if (realName.length >= 2) {
                 suggestions.add(realName.take(1) + "小" + realName.substring(1, 2))
                 suggestions.add("小" + realName.take(1))
                 suggestions.add("阿" + realName.take(1))
             }
         }
         // 基于兴趣
-        val interestNicknames = mapOf(
+                val interestNicknames = mapOf(
             "编程" to listOf("代码侠", "Bug 猎手", "极客"),
             "音乐" to listOf("音律使者", "旋律精灵"),
             "读书" to listOf("书虫", "墨客"),
@@ -147,7 +147,7 @@ class NicknameRelationshipSystem {
             interestNicknames[interest]?.let { suggestions.addAll(it) }
         }
         // 通用建议
-        if (suggestions.isEmpty()) {
+                if (suggestions.isEmpty()) {
             suggestions.addAll(listOf("朋友", "小伙伴", "探索者", "思考者"))
         }
         return suggestions.distinct().take(5)

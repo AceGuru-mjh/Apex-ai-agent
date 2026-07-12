@@ -25,20 +25,20 @@ import java.util.concurrent.ConcurrentHashMap
  */
 enum class WritingGenre {
     ANCIENT_POEM,    // 古体诗
-    MODERN_POEM,     // 现代诗
-    HAIKU,           // 俳句
-    SHORT_STORY,     // 短篇小说
-    MICRO_FICTION,   // 微小说
-    SERIAL,          // 连载
-    SCRIPT,          // 剧本
-    MONOLOGUE,       // 独白
-    ESSAY,           // 散文
-    AD_COPY,         // 广告文案
-    SLOGAN,          // 标语
-    LETTER,          // 书信
-    DIARY,           // 日记
-    REVIEW,          // 评论
-    FANFIC          // 同人
+                MODERN_POEM,     // 现代诗
+                HAIKU,           // 俳句
+                SHORT_STORY,     // 短篇小说
+                MICRO_FICTION,   // 微小说
+                SERIAL,          // 连载
+                SCRIPT,          // 剧本
+                MONOLOGUE,       // 独白
+                ESSAY,           // 散文
+                AD_COPY,         // 广告文案
+                SLOGAN,          // 标语
+                LETTER,          // 书信
+                DIARY,           // 日记
+                REVIEW,          // 评论
+                FANFIC          // 同人
 }
 
 /**
@@ -69,7 +69,7 @@ data class WritingProject(
     val genre: WritingGenre,
     val style: WritingStyle,
     val premise: String,            // 核心设定/主题
-    val characters: List<Character>,
+                val characters: List<Character>,
     val outline: List<OutlineNode>,
     val drafts: List<Draft>,
     val currentDraft: Draft? = null,
@@ -85,7 +85,7 @@ data class Character(
     val id: String,
     val name: String,
     val role: String,              // 主角/配角/反派
-    val description: String,
+                val description: String,
     val personality: String,
     val motivation: String,
     val relationships: Map<String, String> = emptyMap()  // 其他角色ID -> 关系
@@ -120,14 +120,14 @@ data class InspirationCard(
 
 enum class InspirationType {
     OPENING_LINE,    // 开头句
-    PLOT_TWIST,      // 剧情反转
-    CHARACTER_TRAIT, // 角色特征
-    SETTING,         // 场景
-    CONFLICT,        // 冲突
-    THEME,           // 主题
-    TITLE,           // 标题
-    ENDING,          // 结尾
-    METAPHOR         // 比喻
+                PLOT_TWIST,      // 剧情反转
+                CHARACTER_TRAIT, // 角色特征
+                SETTING,         // 场景
+                CONFLICT,        // 冲突
+                THEME,           // 主题
+                TITLE,           // 标题
+                ENDING,          // 结尾
+                METAPHOR         // 比喻
 }
 
 /**
@@ -230,7 +230,7 @@ class CreativeWritingWorkshop {
         sb.appendLine()
 
         // 风格指导
-        sb.appendLine("风格指导:")
+                sb.appendLine("风格指导:")
         sb.appendLine("- 语气: ${project.style.tone}")
         sb.appendLine("- 情调: ${project.style.mood}")
         sb.appendLine("- 视角: ${project.style.perspective}")
@@ -240,12 +240,12 @@ class CreativeWritingWorkshop {
         sb.appendLine()
 
         // 体裁要求
-        sb.appendLine("体裁要求:")
+                sb.appendLine("体裁要求:")
         sb.appendLine(genreRequirements(project.genre))
         sb.appendLine()
 
         // 角色
-        if (project.characters.isNotEmpty()) {
+                if (project.characters.isNotEmpty()) {
             sb.appendLine("角色:")
             project.characters.forEach { c ->
                 sb.appendLine("- ${c.name} (${c.role}): ${c.description}")
@@ -256,7 +256,7 @@ class CreativeWritingWorkshop {
         }
 
         // 大纲
-        if (project.outline.isNotEmpty()) {
+                if (project.outline.isNotEmpty()) {
             sb.appendLine("大纲:")
             project.outline.sortedBy { it.order }.forEach { node ->
                 sb.appendLine("${node.order}. ${node.title}: ${node.description}")
@@ -265,7 +265,7 @@ class CreativeWritingWorkshop {
         }
 
         // 当前草稿（如有）
-        project.currentDraft?.let { draft ->
+                project.currentDraft?.let { draft ->
             sb.appendLine("当前草稿 (v${draft.version}, ${draft.wordCount}字):")
             sb.appendLine(draft.content.take(500) + if (draft.content.length > 500) "..." else "")
         }
@@ -338,7 +338,7 @@ class CreativeWritingWorkshop {
         val avgSentenceLength = if (sentenceCount > 0) wordCount / sentenceCount else 0
 
         // 检查文学手法
-        val metaphors = Regex("(像|如同|仿佛|宛如|好似).+").findAll(content).count()
+                val metaphors = Regex("(像|如同|仿佛|宛如|好似).+").findAll(content).count()
         val dialogues = content.count { it == '"' || it == '"' || it == '「' }
         val descriptions = Regex("(色|香|味|声|光|影)").findAll(content).count()
 
@@ -366,8 +366,7 @@ class CreativeWritingWorkshop {
     )
 
     // ============ 内部方法 ============
-
-    private fun defaultStyle(genre: WritingGenre): WritingStyle {
+                private fun defaultStyle(genre: WritingGenre): WritingStyle {
         return when (genre) {
             WritingGenre.ANCIENT_POEM -> WritingStyle(WritingTone.LYRICAL, WritingMood.PEACEFUL, Perspective.FIRST_PERSON, Tense.PAST, LanguageStyle.CLASSICAL, 56)
             WritingGenre.MODERN_POEM -> WritingStyle(WritingTone.LYRICAL, WritingMood.MELANCHOLY, Perspective.FIRST_PERSON, Tense.PRESENT, LanguageStyle.LITERARY, 100)

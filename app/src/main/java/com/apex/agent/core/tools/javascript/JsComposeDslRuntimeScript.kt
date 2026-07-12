@@ -19,7 +19,7 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
 
             function __Apex_build_compose_response(__bundle, __entry) {
                 var __tree = __entry(__bundle.ctx);
-                if (__Apex_is_promise(__tree)) {
+            if (__Apex_is_promise(__tree)) {
                     return __tree.then(function(__resolvedTree) {
                         return __Apex_wrap_compose_response(__bundle, __resolvedTree);
                     });
@@ -66,19 +66,19 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                 var __root = typeof globalThis !== 'undefined'
                     ? globalThis
                     : (typeof window !== 'undefined' ? window : this);
-                var __activeCallRuntime =
+            var __activeCallRuntime =
                     typeof __root.__Apex_call_runtime_ref === 'object' && __root.__Apex_call_runtime_ref
                         ? __root.__Apex_call_runtime_ref
                         : null;
                 var __options = __runtimeOptions && typeof __runtimeOptions === 'object'
                     ? Object.assign({}, __runtimeOptions)
                     : {};
-                if (__activeCallRuntime) {
+            if (__activeCallRuntime) {
                     __options.__Apex_call_runtime = __activeCallRuntime;
                 }
                 var __bundle = ApexComposeDslRuntime.createContext(__options);
-                var __entry = __ApexResolveComposeEntry();
-                if (typeof __entry !== 'function') {
+            var __entry = __ApexResolveComposeEntry();
+            if (typeof __entry !== 'function') {
                     throw new Error(
                         'compose_dsl entry function not found, expected default export or Screen function'
                     );
@@ -95,7 +95,7 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                 var __root = typeof globalThis !== 'undefined'
                     ? globalThis
                     : (typeof window !== 'undefined' ? window : this);
-                var __bundle = __root.__Apex_compose_bundle;
+            var __bundle = __root.__Apex_compose_bundle;
                 var __entry = __root.__Apex_compose_entry;
                 if (!__bundle || typeof __entry !== 'function') {
                     throw new Error('compose_dsl runtime is not initialized, render first');
@@ -115,10 +115,10 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                     __actionRequest && typeof __actionRequest === 'object'
                         ? __actionRequest
                         : {};
-                var __actionId = String(
+            var __actionId = String(
                     __request.__action_id || __request.actionId || ''
                 ).trim();
-                if (!__actionId) {
+            if (!__actionId) {
                     throw new Error('compose action id is required');
                 }
 
@@ -132,8 +132,7 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                     (__payload.__no_render === true ||
                         __payload.__noRender === true ||
                         __payload.__local === true);
-
-                function __Apex_send_intermediate_result(__value) {
+            function __Apex_send_intermediate_result(__value) {
                     if (typeof sendIntermediateResult !== 'function') {
                         return;
                     }
@@ -162,7 +161,7 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                     }
                     try {
                         var __intermediateResponse = __Apex_build_compose_response(__bundle, __entry);
-                        if (__Apex_is_promise(__intermediateResponse)) {
+            if (__Apex_is_promise(__intermediateResponse)) {
                             return __intermediateResponse.then(function(__resolvedIntermediate) {
                                 if (!__actionSettled) {
                                     __Apex_send_intermediate_result(__resolvedIntermediate);
@@ -186,7 +185,7 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                     __intermediateRenderQueued = false;
                     __intermediateRenderInFlight = true;
                     var __renderResult = __Apex_render_and_send_intermediate();
-                    if (__Apex_is_promise(__renderResult)) {
+            if (__Apex_is_promise(__renderResult)) {
                         __renderResult.then(
                             function() {},
                             function() {}
@@ -196,7 +195,7 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                                 __Apex_process_intermediate_queue();
                             }
                         });
-                        return;
+            return;
                     }
                     __intermediateRenderInFlight = false;
                     if (__intermediateRenderQueued && !__actionSettled) {
@@ -227,27 +226,27 @@ internal fun buildComposeDslRuntimeWrappedScript(script: String): String {
                     __maybePromise = __bundle.invokeAction(__actionId, __payload);
                 } catch (__actionError) {
                     __Apex_finalize_action();
-                    throw __actionError;
+            throw __actionError;
                 }
                 if (__maybePromise && typeof __maybePromise.then === 'function') {
                     if (!__noRender) {
                         // For async actions, schedule a render checkpoint immediately.
                         // Additional state updates during await phases are pushed by state-change listeners.
-                        __Apex_schedule_intermediate_render();
+                __Apex_schedule_intermediate_render();
                     }
                     return __maybePromise.then(function() {
                         __Apex_finalize_action();
-                        if (__noRender) {
+            if (__noRender) {
                             return null;
                         }
                         return __Apex_build_compose_response(__bundle, __entry);
                     }, function(__actionError) {
                         __Apex_finalize_action();
-                        throw __actionError;
+            throw __actionError;
                     });
                 }
                 __Apex_finalize_action();
-                if (__noRender) {
+            if (__noRender) {
                     return null;
                 }
                 return __Apex_build_compose_response(__bundle, __entry);

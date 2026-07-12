@@ -30,7 +30,6 @@ object HttpMultiPartDownloader {
         onProgress: ((downloadedBytes: Long, totalBytes: Long) -> Unit)? = null
     ) {
         val safeThreads = threadCount.coerceIn(1, 8)
-
         val meta = probeDownload(url, headers)
         val total = meta.contentLength
         val supportsRanges = meta.acceptRanges
@@ -45,7 +44,7 @@ object HttpMultiPartDownloader {
 
     fun probeDownload(url: String, headers: Map<String, String> = emptyMap()): ProbeResult {
         // Prefer HEAD, but some servers don't allow it.
-        var conn: HttpURLConnection? = null
+                var conn: HttpURLConnection? = null
         try {
             conn = (URL(url).openConnection() as HttpURLConnection).apply {
                 requestMethod = "HEAD"
@@ -58,7 +57,7 @@ object HttpMultiPartDownloader {
             val code = conn.responseCode
             if (code in 200..399) {
                 val len = conn.getHeaderFieldLong("Content-Length", -1L)
-                val acceptRanges = conn.getHeaderField("Accept-Ranges")?.contains("bytes", ignoreCase = true) == true
+        val acceptRanges = conn.getHeaderField("Accept-Ranges")?.contains("bytes", ignoreCase = true) == true
                 return ProbeResult(len, acceptRanges)
             }
         } catch (_: Exception) {
@@ -68,7 +67,7 @@ object HttpMultiPartDownloader {
         }
 
         // Fallback GET with Range 0-0 to detect range support.
-        var conn2: HttpURLConnection? = null
+                var conn2: HttpURLConnection? = null
         try {
             conn2 = (URL(url).openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
@@ -80,12 +79,12 @@ object HttpMultiPartDownloader {
                 readTimeout = 15000
             }
             val code = conn2.responseCode
-            val acceptRangesHeader = conn2.getHeaderField("Accept-Ranges")
+        val acceptRangesHeader = conn2.getHeaderField("Accept-Ranges")
             val acceptRanges = (code == HttpURLConnection.HTTP_PARTIAL) ||
                 (acceptRangesHeader?.contains("bytes", ignoreCase = true) == true)
 
             val contentRange = conn2.getHeaderField("Content-Range")
-            val totalFromContentRange = parseTotalFromContentRange(contentRange)
+        val totalFromContentRange = parseTotalFromContentRange(contentRange)
             val total = when {
                 totalFromContentRange > 0L -> totalFromContentRange
                 else -> conn2.getHeaderFieldLong("Content-Length", -1L)
@@ -107,7 +106,7 @@ object HttpMultiPartDownloader {
         return buildList(safeThreads) {
             for (part in 0 until safeThreads) {
                 val start = part * partSize
-                val end = minOf(totalBytes - 1, (part + 1) * partSize - 1)
+        val end = minOf(totalBytes - 1, (part + 1) * partSize - 1)
                 if (start <= end) {
                     add(
                         SegmentPlan(
@@ -152,7 +151,7 @@ object HttpMultiPartDownloader {
             }
 
             val code = conn.responseCode
-            val expectedPartial = startInclusive > 0L || endInclusive != null
+        val expectedPartial = startInclusive > 0L || endInclusive != null
             if (expectedPartial) {
                 if (code != HttpURLConnection.HTTP_PARTIAL && code != HttpURLConnection.HTTP_OK) {
                     throw RuntimeException("HTTP ${code}")
@@ -184,7 +183,7 @@ object HttpMultiPartDownloader {
 
     private fun parseTotalFromContentRange(contentRange: String): Long {
         // format: bytes 0-0/12345
-        if (contentRange.isNullOrBlank()) return -1L
+                if (contentRange.isNullOrBlank()) return -1L
         val slash = contentRange.lastIndexOf('/')
         if (slash <= 0 || slash >= contentRange.length - 1) return -1L
         return contentRange.substring(slash + 1).trim().toLongOrNull() ?: -1L
@@ -224,7 +223,7 @@ object HttpMultiPartDownloader {
         dest.parentFile?.mkdirs()
 
         // Pre-allocate file
-        RandomAccessFile(dest, "rw").use { raf ->
+                RandomAccessFile(dest, "rw").use { raf ->
             raf.setLength(totalBytes)
         }
 
@@ -235,7 +234,7 @@ object HttpMultiPartDownloader {
 
         for (segment in buildSegmentPlan(totalBytes, threadCount)) {
             val start = segment.startInclusive
-            val end = segment.endInclusive
+        val end = segment.endInclusive
 
             pool.execute {
                 try {
@@ -304,7 +303,7 @@ object HttpMultiPartDownloader {
         if (headers.isEmpty()) return
         headers.forEach { (rawName, rawValue) ->
             val name = sanitizeHeaderName(rawName) ?: return@forEach
-            val value = sanitizeHeaderValue(rawValue)
+        val value = sanitizeHeaderValue(rawValue)
             conn.setRequestProperty(name, value)
         }
     }

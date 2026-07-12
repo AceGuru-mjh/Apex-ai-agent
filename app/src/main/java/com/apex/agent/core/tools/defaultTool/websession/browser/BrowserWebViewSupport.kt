@@ -43,7 +43,7 @@ internal fun StandardBrowserSessionTools.createSessionOnMain(
     customUserAgent: String?
 ): BrowserToolSession {
     val webView = WebView(appContext)
-    val session =
+        val session =
         BrowserToolSession(
             id = sessionId,
             webView = webView,
@@ -110,7 +110,7 @@ internal fun StandardBrowserSessionTools.configureWebView(
                 resultMsg: android.os.Message?
             ): Boolean {
                 val message = resultMsg ?: return false
-                val transport = message.obj as? WebView.WebViewTransport ?: return false
+        val transport = message.obj as? WebView.WebViewTransport ?: return false
                 val popupSession = runCatching { createPopupSessionOnMain(session) }.getOrNull() ?: return false
                 transport.webView = popupSession.webView
                 message.sendToTarget()
@@ -283,7 +283,7 @@ internal fun StandardBrowserSessionTools.configureWebView(
 
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val uri = request.url
-                val scheme = uri.scheme?.lowercase()
+        val scheme = uri.scheme?.lowercase()
                 if (scheme == "blob") {
                     injectBlobDownloaderScript(session, uri.toString())
                     return true
@@ -458,7 +458,7 @@ internal fun StandardBrowserSessionTools.createBrowserHostCallbacks(
                 val session = getActiveSessionOnMain() ?: return@runOnMainSync
                 ensureSessionAttachedOnMain(session.id)
                 val historyList = session.webView.copyBackForwardList()
-                val delta = index - historyList.currentIndex
+        val delta = index - historyList.currentIndex
                 if (delta != 0 && session.webView.canGoBackOrForward(delta)) {
                     session.webView.goBackOrForward(delta)
                     refreshNavigationStateAsync(session)
@@ -612,7 +612,7 @@ internal fun StandardBrowserSessionTools.createSessionTabOnMain(
     customUserAgent: String? = null
 ): BrowserToolSession {
     val sessionId = UUID.randomUUID().toString()
-    val session = createSessionOnMain(appContext, sessionId, sessionName, customUserAgent)
+        val session = createSessionOnMain(appContext, sessionId, sessionName, customUserAgent)
     StandardBrowserSessionTools.sessions[sessionId] = session
     addSessionOrder(sessionId)
     StandardBrowserSessionTools.activeSessionId = sessionId
@@ -628,7 +628,7 @@ internal fun StandardBrowserSessionTools.openUserscriptTabOnMain(
     active: Boolean
 ): String {
     val previousActiveId = StandardBrowserSessionTools.activeSessionId
-    val newSession = createSessionTabOnMain(appContext, initialUrl = url)
+        val newSession = createSessionTabOnMain(appContext, initialUrl = url)
     if (!active && !previousActiveId.isNullOrBlank() && previousActiveId != newSession.id) {
         activateSessionOnMain(previousActiveId)
     }
@@ -657,7 +657,7 @@ internal fun StandardBrowserSessionTools.navigateSessionOnMain(
 
 internal fun StandardBrowserSessionTools.openUrlOnMain(appContext: Context, url: String) {
     val existingSession = getActiveSessionOnMain()
-    val session = existingSession ?: createSessionTabOnMain(appContext, initialUrl = url)
+        val session = existingSession ?: createSessionTabOnMain(appContext, initialUrl = url)
     if (existingSession != null) {
         navigateSessionOnMain(session, url)
     }
@@ -715,7 +715,7 @@ internal fun StandardBrowserSessionTools.refreshSessionUiOnMain(sessionId: Strin
 
 internal fun StandardBrowserSessionTools.syncProjectedBrowserStateOnMain() {
     val registry = buildPageRegistry()
-    val resolvedActiveId = registry.activeSessionId
+        val resolvedActiveId = registry.activeSessionId
     val activeSession = resolvedActiveId?.let(::sessionById)
     StandardBrowserSessionTools.activeSessionId = resolvedActiveId
     StandardBrowserSessionTools.browserHost?.attachActiveWebView(activeSession?.webView)
@@ -736,7 +736,7 @@ internal fun StandardBrowserSessionTools.buildBrowserState(
     downloadSummary: BrowserDownloadSummary
 ): WebSessionBrowserState {
     val activeId = registry.activeSessionId
-    val activeSession = activeId?.let(::sessionById)
+        val activeSession = activeId?.let(::sessionById)
     val orderedIds = registry.orderedSessionIds
 
     return WebSessionBrowserState(
@@ -782,7 +782,7 @@ internal fun StandardBrowserSessionTools.buildSessionHistory(
     return buildList(historyList.size) {
         for (index in 0 until historyList.size) {
             val item = historyList.getItemAtIndex(index)
-            val url = item?.url.orEmpty().ifBlank { "about:blank" }
+        val url = item?.url.orEmpty().ifBlank { "about:blank" }
             val title = item?.title.orEmpty().ifBlank { url }
             add(
                 WebSessionSessionHistoryItem(
@@ -880,7 +880,7 @@ internal fun StandardBrowserSessionTools.applySessionUserAgent(
 
 internal fun StandardBrowserSessionTools.applyViewportOverride(session: BrowserToolSession) {
     val requestedWidth = session.viewportWidthPx
-    val requestedHeight = session.viewportHeightPx
+        val requestedHeight = session.viewportHeightPx
     val browserAreaWidth =
         StandardBrowserSessionTools.browserHost?.currentBrowserAreaSize()?.first
             ?.takeIf { it > 0 }
@@ -898,7 +898,7 @@ internal fun StandardBrowserSessionTools.applyViewportOverride(session: BrowserT
         }
 
     val currentScaleFactor = session.appliedViewportScaleFactor.takeIf { it > 0f } ?: 1f
-    val relativeScaleFactor = (desiredScaleFactor / currentScaleFactor).coerceIn(0.25f, 5f)
+        val relativeScaleFactor = (desiredScaleFactor / currentScaleFactor).coerceIn(0.25f, 5f)
 
     session.webView.post {
         runCatching {
@@ -950,7 +950,7 @@ internal fun StandardBrowserSessionTools.handleNavigationOverrideOnMain(
     uri: Uri
 ): Boolean {
     val rawUrl = uri.toString()
-    val scheme = uri.scheme?.lowercase(Locale.ROOT) ?: return false
+        val scheme = uri.scheme?.lowercase(Locale.ROOT) ?: return false
     return when (scheme) {
         "http", "https" -> {
             if (isUserscriptInstallUri(uri)) {
@@ -1194,9 +1194,9 @@ internal fun StandardBrowserSessionTools.setDesktopModeEnabled(enabled: Boolean)
 
 internal fun StandardBrowserSessionTools.closeSession(sessionId: String): Boolean {
     val orderedBeforeClose = orderedSessionIds()
-    val closedIndex = orderedBeforeClose.indexOf(sessionId)
+        val closedIndex = orderedBeforeClose.indexOf(sessionId)
     val wasActive = StandardBrowserSessionTools.activeSessionId == sessionId
-    val previouslyActiveId = StandardBrowserSessionTools.activeSessionId
+        val previouslyActiveId = StandardBrowserSessionTools.activeSessionId
     val session = StandardBrowserSessionTools.sessions.remove(sessionId) ?: return false
     removeSessionOrder(sessionId)
 

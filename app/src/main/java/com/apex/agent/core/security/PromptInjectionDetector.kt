@@ -15,9 +15,9 @@ class PromptInjectionDetector {
         private const val TAG = "PromptInjectionDetector"
 
         // 已知注入模式（不区分大小写）
-        private val INJECTION_PATTERNS: List<InjectionPattern> = buildList {
+                private val INJECTION_PATTERNS: List<InjectionPattern> = buildList {
             // ===== 英文模式 =====
-            add(InjectionPattern(
+                add(InjectionPattern(
                 pattern = Pattern.compile("ignore\\s+(all\\s+)?previous\\s+instructions", Pattern.CASE_INSENSITIVE),
                 type = InjectionPatternType.INSTRUCTION_OVERRIDE,
                 baseConfidence = 0.9f,
@@ -115,7 +115,7 @@ class PromptInjectionDetector {
             ))
 
             // ===== 中文模式 =====
-            add(InjectionPattern(
+                add(InjectionPattern(
                 pattern = Pattern.compile("忽略之前的所有）?(指令|指示|规则|设定，"),
                 type = InjectionPatternType.INSTRUCTION_OVERRIDE,
                 baseConfidence = 0.9f,
@@ -202,7 +202,7 @@ class PromptInjectionDetector {
         }
 
         // 角色劫持专用模式（更宽泛的匹配）
-        private val ROLE_HIJACK_PATTERNS: List<InjectionPattern> = buildList {
+                private val ROLE_HIJACK_PATTERNS: List<InjectionPattern> = buildList {
             add(InjectionPattern(
                 pattern = Pattern.compile("from\\s+now\\s+on\\s*,?\\s*(?:you\\s+are|act\\s+as|be|become)\\s+", Pattern.CASE_INSENSITIVE),
                 type = InjectionPatternType.ROLE_HIJACK,

@@ -206,7 +206,7 @@ abstract class ObjectPool<T>(
     private fun validateAndCleanup() {
         try {
             val now = System.currentTimeMillis()
-            val toRemove = mutableListOf<T>()
+        val toRemove = mutableListOf<T>()
             for (obj in pool) {
                 if (!validate(obj)) {
                     toRemove.add(obj)

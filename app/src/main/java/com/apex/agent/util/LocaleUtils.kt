@@ -26,7 +26,7 @@ object LocaleUtils {
     const val PORTUGUESE_BRAZIL_LANGUAGE_CODE = "pt-BR"
 
     // 旧语言代码到新语言代码的别名映射
-    private val legacyLanguageCodeAliases =
+                private val legacyLanguageCodeAliases =
         mapOf("pt" to PORTUGUESE_BRAZIL_LANGUAGE_CODE)
 
     /**
@@ -74,7 +74,7 @@ object LocaleUtils {
     private val languageEmojiMap = mapOf(
         "zh" to "\uD83C\uDDE8\uD83C\uDDF3",  // 🇨🇳
         "en" to "\uD83C\uDDFA\uD83C\uDDF8",  // 🇺🇸
-        PORTUGUESE_BRAZIL_LANGUAGE_CODE to "\uD83C\uDDE7\uD83C\uDDF7", // 🇧🇷
+                PORTUGUESE_BRAZIL_LANGUAGE_CODE to "\uD83C\uDDE7\uD83C\uDDF7", // 🇧🇷
         "ja" to "\uD83C\uDDEF\uD83C\uDDF5",  // 🇯🇵
         "ko" to "\uD83C\uDDF0\uD83C\uDDF7",  // 🇰🇷
         "fr" to "\uD83C\uDDEB\uD83C\uDDF7",  // 🇫🇷
@@ -384,7 +384,6 @@ object LocaleUtils {
                 .takeIf { it.language.isNotBlank() }
                 ?: return normalizedCode
         val language = locale.language.lowercase(Locale.ROOT)
-
         val languageOnlyMatch =
             supportedLanguageCodes.firstOrNull { it.equals(language, ignoreCase = true) }
         if (languageOnlyMatch != null) {

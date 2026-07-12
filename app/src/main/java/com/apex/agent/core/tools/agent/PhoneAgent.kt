@@ -129,7 +129,7 @@ class PhoneAgent(
         get() = _stepCount
 
     private val _contextHistory = mutableListOf<Pair<String, String>>()
-    val contextHistory: List<Pair<String, String>>
+        val contextHistory: List<Pair<String, String>>
         get() = _contextHistory.toList()
 
     private var pauseFlow: StateFlow<Boolean>? = null
@@ -169,7 +169,7 @@ class PhoneAgent(
     private fun shouldUseShowerUi(hasShowerDisplay: Boolean): Boolean {
         // Main-screen Shower only borrows Shower for capture/input; the visible agent UI
         // should stay aligned with the regular main-screen automation experience.
-        return !isMainScreenAgent && hasShowerDisplay
+                return !isMainScreenAgent && hasShowerDisplay
     }
 
     private suspend fun ensureRequiredVirtualScreenOrError(): String? {
@@ -245,7 +245,6 @@ class PhoneAgent(
         if (isMainScreenAgent) return Pair(false, null)
         if (hasShowerDisplayAtStart) return Pair(true, null)
         val targetAppForPrewarm = targetApp?.takeIf { it.isNotBlank() } ?: return Pair(false, null)
-
         val permissionState = resolvePrivilegedExecutionState(
             context = context,
             androidPermissionPreferences = androidPermissionPreferences
@@ -402,7 +401,7 @@ class PhoneAgent(
 
         try {
             // Setup UI for agent run: hide window, then choose indicator based on whether Shower virtual display is active
-            floatingService?.setFloatingWindowVisible(false)
+                floatingService?.setFloatingWindowVisible(false)
             if (useShowerUi) {
                 useShowerIndicatorForAgent(context, agentId)
             } else {
@@ -435,11 +434,11 @@ class PhoneAgent(
             pauseFlow = isPausedFlow
 
             // First step with user prompt
-            AppLogger.d("PhoneAgent", "[${agentId}] run: starting first step for task='${task}', hasShowerDisplayAtStart=${hasShowerDisplayAtStart}")
+                AppLogger.d("PhoneAgent", "[${agentId}] run: starting first step for task='${task}', hasShowerDisplayAtStart=${hasShowerDisplayAtStart}")
             awaitIfPaused()
             var result = _executeStep(task, isFirst = true)
             val firstAction = result.action
-            val firstStatusText = when {
+        val firstStatusText = when {
                 result.finished -> result.message ?: context.getString(R.string.phone_agent_completed)
                 firstAction != null && firstAction.metadata == "do" -> {
                     val actionName = firstAction.actionName ?: ""
@@ -504,11 +503,11 @@ class PhoneAgent(
             }
 
             // Continue until finished or max steps reached
-            while (_stepCount < config.maxSteps) {
+                while (_stepCount < config.maxSteps) {
                 awaitIfPaused()
                 result = _executeStep(null, isFirst = false)
                 val action = result.action
-                val statusText = when {
+        val statusText = when {
                     result.finished -> result.message ?: context.getString(R.string.phone_agent_completed)
                     action != null && action.metadata == "do" -> {
                         val actionName = action.actionName ?: ""
@@ -670,14 +669,14 @@ class PhoneAgent(
         val finishIndex = full.indexOf(finishMarker)
         if (finishIndex >= 0) {
             val thinking = full.substring(0, finishIndex).trim().ifEmpty { null }
-            val action = full.substring(finishIndex).trim()
+        val action = full.substring(finishIndex).trim()
             return thinking to action
         }
         val doMarker = "do(action="
         val doIndex = full.indexOf(doMarker)
         if (doIndex >= 0) {
             val thinking = full.substring(0, doIndex).trim().ifEmpty { null }
-            val action = full.substring(doIndex).trim()
+        val action = full.substring(doIndex).trim()
             return thinking to action
         }
         val thinkTag = extractTagContent(full, "think")
@@ -703,7 +702,7 @@ class PhoneAgent(
 
         if (trimmed.startsWith("finish")) {
             val messageRegex = Regex("""finish\s*\(\s*message\s*=\s*\"(.*)\"\s*\)""", RegexOption.DOT_MATCHES_ALL)
-            val message = messageRegex.find(trimmed)?.groupValues?.getOrNull(1) ?: ""
+        val message = messageRegex.find(trimmed)?.groupValues?.getOrNull(1) ?: ""
             return ParsedAgentAction(metadata = "finish", actionName = null, fields = mapOf("message" to message))
         }
 
@@ -716,7 +715,7 @@ class PhoneAgent(
         val regex = Regex("""(\w+)\s*=\s*(?:\[(.*)\]|\"(.*)\"|'([^']*)'|([^,)]+))""")
         regex.findAll(inner).forEach { matchResult ->
             val key = matchResult.groupValues[1]
-            val value = matchResult.groupValues.drop(2).firstOrNull { it.isNotEmpty() } ?: ""
+        val value = matchResult.groupValues.drop(2).firstOrNull { it.isNotEmpty() } ?: ""
             fields[key] = value
         }
 
@@ -833,7 +832,7 @@ class ActionHandler(
 
         try {
             // Keep screenshot captures clean: hide overlays first, then restore after capture.
-            floatingService?.setStatusIndicatorVisible(false)
+                floatingService?.setStatusIndicatorVisible(false)
             progressOverlay.setOverlayVisible(false)
             delay(200)
 
@@ -912,7 +911,7 @@ class ActionHandler(
     private fun saveCompressedScreenshotFromBitmap(bitmap: Bitmap): Pair<String?, Pair<Int, Int>?> {
         return try {
             val originalWidth = bitmap.width
-            val originalHeight = bitmap.height
+        val originalHeight = bitmap.height
             val imageId = ImagePoolManager.addImageFromBitmap(
                 bitmap = bitmap,
                 mimeType = if (bitmap.hasAlpha()) "image/png" else "image/jpeg",
@@ -965,7 +964,7 @@ class ActionHandler(
         return when (actionName) {
             "Launch" -> {
                 val app = fields["app"]?.takeIf { it.isNotBlank() } ?: return fail(message = "No app name specified for Launch")
-                val packageName = resolveAppPackageName(app)
+        val packageName = resolveAppPackageName(app)
                 try {
                     val permissionState = resolvePrivilegedExecutionState(
                         context = context,
@@ -977,19 +976,19 @@ class ActionHandler(
 
                     if (showerCtx.isAdbOrHigher && !isMainScreenAgent()) {
                         val pm = context.packageManager
-                        val hasLaunchableTarget = pm.getLaunchIntentForPackage(packageName) != null
+        val hasLaunchableTarget = pm.getLaunchIntentForPackage(packageName) != null
                         ensureVirtualDisplayIfAdbOrHigher()
 
                         val metrics = context.resources.displayMetrics
-                        val width = metrics.widthPixels
+        val width = metrics.widthPixels
                         val height = metrics.heightPixels
-                        val dpi = metrics.densityDpi
+        val dpi = metrics.densityDpi
                         val bitrateKbps = try {
                             DisplayPreferencesManager.getInstance(context).getVirtualDisplayBitrateKbps()
                         } catch (e: Exception) { 3000 }
 
                         val created = ShowerController.ensureDisplay(agentId, context, width, height, dpi, bitrateKbps = bitrateKbps)
-                        val launched = if (created && hasLaunchableTarget) ShowerController.launchApp(agentId, packageName) else false
+        val launched = if (created && hasLaunchableTarget) ShowerController.launchApp(agentId, packageName) else false
 
                         if (created && launched) {
                             try {
@@ -1000,7 +999,7 @@ class ActionHandler(
                             ok()
                         } else {
                             val desktopPackage = "com.apex.desktop"
-                            val desktopLaunched = ShowerController.launchApp(agentId, desktopPackage)
+        val desktopLaunched = ShowerController.launchApp(agentId, desktopPackage)
                             if (desktopLaunched) {
                                 try {
                                     VirtualDisplayOverlay.getInstance(context, agentId).updateCurrentAppPackageName(desktopPackage)
@@ -1037,7 +1036,7 @@ class ActionHandler(
                         if (okTap) ok() else fail(message = "Shower TAP failed at (${x},${y})")
                     } else {
                         val params = withDisplayParam(listOf(ToolParameter("x", x.toString()), ToolParameter("y", y.toString())))
-                        val result = toolImplementations.tap(AITool("tap", params))
+        val result = toolImplementations.tap(AITool("tap", params))
                         if (result.success) ok() else fail(message = result.error ?: "Tap failed")
                     }
                 }
@@ -1046,7 +1045,7 @@ class ActionHandler(
             }
             "Type" -> {
                 val text = fields["text"] ?: ""
-                val exec = withAgentUiHiddenForAction(showerCtx) {
+        val exec = withAgentUiHiddenForAction(showerCtx) {
                     if (showerCtx.canUseShowerForInput) {
                         try {
                             var cleared = false
@@ -1078,7 +1077,7 @@ class ActionHandler(
                         }
                     } else {
                         val params = withDisplayParam(listOf(ToolParameter("text", text)))
-                        val result = toolImplementations.setInputText(AITool("set_input_text", params))
+        val result = toolImplementations.setInputText(AITool("set_input_text", params))
                         if (result.success) ok() else fail(message = result.error ?: "Type failed")
                     }
                 }
@@ -1087,7 +1086,7 @@ class ActionHandler(
             }
             "Swipe" -> {
                 val start = fields["start"] ?: return fail(message = "Missing swipe start")
-                val end = fields["end"] ?: return fail(message = "Missing swipe end")
+        val end = fields["end"] ?: return fail(message = "Missing swipe end")
                 val (sx, sy) = parseRelativePoint(start) ?: return fail(message = "Invalid swipe start")
                 val (ex, ey) = parseRelativePoint(end) ?: return fail(message = "Invalid swipe end")
                 val exec = withAgentUiHiddenForAction(showerCtx) {
@@ -1113,7 +1112,7 @@ class ActionHandler(
                         if (okKey) ok() else fail(message = "Shower BACK failed")
                     } else {
                         val params = withDisplayParam(listOf(ToolParameter("key_code", "KEYCODE_BACK")))
-                        val result = toolImplementations.pressKey(AITool("press_key", params))
+        val result = toolImplementations.pressKey(AITool("press_key", params))
                         if (result.success) ok() else fail(message = result.error ?: "Back failed")
                     }
                 }
@@ -1127,7 +1126,7 @@ class ActionHandler(
                         if (okKey) ok() else fail(message = "Shower HOME failed")
                     } else {
                         val params = withDisplayParam(listOf(ToolParameter("key_code", "KEYCODE_HOME")))
-                        val result = toolImplementations.pressKey(AITool("press_key", params))
+        val result = toolImplementations.pressKey(AITool("press_key", params))
                         if (result.success) ok() else fail(message = result.error ?: "Home failed")
                     }
                 }

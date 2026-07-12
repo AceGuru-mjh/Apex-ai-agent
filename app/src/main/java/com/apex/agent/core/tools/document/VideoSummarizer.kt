@@ -18,7 +18,7 @@ class VideoSummarizer {
             outputDir.mkdirs()
 
             val framePattern = File(outputDir, "frame_%03d.png")
-            val process = Runtime.getRuntime().exec(
+        val process = Runtime.getRuntime().exec(
                 arrayOf(
                     "ffmpeg",
                     "-i", videoPath,
@@ -86,9 +86,9 @@ class VideoSummarizer {
     ): VideoSummaryResult = withContext(Dispatchers.IO) {
         try {
             val duration = getVideoDuration(videoPath)
-            val keyFrames = if (includeFrames) extractKeyFrames(videoPath) else emptyList()
+        val keyFrames = if (includeFrames) extractKeyFrames(videoPath) else emptyList()
             val audioData = extractAudio(videoPath)
-            val transcript = if (includeTranscript) transcribeAudio(audioData) else ""
+        val transcript = if (includeTranscript) transcribeAudio(audioData) else ""
 
             val summary = if (transcript.isNotEmpty()) {
                 generateTextSummary(transcript, duration)
@@ -121,7 +121,7 @@ class VideoSummarizer {
                 arrayOf("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", videoPath)
             )
             val reader = process.inputStream.bufferedReader()
-            val durationStr = reader.readLine() ?: "0"
+        val durationStr = reader.readLine() ?: "0"
             reader.close()
             (durationStr.toDoubleOrNull()?.toLong() ?: 0L) * 1000
         } catch (e: Exception) {
@@ -135,7 +135,7 @@ class VideoSummarizer {
                 arrayOf("whisper", "-f", "json", audioPath)
             )
             val reader = process.inputStream.bufferedReader()
-            val output = reader.readText()
+        val output = reader.readText()
             reader.close()
             parseWhisperOutput(output)
         } catch (e: Exception) {
@@ -161,7 +161,6 @@ class VideoSummarizer {
         val durationSec = durationMs / 1000
         val minutes = durationSec / 60
         val seconds = durationSec % 60
-
         val sentences = transcript.split(Regex("[.!?。！？]")).filter { it.trim().isNotEmpty() }
         val summary = if (sentences.size > 3) {
             sentences.take(3).joinToString(". ") + "."
@@ -180,7 +179,7 @@ class VideoSummarizer {
 
         frames.forEachIndexed { index, frame ->
             val time = index * interval
-            val description = "关键常${index + 1}"
+        val description = "关键常${index + 1}"
             timestamps.add(
                 VideoTimestamp(
                     time = time,

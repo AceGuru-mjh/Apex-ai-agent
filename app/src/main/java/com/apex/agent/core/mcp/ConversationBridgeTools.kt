@@ -67,7 +67,7 @@ class ConversationBridgeTools(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 val sessionsFlow = sessionDatabase.sessionDao().getAllSessions()
-                val sessions = sessionsFlow.first()
+        val sessions = sessionsFlow.first()
                 
                 val conversations = sessions
                     .drop(offset)
@@ -167,8 +167,8 @@ class ConversationBridgeTools(private val context: Context) {
                 
                 val messages = if (beforeId != null) {
                     // 获取指定消息之前的消息
-                    val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
-                    val beforeIndex = allMessages.indexOfFirst { it.id == beforeId }
+                val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
+        val beforeIndex = allMessages.indexOfFirst { it.id == beforeId }
                     if (beforeIndex > 0) {
                         allMessages.subList(0, minOf(beforeIndex, limit))
                     } else {
@@ -232,7 +232,7 @@ class ConversationBridgeTools(private val context: Context) {
                 }
                 
                 val messageId = UUID.randomUUID().toString()
-                val timestamp = System.currentTimeMillis()
+        val timestamp = System.currentTimeMillis()
                 
                 val message = MessageEntity(
                     id = messageId,
@@ -283,7 +283,7 @@ class ConversationBridgeTools(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 val events = synchronized(eventQueue) {
-                    val filtered = if (since != null) {
+        val filtered = if (since != null) {
                         eventQueue.filter { it.timestamp > since }
                     } else {
                         eventQueue.toList()
@@ -316,7 +316,7 @@ class ConversationBridgeTools(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 val startTime = System.currentTimeMillis()
-                val deadline = startTime + timeout
+        val deadline = startTime + timeout
                 
                 while (System.currentTimeMillis() < deadline) {
                     val events = synchronized(eventQueue) {
@@ -336,7 +336,7 @@ class ConversationBridgeTools(private val context: Context) {
                     }
                     
                     // 短暂等待后重试
-                    kotlinx.coroutines.delay(100)
+                kotlinx.coroutines.delay(100)
                 }
                 
                 // 超时，返回空列表
@@ -396,7 +396,7 @@ class ConversationBridgeTools(private val context: Context) {
                 }
                 
                 val permission = synchronized(pendingPermissions) {
-                    val index = pendingPermissions.indexOfFirst { it.id == permissionId }
+        val index = pendingPermissions.indexOfFirst { it.id == permissionId }
                     if (index >= 0) {
                         pendingPermissions.removeAt(index)
                     } else {
@@ -416,7 +416,7 @@ class ConversationBridgeTools(private val context: Context) {
                     rbacManager?.let { rbac ->
                         try {
                             val rbacPermName = "mcp:${permission.type}"
-                            val existingPerm = rbac.getRepository()
+        val existingPerm = rbac.getRepository()
                                 .getPermissionByName(rbacPermName)
                             if (existingPerm == null) {
                                 rbac.getRepository().insertPermission(
@@ -463,7 +463,7 @@ class ConversationBridgeTools(private val context: Context) {
         synchronized(eventQueue) {
             eventQueue.add(event)
             // 限制队列大小
-            if (eventQueue.size > 1000) {
+                if (eventQueue.size > 1000) {
                 eventQueue.removeAt(0)
             }
         }

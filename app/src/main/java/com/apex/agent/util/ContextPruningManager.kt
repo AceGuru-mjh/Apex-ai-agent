@@ -37,7 +37,6 @@ class ContextPruningManager(
         )
 
         val resultMessages = systemMessages.map { it.first } + prunedNonSystem
-
         val originalCount = messages.size
         val removedCount = originalCount - resultMessages.size
         val savedTokens = removedCount * estimatedTokensPerMessage
@@ -64,7 +63,6 @@ class ContextPruningManager(
         }
 
         val messagesAboveThreshold = sortedByRecent.filter { it.second.score >= importanceThreshold }
-
         val selectedFromThreshold = if (messagesAboveThreshold.size >= minContextMessages) {
             messagesAboveThreshold
         } else {
@@ -120,9 +118,9 @@ class ContextPruningManager(
         val result = messages.filter { msg -> toKeep.contains(msg) }
             .let { kept ->
                 val keptSet = kept.toSet()
-                val notKept = messages.filter { it !in keptSet }
+        val notKept = messages.filter { it !in keptSet }
                 val scoreMap = scoredMessages.associate { it.first to it.second.score }
-                val sortedNotKept = notKept.sortedByDescending { scoreMap[it] ?: 0f }
+        val sortedNotKept = notKept.sortedByDescending { scoreMap[it] ?: 0f }
                 kept + sortedNotKept.takeLast(messages.size - kept.size)
             }
 

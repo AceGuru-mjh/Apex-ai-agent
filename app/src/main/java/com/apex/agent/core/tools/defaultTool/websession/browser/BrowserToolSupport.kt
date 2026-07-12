@@ -189,7 +189,7 @@ internal fun StandardBrowserSessionTools.recordNetworkRequest(
         return
     }
     val headers = request.requestHeaders?.mapKeys { it.key ?: "" } ?: emptyMap()
-    val acceptHeader = headers.entries.firstOrNull { it.key.equals("Accept", ignoreCase = true) }?.value
+        val acceptHeader = headers.entries.firstOrNull { it.key.equals("Accept", ignoreCase = true) }?.value
     val entry =
         com.apex.agent.core.tools.defaultTool.websession.browser.BrowserNetworkRequestEntry(
             method = request.method.orEmpty().ifBlank { "GET" },
@@ -211,7 +211,7 @@ internal fun StandardBrowserSessionTools.renderAllConsoleMessages(
     level: String
 ): String {
     val threshold = consoleSeverity(level)
-    val messages =
+        val messages =
         synchronized(session.consoleEntries) {
             session.consoleEntries.toList()
         }.filter { consoleSeverity(it.level) <= threshold }
@@ -343,7 +343,7 @@ internal fun StandardBrowserSessionTools.matchesTextState(
             )
         }.getOrElse { "" }
     val containsWanted = text == null || bodyText.contains(text)
-    val goneSatisfied = textGone == null || !bodyText.contains(textGone)
+        val goneSatisfied = textGone == null || !bodyText.contains(textGone)
     return containsWanted && goneSatisfied
 }
 
@@ -388,7 +388,7 @@ internal fun StandardBrowserSessionTools.buildClickCode(
     modifiers: Set<String>
 ): String {
     val locator = locatorExpressionForRef(session, ref)
-    val method = if (doubleClick) "dblclick" else "click"
+        val method = if (doubleClick) "dblclick" else "click"
     val options = mutableListOf<String>()
     if (button != "left") {
         options += "button: ${quoteJsCode(button)}"
@@ -426,7 +426,7 @@ internal fun StandardBrowserSessionTools.settleBrowserAction(
                 ensureSessionAttachedOnMain(activeSession.id)
             }
             val snapshot = latestSnapshot(activeSession)
-            val finalRegistry = buildPageRegistry()
+        val finalRegistry = buildPageRegistry()
             return BrowserToolActionSettlement(
                 registry = finalRegistry,
                 session = activeSession,
@@ -441,7 +441,7 @@ internal fun StandardBrowserSessionTools.settleBrowserAction(
     }
 
     val registry = buildPageRegistry()
-    val activeSession =
+        val activeSession =
         when {
             policy.allowActivePageSwitch -> registry.activeSessionId?.let(::sessionById)
             else -> sessionById(markers.initialSessionId)
@@ -451,7 +451,7 @@ internal fun StandardBrowserSessionTools.settleBrowserAction(
         ensureSessionAttachedOnMain(activeSession.id)
     }
     val snapshot = latestSnapshot(activeSession)
-    val finalRegistry = buildPageRegistry()
+        val finalRegistry = buildPageRegistry()
     return BrowserToolActionSettlement(
         registry = finalRegistry,
         session = activeSession,
@@ -485,7 +485,7 @@ private fun StandardBrowserSessionTools.actionSettled(
     }
 
     val dialogOpened = session.pendingDialog?.timestamp?.let { it >= markers.startedAt } == true
-    val fileChooserOpened =
+        val fileChooserOpened =
         session.pendingFileChooserCallback != null && session.lastFileChooserRequestAt >= markers.startedAt
     val downloadTriggered = latestBrowserDownloadEventAt() > markers.downloadTimestamp
     if (dialogOpened || fileChooserOpened || downloadTriggered) {
@@ -497,7 +497,7 @@ private fun StandardBrowserSessionTools.actionSettled(
     }
 
     val activeSwitched = policy.allowActivePageSwitch && session.id != markers.initialSessionId
-    val currentUrl = readCurrentUrl(session.webView, session.currentUrl).ifBlank { session.currentUrl }
+        val currentUrl = readCurrentUrl(session.webView, session.currentUrl).ifBlank { session.currentUrl }
     val urlChanged = currentUrl != markers.initialUrl
 
     if (policy.waitForNavigationChange && !activeSwitched && !urlChanged) {
@@ -518,7 +518,7 @@ private fun StandardBrowserSessionTools.actionSettled(
 
 private fun isStaticRequest(url: String, acceptHeader: String): Boolean {
     val lowerUrl = url.lowercase(Locale.ROOT)
-    val lowerAccept = acceptHeader?.lowercase(Locale.ROOT).orEmpty()
+        val lowerAccept = acceptHeader?.lowercase(Locale.ROOT).orEmpty()
     return lowerAccept.contains("image/") ||
         lowerAccept.contains("font/") ||
         lowerAccept.contains("text/css") ||
@@ -583,7 +583,7 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
     depth: Int? = null
 ): BrowserSnapshot {
     val selectorLiteral = selector?.let(JSONObject::quote) ?: "null"
-    val depthLiteral = depth?.toString() ?: "null"
+        val depthLiteral = depth?.toString() ?: "null"
     val script =
         """
         (function() {
@@ -593,7 +593,7 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
             const escapeQuoted = (value) => String(value == null ? "" : value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
             const yamlScalar = (value) => {
                 const text = normalize(value);
-                if (!text) {
+            if (!text) {
                     return "";
                 }
                 if (/^[A-Za-z0-9 _.,!?/+-]+$/.test(text) && !text.includes(": ")) {
@@ -605,14 +605,14 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
             const collectWindows = () => {
                 const queue = [window];
                 const visited = new Set();
-                const result = [];
+            const result = [];
                 while (queue.length) {
                     const currentWindow = queue.shift();
-                    if (!currentWindow || visited.has(currentWindow)) {
+            if (!currentWindow || visited.has(currentWindow)) {
                         continue;
                     }
                     visited.add(currentWindow);
-                    let currentDocument;
+            let currentDocument;
                     try {
                         currentDocument = currentWindow.document;
                     } catch (_) {
@@ -622,7 +622,7 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                         continue;
                     }
                     result.push(currentWindow);
-                    Array.from(currentDocument.querySelectorAll("iframe, frame")).forEach((frameElement) => {
+            Array.from(currentDocument.querySelectorAll("iframe, frame")).forEach((frameElement) => {
                         try {
                             if (frameElement.contentWindow) {
                                 queue.push(frameElement.contentWindow);
@@ -638,7 +638,7 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                         return false;
                     }
                     const tagName = String(element.tagName || "").toLowerCase();
-                    if (tagName === "body" || tagName === "html") {
+            if (tagName === "body" || tagName === "html") {
                         return true;
                     }
                     const currentWindow = element.ownerDocument && element.ownerDocument.defaultView;
@@ -646,13 +646,13 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                         return false;
                     }
                     const style = currentWindow.getComputedStyle(element);
-                    if (!style || style.visibility === "hidden" || style.display === "none") {
+            if (!style || style.visibility === "hidden" || style.display === "none") {
                         return false;
                     }
                     const rect = element.getBoundingClientRect();
-                    return rect.width > 0 || rect.height > 0 || element.getClientRects().length > 0;
+            return rect.width > 0 || rect.height > 0 || element.getClientRects().length > 0;
                 };
-                const existingRefElements = [];
+            const existingRefElements = [];
                 collectWindows().forEach((currentWindow) => {
                     try {
                         Array.from(currentWindow.document.querySelectorAll("[aria-ref]")).forEach((element) => {
@@ -660,34 +660,34 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                         });
                     } catch (_) {}
                 });
-                const existingRefNumbers = existingRefElements
+            const existingRefNumbers = existingRefElements
                     .map((element) => {
                         const match = /^e(\d+)$/.exec(String(element.getAttribute("aria-ref") || ""));
-                        return match ? parseInt(match[1], 10) : 0;
+            return match ? parseInt(match[1], 10) : 0;
                     })
                     .filter((value) => Number.isFinite(value) && value > 0);
-                let nextRef = existingRefNumbers.length ? Math.max.apply(null, existingRefNumbers) + 1 : 1;
+            let nextRef = existingRefNumbers.length ? Math.max.apply(null, existingRefNumbers) + 1 : 1;
                 const ensureRef = (element) => {
                     let ref = normalize(element.getAttribute("aria-ref"));
-                    if (!ref) {
+            if (!ref) {
                         ref = "e" + nextRef++;
                         element.setAttribute("aria-ref", ref);
                     }
                     return ref;
                 };
-                const resolveLabelledBy = (element) => {
+            const resolveLabelledBy = (element) => {
                     const ids = normalize(element.getAttribute("aria-labelledby")).split(" ").filter(Boolean);
-                    if (!ids.length) {
+            if (!ids.length) {
                         return "";
                     }
                     return normalize(
                         ids.map((id) => {
                             const labelElement = element.ownerDocument.getElementById(id);
-                            return labelElement ? normalize(labelElement.innerText || labelElement.textContent) : "";
+            return labelElement ? normalize(labelElement.innerText || labelElement.textContent) : "";
                         }).filter(Boolean).join(" ")
                     );
                 };
-                const associatedLabel = (element) => {
+            const associatedLabel = (element) => {
                     try {
                         if (element.labels && element.labels.length) {
                             return normalize(
@@ -699,101 +699,101 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                     } catch (_) {}
                     return "";
                 };
-                const nodes = [];
+            const nodes = [];
                 const inlineLeafText = (element) => {
                     const tagName = String(element.tagName || "").toLowerCase();
-                    if (tagName === "input" || tagName === "textarea" || tagName === "select") {
+            if (tagName === "input" || tagName === "textarea" || tagName === "select") {
                         return "";
                     }
                     return normalize(element.innerText || element.textContent);
                 };
-                const hasAccessibleLabelHint = (element) => {
+            const hasAccessibleLabelHint = (element) => {
                     return !!(
                         normalize(element.getAttribute("aria-label")) ||
                         resolveLabelledBy(element) ||
                         normalize(element.getAttribute("title"))
                     );
                 };
-                const roleFor = (element) => {
+            const roleFor = (element) => {
                     const explicitRole = normalize(element.getAttribute("role")).toLowerCase();
-                    if (explicitRole && explicitRole !== "presentation" && explicitRole !== "none") {
+            if (explicitRole && explicitRole !== "presentation" && explicitRole !== "none") {
                         return explicitRole;
                     }
                     const tagName = String(element.tagName || "").toLowerCase();
-                    switch (tagName) {
+            switch (tagName) {
                         case "a":
                             return element.hasAttribute("href") ? "link" : null;
                         case "button":
                             return "button";
-                        case "textarea":
+            case "textarea":
                             return "textbox";
-                        case "select":
+            case "select":
                             return element.multiple || Number(element.size || 0) > 1 ? "listbox" : "combobox";
-                        case "img":
+            case "img":
                             return "img";
-                        case "iframe":
+            case "iframe":
                         case "frame":
                             return "iframe";
-                        case "ul":
+            case "ul":
                         case "ol":
                             return "list";
-                        case "li":
+            case "li":
                             return "listitem";
-                        case "main":
+            case "main":
                             return "main";
-                        case "nav":
+            case "nav":
                             return "navigation";
-                        case "header":
+            case "header":
                             return "banner";
-                        case "footer":
+            case "footer":
                             return "contentinfo";
-                        case "article":
+            case "article":
                             return "article";
-                        case "form":
+            case "form":
                             return "form";
-                        case "dialog":
+            case "dialog":
                             return "dialog";
-                        case "details":
+            case "details":
                             return "group";
-                        case "fieldset":
+            case "fieldset":
                             return "group";
-                        case "p":
+            case "p":
                             return "paragraph";
-                        case "section":
+            case "section":
                             return hasAccessibleLabelHint(element) ? "region" : null;
                         case "summary":
                             return "button";
-                        case "table":
+            case "table":
                             return "table";
-                        case "tr":
+            case "tr":
                             return "row";
-                        case "td":
+            case "td":
                             return "cell";
-                        case "th":
+            case "th":
                             return element.getAttribute("scope") === "row" ? "rowheader" : "columnheader";
-                        case "option":
+            case "option":
                             return "option";
-                        case "h1":
+            case "h1":
                         case "h2":
                         case "h3":
                         case "h4":
                         case "h5":
                         case "h6":
                             return "heading";
-                        case "input": {
+            case "input": {
                             const type = normalize(element.getAttribute("type") || "text").toLowerCase();
-                            switch (type) {
+            switch (type) {
                                 case "button":
                                 case "submit":
                                 case "reset":
                                     return "button";
-                                case "checkbox":
+            case "checkbox":
                                     return "checkbox";
-                                case "radio":
+            case "radio":
                                     return "radio";
-                                case "range":
+            case "range":
                                     return "slider";
-                                case "search":
+            case "search":
                                 case "email":
                                 case "number":
                                 case "password":
@@ -802,7 +802,7 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                                 case "url":
                                 case "":
                                     return "textbox";
-                                default:
+            default:
                                     return element.tabIndex >= 0 ? "generic" : null;
                             }
                         }
@@ -810,19 +810,19 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                             return element.tabIndex >= 0 || element.isContentEditable ? "generic" : null;
                     }
                 };
-                const nameFor = (element, role) => {
+            const nameFor = (element, role) => {
                     const labelledBy = resolveLabelledBy(element);
-                    if (labelledBy) {
+            if (labelledBy) {
                         return labelledBy;
                     }
                     const ariaLabel = normalize(element.getAttribute("aria-label"));
-                    if (ariaLabel) {
+            if (ariaLabel) {
                         return ariaLabel;
                     }
                     const title = normalize(element.getAttribute("title"));
-                    const placeholder = normalize(element.getAttribute("placeholder"));
-                    const alt = normalize(element.getAttribute("alt"));
-                    if (role === "textbox" || role === "checkbox" || role === "radio" || role === "combobox" || role === "listbox" || role === "slider") {
+            const placeholder = normalize(element.getAttribute("placeholder"));
+            const alt = normalize(element.getAttribute("alt"));
+            if (role === "textbox" || role === "checkbox" || role === "radio" || role === "combobox" || role === "listbox" || role === "slider") {
                         return associatedLabel(element) || placeholder || title || alt;
                     }
                     if (role === "button") {
@@ -845,7 +845,7 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                     }
                     return "";
                 };
-                const needsRef = (element, role) => {
+            const needsRef = (element, role) => {
                     if (!role) {
                         return false;
                     }
@@ -864,10 +864,10 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                         role === "listbox" ||
                         role === "slider";
                 };
-                const stateTokens = (element, role) => {
+            const stateTokens = (element, role) => {
                     const tokens = [];
                     const checked = normalize(element.getAttribute("aria-checked"));
-                    if (role === "checkbox" || role === "radio") {
+            if (role === "checkbox" || role === "radio") {
                         if (checked) {
                             tokens.push(checked === "true" ? "checked" : "checked=" + checked);
                         } else if (typeof element.checked === "boolean") {
@@ -875,15 +875,15 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                         }
                     }
                     const pressed = normalize(element.getAttribute("aria-pressed"));
-                    if (pressed) {
+            if (pressed) {
                         tokens.push("pressed=" + pressed);
                     }
                     const selected = normalize(element.getAttribute("aria-selected"));
-                    if (selected) {
+            if (selected) {
                         tokens.push(selected === "true" ? "selected" : "selected=" + selected);
                     }
                     const expanded = normalize(element.getAttribute("aria-expanded"));
-                    if (expanded) {
+            if (expanded) {
                         tokens.push("expanded=" + expanded);
                     }
                     if (element.disabled || normalize(element.getAttribute("aria-disabled")) === "true") {
@@ -892,36 +892,36 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                     const level = role === "heading"
                         ? (normalize(element.getAttribute("aria-level")) || ((/^h([1-6])$/.exec(String(element.tagName || "").toLowerCase()) || [])[1] || ""))
                         : "";
-                    if (level) {
+            if (level) {
                         tokens.push("level=" + level);
                     }
                     return tokens;
                 };
-                const directTextEntries = (element) => {
+            const directTextEntries = (element) => {
                     const entries = [];
                     let buffer = [];
                     const flush = () => {
                         const text = normalize(buffer.join(" "));
-                        if (text) {
+            if (text) {
                             entries.push({ kind: "text", text: text });
                         }
                         buffer = [];
                     };
-                    Array.from(element.childNodes).forEach((node) => {
+            Array.from(element.childNodes).forEach((node) => {
                         if (node.nodeType === Node.TEXT_NODE) {
                             buffer.push(node.textContent || "");
-                            return;
+            return;
                         }
                         if (node.nodeType === Node.ELEMENT_NODE && String(node.tagName || "").toLowerCase() === "br") {
                             buffer.push(" ");
-                            return;
+            return;
                         }
                         flush();
                     });
-                    flush();
-                    return entries;
+            flush();
+            return entries;
                 };
-                const shouldEmitElement = (element, role, name) => {
+            const shouldEmitElement = (element, role, name) => {
                     if (!role) {
                         return false;
                     }
@@ -930,33 +930,33 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                     }
                     return (role !== "form" && role !== "region") || !!name;
                 };
-                const inlineTextRoles = new Set(["paragraph", "listitem", "group", "cell", "rowheader", "columnheader"]);
-                const namedRoles = new Set(["heading", "link", "button", "checkbox", "radio", "textbox", "combobox", "listbox", "slider", "img", "dialog", "iframe", "list", "main", "navigation", "banner", "contentinfo", "article", "form", "region", "table", "group", "option"]);
-                const textEquivalentNameRoles = new Set(["heading", "link", "button", "option"]);
-                const collapseTextEntries = (entries) => {
+            const inlineTextRoles = new Set(["paragraph", "listitem", "group", "cell", "rowheader", "columnheader"]);
+            const namedRoles = new Set(["heading", "link", "button", "checkbox", "radio", "textbox", "combobox", "listbox", "slider", "img", "dialog", "iframe", "list", "main", "navigation", "banner", "contentinfo", "article", "form", "region", "table", "group", "option"]);
+            const textEquivalentNameRoles = new Set(["heading", "link", "button", "option"]);
+            const collapseTextEntries = (entries) => {
                     if (!entries.length || entries.some((entry) => entry.kind !== "text")) {
                         return null;
                     }
                     return normalize(entries.map((entry) => entry.text).join(" "));
                 };
-                const collectEntries = (element, remainingDepth) => {
+            const collectEntries = (element, remainingDepth) => {
                     if (!element || element.nodeType !== Node.ELEMENT_NODE || !isVisible(element) || (remainingDepth != null && remainingDepth < 0)) {
                         return [];
                     }
                     const role = roleFor(element);
-                    const name = role ? nameFor(element, role) : "";
-                    const includeSelf = shouldEmitElement(element, role, name);
-                    if (role === "iframe") {
+            const name = role ? nameFor(element, role) : "";
+            const includeSelf = shouldEmitElement(element, role, name);
+            if (role === "iframe") {
                         const ref = ensureRef(element);
-                        const attributes = stateTokens(element, role);
-                        attributes.push("ref=" + ref);
-                        nodes.push({ ref: ref, role: role, name: name });
-                        let children = [];
+            const attributes = stateTokens(element, role);
+            attributes.push("ref=" + ref);
+            nodes.push({ ref: ref, role: role, name: name });
+            let children = [];
                         if (remainingDepth == null || remainingDepth > 0) {
                             try {
                                 const frameDocument = element.contentDocument;
                                 const frameRoot = frameDocument && (frameDocument.body || frameDocument.documentElement);
-                                if (frameRoot) {
+            if (frameRoot) {
                                     children = collectEntries(frameRoot, remainingDepth == null ? null : remainingDepth - 1);
                                 }
                             } catch (_) {}
@@ -966,14 +966,14 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                     const childDepth = includeSelf && remainingDepth != null ? remainingDepth - 1 : remainingDepth;
                     const allowChildTraversal = childDepth == null || childDepth >= 0;
                     const textEntries = directTextEntries(element);
-                    const combinedChildren = [];
+            const combinedChildren = [];
                     let textIndex = 0;
                     Array.from(element.childNodes).forEach((childNode) => {
                         if (childNode.nodeType === Node.TEXT_NODE || (childNode.nodeType === Node.ELEMENT_NODE && String(childNode.tagName || "").toLowerCase() === "br")) {
                             const nextText = textEntries[textIndex];
                             if (nextText) {
                                 combinedChildren.push(nextText);
-                                textIndex++;
+            textIndex++;
                             }
                             return;
                         }
@@ -983,31 +983,31 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                             });
                         }
                     });
-                    if (!includeSelf) {
+            if (!includeSelf) {
                         if (combinedChildren.length) {
                             return combinedChildren;
                         }
                         const text = inlineLeafText(element);
-                        return text ? [{ kind: "text", text: text }] : [];
+            return text ? [{ kind: "text", text: text }] : [];
                     }
                     const collapsedText = collapseTextEntries(combinedChildren);
-                    const attributes = stateTokens(element, role);
-                    if (needsRef(element, role)) {
+            const attributes = stateTokens(element, role);
+            if (needsRef(element, role)) {
                         const ref = ensureRef(element);
-                        attributes.push("ref=" + ref);
-                        nodes.push({ ref: ref, role: role, name: name });
+            attributes.push("ref=" + ref);
+            nodes.push({ ref: ref, role: role, name: name });
                     }
                     let inlineText = "";
-                    let children = combinedChildren;
+            let children = combinedChildren;
                     if (role === "textbox") {
                         const value = normalize(element.value);
-                        if (value && value !== name) {
+            if (value && value !== name) {
                             inlineText = value;
                             children = [];
                         }
                     } else if (inlineTextRoles.has(role)) {
                         const textValue = collapsedText || (!allowChildTraversal ? inlineLeafText(element) : "");
-                        if (textValue) {
+            if (textValue) {
                             inlineText = textValue;
                             children = [];
                         }
@@ -1019,11 +1019,11 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                     }
                     return [{ kind: "element", role: role, name: name, attributes: attributes, inlineText: inlineText, children: children }];
                 };
-                const renderEntry = (entry, indent, lines) => {
+            const renderEntry = (entry, indent, lines) => {
                     const prefix = "  ".repeat(indent) + "- ";
-                    if (entry.kind === "text") {
+            if (entry.kind === "text") {
                         lines.push(prefix + "text: " + yamlScalar(entry.text));
-                        return;
+            return;
                     }
                     let line = prefix + entry.role;
                     if (entry.name && namedRoles.has(entry.role)) {
@@ -1032,22 +1032,22 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
                     entry.attributes.forEach((token) => {
                         line += " [" + token + "]";
                     });
-                    if (entry.inlineText) {
+            if (entry.inlineText) {
                         line += ": " + yamlScalar(entry.inlineText);
                     } else if (entry.children.length) {
                         line += ":";
                     }
                     lines.push(line);
-                    entry.children.forEach((child) => renderEntry(child, indent + 1, lines));
+            entry.children.forEach((child) => renderEntry(child, indent + 1, lines));
                 };
-                const root = selector ? document.querySelector(selector) : (document.body || document.documentElement);
-                if (!root) {
+            const root = selector ? document.querySelector(selector) : (document.body || document.documentElement);
+            if (!root) {
                     throw new Error(selector ? '"' + selector + '" does not match any elements.' : "No root element available.");
                 }
                 const entries = collectEntries(root, depthLimit);
-                const lines = [];
+            const lines = [];
                 entries.forEach((entry) => renderEntry(entry, 0, lines));
-                return JSON.stringify({
+            return JSON.stringify({
                     ok: true,
                     yaml: lines.join("\n"),
                     nodes
@@ -1065,7 +1065,7 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
         throw RuntimeException(json?.optString("error").orEmpty().ifBlank { "snapshot_capture_error" })
     }
     val nodes = mutableMapOf<String, BrowserSnapshotNode>()
-    val array = json?.optJSONArray("nodes") ?: JSONArray()
+        val array = json?.optJSONArray("nodes") ?: JSONArray()
     for (index in 0 until array.length()) {
         val node = array.optJSONObject(index) ?: continue
         val ref = node.optString("ref").trim()
@@ -1096,7 +1096,7 @@ internal fun StandardBrowserSessionTools.locatorExpressionForRef(
         return "page.locator('[aria-ref=${ref}]')"
     }
     val role = node.role.trim()
-    val name = node.name.trim()
+        val name = node.name.trim()
     return when {
         role.isBlank() || role == "generic" -> "page.locator('[aria-ref=${ref}]')"
         name.isNotBlank() -> "page.getByRole(${quoteJsCode(role)}, { name: ${quoteJsCode(name)} })"
@@ -1111,9 +1111,9 @@ internal fun browserRefResolverScript(functionName: String = "__apex-agentResolv
     """
     const ${functionName} = (refValue) => {
         const wantedRef = String(refValue || "");
-        const queue = [window];
+            const queue = [window];
         const visited = new Set();
-        while (queue.length) {
+            while (queue.length) {
             const currentWindow = queue.shift();
             if (!currentWindow || visited.has(currentWindow)) {
                 continue;

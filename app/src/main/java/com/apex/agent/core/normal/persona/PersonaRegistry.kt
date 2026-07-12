@@ -25,13 +25,13 @@ data class Persona(
     val name: String,
     val displayName: String,
     val avatar: String,             // emoji 或图标标识
-    val description: String,
+                val description: String,
     val systemPrompt: String,       // 角色的 system prompt
-    val personality: Personality,
+                val personality: Personality,
     val speakingStyle: SpeakingStyle,
     val catchphrases: List<String> = emptyList(),  // 口头禅
-    val expertise: List<String> = emptyList(),     // 专长领域
-    val appropriateScenes: Set<String> = emptySet(),
+                val expertise: List<String> = emptyList(),     // 专长领域
+                val appropriateScenes: Set<String> = emptySet(),
     val isBuiltin: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -41,13 +41,13 @@ data class Persona(
  */
 data class Personality(
     val openness: Float = 0.5f,          // 开放性 0-1
-    val conscientiousness: Float = 0.5f, // 尽责性
-    val extraversion: Float = 0.5f,      // 外向性
-    val agreeableness: Float = 0.5f,     // 宜人性
-    val neuroticism: Float = 0.5f,       // 神经质
-    val humor: Float = 0.5f,             // 幽默感
-    val warmth: Float = 0.5f,            // 温暖度
-    val formality: Float = 0.5f          // 正式度
+                val conscientiousness: Float = 0.5f, // 尽责性
+                val extraversion: Float = 0.5f,      // 外向性
+                val agreeableness: Float = 0.5f,     // 宜人性
+                val neuroticism: Float = 0.5f,       // 神经质
+                val humor: Float = 0.5f,             // 幽默感
+                val warmth: Float = 0.5f,            // 温暖度
+                val formality: Float = 0.5f          // 正式度
 )
 
 /**
@@ -66,13 +66,13 @@ data class SpeakingStyle(
 
 enum class Tone {
     WARM,          // 温暖
-    PROFESSIONAL,  // 专业
-    HUMOROUS,      // 幽默
-    SERIOUS,       // 严肃
-    ENCOURAGING,   // 鼓励
-    SARCASTIC,     // 讽刺
-    PHILOSOPHICAL, // 哲思
-    PLAYFUL        // 俏皮
+                PROFESSIONAL,  // 专业
+                HUMOROUS,      // 幽默
+                SERIOUS,       // 严肃
+                ENCOURAGING,   // 鼓励
+                SARCASTIC,     // 讽刺
+                PHILOSOPHICAL, // 哲思
+                PLAYFUL        // 俏皮
 }
 
 enum class Pace { SLOW, MODERATE, FAST }
@@ -86,8 +86,7 @@ class PersonaRegistry {
 
     private val personas = ConcurrentHashMap<String, Persona>()
     private val activePersonas = ConcurrentHashMap<String, String>()  // chatId -> personaId
-
-    init {
+                init {
         registerBuiltinPersonas()
     }
 
@@ -179,10 +178,9 @@ class PersonaRegistry {
     }
 
     // ============ 预置角色 ============
-
-    private fun registerBuiltinPersonas() {
+                private fun registerBuiltinPersonas() {
         // 学者
-        register(Persona(
+                register(Persona(
             id = "persona_scholar",
             name = "scholar",
             displayName = "学者",
@@ -211,7 +209,7 @@ class PersonaRegistry {
         ))
 
         // 朋友
-        register(Persona(
+                register(Persona(
             id = "persona_friend",
             name = "friend",
             displayName = "知心朋友",
@@ -240,7 +238,7 @@ class PersonaRegistry {
         ))
 
         // 教练
-        register(Persona(
+                register(Persona(
             id = "persona_coach",
             name = "coach",
             displayName = "成长教练",
@@ -269,7 +267,7 @@ class PersonaRegistry {
         ))
 
         // 诗人
-        register(Persona(
+                register(Persona(
             id = "persona_poet",
             name = "poet",
             displayName = "诗人",
@@ -298,7 +296,7 @@ class PersonaRegistry {
         ))
 
         // 侦探
-        register(Persona(
+                register(Persona(
             id = "persona_detective",
             name = "detective",
             displayName = "侦探",
@@ -327,7 +325,7 @@ class PersonaRegistry {
         ))
 
         // 管家
-        register(Persona(
+                register(Persona(
             id = "persona_butler",
             name = "butler",
             displayName = "管家",
@@ -356,7 +354,7 @@ class PersonaRegistry {
         ))
 
         // 极客
-        register(Persona(
+                register(Persona(
             id = "persona_geek",
             name = "geek",
             displayName = "极客",
@@ -385,7 +383,7 @@ class PersonaRegistry {
         ))
 
         // 哲学家
-        register(Persona(
+                register(Persona(
             id = "persona_philosopher",
             name = "philosopher",
             displayName = "哲学家",

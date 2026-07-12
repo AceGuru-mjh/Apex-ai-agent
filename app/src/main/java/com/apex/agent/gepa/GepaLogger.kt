@@ -16,7 +16,7 @@ object GepaLogger {
 
     private val logQueue = ConcurrentLinkedQueue<LogEntry>()
     private val _logs = MutableStateFlow<List<LogEntry>>(emptyList())
-    val logs: StateFlow<List<LogEntry>> = _logs.asStateFlow()
+        val logs: StateFlow<List<LogEntry>> = _logs.asStateFlow()
 
     private val isEnabled = AtomicBoolean(true)
     private val maxLogSize = 1000
@@ -212,7 +212,7 @@ object GepaLogger {
 class GepaPerformanceMonitor {
 
     private val _performanceMetrics = MutableStateFlow(PerformanceMetrics())
-    val performanceMetrics: StateFlow<PerformanceMetrics> = _performanceMetrics.asStateFlow()
+        val performanceMetrics: StateFlow<PerformanceMetrics> = _performanceMetrics.asStateFlow()
 
     private val operationTimings = ConcurrentHashMap<String, MutableList<Long>>()
     private val maxSamplesPerOperation = 100

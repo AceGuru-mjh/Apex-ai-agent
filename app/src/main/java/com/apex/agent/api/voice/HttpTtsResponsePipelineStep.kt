@@ -21,7 +21,6 @@ data class HttpTtsResponsePipelineStep(
         const val TYPE_HTTP_GET = "http_get"
         const val TYPE_HTTP_REQUEST_FROM_OBJECT = "http_request_from_object"
         const val TYPE_BASE64_DECODE = "base64_decode"
-
         val SUPPORTED_TYPES: Set<String> =
             setOf(
                 TYPE_PARSE_JSON,

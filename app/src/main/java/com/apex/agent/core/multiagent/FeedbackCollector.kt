@@ -20,26 +20,25 @@ class FeedbackCollector {
 
     enum class FeedbackType {
         BUG,         // 功能 bug
-        FEATURE,     // 功能建议
-        UI,          // UI/UX 问题
-        PERFORMANCE, // 性能问题
-        OTHER        // 其他问题
+                FEATURE,     // 功能建议
+                UI,          // UI/UX 问题
+                PERFORMANCE, // 性能问题
+                OTHER        // 其他问题
     }
 
     enum class Severity {
         CRITICAL,    // 严重，影响核心功，
-       HIGH,        // 高，影响用户体验
-        MEDIUM,      // 中，需要改，
-       LOW          // 低，轻微问题
+                HIGH,        // 高，影响用户体验
+                MEDIUM,      // 中，需要改，
+                LOW          // 低，轻微问题
     }
 
     enum class FeedbackStatus {
         PENDING,     // 待处，
-       IN_PROGRESS, // 处理，
-       RESOLVED,    // 已解，
-       CLOSED       // 已关，   }
-
-    private val feedbacks = ConcurrentHashMap<String, Feedback>()
+                IN_PROGRESS, // 处理，
+                RESOLVED,    // 已解，
+                CLOSED       // 已关，   }
+                private val feedbacks = ConcurrentHashMap<String, Feedback>()
     private val feedbackIdCounter = AtomicInteger(0)
 
     fun submitFeedback(userId: String, sessionId: String, type: FeedbackType, severity: Severity, content: String): String {

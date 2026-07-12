@@ -28,7 +28,7 @@ class CharCondition(private val expectedChar: Char) : KmpCondition {
     override fun toRegexPattern(): String =
             expectedChar.toString().let {
                 // 转义正则表达式特殊字符
-               if (it in ".*+?^\${}()|[]\\") "\\" + it else it
+                if (it in ".*+?^\${}()|[]\\") "\\" + it else it
             }
 }
 
@@ -60,7 +60,7 @@ class NotCondition(private val condition: KmpCondition) : KmpCondition {
     override fun getDescription(): String = "not(${condition.getDescription()})"
     override fun toRegexPattern(): String {
         // 简单条件的否定可以直接使用 [^...]
-        if (condition is CharCondition ||
+                if (condition is CharCondition ||
                         condition is CharSetCondition ||
                         condition is CharRangeCondition
         ) {
@@ -104,7 +104,7 @@ class PredicateCondition(
     override fun getDescription(): String = description
     override fun toRegexPattern(): String {
         // 将常见谓词转换为等效的正则表达式
-        return when (description) {
+                return when (description) {
             "digit" -> "\\d"
             "not digit" -> "\\D"
             "letter" -> "[a-zA-Z]"
@@ -153,7 +153,7 @@ class KmpNode(
         val id: Int,
         val depth: Int, // The non-looping depth from the start node, used for match length
         // calculation.
-        var isFinal: Boolean = false
+                var isFinal: Boolean = false
 ) {
     private val transitions = mutableMapOf<KmpCondition, KmpNode>()
     var failureNode: KmpNode? = null
@@ -250,16 +250,16 @@ class StreamKmpGraph {
 
         if (nextNode != null) {
             // Simple transition, advance match length
-            currentMatchLength++
+                currentMatchLength++
         } else {
             // --- Failure Path ---
             // Perform the failure jump to find a shorter prefix to continue from.
-            var searchNode = currentNode.failureNode
+                var searchNode = currentNode.failureNode
             while (searchNode != null) {
                 nextNode = searchNode.getNextNode(c)
                 if (nextNode != null) {
                     // Found a fallback transition. Adjust match length.
-                    currentMatchLength = searchNode.depth + 1
+                currentMatchLength = searchNode.depth + 1
                     break
                 }
                 if (searchNode == startNode) break
@@ -267,7 +267,7 @@ class StreamKmpGraph {
             }
 
             // If still no match after checking all failure links, try from the very start.
-            if (nextNode == null) {
+                if (nextNode == null) {
                 nextNode = startNode.getNextNode(c)
                 currentMatchLength = if (nextNode != null) 1 else 0
             }
@@ -276,7 +276,7 @@ class StreamKmpGraph {
         currentNode = nextNode ?: startNode
 
         // 如果是最终节点，可能存在匹配，需要进行二次正则匹配确计
-       if (currentNode.isFinal) {
+                if (currentNode.isFinal) {
             return performRegexMatchingIfNeeded(true)
         }
 
@@ -292,20 +292,20 @@ class StreamKmpGraph {
         val patternObj = this.pattern ?: return StreamKmpMatchResult.Match(emptyMap(), isFullMatch)
 
         // 构建等效的正则表达式
-        val regexPattern = patternObj.toRegexPattern()
+                val regexPattern = patternObj.toRegexPattern()
         val text = characterStreamBuffer.toString()
 
         try {
             val regex = Regex(regexPattern)
-            val matchResult = regex.find(text)
+        val matchResult = regex.find(text)
 
             if (matchResult != null) {
                 val groups = mutableMapOf<Int, String>()
 
                 // 从正则表达式的捕获组中提取匹，
-               patternObj.groupIds.forEachIndexed { index, groupId ->
+                patternObj.groupIds.forEachIndexed { index, groupId ->
                     // 跳过组索，（整个匹配，
-                    val groupValue = matchResult.groupValues.getOrNull(index + 1)
+                val groupValue = matchResult.groupValues.getOrNull(index + 1)
                     if (groupValue != null) {
                         groups[groupId] = groupValue
                     }
@@ -315,14 +315,13 @@ class StreamKmpGraph {
             }
         } catch (e: Exception) {
             // 正则表达式处理错误，返回无组的匹配结，       }
-
-        return StreamKmpMatchResult.Match(emptyMap(), isFullMatch)
+                return StreamKmpMatchResult.Match(emptyMap(), isFullMatch)
     }
 
     /** 处理一串字符/
     fun processText(text: String): List<Int> {
         reset() // Always start a full text scan from a clean state.
-        val matchPositions = mutableListOf<Int>()
+                val matchPositions = mutableListOf<Int>()
 
         text.forEachIndexed { index, c ->
             val result = processChar(c)
@@ -368,7 +367,7 @@ class StreamKmpGraph {
 
             if (nextNode != null) {
                 if (currentNode == nextNode) { // Self-loop for greedy star
-                    currentMatchLength++
+                currentMatchLength++
                 } else {
                     currentMatchLength++
                 }
@@ -413,7 +412,7 @@ class StreamKmpGraphBuilder {
     fun build(pattern: KmpPattern): StreamKmpGraph {
         val graph = StreamKmpGraph()
         graph.pattern = pattern // 保存模式以便后续用于正则表达式匹，
-        val finalNode = buildRecursive(graph, graph.getStartNode(), pattern.conditions, 0).first
+                val finalNode = buildRecursive(graph, graph.getStartNode(), pattern.conditions, 0).first
         finalNode.isFinal = true
         setupFailureTransitions(graph)
         return graph
@@ -434,32 +433,32 @@ class StreamKmpGraphBuilder {
                     val groupConditions = condition.conditions
                     if (groupConditions.isEmpty()) {
                         // 空组，直接跳，
-                       return@forEachIndexed
+                return@forEachIndexed
                     }
 
                     // 递归构建组内容的子图
-                    val (lastNodeInGroup, finalGroupDepth) =
+                val (lastNodeInGroup, finalGroupDepth) =
                             buildRecursive(graph, currentNode, groupConditions, currentDepth)
 
                     // 主模式从组的子图末尾继续
-                    currentNode = lastNodeInGroup
+                currentNode = lastNodeInGroup
                     currentDepth = finalGroupDepth
                 }
                 is GreedyStarCondition -> {
                     // 为了使贪心星号真，贪忆但不"占有，，它不应消耗那些能让模式后续部分匹配的字符"
                     val nextCondition = conditions.getOrNull(index + 1)
-                    val loopCondition =
+        val loopCondition =
                             if (nextCondition != null) {
                                 // 循环条件：匹配星号条件并且不匹配序列中的下一个条，
-                               AndCondition(condition.condition, NotCondition(nextCondition))
+                AndCondition(condition.condition, NotCondition(nextCondition))
                             } else {
                                 // 如果是模式中的最后一项，可以自由循环
-                                condition.condition
+                condition.condition
                             }
                     graph.addTransition(currentNode, currentNode, loopCondition)
                 }
                 else -> { // 常规条件
-                    currentDepth++
+                currentDepth++
                     val nextNode = graph.createNode(currentDepth, false)
                     graph.addTransition(currentNode, nextNode, condition)
                     currentNode = nextNode
@@ -475,21 +474,21 @@ class StreamKmpGraphBuilder {
         val startNode = graph.getStartNode()
 
         // 将所有节点的失败转换设为起始节点（简化版本）
-        for (node in nodes) {
+                for (node in nodes) {
             if (node != startNode) {
                 graph.setFailure(node, startNode)
             }
         }
 
         // 起始节点的失败是其自，
-       graph.setFailure(startNode, startNode)
+                graph.setFailure(startNode, startNode)
     }
 }
 
 /** 简化的模式构建DSL，允许以更简洁的方式构建KMP匹配条件 */
 class KmpPattern {
     val conditions = mutableListOf<KmpCondition>()
-    val groupIds = mutableListOf<Int>() // 跟踪模式中所有组的ID，按定义顺序
+        val groupIds = mutableListOf<Int>() // 跟踪模式中所有组的ID，按定义顺序
 
     /** 添加一个匹配条，/
     private fun add(condition: KmpCondition, isTopLevel: Boolean = false) {
@@ -508,7 +507,7 @@ class KmpPattern {
     fun group(id: Int, builder: KmpPattern.() -> Unit) {
         val subPattern = kmpPattern(builder)
         // GroupCondition现在只封装子模式
-        add(GroupCondition(id, subPattern.conditions), true)
+                add(GroupCondition(id, subPattern.conditions), true)
     }
 
     /** 将模式转换为等效的正则表达式 */
@@ -619,7 +618,7 @@ class KmpPattern {
         val subPattern = kmpPattern(conditionBuilder)
         // We assume the builder produces a single, primary condition for the star.
         // If multiple are produced, we OR them together.
-        require(subPattern.conditions.isNotEmpty()) { "greedyStar condition cannot be empty." }
+                require(subPattern.conditions.isNotEmpty()) { "greedyStar condition cannot be empty." }
         val condition =
                 if (subPattern.conditions.size == 1) {
                     subPattern.conditions.first()
@@ -680,7 +679,7 @@ fun notChars(vararg chars: Char): KmpCondition = NotCondition(CharSetCondition(*
 // 自由函数形式的否，fun not(condition: KmpCondition): KmpCondition = NotCondition(condition)
 
 // DSL构建，fun kmpPattern(init: KmpPattern.() -> Unit): KmpPattern {
-    val pattern = KmpPattern()
+                val pattern = KmpPattern()
     pattern.init()
     return pattern
 }

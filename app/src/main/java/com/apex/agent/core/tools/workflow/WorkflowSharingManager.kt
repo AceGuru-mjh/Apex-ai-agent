@@ -96,8 +96,7 @@ class WorkflowSharingManager(private val context: Context) {
 
             val (_, workflowJson) = shareData
             val workflow = json.decodeFromString<Workflow>(workflowJson)
-
-            val newWorkflow = workflow.copy(
+        val newWorkflow = workflow.copy(
                 id = java.util.UUID.randomUUID().toString(),
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis()
@@ -122,8 +121,7 @@ class WorkflowSharingManager(private val context: Context) {
     suspend fun importFromJson(jsonString: String): WorkflowImportResult = withContext(Dispatchers.IO) {
         try {
             val workflow = json.decodeFromString<Workflow>(jsonString)
-
-            val newWorkflow = workflow.copy(
+        val newWorkflow = workflow.copy(
                 id = java.util.UUID.randomUUID().toString(),
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis()
@@ -216,16 +214,16 @@ class WorkflowSharingManager(private val context: Context) {
                 val content = fis.readBytes().toString(Charsets.UTF_8)
                 @Suppress("UNCHECKED_CAST")
                 val combined = json.decodeFromString<Map<String, Map<String, Any>>>(content)
-                val shareJson = json.encodeToString(combined["share"])
+        val shareJson = json.encodeToString(combined["share"])
                 val workflowJson = json.encodeToString(combined["workflow"])
-                val share = json.decodeFromString<WorkflowShare>(shareJson)
+        val share = json.decodeFromString<WorkflowShare>(shareJson)
                 Pair(share, workflowJson)
             }
         } catch (e: Exception) {
             try {
                 FileInputStream(shareFile).use { fis ->
                     val content = fis.readBytes().toString(Charsets.UTF_8)
-                    val share = json.decodeFromString<WorkflowShare>(content)
+        val share = json.decodeFromString<WorkflowShare>(content)
                     val workflowJson = "{}"
                     Pair(share, workflowJson)
                 }
@@ -265,7 +263,7 @@ suspend fun importWorkflowFromFile(file: File): Result<Workflow> = withContext(D
 
         FileInputStream(file).use { fis ->
             val content = fis.readBytes().toString(Charsets.UTF_8)
-            val workflow = json.decodeFromString<Workflow>(content)
+        val workflow = json.decodeFromString<Workflow>(content)
             Result.success(workflow)
         }
     } catch (e: Exception) {

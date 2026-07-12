@@ -174,14 +174,14 @@ internal fun StandardBrowserSessionTools.injectDownloadHelper(webView: WebView) 
 
             function guessName(anchor) {
                 if (!anchor) return "";
-                const raw = String(anchor.getAttribute("download") || "").trim();
-                if (raw) return raw;
+            const raw = String(anchor.getAttribute("download") || "").trim();
+            if (raw) return raw;
                 try {
                     const url = String(anchor.href || "");
-                    if (!url) return "";
-                    const pathname = new URL(url, location.href).pathname || "";
-                    const last = pathname.split("/").filter(Boolean).pop() || "";
-                    return decodeURIComponent(last || "");
+            if (!url) return "";
+            const pathname = new URL(url, location.href).pathname || "";
+            const last = pathname.split("/").filter(Boolean).pop() || "";
+            return decodeURIComponent(last || "");
                 } catch (_) {
                     return "";
                 }
@@ -192,13 +192,13 @@ internal fun StandardBrowserSessionTools.injectDownloadHelper(webView: WebView) 
                     .then((response) => response.blob())
                     .then((blob) => new Promise((resolve, reject) => {
                         const reader = new FileReader();
-                        reader.onload = function() {
+            reader.onload = function() {
                             resolve({ data: String(reader.result || ""), type: String(blob.type || "") });
                         };
-                        reader.onerror = function() {
+            reader.onerror = function() {
                             reject(reader.error || new Error("blob_reader_failed"));
                         };
-                        reader.readAsDataURL(blob);
+            reader.readAsDataURL(blob);
                     }))
                     .then((payload) => {
                         window.Apex-AgentWebDownloadBridge.downloadBase64(payload.data, fileName || "", payload.type || "application/octet-stream");
@@ -214,17 +214,17 @@ internal fun StandardBrowserSessionTools.injectDownloadHelper(webView: WebView) 
                     return;
                 }
                 const href = String(anchor.href || "");
-                if (!href) {
+            if (!href) {
                     return;
                 }
                 const fileName = guessName(anchor);
-                if (href.startsWith("blob:")) {
+            if (href.startsWith("blob:")) {
                     event.preventDefault();
-                    downloadBlob(href, fileName);
+            downloadBlob(href, fileName);
                 } else if (href.startsWith("data:")) {
                     event.preventDefault();
-                    const mimeType = href.slice(5).split(";")[0] || "application/octet-stream";
-                    window.Apex-AgentWebDownloadBridge.downloadBase64(href, fileName || "", mimeType);
+            const mimeType = href.slice(5).split(";")[0] || "application/octet-stream";
+            window.Apex-AgentWebDownloadBridge.downloadBase64(href, fileName || "", mimeType);
                 }
             }, true);
         })();
@@ -245,13 +245,13 @@ internal fun StandardBrowserSessionTools.injectBlobDownloaderScript(
                 .then((response) => response.blob())
                 .then((blob) => new Promise((resolve, reject) => {
                     const reader = new FileReader();
-                    reader.onload = function() {
+            reader.onload = function() {
                         resolve({ data: String(reader.result || ""), type: String(blob.type || "") });
                     };
-                    reader.onerror = function() {
+            reader.onerror = function() {
                         reject(reader.error || new Error("blob_reader_failed"));
                     };
-                    reader.readAsDataURL(blob);
+            reader.readAsDataURL(blob);
                 }))
                 .then((payload) => {
                     window.Apex-AgentWebDownloadBridge.downloadBase64(
@@ -497,9 +497,8 @@ private fun playwrightLikeInputRuntimeJs(): String =
     """
     const __apex-agentPw = (() => {
         const setValueInputTypes = new Set(["color", "date", "time", "datetime-local", "month", "range", "week"]);
-        const typeIntoInputTypes = new Set(["", "email", "number", "password", "search", "tel", "text", "url"]);
-
-        function createError(message) {
+            const typeIntoInputTypes = new Set(["", "email", "number", "password", "search", "tel", "text", "url"]);
+            function createError(message) {
             throw new Error(message);
         }
 
@@ -521,7 +520,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
             if (behavior === "follow-label") {
                 if (!element.matches("a, input, textarea, button, select, [role=link], [role=button], [role=checkbox], [role=radio]") && !element.isContentEditable) {
                     const enclosingLabel = element.closest("label");
-                    if (enclosingLabel && enclosingLabel.control) {
+            if (enclosingLabel && enclosingLabel.control) {
                         element = enclosingLabel.control;
                     }
                 }
@@ -539,10 +538,9 @@ private fun playwrightLikeInputRuntimeJs(): String =
         }
 
         const ariaCheckedRoles = new Set(["checkbox", "menuitemcheckbox", "option", "radio", "switch", "menuitemradio", "treeitem"]);
-        const ariaDisabledRoles = new Set(["application", "button", "composite", "gridcell", "group", "input", "link", "menuitem", "scrollbar", "separator", "tab", "checkbox", "columnheader", "combobox", "grid", "listbox", "menu", "menubar", "menuitemcheckbox", "menuitemradio", "option", "radio", "radiogroup", "row", "rowheader", "searchbox", "select", "slider", "spinbutton", "switch", "tablist", "textbox", "toolbar", "tree", "treegrid", "treeitem"]);
-        const ariaReadonlyRoles = new Set(["checkbox", "combobox", "grid", "gridcell", "listbox", "radiogroup", "slider", "spinbutton", "textbox", "columnheader", "rowheader", "searchbox", "switch", "treegrid"]);
-
-        function elementTagName(element) {
+            const ariaDisabledRoles = new Set(["application", "button", "composite", "gridcell", "group", "input", "link", "menuitem", "scrollbar", "separator", "tab", "checkbox", "columnheader", "combobox", "grid", "listbox", "menu", "menubar", "menuitemcheckbox", "menuitemradio", "option", "radio", "radiogroup", "row", "rowheader", "searchbox", "select", "slider", "spinbutton", "switch", "tablist", "textbox", "toolbar", "tree", "treegrid", "treeitem"]);
+            const ariaReadonlyRoles = new Set(["checkbox", "combobox", "grid", "gridcell", "listbox", "radiogroup", "slider", "spinbutton", "textbox", "columnheader", "rowheader", "searchbox", "switch", "treegrid"]);
+            function elementTagName(element) {
             const tagName = element && element.tagName;
             if (typeof tagName === "string") {
                 return tagName.toUpperCase();
@@ -589,7 +587,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (isAncestor || ariaDisabledRoles.has(ariaRole(element))) {
                 const attribute = String((element.getAttribute("aria-disabled") || "")).toLowerCase();
-                if (attribute === "true") {
+            if (attribute === "true") {
                     return true;
                 }
                 if (attribute === "false") {
@@ -614,7 +612,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (ariaCheckedRoles.has(ariaRole(element))) {
                 const checked = element.getAttribute("aria-checked");
-                if (checked === "true") {
+            if (checked === "true") {
                     return true;
                 }
                 if (allowMixed && checked === "mixed") {
@@ -657,22 +655,22 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (state === "visible" || state === "hidden") {
                 const visible = isVisible(element);
-                return {
+            return {
                     matches: state === "visible" ? visible : !visible,
                     received: visible ? "visible" : "hidden"
                 };
             }
             if (state === "enabled" || state === "disabled") {
                 const disabled = getAriaDisabled(element);
-                return {
+            return {
                     matches: state === "disabled" ? disabled : !disabled,
                     received: disabled ? "disabled" : "enabled"
                 };
             }
             if (state === "editable") {
                 const disabled = getAriaDisabled(element);
-                const readonly = getReadonly(element);
-                if (readonly === "error") {
+            const readonly = getReadonly(element);
+            if (readonly === "error") {
                     createError("Element is not an <input>, <textarea>, <select> or [contenteditable] element");
                 }
                 return {
@@ -682,7 +680,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (state === "checked" || state === "unchecked") {
                 const checked = getCheckedWithoutMixed(element);
-                if (checked === "error") {
+            if (checked === "error") {
                     createError("Not a checkbox or radio button");
                 }
                 return {
@@ -693,7 +691,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (state === "indeterminate") {
                 const checked = getCheckedAllowMixed(element);
-                if (checked === "error") {
+            if (checked === "error") {
                     createError("Not a checkbox or radio button");
                 }
                 return {
@@ -707,7 +705,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
         function checkElementStates(node, states) {
             for (const state of states) {
                 const result = elementState(node, state);
-                if (result.received === "error:notconnected") {
+            if (result.received === "error:notconnected") {
                     return "error:notconnected";
                 }
                 if (!result.matches) {
@@ -734,14 +732,14 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (element.nodeName.toLowerCase() === "input") {
                 element.select();
-                element.focus();
-                return "done";
+            element.focus();
+            return "done";
             }
             if (element.nodeName.toLowerCase() === "textarea") {
                 element.selectionStart = 0;
                 element.selectionEnd = element.value.length;
                 element.focus();
-                return "done";
+            return "done";
             }
             element.focus();
             const range = element.ownerDocument.createRange();
@@ -749,7 +747,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
             const selection = element.ownerDocument.defaultView.getSelection();
             if (selection) {
                 selection.removeAllRanges();
-                selection.addRange(range);
+            selection.addRange(range);
             }
             return "done";
         }
@@ -821,11 +819,11 @@ private fun playwrightLikeInputRuntimeJs(): String =
         function replaceSelectionWithText(element, text) {
             if (element.matches("input, textarea")) {
                 const currentValue = String(element.value || "");
-                const start = typeof element.selectionStart === "number" ? element.selectionStart : 0;
+            const start = typeof element.selectionStart === "number" ? element.selectionStart : 0;
                 const end = typeof element.selectionEnd === "number" ? element.selectionEnd : currentValue.length;
                 const nextValue = currentValue.slice(0, start) + text + currentValue.slice(end);
-                setControlValue(element, nextValue);
-                if (typeof element.setSelectionRange === "function") {
+            setControlValue(element, nextValue);
+            if (typeof element.setSelectionRange === "function") {
                     const caret = start + text.length;
                     try {
                         element.setSelectionRange(caret, caret);
@@ -840,17 +838,17 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (!selection.rangeCount || !element.contains(selection.anchorNode)) {
                 const resetRange = element.ownerDocument.createRange();
-                resetRange.selectNodeContents(element);
-                resetRange.collapse(false);
-                selection.removeAllRanges();
-                selection.addRange(resetRange);
+            resetRange.selectNodeContents(element);
+            resetRange.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(resetRange);
             }
             const range = selection.getRangeAt(0);
             range.deleteContents();
             if (text) {
                 const textNode = element.ownerDocument.createTextNode(text);
-                range.insertNode(textNode);
-                range.setStartAfter(textNode);
+            range.insertNode(textNode);
+            range.setStartAfter(textNode);
             }
             range.collapse(true);
             selection.removeAllRanges();
@@ -870,7 +868,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
         function deleteSelectionOrCharacter(element, direction) {
             if (element.matches("input, textarea")) {
                 const currentValue = String(element.value || "");
-                const start = typeof element.selectionStart === "number" ? element.selectionStart : currentValue.length;
+            const start = typeof element.selectionStart === "number" ? element.selectionStart : currentValue.length;
                 const end = typeof element.selectionEnd === "number" ? element.selectionEnd : start;
                 let from = start;
                 let to = end;
@@ -883,7 +881,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
                     }
                 }
                 setControlValue(element, currentValue.slice(0, from) + currentValue.slice(to));
-                if (typeof element.setSelectionRange === "function") {
+            if (typeof element.setSelectionRange === "function") {
                     try {
                         element.setSelectionRange(from, from);
                     } catch (_) {
@@ -897,10 +895,10 @@ private fun playwrightLikeInputRuntimeJs(): String =
             }
             if (!selection.rangeCount || !element.contains(selection.anchorNode)) {
                 const range = element.ownerDocument.createRange();
-                range.selectNodeContents(element);
-                range.collapse(false);
-                selection.removeAllRanges();
-                selection.addRange(range);
+            range.selectNodeContents(element);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
             }
             const range = selection.getRangeAt(0);
             if (range.collapsed) {
@@ -925,10 +923,10 @@ private fun playwrightLikeInputRuntimeJs(): String =
                         const textLength = String(targetNode.textContent || "").length;
                         if (direction === "backward") {
                             range.setStart(targetNode, Math.max(0, textLength - 1));
-                            range.setEnd(targetNode, textLength);
+            range.setEnd(targetNode, textLength);
                         } else {
                             range.setStart(targetNode, 0);
-                            range.setEnd(targetNode, Math.min(1, textLength));
+            range.setEnd(targetNode, Math.min(1, textLength));
                         }
                     } else {
                         range.selectNode(targetNode);
@@ -969,13 +967,13 @@ private fun playwrightLikeInputRuntimeJs(): String =
             if (element.nodeName.toLowerCase() === "input") {
                 const input = element;
                 const type = String(input.type || "").toLowerCase();
-                if (!typeIntoInputTypes.has(type) && !setValueInputTypes.has(type)) {
+            if (!typeIntoInputTypes.has(type) && !setValueInputTypes.has(type)) {
                     createError('Input of type "' + type + '" cannot be filled');
                 }
                 let normalizedValue = String(value);
-                if (type === "number") {
+            if (type === "number") {
                     normalizedValue = normalizedValue.trim();
-                    if (isNaN(Number(normalizedValue))) {
+            if (isNaN(Number(normalizedValue))) {
                         createError("Cannot type text into input[type=number]");
                     }
                 }
@@ -984,21 +982,21 @@ private fun playwrightLikeInputRuntimeJs(): String =
                 }
                 if (setValueInputTypes.has(type)) {
                     normalizedValue = normalizedValue.trim();
-                    input.focus();
-                    setControlValue(input, normalizedValue);
-                    if (input.value !== normalizedValue) {
+            input.focus();
+            setControlValue(input, normalizedValue);
+            if (input.value !== normalizedValue) {
                         createError("Malformed value");
                     }
                     dispatchSimpleInput(input);
-                    dispatchChange(input);
-                    return "done";
+            dispatchChange(input);
+            return "done";
                 }
                 selectText(input);
-                return "needsinput";
+            return "needsinput";
             }
             if (element.nodeName.toLowerCase() === "textarea") {
                 selectText(element);
-                return "needsinput";
+            return "needsinput";
             }
             if (!element.isContentEditable) {
                 createError("Element is not an <input>, <textarea> or [contenteditable] element");
@@ -1039,12 +1037,12 @@ private fun playwrightLikeInputRuntimeJs(): String =
                 }
                 if (rawCh === "\n") {
                     const enterResult = pressEnter(element);
-                    if (enterResult !== "done") {
+            if (enterResult !== "done") {
                         return enterResult;
                     }
                 } else {
                     const typeResult = await typeCharacter(element, rawCh);
-                    if (typeResult !== "done") {
+            if (typeResult !== "done") {
                         return typeResult;
                     }
                 }
@@ -1063,14 +1061,14 @@ private fun playwrightLikeInputRuntimeJs(): String =
             const keydownAccepted = dispatchKeyEvent(element, "keydown", "Enter");
             if (keydownAccepted) {
                 dispatchKeyEvent(element, "keypress", "Enter");
-                if (element.nodeName.toLowerCase() === "textarea" || element.isContentEditable) {
+            if (element.nodeName.toLowerCase() === "textarea" || element.isContentEditable) {
                     if (dispatchBeforeInput(element, "insertLineBreak", "\n")) {
                         replaceSelectionWithText(element, "\n");
-                        dispatchInput(element, "insertLineBreak", "\n");
+            dispatchInput(element, "insertLineBreak", "\n");
                     }
                 } else {
                     const form = element.form || (element.closest && element.closest("form"));
-                    if (form && typeof form.requestSubmit === "function") {
+            if (form && typeof form.requestSubmit === "function") {
                         form.requestSubmit();
                     }
                 }
@@ -1093,7 +1091,7 @@ private fun playwrightLikeInputRuntimeJs(): String =
             if (keydownAccepted) {
                 if (keyValue.length === 1) {
                     const keypressAccepted = dispatchKeyEvent(element, "keypress", keyValue);
-                    if (keypressAccepted && editable) {
+            if (keypressAccepted && editable) {
                         insertTextWithoutKeyboard(element, keyValue);
                     }
                 } else if (keyValue === "Backspace" && editable) {
@@ -1170,14 +1168,14 @@ private fun playwrightLikeInputRuntimeJs(): String =
                     }
                     return matches;
                 };
-                if (!remaining.some(filter)) {
+            if (!remaining.some(filter)) {
                     continue;
                 }
                 if (!elementState(option, "enabled").matches) {
                     return "error:optionnotenabled";
                 }
                 selectedOptions.push(option);
-                if (select.multiple) {
+            if (select.multiple) {
                     remaining = remaining.filter((candidate) => !filter(candidate));
                 } else {
                     remaining = [];
@@ -1219,7 +1217,7 @@ internal fun StandardBrowserSessionTools.ensureOverlayPermission(toolName: Strin
 
 internal fun StandardBrowserSessionTools.buildPageRegistry(): BrowserPageRegistry {
     val orderedIds = orderedSessionIdsFromState()
-    val activeId =
+        val activeId =
         StandardBrowserSessionTools.activeSessionId?.takeIf { sessionById(it) != null }
             ?: orderedIds.firstOrNull()
     return BrowserPageRegistry(
@@ -1301,7 +1299,7 @@ internal fun StandardBrowserSessionTools.renderOpenTabs(
     registry: BrowserPageRegistry = buildPageRegistry()
 ): String {
     val activeId = registry.activeSessionId
-    val ordered = registry.orderedSessionIds.mapNotNull(::sessionById)
+        val ordered = registry.orderedSessionIds.mapNotNull(::sessionById)
     if (ordered.isEmpty()) {
         return "No open tabs."
     }
@@ -1341,7 +1339,7 @@ internal fun StandardBrowserSessionTools.evaluateJavascriptAsync(
     timeoutMs: Long
 ): String {
     val callId = UUID.randomUUID().toString()
-    val pending = PendingAsyncJsCall()
+        val pending = PendingAsyncJsCall()
     StandardBrowserSessionTools.pendingAsyncJsCalls[callId] = pending
     StandardBrowserSessionTools.mainHandler.post {
         try {
@@ -1356,8 +1354,8 @@ internal fun StandardBrowserSessionTools.evaluateJavascriptAsync(
                 (function() {
                     try {
                         const apex-agentExpression = ${quoteJs(expression)};
-                        const apex-agentValue = (0, eval)(apex-agentExpression);
-                        Promise.resolve(apex-agentValue)
+            const apex-agentValue = (0, eval)(apex-agentExpression);
+            Promise.resolve(apex-agentValue)
                             .then(function(value) {
                                 let payload;
                                 try {
@@ -1399,7 +1397,7 @@ internal fun StandardBrowserSessionTools.evaluateJavascriptAsync(
 
 private fun extractAsyncJsValue(payload: String): String {
     val json = JSONObject(payload)
-    val value = json.opt("value")
+        val value = json.opt("value")
     return when (value) {
         null, JSONObject.NULL -> ""
         is String -> value
@@ -1461,7 +1459,7 @@ internal fun StandardBrowserSessionTools.fillFormFields(
             const results = [];
             const findByRef = (refValue) => {
                 const resolved = __apex-agentResolveRef(String(refValue || ''));
-                return resolved ? resolved.element : null;
+            return resolved ? resolved.element : null;
             };
             fields.forEach((field, index) => {
                 const target =
@@ -1472,9 +1470,9 @@ internal fun StandardBrowserSessionTools.fillFormFields(
                     throw new Error("field_not_found:" + (field.name || index));
                 }
                 const type = String(field.type || target.type || target.tagName || "").toLowerCase();
-                const value = String(field.value ?? "");
-                let result = "done";
-                if (type === "textbox" || type === "slider") {
+            const value = String(field.value ?? "");
+            let result = "done";
+            if (type === "textbox" || type === "slider") {
                     result = __apex-agentPw.completeFill(target, value);
                 } else if (type === "checkbox" || type === "radio") {
                     result = __apex-agentPw.setChecked(target, value.toLowerCase() === "true");
@@ -1585,18 +1583,18 @@ internal fun StandardBrowserSessionTools.typeIntoElementByRef(
             const slowValue = ${if (slowly) "true" else "false"};
             if (slowValue) {
                 const typeResult = await __apex-agentPw.typeElement(target, textValue, 35);
-                if (typeResult !== "done") {
+            if (typeResult !== "done") {
                     throw new Error(String(typeResult));
                 }
             } else {
                 const fillResult = __apex-agentPw.completeFill(target, textValue);
-                if (fillResult !== "done") {
+            if (fillResult !== "done") {
                     throw new Error(String(fillResult));
                 }
             }
             if (submitValue) {
                 const submitResult = __apex-agentPw.pressEnter(target);
-                if (submitResult !== "done") {
+            if (submitResult !== "done") {
                     throw new Error(String(submitResult));
                 }
             }
@@ -1674,9 +1672,9 @@ internal fun StandardBrowserSessionTools.takeScreenshot(
 
 internal fun StandardBrowserSessionTools.captureViewportBitmap(webView: WebView): Bitmap {
     val width = webView.width.coerceAtLeast(1)
-    val height = webView.height.coerceAtLeast(1)
+        val height = webView.height.coerceAtLeast(1)
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
+        val canvas = Canvas(bitmap)
     webView.draw(canvas)
     return bitmap
 }
@@ -1684,11 +1682,11 @@ internal fun StandardBrowserSessionTools.captureViewportBitmap(webView: WebView)
 internal fun StandardBrowserSessionTools.captureFullPageBitmap(webView: WebView): Bitmap {
     val (width, height) = resolveFullPageBitmapSize(webView)
     val originalWidth = webView.width.coerceAtLeast(1)
-    val originalHeight = webView.height.coerceAtLeast(1)
+        val originalHeight = webView.height.coerceAtLeast(1)
     val originalScrollX = webView.scrollX
-    val originalScrollY = webView.scrollY
+        val originalScrollY = webView.scrollY
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
+        val canvas = Canvas(bitmap)
     webView.measure(
         View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
         View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
@@ -1709,7 +1707,7 @@ internal fun StandardBrowserSessionTools.resolveFullPageBitmapSize(
     webView: WebView
 ): Pair<Int, Int> {
     val scale = webView.scale.takeIf { it > 0f } ?: 1f
-    val pageSize =
+        val pageSize =
         runJsonScript(
             webView,
             """
@@ -1723,14 +1721,14 @@ internal fun StandardBrowserSessionTools.resolveFullPageBitmapSize(
                     body ? (body.scrollWidth || 0) : 0,
                     body ? (body.offsetWidth || 0) : 0
                 );
-                const height = Math.max(
+            const height = Math.max(
                     window.innerHeight || 0,
                     doc ? (doc.scrollHeight || 0) : 0,
                     doc ? (doc.offsetHeight || 0) : 0,
                     body ? (body.scrollHeight || 0) : 0,
                     body ? (body.offsetHeight || 0) : 0
                 );
-                return JSON.stringify({ ok: true, width, height });
+            return JSON.stringify({ ok: true, width, height });
             })();
             """.trimIndent(),
             "page_size_error"
@@ -1750,11 +1748,11 @@ internal fun StandardBrowserSessionTools.captureElementBitmap(
     ref: String
 ): Bitmap {
     val rect = resolveElementRect(webView, ref) ?: throw RuntimeException("ref_not_found")
-    val bitmap = captureViewportBitmap(webView)
+        val bitmap = captureViewportBitmap(webView)
     val left = rect.left.coerceIn(0, bitmap.width - 1)
-    val top = rect.top.coerceIn(0, bitmap.height - 1)
+        val top = rect.top.coerceIn(0, bitmap.height - 1)
     val width = rect.width().coerceAtLeast(1).coerceAtMost(bitmap.width - left)
-    val height = rect.height().coerceAtLeast(1).coerceAtMost(bitmap.height - top)
+        val height = rect.height().coerceAtLeast(1).coerceAtMost(bitmap.height - top)
     return Bitmap.createBitmap(bitmap, left, top, width, height)
 }
 
@@ -1787,13 +1785,13 @@ internal fun StandardBrowserSessionTools.resolveElementRect(
                     break;
                 }
                 const frameRect = frameElement.getBoundingClientRect();
-                rect = {
+            rect = {
                     left: rect.left + frameRect.left,
                     top: rect.top + frameRect.top,
                     right: rect.right + frameRect.left,
                     bottom: rect.bottom + frameRect.top
                 };
-                try {
+            try {
                     currentWindow = frameElement.ownerDocument.defaultView;
                 } catch (_) {
                     break;
@@ -1830,24 +1828,24 @@ internal fun StandardBrowserSessionTools.runPlaywrightLikeCode(
             const isVisible = (el) => {
                 if (!el || el.nodeType !== 1) return false;
                 const style = window.getComputedStyle(el);
-                if (!style || style.visibility === "hidden" || style.display === "none") return false;
+            if (!style || style.visibility === "hidden" || style.display === "none") return false;
                 const rect = el.getBoundingClientRect();
-                return rect.width > 0 || rect.height > 0;
+            return rect.width > 0 || rect.height > 0;
             };
             const roleFor = (el) => {
                 const explicit = String(el.getAttribute("role") || "").trim();
-                if (explicit) return explicit;
+            if (explicit) return explicit;
                 const tag = String(el.tagName || "").toLowerCase();
-                if (tag === "a") return "link";
-                if (tag === "button") return "button";
-                if (tag === "select") return "combobox";
-                if (tag === "textarea") return "textbox";
-                if (tag === "input") {
+            if (tag === "a") return "link";
+            if (tag === "button") return "button";
+            if (tag === "select") return "combobox";
+            if (tag === "textarea") return "textbox";
+            if (tag === "input") {
                     const type = String(el.getAttribute("type") || "").toLowerCase();
-                    if (type === "checkbox") return "checkbox";
-                    if (type === "radio") return "radio";
-                    if (type === "submit" || type === "button" || type === "reset") return "button";
-                    return "textbox";
+            if (type === "checkbox") return "checkbox";
+            if (type === "radio") return "radio";
+            if (type === "submit" || type === "button" || type === "reset") return "button";
+            return "textbox";
                 }
                 return "generic";
             };
@@ -1867,17 +1865,17 @@ internal fun StandardBrowserSessionTools.runPlaywrightLikeCode(
             const makeLocator = (resolver, description) => ({
                 async click() {
                     const el = resolver();
-                    if (!el) throw new Error(description + " not found");
-                    try { el.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+            if (!el) throw new Error(description + " not found");
+            try { el.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     try { el.focus({ preventScroll: true }); } catch (_) {}
                     setTimeout(() => { try { el.click(); } catch (_) {} }, 0);
-                    await new Promise((resolve) => setTimeout(resolve, 60));
-                    return null;
+            await new Promise((resolve) => setTimeout(resolve, 60));
+            return null;
                 },
                 async hover() {
                     const el = resolver();
-                    if (!el) throw new Error(description + " not found");
-                    const rect = el.getBoundingClientRect();
+            if (!el) throw new Error(description + " not found");
+            const rect = el.getBoundingClientRect();
                     ["pointerover", "mouseover", "mouseenter", "mousemove"].forEach((type) => {
                         el.dispatchEvent(new MouseEvent(type, {
                             bubbles: true,
@@ -1886,31 +1884,31 @@ internal fun StandardBrowserSessionTools.runPlaywrightLikeCode(
                             clientY: rect.top + rect.height / 2
                         }));
                     });
-                    return null;
+            return null;
                 },
                 async fill(value) {
                     const el = resolver();
-                    if (!el) throw new Error(description + " not found");
-                    el.value = String(value ?? "");
-                    el.dispatchEvent(new Event("input", { bubbles: true }));
-                    el.dispatchEvent(new Event("change", { bubbles: true }));
-                    return null;
+            if (!el) throw new Error(description + " not found");
+            el.value = String(value ?? "");
+            el.dispatchEvent(new Event("input", { bubbles: true }));
+            el.dispatchEvent(new Event("change", { bubbles: true }));
+            return null;
                 },
                 async selectOption(values) {
                     const el = resolver();
-                    if (!el || !el.options) throw new Error(description + " is not a select element");
-                    const wanted = Array.isArray(values) ? values.map((item) => String(item)) : [String(values)];
+            if (!el || !el.options) throw new Error(description + " is not a select element");
+            const wanted = Array.isArray(values) ? values.map((item) => String(item)) : [String(values)];
                     Array.from(el.options).forEach((option) => {
                         option.selected = wanted.includes(String(option.value)) || wanted.includes(String(option.text));
                     });
-                    el.dispatchEvent(new Event("input", { bubbles: true }));
-                    el.dispatchEvent(new Event("change", { bubbles: true }));
-                    return null;
+            el.dispatchEvent(new Event("input", { bubbles: true }));
+            el.dispatchEvent(new Event("change", { bubbles: true }));
+            return null;
                 },
                 async textContent() {
                     const el = resolver();
-                    if (!el) throw new Error(description + " not found");
-                    return String(el.textContent || "");
+            if (!el) throw new Error(description + " not found");
+            return String(el.textContent || "");
                 }
             });
             const page = {
@@ -1918,11 +1916,11 @@ internal fun StandardBrowserSessionTools.runPlaywrightLikeCode(
                 async url() { return String(location.href || ""); },
                 async evaluate(fn) {
                     if (typeof fn !== "function") throw new Error("page.evaluate expects a function");
-                    return await fn();
+            return await fn();
                 },
                 async waitForTimeout(ms) {
                     await new Promise((resolve) => setTimeout(resolve, Number(ms) || 0));
-                    return null;
+            return null;
                 },
                 locator(selector) {
                     return makeLocator(() => document.querySelector(String(selector)), "locator(" + selector + ")");
@@ -1935,9 +1933,9 @@ internal fun StandardBrowserSessionTools.runPlaywrightLikeCode(
                     async press(key) {
                         const target = document.activeElement || document.body || document.documentElement;
                         if (!target) throw new Error("No active element");
-                        target.dispatchEvent(new KeyboardEvent("keydown", { key: String(key), bubbles: true, cancelable: true }));
-                        target.dispatchEvent(new KeyboardEvent("keyup", { key: String(key), bubbles: true, cancelable: true }));
-                        return null;
+            target.dispatchEvent(new KeyboardEvent("keydown", { key: String(key), bubbles: true, cancelable: true }));
+            target.dispatchEvent(new KeyboardEvent("keyup", { key: String(key), bubbles: true, cancelable: true }));
+            return null;
                     }
                 },
                 async goto() {
@@ -1956,7 +1954,7 @@ internal fun StandardBrowserSessionTools.runPlaywrightLikeCode(
             let fn = null;
             try {
                 const maybeFn = (0, eval)("(" + codeSource + ")");
-                if (typeof maybeFn === "function") {
+            if (typeof maybeFn === "function") {
                     fn = maybeFn;
                 }
             } catch (_) {}
@@ -1966,7 +1964,7 @@ internal fun StandardBrowserSessionTools.runPlaywrightLikeCode(
                 value = await fn(page);
             } else {
                 const runner = new AsyncFunction("page", "console", codeSource);
-                value = await runner(page, console);
+            value = await runner(page, console);
             }
             return value == null ? "" : value;
         })()

@@ -24,7 +24,7 @@ data class MemorySnippet(
     val content: String,
     val timestamp: Long,
     val role: String,  // user / assistant
-    val topic: String = "",
+                val topic: String = "",
     val importance: Float = 1.0f,
     val embedding: FloatArray? = null
 ) {
@@ -78,7 +78,7 @@ class CrossSessionMemoryRAG(
         sessionIndex.computeIfAbsent(sessionId) { mutableListOf() }.add(id)
 
         // 限制大小，FIFO 淘汰
-        if (memories.size > maxMemories) {
+                if (memories.size > maxMemories) {
             val oldest = memories.entries.minByOrNull { it.value.timestamp }
             oldest?.let { (id, _) ->
                 memories.remove(id)
@@ -185,8 +185,7 @@ class CrossSessionMemoryRAG(
     )
 
     // ============ 向量化（简化实现：基于词频的稀疏向量）============
-
-    private val vocabulary = ConcurrentHashMap<String, Int>()
+                private val vocabulary = ConcurrentHashMap<String, Int>()
     private var vocabSize = 0
 
     /**
@@ -196,7 +195,7 @@ class CrossSessionMemoryRAG(
     private fun embed(text: String): FloatArray {
         val tokens = tokenize(text)
         val dim = 256  // 固定维度
-        val vec = FloatArray(dim)
+                val vec = FloatArray(dim)
 
         for (token in tokens) {
             val idx = vocabulary.computeIfAbsent(token) { vocabSize++ % dim }
@@ -204,7 +203,7 @@ class CrossSessionMemoryRAG(
         }
 
         // L2 归一化
-        val norm = sqrt(vec.sumOf { it * it.toDouble() }).toFloat()
+                val norm = sqrt(vec.sumOf { it * it.toDouble() }).toFloat()
         if (norm > 0) {
             for (i in vec.indices) vec[i] /= norm
         }

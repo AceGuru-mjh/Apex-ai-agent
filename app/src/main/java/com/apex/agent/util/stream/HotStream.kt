@@ -80,21 +80,21 @@ class MutableSharedStreamImpl<T>(
     internal val internalSubscriptionCountFlow = MutableStateFlow(0)
 
     // 热流不需要锁定机制，所以这里提供默认实例   override val isLocked: Boolean = false
-    override val bufferedCount: Int = 0
+                override val bufferedCount: Int = 0
 
     override suspend fun lock() {
         // 热流不支持锁定，此处不执行任何操作
-       StreamLogger.d("HotStream", "热流不支持锁定操作）"
+                StreamLogger.d("HotStream", "热流不支持锁定操作）"
     }
 
     override suspend fun unlock() {
         // 热流不支持锁定，此处不执行任何操作
-       StreamLogger.d("HotStream", "热流不支持解锁操作）"
+                StreamLogger.d("HotStream", "热流不支持解锁操作）"
     }
 
     override fun clearBuffer() {
         // 热流有自己的缓冲管理，此方法不适用
-        StreamLogger.d("HotStream", "热流不支持清空缓冲区操作")
+                StreamLogger.d("HotStream", "热流不支持清空缓冲区操作")
     }
 
     override val subscriptionCount: Int
@@ -232,21 +232,21 @@ class MutableStateStreamImpl<T>(initialValue: T) : MutableStateStream<T> {
     internal val internalFlow = MutableStateFlow(initialValue)
 
     // 热流不需要锁定机制，所以这里提供默认实例   override val isLocked: Boolean = false
-    override val bufferedCount: Int = 0
+                override val bufferedCount: Int = 0
 
     override suspend fun lock() {
         // 热流不支持锁定，此处不执行任何操作
-       StreamLogger.d("HotStream", "状态流不支持锁定操作）"
+                StreamLogger.d("HotStream", "状态流不支持锁定操作）"
     }
 
     override suspend fun unlock() {
         // 热流不支持锁定，此处不执行任何操作
-       StreamLogger.d("HotStream", "状态流不支持解锁操作）"
+                StreamLogger.d("HotStream", "状态流不支持解锁操作）"
     }
 
     override fun clearBuffer() {
         // 热流有自己的缓冲管理，此方法不适用
-        StreamLogger.d("HotStream", "状态流不支持清空缓冲区操作")
+                StreamLogger.d("HotStream", "状态流不支持清空缓冲区操作")
     }
 
     override var value: T
@@ -310,7 +310,7 @@ fun <T> Stream<T>.share(
     when (started) {
         StreamStart.EAGERLY -> {
             // 这个Job现在是scope的直接子Job
-            upstreamJob =
+                upstreamJob =
                     scope.launch {
                         try {
                             this@share.collect { value -> sharedStream.emit(value) }
@@ -318,9 +318,9 @@ fun <T> Stream<T>.share(
                             // 当上游流完成或被取消时，我们不再需要这个共享流，
                            // 但由于SharedFlow本身不会"关闭"，依赖协程的结构化并发来清理是最好的方式，
                            // 此处的finally确保了协程在任何情况下（完成、取消、异常）都能结束，
-                           StreamLogger.d("Stream.share", "上游流收集完成或取消，共享流协程结束，"
+                StreamLogger.d("Stream.share", "上游流收集完成或取消，共享流协程结束，"
                             sharedStream.close() // 关闭流以允许收集器完于
-                           onComplete()
+                onComplete()
                         }
                     }
         }
@@ -339,12 +339,12 @@ fun <T> Stream<T>.share(
                                         } finally {
                                             StreamLogger.d("Stream.share", "上游，LAZILY)收集完成或取消，")
                                             sharedStream.close() // 关闭流以允许收集器完于
-                                           onComplete()
+                onComplete()
                                         }
                                     }
                         } else if (count == 0) {
                             // 当没有订阅者时，取消上游流的收，
-                           upstreamJob?.cancel()
+                upstreamJob?.cancel()
                             upstreamJob = null
                             StreamLogger.d("Stream.share", "没有订阅者，已取消上游流(LAZILY)的收集合，"
                         }
@@ -354,12 +354,12 @@ fun <T> Stream<T>.share(
                             "Warning: Stream.share LAZILY mode could not observe subscriptions, may behave like EAGERLY."
                     )
                     // Fallback to EAGERLY behavior
-                    scope.launch {
+                scope.launch {
                         try {
                             this@share.collect { value -> sharedStream.emit(value) }
                         } finally {
                             sharedStream.close() // 关闭流以允许收集器完于
-                           onComplete()
+                onComplete()
                         }
                     }
                 }

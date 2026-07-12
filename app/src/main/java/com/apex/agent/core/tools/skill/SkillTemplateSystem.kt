@@ -126,53 +126,51 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     }
 
     // ========== 状态==========
-
-    private val _builtInTemplates = MutableStateFlow<List<SkillTemplate>>(emptyList())
-    val builtInTemplates: StateFlow<List<SkillTemplate>> = _builtInTemplates.asStateFlow()
+                private val _builtInTemplates = MutableStateFlow<List<SkillTemplate>>(emptyList())
+        val builtInTemplates: StateFlow<List<SkillTemplate>> = _builtInTemplates.asStateFlow()
 
     private val _userTemplates = MutableStateFlow<List<SkillTemplate>>(emptyList())
-    val userTemplates: StateFlow<List<SkillTemplate>> = _userTemplates.asStateFlow()
+        val userTemplates: StateFlow<List<SkillTemplate>> = _userTemplates.asStateFlow()
 
     private val _allTemplates = MutableStateFlow<List<SkillTemplate>>(emptyList())
-    val allTemplates: StateFlow<List<SkillTemplate>> = _allTemplates.asStateFlow()
+        val allTemplates: StateFlow<List<SkillTemplate>> = _allTemplates.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+        val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     // ========== 内置模板 ==========
-
-    private val builtInTemplateList = listOf(
+                private val builtInTemplateList = listOf(
         // 自动化类模板
-        createBatchOperationTemplate(),
+                createBatchOperationTemplate(),
         createScheduledTaskTemplate(),
         createEventTriggerTemplate(),
 
         // 数据处理类模权
-        createDataTransformTemplate(),
+                createDataTransformTemplate(),
         createFileProcessorTemplate(),
         createJsonParserTemplate(),
 
         // 网络类模权
-        createHttpRequestTemplate(),
+                createHttpRequestTemplate(),
         createWebhookTemplate(),
         createApiClientTemplate(),
 
         // 文件管理类模权
-        createBackupTemplate(),
+                createBackupTemplate(),
         createFileOrganizerTemplate(),
         createBatchRenameTemplate(),
 
         // 系统类模权
-        createSystemMonitorTemplate(),
+                createSystemMonitorTemplate(),
         createLogAnalyzerTemplate(),
 
         // 开发类模板
-        createCodeGeneratorTemplate(),
+                createCodeGeneratorTemplate(),
         createGitHelperTemplate(),
         createBuildAutomationTemplate(),
 
         // 通信类模权
-        createNotificationTemplate(),
+                createNotificationTemplate(),
         createEmailHelperTemplate()
     )
 
@@ -186,8 +184,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     }
 
     // ========== 模板创建方法 ==========
-
-    private fun createBatchOperationTemplate() = SkillTemplate(
+                private fun createBatchOperationTemplate() = SkillTemplate(
         id = "template_batch_operation",
         name = "批量操作",
         description = "对多个文件或项目执行批量操作的模权",
@@ -802,8 +799,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     )
 
     // ========== 公开 API ==========
-
-    suspend fun loadUserTemplates() = withContext(Dispatchers.IO) {
+                suspend fun loadUserTemplates() = withContext(Dispatchers.IO) {
         _isLoading.value = true
         try {
             val templatesDir = File(context.filesDir, USER_TEMPLATES_DIR)
@@ -815,7 +811,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
             templatesDir.listFiles()?.filter { it.extension == "json" }?.forEach { file ->
                 try {
                     val json = file.readText()
-                    val template = Json.decodeFromString<SkillTemplate>(json)
+        val template = Json.decodeFromString<SkillTemplate>(json)
                     templates.add(template)
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Failed to load user template: ${file.name}", e)
@@ -854,7 +850,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
             }
 
             val fileName = "${template.id}.json"
-            val file = File(templatesDir, fileName)
+        val file = File(templatesDir, fileName)
             val json = Json.encodeToString(template)
             file.writeText(json)
 
@@ -869,7 +865,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     suspend fun deleteUserTemplate(templateId: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val templatesDir = File(context.filesDir, USER_TEMPLATES_DIR)
-            val file = File(templatesDir, "${templateId}.json")
+        val file = File(templatesDir, "${templateId}.json")
             val result = file.delete()
 
             if (result) {
@@ -893,7 +889,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     ): Result<SkillCreationResult> = withContext(Dispatchers.IO) {
         try {
             val finalSkillName = skillName ?: template.name
-            val skillsDir = skillDir ?: File(
+        val skillsDir = skillDir ?: File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                 "logistra/skills"
             )
@@ -909,22 +905,22 @@ class SkillTemplateSystem private constructor(private val context: Context) {
             skillDirectory.mkdirs()
 
             // 替换变量
-            val replacedContent = replaceVariables(template, variables)
+                val replacedContent = replaceVariables(template, variables)
 
             // 生成 SKILL.md
-            val skillMdContent = buildSkillMd(template, finalSkillName, replacedContent)
+                val skillMdContent = buildSkillMd(template, finalSkillName, replacedContent)
             File(skillDirectory, "SKILL.md").writeText(skillMdContent)
 
             // 生成工作流文件
-            if (template.workflow != null) {
+                if (template.workflow != null) {
                 val workflowContent = buildWorkflowJson(template.workflow, replacedContent)
                 File(skillDirectory, "workflow.json").writeText(workflowContent)
             }
 
             // 生成配置文件
-            template.files.forEach { templateFile ->
+                template.files.forEach { templateFile ->
                 val filePath = templateFile.path.replace("{{skillName}}", finalSkillName)
-                val file = File(skillDirectory, filePath)
+        val file = File(skillDirectory, filePath)
                 file.parentFile?.mkdirs()
                 file.writeText(templateFile.content)
                 if (templateFile.isExecutable) {
@@ -933,7 +929,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
             }
 
             // 生成 README.md
-            val readmeContent = buildReadme(template, finalSkillName)
+                val readmeContent = buildReadme(template, finalSkillName)
             File(skillDirectory, "README.md").writeText(readmeContent)
 
             val result = SkillCreationResult(
@@ -1007,7 +1003,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
 
     private fun buildWorkflowJson(workflow: TemplateWorkflow, variables: Map<String, String>): String {
         val nodes = workflow.nodes.mapIndexed { index, templateNode ->
-            val configReplaced = templateNode.configTemplate.mapValues { (_, value) ->
+        val configReplaced = templateNode.configTemplate.mapValues { (_, value) ->
                 replaceVariablePlaceholders(value, variables)
             }
 

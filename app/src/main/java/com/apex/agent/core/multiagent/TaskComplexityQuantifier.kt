@@ -9,17 +9,17 @@ class TaskComplexityQuantifier {
     data class TaskFeature(
         val category: String,
         val difficulty: Int, // 1-10
-        val resourceRequirement: ResourceRequirement,
+                val resourceRequirement: ResourceRequirement,
         val riskLevel: Int, // 1-5
-        val estimatedTime: Int, // minutes
-        val requiredSkills: List<String>
+                val estimatedTime: Int, // minutes
+                val requiredSkills: List<String>
     )
 
     data class ResourceRequirement(
         val memory: Int, // MB
-        val cpu: Int, // percentage
-        val network: Int, // Mbps
-        val storage: Int // MB
+                val cpu: Int, // percentage
+                val network: Int, // Mbps
+                val storage: Int // MB
     )
 
     data class SubTaskTicket(
@@ -80,11 +80,11 @@ class TaskComplexityQuantifier {
 
         try {
             val category = identifyCategory(taskDescription)
-            val difficulty = calculateDifficulty(taskDescription)
+        val difficulty = calculateDifficulty(taskDescription)
             val resourceRequirement = estimateResourceRequirement(category, difficulty)
-            val riskLevel = assessRiskLevel(taskDescription, category)
+        val riskLevel = assessRiskLevel(taskDescription, category)
             val estimatedTime = estimateTime(difficulty, category)
-            val requiredSkills = identifyRequiredSkills(category, taskDescription)
+        val requiredSkills = identifyRequiredSkills(category, taskDescription)
 
             val elapsedTime = System.currentTimeMillis() - startTime
             if (elapsedTime > 1000) {
@@ -109,7 +109,7 @@ class TaskComplexityQuantifier {
             )
         } catch (e: Exception) {
             // 异常降级处理
-            return TaskFeature(
+                return TaskFeature(
                 category = "other",
                 difficulty = 3,
                 resourceRequirement = ResourceRequirement(64, 10, 2, 5),
@@ -155,7 +155,7 @@ class TaskComplexityQuantifier {
         }
         
         // 基于任务长度和复杂度进行调整
-        val lengthScore = min((taskDescription.length / 100) + 1, 5)
+                val lengthScore = min((taskDescription.length / 100) + 1, 5)
         val complexityScore = if (taskDescription.contains(":") || taskDescription.contains("步骤") || taskDescription.contains("流程")) {
             2
         } else {
@@ -213,7 +213,7 @@ class TaskComplexityQuantifier {
         }
         
         // 基于类别和关键词调整风险等级
-        if (category in listOf("coding", "data")) {
+                if (category in listOf("coding", "data")) {
             maxRisk = maxOf(maxRisk, 2)
         }
         
@@ -246,12 +246,12 @@ class TaskComplexityQuantifier {
         val skills = mutableListOf<String>()
         
         // 基于类别添加基础技，
-       if (skillMapping.containsKey(category)) {
+                if (skillMapping.containsKey(category)) {
             skills.addAll(skillMapping[category] ?: emptyList())
         }
         
         // 基于任务描述添加特定技，
-       val lowerDescription = taskDescription.lowercase()
+                val lowerDescription = taskDescription.lowercase()
         
         if (lowerDescription.contains("python")) skills.add("Python")
         if (lowerDescription.contains("java")) skills.add("Java")

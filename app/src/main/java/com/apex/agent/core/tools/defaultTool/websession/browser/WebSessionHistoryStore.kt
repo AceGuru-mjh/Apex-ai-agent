@@ -70,7 +70,7 @@ internal class WebSessionHistoryStore private constructor(private val context: C
         val now = System.currentTimeMillis()
         context.webSessionHistoryDataStore.edit { preferences ->
             val current = decodeHistory(preferences[KEY_HISTORY])
-            val normalizedTitle = normalizeTitle(title, normalizedUrl)
+        val normalizedTitle = normalizeTitle(title, normalizedUrl)
             val updated =
                 if (current.firstOrNull()?.url == normalizedUrl) {
                     current.toMutableList().also { list ->
@@ -130,7 +130,7 @@ internal class WebSessionHistoryStore private constructor(private val context: C
 
         context.webSessionHistoryDataStore.edit { preferences ->
             val current = decodeBookmarks(preferences[KEY_BOOKMARKS])
-            val existing = current.firstOrNull { it.url == normalizedUrl }
+        val existing = current.firstOrNull { it.url == normalizedUrl }
             val updated =
                 buildList {
                     add(
@@ -212,14 +212,14 @@ internal class WebSessionHistoryStore private constructor(private val context: C
             return null
         }
         if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
-            return null
+                return null
         }
 
         return runCatching {
             val uri = Uri.parse(trimmed)
-            val scheme = uri.scheme?.lowercase(Locale.ROOT) ?: return null
+        val scheme = uri.scheme?.lowercase(Locale.ROOT) ?: return null
             val host = uri.host?.lowercase(Locale.ROOT) ?: return null
-            val portPart =
+        val portPart =
                 when {
                     uri.port < 0 -> ""
                     scheme == "http" && uri.port == 80 -> ""

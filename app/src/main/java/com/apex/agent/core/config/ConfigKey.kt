@@ -153,10 +153,10 @@ object ConfigPath {
 object AppConfigKeys {
 
     // ==================== API 配置 ====================
-    val API_BASE_URL = ConfigKey(
+                val API_BASE_URL = ConfigKey(
         path = "api.baseUrl",
         defaultValue = "http://localhost:8080",
-        description = "API 基础地址",
+                description = "API 基础地址",
         type = ConfigType.STRING,
         required = true
     )
@@ -176,7 +176,7 @@ object AppConfigKeys {
     )
 
     // ==================== 模型配置 ====================
-    val MODEL_TEMPERATURE = ConfigKey(
+                val MODEL_TEMPERATURE = ConfigKey(
         path = "model.temperature",
         defaultValue = "0.7",
         description = "模型生成温度参数",
@@ -199,7 +199,7 @@ object AppConfigKeys {
     )
 
     // ==================== 日志配置 ====================
-    val LOG_LEVEL = ConfigKey(
+                val LOG_LEVEL = ConfigKey(
         path = "logging.level",
         defaultValue = "INFO",
         description = "日志级别 (DEBUG, INFO, WARN, ERROR)",
@@ -214,7 +214,7 @@ object AppConfigKeys {
     )
 
     // ==================== 缓存配置 ====================
-    val CACHE_TTL = ConfigKey(
+                val CACHE_TTL = ConfigKey(
         path = "cache.defaultTtl",
         defaultValue = "5m",
         description = "缓存默认过期时间",
@@ -236,7 +236,7 @@ object AppConfigKeys {
     )
 
     // ==================== 安全配置 ====================
-    val ENCRYPTION_ENABLED = ConfigKey(
+                val ENCRYPTION_ENABLED = ConfigKey(
         path = "security.encryption",
         defaultValue = "false",
         description = "是否启用加密",
@@ -254,7 +254,7 @@ object AppConfigKeys {
     )
 
     // ==================== 网络配置 ====================
-    val CONNECT_TIMEOUT = ConfigKey(
+                val CONNECT_TIMEOUT = ConfigKey(
         path = "network.connectTimeout",
         defaultValue = "10s",
         description = "连接超时时间",
@@ -269,7 +269,7 @@ object AppConfigKeys {
     )
 
     // ==================== 特性配置 ====================
-    val DEBUG_MODE = ConfigKey(
+                val DEBUG_MODE = ConfigKey(
         path = "features.debug",
         defaultValue = "false",
         description = "调试模式开关",
@@ -284,7 +284,7 @@ object AppConfigKeys {
     )
 
     // ==================== ToM 推理配置 ====================
-    val REASONING_STRATEGY = ConfigKey(
+                val REASONING_STRATEGY = ConfigKey(
         path = "reasoning.strategy",
         defaultValue = "auto",
         description = "推理默认策略",
@@ -299,7 +299,7 @@ object AppConfigKeys {
     )
 
     // ==================== 记忆配置 ====================
-    val VECTOR_DIMENSION = ConfigKey(
+                val VECTOR_DIMENSION = ConfigKey(
         path = "memory.vectorDimension",
         defaultValue = "1536",
         description = "向量维度",

@@ -29,8 +29,7 @@ class AgentRoleCardManager(private val context: Context) {
     private val gson = Gson()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _roleCards = mutableMapOf<String, AgentRoleCard>()
-
-    val roleCards: List<AgentRoleCard>
+        val roleCards: List<AgentRoleCard>
         get() = _roleCards.values.toList()
 
     val enabledCards: List<AgentRoleCard>
@@ -45,7 +44,7 @@ class AgentRoleCardManager(private val context: Context) {
             val prefs = context.roleCardDataStore.data.first()
             prefs[KEY_ROLE_CARDS]?.let { json ->
                 val type = object : TypeToken<List<AgentRoleCard>>() {}.type
-                val loadedCards: List<AgentRoleCard> = gson.fromJson(json, type)
+        val loadedCards: List<AgentRoleCard> = gson.fromJson(json, type)
                 _roleCards.clear()
                 loadedCards.forEach { card -> _roleCards[card.id] = card }
             }

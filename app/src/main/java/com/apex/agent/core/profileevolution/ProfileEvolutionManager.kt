@@ -43,10 +43,10 @@ class ProfileEvolutionManager private constructor(
         
         try {
             // 获取当前用户画像
-            val currentProfile = userProfileManager.getUserProfile(userId)
+                val currentProfile = userProfileManager.getUserProfile(userId)
             
             // 分析用户反馈
-            val suggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(messages, currentProfile)
+                val suggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(messages, currentProfile)
             
             if (suggestions.isEmpty()) {
                 AppLogger.d(TAG, "没有画像更新建议")
@@ -54,10 +54,10 @@ class ProfileEvolutionManager private constructor(
             }
             
             // 应用更新建议
-            var updated = false
+                var updated = false
             for (suggestion in suggestions) {
                 if (suggestion.confidence > 0.6) { // 只应用置信度高于0.6的创建
-                   val success = userProfileManager.updateProfileDimension(
+                val success = userProfileManager.updateProfileDimension(
                         userId = userId,
                         dimension = suggestion.dimension,
                         value = suggestion.newValue
@@ -160,7 +160,7 @@ class ProfileEvolutionManager private constructor(
         
         for (i in 1 until historicalMessages.size) {
             val previousMessages = historicalMessages[i-1]
-            val currentMessages = historicalMessages[i]
+        val currentMessages = historicalMessages[i]
             
             val previousSuggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(
                 previousMessages,
@@ -173,7 +173,7 @@ class ProfileEvolutionManager private constructor(
             )
             
             // 分析趋势
-            if (currentSuggestions.size > previousSuggestions.size) {
+                if (currentSuggestions.size > previousSuggestions.size) {
                 trends.add("画像更新频率增加")
             } else if (currentSuggestions.size < previousSuggestions.size) {
                 trends.add("画像更新频率减少")

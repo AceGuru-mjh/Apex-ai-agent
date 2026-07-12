@@ -139,7 +139,7 @@ class ToolObservability(
         val now = System.currentTimeMillis()
         val hourlyBuckets = (0..23).map { hour ->
             val start = now - (23 - hour) * 3600000L
-            val end = start + 3600000L
+        val end = start + 3600000L
             records.count { it.timestamp in start until end }
         }
 
@@ -179,9 +179,9 @@ class ToolObservability(
     val summary: String
         get() {
             val metrics = getAllMetrics()
-            val total = totalCalls.get()
+        val total = totalCalls.get()
             val failed = totalFailures.get()
-            val successRate = if (total > 0) "%.1f%%".format((total - failed).toDouble() / total * 100) else "N/A"
+        val successRate = if (total > 0) "%.1f%%".format((total - failed).toDouble() / total * 100) else "N/A"
             return """
 Tool Observability Summary
 ==========================

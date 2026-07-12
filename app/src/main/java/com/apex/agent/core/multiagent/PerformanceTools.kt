@@ -37,7 +37,6 @@ object PerformanceTools {
         val startTime = startTimes.remove(key) ?: return -1f
         val endTime = nanoTime()
         val durationMs = (endTime - startTime) / 1_000_000f
-
         val existing = timings[key]
         if (existing != null) {
             timings[key] = existing.copy(endNanos = endTime, durationMs = durationMs, count = existing.count + 1)

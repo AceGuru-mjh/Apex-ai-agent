@@ -70,7 +70,7 @@ class MultiModelOrchestrator @Inject constructor() {
 
     private val configs = mutableMapOf<ModelProvider, ModelConfig>()
     private val _currentProvider = MutableStateFlow(ModelProvider.OPENAI)
-    val currentProvider: StateFlow<ModelProvider> = _currentProvider
+        val currentProvider: StateFlow<ModelProvider> = _currentProvider
 
     private val httpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()

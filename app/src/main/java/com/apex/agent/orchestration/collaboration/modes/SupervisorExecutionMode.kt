@@ -78,7 +78,7 @@ class SupervisorExecutionMode @Inject constructor(
                 )
             )
             val availableAgent = allocationResult?.let {
-                val agentId = it.selectedAgentId
+        val agentId = it.selectedAgentId
                 state.agents.find { a -> a.id == agentId }
             } ?: getNextAgent(state)
 

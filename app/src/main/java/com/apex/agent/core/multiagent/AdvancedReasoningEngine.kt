@@ -21,7 +21,7 @@ class AdvancedReasoningEngine {
     private val planHistory = ConcurrentHashMap<String, List<PlanStep>>>()
 
     private val _reasoningStats = MutableStateFlow(ReasoningStats())
-    val reasoningStats: StateFlow<ReasoningStats> = _reasoningStats
+        val reasoningStats: StateFlow<ReasoningStats> = _reasoningStats
 
     data class ReasoningStats(
         val totalReasoningCalls: Int = 0,
@@ -73,7 +73,6 @@ class AdvancedReasoningEngine {
 
     fun reason(goal: String, context: Map<String, Any>, reasoningType: ReasoningResult.ReasoningType): ReasoningResult {
         val startTime = System.currentTimeMillis()
-
         val cacheKey = "${goal}_${reasoningType.name}"
         reasoningCache[cacheKey]?.let { cached ->
             _reasoningStats.value = _reasoningStats.value.copy(cacheHitRate = _reasoningStats.value.cacheHitRate + 0.01f)
@@ -157,7 +156,6 @@ class AdvancedReasoningEngine {
 
     private fun inductiveReasoning(goal: String, context: Map<String, Any>): ReasoningResult {
         val examples = context["examples"] as? List<String> ?: emptyList()
-
         val pattern = if (examples.isNotEmpty()) {
             "General pattern from ${examples.size} examples"
         } else {
@@ -225,11 +223,9 @@ class AdvancedReasoningEngine {
 
     fun plan(goal: String, availableActions: List<Action>, constraints: Map<String, Any>): Plan {
         val planId = UUID.randomUUID().toString()
-
         val mctsPlan = monteCarloTree.plan(goal, availableActions, constraints)
 
         val alternativePlans = generateAlternativePlans(goal, availableActions, constraints)
-
         val historyKey = "${goal}_${System.currentTimeMillis() / 60000}"
         planHistory[historyKey] = mctsPlan.steps
 
@@ -311,7 +307,6 @@ class MonteCarloTree {
         }
 
         val bestChild = root.children.maxByOrNull { it.wins / (it.visits + 1) }
-
         val steps = root.children.mapIndexed { index, child ->
             AdvancedReasoningEngine.PlanStep(
                 stepId = index + 1,
@@ -370,7 +365,7 @@ class MonteCarloTree {
     private fun expand(node: MCNode) {
         if (node.untriedActions.isNotEmpty()) {
             val action = node.untriedActions.removeAt(Random.nextInt(node.untriedActions.size))
-            val child = MCNode(
+        val child = MCNode(
                 state = action,
                 parent = node
             )
@@ -429,7 +424,6 @@ class CausalReasoningEngine {
         val effects = context["effects"] as? List<String> ?: listOf(goal)
 
         val causalGraph = buildCausalGraph(causes, effects)
-
         val steps = mutableListOf<AdvancedReasoningEngine.ReasoningStep>()
         var stepId = 1
 
@@ -532,7 +526,6 @@ class MetaLearningEngine {
 
     fun learnFromExperience(taskType: String, experience: Experience): LearnedInsight {
         val similarExperiences = findSimilarExperiences(taskType, experience)
-
         val optimalStrategy = if (similarExperiences.isNotEmpty()) {
             similarExperiences.maxByOrNull { it.successRate }?.strategy
         } else {

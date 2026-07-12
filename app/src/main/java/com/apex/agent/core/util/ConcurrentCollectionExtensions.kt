@@ -334,7 +334,7 @@ class ConcurrentPriorityQueue<E : Comparable<E>> {
         try {
             if (heap.isEmpty()) return null
             val result = heap[0]
-            val last = heap.removeAt(heap.size - 1)
+        val last = heap.removeAt(heap.size - 1)
             if (heap.isNotEmpty()) { heap[0] = last; siftDown(0) }
             return result
         } finally { lock.unlock() }
@@ -499,7 +499,7 @@ class ConcurrentTokenBucket(private val capacity: Int, private val refillRate: I
         val elapsed = now - last
         if (elapsed >= refillIntervalMs && lastRefillTime.compareAndSet(last, now)) {
             val toAdd = (elapsed / refillIntervalMs * refillRate).toLong().coerceAtLeast(1)
-            val newValue = (tokens.get() + toAdd).coerceAtMost(capacity.toLong())
+        val newValue = (tokens.get() + toAdd).coerceAtMost(capacity.toLong())
             tokens.set(newValue)
             totalTokensRefilled.addAndGet(toAdd)
         }

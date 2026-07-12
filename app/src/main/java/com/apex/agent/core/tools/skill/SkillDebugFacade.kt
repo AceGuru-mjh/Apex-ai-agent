@@ -36,7 +36,7 @@ class SkillDebugFacade private constructor(private val context: Context) {
         val session = debugger.endDebugSession(sessionId)
         session?.let {
             val totalDuration = it.endTime?.minus(it.startTime) ?: 0
-            val toolCallCount = it.toolCalls.size
+        val toolCallCount = it.toolCalls.size
             val errorCount = it.toolCalls.count { tc -> tc.error != null }
             consoleUI.logSessionEnd(it.id, it.skillName, totalDuration, toolCallCount, errorCount)
         }

@@ -105,7 +105,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
         return try {
             val source = parseDocumentId(sourceDocumentId)
-            val targetParent = parseDocumentId(targetParentDocumentId)
+        val targetParent = parseDocumentId(targetParentDocumentId)
 
             if (targetParent is DocRef.Root) {
                 throw IllegalArgumentException("Cannot move into root")
@@ -178,7 +178,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                     }
 
                     val leafName = source.path.substringAfterLast('/')
-                    val newPath = when (targetParent) {
+        val newPath = when (targetParent) {
                         is DocRef.Profile -> leafName
                         is DocRef.Directory -> targetParent.path + "/" + leafName
                         is DocRef.Memory -> throw IllegalArgumentException("Target parent is not a directory")
@@ -195,8 +195,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                         requireDirectoryExists(repo, targetParent.path)
                     }
                     val existingPaths = loadRealFolderPaths(repo)
-
-                    val conflict = existingPaths.any { p ->
+        val conflict = existingPaths.any { p ->
                         (p == newPath || p.startsWith(newPath + "/")) &&
                             !(p == source.path || p.startsWith(source.path + "/"))
                     }
@@ -221,7 +220,6 @@ class MemoryDocumentsProvider : DocumentsProvider() {
     override fun queryRoots(projection: Array<out String>): Cursor {
         Log.d(TAG, "queryRoots projection=${projection?.joinToString()}")
         val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
-
         val row = result.newRow()
         row.add(DocumentsContract.Root.COLUMN_ROOT_ID, ROOT_ID)
         row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, "application/json\ntext/plain\n*/*")
@@ -271,10 +269,9 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             is DocRef.Profile -> {
                 requireProfileExists(parent.profileId)
                 val repo = getRepository(parent.profileId)
-                val allMemories = loadAllMemories(repo)
+        val allMemories = loadAllMemories(repo)
                 val realFolderPaths = collectRealFolderPaths(allMemories)
-
-                val normalizedFolders = normalizeFolders(realFolderPaths)
+        val normalizedFolders = normalizeFolders(realFolderPaths)
                 val topLevel = normalizedFolders
                     .mapNotNull { it.split('/').firstOrNull()?.trim() }
                     .filter { it.isNotBlank() }
@@ -298,10 +295,10 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 val repo = getRepository(parent.profileId)
                 requireDirectoryExists(repo, parent.path)
                 val allMemories = loadAllMemories(repo)
-                val realFolderPaths = collectRealFolderPaths(allMemories)
+        val realFolderPaths = collectRealFolderPaths(allMemories)
 
                 val normalizedFolders = normalizeFolders(realFolderPaths)
-                val directSubfolders = normalizedFolders
+        val directSubfolders = normalizedFolders
                     .filter { it.startsWith(parent.path + "/") }
                     .mapNotNull { it.removePrefix(parent.path + "/").split('/').firstOrNull() }
                     .filter { it.isNotBlank() }
@@ -342,11 +339,10 @@ class MemoryDocumentsProvider : DocumentsProvider() {
         val repo = getRepository(ref.profileId)
         val context = context ?: throw IllegalStateException("Context is null")
         val handler = Handler(Looper.getMainLooper())
-
         val wantsWrite = mode.contains('w') || mode.contains('W')
         return if (!wantsWrite) {
             val jsonString = runBlocking(Dispatchers.IO) {
-                val memory = repo.findMemoryByUuid(ref.uuid)
+        val memory = repo.findMemoryByUuid(ref.uuid)
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
                 buildMemoryJson(memory)
             }
@@ -363,7 +359,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             }
         } else {
             val jsonString = runBlocking(Dispatchers.IO) {
-                val memory = repo.findMemoryByUuid(ref.uuid)
+        val memory = repo.findMemoryByUuid(ref.uuid)
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
                 buildMemoryJson(memory)
             }
@@ -441,8 +437,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             buildDirectoryDocumentId(parent.profileId, newFolderPath)
         } else {
             val title = decodeMemoryTitleFromDisplayName(stripJsonExtension(cleanName))
-
-            val folderPathForMemory: String? = when (parent) {
+        val folderPathForMemory: String? = when (parent) {
                 is DocRef.Profile -> null
                 is DocRef.Directory -> parent.path
                 is DocRef.Memory -> null
@@ -472,7 +467,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             is DocRef.Profile -> throw IllegalArgumentException("Cannot delete profile from provider")
             is DocRef.Memory -> {
                 val repo = getRepository(ref.profileId)
-                val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
+        val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
                 val ok = runBlocking(Dispatchers.IO) { repo.deleteMemory(memory.id) }
                 if (!ok) {
@@ -483,7 +478,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 val repo = getRepository(ref.profileId)
                 requireDirectoryExists(repo, ref.path)
                 val memories = loadMemoriesInFolderTree(repo, ref.path)
-                val uuids = memories.map { it.uuid }.toSet()
+        val uuids = memories.map { it.uuid }.toSet()
                 val ok = runBlocking(Dispatchers.IO) { repo.deleteMemoriesByUuids(uuids) }
                 if (!ok) {
                     throw IllegalStateException("Failed to delete folder and its contents: ${ref.path}")
@@ -522,9 +517,9 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                 val repo = getRepository(ref.profileId)
                 requireDirectoryExists(repo, ref.path)
                 val parentPrefix = ref.path.substringBeforeLast('/', "")
-                val newPath = if (parentPrefix.isBlank()) cleanName else parentPrefix + "/" + cleanName
+        val newPath = if (parentPrefix.isBlank()) cleanName else parentPrefix + "/" + cleanName
                 val existingPaths = loadRealFolderPaths(repo)
-                val conflict = existingPaths.any { existing ->
+        val conflict = existingPaths.any { existing ->
                     (existing == newPath || existing.startsWith(newPath + "/")) &&
                         !(existing == ref.path || existing.startsWith(ref.path + "/"))
                 }
@@ -540,7 +535,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
             is DocRef.Memory -> {
                 val repo = getRepository(ref.profileId)
-                val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
+        val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
 
                 val newTitle = decodeRequestedTitle(memory, cleanName)
@@ -614,7 +609,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                     is DocRef.Memory -> {
                         if (child.profileId != parent.profileId) return false
                         val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(child.uuid) } ?: return false
-                        val fp = MemoryRepository.normalizeFolderPath(memory.folderPath)
+        val fp = MemoryRepository.normalizeFolderPath(memory.folderPath)
                         fp == parent.path || (fp != null && fp.startsWith(parent.path + "/"))
                     }
 
@@ -641,10 +636,9 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             is DocRef.Profile -> {
                 requireProfileExists(ref.profileId)
                 val prefs = UserPreferencesManager.getInstance(context ?: throw IllegalStateException("Context is null"))
-                val profile = runBlocking(Dispatchers.IO) { prefs.getUserPreferencesFlow(ref.profileId).first() }
+        val profile = runBlocking(Dispatchers.IO) { prefs.getUserPreferencesFlow(ref.profileId).first() }
                 val displayName = getProfileDisplayName(profile)
-
-                val row = result.newRow()
+        val row = result.newRow()
                 row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, buildProfileDocumentId(ref.profileId))
                 row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR)
                 row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, displayName)
@@ -676,14 +670,13 @@ class MemoryDocumentsProvider : DocumentsProvider() {
 
             is DocRef.Memory -> {
                 val repo = getRepository(ref.profileId)
-                val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
+        val memory = runBlocking(Dispatchers.IO) { repo.findMemoryByUuid(ref.uuid) }
                     ?: throw FileNotFoundException("Memory not found: ${ref.uuid}")
 
                 val displayName = buildMemoryDisplayName(memory.title, memory.uuid)
-                val lastModified = memory.updatedAt.time
+        val lastModified = memory.updatedAt.time
                 val size = buildMemoryJson(memory).toByteArray(StandardCharsets.UTF_8).size.toLong()
-
-                val row = result.newRow()
+        val row = result.newRow()
                 row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, buildMemoryDocumentId(ref.profileId, ref.uuid))
                 row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "application/json")
                 row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, displayName)
@@ -741,10 +734,9 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             .sortedBy { it.title.lowercase() }
             .forEach { memory ->
                 val displayName = buildMemoryDisplayName(memory.title, memory.uuid)
-                val lastModified = memory.updatedAt.time
+        val lastModified = memory.updatedAt.time
                 val size = buildMemoryJson(memory).toByteArray(StandardCharsets.UTF_8).size.toLong()
-
-                val row = result.newRow()
+        val row = result.newRow()
                 row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, buildMemoryDocumentId(profileId, memory.uuid))
                 row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "application/json")
                 row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, displayName)
@@ -771,11 +763,11 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             val memory = repo.findMemoryByUuid(uuid) ?: return@runBlocking
             try {
                 val json = JSONObject(writtenText)
-                val newTitle = json.optString("title", memory.title)
+        val newTitle = json.optString("title", memory.title)
                 val requestedContent = json.optString("content", memory.content)
-                val newContentType = json.optString("contentType", memory.contentType)
+        val newContentType = json.optString("contentType", memory.contentType)
                 val newSource = json.optString("source", memory.source)
-                val newCredibility = json.optDouble("credibility", memory.credibility.toDouble()).toFloat()
+        val newCredibility = json.optDouble("credibility", memory.credibility.toDouble()).toFloat()
                 val newImportance = json.optDouble("importance", memory.importance.toDouble()).toFloat()
 
                 repo.updateMemory(
@@ -787,7 +779,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                     newCredibility = newCredibility,
                     newImportance = newImportance,
                     // File content writes must not implicitly relocate the document.
-                    newFolderPath = memory.folderPath,
+                newFolderPath = memory.folderPath,
                     newTags = null
                 )
             } catch (e: Exception) {
@@ -815,7 +807,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             .filter { it.isNotBlank() }
             .flatMap { full ->
                 val parts = full.split('/').filter { it.isNotBlank() }
-                val prefixes = mutableListOf<String>()
+        val prefixes = mutableListOf<String>()
                 var current = ""
                 parts.forEach { part ->
                     current = if (current.isEmpty()) part else "${current}/${part}"
@@ -883,10 +875,10 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             }
             documentId.startsWith(DOC_ID_DIR_PREFIX) -> {
                 val encoded = documentId.removePrefix(DOC_ID_DIR_PREFIX)
-                val parts = encoded.split(":", limit = 2)
+        val parts = encoded.split(":", limit = 2)
                 if (parts.size != 2) throw FileNotFoundException("Invalid directory documentId: ${documentId}")
                 val profileId = parts[0]
-                val encodedPath = parts[1]
+        val encodedPath = parts[1]
                 if (profileId.isBlank() || profileId.contains('/')) {
                     throw FileNotFoundException("Invalid directory documentId: ${documentId}")
                 }
@@ -894,7 +886,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
                     throw FileNotFoundException("Invalid directory documentId: ${documentId}")
                 }
                 val path = decodeFileComponent(encodedPath)
-                val normalizedPath = MemoryRepository.normalizeFolderPath(path)
+        val normalizedPath = MemoryRepository.normalizeFolderPath(path)
                     ?: throw FileNotFoundException("Invalid directory documentId: ${documentId}")
                 if (normalizedPath != path) {
                     throw FileNotFoundException("Non-normalized directory documentId: ${documentId}")
@@ -904,10 +896,10 @@ class MemoryDocumentsProvider : DocumentsProvider() {
             }
             documentId.startsWith(DOC_ID_MEM_PREFIX) -> {
                 val encoded = documentId.removePrefix(DOC_ID_MEM_PREFIX)
-                val parts = encoded.split(":", limit = 2)
+        val parts = encoded.split(":", limit = 2)
                 if (parts.size != 2) throw FileNotFoundException("Invalid memory documentId: ${documentId}")
                 val profileId = parts[0]
-                val uuid = parts[1]
+        val uuid = parts[1]
                 if (profileId.isBlank() || profileId.contains('/') || uuid.isBlank() || uuid.contains('/')) {
                     throw FileNotFoundException("Invalid memory documentId: ${documentId}")
                 }
@@ -934,7 +926,7 @@ class MemoryDocumentsProvider : DocumentsProvider() {
         return when (parent) {
             is DocRef.Root -> {
                 val prefs = UserPreferencesManager.getInstance(requireProviderContext())
-                val profileIds = runBlocking(Dispatchers.IO) { prefs.profileListFlow.first() }
+        val profileIds = runBlocking(Dispatchers.IO) { prefs.profileListFlow.first() }
                 val profile = profileIds
                     .asSequence()
                     .map { profileId -> runBlocking(Dispatchers.IO) { prefs.getUserPreferencesFlow(profileId).first() } }

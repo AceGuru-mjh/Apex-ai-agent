@@ -40,7 +40,7 @@ class AgentDashboardManager(private val context: Context) {
     private val maxAlerts = 50
 
     private val _dashboardState = MutableStateFlow(DashboardState())
-    val dashboardState: StateFlow<DashboardState> = _dashboardState
+        val dashboardState: StateFlow<DashboardState> = _dashboardState
 
     data class DashboardState(
         val currentSnapshot: SystemSnapshot? = null,

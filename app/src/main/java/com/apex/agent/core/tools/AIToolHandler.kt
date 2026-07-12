@@ -40,13 +40,13 @@ class AIToolHandler private constructor(
     }
 
     // Available tools registry
-    private val availableTools = ConcurrentHashMap<String, ToolExecutor>()
+                private val availableTools = ConcurrentHashMap<String, ToolExecutor>()
     private val toolHooks = CopyOnWriteArrayList<AIToolHook>()
     private val defaultToolsRegistered = AtomicBoolean(false)
     private val registrationLock = Any()
 
     // Tool permission system
-    private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
+                private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
 
     /** Get the tool permission system for UI use */
     fun getToolPermissionSystem(): ToolPermissionSystem {
@@ -145,20 +145,20 @@ class AIToolHandler private constructor(
     }
 
     // 工具注册的唯一方法 - 提供完整信息的注解
-    fun registerTool(
+                fun registerTool(
         name: String,
         descriptionGenerator: ((AITool) -> String)? = null,
         executor: ToolExecutor
     ) {
         availableTools[name] = executor
         // 注册描述生成器（如果提供）
-        if (descriptionGenerator != null) {
+                if (descriptionGenerator != null) {
             toolPermissionSystem.registerOperationDescription(name, descriptionGenerator)
         }
     }
 
     // 添加重载方法接受函数式接口作为executor的便捷写法
-    fun registerTool(
+                fun registerTool(
         name: String,
         descriptionGenerator: ((AITool) -> String)? = null,
         executor: (AITool) -> ToolResult
@@ -175,7 +175,7 @@ class AIToolHandler private constructor(
     }
 
     // Register all default tools
-    fun registerDefaultTools() {
+                fun registerDefaultTools() {
         if (defaultToolsRegistered.get()) return
         synchronized(registrationLock) {
             if (defaultToolsRegistered.get()) return
@@ -185,7 +185,7 @@ class AIToolHandler private constructor(
     }
 
     // Package manager instance (lazy initialized)
-    private var packageManagerInstance: PackageManager? = null
+                private var packageManagerInstance: PackageManager? = null
 
     /** Gets or creates the package manager instance */
     fun getOrCreatePackageManager(): PackageManager {
@@ -215,11 +215,11 @@ class AIToolHandler private constructor(
     private fun unescapeXml(input: String): String {
         var result = input
         // 处理 CDATA 标记
-        if (result.startsWith("<![CDATA[") && result.endsWith("]]>")) {
+                if (result.startsWith("<![CDATA[") && result.endsWith("]]>")) {
             result = result.substring(9, result.length - 3)
         }
         // 即使没有完整 CDATA 标记，也尝试清理末尾 ]]> 和开头的 <![CDATA[
-        if (result.endsWith("]]>")) {
+                if (result.endsWith("]]>")) {
             result = result.substring(0, result.length - 3)
         }
         if (result.startsWith("<![CDATA[")) {
@@ -271,7 +271,7 @@ class AIToolHandler private constructor(
             if (packageName.isNotBlank()) {
                 try {
                     val packageManager = getOrCreatePackageManager()
-                    val isPackageAvailable = packageManager.getAvailablePackages().containsKey(packageName)
+        val isPackageAvailable = packageManager.getAvailablePackages().containsKey(packageName)
                     val isMcpAvailable = packageManager.getAvailableServerPackages().containsKey(packageName)
                     if (isPackageAvailable || isMcpAvailable) {
                         AppLogger.d(TAG, "Auto-activating package '${packageName}' for tool ${toolName}")
@@ -302,7 +302,7 @@ class AIToolHandler private constructor(
             return notFoundResult
         }
         // Validate parameters
-        val validationResult = executor.validateParameters(tool)
+                val validationResult = executor.validateParameters(tool)
         if (!validationResult.valid) {
             val validationFailedResult = ToolResult(
                 toolName = tool.name,

@@ -57,7 +57,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
         try {
             AppLogger.d(TAG, "Attempting to tap at coordinates: (${x}, ${y}) via shell command")
             val command = "input ${getDisplayArg(tool)}tap ${x} ${y}"
-            val result = executeUiShellCommand(command)
+        val result = executeUiShellCommand(command)
 
             return if (result.success) {
                 AppLogger.d(TAG, "Tap successful at coordinates: (${x}, ${y})")
@@ -116,7 +116,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
         try {
             AppLogger.d(TAG, "Attempting to long press at coordinates: (${x}, ${y}) via shell swipe command")
             val command = "input ${getDisplayArg(tool)}swipe ${x} ${y} ${x} ${y} ${durationMs}"
-            val result = executeUiShellCommand(command)
+        val result = executeUiShellCommand(command)
 
             return if (result.success) {
                 AppLogger.d(TAG, "Long press successful at coordinates: (${x}, ${y})")
@@ -177,7 +177,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
         try {
             AppLogger.d(TAG, "Swiping from (${startX}, ${startY}) to (${endX}, ${endY}) via shell")
             val command = "input ${getDisplayArg(tool)}swipe ${startX} ${startY} ${endX} ${endY} ${duration}"
-            val result = executeUiShellCommand(command)
+        val result = executeUiShellCommand(command)
 
             return if (result.success) {
                 AppLogger.d(TAG, "Swipe successful")
@@ -253,7 +253,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
 
         try {
             val overlay = operationOverlay
-            val displayMetrics = context.resources.displayMetrics
+        val displayMetrics = context.resources.displayMetrics
             withContext(Dispatchers.Main) {
                 overlay.showTextInput(displayMetrics.widthPixels / 2, displayMetrics.heightPixels / 2, text)
             }
@@ -363,7 +363,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
                 )
 
             val focusInfo = extractFocusInfoFromShell(uiData.windowInfo)
-            val simplifiedLayout = simplifyLayoutFromXml(uiData.uiXml)
+        val simplifiedLayout = simplifyLayoutFromXml(uiData.uiXml)
 
             val resultData =
                 UIPageResultData(
@@ -469,7 +469,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
     private fun simplifyLayoutFromXml(xml: String): SimplifiedUINode {
         return try {
             val factory = XmlPullParserFactory.newInstance().apply { isNamespaceAware = false }
-            val parser = factory.newPullParser().apply { setInput(StringReader(xml)) }
+        val parser = factory.newPullParser().apply { setInput(StringReader(xml)) }
             val nodeStack = mutableListOf<UINodeShell>()
             var rootNode: UINodeShell? = null
 
@@ -559,8 +559,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
                 return ToolResult(tool.name, false, StringResultData(""), "Failed to read UI dump: ${readResult.stderr}")
             }
             val xml = readResult.stdout
-            
-            val partialMatch = tool.parameters.find { it.name == "partialMatch" }?.value?.toBoolean() ?: false
+        val partialMatch = tool.parameters.find { it.name == "partialMatch" }?.value?.toBoolean() ?: false
 
             fun buildPattern(name: String, value: String) = value?.let {
                 if (partialMatch) "${name}=\".*?${Regex.escape(it)}.*?\""
@@ -578,7 +577,7 @@ open class RootUITools(context: Context) : AdminUITools(context) {
             }
 
             val nodeRegex = "<node[^>]*?${attributes}[^>]*?>".toRegex()
-            val matchingNodes = nodeRegex.findAll(xml).toList()
+        val matchingNodes = nodeRegex.findAll(xml).toList()
 
             if (matchingNodes.isEmpty()) {
                 return ToolResult(tool.name, false, StringResultData(""), "No matching element found.")
@@ -588,12 +587,12 @@ open class RootUITools(context: Context) : AdminUITools(context) {
             }
 
             val nodeText = matchingNodes[index].value
-            val bounds = "bounds=\"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]\"".toRegex().find(nodeText)
+        val bounds = "bounds=\"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]\"".toRegex().find(nodeText)
                 ?: return ToolResult(tool.name, false, StringResultData(""), "Failed to extract bounds from element.")
 
             val (x1, y1, x2, y2) = bounds.destructured
             val centerX = (x1.toInt() + x2.toInt()) / 2
-            val centerY = (y1.toInt() + y2.toInt()) / 2
+        val centerY = (y1.toInt() + y2.toInt()) / 2
 
             return tap(AITool("tap", listOf(ToolParameter("x", centerX.toString()), ToolParameter("y", centerY.toString()))))
 

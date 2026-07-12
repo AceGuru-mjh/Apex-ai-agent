@@ -58,8 +58,7 @@ class SkillPluginManager private constructor(private val context: Context) {
     private val usageTracker by lazy { SkillUsageTracker.getInstance(context) }
 
     private val scope = CoroutineScope(Dispatchers.Main)
-
-    val pluginCount: Int get() = plugins.size
+        val pluginCount: Int get() = plugins.size
     val enabledCount: Int get() = enabledPluginIds.size
 
     fun registerPlugin(plugin: SkillPlugin) {
@@ -200,7 +199,7 @@ class SkillPluginManager private constructor(private val context: Context) {
     private suspend fun loadPersistedState() {
         context.pluginManagerDataStore.data.first().let { preferences ->
             val enabledJson = preferences[KEY_ENABLED_PLUGINS] ?: "[]"
-            val settingsJson = preferences[KEY_PLUGIN_SETTINGS] ?: "{}"
+        val settingsJson = preferences[KEY_PLUGIN_SETTINGS] ?: "{}"
             val orderJson = preferences[KEY_PLUGIN_ORDER] ?: "[]"
 
             try {

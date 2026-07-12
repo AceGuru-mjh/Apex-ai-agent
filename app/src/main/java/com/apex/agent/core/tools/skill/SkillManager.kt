@@ -92,7 +92,7 @@ class SkillManager private constructor(private val context: Context) {
 
             try {
                 val metadata = parseSkillMetadata(skillFile)
-                val skillName = metadata.name.ifBlank { child.name }
+        val skillName = metadata.name.ifBlank { child.name }
                 val skillDesc = metadata.description.ifBlank { "" }
 
                 if (availableSkills.containsKey(skillName)) {
@@ -209,7 +209,7 @@ class SkillManager private constructor(private val context: Context) {
                     val idx = line.indexOf(':')
                     if (idx <= 0) return@forEach
                     val key = line.substring(0, idx).trim()
-                    val value = line.substring(idx + 1).trim()
+        val value = line.substring(idx + 1).trim()
 
                     when (key.lowercase()) {
                         "name" -> if (name.isBlank()) name = unquote(value)
@@ -250,10 +250,10 @@ class SkillManager private constructor(private val context: Context) {
         if (name.isBlank() || description.isBlank() || version == "1.0.0") {
             lines.take(40).forEach { lineRaw ->
                 val line = lineRaw.trim()
-                val idx = line.indexOf(':')
+        val idx = line.indexOf(':')
                 if (idx <= 0) return@forEach
                 val key = line.substring(0, idx).trim()
-                val value = unquote(line.substring(idx + 1).trim())
+        val value = unquote(line.substring(idx + 1).trim())
                 when (key.lowercase()) {
                     "name" -> if (name.isBlank()) name = value
                     "description" -> if (description.isBlank()) description = value
@@ -279,7 +279,6 @@ class SkillManager private constructor(private val context: Context) {
         val descEn = permMap["desc_en"] ?: ""
         val descDefault = permMap["desc_default"] ?: ""
         val required = permMap["required"]?.toBooleanStrictOrNull() ?: false
-
         val descMap = mutableMapOf<String, String>()
         if (descZh.isNotBlank()) descMap["zh"] = descZh
         if (descEn.isNotBlank()) descMap["en"] = descEn
@@ -356,7 +355,7 @@ class SkillManager private constructor(private val context: Context) {
         }
 
         // 先加载依赖
-        val deps = skillPkg.dependencies
+                val deps = skillPkg.dependencies
         if (deps.isNotEmpty()) {
             Log.d(TAG, "Loading dependencies for $skillName: $deps")
             val missingDeps = validateSkillDependencies(skillName)
@@ -379,7 +378,7 @@ class SkillManager private constructor(private val context: Context) {
 
     fun preloadSkills(skillNames: List<String>) {
         val resolved = try {
-            val allMetadata = availableSkills.values.map { pkg ->
+        val allMetadata = availableSkills.values.map { pkg ->
                 SkillMetadata(
                     name = pkg.name,
                     description = pkg.description,
@@ -445,10 +444,8 @@ class SkillManager private constructor(private val context: Context) {
     fun getSkillSystemPrompt(skillName: String): String? {
         refreshAvailableSkills()
         val skill = availableSkills[skillName] ?: return null
-
         val loadedSkill = skillLoader.loadSkill(skillName, this) ?: return null
         val content = loadedSkill.content ?: ""
-
         val sb = StringBuilder()
         sb.appendLine("Using package (Skill): ${skill.name}")
         sb.appendLine("Use Time: ${java.time.LocalDateTime.now()}")
@@ -650,7 +647,7 @@ class SkillManager private constructor(private val context: Context) {
                 tmpDir
             } else {
                 val baseCanonical = zipRootDir.canonicalFile
-                val resolved = File(zipRootDir, normalizedSubDir)
+        val resolved = File(zipRootDir, normalizedSubDir)
                 val resolvedCanonical = resolved.canonicalFile
                 if (!resolvedCanonical.path.startsWith(baseCanonical.path + File.separator)) {
                     cleanupTmp()
@@ -690,13 +687,13 @@ class SkillManager private constructor(private val context: Context) {
             }
 
             val selectedSkillFile = skillMdCandidates.first()
-            val selectedSkillDir = selectedSkillFile.parentFile ?: run {
+        val selectedSkillDir = selectedSkillFile.parentFile ?: run {
                 cleanupTmp()
                 return context.getString(R.string.skill_error_import_skill_md_path_invalid)
             }
 
             val metadata = parseSkillMetadata(selectedSkillFile)
-            val baseName = metadata.name.ifBlank {
+        val baseName = metadata.name.ifBlank {
                 val isTmpRoot = try {
                     selectedSkillDir.canonicalFile == tmpDir.canonicalFile
                 } catch (_: Exception) {
@@ -716,11 +713,11 @@ class SkillManager private constructor(private val context: Context) {
             }
 
             // Copy the detected skill directory to final location
-            selectedSkillDir.copyRecursively(finalDir, overwrite = false)
+                selectedSkillDir.copyRecursively(finalDir, overwrite = false)
             cleanupTmp()
 
             // refresh cache
-            refreshAvailableSkills()
+                refreshAvailableSkills()
 
             val desc = metadata.description.ifBlank { "" }
             return if (desc.isNotBlank()) {
@@ -742,8 +739,7 @@ class SkillManager private constructor(private val context: Context) {
             val buffer = ByteArray(64 * 1024)
             while (true) {
                 val entry = zis.nextEntry ?: break
-
-                val outFile = File(destinationDir, entry.name)
+        val outFile = File(destinationDir, entry.name)
                 val outCanonical = outFile.canonicalFile
                 if (!outCanonical.path.startsWith(destCanonical.path + File.separator)) {
                     zis.closeEntry()

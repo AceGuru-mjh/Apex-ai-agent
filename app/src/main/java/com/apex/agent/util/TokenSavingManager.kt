@@ -33,10 +33,10 @@ class TokenSavingManager private constructor(private val context: Context) {
         private var INSTANCE: TokenSavingManager? = null
 
         // 默认力度级别索引（对应level 5，索引从 0 开始）
-        private const val DEFAULT_INTENSITY_INDEX = 4
+                private const val DEFAULT_INTENSITY_INDEX = 4
         
         // 默认最大消息数
-        private const val DEFAULT_MAX_MESSAGES = 50
+                private const val DEFAULT_MAX_MESSAGES = 50
 
         fun getInstance(context: Context): TokenSavingManager {
             return INSTANCE ?: synchronized(this) {
@@ -47,7 +47,7 @@ class TokenSavingManager private constructor(private val context: Context) {
         }
 
         // 复杂任务关键词（用于检测是否需要自动降级）
-        private val COMPLEX_TASK_KEYWORDS = listOf(
+                private val COMPLEX_TASK_KEYWORDS = listOf(
             "调试", "debug", "修复", "fix", "错误", "exception", "崩溃", "crash",
             "代码", "function", "函数", "方法", "类", "class", "algorithm", "算法",
             "重构", "refactor", "优化", "optimize", "分析", "analyze", "比较", "compare",
@@ -65,7 +65,7 @@ class TokenSavingManager private constructor(private val context: Context) {
         adaptiveWindowEnabled = preferencesManager.adaptiveWindowEnabled.first()
         
         // 根据力度级别自动计算配置
-        applyIntensityConfig()
+                applyIntensityConfig()
         
         pruningManager = ContextPruningManager(minContextMessages, importanceThreshold)
         windowManager = AdaptiveWindowManager(
@@ -78,12 +78,10 @@ class TokenSavingManager private constructor(private val context: Context) {
 
     suspend fun refreshSettings() {
         val preferencesManager = UserPreferencesManager.getInstance(context)
-
         val newEnabled = preferencesManager.tokenSavingModeEnabled.first()
         val newIntensity = preferencesManager.tokenSavingIntensity.first()
         val newSemanticPruning = preferencesManager.semanticPruningEnabled.first()
         val newAdaptiveWindow = preferencesManager.adaptiveWindowEnabled.first()
-
         val settingsChanged = isEnabled != newEnabled ||
                 tokenSavingIntensity != newIntensity ||
                 semanticPruningEnabled != newSemanticPruning ||
@@ -96,7 +94,7 @@ class TokenSavingManager private constructor(private val context: Context) {
 
         if (settingsChanged) {
             // 根据力度级别重新计算配置
-            applyIntensityConfig()
+                applyIntensityConfig()
             
             pruningManager = ContextPruningManager(minContextMessages, importanceThreshold)
             windowManager = AdaptiveWindowManager(
@@ -148,12 +146,12 @@ class TokenSavingManager private constructor(private val context: Context) {
         }
 
         // 获取实际使用的配置（可能因复杂任务而降级）
-        val isComplex = isComplexTask(currentInput)
+                val isComplex = isComplexTask(currentInput)
         val effectiveConfig = TokenSavingIntensity.getDegradedIntensity(tokenSavingIntensity, isComplex)
         val wasDegraded = effectiveConfig.level != tokenSavingIntensity
         
         // 如果配置与当前不同，临时调整
-        val originalMinMessages = minContextMessages
+                val originalMinMessages = minContextMessages
         val originalThreshold = importanceThreshold
         
         if (wasDegraded) {
@@ -180,8 +178,8 @@ class TokenSavingManager private constructor(private val context: Context) {
             }
             
             // 应用窗口乘数
-            val adjustedWindowMultiplier = windowConfig.messageCount * effectiveConfig.windowMultiplier
-            val adjustedMessageCount = adjustedWindowMultiplier.toInt().coerceAtLeast(effectiveConfig.minMessages)
+                val adjustedWindowMultiplier = windowConfig.messageCount * effectiveConfig.windowMultiplier
+        val adjustedMessageCount = adjustedWindowMultiplier.toInt().coerceAtLeast(effectiveConfig.minMessages)
             
             val messagesForWindow = if (windowConfig.messageCount > adjustedMessageCount) {
                 windowConfig.copy(messageCount = adjustedMessageCount)
@@ -231,7 +229,7 @@ class TokenSavingManager private constructor(private val context: Context) {
         }
 
         // 恢复原始配置
-        if (wasDegraded) {
+                if (wasDegraded) {
             minContextMessages = originalMinMessages
             importanceThreshold = originalThreshold
         }
@@ -269,7 +267,7 @@ class TokenSavingManager private constructor(private val context: Context) {
         val wasDegraded = effectiveConfig.level != tokenSavingIntensity
 
         // 预估节省重
-        val estimatedSavings = (originalTokens * (effectiveConfig.estimatedSavingsPercent.toFloat() / 100)).toInt()
+                val estimatedSavings = (originalTokens * (effectiveConfig.estimatedSavingsPercent.toFloat() / 100)).toInt()
         
         return TokenSavingStats(
             originalTokenCount = originalTokens,

@@ -43,10 +43,8 @@ class ResourceManager {
 
     fun allocateResources(agentId: String, taskComplexity: TaskComplexity): AgentResourceAllocation {
         val priority = taskPriorities[agentId] ?: TaskPriority.NORMAL
-
         val threads = calculateThreadCount(priority, taskComplexity)
         val memoryMb = calculateMemoryAllocation(priority, taskComplexity)
-
         val allocation = AgentResourceAllocation(
             agentId = agentId,
             threadCount = threads,
@@ -89,7 +87,7 @@ class ResourceManager {
             if (availableThreads <= 0) return@forEach
 
             val extraThreads = minOf(2, availableThreads)
-            val newThreadCount = allocation.threadCount + extraThreads
+        val newThreadCount = allocation.threadCount + extraThreads
             val newMemory = calculateMemoryAllocation(allocation.priority, TaskComplexity.fromThreadCount(newThreadCount))
 
             agentResources[agentId] = allocation.copy(
@@ -122,7 +120,7 @@ class ResourceManager {
             0f
         } else {
             val recent = resourceUsageHistory.takeLast(10)
-            val hits = recent.count { it.cacheHit }
+        val hits = recent.count { it.cacheHit }
             hits.toFloat() / recent.size
         }
     }

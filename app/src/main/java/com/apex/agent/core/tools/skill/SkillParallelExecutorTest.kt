@@ -69,8 +69,7 @@ class SkillParallelExecutorTest {
             executor.submitAll(tasks)
 
             val completed = testLatch.await(10, TimeUnit.SECONDS)
-
-            val stats = executor.getStats()
+        val stats = executor.getStats()
             passed = completed && executedCount.get() == 5 && stats.totalTasksCompleted >= 5
             message = if (passed) {
                 "Parallel execution test passed: ${executedCount.get()} tasks executed"
@@ -97,7 +96,6 @@ class SkillParallelExecutorTest {
         var message = ""
 
         val queue = SkillTaskQueue(maxQueueSize = 20, usePriorityQueue = true)
-
         val lowPriorityTask = SkillTaskQueue.SkillTask(
             id = "low-priority",
             skillName = "test",
@@ -145,12 +143,12 @@ class SkillParallelExecutorTest {
 
         try {
             val allocated1 = controller.allocateResources("task-1", SkillResourceController.TaskComplexity.MEDIUM)
-            val allocated2 = controller.allocateResources("task-2", SkillResourceController.TaskComplexity.HIGH)
+        val allocated2 = controller.allocateResources("task-2", SkillResourceController.TaskComplexity.HIGH)
 
             passed = allocated1 && allocated2
 
             val usage = controller.getCurrentResourceUsage()
-            val allocations = controller.getTaskAllocation("task-1")
+        val allocations = controller.getTaskAllocation("task-1")
 
             passed = passed && allocations != null && allocations.isNotEmpty()
 
@@ -253,7 +251,7 @@ class SkillParallelExecutorTest {
 
         try {
             val taskCount = 10
-            val tasks = (1..taskCount).map { i ->
+        val tasks = (1..taskCount).map { i ->
                 SkillTaskQueue.SkillTask(
                     id = "perf-task-${i}",
                     skillName = "perf-test"
@@ -274,7 +272,7 @@ class SkillParallelExecutorTest {
             Thread.sleep(2000)
 
             val stats = executor.getStats()
-            val parallelDuration = System.currentTimeMillis() - parallelStart
+        val parallelDuration = System.currentTimeMillis() - parallelStart
 
             val speedup = sequentialDuration.toFloat() / parallelDuration.toFloat()
 

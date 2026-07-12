@@ -61,7 +61,7 @@ fun File.appendTextSafe(text: String, charset: Charset = Charsets.UTF_8): Boolea
 fun File.sizeAsString(): String {
     if (!exists()) return "0 B"
     val bytes = length()
-    val units = arrayOf("B", "KB", "MB", "GB", "TB")
+        val units = arrayOf("B", "KB", "MB", "GB", "TB")
     var unitIndex = 0
     var size = bytes.toDouble()
     while (size >= 1024 && unitIndex < units.size - 1) {

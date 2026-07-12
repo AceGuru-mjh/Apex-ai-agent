@@ -30,7 +30,7 @@ class LLMAssistedEvolutionEngine(
         evaluationResult: SemanticEvaluationResult
     ): LogistraSkillSpecV2 {
         // 只有分数低于 8.0 才触的LLM 进化
-        if (evaluationResult.score >= 8.0f) {
+                if (evaluationResult.score >= 8.0f) {
             AppLogger.d(TAG, "Score ${evaluationResult.score} is high enough, skipping LLM evolution")
             return currentSkill
         }
@@ -113,7 +113,6 @@ class LLMAssistedEvolutionEngine(
         }
 
         val skillSection = map["skill"] as? Map<*, *> ?: return original
-
         val newName = (skillSection["name"] as? String) ?: original.name
         val newDescription = (skillSection["description"] as? String) ?: original.description
         val newRootNode = (skillSection["rootNode"] as? Map<*, *>)?.let { parseNode(it) }
@@ -159,7 +158,7 @@ class LLMAssistedEvolutionEngine(
         val parts = current.split(".")
         if (parts.size == 3) {
             val major = parts[0].toIntOrNull() ?: 1
-            val minor = parts[1].toIntOrNull() ?: 0
+        val minor = parts[1].toIntOrNull() ?: 0
             val patch = (parts[2].toIntOrNull() ?: 0) + 1
             return "${major}.${minor}.${patch}"
         }

@@ -109,13 +109,13 @@ class SkillScheduler private constructor() {
     private val taskExecutionHistory = ConcurrentHashMap<String, MutableList<TaskExecution>>()
 
     private val _tasksFlow = MutableStateFlow<List<ScheduledTask>>(emptyList())
-    val tasksFlow: StateFlow<List<ScheduledTask>> = _tasksFlow.asStateFlow()
+        val tasksFlow: StateFlow<List<ScheduledTask>> = _tasksFlow.asStateFlow()
 
     private val _schedulerEvents = MutableSharedFlow<SchedulerEvent>()
-    val schedulerEvents: SharedFlow<SchedulerEvent> = _schedulerEvents.asSharedFlow()
+        val schedulerEvents: SharedFlow<SchedulerEvent> = _schedulerEvents.asSharedFlow()
 
     private val _runningTasksCount = MutableStateFlow(0)
-    val runningTasksCount: StateFlow<Int> = _runningTasksCount.asStateFlow()
+        val runningTasksCount: StateFlow<Int> = _runningTasksCount.asStateFlow()
 
     private val eventBus = SkillEventBus.getInstance()
     private val workflowEngine = WorkflowEngine.getInstance()
@@ -247,7 +247,6 @@ class SkillScheduler private constructor() {
 
     fun updateTask(taskId: String, updates: (TaskScheduleConfig) -> TaskScheduleConfig): ScheduledTask? {
         val task = tasks[taskId] ?: return null
-
         val updatedConfig = updates(task.scheduleConfig)
         val updatedTask = task.copy(
             scheduleConfig = updatedConfig,
@@ -377,7 +376,7 @@ class SkillScheduler private constructor() {
                     }
                     task.targetSkillName != null -> {
                         val skillLoader = SkillLoader.getInstance(android.app.Application())
-                        val loadedSkill = skillLoader.loadSkill(task.targetSkillName, SkillManager.getInstance())
+        val loadedSkill = skillLoader.loadSkill(task.targetSkillName, SkillManager.getInstance())
 
                         if (loadedSkill != null) {
                             success = true
@@ -497,12 +496,12 @@ class SkillScheduler private constructor() {
 
         return try {
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-            val dateTime = LocalDateTime.parse(timeStr, formatter)
+        val dateTime = LocalDateTime.parse(timeStr, formatter)
             Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant())
         } catch (e: Exception) {
             try {
                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-                val dateTime = LocalDateTime.parse(timeStr, formatter)
+        val dateTime = LocalDateTime.parse(timeStr, formatter)
                 Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant())
             } catch (e2: Exception) {
                 null
@@ -559,7 +558,7 @@ class SkillScheduler private constructor() {
                 val range = field.split("-")
                 if (range.size == 2) {
                     val start = range[0].toInt()
-                    val end = range[1].toInt()
+        val end = range[1].toInt()
                     value in start..end
                 } else false
             }
@@ -567,7 +566,7 @@ class SkillScheduler private constructor() {
                 val stepParts = field.split("/")
                 if (stepParts.size == 2) {
                     val start = if (stepParts[0] == "*") 0 else stepParts[0].toInt()
-                    val step = stepParts[1].toInt()
+        val step = stepParts[1].toInt()
                     (value - start) % step == 0
                 } else false
             }

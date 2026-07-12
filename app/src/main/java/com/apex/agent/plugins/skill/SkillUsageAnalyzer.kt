@@ -114,7 +114,7 @@ class SkillUsageAnalyzer private constructor(private val context: Context) {
 
         if (last7Days.isNotEmpty()) {
             val avgDaily = last7Days.map { it.totalInvocations }.average()
-            val variance = calculateVariance(last7Days.map { it.totalInvocations.toDouble() })
+        val variance = calculateVariance(last7Days.map { it.totalInvocations.toDouble() })
 
             if (variance < 0.5 && avgDaily > 2) {
                 patterns.add(
@@ -178,7 +178,7 @@ class SkillUsageAnalyzer private constructor(private val context: Context) {
 
         if (last30Days.isNotEmpty() && last7Days.isNotEmpty()) {
             val recentAvg = last7Days.map { it.totalInvocations }.average()
-            val olderAvg = last30Days.take(23).map { it.totalInvocations }.average()
+        val olderAvg = last30Days.take(23).map { it.totalInvocations }.average()
 
             if (recentAvg > olderAvg * 1.5) {
                 patterns.add(
@@ -205,11 +205,9 @@ class SkillUsageAnalyzer private constructor(private val context: Context) {
             .map { it.first }
 
         val skillAffinityScores = calculateSkillAffinityScores(usageData)
-
         val timeSlots = analyzeTimeSlots(dailyStats)
 
         val successRates = calculateSuccessRates()
-
         val learningProgression = calculateLearningProgression(usageData)
 
         val interests = inferInterests(usageData)
@@ -234,7 +232,7 @@ class SkillUsageAnalyzer private constructor(private val context: Context) {
 
         return usageData.mapValues { (_, data) ->
             val recencyScore = calculateRecencyScore(data.lastUsed)
-            val frequencyScore = data.totalInvocations.toDouble() / maxInvocations
+        val frequencyScore = data.totalInvocations.toDouble() / maxInvocations
             val engagementScore = data.totalToolCalls.toDouble() / maxToolCalls
 
             (recencyScore * RECENCY_WEIGHT +
@@ -424,10 +422,10 @@ class SkillUsageAnalyzer private constructor(private val context: Context) {
                 if (i == j) continue
 
                 val skill1 = skills[i]
-                val skill2 = skills[j]
+        val skill2 = skills[j]
 
                 val values1 = skillDailyUsage[skill1] ?: continue
-                val values2 = skillDailyUsage[skill2] ?: continue
+        val values2 = skillDailyUsage[skill2] ?: continue
 
                 val correlation = calculateCorrelation(values1, values2)
                 if (correlation > 0.5) {
@@ -452,7 +450,7 @@ class SkillUsageAnalyzer private constructor(private val context: Context) {
 
         for (i in 0 until n) {
             val dx = x[i] - meanX
-            val dy = y[i] - meanY
+        val dy = y[i] - meanY
             numerator += dx * dy
             denomX += dx * dx
             denomY += dy * dy

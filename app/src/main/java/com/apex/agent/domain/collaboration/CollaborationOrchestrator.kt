@@ -45,7 +45,7 @@ class CollaborationOrchestrator(
     private val listenerCounter = AtomicLong(0)
 
     private val _processing = MutableStateFlow(false)
-    val isProcessing: StateFlow<Boolean> = _processing.asStateFlow()
+        val isProcessing: StateFlow<Boolean> = _processing.asStateFlow()
 
     private var processorJob: Job? = null
     private var heartbeatJob: Job? = null
@@ -222,7 +222,7 @@ class CollaborationOrchestrator(
 
         try {
             val agentCap = agentRegistry[agentId] ?: return
-            val updatedCap = agentCap.copy(load = (agentCap.load + 0.2f).coerceAtMost(1f), status = AgentStatus.BUSY)
+        val updatedCap = agentCap.copy(load = (agentCap.load + 0.2f).coerceAtMost(1f), status = AgentStatus.BUSY)
             agentRegistry[agentId] = updatedCap
             notifyListeners { it.onAgentStatusChanged(agentId, AgentStatus.BUSY) }
 

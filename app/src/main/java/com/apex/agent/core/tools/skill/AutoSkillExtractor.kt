@@ -133,7 +133,7 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         val patternCounts = mutableMapOf<List<String>, Int>()
 
         // 提取不同长度的n-gram 模式
-        for (n in MIN_PATTERN_LENGTH..MAX_PATTERN_LENGTH.coerceAtMost(toolNames.size)) {
+                for (n in MIN_PATTERN_LENGTH..MAX_PATTERN_LENGTH.coerceAtMost(toolNames.size)) {
             for (i in 0..toolNames.size - n) {
                 val ngram = toolNames.subList(i, i + n)
                 patternCounts[ngram] = (patternCounts[ngram] ?: 0) + 1
@@ -141,13 +141,13 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         }
 
         // 过滤出重复出现的模式，并去除子模式
-        val frequentPatterns = patternCounts
+                val frequentPatterns = patternCounts
             .filter { it.value >= MIN_FREQUENCY }
             .map { PatternMatch(it.key, it.value) }
             .sortedByDescending { it.sequence.size }
 
         // 去除被更长模式包含的子模式
-        return removeSubPatterns(frequentPatterns)
+                return removeSubPatterns(frequentPatterns)
     }
 
     /**
@@ -192,16 +192,16 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         toolCallHistory: List<SessionToolCallRecord>
     ): Float {
         // 频率分数：出现次数越多，分数越高（归一化到 0-1，
-        val frequencyScore = (frequency.toFloat() / MIN_FREQUENCY).coerceAtMost(1.0f)
+                val frequencyScore = (frequency.toFloat() / MIN_FREQUENCY).coerceAtMost(1.0f)
 
         // 一致性分数：模式在历史中完整出现的比例
-        val consistencyScore = calculateConsistency(pattern, toolCallHistory)
+                val consistencyScore = calculateConsistency(pattern, toolCallHistory)
 
         // 通用性分数：模式不依赖特定数据的程度
-        val generalityScore = calculateGenerality(pattern, toolCallHistory)
+                val generalityScore = calculateGenerality(pattern, toolCallHistory)
 
         // 综合置信度：加权平均
-        val confidence = frequencyScore * 0.4f + consistencyScore * 0.35f + generalityScore * 0.25f
+                val confidence = frequencyScore * 0.4f + consistencyScore * 0.35f + generalityScore * 0.25f
 
         return confidence.coerceIn(0f, 1f)
     }
@@ -221,7 +221,7 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         }
 
         // 一致态= 实际出现次数 / 理论最大出现次数
-        val maxPossible = (toolNames.size / pattern.size).coerceAtLeast(1)
+                val maxPossible = (toolNames.size / pattern.size).coerceAtLeast(1)
         return (occurrences.toFloat() / maxPossible).coerceAtMost(1.0f)
     }
 
@@ -231,14 +231,14 @@ class AutoSkillExtractor private constructor(private val context: Context) {
      */
     private fun calculateGenerality(pattern: List<String>, toolCallHistory: List<SessionToolCallRecord>): Float {
         // 工具多样性：模式中包含的不同工具数量
-        val uniqueTools = pattern.distinct().size
+                val uniqueTools = pattern.distinct().size
         val diversityScore = (uniqueTools.toFloat() / pattern.size).coerceAtMost(1.0f)
 
         // 参数独立性：检查工具调用参数是否变化（简化版，
-        val patternOccurrences = findPatternOccurrences(pattern, toolCallHistory)
+                val patternOccurrences = findPatternOccurrences(pattern, toolCallHistory)
         val parameterVariation = if (patternOccurrences.size > 1) {
             // 如果同一模式出现多次，检查参数是否有变化
-            val hasVariation = patternOccurrences.any { occ ->
+                val hasVariation = patternOccurrences.any { occ ->
                 occ.any { it.parameters.isNotEmpty() }
             }
             if (hasVariation) 0.8f else 0.5f
@@ -292,7 +292,7 @@ class AutoSkillExtractor private constructor(private val context: Context) {
             }
 
             val json = candidatesFile.readText()
-            val jsonArray = JSONArray(json)
+        val jsonArray = JSONArray(json)
             val candidates = (0 until jsonArray.length()).map {
                 SkillCandidate.fromJson(jsonArray.getJSONObject(it))
             }

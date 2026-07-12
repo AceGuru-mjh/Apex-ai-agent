@@ -26,7 +26,7 @@ object XmlRenderPluginRegistry {
      */
     fun notifyChanged() {
         // 触发插件列表的重新扫描
-        plugins.forEach { _ -> /* no-op per plugin */ }
+                plugins.forEach { _ -> /* no-op per plugin */ }
     }
 
     fun clear() {

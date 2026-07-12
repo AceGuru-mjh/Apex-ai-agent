@@ -47,7 +47,7 @@ class AgentTaskScheduler(private val scope: CoroutineScope = CoroutineScope(Disp
     private val maxHistorySize = 1000
 
     private val _schedulerState = MutableStateFlow(SchedulerState())
-    val schedulerState: StateFlow<SchedulerState> = _schedulerState
+        val schedulerState: StateFlow<SchedulerState> = _schedulerState
 
     init {
         startSchedulerLoop()

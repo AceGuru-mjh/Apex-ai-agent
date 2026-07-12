@@ -181,7 +181,7 @@ object IntentUtils {
     fun openAppInMarket(context: Context, packageName: String? = null) {
         val pkg = packageName ?: context.packageName
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$pkg")).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         if (isIntentAvailable(context, intent)) {
             context.startActivity(intent)

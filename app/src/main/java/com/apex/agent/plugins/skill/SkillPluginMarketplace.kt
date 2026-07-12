@@ -61,8 +61,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     private val _popularPlugins = MutableStateFlow<List<SkillPluginListing>>(emptyList())
     private val _updates = MutableStateFlow<List<SkillPluginUpdate>>(emptyList())
     private val _isLoading = MutableStateFlow(false)
-
-    val searchResults: Flow<List<SkillPluginListing>> = _searchResults.asStateFlow()
+        val searchResults: Flow<List<SkillPluginListing>> = _searchResults.asStateFlow()
     val featuredPlugins: Flow<List<SkillPluginListing>> = _featuredPlugins.asStateFlow()
     val popularPlugins: Flow<List<SkillPluginListing>> = _popularPlugins.asStateFlow()
     val availableUpdates: Flow<List<SkillPluginUpdate>> = _updates.asStateFlow()
@@ -93,7 +92,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
         _isLoading.value = true
         try {
             val cacheKey = "search_${query}_${category ?: "all"}"
-            val cached = getCachedListings(cacheKey)
+        val cached = getCachedListings(cacheKey)
             if (cached != null) {
                 _searchResults.value = cached
                 return@withContext cached
@@ -114,7 +113,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     override suspend fun getPluginDetails(pluginId: String): SkillPluginListing? = withContext(Dispatchers.IO) {
         try {
             val cacheKey = "details_${pluginId}"
-            val cached = getCachedListing(cacheKey)
+        val cached = getCachedListing(cacheKey)
             if (cached != null) return@withContext cached
 
             val details = fetchPluginDetails(pluginId)
@@ -164,7 +163,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     override suspend fun getFeaturedPlugins(): List<SkillPluginListing> = withContext(Dispatchers.IO) {
         try {
             val cacheKey = "featured"
-            val cached = getCachedListings(cacheKey)
+        val cached = getCachedListings(cacheKey)
             if (cached != null) {
                 _featuredPlugins.value = cached
                 return@withContext cached
@@ -183,7 +182,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     override suspend fun getPopularPlugins(limit: Int): List<SkillPluginListing> = withContext(Dispatchers.IO) {
         try {
             val cacheKey = "popular_${limit}"
-            val cached = getCachedListings(cacheKey)
+        val cached = getCachedListings(cacheKey)
             if (cached != null) {
                 _popularPlugins.value = cached
                 return@withContext cached
@@ -202,7 +201,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     override suspend fun getRecommendedPlugins(userId: String): List<SkillPluginListing> = withContext(Dispatchers.IO) {
         try {
             val cacheKey = "recommended_${userId}"
-            val cached = getCachedListings(cacheKey)
+        val cached = getCachedListings(cacheKey)
             if (cached != null) return@withContext cached
 
             val recommended = fetchRecommendedPlugins(userId)
@@ -220,7 +219,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     ): List<SkillPluginListing> {
         return try {
             val url = buildSearchUrl(query, category)
-            val response = fetchFromNetwork(url)
+        val response = fetchFromNetwork(url)
             json.decodeFromString<List<SkillPluginListingData>>(response).map { it.toListing() }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Search failed, using mock data", e)
@@ -235,7 +234,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     private suspend fun fetchPluginDetails(pluginId: String): SkillPluginListing? {
         return try {
             val url = "${getBaseUrl()}/plugins/${pluginId}"
-            val response = fetchFromNetwork(url)
+        val response = fetchFromNetwork(url)
             json.decodeFromString<SkillPluginListingData>(response).toListing()
         } catch (e: Exception) {
             AppLogger.e(TAG, "Fetch details failed, using mock", e)
@@ -246,7 +245,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     private suspend fun fetchAvailableUpdates(): List<SkillPluginUpdate> {
         return try {
             val url = "${getBaseUrl()}/plugins/updates"
-            val response = fetchFromNetwork(url)
+        val response = fetchFromNetwork(url)
             json.decodeFromString<List<SkillPluginUpdateData>>(response).map { it.toUpdate() }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Fetch updates failed", e)
@@ -257,7 +256,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     private suspend fun fetchFeaturedPlugins(): List<SkillPluginListing> {
         return try {
             val url = "${getBaseUrl()}/plugins/featured"
-            val response = fetchFromNetwork(url)
+        val response = fetchFromNetwork(url)
             json.decodeFromString<List<SkillPluginListingData>>(response).map { it.toListing() }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Fetch featured failed", e)
@@ -268,7 +267,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     private suspend fun fetchPopularPlugins(limit: Int): List<SkillPluginListing> {
         return try {
             val url = "${getBaseUrl()}/plugins/popular?limit=${limit}"
-            val response = fetchFromNetwork(url)
+        val response = fetchFromNetwork(url)
             json.decodeFromString<List<SkillPluginListingData>>(response).map { it.toListing() }.take(limit)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Fetch popular failed", e)
@@ -279,7 +278,7 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
     private suspend fun fetchRecommendedPlugins(userId: String): List<SkillPluginListing> {
         return try {
             val url = "${getBaseUrl()}/plugins/recommended?userId=${userId}"
-            val response = fetchFromNetwork(url)
+        val response = fetchFromNetwork(url)
             json.decodeFromString<List<SkillPluginListingData>>(response).map { it.toListing() }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Fetch recommended failed", e)

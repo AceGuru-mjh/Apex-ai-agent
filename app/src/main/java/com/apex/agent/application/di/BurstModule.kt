@@ -40,7 +40,7 @@ object BurstModule {
         @ApplicationContext ctx: Context
     ): AgentCollaborationFramework {
         // EnhancedAIService 是单例，getInstance 内部双重检查锁
-        val aiService: com.apex.agent.api.chat.llmprovider.AIService =
+                val aiService: com.apex.agent.api.chat.llmprovider.AIService =
             EnhancedAIService.getInstance(ctx)
         return AgentCollaborationFramework(ctx, aiService)
     }

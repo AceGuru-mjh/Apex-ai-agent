@@ -75,7 +75,6 @@ class OptimizedReflectionEngine(
         val successfulSteps = steps.filter { it.success }
 
         val results = mutableListOf<Deferred<*>>()
-
         val keyFactors = mutableListOf<KeyFactor>()
         val suggestions = mutableListOf<ImprovementSuggestion>()
         val learnings = mutableListOf<Learning>()
@@ -141,7 +140,7 @@ class OptimizedReflectionEngine(
 
         for (i in 0 until steps.size - 1) {
             val current = steps[i].action.lowercase()
-            val next = steps[i + 1].action.lowercase()
+        val next = steps[i + 1].action.lowercase()
 
             if (sequentialPatterns.any { (first, second) ->
                     current.contains(first) && next.contains(second)

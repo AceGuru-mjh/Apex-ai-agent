@@ -125,7 +125,7 @@ internal object JsJavaBridgeDelegates {
     ): String {
         return runBridgeCall(objectRegistry) {
             val clazz = loadClass(className, bridgeClassLoader)
-            val rawArgs = parseArgsJson(argsJson, objectRegistry)
+        val rawArgs = parseArgsJson(argsJson, objectRegistry)
             val constructorMatch =
                 selectConstructor(
                     clazz = clazz,
@@ -148,11 +148,11 @@ internal object JsJavaBridgeDelegates {
     ): String {
         return runBridgeCall(objectRegistry) {
             val clazz = loadClass(className, bridgeClassLoader)
-            val normalizedMethodName = methodName.trim()
+        val normalizedMethodName = methodName.trim()
             require(normalizedMethodName.isNotEmpty()) { "method name is required" }
 
             val rawArgs = parseArgsJson(argsJson, objectRegistry)
-            val staticMethodMatch =
+        val staticMethodMatch =
                 try {
                     selectMethod(
                         clazz = clazz,
@@ -197,12 +197,12 @@ internal object JsJavaBridgeDelegates {
     ): String {
         return runBridgeCall(objectRegistry) {
             val instance = requireInstance(instanceHandle, objectRegistry)
-            val clazz = instance.javaClass
+        val clazz = instance.javaClass
             val normalizedMethodName = methodName.trim()
             require(normalizedMethodName.isNotEmpty()) { "method name is required" }
 
             val rawArgs = parseArgsJson(argsJson, objectRegistry)
-            val methodMatch =
+        val methodMatch =
                 selectMethod(
                     clazz = clazz,
                     methodName = normalizedMethodName,
@@ -270,7 +270,7 @@ internal object JsJavaBridgeDelegates {
     ): String {
         return runBridgeCall(objectRegistry) {
             val clazz = loadClass(className, bridgeClassLoader)
-            val normalizedFieldName = fieldName.trim()
+        val normalizedFieldName = fieldName.trim()
             require(normalizedFieldName.isNotEmpty()) { "field name is required" }
 
             val field = findField(clazz, normalizedFieldName, staticOnly = true)
@@ -311,11 +311,11 @@ internal object JsJavaBridgeDelegates {
     ): String {
         return runBridgeCall(objectRegistry) {
             val clazz = loadClass(className, bridgeClassLoader)
-            val normalizedFieldName = fieldName.trim()
+        val normalizedFieldName = fieldName.trim()
             require(normalizedFieldName.isNotEmpty()) { "field name is required" }
 
             val rawValue = parseSingleValueJson(valueJson, objectRegistry)
-            val field = findField(clazz, normalizedFieldName, staticOnly = true)
+        val field = findField(clazz, normalizedFieldName, staticOnly = true)
             if (field != null && !Modifier.isFinal(field.modifiers)) {
                 val converted =
                     convertArg(
@@ -394,7 +394,7 @@ internal object JsJavaBridgeDelegates {
     ): String {
         return runBridgeCall(objectRegistry) {
             val instance = requireInstance(instanceHandle, objectRegistry)
-            val clazz = instance.javaClass
+        val clazz = instance.javaClass
             val normalizedFieldName = fieldName.trim()
             require(normalizedFieldName.isNotEmpty()) { "field name is required" }
 
@@ -422,12 +422,12 @@ internal object JsJavaBridgeDelegates {
     ): String {
         return runBridgeCall(objectRegistry) {
             val instance = requireInstance(instanceHandle, objectRegistry)
-            val clazz = instance.javaClass
+        val clazz = instance.javaClass
             val normalizedFieldName = fieldName.trim()
             require(normalizedFieldName.isNotEmpty()) { "field name is required" }
 
             val rawValue = parseSingleValueJson(valueJson, objectRegistry)
-            val field = findField(clazz, normalizedFieldName, staticOnly = false)
+        val field = findField(clazz, normalizedFieldName, staticOnly = false)
             if (field != null && !Modifier.isFinal(field.modifiers)) {
                 val converted =
                     convertArg(
@@ -647,7 +647,7 @@ internal object JsJavaBridgeDelegates {
         var best: MethodMatch? = null
         for (method in candidates) {
             val parameterTypes = method.parameterTypes
-            val argParamTypes = parameterTypes.copyOfRange(0, parameterTypes.size - 1)
+        val argParamTypes = parameterTypes.copyOfRange(0, parameterTypes.size - 1)
             val converted =
                 convertArguments(
                     parameterTypes = argParamTypes,
@@ -714,7 +714,7 @@ internal object JsJavaBridgeDelegates {
 
         try {
             val argsWithContinuation = selected.args + continuation
-            val outcome = selected.method.invoke(instance, *argsWithContinuation)
+        val outcome = selected.method.invoke(instance, *argsWithContinuation)
             if (outcome !== COROUTINE_SUSPENDED && completed.compareAndSet(false, true)) {
                 callback(success(outcome, objectRegistry))
             }
@@ -830,7 +830,7 @@ internal object JsJavaBridgeDelegates {
                         raw.optString(JS_OBJECT_ID_KEY).trim().isNotEmpty()
                 ) {
                     val interfaceNames = mutableListOf<String>()
-                    val rawInterfaces = raw.opt(JS_INTERFACES_KEY)
+        val rawInterfaces = raw.opt(JS_INTERFACES_KEY)
                     when (rawInterfaces) {
                         is JSONArray -> {
                             for (i in 0 until rawInterfaces.length()) {
@@ -911,7 +911,7 @@ internal object JsJavaBridgeDelegates {
             else -> {
                 if (value.javaClass.isArray) {
                     val arr = JSONArray()
-                    val len = ReflectArray.getLength(value)
+        val len = ReflectArray.getLength(value)
                     for (index in 0 until len) {
                         arr.put(toJsonCompatibleValue(ReflectArray.get(value, index), objectRegistry))
                     }
@@ -1220,7 +1220,7 @@ internal object JsJavaBridgeDelegates {
         if (wrapper.isArray) {
             if (rawValue is List<*>) {
                 val componentType = wrapper.componentType
-                val arr = ReflectArray.newInstance(componentType, rawValue.size)
+        val arr = ReflectArray.newInstance(componentType, rawValue.size)
                 var score = 5
                 for (index in rawValue.indices) {
                     val converted =
@@ -1264,7 +1264,6 @@ internal object JsJavaBridgeDelegates {
         bridgeClassLoader: ClassLoader?
     ): Any? {
         val callbackInvoker = jsCallbackInvoker ?: return null
-
         val interfaceClasses = mutableListOf<Class<*>>()
 
         if (targetType.isInterface) {
@@ -1290,7 +1289,6 @@ internal object JsJavaBridgeDelegates {
             deduped[cls.name] = cls
         }
         val proxyInterfaces = deduped.values.toTypedArray()
-
         val loader =
             bridgeClassLoader
                 ?: proxyInterfaces.firstOrNull()?.classLoader
@@ -1362,7 +1360,7 @@ internal object JsJavaBridgeDelegates {
             }
 
             val runtimeArgs = args ?: emptyArray()
-            val resolved = resolveMapInterfaceMember(memberMap, method, runtimeArgs)
+        val resolved = resolveMapInterfaceMember(memberMap, method, runtimeArgs)
             if (!resolved.first) {
                 if (isVoidLikeReturnType(method.returnType)) {
                     return@newProxyInstance null

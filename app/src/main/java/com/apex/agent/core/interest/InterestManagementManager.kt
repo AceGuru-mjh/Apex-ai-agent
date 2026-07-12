@@ -19,7 +19,7 @@ class InterestManagementManager private constructor(
     private val TAG = "InterestManagementManager"
     
     // 缓存兴趣分析结果
-    private val interestCache = ConcurrentHashMap<String, InterestProfile>()
+                private val interestCache = ConcurrentHashMap<String, InterestProfile>()
     
     companion object {
         @Volatile private var INSTANCE: InterestManagementManager? = null
@@ -40,10 +40,10 @@ class InterestManagementManager private constructor(
      */
     suspend fun analyzeUserInterests(userId: String, messages: List<ChatMessage>, userProfile: HonzonUserProfile? = null): InterestProfile = withContext(Dispatchers.IO) {
         // 先从缓存获取
-        interestCache[userId]?.let { return@withContext it }
+                interestCache[userId]?.let { return@withContext it }
         
         // 分析兴趣
-        val profile = interestAnalyzer.analyzeInterests(messages, userProfile)
+                val profile = interestAnalyzer.analyzeInterests(messages, userProfile)
         interestCache[userId] = profile
         profile
     }

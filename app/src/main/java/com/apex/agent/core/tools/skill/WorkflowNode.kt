@@ -339,7 +339,7 @@ data class WorkflowDefinition(
         }
 
         val danglingNodes = nodes.filter { node ->
-            val isSource = connections.any { it.sourceNodeId == node.id }
+        val isSource = connections.any { it.sourceNodeId == node.id }
             val isTrigger = node.type == NodeType.TRIGGER
             !isSource && !isTrigger
         }

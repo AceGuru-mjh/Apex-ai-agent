@@ -23,17 +23,17 @@ class StringCollectorProcessor : StreamProcessor<String, String> {
 /** Markdown处理器类型枚为/
 enum class MarkdownProcessorType {
     // 块级处理器   HEADER,
-    BLOCK_QUOTE,
+                BLOCK_QUOTE,
     CODE_BLOCK,
     ORDERED_LIST,
     UNORDERED_LIST,
     HORIZONTAL_RULE,
     BLOCK_LATEX, // LaTeX块级公式
-    TABLE, // 表格支持
-    XML_BLOCK, // XML块级元素
+                TABLE, // 表格支持
+                XML_BLOCK, // XML块级元素
  
     // 内联处理器   BOLD,
-    ITALIC,
+                ITALIC,
     INLINE_CODE,
     LINK,
     IMAGE,
@@ -42,7 +42,7 @@ enum class MarkdownProcessorType {
     INLINE_LATEX, // LaTeX行内公式
 
     // 纯文件   PLAIN_TEXT,
-    HTML_BREAK
+                HTML_BREAK
 }
 
 /** 
@@ -107,9 +107,10 @@ object NestedMarkdownProcessor {
                     StreamMarkdownUnorderedListPlugin(includeMarker = false),
                     StreamMarkdownHorizontalRulePlugin(),
                     // LaTeX 块级公式：同时支，$...$$ ，\\[...\\]
-                    StreamMarkdownBlockLaTeXPlugin(includeDelimiters = false),
+                StreamMarkdownBlockLaTeXPlugin(includeDelimiters = false),
                     // ，\[...\] 保留分隔符，避免在结束匹配失败分支吞掉反斜杠，
-                   // 渲染阶段会通过 extractLatexContent 移除分隔符号                    StreamMarkdownBlockBracketLaTeXPlugin(includeDelimiters = true),
+                   // 渲染阶段会通过 extractLatexContent 移除分隔符号
+                StreamMarkdownBlockBracketLaTeXPlugin(includeDelimiters = true),
                     StreamMarkdownTablePlugin(),
                     StreamMarkdownImagePlugin(),
                     StreamXmlPlugin(includeTagsInOutput = true) // 使用现有的StreamXmlPlugin
@@ -125,9 +126,10 @@ object NestedMarkdownProcessor {
                     StreamMarkdownStrikethroughPlugin(includeDelimiters = false),
                     StreamMarkdownUnderlinePlugin(),
                     // LaTeX 行内公式：支，...$ ，\\(...\\)
-                    StreamMarkdownInlineLaTeXPlugin(includeDelimiters = false),
+                StreamMarkdownInlineLaTeXPlugin(includeDelimiters = false),
                     // ，\(...\) 保留分隔符，避免在结束匹配失败分支吞掉反斜杠，
-                   // 渲染阶段会通过 extractLatexContent 移除分隔符号                    StreamMarkdownInlineParenLaTeXPlugin(includeDelimiters = true)
+                   // 渲染阶段会通过 extractLatexContent 移除分隔符号
+                StreamMarkdownInlineParenLaTeXPlugin(includeDelimiters = true)
             )
 
     /** 根据插件获取对应的Markdown处理器类型/
@@ -165,7 +167,7 @@ class MarkdownUIBinder<T>(
     /** 绑定StreamGroup到UI组件 */
     suspend fun bind(group: StreamGroup<MarkdownProcessorType>) {
         // 递归处理所有组
-        val nodes = processGroupToNodes(group)
+                val nodes = processGroupToNodes(group)
         renderStrategy(component, nodes)
     }
 
@@ -174,15 +176,15 @@ class MarkdownUIBinder<T>(
             group: StreamGroup<MarkdownProcessorType>
     ): MarkdownNode {
         // 处理当前，
-       val content = StringBuilder()
+                val content = StringBuilder()
         group.stream.collect { content.append(it) }
 
         val node = MarkdownNode(group.tag, initialContent = content.toString())
 
         // 递归处理子组
-        for (child in group.children) {
+                for (child in group.children) {
             @Suppress("UNCHECKED_CAST") val childGroup = child as StreamGroup<MarkdownProcessorType>
-            val childNode = processGroupToNodes(childGroup)
+        val childNode = processGroupToNodes(childGroup)
             node.children.add(childNode)
         }
 

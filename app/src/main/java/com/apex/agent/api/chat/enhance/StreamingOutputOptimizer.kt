@@ -21,10 +21,10 @@ object StreamingOutputOptimizer {
     private const val TAG = "StreamingOptimizer"
 
     // 打字间隔（毫秒）
-    private const val TYPING_INTERVAL_MS = 40L
+                private const val TYPING_INTERVAL_MS = 40L
 
     // 每次渲染的字符数
-    private const val CHARS_PER_TICK = 2
+                private const val CHARS_PER_TICK = 2
 
     // 断句识别：中文标点符   private val CHINESE_PUNCTUATION = setOf(' ' ' ' ' ' ' ' '。
     
@@ -36,21 +36,26 @@ object StreamingOutputOptimizer {
      */
     suspend fun optimizeStream(rawFlow: suspend ((String) -> Unit) -> Unit): Flow<String> = 
         channelFlow {
-            // 缓冲区：累积接收到但尚未渲染的内           val buffer = StringBuilder()
+            // 缓冲区：累积接收到但尚未渲染的内
+                val buffer = StringBuilder()
             
-            // 完整输出文本：用于异常恢           val fullText = StringBuilder()
+            // 完整输出文本：用于异常恢
+                val fullText = StringBuilder()
 
-            // 匀速渲染协                       val renderJob = scope.launch {
+            // 匀速渲染协
+                val renderJob = scope.launch {
                 try {
                     while (isActive) {
                         delay(TYPING_INTERVAL_MS)
                         
-                        // 从缓冲区取内容渲                       if (buffer.isNotEmpty()) {
+                        // 从缓冲区取内容渲
+                if (buffer.isNotEmpty()) {
                             val chunkSize = minOf(CHARS_PER_TICK, buffer.length)
-                            val chunk = buffer.substring(0, chunkSize)
+        val chunk = buffer.substring(0, chunkSize)
                             buffer.delete(0, chunkSize)
                             
-                            // 发送到输出                           fullText.append(chunk)
+                            // 发送到输出
+                fullText.append(chunk)
                             send(chunk)
                         }
                     }
@@ -63,22 +68,25 @@ object StreamingOutputOptimizer {
                 // 收集原始流式输出
                 rawFlow { chunk ->
                     // 处理断句，避免拆分汉字或词语
-                    val processedChunk = handleWordBreak(chunk)
+                val processedChunk = handleWordBreak(chunk)
                     buffer.append(processedChunk)
                 }
 
-                // 等待缓冲区排               while (buffer.isNotEmpty() && renderJob.isActive) {
+                // 等待缓冲区排
+                while (buffer.isNotEmpty() && renderJob.isActive) {
                     delay(TYPING_INTERVAL_MS / 2)
                 }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "流式输出异常", e)
                 
-                // 异常兜底：输出已收集的完整文               val remainingBuffer = buffer.toString()
+                // 异常兜底：输出已收集的完整文
+                val remainingBuffer = buffer.toString()
                 if (remainingBuffer.isNotEmpty()) {
                     send(remainingBuffer)
                 }
                 
-                // 发送错误提               send("\n\n[输出中断，请重试]")
+                // 发送错误提
+                send("\n\n[输出中断，请重试]")
             } finally {
                 renderJob.cancel()
             }
@@ -93,14 +101,15 @@ object StreamingOutputOptimizer {
         if (input.isEmpty()) return input
 
         // 处理中文：避免在汉字中间截断
-        // （简化实现：完整保留输入块，在渲染层面做更细粒度控制       return input
+        // （简化实现：完整保留输入块，在渲染层面做更细粒度控制
+                return input
     }
 
     /**
      * 智能缓冲：在适当位置（标点后）进行输    * @param buffer 当前缓冲    * @return 可以安全输出的文    */
     fun smartBuffer(buffer: String): Pair<String, String> {
         // 查找最后一个标点符号的位置
-        var lastPunctuationIndex = -1
+                var lastPunctuationIndex = -1
         for (i in buffer.length - 1 downTo 0) {
             val char = buffer[i]
             if (char in CHINESE_PUNCTUATION || char in ENGLISH_PUNCTUATION) {
@@ -109,9 +118,10 @@ object StreamingOutputOptimizer {
             }
         }
 
-        // 如果找到标点，在标点后分       return if (lastPunctuationIndex > 0) {
+        // 如果找到标点，在标点后分
+                return if (lastPunctuationIndex > 0) {
             val output = buffer.substring(0, lastPunctuationIndex + 1)
-            val remaining = buffer.substring(lastPunctuationIndex + 1)
+        val remaining = buffer.substring(lastPunctuationIndex + 1)
             output to remaining
         } else {
             // 如果没有找到标点，返回空输出，继续缓           "" to buffer

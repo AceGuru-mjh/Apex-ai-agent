@@ -19,7 +19,7 @@ class Bingbu @Inject constructor() : BaseSanxingRole() {
         colorHex = "#EF4444",
         defaultModel = "gpt-4o",
         endpoint = "https://api.deepseek.com/v1/chat/completions",
-        temperature = 0.5,
+                temperature = 0.5,
         permissionTags = setOf(PERM_TOOLS, PERM_INTERNET, PERM_READ, PERM_WRITE),
         systemPrompt = """
             你现在是「兵部・策略攻坚」，负责以下核心职责，

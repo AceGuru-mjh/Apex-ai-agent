@@ -37,7 +37,7 @@ class SmartMemoryCompressor {
                         .thenByDescending { it.accessCount }
                 )
                 val toKeep = sortedByValue.take(40)
-                val toDemote = sortedByValue.drop(40)
+        val toDemote = sortedByValue.drop(40)
                 for (item in toDemote) {
                     mem.demoteToL2(item.id)
                 }
@@ -50,7 +50,7 @@ class SmartMemoryCompressor {
                         .thenByDescending { it.accessCount }
                 )
                 val toKeep = sortedByValue.take(400)
-                val toDemote = sortedByValue.drop(400)
+        val toDemote = sortedByValue.drop(400)
                 for (item in toDemote) {
                     mem.demoteToL3(item.id)
                 }
@@ -69,7 +69,6 @@ class SmartMemoryCompressor {
         val pool = unifiedManager.getSharedMemoryPool()
         val allMemories = pool?.getAllMemories() ?: emptyList()
         val itemsBefore = allMemories.size
-
         val consensusMemories = allMemories.filter { entry ->
             entry.priority >= 50
         }
@@ -96,10 +95,10 @@ class SmartMemoryCompressor {
 
         ctxMem?.let { ctx ->
             val config = unifiedManager.getConfigForMode(AgentMode.SINGLE_AGENT)
-            val targetSize = (config.maxMemoryItems * 0.75).toInt()
+        val targetSize = (config.maxMemoryItems * 0.75).toInt()
 
             val summary = ctx.getSummary()
-            val highConfidence = summary.facts.filter { it.confidence >= 0.7f }
+        val highConfidence = summary.facts.filter { it.confidence >= 0.7f }
             val lowConfidence = summary.facts.filter { it.confidence < 0.4f }
 
             for (fact in lowConfidence) {
@@ -110,7 +109,7 @@ class SmartMemoryCompressor {
             if (remaining > targetSize) {
                 for (i in 0 until (remaining - targetSize)) {
                     val facts = ctx.recall("", 100)
-                    val oldest = facts.minByOrNull { it.importance }
+        val oldest = facts.minByOrNull { it.importance }
                     oldest?.let { ctx.forget(it.id) }
                 }
             }

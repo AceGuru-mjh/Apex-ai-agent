@@ -29,10 +29,9 @@ object MediaPoolManager {
 
         if (mimeType.startsWith("audio/", ignoreCase = true)) {
             val out = File(dir, "${UUID.randomUUID()}.mp3")
-            val inPath = q(source.absolutePath)
+        val inPath = q(source.absolutePath)
             val outPath = q(out.absolutePath)
-
-            val commands = listOf(
+        val commands = listOf(
                 "-y -i ${inPath} -vn -ac 1 -ar 16000 -b:a 64k ${outPath}",
                 "-y -i ${inPath} -vn -ac 1 -ar 16000 -b:a 32k ${outPath}"
             )
@@ -49,12 +48,11 @@ object MediaPoolManager {
 
         if (mimeType.startsWith("video/", ignoreCase = true)) {
             val out = File(dir, "${UUID.randomUUID()}.mp4")
-            val inPath = q(source.absolutePath)
+        val inPath = q(source.absolutePath)
             val outPath = q(out.absolutePath)
-            val scale640 = FFmpegUtil.scaleFilterMaxWidth(640)
+        val scale640 = FFmpegUtil.scaleFilterMaxWidth(640)
             val scale480 = FFmpegUtil.scaleFilterMaxWidth(480)
-
-            val commands = listOf(
+        val commands = listOf(
                 "-y -i ${inPath} -vf ${scale640} -c:v h264 -preset veryfast -crf 32 -c:a aac -b:a 64k -movflags +faststart ${outPath}",
                 "-y -i ${inPath} -vf ${scale640} -c:v mpeg4 -q:v 8 -c:a aac -b:a 64k -movflags +faststart ${outPath}",
                 "-y -i ${inPath} -vf ${scale480} -c:v mpeg4 -q:v 12 -c:a aac -b:a 48k -movflags +faststart ${outPath}"
@@ -209,7 +207,7 @@ object MediaPoolManager {
             }
 
             val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
-            val id = UUID.randomUUID().toString()
+        val id = UUID.randomUUID().toString()
             val mediaData = MediaData(base64 = base64, mimeType = effectiveMimeType)
             mediaPool[id] = mediaData
             saveToDisk(id, mediaData)
@@ -244,7 +242,7 @@ object MediaPoolManager {
                 }
 
                 val id = UUID.randomUUID().toString()
-                val normalizedBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+        val normalizedBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
                 val mediaData = MediaData(base64 = normalizedBase64, mimeType = mimeType)
                 mediaPool[id] = mediaData
                 saveToDisk(id, mediaData)
@@ -292,7 +290,7 @@ object MediaPoolManager {
             }
 
             val id = UUID.randomUUID().toString()
-            val normalizedBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+        val normalizedBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
             val mediaData = MediaData(base64 = normalizedBase64, mimeType = transcoded.mimeType)
             mediaPool[id] = mediaData
             saveToDisk(id, mediaData)
@@ -318,12 +316,12 @@ object MediaPoolManager {
         val dir = cacheDir ?: return null
         return try {
             val metaFile = File(dir, "${id}.meta")
-            val b64File = File(dir, "${id}.b64")
+        val b64File = File(dir, "${id}.b64")
             if (!metaFile.exists() || !b64File.exists()) {
                 return null
             }
             val mimeType = runCatching { metaFile.readText().trim() }.getOrNull() ?: return null
-            val base64 = runCatching { b64File.readText().trim() }.getOrNull() ?: return null
+        val base64 = runCatching { b64File.readText().trim() }.getOrNull() ?: return null
             if (mimeType.isBlank() || base64.isBlank()) {
                 return null
             }
@@ -344,7 +342,7 @@ object MediaPoolManager {
         val dir = cacheDir ?: return
         try {
             val metaFile = File(dir, "${id}.meta")
-            val b64File = File(dir, "${id}.b64")
+        val b64File = File(dir, "${id}.b64")
             metaFile.writeText(data.mimeType)
             b64File.writeText(data.base64)
         } catch (e: Exception) {
@@ -368,7 +366,7 @@ object MediaPoolManager {
             val metaFiles = dir.listFiles { file -> file.isFile && file.name.endsWith(".meta") } ?: return
             metaFiles.forEach { metaFile ->
                 val id = metaFile.name.removeSuffix(".meta")
-                val loaded = loadOneFromDisk(id) ?: return@forEach
+        val loaded = loadOneFromDisk(id) ?: return@forEach
                 mediaPool[id] = loaded
             }
             AppLogger.d(TAG, "从磁盘加载媒体缓存完于size=${mediaPool.size}")

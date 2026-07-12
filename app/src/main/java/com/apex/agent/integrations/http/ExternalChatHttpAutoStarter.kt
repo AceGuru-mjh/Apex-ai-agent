@@ -27,7 +27,7 @@ object ExternalChatHttpAutoStarter {
         scope.launch {
             try {
                 val preferences = ExternalHttpApiPreferences.getInstance(appContext)
-                val config = preferences.getConfig()
+        val config = preferences.getConfig()
                 if (!config.enabled) {
                     AppLogger.d(TAG, "External HTTP chat disabled, skip auto start: ${reason}")
                     return@launch

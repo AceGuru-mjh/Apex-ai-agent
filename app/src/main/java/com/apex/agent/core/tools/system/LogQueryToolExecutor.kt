@@ -18,16 +18,16 @@ object LogQueryToolExecutor {
             val logQueryManager = SmartLogQueryManager(context)
             
             // 解析参数
-            val keyword = tool.parameters.find { it.name == "keyword" }?.value
-            val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
+                val keyword = tool.parameters.find { it.name == "keyword" }?.value
+        val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
             val levelStr = tool.parameters.find { it.name == "level" }?.value
-            val tag = tool.parameters.find { it.name == "tag" }?.value
+        val tag = tool.parameters.find { it.name == "tag" }?.value
             val maxResults = tool.parameters.find { it.name == "max_results" }?.value?.toIntOrNull() ?: 100
-            val taskId = tool.parameters.find { it.name == "task_id" }?.value
+        val taskId = tool.parameters.find { it.name == "task_id" }?.value
             val agentId = tool.parameters.find { it.name == "agent_id" }?.value
             
             // 映射日志类型
-            val logType = when (logTypeStr.lowercase()) {
+                val logType = when (logTypeStr.lowercase()) {
                 "system", "logcat" -> SmartLogQueryManager.LogType.SYSTEM_LOGCAT
                 "app", "applogger" -> SmartLogQueryManager.LogType.APP_LOGGER
                 "gepa" -> SmartLogQueryManager.LogType.GEPA_LOGS
@@ -40,7 +40,7 @@ object LogQueryToolExecutor {
             }
             
             // 映射日志级别
-            val level = when (levelStr?.uppercase()) {
+                val level = when (levelStr?.uppercase()) {
                 "VERBOSE" -> SmartLogQueryManager.LogLevel.VERBOSE
                 "DEBUG" -> SmartLogQueryManager.LogLevel.DEBUG
                 "INFO" -> SmartLogQueryManager.LogLevel.INFO
@@ -51,7 +51,7 @@ object LogQueryToolExecutor {
             }
             
             // 构建过滤的
-            val filter = SmartLogQueryManager.LogFilter(
+                val filter = SmartLogQueryManager.LogFilter(
                 logType = logType,
                 level = level,
                 tag = tag,
@@ -62,7 +62,7 @@ object LogQueryToolExecutor {
             )
             
             // 执行查询
-            val result = logQueryManager.queryLogs(filter)
+                val result = logQueryManager.queryLogs(filter)
             
             if (result.success) {
                 // 格式化输的
@@ -82,7 +82,7 @@ object LogQueryToolExecutor {
                         val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", java.util.Locale.getDefault())
                             .format(java.util.Date(entry.timestamp))
                         val levelChar = entry.level.name[0]
-                        val tagStr = entry.tag ?: "Unknown"
+        val tagStr = entry.tag ?: "Unknown"
                         
                         appendLine("[${timestamp}] ${levelChar}/${tagStr}: ${entry.message}")
                         
@@ -127,13 +127,11 @@ object LogQueryToolExecutor {
     suspend fun exportLogsToFile(context: Context, tool: AITool): ToolResult {
         return try {
             val logQueryManager = SmartLogQueryManager(context)
-            
-            val outputPath = tool.parameters.find { it.name == "output_path" }?.value ?: "/sdcard/Download/logistra/exported_logs.txt"
+        val outputPath = tool.parameters.find { it.name == "output_path" }?.value ?: "/sdcard/Download/logistra/exported_logs.txt"
             val keyword = tool.parameters.find { it.name == "keyword" }?.value
-            val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
+        val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
             val maxResults = tool.parameters.find { it.name == "max_results" }?.value?.toIntOrNull() ?: 1000
-            
-            val logType = when (logTypeStr.lowercase()) {
+        val logType = when (logTypeStr.lowercase()) {
                 "system", "logcat" -> SmartLogQueryManager.LogType.SYSTEM_LOGCAT
                 "app", "applogger" -> SmartLogQueryManager.LogType.APP_LOGGER
                 "gepa" -> SmartLogQueryManager.LogType.GEPA_LOGS
@@ -154,7 +152,7 @@ object LogQueryToolExecutor {
             val outputFile = java.io.File(outputPath)
             
             // 确保目录存在
-            outputFile.parentFile?.mkdirs()
+                outputFile.parentFile?.mkdirs()
             
             val success = logQueryManager.exportLogsToFile(filter, outputFile)
             
@@ -189,8 +187,7 @@ object LogQueryToolExecutor {
     suspend fun getLogStatistics(context: Context, tool: AITool): ToolResult {
         return try {
             val logQueryManager = SmartLogQueryManager(context)
-            
-            val stats = logQueryManager.getLogStatistics()
+        val stats = logQueryManager.getLogStatistics()
             
             val output = buildString {
                 appendLine("=== 日志统计信息 ===")

@@ -44,7 +44,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
     
     override fun onCreate(db: SQLiteDatabase) {
         // 创建FTS5虚拟行
-        db.execSQL("""
+                db.execSQL("""
             CREATE VIRTUAL TABLE IF NOT EXISTS ${FTS_TABLE_NAME} USING fts5(
                 message_id,
                 session_id,
@@ -56,7 +56,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         """.trimIndent())
         
         // 创建FTS内容表用于存储完整内定
-        db.execSQL("""
+                db.execSQL("""
             CREATE TABLE IF NOT EXISTS ${FTS_CONTENT_TABLE}(
                 message_id TEXT PRIMARY KEY,
                 session_id TEXT NOT NULL,
@@ -67,7 +67,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         """.trimIndent())
         
         // 创建元数据表
-        db.execSQL("""
+                db.execSQL("""
             CREATE TABLE IF NOT EXISTS ${FTS_METADATA_TABLE}(
                 message_id TEXT PRIMARY KEY,
                 session_title TEXT,
@@ -76,7 +76,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         """.trimIndent())
         
         // 创建索引
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_fts_content_session ON ${FTS_CONTENT_TABLE}(session_id)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS idx_fts_content_session ON ${FTS_CONTENT_TABLE}(session_id)")
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_fts_content_created ON ${FTS_CONTENT_TABLE}(created_at)")
     }
     
@@ -90,7 +90,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
     override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)
         // 启用WAL模式
-        db.setForeignKeyConstraintsEnabled(true)
+                db.setForeignKeyConstraintsEnabled(true)
     }
     
     /**
@@ -102,7 +102,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                 db.beginTransaction()
                 try {
                     // 插入FTS虚拟行
-                    db.execSQL("""
+                db.execSQL("""
                         INSERT INTO ${FTS_TABLE_NAME}(message_id, session_id, content, role, created_at)
                         VALUES (?, ?, ?, ?, ?)
                     """.trimIndent(), arrayOf(
@@ -114,7 +114,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                     ))
                     
                     // 插入完整内容行
-                    db.execSQL("""
+                db.execSQL("""
                         INSERT OR REPLACE INTO ${FTS_CONTENT_TABLE}(message_id, session_id, content, role, created_at)
                         VALUES (?, ?, ?, ?, ?)
                     """.trimIndent(), arrayOf(
@@ -126,7 +126,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                     ))
                     
                     // 更新元数据
-                    if (sessionTitle != null) {
+                if (sessionTitle != null) {
                         db.execSQL("""
                             INSERT OR REPLACE INTO ${FTS_METADATA_TABLE}(message_id, session_title)
                             VALUES (?, ?)
@@ -254,7 +254,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
      */
     suspend fun semanticSearch(query: String, limit: Int = 20): List<FTSSearchResult> {
         // 使用FTS5的BM25排序进行语义相似搜索
-        return search(query, limit)
+                return search(query, limit)
     }
     
     /**

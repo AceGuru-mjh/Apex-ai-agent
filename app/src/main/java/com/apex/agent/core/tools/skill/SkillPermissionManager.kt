@@ -66,10 +66,10 @@ class SkillPermissionManager private constructor(private val context: Context) {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _permissionCheckResults = MutableStateFlow<Map<String, SkillPermissionCheckResult>>(emptyMap())
-    val permissionCheckResults: Flow<Map<String, SkillPermissionCheckResult>> = _permissionCheckResults.asStateFlow()
+        val permissionCheckResults: Flow<Map<String, SkillPermissionCheckResult>> = _permissionCheckResults.asStateFlow()
 
     private val _pendingPermissionRequests = MutableStateFlow<List<Pair<String, PackagePermission>>>(emptyList())
-    val pendingPermissionRequests: Flow<List<Pair<String, PackagePermission>>> = _pendingPermissionRequests.asStateFlow()
+        val pendingPermissionRequests: Flow<List<Pair<String, PackagePermission>>> = _pendingPermissionRequests.asStateFlow()
 
     private var permissionCallback: ((Boolean) -> Unit)? = null
     private var currentSkillName: String? = null
@@ -92,7 +92,7 @@ class SkillPermissionManager private constructor(private val context: Context) {
         }
 
         val skillPermissions = permissions.map { perm ->
-            val state = getPermissionStateInternal(skillName, perm.name)
+        val state = getPermissionStateInternal(skillName, perm.name)
             SkillPermission(skillName, perm, state)
         }
 

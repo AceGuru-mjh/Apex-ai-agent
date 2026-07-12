@@ -61,9 +61,9 @@ class MCPCatalog(private val context: Context) {
      */
     suspend fun getCatalog(): List<MCPServerEntry> = withContext(Dispatchers.IO) {
         // Nous 批准的MCP 服务器目当
-        listOf(
+                listOf(
             // 开发工具
-            MCPServerEntry(
+                MCPServerEntry(
                 id = "filesystem",
                 name = "Filesystem",
                 description = "文件系统操作 - 读取、写入、搜索文件和目录",

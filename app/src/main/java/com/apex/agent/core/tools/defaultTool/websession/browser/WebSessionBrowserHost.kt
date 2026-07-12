@@ -388,7 +388,6 @@ internal class WebSessionBrowserHost(
             }
 
         val params = indicatorParams ?: createIndicatorLayoutParams().also { indicatorParams = it }
-
         val indicator =
             ComposeView(appContext).apply {
                 setBackgroundColor(AndroidColor.TRANSPARENT)

@@ -199,7 +199,7 @@ class PromptCacheOptimizer private constructor() {
 
         if (optimizations.isNotEmpty()) {
             val cacheKey = computeHash(resolvedText)
-            val entry = PromptCacheEntry(
+        val entry = PromptCacheEntry(
                 promptHash = cacheKey,
                 response = resolvedText,
                 timestampMs = System.currentTimeMillis(),

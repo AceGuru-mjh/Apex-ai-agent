@@ -38,7 +38,7 @@ class ApiKeyPoolAvailabilityTester(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _state = MutableStateFlow(ApiKeyPoolTestState())
-    val state: StateFlow<ApiKeyPoolTestState> = _state.asStateFlow()
+        val state: StateFlow<ApiKeyPoolTestState> = _state.asStateFlow()
 
     private var job: Job? = null
 
@@ -98,7 +98,7 @@ class ApiKeyPoolAvailabilityTester(
                 var workingPool = apiKeyPool
 
                 val workerCount = maxOf(1, min(concurrency, keysToTest.size))
-                val workers = (0 until workerCount).map {
+        val workers = (0 until workerCount).map {
                     launch {
                         for (keyInfo in channel) {
                             val status =
@@ -163,7 +163,7 @@ class ApiKeyPoolAvailabilityTester(
     ): Boolean {
         return kotlin.runCatching {
             val modelNameToTest = getModelByIndex(baseConfig.modelName, 0)
-            val configForTest = baseConfig.copy(
+        val configForTest = baseConfig.copy(
                 apiKey = apiKey,
                 modelName = modelNameToTest,
                 useMultipleApiKeys = false,

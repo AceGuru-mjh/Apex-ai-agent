@@ -70,17 +70,17 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     }
 
     // ApiPreferences 实例，用于动态获取配置
-    protected val apiPreferences: ApiPreferences by lazy {
+                protected val apiPreferences: ApiPreferences by lazy {
         ApiPreferences.getInstance(context)
     }
 
     // SSH文件管理器（单例，懒加载的
-    private val sshFileManager by lazy {
+                private val sshFileManager by lazy {
         SSHFileConnectionManager.getInstance(context)
     }
 
     // TerminalManager（单例，懒加载）
-    private val terminalManager by lazy {
+                private val terminalManager by lazy {
         TerminalManager.getInstance(context)
     }
 
@@ -91,12 +91,12 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     private var lastLinuxFileSystemProviderLabel: String? = null
 
     // Linux文件系统提供者，优先使用SSH连接，否则从TerminalManager获取
-    protected fun getLinuxFileSystem(): FileSystemProvider {
+                protected fun getLinuxFileSystem(): FileSystemProvider {
         // 先尝试获取SSH连接的文件系结
-        val sshProvider = sshFileManager.getFileSystemProvider()
+                val sshProvider = sshFileManager.getFileSystemProvider()
         
         // 如果SSH已登录，使用SSH文件系统
-        if (sshProvider != null) {
+                if (sshProvider != null) {
             if (lastLinuxFileSystemProviderLabel != "ssh") {
                 AppLogger.d(TAG, "Using SSH file system provider")
                 lastLinuxFileSystemProviderLabel = "ssh"
@@ -105,7 +105,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         }
         
         // 否则使用本地Terminal的文件系结
-        if (lastLinuxFileSystemProviderLabel != "local") {
+                if (lastLinuxFileSystemProviderLabel != "local") {
             AppLogger.d(TAG, "Using local terminal file system provider")
             lastLinuxFileSystemProviderLabel = "local"
         }
@@ -113,7 +113,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     }
 
     // Linux文件系统工具实例
-    protected val linuxTools: LinuxFileSystemTools by lazy {
+                protected val linuxTools: LinuxFileSystemTools by lazy {
         LinuxFileSystemTools(context)
     }
 
@@ -238,7 +238,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             val trimmed = q.trim()
             if (trimmed.isNotBlank()) {
                 val isDotPlaceholder = trimmed.length >= 3 && trimmed.all { it == '.' }
-                val isEllipsisPlaceholder = trimmed.all { it == '的}
+        val isEllipsisPlaceholder = trimmed.all { it == '的}
                 if (isDotPlaceholder || isEllipsisPlaceholder) continue
                 seen.add(trimmed)
             }
@@ -380,7 +380,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 }
                 "match", "context" -> {
                     val data = json.optJSONObject("data") ?: return@forEach
-                    val filePath = extractRipgrepPath(data) ?: return@forEach
+        val filePath = extractRipgrepPath(data) ?: return@forEach
                     val lineNumber = data.optInt("line_number", -1)
                     if (lineNumber < 1) return@forEach
                     val text = data.optJSONObject("lines")?.optString("text")?.trimEnd('\n', '\r') ?: return@forEach
@@ -419,7 +419,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 }
                 "end" -> {
                     val data = json.optJSONObject("data") ?: return@forEach
-                    val filePath = extractRipgrepPath(data)
+        val filePath = extractRipgrepPath(data)
                     if (!filePath.isNullOrBlank()) {
                         flushBlock(filePath)
                     }
@@ -628,7 +628,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 .append("\"\n")
 
             val ctx = (c.matchContext ?: c.lineContent).trim()
-            val limited = if (ctx.length > maxCharsPerItem) ctx.take(maxCharsPerItem) else ctx
+        val limited = if (ctx.length > maxCharsPerItem) ctx.take(maxCharsPerItem) else ctx
             sb.append(limited).append("\n\n")
         }
         return sb.toString().trim()
@@ -667,7 +667,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             }
 
             val startLine = maxOf(1, c.lineNumber - readContextLines)
-            val endLine = c.lineNumber + readContextLines
+        val endLine = c.lineNumber + readContextLines
             val params = mutableListOf(
                 ToolParameter("path", c.filePath),
                 ToolParameter("start_line", startLine.toString()),
@@ -678,7 +678,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             }
 
             val readRes = readFilePartFunc(AITool(name = "read_file_part", parameters = params))
-            val snippet = (readRes.result as? FilePartContentData)?.content
+        val snippet = (readRes.result as? FilePartContentData)?.content
 
             if (readRes.success && !snippet.isNullOrBlank()) {
                 enriched.add(c.copy(matchContext = snippet))
@@ -748,7 +748,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
 
                     if (toolNameForProgress != null && progressSpan > 0f) {
                         val completed = completedQueries.incrementAndGet()
-                        val fraction = (completed.toFloat() / indexedQueries.size.toFloat()).coerceIn(0f, 1f)
+        val fraction = (completed.toFloat() / indexedQueries.size.toFloat()).coerceIn(0f, 1f)
                         val msg = if (progressMessage.isNotBlank()) progressMessage else "Searching..."
                         ToolProgressBus.update(
                             toolNameForProgress,
@@ -870,7 +870,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 )
             }
             val limitedBlocks = parsedBlocks.take(maxResults.coerceAtLeast(0))
-            val fileMatches = groupRipgrepBlocks(limitedBlocks)
+        val fileMatches = groupRipgrepBlocks(limitedBlocks)
             ToolProgressBus.update(toolName, 1f, "Search completed")
 
             ToolResult(
@@ -913,17 +913,16 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             ToolProgressBus.update(toolName, 0f, "Preparing search...")
 
             val useEnglish = LocaleUtils.getCurrentLanguage(context).lowercase().startsWith("en")
-
-            val fallback = listOf(intent.take(60)).filter { it.isNotBlank() }
+        val fallback = listOf(intent.take(60)).filter { it.isNotBlank() }
             var queries = normalizeQueries(fallback).take(8)
             if (queries.isEmpty()) queries = fallback
             ToolProgressBus.update(toolName, 0.05f, "Starting search rounds...")
 
             val allCandidates = mutableListOf<GrepContextCandidate>()
-            val overallDedup = HashSet<String>()
+        val overallDedup = HashSet<String>()
 
             val perRoundSearchSpan = 0.2f
-            val perRoundRefineSpan = 0.05f
+        val perRoundRefineSpan = 0.05f
 
             for (round in 1..3) {
                 val roundBase = 0.1f + (round - 1) * (perRoundSearchSpan + perRoundRefineSpan)
@@ -944,7 +943,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 var storedBatchCandidates = batchCandidates
 
                 val digestCandidates = storedBatchCandidates.take(24)
-                val digest = buildCandidateDigestForModel(digestCandidates, 800)
+        val digest = buildCandidateDigestForModel(digestCandidates, 800)
 
                 val planPrompt = FunctionalPrompts.grepContextRefineWithReadPrompt(
                     intent = intent,
@@ -957,9 +956,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
 
                 ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan, "Planning next steps (round ${round}/3)...")
                 val planStart = System.currentTimeMillis()
-                val planRaw = runGrepModel(planPrompt)
+        val planRaw = runGrepModel(planPrompt)
                 val plannedQueries = normalizeQueries(parseQueryListFromModelOutput(planRaw, queries)).take(8)
-                val readIds = parseReadIdsFromModelOutput(planRaw)
+        val readIds = parseReadIdsFromModelOutput(planRaw)
                     .distinct()
                     .filter { it >= 0 && it < digestCandidates.size }
                     .take(8)
@@ -968,18 +967,17 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan, "Reading selected snippets (round ${round}/3)...")
                     // 由于我们在FileSystemAdvancedTools中没有直接访问readFilePart的权限，
                     // 这里我们需要使用一个默认实现，或者在StandardFileSystemTools中重写此方法
-                    val enrichedDigestCandidates = digestCandidates
-
-                    val contextByKey = HashMap<String, String>()
+                val enrichedDigestCandidates = digestCandidates
+        val contextByKey = HashMap<String, String>()
                     for (id in readIds) {
                         val c = enrichedDigestCandidates.getOrNull(id) ?: continue
-                        val ctx = c.matchContext ?: continue
+        val ctx = c.matchContext ?: continue
                         contextByKey["${c.filePath}#${c.lineNumber}"] = ctx
                     }
 
                     storedBatchCandidates = storedBatchCandidates.map { c ->
                         val key = "${c.filePath}#${c.lineNumber}"
-                        val ctx = contextByKey[key]
+        val ctx = contextByKey[key]
                         if (!ctx.isNullOrBlank()) c.copy(matchContext = ctx) else c
                     }
                 }
@@ -1020,7 +1018,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             }
 
             val selectionDigest = buildCandidateDigestForModel(allCandidates.take(60), 1000)
-            val selectPrompt = FunctionalPrompts.grepContextSelectPrompt(
+        val selectPrompt = FunctionalPrompts.grepContextSelectPrompt(
                 intent = intent,
                 displayPath = displayPath,
                 candidatesDigest = selectionDigest,
@@ -1030,14 +1028,14 @@ open class FileSystemAdvancedTools(protected val context: Context) {
 
             ToolProgressBus.update(toolName, 0.85f, "Selecting most relevant matches...")
             val selectedIds = parseSelectedIdsFromModelOutput(runGrepModel(selectPrompt))
-            val selectedCandidates = if (selectedIds.isNotEmpty()) {
+        val selectedCandidates = if (selectedIds.isNotEmpty()) {
                 selectedIds.mapNotNull { id -> allCandidates.getOrNull(id) }.take(maxResults)
             } else {
                 allCandidates.take(maxResults)
             }
 
             val fileOrder = selectedCandidates.map { it.filePath }.distinct()
-            val fileMatches = fileOrder.map { filePath ->
+        val fileMatches = fileOrder.map { filePath ->
                 val lineMatches = selectedCandidates
                     .filter { it.filePath == filePath }
                     .map {
@@ -1126,7 +1124,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             }
 
             val foundFiles = mutableListOf<String>()
-            val patternRegex = Regex(pattern.replace("*", ".*"))
+        val patternRegex = Regex(pattern.replace("*", ".*"))
 
             fun searchFiles(currentDir: File) {
                 val files = currentDir.listFiles() ?: return

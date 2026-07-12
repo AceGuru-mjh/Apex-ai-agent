@@ -31,7 +31,7 @@ class WorkflowImportExportManager {
             }
 
             val fileName = generateExportFileName(workflow.name, isTemplate = false)
-            val exportFile = File(exportDir, fileName)
+        val exportFile = File(exportDir, fileName)
 
             val exportInfo = WorkflowExportInfo(
                 version = "1.0",
@@ -56,7 +56,7 @@ class WorkflowImportExportManager {
             }
 
             val fileName = generateExportFileName(template.name, isTemplate = true)
-            val exportFile = File(exportDir, fileName)
+        val exportFile = File(exportDir, fileName)
 
             val exportInfo = TemplateExportInfo(
                 version = "1.0",
@@ -81,8 +81,7 @@ class WorkflowImportExportManager {
             }
 
             val content = importFile.readText()
-
-            val workflowImportResult = parseAndValidateImport(content, isTemplate = false)
+        val workflowImportResult = parseAndValidateImport(content, isTemplate = false)
             Result.success(workflowImportResult)
         } catch (e: Exception) {
             Result.failure(e)
@@ -96,8 +95,7 @@ class WorkflowImportExportManager {
             }
 
             val content = importFile.readText()
-
-            val templateImportResult = parseAndValidateImport(content, isTemplate = true)
+        val templateImportResult = parseAndValidateImport(content, isTemplate = true)
             Result.success(templateImportResult)
         } catch (e: Exception) {
             Result.failure(e)
@@ -131,8 +129,7 @@ class WorkflowImportExportManager {
     private fun parseAndValidateImport(content: String, isTemplate: Boolean): WorkflowImportResult {
         return try {
             val warnings = mutableListOf<String>()
-
-            val exportInfo = try {
+        val exportInfo = try {
                 json.decodeFromString<WorkflowExportInfo>(content)
             } catch (e: Exception) {
                 null

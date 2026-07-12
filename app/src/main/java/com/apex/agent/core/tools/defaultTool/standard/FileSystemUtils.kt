@@ -24,7 +24,7 @@ object FileSystemUtils {
     private const val TAG = "FileSystemUtils"
 
     // 特殊文件类型扩展名列表（需要特殊处理提取文本的文件类型，
-    val SPECIAL_FILE_EXTENSIONS = listOf(
+                val SPECIAL_FILE_EXTENSIONS = listOf(
         "doc", "docx",      // Word documents
         "pdf",              // PDF documents
         "jpg", "jpeg",      // Image files
@@ -83,7 +83,7 @@ object FileSystemUtils {
             }
         }
         // Remove last newline if content is not empty
-        if (partContent.isNotEmpty()) {
+                if (partContent.isNotEmpty()) {
             partContent.setLength(partContent.length - 1)
         }
         return partContent.toString()
@@ -95,7 +95,7 @@ object FileSystemUtils {
             ZipOutputStream(FileOutputStream(destination)).use { zos ->
                 fun addFileToZip(file: File, basePath: String) {
                     val entryName = if (basePath.isBlank()) file.name else "${basePath}/${file.name}"
-                    val entry = ZipEntry(entryName)
+        val entry = ZipEntry(entryName)
                     zos.putNextEntry(entry)
                     
                     if (file.isFile) {

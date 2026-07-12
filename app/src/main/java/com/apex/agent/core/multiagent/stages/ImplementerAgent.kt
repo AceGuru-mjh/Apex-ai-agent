@@ -17,7 +17,7 @@ context.originalGoal
 }
 ")        return try {"
 val plan = context.getPreviousStageOutput()
-    val implementation = implementCode(context.originalGoal, plan, context.loopCount)            if (isCancelled) {
+        val implementation = implementCode(context.originalGoal, plan, context.loopCount)            if (isCancelled) {
 return StageAgentResult(                    output = "",                    summary = "实现已取消，                    tokenCost = 0,                    success = false,                    error = "执行已取消               )
 }
     val summary = "已完成代码实现，创建，{"
@@ -42,7 +42,10 @@ sb.appendLine("## 迭代信息")            sb.appendLine("当前循环次数: $
     class PipelineStage(")        sb.appendLine("    val name: String,")        sb.appendLine("    val description: String,")        sb.appendLine("    val order: Int")        sb.appendLine(")")        sb.appendLine()        sb.appendLine("data
     class StageResult(")        sb.appendLine("    val stage: PipelineStage,")        sb.appendLine("    val output: String,")        sb.appendLine("    val success: Boolean,")        sb.appendLine("    val duration: Long")        sb.appendLine(")")        sb.appendLine("```")        sb.appendLine()        sb.appendLine("### 2. 管道执行的）        sb.appendLine("```kotlin")        sb.appendLine("class StagedAgentPipeline {"
 ")        sb.appendLine("    fun execute(goal: String): PipelineResult {
-")        sb.appendLine("        // 按阶段顺序执行）        sb.appendLine("        // 支持循环回退机制")        sb.appendLine("        // 返回最终结果）        sb.appendLine("
+")        sb.appendLine("        // 按阶段顺序执行）
+                sb.appendLine("        // 支持循环回退机制")
+                sb.appendLine("        // 返回最终结果）
+                sb.appendLine("
 }
 ")        sb.appendLine("
 }
@@ -52,7 +55,7 @@ sb.appendLine("## 迭代信息")            sb.appendLine("当前循环次数: $
     private
     fun countFiles(implementation: String): Int {
 return 5 // 模拟5个主要文件}
-    private
+                private
     fun countFunctions(implementation: String): Int {
 return implementation.lines().count {
 it.contains("fun ")

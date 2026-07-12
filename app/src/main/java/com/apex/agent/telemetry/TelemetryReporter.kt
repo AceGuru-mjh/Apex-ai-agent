@@ -109,7 +109,7 @@ class TelemetryReporter private constructor() {
 
         return try {
             val payload = buildPayload(reports)
-            val bytes = payload.toByteArray(Charsets.UTF_8)
+        val bytes = payload.toByteArray(Charsets.UTF_8)
 
             if (bytes.size.toLong() > config.maxExportSizeBytes) {
                 return ExportResult(exportId, 0, 0, 0, false, "Payload too large: ${bytes.size} > ${config.maxExportSizeBytes}", 413)
@@ -121,7 +121,7 @@ class TelemetryReporter private constructor() {
             for (attempt in 0 until config.retryCount) {
                 try {
                     val url = URL(config.endpointUrl)
-                    val conn = url.openConnection() as HttpURLConnection
+        val conn = url.openConnection() as HttpURLConnection
                     conn.requestMethod = "POST"
                     conn.doOutput = true
                     conn.connectTimeout = CONNECT_TIMEOUT
@@ -139,7 +139,7 @@ class TelemetryReporter private constructor() {
 
                     if (statusCode in 200..299) {
                         val eventCount = reports.sumOf { it.events.size }
-                        val result = ExportResult(
+        val result = ExportResult(
                             exportId = exportId,
                             eventsExported = eventCount,
                             bytesSent = bytes.size.toLong(),
@@ -187,7 +187,7 @@ class TelemetryReporter private constructor() {
                 file.writeText(payload)
             }
             val eventCount = reports.sumOf { it.events.size }
-            val result = ExportResult(
+        val result = ExportResult(
                 exportId = exportId,
                 eventsExported = eventCount,
                 bytesSent = bytes.size.toLong(),

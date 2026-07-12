@@ -4,22 +4,22 @@ package com.apex.core.tools.javascript
 fun getJsToolsDefinition(): String {
     return """
         // 工具调用的便捷方法
-       var Tools = {
+                var Tools = {
             // 文件系统操作
-            Files: {
+                Files: {
                 list: (path, environment) => {
                     const params = { path };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("list_files", params);
                 },
                 read: (pathOrOptions) => {
                     let params;
                     if (typeof pathOrOptions === 'string') {
                         // Simple form: read(path)
-                        params = { path: pathOrOptions };
+                params = { path: pathOrOptions };
                     } else if (pathOrOptions && typeof pathOrOptions === 'object') {
                         // Options form: read({ path, environment?, intent? })
-                        params = { ...pathOrOptions };
+                params = { ...pathOrOptions };
                     } else {
                         params = {};
                     }
@@ -27,102 +27,102 @@ fun getJsToolsDefinition(): String {
                 },
                 readBinary: (path, environment) => {
                     const params = { path };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("read_file_binary", params);
                 },
                 readPart: (path, startLine, endLine, environment) => {
                     const params = { path };
-                    if (startLine !== undefined) params.start_line = String(startLine);
-                    if (endLine !== undefined) params.end_line = String(endLine);
-                    if (environment) params.environment = environment;
+            if (startLine !== undefined) params.start_line = String(startLine);
+            if (endLine !== undefined) params.end_line = String(endLine);
+            if (environment) params.environment = environment;
                     return toolCall("read_file_part", params);
                 },
                 write: (path, content, append, environment) => {
                     const params = { path, content };
-                    if (append !== undefined) params.append = append ? "true" : "false";
-                    if (environment) params.environment = environment;
+            if (append !== undefined) params.append = append ? "true" : "false";
+            if (environment) params.environment = environment;
                     return toolCall("write_file", params);
                 },
                 writeBinary: (path, base64Content, environment) => {
                     const params = { path, base64Content };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("write_file_binary", params);
                 },
                 deleteFile: (path, recursive, environment) => {
                     const params = { path };
-                    if (recursive !== undefined) params.recursive = recursive ? "true" : "false";
-                    if (environment) params.environment = environment;
+            if (recursive !== undefined) params.recursive = recursive ? "true" : "false";
+            if (environment) params.environment = environment;
                     return toolCall("delete_file", params);
                 },
                 exists: (path, environment) => {
                     const params = { path };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("file_exists", params);
                 },
                 move: (source, destination, environment) => {
                     const params = { source, destination };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("move_file", params);
                 },
                 copy: (source, destination, recursive, sourceEnvironment, destEnvironment) => {
                     const params = { source, destination };
-                    if (recursive !== undefined) params.recursive = recursive ? "true" : "false";
-                    if (sourceEnvironment) params.source_environment = sourceEnvironment;
+            if (recursive !== undefined) params.recursive = recursive ? "true" : "false";
+            if (sourceEnvironment) params.source_environment = sourceEnvironment;
                     if (destEnvironment) params.dest_environment = destEnvironment;
                     return toolCall("copy_file", params);
                 },
                 mkdir: (path, create_parents, environment) => {
                     const params = { path };
-                    if (create_parents !== undefined) params.create_parents = create_parents ? "true" : "false";
-                    if (environment) params.environment = environment;
+            if (create_parents !== undefined) params.create_parents = create_parents ? "true" : "false";
+            if (environment) params.environment = environment;
                     return toolCall("make_directory", params);
                 },
                 find: (path, pattern, options = {}, environment) => {
                     const params = { path, pattern, ...options };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("find_files", params);
                 },
                 grep: (path, pattern, options = {}) => {
                     const params = { path, pattern, ...options };
                     // environment can be included in options
-                    return toolCall("grep_code", params);
+                return toolCall("grep_code", params);
                 },
                 grepContext: (path, intent, options = {}) => {
                     const params = { path, intent, ...options };
                     // environment and file_pattern can be included in options
-                    return toolCall("grep_context", params);
+                return toolCall("grep_context", params);
                 },
                 info: (path, environment) => {
                     const params = { path };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("file_info", params);
                 },
                 // 智能应用文件绑定
                 apply: (path, type, oldContent, newContent, environment) => {
                     const params = { path, type };
-                    if (oldContent !== undefined && oldContent !== null) params.old = String(oldContent);
-                    if (newContent !== undefined && newContent !== null) params.new = String(newContent);
-                    if (environment) params.environment = environment;
+            if (oldContent !== undefined && oldContent !== null) params.old = String(oldContent);
+            if (newContent !== undefined && newContent !== null) params.new = String(newContent);
+            if (environment) params.environment = environment;
                     return toolCall("apply_file", params);
                 },
                 zip: (source, destination, environment) => {
                     const params = { source, destination };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("zip_files", params);
                 },
                 unzip: (source, destination, environment) => {
                     const params = { source, destination };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("unzip_files", params);
                 },
                 open: (path, environment) => {
                     const params = { path };
-                    if (environment) params.environment = environment;
+            if (environment) params.environment = environment;
                     return toolCall("open_file", params);
                 },
                 share: (path, title, environment) => {
                     const params = { path };
-                    if (title) params.title = title;
+            if (title) params.title = title;
                     if (environment) params.environment = environment;
                     return toolCall("share_file", params);
                 },
@@ -130,14 +130,14 @@ fun getJsToolsDefinition(): String {
                     let params;
                     if (typeof urlOrOptions === 'string') {
                         params = { url: urlOrOptions };
-                        if (destination !== undefined && destination !== null) params.destination = destination;
+            if (destination !== undefined && destination !== null) params.destination = destination;
                         if (environment) params.environment = environment;
                         if (headers !== undefined && headers !== null && typeof headers === 'object') {
                             params.headers = JSON.stringify(headers);
                         }
                     } else if (urlOrOptions && typeof urlOrOptions === 'object') {
                         params = { ...urlOrOptions };
-                        if (destination !== undefined && destination !== null) params.destination = destination;
+            if (destination !== undefined && destination !== null) params.destination = destination;
                         if (environment) params.environment = environment;
                         if (headers !== undefined && headers !== null && typeof headers === 'object') {
                             params.headers = JSON.stringify(headers);
@@ -152,34 +152,34 @@ fun getJsToolsDefinition(): String {
                 },
             },
             // 网络操作
-            Net: {
+                Net: {
                 httpGet: (url, ignoreSsl) => {
                     const params = { url, method: "GET" };
-                    if (ignoreSsl !== undefined) params.ignore_ssl = ignoreSsl ? "true" : "false";
-                    return toolCall("http_request", params);
+            if (ignoreSsl !== undefined) params.ignore_ssl = ignoreSsl ? "true" : "false";
+            return toolCall("http_request", params);
                 },
                 httpPost: (url, body, ignoreSsl) => {
                     const params = { url, method: "POST", body };
-                    if (typeof body === 'object') {
+            if (typeof body === 'object') {
                         params.body = JSON.stringify(body);
                     }
                     if (ignoreSsl !== undefined) params.ignore_ssl = ignoreSsl ? "true" : "false";
-                    return toolCall("http_request", params);
+            return toolCall("http_request", params);
                 },
                 visit: (params) => {
                     if (typeof params === 'string') {
                         // 向后兼容，如果只传入一个字符串，则假定为URL
-                        return toolCall("visit_web", { url: params });
+                return toolCall("visit_web", { url: params });
                     }
                     // 否则，假定为参数对象
-                    if (params && typeof params === 'object' && params.headers !== undefined && typeof params.headers === 'object') {
+                if (params && typeof params === 'object' && params.headers !== undefined && typeof params.headers === 'object') {
                         params = { ...params, headers: JSON.stringify(params.headers) };
                     }
                     return toolCall("visit_web", params);
                 },
                 browserNavigate: (urlOrOptions) => {
                     const params = typeof urlOrOptions === 'string' ? { url: urlOrOptions } : { ...(urlOrOptions || {}) };
-                    if (!params.url) {
+            if (!params.url) {
                         throw new Error("browserNavigate requires url");
                     }
                     if (params.headers !== undefined && typeof params.headers === 'object') {
@@ -198,12 +198,12 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserClick only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.ref !== undefined && params.ref !== null) {
+            if (params.ref !== undefined && params.ref !== null) {
                         params.ref = String(params.ref).trim();
                     }
                     if (params.selector !== undefined && params.selector !== null) {
                         params.selector = String(params.selector).trim();
-                        if (!params.selector) {
+            if (!params.selector) {
                             delete params.selector;
                         }
                     }
@@ -212,13 +212,13 @@ fun getJsToolsDefinition(): String {
                     }
                     if (params.element !== undefined && params.element !== null) {
                         params.element = String(params.element).trim();
-                        if (!params.element) {
+            if (!params.element) {
                             delete params.element;
                         }
                     }
                     if (params.button !== undefined && params.button !== null) {
                         const button = String(params.button).trim();
-                        if (button !== 'left' && button !== 'right' && button !== 'middle') {
+            if (button !== 'left' && button !== 'right' && button !== 'middle') {
                             throw new Error("button must be one of: left, right, middle");
                         }
                         params.button = button;
@@ -229,8 +229,8 @@ fun getJsToolsDefinition(): String {
                         }
                         const allowedModifiers = ['Alt', 'Control', 'ControlOrMeta', 'Meta', 'Shift'];
                         const normalized = params.modifiers.map((modifier) => String(modifier).trim());
-                        const invalid = normalized.filter((modifier) => !allowedModifiers.includes(modifier));
-                        if (invalid.length > 0) {
+            const invalid = normalized.filter((modifier) => !allowedModifiers.includes(modifier));
+            if (invalid.length > 0) {
                             throw new Error("Invalid modifiers: " + invalid.join(', '));
                         }
                         params.modifiers = normalized;
@@ -251,7 +251,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserConsoleMessages only accepts one options object");
                     }
                     const params = { ...(options || {}) };
-                    if (params.level !== undefined && params.level !== null) {
+            if (params.level !== undefined && params.level !== null) {
                         params.level = String(params.level).trim();
                     }
                     if (!params.level) {
@@ -275,14 +275,14 @@ fun getJsToolsDefinition(): String {
                             throw new Error("browserDrag requires " + key);
                         }
                     });
-                    return toolCall("browser_drag", params);
+            return toolCall("browser_drag", params);
                 },
                 browserEvaluate: (options) => {
                     if (!options || typeof options !== 'object' || Array.isArray(options)) {
                         throw new Error("browserEvaluate only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.function !== undefined && params.function !== null) {
+            if (params.function !== undefined && params.function !== null) {
                         params.function = String(params.function);
                     }
                     if (!params.function) {
@@ -304,7 +304,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserFileUpload only accepts one options object");
                     }
                     const params = { ...(options || {}) };
-                    if (params.paths !== undefined) {
+            if (params.paths !== undefined) {
                         if (!Array.isArray(params.paths)) {
                             throw new Error("paths must be an array");
                         }
@@ -317,7 +317,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserFillForm only accepts one options object");
                     }
                     const params = { ...options };
-                    if (!Array.isArray(params.fields) || params.fields.length === 0) {
+            if (!Array.isArray(params.fields) || params.fields.length === 0) {
                         throw new Error("browserFillForm requires a non-empty fields array");
                     }
                     return toolCall("browser_fill_form", params);
@@ -327,7 +327,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserHandleDialog only accepts one options object");
                     }
                     const params = { ...options };
-                    if (typeof params.accept !== 'boolean') {
+            if (typeof params.accept !== 'boolean') {
                         throw new Error("accept must be a boolean");
                     }
                     if (params.promptText !== undefined && params.promptText !== null) {
@@ -340,7 +340,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserHover only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.ref !== undefined && params.ref !== null) {
+            if (params.ref !== undefined && params.ref !== null) {
                         params.ref = String(params.ref).trim();
                     }
                     if (!params.ref) {
@@ -356,7 +356,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserNetworkRequests only accepts one options object");
                     }
                     const params = { ...(options || {}) };
-                    if (params.includeStatic !== undefined) {
+            if (params.includeStatic !== undefined) {
                         params.includeStatic = !!params.includeStatic;
                     }
                     if (params.filename !== undefined && params.filename !== null) {
@@ -366,7 +366,7 @@ fun getJsToolsDefinition(): String {
                 },
                 browserPressKey: (keyOrOptions) => {
                     const params = typeof keyOrOptions === 'string' ? { key: keyOrOptions } : { ...(keyOrOptions || {}) };
-                    if (params.key !== undefined && params.key !== null) {
+            if (params.key !== undefined && params.key !== null) {
                         params.key = String(params.key).trim();
                     }
                     if (!params.key) {
@@ -379,7 +379,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserResize only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.width === undefined || params.height === undefined) {
+            if (params.width === undefined || params.height === undefined) {
                         throw new Error("browserResize requires width and height");
                     }
                     return toolCall("browser_resize", params);
@@ -389,7 +389,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserRunCode only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.code !== undefined && params.code !== null) {
+            if (params.code !== undefined && params.code !== null) {
                         params.code = String(params.code);
                     }
                     if (!params.code) {
@@ -402,7 +402,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserSelectOption only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.ref !== undefined && params.ref !== null) {
+            if (params.ref !== undefined && params.ref !== null) {
                         params.ref = String(params.ref).trim();
                     }
                     if (!params.ref) {
@@ -412,7 +412,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserSelectOption requires a non-empty values array");
                     }
                     params.values = params.values.map((value) => String(value));
-                    if (params.element !== undefined && params.element !== null) {
+            if (params.element !== undefined && params.element !== null) {
                         params.element = String(params.element);
                     }
                     return toolCall("browser_select_option", params);
@@ -422,21 +422,21 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserSnapshot only accepts one options object");
                     }
                     const params = { ...(options || {}) };
-                    if (params.filename !== undefined && params.filename !== null) {
+            if (params.filename !== undefined && params.filename !== null) {
                         params.filename = String(params.filename).trim();
-                        if (!params.filename) {
+            if (!params.filename) {
                             delete params.filename;
                         }
                     }
                     if (params.selector !== undefined && params.selector !== null) {
                         params.selector = String(params.selector).trim();
-                        if (!params.selector) {
+            if (!params.selector) {
                             delete params.selector;
                         }
                     }
                     if (params.depth !== undefined && params.depth !== null) {
                         const depth = Number(params.depth);
-                        if (!Number.isInteger(depth) || depth < 0) {
+            if (!Number.isInteger(depth) || depth < 0) {
                             throw new Error("browserSnapshot depth must be a non-negative integer");
                         }
                         params.depth = depth;
@@ -448,7 +448,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserTabs only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.action !== undefined && params.action !== null) {
+            if (params.action !== undefined && params.action !== null) {
                         params.action = String(params.action).trim();
                     }
                     if (!params.action) {
@@ -461,7 +461,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserTakeScreenshot only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.type !== undefined && params.type !== null) {
+            if (params.type !== undefined && params.type !== null) {
                         params.type = String(params.type).trim();
                     }
                     if (!params.type) {
@@ -489,7 +489,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserType only accepts one options object");
                     }
                     const params = { ...options };
-                    if (params.ref !== undefined && params.ref !== null) {
+            if (params.ref !== undefined && params.ref !== null) {
                         params.ref = String(params.ref).trim();
                     }
                     if (!params.ref) {
@@ -499,7 +499,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserType requires text");
                     }
                     params.text = String(params.text);
-                    if (params.element !== undefined && params.element !== null) {
+            if (params.element !== undefined && params.element !== null) {
                         params.element = String(params.element);
                     }
                     if (params.submit !== undefined) {
@@ -515,7 +515,7 @@ fun getJsToolsDefinition(): String {
                         throw new Error("browserWaitFor only accepts one options object");
                     }
                     const params = { ...options };
-                    if (
+            if (
                         params.time === undefined &&
                         params.text === undefined &&
                         params.textGone === undefined
@@ -533,7 +533,7 @@ fun getJsToolsDefinition(): String {
                 // 新增增强版HTTP请求
                 http: (options) => {
                     const params = { ...options };
-                    if (params.body !== undefined && typeof params.body === 'object') {
+            if (params.body !== undefined && typeof params.body === 'object') {
                         params.body = JSON.stringify(params.body);
                     }
                     if (params.headers !== undefined && typeof params.headers === 'object') {
@@ -551,7 +551,7 @@ fun getJsToolsDefinition(): String {
                         files: JSON.stringify(options.files || []),
                         form_data: JSON.stringify(options.form_data || {})
                     };
-                    if (options.headers !== undefined && typeof options.headers === 'object') {
+            if (options.headers !== undefined && typeof options.headers === 'object') {
                         params.headers = JSON.stringify(options.headers);
                     }
                     if (params.ignore_ssl !== undefined && typeof params.ignore_ssl === 'boolean') {
@@ -567,7 +567,7 @@ fun getJsToolsDefinition(): String {
                 }
             },
             // 系统操作
-            System: {
+                System: {
                 sleep: (milliseconds) => toolCall("sleep", { duration_ms: parseInt(milliseconds) }),
                 getSetting: (setting, namespace) => toolCall("get_system_setting", { setting, namespace }),
                 setSetting: (setting, value, namespace) => toolCall("modify_system_setting", { setting, value, namespace }),
@@ -575,20 +575,20 @@ fun getJsToolsDefinition(): String {
                 toast: (message) => toolCall("toast", { message: String(message ?? "") }),
                 sendNotification: (message, title) => {
                     const params = { message: String(message ?? "") };
-                    if (title !== undefined && title !== null && String(title).trim() !== "") {
+            if (title !== undefined && title !== null && String(title).trim() !== "") {
                         params.title = String(title);
                     }
                     return toolCall("send_notification", params);
                 },
                 // 使用工具，
-               usePackage: (packageName) => toolCall("use_package", { package_name: packageName }),
+                usePackage: (packageName) => toolCall("use_package", { package_name: packageName }),
                 // 安装应用
                 installApp: (path) => toolCall("install_app", { path }),
                 // 卸载应用
                 uninstallApp: (packageName) => toolCall("uninstall_app", { package_name: packageName }),
                 startApp: (packageName, activity) => {
                     const params = { package_name: packageName };
-                    if (activity) params.activity = activity;
+            if (activity) params.activity = activity;
                     return toolCall("start_app", params);
                 },
                 stopApp: (packageName) => toolCall("stop_app", { package_name: packageName }),
@@ -599,13 +599,13 @@ fun getJsToolsDefinition(): String {
                 // 获取应用使用时长
                 getAppUsageTime: (options = {}) => {
                     const params = { ...(options || {}) };
-                    if (params.packageName !== undefined && params.packageName !== null) {
+            if (params.packageName !== undefined && params.packageName !== null) {
                         params.package_name = String(params.packageName);
-                        delete params.packageName;
+            delete params.packageName;
                     }
                     if (params.sinceHours !== undefined && params.sinceHours !== null) {
                         params.since_hours = parseInt(params.sinceHours);
-                        delete params.sinceHours;
+            delete params.sinceHours;
                     }
                     if (params.includeSystemApps !== undefined) {
                         params.include_system_apps = !!params.includeSystemApps;
@@ -621,18 +621,18 @@ fun getJsToolsDefinition(): String {
                     toolCall("get_device_location", { high_accuracy: !!highAccuracy, timeout: parseInt(timeout) }),
                 shell: (command) => toolCall("execute_shell", { command }),
                 // 执行终端命令 - 一次性收集输出
-               terminal: {
+                terminal: {
                     create: (sessionName) => toolCall("create_terminal_session", { session_name: sessionName }),
                     exec: (sessionId, command, timeoutMs) => {
                         const params = { session_id: sessionId, command };
-                        if (timeoutMs !== undefined && timeoutMs !== null) {
+            if (timeoutMs !== undefined && timeoutMs !== null) {
                             params.timeout_ms = String(timeoutMs);
                         }
                         return toolCall("execute_in_terminal_session", params);
                     },
                     hiddenExec: (command, options = {}) => {
                         const params = { command };
-                        if (options && typeof options === "object") {
+            if (options && typeof options === "object") {
                             if (options.executorKey !== undefined && options.executorKey !== null) {
                                 params.executor_key = String(options.executorKey);
                             }
@@ -646,7 +646,7 @@ fun getJsToolsDefinition(): String {
                     close: (sessionId) => toolCall("close_terminal_session", { session_id: sessionId }),
                     input: (sessionId, options = {}) => {
                         const params = { session_id: sessionId };
-                        if (options && typeof options === "object") {
+            if (options && typeof options === "object") {
                             if (options.input !== undefined && options.input !== null) {
                                 params.input = String(options.input);
                             }
@@ -667,39 +667,39 @@ fun getJsToolsDefinition(): String {
                 }
             },
             // 软件设置
-            SoftwareSettings: {
+                SoftwareSettings: {
                 readEnvironmentVariable: (key) => {
                     return toolCall("read_environment_variable", { key: String(key ?? "") });
                 },
                 writeEnvironmentVariable: (key, value) => {
                     const params = { key: String(key ?? "") };
-                    if (value !== undefined && value !== null) params.value = String(value);
-                    else params.value = "";
-                    return toolCall("write_environment_variable", params);
+            if (value !== undefined && value !== null) params.value = String(value);
+            else params.value = "";
+            return toolCall("write_environment_variable", params);
                 },
                 listSandboxPackages: () => {
                     return toolCall("list_sandbox_packages", {});
                 },
                 setSandboxPackageEnabled: (packageName, enabled) => {
                     const params = { package_name: String(packageName ?? "") };
-                    params.enabled = !!enabled;
+            params.enabled = !!enabled;
                     return toolCall("set_sandbox_package_enabled", params);
                 },
                 executeSandboxScriptDirect: (options = {}) => {
                     const params = { ...(options || {}) };
-                    return toolCall("execute_sandbox_script_direct", params);
+            return toolCall("execute_sandbox_script_direct", params);
                 },
                 restartMcpWithLogs: (timeoutMs) => {
                     const params = {};
-                    if (timeoutMs !== undefined && timeoutMs !== null) params.timeout_ms = String(timeoutMs);
-                    return toolCall("restart_mcp_with_logs", params);
+            if (timeoutMs !== undefined && timeoutMs !== null) params.timeout_ms = String(timeoutMs);
+            return toolCall("restart_mcp_with_logs", params);
                 },
                 getSpeechServicesConfig: () => {
                     return toolCall("get_speech_services_config", {});
                 },
                 setSpeechServicesConfig: (updates = {}) => {
                     const params = { ...(updates || {}) };
-                    if (params.tts_headers !== undefined && params.tts_headers !== null && typeof params.tts_headers === 'object') {
+            if (params.tts_headers !== undefined && params.tts_headers !== null && typeof params.tts_headers === 'object') {
                         params.tts_headers = JSON.stringify(params.tts_headers);
                     }
                     if (params.tts_response_pipeline !== undefined && params.tts_response_pipeline !== null && Array.isArray(params.tts_response_pipeline)) {
@@ -712,7 +712,7 @@ fun getJsToolsDefinition(): String {
                 },
                 testTtsPlayback: (text, options = {}) => {
                     const params = { ...(options || {}), text: String(text ?? "") };
-                    if (params.interrupt !== undefined && params.interrupt !== null) {
+            if (params.interrupt !== undefined && params.interrupt !== null) {
                         params.interrupt = !!params.interrupt;
                     }
                     return toolCall("test_tts_playback", params);
@@ -722,7 +722,7 @@ fun getJsToolsDefinition(): String {
                 },
                 createModelConfig: (options = {}) => {
                     const params = { ...(options || {}) };
-                    if (params.custom_parameters !== undefined && params.custom_parameters !== null && typeof params.custom_parameters === 'object') {
+            if (params.custom_parameters !== undefined && params.custom_parameters !== null && typeof params.custom_parameters === 'object') {
                         params.custom_parameters = JSON.stringify(params.custom_parameters);
                     }
                     if (params.custom_headers !== undefined && params.custom_headers !== null && typeof params.custom_headers === 'object') {
@@ -732,7 +732,7 @@ fun getJsToolsDefinition(): String {
                 },
                 updateModelConfig: (configId, updates = {}) => {
                     const params = { ...(updates || {}), config_id: String(configId ?? "") };
-                    if (params.custom_parameters !== undefined && params.custom_parameters !== null && typeof params.custom_parameters === 'object') {
+            if (params.custom_parameters !== undefined && params.custom_parameters !== null && typeof params.custom_parameters === 'object') {
                         params.custom_parameters = JSON.stringify(params.custom_parameters);
                     }
                     if (params.custom_headers !== undefined && params.custom_headers !== null && typeof params.custom_headers === 'object') {
@@ -754,42 +754,42 @@ fun getJsToolsDefinition(): String {
                         function_type: String(functionType ?? ""),
                         config_id: String(configId ?? "")
                     };
-                    if (modelIndex !== undefined && modelIndex !== null) params.model_index = String(modelIndex);
-                    return toolCall("set_function_model_config", params);
+            if (modelIndex !== undefined && modelIndex !== null) params.model_index = String(modelIndex);
+            return toolCall("set_function_model_config", params);
                 },
                 testModelConfigConnection: (configId, modelIndex) => {
                     const params = { config_id: String(configId ?? "") };
-                    if (modelIndex !== undefined && modelIndex !== null) params.model_index = String(modelIndex);
-                    return toolCall("test_model_config_connection", params);
+            if (modelIndex !== undefined && modelIndex !== null) params.model_index = String(modelIndex);
+            return toolCall("test_model_config_connection", params);
                 }
             },
             // Tasker event
-            Tasker: {
+                Tasker: {
                 triggerEvent: (params) => {
                     return toolCall("trigger_tasker_event", params || {});
                 }
             },
             // UI操作
-            UI: {
+                UI: {
                 getPageInfo: () => toolCall("get_page_info"),
                 tap: (x, y) => toolCall("tap", { x, y }),
                 longPress: (x, y) => toolCall("long_press", { x, y }),
                 // 增强的clickElement方法，支持多种参数类型
-               clickElement: function(param1, param2, param3) {
+                clickElement: function(param1, param2, param3) {
                     // 根据参数类型和数量判断调用方法
-                   if (typeof param1 === 'object') {
+                if (typeof param1 === 'object') {
                         // 如果第一个参数是对象，直接传递参数对象
-                       return toolCall("click_element", param1);
+                return toolCall("click_element", param1);
                     } else if (arguments.length === 1) {
                         // 单参数，假定为resourceId
-                        if (param1.startsWith('[') && param1.includes('][')) {
+                if (param1.startsWith('[') && param1.includes('][')) {
                             // 参数看起来像bounds格式 [x,y][x,y]
-                            return toolCall("click_element", { bounds: param1 });
+                return toolCall("click_element", { bounds: param1 });
                         }
                         return toolCall("click_element", { resourceId: param1 });
                     } else if (arguments.length === 2) {
                         // 两个参数，假定为(resourceId, index)，className, index)
-                        if (param1 === 'resourceId') {
+                if (param1 === 'resourceId') {
                             return toolCall("click_element", { resourceId: param2 });
                         } else if (param1 === 'className') {
                             return toolCall("click_element", { className: param2 });
@@ -800,7 +800,7 @@ fun getJsToolsDefinition(): String {
                         }
                     } else if (arguments.length === 3) {
                         // 三个参数，假定为(type, value, index)
-                        if (param1 === 'resourceId') {
+                if (param1 === 'resourceId') {
                             return toolCall("click_element", { resourceId: param2, index: param3 });
                         } else if (param1 === 'className') {
                             return toolCall("click_element", { className: param2, index: param3 });
@@ -809,12 +809,12 @@ fun getJsToolsDefinition(): String {
                         }
                     }
                     // 默认情况
-                    return toolCall("click_element", { resourceId: param1 });
+                return toolCall("click_element", { resourceId: param1 });
                 },
 
                 setText: (text, resourceId) => {
                     const params = { text };
-                    if (resourceId) params.resourceId = resourceId;
+            if (resourceId) params.resourceId = resourceId;
                     return toolCall("set_input_text", params);
                 },
                 swipe: (startX, startY, endX, endY, duration) => {
@@ -824,7 +824,7 @@ fun getJsToolsDefinition(): String {
                         end_x: endX, 
                         end_y: endY 
                     };
-                    if (duration) params.duration = duration;
+            if (duration) params.duration = duration;
                     return toolCall("swipe", params);
                 },
                 pressKey: (keyCode) => toolCall("press_key", { key_code: keyCode }),
@@ -837,29 +837,29 @@ fun getJsToolsDefinition(): String {
                  */
                 runSubAgent: (intent, maxSteps, agentId, targetApp) => {
                     const params = { intent: String(intent || "") };
-                    if (maxSteps !== undefined) params.max_steps = String(maxSteps);
-                    if (agentId !== undefined && agentId !== null && String(agentId).length > 0) params.agent_id = String(agentId);
-                    if (targetApp !== undefined && targetApp !== null && String(targetApp).length > 0) params.target_app = String(targetApp);
-                    return toolCall("run_ui_subagent", params);
+            if (maxSteps !== undefined) params.max_steps = String(maxSteps);
+            if (agentId !== undefined && agentId !== null && String(agentId).length > 0) params.agent_id = String(agentId);
+            if (targetApp !== undefined && targetApp !== null && String(targetApp).length > 0) params.target_app = String(targetApp);
+            return toolCall("run_ui_subagent", params);
                 },
             },
             // 记忆管理
-            Memory: {
+                Memory: {
                 // 查询记忆，
-               query: (query, folderPath, limit, startTime, endTime, snapshotId, threshold) => {
+                query: (query, folderPath, limit, startTime, endTime, snapshotId, threshold) => {
                     const params = { query };
-                    if (folderPath) params.folder_path = folderPath;
+            if (folderPath) params.folder_path = folderPath;
                     if (startTime !== undefined) params.start_time = startTime;
                     if (endTime !== undefined) params.end_time = endTime;
                     if (limit !== undefined) params.limit = limit;
                     if (snapshotId !== undefined && snapshotId !== null) params.snapshot_id = String(snapshotId);
-                    if (threshold !== undefined) params.threshold = threshold;
+            if (threshold !== undefined) params.threshold = threshold;
                     return toolCall("query_memory", params);
                 },
                 // 通过标题获取记忆
                 getByTitle: (title, chunkIndex, chunkRange, query, limit) => {
                     const params = { title };
-                    if (chunkIndex !== undefined) params.chunk_index = chunkIndex;
+            if (chunkIndex !== undefined) params.chunk_index = chunkIndex;
                     if (chunkRange) params.chunk_range = chunkRange;
                     if (query) params.query = query;
                     if (limit !== undefined) params.limit = limit;
@@ -868,7 +868,7 @@ fun getJsToolsDefinition(): String {
                 // 创建记忆
                 create: (title, content, contentType, source, folderPath, tags) => {
                     const params = { title, content };
-                    if (contentType) params.content_type = contentType;
+            if (contentType) params.content_type = contentType;
                     if (source) params.source = source;
                     if (folderPath) params.folder_path = folderPath;
                     if (tags) params.tags = tags;
@@ -877,7 +877,7 @@ fun getJsToolsDefinition(): String {
                 // 更新记忆
                 update: (oldTitle, updates = {}) => {
                     const params = { old_title: oldTitle };
-                    if (updates.newTitle) params.new_title = updates.newTitle;
+            if (updates.newTitle) params.new_title = updates.newTitle;
                     if (updates.content) params.content = updates.content;
                     if (updates.contentType) params.content_type = updates.contentType;
                     if (updates.source) params.source = updates.source;
@@ -892,16 +892,16 @@ fun getJsToolsDefinition(): String {
                 // 批量移动记忆（按标题列表，或来源文件夹筛选）
                 move: (targetFolderPath, titles, sourceFolderPath) => {
                     const params = { target_folder_path: targetFolderPath };
-                    if (titles) {
+            if (titles) {
                         params.titles = Array.isArray(titles) ? titles.join(",") : String(titles);
                     }
                     if (sourceFolderPath !== undefined && sourceFolderPath !== null) params.source_folder_path = String(sourceFolderPath);
-                    return toolCall("move_memory", params);
+            return toolCall("move_memory", params);
                 },
                 // 链接记忆
                 link: (sourceTitle, targetTitle, linkType, weight, description) => {
                     const params = { source_title: sourceTitle, target_title: targetTitle };
-                    if (linkType) params.link_type = linkType;
+            if (linkType) params.link_type = linkType;
                     if (weight !== undefined) params.weight = weight;
                     if (description) params.description = description;
                     return toolCall("link_memories", params);
@@ -909,7 +909,7 @@ fun getJsToolsDefinition(): String {
                 // 查询记忆链接
                 queryLinks: (linkId, sourceTitle, targetTitle, linkType, limit) => {
                     const params = {};
-                    if (linkId !== undefined && linkId !== null) params.link_id = linkId;
+            if (linkId !== undefined && linkId !== null) params.link_id = linkId;
                     if (sourceTitle) params.source_title = sourceTitle;
                     if (targetTitle) params.target_title = targetTitle;
                     if (linkType) params.link_type = linkType;
@@ -917,9 +917,9 @@ fun getJsToolsDefinition(): String {
                     return toolCall("query_memory_links", params);
                 },
                 // 更新记忆链接（优先按 linkId，
-               updateLink: (linkId, sourceTitle, targetTitle, linkType, newLinkType, weight, description) => {
+                updateLink: (linkId, sourceTitle, targetTitle, linkType, newLinkType, weight, description) => {
                     const params = {};
-                    if (linkId !== undefined && linkId !== null) params.link_id = linkId;
+            if (linkId !== undefined && linkId !== null) params.link_id = linkId;
                     if (sourceTitle) params.source_title = sourceTitle;
                     if (targetTitle) params.target_title = targetTitle;
                     if (linkType) params.link_type = linkType;
@@ -929,9 +929,9 @@ fun getJsToolsDefinition(): String {
                     return toolCall("update_memory_link", params);
                 },
                 // 删除记忆链接（优先按 linkId，
-               deleteLink: (linkId, sourceTitle, targetTitle, linkType) => {
+                deleteLink: (linkId, sourceTitle, targetTitle, linkType) => {
                     const params = {};
-                    if (linkId !== undefined && linkId !== null) params.link_id = linkId;
+            if (linkId !== undefined && linkId !== null) params.link_id = linkId;
                     if (sourceTitle) params.source_title = sourceTitle;
                     if (targetTitle) params.target_title = targetTitle;
                     if (linkType) params.link_type = linkType;
@@ -939,10 +939,10 @@ fun getJsToolsDefinition(): String {
                 }
             },
             // 计算功能
-            calc: (expression) => toolCall("calculate", { expression }),
+                calc: (expression) => toolCall("calculate", { expression }),
             
             // FFmpeg工具
-            FFmpeg: {
+                FFmpeg: {
                 // 执行自定义FFmpeg命令
                 execute: (command) => toolCall("ffmpeg_execute", { command }),
                 
@@ -956,12 +956,12 @@ fun getJsToolsDefinition(): String {
                         output_path: outputPath,
                         ...options
                     };
-                    return toolCall("ffmpeg_convert", params);
+            return toolCall("ffmpeg_convert", params);
                 }
             },
             
             // 工作流工具
-           Workflow: {
+                Workflow: {
                 // 获取所有工作流
                 getAll: () => {
                     return toolCall("get_all_workflows", {});
@@ -969,32 +969,32 @@ fun getJsToolsDefinition(): String {
                 // 创建新工作流
                 create: (name, description = "", nodes = null, connections = null, enabled = true) => {
                     const params = { name, description, enabled: enabled.toString() };
-                    if (nodes) params.nodes = typeof nodes === 'string' ? nodes : JSON.stringify(nodes);
-                    if (connections) params.connections = typeof connections === 'string' ? connections : JSON.stringify(connections);
-                    return toolCall("create_workflow", params);
+            if (nodes) params.nodes = typeof nodes === 'string' ? nodes : JSON.stringify(nodes);
+            if (connections) params.connections = typeof connections === 'string' ? connections : JSON.stringify(connections);
+            return toolCall("create_workflow", params);
                 },
                 // 获取工作流详，
-               get: (workflowId) => {
+                get: (workflowId) => {
                     const params = { workflow_id: workflowId };
-                    return toolCall("get_workflow", params);
+            return toolCall("get_workflow", params);
                 },
                 // 更新工作，
-               update: (workflowId, updates = {}) => {
+                update: (workflowId, updates = {}) => {
                     const params = { workflow_id: workflowId };
-                    if (updates.name !== undefined) params.name = updates.name;
+            if (updates.name !== undefined) params.name = updates.name;
                     if (updates.description !== undefined) params.description = updates.description;
                     if (updates.nodes !== undefined) params.nodes = typeof updates.nodes === 'string' ? updates.nodes : JSON.stringify(updates.nodes);
-                    if (updates.connections !== undefined) params.connections = typeof updates.connections === 'string' ? updates.connections : JSON.stringify(updates.connections);
-                    if (updates.enabled !== undefined) params.enabled = updates.enabled.toString();
-                    return toolCall("update_workflow", params);
+            if (updates.connections !== undefined) params.connections = typeof updates.connections === 'string' ? updates.connections : JSON.stringify(updates.connections);
+            if (updates.enabled !== undefined) params.enabled = updates.enabled.toString();
+            return toolCall("update_workflow", params);
                 },
                 // 差异更新工作流（增量 patch，
-               patch: (workflowId, patch = {}) => {
+                patch: (workflowId, patch = {}) => {
                     const params = { workflow_id: workflowId };
-                    if (patch.name !== undefined) params.name = patch.name;
+            if (patch.name !== undefined) params.name = patch.name;
                     if (patch.description !== undefined) params.description = patch.description;
                     if (patch.enabled !== undefined) params.enabled = patch.enabled.toString();
-                    if (patch.node_patches !== undefined) {
+            if (patch.node_patches !== undefined) {
                         params.node_patches = typeof patch.node_patches === 'string'
                             ? patch.node_patches
                             : JSON.stringify(patch.node_patches);
@@ -1007,39 +1007,39 @@ fun getJsToolsDefinition(): String {
                     return toolCall("patch_workflow", params);
                 },
                 // 设置工作流启用状态
-               setEnabled: (workflowId, enabled) => {
+                setEnabled: (workflowId, enabled) => {
                     const params = { workflow_id: workflowId };
-                    return toolCall(enabled ? "enable_workflow" : "disable_workflow", params);
+            return toolCall(enabled ? "enable_workflow" : "disable_workflow", params);
                 },
                 // 启用工作，
-               enable: (workflowId) => {
+                enable: (workflowId) => {
                     const params = { workflow_id: workflowId };
-                    return toolCall("enable_workflow", params);
+            return toolCall("enable_workflow", params);
                 },
                 // 禁用工作，
-               disable: (workflowId) => {
+                disable: (workflowId) => {
                     const params = { workflow_id: workflowId };
-                    return toolCall("disable_workflow", params);
+            return toolCall("disable_workflow", params);
                 },
                 // 删除工作，
-               delete: (workflowId) => {
+                delete: (workflowId) => {
                     const params = { workflow_id: workflowId };
-                    return toolCall("delete_workflow", params);
+            return toolCall("delete_workflow", params);
                 },
                 // 触发工作流执行
-               trigger: (workflowId) => {
+                trigger: (workflowId) => {
                     const params = { workflow_id: workflowId };
-                    return toolCall("trigger_workflow", params);
+            return toolCall("trigger_workflow", params);
                 }
             },
             // 对话管理工具
-            Chat: {
+                Chat: {
                 // 启动对话服务
                 startService: () => toolCall("start_chat_service", {}),
                 // 创建新对象
-               createNew: (group, setAsCurrentChat, characterCardId) => {
+                createNew: (group, setAsCurrentChat, characterCardId) => {
                     const params = {};
-                    if (group !== undefined && group !== null && String(group).trim() !== "") {
+            if (group !== undefined && group !== null && String(group).trim() !== "") {
                         params.group = String(group);
                     }
                     if (setAsCurrentChat !== undefined && setAsCurrentChat !== null) {
@@ -1051,7 +1051,7 @@ fun getJsToolsDefinition(): String {
                     return toolCall("create_new_chat", params);
                 },
                 // 列出所有对象
-               listAll: () => toolCall("list_chats", {}),
+                listAll: () => toolCall("list_chats", {}),
                 listChats: (params = {}) => toolCall("list_chats", params),
                 findChat: (params = {}) => toolCall("find_chat", params),
                 agentStatus: (chatId) => toolCall("agent_status", { chat_id: chatId }),
@@ -1059,21 +1059,21 @@ fun getJsToolsDefinition(): String {
                 switchTo: (chatId) => toolCall("switch_chat", { chat_id: chatId }),
                 updateTitle: (chatId, title) => {
                     const params = { chat_id: String(chatId ?? ""), title: String(title ?? "") };
-                    return toolCall("update_chat_title", params);
+            return toolCall("update_chat_title", params);
                 },
                 deleteChat: (chatId) => {
                     return toolCall("delete_chat", { chat_id: String(chatId ?? "") });
                 },
                 getMessages: (chatId, order, limit) => {
                     const params = { chat_id: chatId };
-                    if (order !== undefined && order !== null && String(order).trim() !== "") params.order = String(order);
-                    if (limit !== undefined && limit !== null && !isNaN(Number(limit))) params.limit = String(limit);
-                    return toolCall("get_chat_messages", params);
+            if (order !== undefined && order !== null && String(order).trim() !== "") params.order = String(order);
+            if (limit !== undefined && limit !== null && !isNaN(Number(limit))) params.limit = String(limit);
+            return toolCall("get_chat_messages", params);
                 },
                 // 发送消息给AI
                 sendMessage: (message, chatId, roleCardId, senderName) => {
                     const params = { message };
-                    if (chatId) params.chat_id = chatId;
+            if (chatId) params.chat_id = chatId;
                     if (roleCardId) params.role_card_id = roleCardId;
                     if (senderName) params.sender_name = senderName;
                     return toolCall("send_message_to_ai", params);

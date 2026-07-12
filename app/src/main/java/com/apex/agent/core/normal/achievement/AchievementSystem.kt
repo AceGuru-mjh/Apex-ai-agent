@@ -23,10 +23,10 @@ import java.util.concurrent.ConcurrentHashMap
  */
 enum class AchievementType {
     BADGE,       // 徽章
-    LEVEL,       // 等级
-    STREAK,      // 连击
-    CHALLENGE,   // 挑战
-    MILESTONE    // 里程碑
+                LEVEL,       // 等级
+                STREAK,      // 连击
+                CHALLENGE,   // 挑战
+                MILESTONE    // 里程碑
 }
 
 /**
@@ -46,20 +46,20 @@ data class Badge(
 
 enum class BadgeRarity {
     COMMON,      // 普通
-    UNCOMMON,    // 不常见
-    RARE,        // 稀有
-    EPIC,        // 史诗
-    LEGENDARY    // 传说
+                UNCOMMON,    // 不常见
+                RARE,        // 稀有
+                EPIC,        // 史诗
+                LEGENDARY    // 传说
 }
 
 enum class BadgeCategory {
     CONVERSATION,   // 对话类
-    TOOL,            // 工具使用
-    LEARNING,        // 学习类
-    CREATIVE,        // 创意类
-    SOCIAL,          // 社交类
-    EXPLORATION,     // 探索类
-    SPECIAL          // 特殊
+                TOOL,            // 工具使用
+                LEARNING,        // 学习类
+                CREATIVE,        // 创意类
+                SOCIAL,          // 社交类
+                EXPLORATION,     // 探索类
+                SPECIAL          // 特殊
 }
 
 /**
@@ -118,9 +118,9 @@ data class Challenge(
 
 enum class ChallengeType {
     DAILY,      // 每日
-    WEEKLY,     // 每周
-    ONE_TIME,   // 一次性
-    EVENT       // 活动
+                WEEKLY,     // 每周
+                ONE_TIME,   // 一次性
+                EVENT       // 活动
 }
 
 /**
@@ -143,8 +143,7 @@ class AchievementSystem {
     private val badges = ConcurrentHashMap<String, Badge>()
     private val challenges = ConcurrentHashMap<String, Challenge>()
     private val metrics = ConcurrentHashMap<String, ConcurrentHashMap<String, Long>>()  // userId -> (metric -> value)
-
-    init {
+                init {
         registerBuiltinBadges()
         registerBuiltinChallenges()
     }
@@ -157,16 +156,16 @@ class AchievementSystem {
         userMetrics[metric] = (userMetrics[metric] ?: 0) + value
 
         // 更新连击
-        updateStreak(userId, metric)
+                updateStreak(userId, metric)
 
         // 检查徽章
-        checkBadges(userId)
+                checkBadges(userId)
 
         // 检查挑战
-        checkChallenges(userId)
+                checkChallenges(userId)
 
         // 更新等级
-        addXP(userId, value.toInt())
+                addXP(userId, value.toInt())
     }
 
     /**
@@ -234,7 +233,7 @@ class AchievementSystem {
         sb.appendLine()
 
         // 徽章展示
-        if (state.badges.isNotEmpty()) {
+                if (state.badges.isNotEmpty()) {
             sb.appendLine("已获得徽章:")
             state.badges.take(10).forEach { eb ->
                 val badge = badges[eb.badgeId]
@@ -246,7 +245,7 @@ class AchievementSystem {
         }
 
         // 连击
-        if (state.activeStreaks.isNotEmpty()) {
+                if (state.activeStreaks.isNotEmpty()) {
             sb.appendLine("连击:")
             state.activeStreaks.forEach { (metric, info) ->
                 sb.appendLine("  $metric: ${info.current} 连击 (最高 ${info.best})")
@@ -255,7 +254,7 @@ class AchievementSystem {
         }
 
         // 进度最高的未获得徽章
-        val progress = getBadgeProgress(userId).take(3)
+                val progress = getBadgeProgress(userId).take(3)
         if (progress.isNotEmpty()) {
             sb.appendLine("即将获得:")
             progress.forEach { p ->
@@ -268,8 +267,7 @@ class AchievementSystem {
     }
 
     // ============ 内部方法 ============
-
-    private fun initUser(userId: String): UserAchievement {
+                private fun initUser(userId: String): UserAchievement {
         val state = UserAchievement(
             userId = userId,
             level = 1,
@@ -309,7 +307,6 @@ class AchievementSystem {
         val state = userStates[userId] ?: initUser(userId)
         val now = System.currentTimeMillis()
         val dayMs = 24 * 60 * 60_000L
-
         val current = state.activeStreaks[metric]
         val updated = if (current != null) {
             if (now - current.lastUpdate < dayMs) {
@@ -371,7 +368,7 @@ class AchievementSystem {
             }
             is AchievementRequirement.Streak -> {
                 val state = userStates[userId]
-                val streak = state?.activeStreaks?.get(req.metric)
+        val streak = state?.activeStreaks?.get(req.metric)
                 if (streak != null) (streak.current.toFloat() / req.target).coerceIn(0f, 1f) else 0f
             }
             is AchievementRequirement.Composite -> {
@@ -384,41 +381,40 @@ class AchievementSystem {
     }
 
     // ============ 预置徽章 ============
-
-    private fun registerBuiltinBadges() {
+                private fun registerBuiltinBadges() {
         // 对话类
-        badges["badge_first_chat"] = Badge("badge_first_chat", "first_chat", "初次对话", "完成第一次对话", "💬", BadgeRarity.COMMON, BadgeCategory.CONVERSATION, AchievementRequirement.Count("messages", 1), 10)
+                badges["badge_first_chat"] = Badge("badge_first_chat", "first_chat", "初次对话", "完成第一次对话", "💬", BadgeRarity.COMMON, BadgeCategory.CONVERSATION, AchievementRequirement.Count("messages", 1), 10)
         badges["badge_chatter"] = Badge("badge_chatter", "chatter", "话痨", "发送 100 条消息", "🗣️", BadgeRarity.UNCOMMON, BadgeCategory.CONVERSATION, AchievementRequirement.Count("messages", 100), 50)
         badges["badge_talkative"] = Badge("badge_talkative", "talkative", "滔滔不绝", "发送 1000 条消息", "🌊", BadgeRarity.RARE, BadgeCategory.CONVERSATION, AchievementRequirement.Count("messages", 1000), 200)
         badges["badge_conversation_master"] = Badge("badge_conversation_master", "master", "对话大师", "发送 10000 条消息", "👑", BadgeRarity.LEGENDARY, BadgeCategory.CONVERSATION, AchievementRequirement.Count("messages", 10000), 1000)
 
         // 连击类
-        badges["badge_streak_7"] = Badge("badge_streak_7", "streak7", "一周坚持", "连续 7 天对话", "🔥", BadgeRarity.UNCOMMON, BadgeCategory.CONVERSATION, AchievementRequirement.Streak("daily_chat", 7), 100)
+                badges["badge_streak_7"] = Badge("badge_streak_7", "streak7", "一周坚持", "连续 7 天对话", "🔥", BadgeRarity.UNCOMMON, BadgeCategory.CONVERSATION, AchievementRequirement.Streak("daily_chat", 7), 100)
         badges["badge_streak_30"] = Badge("badge_streak_30", "streak30", "月度坚持", "连续 30 天对话", "⚡", BadgeRarity.RARE, BadgeCategory.CONVERSATION, AchievementRequirement.Streak("daily_chat", 30), 500)
         badges["badge_streak_100"] = Badge("badge_streak_100", "streak100", "百日传奇", "连续 100 天对话", "💯", BadgeRarity.LEGENDARY, BadgeCategory.CONVERSATION, AchievementRequirement.Streak("daily_chat", 100), 2000)
 
         // 工具类
-        badges["badge_first_tool"] = Badge("badge_first_tool", "first_tool", "工具初体验", "第一次使用工具", "🔧", BadgeRarity.COMMON, BadgeCategory.TOOL, AchievementRequirement.Count("tool_calls", 1), 10)
+                badges["badge_first_tool"] = Badge("badge_first_tool", "first_tool", "工具初体验", "第一次使用工具", "🔧", BadgeRarity.COMMON, BadgeCategory.TOOL, AchievementRequirement.Count("tool_calls", 1), 10)
         badges["badge_tool_user"] = Badge("badge_tool_user", "tool_user", "工具使用者", "使用工具 50 次", "🛠️", BadgeRarity.UNCOMMON, BadgeCategory.TOOL, AchievementRequirement.Count("tool_calls", 50), 50)
         badges["badge_power_user"] = Badge("badge_power_user", "power_user", "高级用户", "使用工具 500 次", "⚙️", BadgeRarity.RARE, BadgeCategory.TOOL, AchievementRequirement.Count("tool_calls", 500), 200)
 
         // 学习类
-        badges["badge_learner"] = Badge("badge_learner", "learner", "学习者", "完成 10 次学习场景对话", "📚", BadgeRarity.UNCOMMON, BadgeCategory.LEARNING, AchievementRequirement.Count("learning_sessions", 10), 100)
+                badges["badge_learner"] = Badge("badge_learner", "learner", "学习者", "完成 10 次学习场景对话", "📚", BadgeRarity.UNCOMMON, BadgeCategory.LEARNING, AchievementRequirement.Count("learning_sessions", 10), 100)
         badges["badge_scholar"] = Badge("badge_scholar", "scholar", "学者", "完成 100 次学习场景对话", "🎓", BadgeRarity.EPIC, BadgeCategory.LEARNING, AchievementRequirement.Count("learning_sessions", 100), 500)
 
         // 创意类
-        badges["badge_creative"] = Badge("badge_creative", "creative", "创意萌芽", "使用创意工坊 1 次", "🌱", BadgeRarity.COMMON, BadgeCategory.CREATIVE, AchievementRequirement.Count("creative_writes", 1), 20)
+                badges["badge_creative"] = Badge("badge_creative", "creative", "创意萌芽", "使用创意工坊 1 次", "🌱", BadgeRarity.COMMON, BadgeCategory.CREATIVE, AchievementRequirement.Count("creative_writes", 1), 20)
         badges["badge_author"] = Badge("badge_author", "author", "作家", "创作 10 篇作品", "✍️", BadgeRarity.RARE, BadgeCategory.CREATIVE, AchievementRequirement.Count("creative_writes", 10), 200)
 
         // 玩梗
-        badges["badge_meme_lord"] = Badge("badge_meme_lord", "meme_lord", "梗王", "使用 100 个梗", "🤣", BadgeRarity.EPIC, BadgeCategory.SPECIAL, AchievementRequirement.Count("memes_used", 100), 300)
+                badges["badge_meme_lord"] = Badge("badge_meme_lord", "meme_lord", "梗王", "使用 100 个梗", "🤣", BadgeRarity.EPIC, BadgeCategory.SPECIAL, AchievementRequirement.Count("memes_used", 100), 300)
 
         // 探索类
-        badges["badge_explorer"] = Badge("badge_explorer", "explorer", "探索者", "尝试 5 种不同场景", "🧭", BadgeRarity.UNCOMMON, BadgeCategory.EXPLORATION, AchievementRequirement.Count("scenes_tried", 5), 50)
+                badges["badge_explorer"] = Badge("badge_explorer", "explorer", "探索者", "尝试 5 种不同场景", "🧭", BadgeRarity.UNCOMMON, BadgeCategory.EXPLORATION, AchievementRequirement.Count("scenes_tried", 5), 50)
         badges["badge_gamer"] = Badge("badge_gamer", "gamer", "玩家", "完成 10 局游戏", "🎮", BadgeRarity.UNCOMMON, BadgeCategory.SPECIAL, AchievementRequirement.Count("games_played", 10), 100)
 
         // 特殊
-        badges["badge_night_owl"] = Badge("badge_night_owl", "night_owl", "夜猫子", "凌晨 2 点后对话", "🦉", BadgeRarity.RARE, BadgeCategory.SPECIAL, AchievementRequirement.Specific("after_2am"), 100)
+                badges["badge_night_owl"] = Badge("badge_night_owl", "night_owl", "夜猫子", "凌晨 2 点后对话", "🦉", BadgeRarity.RARE, BadgeCategory.SPECIAL, AchievementRequirement.Specific("after_2am"), 100)
         badges["badge_early_bird"] = Badge("badge_early_bird", "early_bird", "早起鸟", "早上 6 点前对话", "🐦", BadgeRarity.RARE, BadgeCategory.SPECIAL, AchievementRequirement.Specific("before_6am"), 100)
     }
 

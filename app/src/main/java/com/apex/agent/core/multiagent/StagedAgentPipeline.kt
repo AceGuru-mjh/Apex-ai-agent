@@ -87,7 +87,7 @@ class StagedAgentPipeline {
 
     init {
         // 初始化各阶段 Agent
-        stageAgents[PipelineStage.RESEARCH] = ResearchAgent()
+                stageAgents[PipelineStage.RESEARCH] = ResearchAgent()
         stageAgents[PipelineStage.PLAN] = PlannerAgent()
         stageAgents[PipelineStage.IMPLEMENT] = ImplementerAgent()
         stageAgents[PipelineStage.REVIEW] = ReviewerAgent()
@@ -128,7 +128,7 @@ class StagedAgentPipeline {
 
         try {
             // 按阶段顺序执行
-           val stages = PipelineStage.entries.toList()
+                val stages = PipelineStage.entries.toList()
             var currentStageIndex = 0
 
             while (currentStageIndex < stages.size) {
@@ -154,13 +154,13 @@ class StagedAgentPipeline {
                     AppLogger.w(TAG, "阶段执行失败: ${stage.displayName}, 错误: ${stageResult.error}")
 
                     // 验证阶段失败时回退到实现阶段
-                   if (stage == PipelineStage.VALIDATE && context.shouldContinueLoop()) {
+                if (stage == PipelineStage.VALIDATE && context.shouldContinueLoop()) {
                         AppLogger.i(TAG, "验证失败，回退到实现阶段，当前循环: ${context.loopCount}")
                         progressListener?.onLoopBacktrack(context.loopCount + 1)
 
                         context = context.incrementLoop()
                         // 移除失败的验证结果，回退到实现阶段
-                       context.stageResults.removeAt(context.stageResults.size - 1)
+                context.stageResults.removeAt(context.stageResults.size - 1)
                         currentStageIndex = stages.indexOf(PipelineStage.IMPLEMENT)
                         continue
                     }
@@ -172,8 +172,8 @@ class StagedAgentPipeline {
             }
 
             // 所有阶段完于
-           val finalOutput = generateFinalOutput(context)
-            val totalDuration = System.currentTimeMillis() - startTime
+                val finalOutput = generateFinalOutput(context)
+        val totalDuration = System.currentTimeMillis() - startTime
             val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
 
             AppLogger.i(TAG, "管道执行完成，耗时: ${totalDuration}ms, Token消， ${totalTokenCost}")
@@ -201,7 +201,7 @@ class StagedAgentPipeline {
 
         return try {
             val result = agent.execute(context)
-            val duration = System.currentTimeMillis() - startTime
+        val duration = System.currentTimeMillis() - startTime
 
             StageResult(
                 stage = context.currentStage,
@@ -281,7 +281,7 @@ class StagedAgentPipeline {
             AppLogger.i(TAG, "取消管道执行")
             isExecuting = false
             // 取消当前正在执行的阶，
-           stageAgents.values.forEach { it.cancel() }
+                stageAgents.values.forEach { it.cancel() }
         }
     }
 }

@@ -25,7 +25,7 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
         version = "1.0.0",
         author = "LobeHub",
         homepage = "https://lobehub.com/skills",
-        logoUrl = null,
+                logoUrl = null,
         enabled = true,
         capabilities = listOf(
             IntegrationCapability("browse", "浏览技能, "浏览 LobeHub 技能市在, CapabilityType.BROWSE),
@@ -50,7 +50,7 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
             "popular" -> skillManager.getPopularSkills(pageSize).map { list -> list.map { it.toUnifiedItem() } }
             else -> {
                 val category = if (tag != null && tag !in listOf("featured", "popular", "latest")) tag else null
-                val agent = if (category != null) category else null
+        val agent = if (category != null) category else null
                 skillManager.browseSkills(agent = agent, page = page).map { list ->
                     list.map { it.toUnifiedItem() }
                 }

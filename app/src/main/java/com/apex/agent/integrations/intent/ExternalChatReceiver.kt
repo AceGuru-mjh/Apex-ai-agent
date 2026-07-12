@@ -50,7 +50,7 @@ class ExternalChatReceiver : BroadcastReceiver() {
                 val replyAction = intent.getStringExtra(EXTRA_REPLY_ACTION)?.takeIf { it.isNotBlank() }
                     ?: ACTION_EXTERNAL_CHAT_RESULT
                 val replyPackage = intent.getStringExtra(EXTRA_REPLY_PACKAGE)?.takeIf { it.isNotBlank() }
-                val result = ExternalChatRequestExecutor(context.applicationContext).execute(
+        val result = ExternalChatRequestExecutor(context.applicationContext).execute(
                     ExternalChatRequest(
                         requestId = intent.getStringExtra(EXTRA_REQUEST_ID),
                         message = intent.getStringExtra(EXTRA_MESSAGE),

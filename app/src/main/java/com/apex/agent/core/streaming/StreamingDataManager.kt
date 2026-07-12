@@ -99,7 +99,7 @@ class StreamingDataManager(private val context: Context) {
     suspend fun registerStream(config: StreamConfig): Boolean = withContext(Dispatchers.IO) {
         try {
             val configFile = File(configDir, "${config.id}.json")
-            val json = JSONObject().apply {
+        val json = JSONObject().apply {
                 put("id", config.id)
                 put("name", config.name)
                 put("sourceType", config.sourceType.name)
@@ -145,7 +145,7 @@ class StreamingDataManager(private val context: Context) {
     private fun parseConfig(file: File): StreamConfig? {
         return try {
             val json = JSONObject(file.readText())
-            val rulesJson = json.getJSONArray("alertRules")
+        val rulesJson = json.getJSONArray("alertRules")
             val rules = mutableListOf<AlertRule>()
 
             for (i in 0 until rulesJson.length()) {
@@ -162,7 +162,7 @@ class StreamingDataManager(private val context: Context) {
             }
 
             val pipeline = mutableListOf<String>()
-            val pipelineJson = json.getJSONArray("processingPipeline")
+        val pipelineJson = json.getJSONArray("processingPipeline")
             for (i in 0 until pipelineJson.length()) {
                 pipeline.add(pipelineJson.getString(i))
             }
@@ -216,10 +216,9 @@ class StreamingDataManager(private val context: Context) {
             if (!sourceDir.exists()) sourceDir.mkdirs()
 
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val dateStr = dateFormat.format(Date(dataPoint.timestamp))
+        val dateStr = dateFormat.format(Date(dataPoint.timestamp))
             val dataFile = File(sourceDir, "${dateStr}.json")
-
-            val existingData = if (dataFile.exists()) {
+        val existingData = if (dataFile.exists()) {
                 JSONArray(dataFile.readText())
             } else {
                 JSONArray()
@@ -312,7 +311,7 @@ class StreamingDataManager(private val context: Context) {
             appendLine("【最新数据点。")
             history.takeLast(5).reversed().forEach { point ->
                 val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                val time = timeFormat.format(Date(point.timestamp))
+        val time = timeFormat.format(Date(point.timestamp))
                 appendLine("  [${time}] ${point.alertLevel.name}: ${point.content.take(50)}...")
             }
         }
@@ -327,7 +326,7 @@ class StreamingDataManager(private val context: Context) {
                     val fileDateStr = file.nameWithoutExtension
                     try {
                         val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        val fileDate = format.parse(fileDateStr)?.time ?: 0L
+        val fileDate = format.parse(fileDateStr)?.time ?: 0L
 
                         if (fileDate < cutoffTime) {
                             file.delete()

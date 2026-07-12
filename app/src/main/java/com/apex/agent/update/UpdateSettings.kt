@@ -164,7 +164,7 @@ object VersionComparator {
             .removePrefix("v")
             .removePrefix("V")
             .substringBefore('+') // 去掉 build 元数据
-        val (core, pre) = if (cleaned.contains('-')) {
+                val (core, pre) = if (cleaned.contains('-')) {
             val idx = cleaned.indexOf('-')
             cleaned.substring(0, idx) to cleaned.substring(idx + 1)
         } else {
@@ -185,15 +185,15 @@ object VersionComparator {
         val pa = parse(a)
         val pb = parse(b)
         // 比较 core 部分
-        val maxLen = maxOf(pa.core.size, pb.core.size)
+                val maxLen = maxOf(pa.core.size, pb.core.size)
         for (i in 0 until maxLen) {
             val av = pa.core.getOrElse(i) { 0 }
-            val bv = pb.core.getOrElse(i) { 0 }
+        val bv = pb.core.getOrElse(i) { 0 }
             if (av != bv) return av - bv
         }
         // 都没有预发布 → 相等
         // 一个有预发布、一个没有 → 没有的更大（正式版 > 预发布版）
-        return when {
+                return when {
             pa.isRelease && pb.isRelease -> 0
             pa.isRelease && !pb.isRelease -> 1
             !pa.isRelease && pb.isRelease -> -1
@@ -202,7 +202,7 @@ object VersionComparator {
                 val maxPre = maxOf(pa.pre.size, pb.pre.size)
                 for (i in 0 until maxPre) {
                     val av = pa.pre.getOrElse(i) { 0 }
-                    val bv = pb.pre.getOrElse(i) { 0 }
+        val bv = pb.pre.getOrElse(i) { 0 }
                     if (av != bv) return av - bv
                 }
                 0
@@ -245,7 +245,7 @@ internal fun formatBytes(bytes: Long): String {
  */
 internal fun extractSha256(release: UpdateRelease, apkAsset: UpdateAsset): String? {
     // 1. 查同名 sha256 资源
-    val shaAsset = release.assets.firstOrNull { a ->
+                val shaAsset = release.assets.firstOrNull { a ->
         val n = a.name.lowercase()
         val apk = apkAsset.name.lowercase()
         n == "$apk.sha256" || n == "$apk.sha256sum" || n == "$apk.txt"
@@ -254,7 +254,7 @@ internal fun extractSha256(release: UpdateRelease, apkAsset: UpdateAsset): Strin
         // GitHub 资源需要 token 才能直接拉内容，这里只能拿到 URL。
         // 简化处理：仅尝试从 URL 文件名推断（无法直接 fetch，因为浏览器下载会跳转）。
         // 实际下载时再尝试拉取 .sha256 内容并比对。
-        return null
+                return null
     }
     val notes = release.body ?: return null
     // 2. release notes 中的 "SHA-256: <hex>"
@@ -262,7 +262,7 @@ internal fun extractSha256(release: UpdateRelease, apkAsset: UpdateAsset): Strin
     shaRegex.find(notes)?.let { return it.groupValues[1].lowercase() }
     // 3. release notes 中的 "<apk-name>: <hex>"
     val apkName = Regex.escape(apkAsset.name)
-    val nameRegex = Regex("$apkName[:\\s]+([0-9a-fA-F]{64})", RegexOption.IGNORE_CASE)
+        val nameRegex = Regex("$apkName[:\\s]+([0-9a-fA-F]{64})", RegexOption.IGNORE_CASE)
     nameRegex.find(notes)?.let { return it.groupValues[1].lowercase() }
     return null
 }

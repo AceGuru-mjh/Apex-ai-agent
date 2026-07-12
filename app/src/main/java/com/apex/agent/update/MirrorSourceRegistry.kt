@@ -108,7 +108,7 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
     }
 
     private val _mirrorsFlow = MutableStateFlow<List<MirrorSource>>(emptyList())
-    val mirrorsFlow: StateFlow<List<MirrorSource>> = _mirrorsFlow.asStateFlow()
+        val mirrorsFlow: StateFlow<List<MirrorSource>> = _mirrorsFlow.asStateFlow()
 
     /** 当前镜像快照（内置 + 自定义）。 */
     val mirrors: List<MirrorSource> get() = _mirrorsFlow.value
@@ -121,7 +121,7 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
 
     init {
         // 立即填充内置镜像，让 UI 先有数据可用；自定义镜像异步加载后会覆盖。
-        _mirrorsFlow.value = BUILTIN_MIRRORS
+                _mirrorsFlow.value = BUILTIN_MIRRORS
     }
 
     /**
@@ -131,7 +131,7 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
     suspend fun load() {
         try {
             val raw = ApexDataStore.getStringSync(context, DATA_KEY, default = "")
-            val custom = if (raw.isBlank()) {
+        val custom = if (raw.isBlank()) {
                 emptyList()
             } else {
                 runCatching {

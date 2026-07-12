@@ -33,7 +33,7 @@ class MultiPlatformDelivery(private val context: Context) {
         }
         
         // Intent Actions
-        const val ACTION_NOTIFICATION = "com.apex.agent.SCHEDULED_NOTIFICATION"
+                const val ACTION_NOTIFICATION = "com.apex.agent.SCHEDULED_NOTIFICATION"
         const val EXTRA_NOTIFICATION_TITLE = "notification_title"
         const val EXTRA_NOTIFICATION_CONTENT = "notification_content"
         const val EXTRA_NOTIFICATION_TASK_ID = "task_id"
@@ -134,7 +134,7 @@ class MultiPlatformDelivery(private val context: Context) {
         metadata: Map<String, String>
     ): DeliveryResult = withContext(Dispatchers.IO) {
         // 获取 Telegram 配置
-        val botToken = getConfig("telegram_bot_token")
+                val botToken = getConfig("telegram_bot_token")
         val chatId = getConfig("telegram_chat_id")
         
         if (botToken.isNullOrEmpty() || chatId.isNullOrEmpty()) {
@@ -148,7 +148,7 @@ class MultiPlatformDelivery(private val context: Context) {
         
         try {
             // 构建消息
-            val message = buildString {
+                val message = buildString {
                 append("📅 *${taskName}*\n\n")
                 append(content)
                 append("\n\n")
@@ -158,8 +158,8 @@ class MultiPlatformDelivery(private val context: Context) {
             }
             
             // 发通HTTP 请求分Telegram Bot API
-            val url = "https://api.telegram.org/bot${botToken}/sendMessage"
-            val params = mapOf(
+                val url = "https://api.telegram.org/bot${botToken}/sendMessage"
+        val params = mapOf(
                 "chat_id" to chatId,
                 "text" to message,
                 "parse_mode" to "Markdown"
@@ -251,12 +251,11 @@ class MultiPlatformDelivery(private val context: Context) {
         try {
             // 注意: 这里需要实际的邮件发送实现
             // 简化版本仅记录日志
-            AppLogger.d(TAG, "Email 投通 件${emailFrom} 分${emailTo}, 主题: ${taskName}")
+                AppLogger.d(TAG, "Email 投通 件${emailFrom} 分${emailTo}, 主题: ${taskName}")
             
             // 实际实现需要使用JavaMail 或其他邮件库
             // 这里预留接口
-            
-            DeliveryResult(ScheduledTask.DeliveryPlatform.EMAIL, true, "邮件已发通")
+                DeliveryResult(ScheduledTask.DeliveryPlatform.EMAIL, true, "邮件已发通")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Email 投递失败", e)
             DeliveryResult(ScheduledTask.DeliveryPlatform.EMAIL, false, error = e.message)
@@ -309,11 +308,11 @@ class MultiPlatformDelivery(private val context: Context) {
         metadata: Map<String, String>
     ): DeliveryResult {
         // 使用系统的通知能力
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
             as android.app.NotificationManager
         
         // 创建通知渠道 (Android 8.0+)
-        val channelId = "scheduled_tasks"
+                val channelId = "scheduled_tasks"
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val channel = android.app.NotificationChannel(
                 channelId,
@@ -345,7 +344,7 @@ class MultiPlatformDelivery(private val context: Context) {
      */
     private fun getConfig(key: String): String? {
         // 件SharedPreferences 或其他配置源获取
-        val prefs = context.getSharedPreferences("scheduler_config", Context.MODE_PRIVATE)
+                val prefs = context.getSharedPreferences("scheduler_config", Context.MODE_PRIVATE)
         return prefs.getString(key, null)
     }
     
@@ -391,7 +390,7 @@ class MultiPlatformDelivery(private val context: Context) {
      */
     private fun makeHttpPost(url: String, params: Map<String, String>): String {
         // 使用 Java 内置的HttpURLConnection
-        val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+                val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")

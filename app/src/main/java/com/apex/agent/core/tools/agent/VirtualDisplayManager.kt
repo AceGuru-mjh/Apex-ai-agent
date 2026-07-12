@@ -69,16 +69,15 @@ class VirtualDisplayManager private constructor(private val context: Context) {
             image = reader.acquireLatestImage() ?: return null
 
             val width = image.width
-            val height = image.height
+        val height = image.height
             if (width <= 0 || height <= 0) return null
 
             val plane = image.planes[0]
-            val buffer = plane.buffer
+        val buffer = plane.buffer
             val pixelStride = plane.pixelStride
-            val rowStride = plane.rowStride
+        val rowStride = plane.rowStride
             val rowPadding = rowStride - pixelStride * width
-
-            val bitmap = Bitmap.createBitmap(
+        val bitmap = Bitmap.createBitmap(
                 width + rowPadding / pixelStride,
                 height,
                 Bitmap.Config.ARGB_8888
@@ -123,16 +122,16 @@ class VirtualDisplayManager private constructor(private val context: Context) {
     private fun createVirtualDisplay(): Int? {
         return try {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
             val metrics = DisplayMetrics()
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getRealMetrics(metrics)
 
             val statusBarHeight = getStatusBarHeight()
-            val width = metrics.widthPixels
+        val width = metrics.widthPixels
             val height = (metrics.heightPixels - statusBarHeight).coerceAtLeast(1)
-            val densityDpi = metrics.densityDpi
+        val densityDpi = metrics.densityDpi
 
             val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
             imageReader = reader
@@ -152,7 +151,7 @@ class VirtualDisplayManager private constructor(private val context: Context) {
             virtualDisplay = vd
 
             val display = vd.display
-            val id = display?.displayId
+        val id = display?.displayId
             displayId = id
 
             AppLogger.d(TAG, "Created virtual display id=${id}, size=${width}x${height}, density=${densityDpi}")

@@ -108,11 +108,11 @@ class StagedAgentPipeline @Inject constructor() {
     private var isExecuting = false
     private val loopBackHandler = LoopBackHandler(maxLoops = MAX_LOOPS)
     private val _progress = MutableSharedFlow<PipelineProgressEvent>()
-    val progress: Flow<PipelineProgressEvent> = _progress.asSharedFlow()
+        val progress: Flow<PipelineProgressEvent> = _progress.asSharedFlow()
 
     init {
         // 初始化各阶段 Agent
-        stageAgents[PipelineStage.RESEARCH] = ResearchAgent()
+                stageAgents[PipelineStage.RESEARCH] = ResearchAgent()
         stageAgents[PipelineStage.PLAN] = PlannerAgent()
         stageAgents[PipelineStage.IMPLEMENT] = ImplementerAgent()
         stageAgents[PipelineStage.REVIEW] = ReviewerAgent()
@@ -142,7 +142,7 @@ class StagedAgentPipeline @Inject constructor() {
 
         return try {
             // 按阶段顺序执行
-            val stages = PipelineStage.ALL
+                val stages = PipelineStage.ALL
             var currentStageIndex = 0
 
             while (currentStageIndex < stages.size) {
@@ -168,14 +168,14 @@ class StagedAgentPipeline @Inject constructor() {
                     AppLogger.w(TAG, "阶段执行失败: ${stage.name}, 错误: ${stageResult.error}")
 
                     // 通过 LoopBackHandler 判断是否需要回退
-                    val loopDecision = loopBackHandler.shouldLoopBack(stage, context.loopCount, stageResult.error)
+                val loopDecision = loopBackHandler.shouldLoopBack(stage, context.loopCount, stageResult.error)
                     if (loopDecision.shouldLoopBack && loopDecision.targetStage != null) {
                         AppLogger.i(TAG, "回退分${loopDecision.targetStage.name}, 当前循环: ${context.loopCount}")
                         _progress.emit(PipelineProgressEvent.LoopBacktrack(context.loopCount + 1, loopDecision.reason))
 
                         context = context.incrementLoop()
                         // 移除失败的阶段结果，回退到目标阶段
-                        context.stageResults.removeAt(context.stageResults.size - 1)
+                context.stageResults.removeAt(context.stageResults.size - 1)
                         currentStageIndex = stages.indexOfFirst { it.name == loopDecision.targetStage.name }
                         continue
                     }
@@ -187,8 +187,8 @@ class StagedAgentPipeline @Inject constructor() {
             }
 
             // 所有阶段完成
-            val finalOutput = generateFinalOutput(context)
-            val totalDuration = System.currentTimeMillis() - startTime
+                val finalOutput = generateFinalOutput(context)
+        val totalDuration = System.currentTimeMillis() - startTime
             val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
 
             AppLogger.i(TAG, "管道执行完成，耗时: ${totalDuration}ms, Token消者 $totalTokenCost")
@@ -222,7 +222,7 @@ class StagedAgentPipeline @Inject constructor() {
 
         return try {
             val result = agent.execute(context)
-            val duration = System.currentTimeMillis() - startTime
+        val duration = System.currentTimeMillis() - startTime
 
             StageResult(
                 stage = context.currentStage,
@@ -300,7 +300,7 @@ class StagedAgentPipeline @Inject constructor() {
             AppLogger.i(TAG, "取消管道执行")
             isExecuting = false
             // 取消当前正在执行的阶段
-            stageAgents.values.forEach { it.cancel() }
+                stageAgents.values.forEach { it.cancel() }
         }
     }
 }
@@ -323,7 +323,7 @@ private class ResearchAgent : StageAgent {
 
         return try {
             // 模拟研究过程
-            val researchResult = performResearch(context.originalGoal)
+                val researchResult = performResearch(context.originalGoal)
 
             if (isCancelled) {
                 return StageAgentResult(
@@ -367,20 +367,20 @@ private class ResearchAgent : StageAgent {
         sb.appendLine()
 
         // 分析任务类型
-        val taskType = analyzeTaskType(goal)
+                val taskType = analyzeTaskType(goal)
         sb.appendLine("## 任务类型")
         sb.appendLine(taskType)
         sb.appendLine()
 
         // 收集相关信息
-        sb.appendLine("## 相关信息")
+                sb.appendLine("## 相关信息")
         sb.appendLine("- 技术栈: Kotlin, Jetpack Compose, Android")
         sb.appendLine("- 相关模块: multiagent, TaskPlanner, CollaborationEngine")
         sb.appendLine("- 依赖关系: 需要与现有系统集成")
         sb.appendLine()
 
         // 识别关键需求
-        sb.appendLine("## 关键需求")
+                sb.appendLine("## 关键需求")
         sb.appendLine("1. 实现阶段化管道执行")
         sb.appendLine("2. 支持循环回退机制")
         sb.appendLine("3. 与现有TaskPlanner 集成")
@@ -388,7 +388,7 @@ private class ResearchAgent : StageAgent {
         sb.appendLine()
 
         // 识别潜在风险
-        sb.appendLine("## 潜在风险")
+                sb.appendLine("## 潜在风险")
         sb.appendLine("- 性能开销: 多阶段执行可能增加延返")
         sb.appendLine("- 资源消者 Token 消耗可能较高")
         sb.appendLine("- 集成复杂应 需要与多个系统协调")
@@ -412,7 +412,7 @@ private class ResearchAgent : StageAgent {
 
     private fun estimateTokenCost(output: String): Int {
         // 粗略估计：每100个字符约40个token
-        return (output.length / 100.0 * 40).toInt()
+                return (output.length / 100.0 * 40).toInt()
     }
 
     override fun cancel() {
@@ -439,7 +439,7 @@ private class PlannerAgent : StageAgent {
 
         return try {
             val previousOutput = context.getPreviousStageOutput()
-            val plan = createPlan(context.originalGoal, previousOutput)
+        val plan = createPlan(context.originalGoal, previousOutput)
 
             if (isCancelled) {
                 return StageAgentResult(
@@ -486,7 +486,7 @@ private class PlannerAgent : StageAgent {
         sb.appendLine()
 
         // 根据研究阶段结果制定计划
-        sb.appendLine("### 步骤 1: 需求确计")
+                sb.appendLine("### 步骤 1: 需求确计")
         sb.appendLine("- 验证研究阶段收集的信息")
         sb.appendLine("- 明确输入输出规范")
         sb.appendLine("- 确认技术约权")
@@ -560,7 +560,7 @@ private class ImplementerAgent : StageAgent {
 
         return try {
             val plan = context.getPreviousStageOutput()
-            val implementation = implementCode(context.originalGoal, plan, context.loopCount)
+        val implementation = implementCode(context.originalGoal, plan, context.loopCount)
 
             if (isCancelled) {
                 return StageAgentResult(
@@ -632,9 +632,9 @@ private class ImplementerAgent : StageAgent {
         sb.appendLine("class StagedAgentPipeline {")
         sb.appendLine("    fun execute(goal: String): PipelineResult {")
         sb.appendLine("        // 按阶段顺序执行")
-        sb.appendLine("        // 支持循环回退机制")
-        sb.appendLine("        // 返回最终结果")
-        sb.appendLine("    }")
+                sb.appendLine("        // 支持循环回退机制")
+                sb.appendLine("        // 返回最终结果")
+                sb.appendLine("    }")
         sb.appendLine("}")
         sb.appendLine("```")
         sb.appendLine()
@@ -657,8 +657,7 @@ private class ImplementerAgent : StageAgent {
 
     private fun countFiles(implementation: String): Int {
         return 5 // 模拟，个主要文件    }
-
-    private fun countFunctions(implementation: String): Int {
+                private fun countFunctions(implementation: String): Int {
         return implementation.lines().count { it.contains("fun ") }
     }
 
@@ -690,7 +689,7 @@ private class ReviewerAgent : StageAgent {
 
         return try {
             val previousOutput = context.getPreviousStageOutput()
-            val reviewReport = performReview(previousOutput)
+        val reviewReport = performReview(previousOutput)
 
             if (isCancelled) {
                 return StageAgentResult(
@@ -731,7 +730,7 @@ private class ReviewerAgent : StageAgent {
         sb.appendLine()
 
         // 代码质量检查
-        sb.appendLine("## 1. 代码质量")
+                sb.appendLine("## 1. 代码质量")
         val qualityIssues = checkCodeQuality(codeContext)
         if (qualityIssues.isEmpty()) {
             sb.appendLine("✓未发现代码质量问题")
@@ -741,7 +740,7 @@ private class ReviewerAgent : StageAgent {
         sb.appendLine()
 
         // 安全性检查
-        sb.appendLine("## 2. 安全态")
+                sb.appendLine("## 2. 安全态")
         val securityIssues = checkSecurity(codeContext)
         if (securityIssues.isEmpty()) {
             sb.appendLine("✓未发现安全隐悬")
@@ -751,7 +750,7 @@ private class ReviewerAgent : StageAgent {
         sb.appendLine()
 
         // 性能检查
-        sb.appendLine("## 3. 性能")
+                sb.appendLine("## 3. 性能")
         val performanceIssues = checkPerformance(codeContext)
         if (performanceIssues.isEmpty()) {
             sb.appendLine("✓未发现性能问题")
@@ -761,13 +760,13 @@ private class ReviewerAgent : StageAgent {
         sb.appendLine()
 
         // 质量评分
-        val score = calculateQualityScore(qualityIssues, securityIssues, performanceIssues)
+                val score = calculateQualityScore(qualityIssues, securityIssues, performanceIssues)
         sb.appendLine("## 4. 质量评分")
         sb.appendLine("综合评分: $score / 100")
         sb.appendLine()
 
         // 改进建议
-        sb.appendLine("## 5. 改进建议")
+                sb.appendLine("## 5. 改进建议")
         val suggestions = generateSuggestions(qualityIssues, securityIssues, performanceIssues)
         if (suggestions.isEmpty()) {
             sb.appendLine("代码质量良好，暂无改进建议。")
@@ -877,7 +876,7 @@ private class ValidatorAgent : StageAgent {
 
         return try {
             val previousOutput = context.getPreviousStageOutput()
-            val validationResult = performValidation(context.originalGoal, previousOutput)
+        val validationResult = performValidation(context.originalGoal, previousOutput)
 
             if (isCancelled) {
                 return StageAgentResult(
@@ -931,7 +930,7 @@ private class ValidatorAgent : StageAgent {
         sb.appendLine()
 
         // 功能验证
-        sb.appendLine("## 1. 功能验证")
+                sb.appendLine("## 1. 功能验证")
         val functionalPassed = verifyFunctional(goal, codeContext)
         if (functionalPassed) {
             sb.appendLine("✓功能验证通过")
@@ -942,7 +941,7 @@ private class ValidatorAgent : StageAgent {
         sb.appendLine()
 
         // 编译检查
-        sb.appendLine("## 2. 编译检查")
+                sb.appendLine("## 2. 编译检查")
         val compilePassed = verifyCompilation(codeContext)
         if (compilePassed) {
             sb.appendLine("✓编译检查通过")
@@ -953,7 +952,7 @@ private class ValidatorAgent : StageAgent {
         sb.appendLine()
 
         // 测试运行
-        sb.appendLine("## 3. 测试运行")
+                sb.appendLine("## 3. 测试运行")
         val testPassed = verifyTests(codeContext)
         if (testPassed) {
             sb.appendLine("✓测试运行通过")
@@ -964,7 +963,7 @@ private class ValidatorAgent : StageAgent {
         sb.appendLine()
 
         // 总结
-        val passed = failures.isEmpty()
+                val passed = failures.isEmpty()
         sb.appendLine("## 验证结果")
         sb.appendLine("状态 ${if (passed) "✓全部通过" else "✓存在失败"}")
         if (failures.isNotEmpty()) {
@@ -977,7 +976,7 @@ private class ValidatorAgent : StageAgent {
 
     private fun verifyFunctional(goal: String, codeContext: String): Boolean {
         // 检查实现内容是否与目标相关
-        if (codeContext.isBlank()) return false
+                if (codeContext.isBlank()) return false
         val goalKeywords = goal.split(" ").filter { it.length > 2 }
         val matchCount = goalKeywords.count { keyword ->
             codeContext.contains(keyword, ignoreCase = true)
@@ -987,14 +986,14 @@ private class ValidatorAgent : StageAgent {
 
     private fun verifyCompilation(codeContext: String): Boolean {
         // 检查代码块是否有明显的语法问题
-        val codeBlocks = codeContext.lines().filter { it.trim().startsWith("```") }
+                val codeBlocks = codeContext.lines().filter { it.trim().startsWith("```") }
         // 代码块标记应成对出现
-        return codeBlocks.size % 2 == 0
+                return codeBlocks.size % 2 == 0
     }
 
     private fun verifyTests(codeContext: String): Boolean {
         // 检查是否包含测试相关内定
-        return codeContext.contains("test", ignoreCase = true) ||
+                return codeContext.contains("test", ignoreCase = true) ||
                 codeContext.contains("测试", ignoreCase = true) ||
                 codeContext.contains("验证", ignoreCase = true)
     }

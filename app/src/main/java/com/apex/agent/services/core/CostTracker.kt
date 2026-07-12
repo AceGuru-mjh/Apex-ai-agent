@@ -77,7 +77,7 @@ object DefaultPricing {
     /** 2024年标准定价预设 */
     val PRESET_2024: List<ModelPricing> = listOf(
         // OpenAI
-        ModelPricing("gpt-4o", "openai", 0.005f, 0.015f),
+                ModelPricing("gpt-4o", "openai", 0.005f, 0.015f),
         ModelPricing("gpt-4o-mini", "openai", 0.00015f, 0.0006f),
         ModelPricing("gpt-4-turbo", "openai", 0.01f, 0.03f),
         ModelPricing("gpt-4", "openai", 0.03f, 0.06f),
@@ -85,19 +85,19 @@ object DefaultPricing {
         ModelPricing("o1", "openai", 0.015f, 0.06f),
         ModelPricing("o1-mini", "openai", 0.003f, 0.012f),
         // Anthropic
-        ModelPricing("claude-3.5-sonnet", "anthropic", 0.003f, 0.015f),
+                ModelPricing("claude-3.5-sonnet", "anthropic", 0.003f, 0.015f),
         ModelPricing("claude-3-opus", "anthropic", 0.015f, 0.075f),
         ModelPricing("claude-3-sonnet", "anthropic", 0.003f, 0.015f),
         ModelPricing("claude-3-haiku", "anthropic", 0.00025f, 0.00125f),
         // Google
-        ModelPricing("gemini-1.5-pro", "google", 0.00125f, 0.005f),
+                ModelPricing("gemini-1.5-pro", "google", 0.00125f, 0.005f),
         ModelPricing("gemini-1.5-flash", "google", 0.000075f, 0.0003f),
         ModelPricing("gemini-2.0-flash", "google", 0.0001f, 0.0004f),
         // DeepSeek
-        ModelPricing("deepseek-chat", "deepseek", 0.0005f, 0.001f),
+                ModelPricing("deepseek-chat", "deepseek", 0.0005f, 0.001f),
         ModelPricing("deepseek-reasoner", "deepseek", 0.001f, 0.002f),
         // 本地模型（成本为0）
-        ModelPricing("local", "local", 0f, 0f)
+                ModelPricing("local", "local", 0f, 0f)
     )
 
     /** 按modelId索引的定价映射 */
@@ -117,10 +117,10 @@ object CostTracker {
     private const val TAG = "CostTracker"
 
     // 默认模型单价表（每千 Token，单位美元）
-    private val DEFAULT_PRICING = DefaultPricing.PRESET_2024
+                private val DEFAULT_PRICING = DefaultPricing.PRESET_2024
 
     // 用户自定义单价表（优先级高于默认值）
-    private val customPricing = ConcurrentHashMap<String, ModelPricing>()
+                private val customPricing = ConcurrentHashMap<String, ModelPricing>()
 
     private var dao: CostRecordDao? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -263,7 +263,7 @@ object CostTracker {
 
         try {
             val totalCost = dao.getTotalCostByTimeRange(startTime, endTime) ?: 0f
-            val totalCalls = dao.getCallCountByTimeRange(startTime, endTime)
+        val totalCalls = dao.getCallCountByTimeRange(startTime, endTime)
 
             val byModel = dao.getCostByModel(startTime, endTime)
                 .associate { it.model to it.cost }
@@ -303,10 +303,10 @@ object CostTracker {
             val (startTime, endTime) = getTimeRange(CostPeriod.DAILY)
 
             // 1. 分析模型成本分布
-            val modelCosts = dao.getCostByModel(startTime, endTime)
+                val modelCosts = dao.getCostByModel(startTime, endTime)
             if (modelCosts.isNotEmpty()) {
                 val totalCost = modelCosts.sumOf { it.cost.toDouble() }.toFloat()
-                val mostExpensive = modelCosts.maxByOrNull { it.cost }
+        val mostExpensive = modelCosts.maxByOrNull { it.cost }
                 if (mostExpensive != null && totalCost > 0) {
                     val ratio = mostExpensive.cost / totalCost
                     if (ratio > 0.7f) {
@@ -319,7 +319,7 @@ object CostTracker {
             }
 
             // 2. 分析调用次数
-            val callCounts = dao.getCallCountByModel(startTime, endTime)
+                val callCounts = dao.getCallCountByModel(startTime, endTime)
             if (callCounts.isNotEmpty()) {
                 val highFreqModel = callCounts.maxByOrNull { it.count }
                 if (highFreqModel != null && highFreqModel.count > 100) {
@@ -334,10 +334,10 @@ object CostTracker {
             }
 
             // 3. 分析 Agent 成本
-            val agentCosts = dao.getCostByAgent(startTime, endTime)
+                val agentCosts = dao.getCostByAgent(startTime, endTime)
             if (agentCosts.size > 1) {
                 val sorted = agentCosts.sortedByDescending { it.cost }
-                val topAgent = sorted.first()
+        val topAgent = sorted.first()
                 val totalAgentCost = sorted.sumOf { it.cost.toDouble() }.toFloat()
                 if (totalAgentCost > 0 && topAgent.cost / totalAgentCost > 0.5f) {
                     suggestions.add(
@@ -348,7 +348,7 @@ object CostTracker {
             }
 
             // 4. 分析 Skill 成本
-            val skillCosts = dao.getCostBySkill(startTime, endTime)
+                val skillCosts = dao.getCostBySkill(startTime, endTime)
             if (skillCosts.isNotEmpty()) {
                 val topSkill = skillCosts.maxByOrNull { it.cost }
                 if (topSkill != null && topSkill.cost > totalCost(dao, startTime, endTime) * 0.3f) {
@@ -359,7 +359,7 @@ object CostTracker {
             }
 
             // 5. 通用建议
-            if (modelCosts.any { it.model.contains("gpt-4", ignoreCase = true) }) {
+                if (modelCosts.any { it.model.contains("gpt-4", ignoreCase = true) }) {
                 suggestions.add("检测到使用了 GPT-4 系列模型，对于简单任务建议使用 GPT-4o-mini 或 GPT-3.5-turbo 以降低成本")
             }
 
@@ -390,8 +390,7 @@ object CostTracker {
     }
 
     // ---- 内部辅助方法 ----
-
-    private suspend fun totalCost(dao: CostRecordDao, startTime: Long, endTime: Long): Float {
+                private suspend fun totalCost(dao: CostRecordDao, startTime: Long, endTime: Long): Float {
         return dao.getTotalCostByTimeRange(startTime, endTime) ?: 0f
     }
 

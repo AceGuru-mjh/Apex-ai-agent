@@ -28,7 +28,6 @@ class ReflectionEngine(
         AppLogger.d(TAG, "Starting reflection for task: ${taskId}")
 
         val analysis = analyzeExecution(executionSteps, outcome)
-        
         val reflection = Reflection(
             taskId = taskId,
             taskGoal = taskGoal,
@@ -128,7 +127,7 @@ class ReflectionEngine(
 
         for (i in 0 until steps.size - 1) {
             val current = steps[i]
-            val next = steps[i + 1]
+        val next = steps[i + 1]
             
             if (isLogicallySequential(current.action, next.action)) {
                 logicalFlow++

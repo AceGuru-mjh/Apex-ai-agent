@@ -70,13 +70,13 @@ class PersonalNotesTool(
             }
             "add" -> {
                 val title = arguments["title"]?.toString() ?: return PersonalToolResult.Failure("缺少 title")
-                val content = arguments["content"]?.toString() ?: ""
+        val content = arguments["content"]?.toString() ?: ""
                 val note = storage.addNote(title, content)
                 PersonalToolResult.Success("已添加笔记: ${note.title}", note)
             }
             "get" -> {
                 val id = arguments["id"]?.toString() ?: return PersonalToolResult.Failure("缺少 id")
-                val note = storage.getNote(id) ?: return PersonalToolResult.Failure("笔记不存在")
+        val note = storage.getNote(id) ?: return PersonalToolResult.Failure("笔记不存在")
                 PersonalToolResult.Success("标题: ${note.title}\n内容: ${note.content}", note)
             }
             "delete" -> {
@@ -86,7 +86,7 @@ class PersonalNotesTool(
             }
             "search" -> {
                 val query = arguments["query"]?.toString() ?: ""
-                val results = storage.searchNotes(query)
+        val results = storage.searchNotes(query)
                 PersonalToolResult.Success(results.joinToString("\n") { "- [${it.id}] ${it.title}" })
             }
             else -> PersonalToolResult.Failure("未知操作: $action")
@@ -116,14 +116,14 @@ class PersonalSnippetsTool(
             }
             "add" -> {
                 val title = arguments["title"]?.toString() ?: return PersonalToolResult.Failure("缺少 title")
-                val code = arguments["code"]?.toString() ?: return PersonalToolResult.Failure("缺少 code")
+        val code = arguments["code"]?.toString() ?: return PersonalToolResult.Failure("缺少 code")
                 val language = arguments["language"]?.toString() ?: "text"
-                val snippet = storage.addSnippet(title, code, language)
+        val snippet = storage.addSnippet(title, code, language)
                 PersonalToolResult.Success("已保存代码片段: ${snippet.title}", snippet)
             }
             "get" -> {
                 val title = arguments["title"]?.toString() ?: return PersonalToolResult.Failure("缺少 title")
-                val snippet = storage.getSnippetByTitle(title) ?: return PersonalToolResult.Failure("片段不存在")
+        val snippet = storage.getSnippetByTitle(title) ?: return PersonalToolResult.Failure("片段不存在")
                 PersonalToolResult.Success("```${snippet.language}\n${snippet.code}\n```", snippet)
             }
             else -> PersonalToolResult.Failure("未知操作: $action")
@@ -149,15 +149,15 @@ class PersonalFavoritesTool(
         return when (action) {
             "list" -> {
                 val category = arguments["category"]?.toString()
-                val favs = if (category != null) storage.listFavoritesByCategory(category)
+        val favs = if (category != null) storage.listFavoritesByCategory(category)
                           else storage.listFavorites()
                 PersonalToolResult.Success(favs.joinToString("\n") { "- [${it.category}] ${it.title}: ${it.content.take(50)}" })
             }
             "add" -> {
                 val title = arguments["title"]?.toString() ?: return PersonalToolResult.Failure("缺少 title")
-                val content = arguments["content"]?.toString() ?: ""
+        val content = arguments["content"]?.toString() ?: ""
                 val category = arguments["category"]?.toString() ?: "general"
-                val fav = storage.addFavorite(title, content, category)
+        val fav = storage.addFavorite(title, content, category)
                 PersonalToolResult.Success("已添加收藏: ${fav.title}", fav)
             }
             "remove" -> {
@@ -188,9 +188,9 @@ class PersonalTodoTool(
         return when (action) {
             "list" -> {
                 val todos = storage.listTodos()
-                val pending = todos.filter { !it.done }
+        val pending = todos.filter { !it.done }
                 val completed = todos.filter { it.done }
-                val sb = StringBuilder()
+        val sb = StringBuilder()
                 if (pending.isNotEmpty()) {
                     sb.appendLine("待办:")
                     pending.forEach { sb.appendLine("  ☐ ${it.title} (优先级: ${it.priority})")
@@ -205,9 +205,9 @@ class PersonalTodoTool(
             }
             "add" -> {
                 val title = arguments["title"]?.toString() ?: return PersonalToolResult.Failure("缺少 title")
-                val priority = (arguments["priority"] as? Number)?.toInt() ?: 3
+        val priority = (arguments["priority"] as? Number)?.toInt() ?: 3
                 val dueDate = arguments["due_date"]?.toString()
-                val todo = storage.addTodo(title, priority, dueDate)
+        val todo = storage.addTodo(title, priority, dueDate)
                 PersonalToolResult.Success("已添加待办: ${todo.title}", todo)
             }
             "complete" -> {

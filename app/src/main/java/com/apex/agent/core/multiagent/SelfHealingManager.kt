@@ -31,13 +31,13 @@ class SelfHealingManager(private val context: Context) {
     private val activeRecoveries = ConcurrentHashMap<String, RecoveryAttempt>()
 
     private val _systemHealth = MutableStateFlow(SystemHealth())
-    val systemHealth: StateFlow<SystemHealth> = _systemHealth
+        val systemHealth: StateFlow<SystemHealth> = _systemHealth
 
     private val _recoveryEvents = MutableSharedFlow<RecoveryEvent>()
-    val recoveryEvents: SharedFlow<RecoveryEvent> = _recoveryEvents
+        val recoveryEvents: SharedFlow<RecoveryEvent> = _recoveryEvents
 
     private val _faultPredictions = MutableStateFlow<Map<String, Float>>(emptyMap())
-    val faultPredictions: StateFlow<Map<String, Float>> = _faultPredictions
+        val faultPredictions: StateFlow<Map<String, Float>> = _faultPredictions
 
     private var healthCheckJob: Job? = null
 
@@ -245,7 +245,6 @@ class SelfHealingManager(private val context: Context) {
 
     private fun evaluateHealth(health: AgentHealth) {
         val metrics = health.metrics
-
         val healthScore = calculateHealthScore(metrics)
 
         health.status = when {
@@ -276,7 +275,6 @@ class SelfHealingManager(private val context: Context) {
 
     private fun predictFailure(agentId: String) {
         val health = agentHealth[agentId] ?: return
-
         val failureFactors = mutableListOf<Float>()
 
         if (health.metrics.errorRate > 0.3f) {
@@ -357,7 +355,6 @@ class SelfHealingManager(private val context: Context) {
         }
 
         val bestStrategy = applicableStrategies.maxByOrNull { it.successRate } ?: return false
-
         val attempt = RecoveryAttempt(
             attemptId = UUID.randomUUID().toString(),
             faultId = faultRecord.faultId,
@@ -394,8 +391,7 @@ class SelfHealingManager(private val context: Context) {
 
             while (stepIndex < attempt.strategy.steps.size && attempt.status == RecoveryAttempt.RecoveryStatus.IN_PROGRESS) {
                 val step = attempt.strategy.steps[stepIndex]
-
-                val success = executeRecoveryStep(attempt, step)
+        val success = executeRecoveryStep(attempt, step)
 
                 if (success) {
                     attempt.completedSteps++
@@ -518,7 +514,6 @@ class SelfHealingManager(private val context: Context) {
         val allHealth = agentHealth.values.toList()
         val activeCount = allHealth.count { it.status != AgentHealth.HealthStatus.CRITICAL }
         val failingCount = allHealth.count { it.status == AgentHealth.HealthStatus.FAILING || it.status == AgentHealth.HealthStatus.CRITICAL }
-
         val overallHealthScore = if (allHealth.isNotEmpty()) {
             allHealth.map { calculateHealthScore(it.metrics) }.average().toFloat()
         } else {

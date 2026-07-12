@@ -168,7 +168,7 @@ class ExecutionEngineOptimizer(private val name: String = "exec-engine") {
     fun getWorkerInfo(): List<WorkerInfo> {
         return workerMetrics.map { (id, m) ->
             val totalTime = m.totalExecTimeMs.get()
-            val tasksDone = m.tasksCompleted.get()
+        val tasksDone = m.tasksCompleted.get()
             WorkerInfo(
                 workerId = id,
                 currentTask = m.currentTask,
@@ -228,7 +228,7 @@ class ExecutionEngineOptimizer(private val name: String = "exec-engine") {
         val queueStart = System.nanoTime()
         workerMetrics[workerId]?.currentTask = submission.id
         val job = scope.launch {
-            val queueWait = System.nanoTime() - queueStart
+        val queueWait = System.nanoTime() - queueStart
             counters.totalQueueWaitNs.addAndGet(queueWait)
             counters.queueCount.incrementAndGet()
             val execStart = System.nanoTime()
@@ -441,7 +441,7 @@ class ParallelExecutor(private val name: String = "parallel-exec") {
 class StreamingExecutor(private val name: String = "stream-exec") {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val _outputFlow = MutableSharedFlow<Any>(extraBufferCapacity = 64)
-    val outputFlow: SharedFlow<Any> = _outputFlow.asSharedFlow()
+        val outputFlow: SharedFlow<Any> = _outputFlow.asSharedFlow()
 
     private val processedCount = AtomicLong(0)
     private val droppedCount = AtomicLong(0)

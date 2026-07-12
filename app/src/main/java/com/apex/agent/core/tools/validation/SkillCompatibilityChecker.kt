@@ -140,7 +140,6 @@ class SkillCompatibilityChecker(private val context: Context) {
         }
 
         val isCompatible = currentMinSdk >= minSdk
-
         val message = when {
             currentMinSdk < minSdk -> "Current Android version (SDK ${currentMinSdk}) is below the required minimum (SDK ${minSdk})"
             currentTargetSdk < minSdk -> "Target SDK (${currentTargetSdk}) is below required minimum (SDK ${minSdk})"
@@ -173,10 +172,8 @@ class SkillCompatibilityChecker(private val context: Context) {
         }
 
         val canRequest = isDangerousPermission && !isGranted
-
         val minSdkForPermission = MIN_SDK_FOR_FEATURES[permission.name]
         val meetsMinSdk = minSdkForPermission?.let { Build.VERSION.SDK_INT >= it } ?: true
-
         val message = buildString {
             when {
                 isSystemPermission -> append("System permission - automatically granted")
@@ -207,7 +204,7 @@ class SkillCompatibilityChecker(private val context: Context) {
 
         return dependencies.map { dependency ->
             val isMet = availableSkillNames.contains(dependency)
-            val currentVersion = availableSkillVersions[dependency]
+        val currentVersion = availableSkillVersions[dependency]
 
             DependencyCheck(
                 dependencyName = dependency,
@@ -227,7 +224,6 @@ class SkillCompatibilityChecker(private val context: Context) {
         otherSkills: List<ToolPackage>
     ): List<ConflictCheck> {
         val conflicts = mutableListOf<ConflictCheck>()
-
         val knownConflicts = CONFLICTING_SKILLS[skill.name] ?: emptySet()
         otherSkills.forEach { otherSkill ->
             if (skill.name != otherSkill.name) {
@@ -243,7 +239,7 @@ class SkillCompatibilityChecker(private val context: Context) {
                 }
 
                 val skillToolNames = skill.tools.map { it.name }.toSet()
-                val otherToolNames = otherSkill.tools.map { it.name }.toSet()
+        val otherToolNames = otherSkill.tools.map { it.name }.toSet()
                 val duplicateTools = skillToolNames.intersect(otherToolNames)
 
                 if (duplicateTools.isNotEmpty()) {
@@ -305,7 +301,7 @@ class SkillCompatibilityChecker(private val context: Context) {
             appendLine()
 
             val grantedCount = report.permissionChecks.count { it.isGranted }
-            val totalCount = report.permissionChecks.size
+        val totalCount = report.permissionChecks.size
             appendLine("Permissions: ${grantedCount}/${totalCount} granted")
             report.permissionChecks.filter { !it.isGranted && it.permission.required }.forEach {
                 appendLine("  - Missing: ${it.permission.name}")
@@ -313,7 +309,7 @@ class SkillCompatibilityChecker(private val context: Context) {
             appendLine()
 
             val metDeps = report.dependencyChecks.count { it.isMet }
-            val totalDeps = report.dependencyChecks.size
+        val totalDeps = report.dependencyChecks.size
             appendLine("Dependencies: ${metDeps}/${totalDeps} satisfied")
             report.dependencyChecks.filter { !it.isMet }.forEach {
                 appendLine("  - Missing: ${it.dependencyName}")

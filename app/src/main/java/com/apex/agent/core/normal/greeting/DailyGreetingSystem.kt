@@ -24,11 +24,11 @@ import java.util.concurrent.ConcurrentHashMap
  */
 enum class GreetingType {
     TIME_BASED,      // 基于时段
-    DAILY_QUOTE,     // 每日一言
-    WEATHER_BASED,   // 基于天气
-    MOOD_BASED,      // 基于心情
-    FESTIVAL_BASED,  // 基于节日
-    RANDOM           // 随机问候
+                DAILY_QUOTE,     // 每日一言
+                WEATHER_BASED,   // 基于天气
+                MOOD_BASED,      // 基于心情
+                FESTIVAL_BASED,  // 基于节日
+                RANDOM           // 随机问候
 }
 
 /**
@@ -36,12 +36,12 @@ enum class GreetingType {
  */
 enum class TimeOfDay {
     EARLY_MORNING,   // 5-7
-    MORNING,         // 7-11
-    NOON,            // 11-13
-    AFTERNOON,       // 13-17
-    EVENING,         // 17-19
-    NIGHT,           // 19-23
-    LATE_NIGHT       // 23-5
+                MORNING,         // 7-11
+                NOON,            // 11-13
+                AFTERNOON,       // 13-17
+                EVENING,         // 17-19
+                NIGHT,           // 19-23
+                LATE_NIGHT       // 23-5
 }
 
 /**
@@ -71,14 +71,14 @@ data class DailyQuote(
 
 enum class QuoteCategory {
     PHILOSOPHY,    // 哲理
-    LITERATURE,    // 文学
-    SCIENCE,       // 科学
-    MOTIVATIONAL,  // 励志
-    HUMOROUS,      // 幽默
-    CLASSIC_POEM,  // 古诗
-    PROVERB,       // 谚语
-    MOVIE,         // 电影台词
-    ANIME          // 动漫台词
+                LITERATURE,    // 文学
+                SCIENCE,       // 科学
+                MOTIVATIONAL,  // 励志
+                HUMOROUS,      // 幽默
+                CLASSIC_POEM,  // 古诗
+                PROVERB,       // 谚语
+                MOVIE,         // 电影台词
+                ANIME          // 动漫台词
 }
 
 /**
@@ -88,7 +88,7 @@ class DailyGreetingSystem {
 
     private val quotes = mutableListOf<DailyQuote>()
     private val lastGreeting = ConcurrentHashMap<String, Long>()  // userId -> 上次问候时间
-    private val userNicknames = ConcurrentHashMap<String, String>()
+                private val userNicknames = ConcurrentHashMap<String, String>()
 
     init {
         loadBuiltinQuotes()
@@ -132,7 +132,7 @@ class DailyGreetingSystem {
      */
     fun getDailyRecommendation(userId: String): Greeting {
         // 根据上次问候时间决定类型
-        val last = lastGreeting[userId] ?: 0
+                val last = lastGreeting[userId] ?: 0
         val hoursSince = (System.currentTimeMillis() - last) / (60 * 60_000)
 
         return when {
@@ -158,8 +158,7 @@ class DailyGreetingSystem {
     }
 
     // ============ 生成方法 ============
-
-    private fun generateTimeGreeting(timeOfDay: TimeOfDay, personalization: String): Greeting {
+                private fun generateTimeGreeting(timeOfDay: TimeOfDay, personalization: String): Greeting {
         return when (timeOfDay) {
             TimeOfDay.EARLY_MORNING -> Greeting(
                 GreetingType.TIME_BASED, "清晨问候",
@@ -294,33 +293,33 @@ class DailyGreetingSystem {
     private fun loadBuiltinQuotes() {
         quotes.addAll(listOf(
             // 哲理
-            DailyQuote("q1", "我思故我在", "笛卡尔", QuoteCategory.PHILOSOPHY, "《第一哲学沉思集》"),
+                DailyQuote("q1", "我思故我在", "笛卡尔", QuoteCategory.PHILOSOPHY, "《第一哲学沉思集》"),
             DailyQuote("q2", "存在先于本质", "萨特", QuoteCategory.PHILOSOPHY, "《存在与虚无》"),
             DailyQuote("q3", "人是万物的尺度", "普罗泰戈拉", QuoteCategory.PHILOSOPHY),
             // 文学
-            DailyQuote("q4", "生活不止眼前的苟且，还有诗和远方", "高晓松", QuoteCategory.LITERATURE),
+                DailyQuote("q4", "生活不止眼前的苟且，还有诗和远方", "高晓松", QuoteCategory.LITERATURE),
             DailyQuote("q5", "愿你出走半生，归来仍是少年", "佚名", QuoteCategory.LITERATURE),
             // 励志
-            DailyQuote("q6", "千里之行，始于足下", "老子", QuoteCategory.MOTIVATIONAL, "《道德经》"),
+                DailyQuote("q6", "千里之行，始于足下", "老子", QuoteCategory.MOTIVATIONAL, "《道德经》"),
             DailyQuote("q7", "天行健，君子以自强不息", "《周易》", QuoteCategory.MOTIVATIONAL),
             DailyQuote("q8", "不积跬步，无以至千里", "荀子", QuoteCategory.MOTIVATIONAL, "《劝学》"),
             // 幽默
-            DailyQuote("q9", "我不是胖，我是可爱到膨胀", "佚名", QuoteCategory.HUMOROUS),
+                DailyQuote("q9", "我不是胖，我是可爱到膨胀", "佚名", QuoteCategory.HUMOROUS),
             DailyQuote("q10", "我不是在发呆，我是在下载灵感", "佚名", QuoteCategory.HUMOROUS),
             // 古诗
-            DailyQuote("q11", "床前明月光，疑是地上霜", "李白", QuoteCategory.CLASSIC_POEM, "《静夜思》"),
+                DailyQuote("q11", "床前明月光，疑是地上霜", "李白", QuoteCategory.CLASSIC_POEM, "《静夜思》"),
             DailyQuote("q12", "海内存知己，天涯若比邻", "王勃", QuoteCategory.CLASSIC_POEM, "《送杜少府之任蜀州》"),
             DailyQuote("q13", "落霞与孤鹜齐飞，秋水共长天一色", "王勃", QuoteCategory.CLASSIC_POEM, "《滕王阁序》"),
             // 谚语
-            DailyQuote("q14", "失败是成功之母", "佚名", QuoteCategory.PROVERB),
+                DailyQuote("q14", "失败是成功之母", "佚名", QuoteCategory.PROVERB),
             DailyQuote("q15", "条条大路通罗马", "西方谚语", QuoteCategory.PROVERB),
             // 电影
-            DailyQuote("q16", "希望是美好的，也许是人间至善", "《肖申克的救赎》", QuoteCategory.MOVIE),
+                DailyQuote("q16", "希望是美好的，也许是人间至善", "《肖申克的救赎》", QuoteCategory.MOVIE),
             DailyQuote("q17", "生活就像一盒巧克力", "《阿甘正传》", QuoteCategory.MOVIE),
             // 动漫
-            DailyQuote("q18", "只要你相信，就有可能", "《海贼王》", QuoteCategory.ANIME),
+                DailyQuote("q18", "只要你相信，就有可能", "《海贼王》", QuoteCategory.ANIME),
             // 科学
-            DailyQuote("q19", "想象力比知识更重要", "爱因斯坦", QuoteCategory.SCIENCE),
+                DailyQuote("q19", "想象力比知识更重要", "爱因斯坦", QuoteCategory.SCIENCE),
             DailyQuote("q20", "我们都生活在阴沟里，但仍有人仰望星空", "王尔德", QuoteCategory.PHILOSOPHY)
         ))
     }

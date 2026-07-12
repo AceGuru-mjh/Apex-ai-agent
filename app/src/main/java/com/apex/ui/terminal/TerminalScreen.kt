@@ -42,7 +42,7 @@ fun TerminalScreen(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // 左:水母 + 状态
-        Column(
+                Column(
             modifier = Modifier.width(200.dp).fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -59,14 +59,14 @@ fun TerminalScreen(
         }
 
         // 右:终端
-        Column(
+                Column(
             modifier = Modifier.weight(1f).fillMaxHeight()
                 .background(Color(0xFF060912), RoundedCornerShape(8.dp))
                 .border(1.dp, Color(0xFF1A2332), RoundedCornerShape(8.dp))
                 .padding(12.dp)
         ) {
             // 输出
-            LazyColumn(
+                LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
@@ -74,7 +74,7 @@ fun TerminalScreen(
             }
             Spacer(Modifier.height(8.dp))
             // 输入框
-            Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("❯ ", color = Color(0xFF00E5FF), fontSize = 13.sp, fontFamily = FontFamily.Monospace)
                 TextField(
                     value = inputText,

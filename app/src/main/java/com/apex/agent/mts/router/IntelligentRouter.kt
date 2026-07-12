@@ -41,7 +41,7 @@ class IntelligentRouter(
     companion object {
         private val intentPatterns = mapOf(
             // File operations
-            listOf("read", "open", "view", "show", "see", "content", "文本", "读取", "查看", "打开") to "read_file",
+                listOf("read", "open", "view", "show", "see", "content", "文本", "读取", "查看", "打开") to "read_file",
             listOf("write", "save", "create", "edit", "update", "修改", "写入", "保存", "编辑") to "write_file",
             listOf("list", "ls", "dir", "browse", "explore", "导航", "目录", "文件夹", "浏览") to "list_files",
             listOf("find", "search", "grep", "lookup", "locate", "搜索", "查找", "找") to "find_files",
@@ -52,21 +52,21 @@ class IntelligentRouter(
             listOf("zip", "compress", "压缩") to "zip_files",
             listOf("unzip", "extract", "解压") to "unzip_files",
             // UI operations
-            listOf("click", "tap", "press", "点", "点击", "按") to "click_element",
+                listOf("click", "tap", "press", "点", "点击", "按") to "click_element",
             listOf("swipe", "scroll", "slide", "滑", "滑动", "滚动") to "swipe",
             listOf("screenshot", "capture", "screen", "截图", "截屏", "屏幕") to "capture_screenshot",
             listOf("type", "input", "enter", "输入", "打字") to "set_input_text",
             // Web operations
-            listOf("web", "visit", "url", "http", "website", "网页", "网站", "访问", "http请求") to "visit_web",
+                listOf("web", "visit", "url", "http", "website", "网页", "网站", "访问", "http请求") to "visit_web",
             listOf("browser", "浏览器") to "browser_snapshot",
             // Device operations
-            listOf("device", "info", "phone", "设备", "信息", "手机") to "device_info",
+                listOf("device", "info", "phone", "设备", "信息", "手机") to "device_info",
             listOf("install", "安装", "app") to "install_app",
             listOf("uninstall", "卸载") to "uninstall_app",
             listOf("start", "launch", "open app", "启动", "打开应用") to "start_app",
             listOf("stop", "kill", "force stop", "停止", "关闭") to "stop_app",
             // Memory operations
-            listOf("remember", "memory", "memorize", "记忆", "记住", "回忆") to "query_memory",
+                listOf("remember", "memory", "memorize", "记忆", "记住", "回忆") to "query_memory",
             listOf("calculate", "calc", "math", "计算", "数学") to "calculate",
             listOf("notify", "notification", "通知", "推送") to "send_notification",
             listOf("intent", "broadcast", "意图", "广播") to "execute_intent",
@@ -165,7 +165,6 @@ class IntelligentRouter(
             candidates.filter { isToolAvailable(it.tool, context) }
         }
         val primary = filtered.firstOrNull()?.tool ?: candidates.firstOrNull()?.tool
-
         val suggestedChain = if (primary != null) {
             buildToolChain(primary, analysis, context)
         } else emptyList()
@@ -177,7 +176,7 @@ class IntelligentRouter(
         }
 
         val alternatives = if (context.agentMode == AgentMode.BERSERK && filtered.size > 1) {
-            val seen = mutableSetOf<String>()
+        val seen = mutableSetOf<String>()
             filtered.filter { seen.add(it.tool.category.id) }
         } else filtered
 

@@ -21,7 +21,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
 
     companion object {
         // 用于将会话名称映射到会话ID
-        private val sessionNameToIdMap = ConcurrentHashMap<String, String>()
+                private val sessionNameToIdMap = ConcurrentHashMap<String, String>()
     }
 
 
@@ -42,10 +42,10 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                 val terminal = Terminal.getInstance(context)
 
                 // 修正：直接检查Terminal 单例中是否已存在同名会话，而不是依赖本地缓的
-              val existingSession = terminal.terminalState.value.sessions.find { it.title == sessionName }
+                val existingSession = terminal.terminalState.value.sessions.find { it.title == sessionName }
                 if (existingSession != null) {
                     // 如果存在，更新本地缓存并返回该会的
-                  sessionNameToIdMap[sessionName] = existingSession.id
+                sessionNameToIdMap[sessionName] = existingSession.id
                     return@runBlocking ToolResult(
                         toolName = tool.name,
                         success = true,
@@ -58,7 +58,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                 }
 
                 // 如果 Terminal 中不存在，则创建新会的
-              val newSessionId = terminal.createSession(sessionName)
+                val newSessionId = terminal.createSession(sessionName)
                 sessionNameToIdMap[sessionName] = newSessionId
 
                 ToolResult(
@@ -87,7 +87,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
         return runBlocking(Dispatchers.IO) {
             try {
                 val command = tool.parameters.find { param -> param.name == "command" }?.value ?: ""
-                val sessionId = tool.parameters.find { param -> param.name == "session_id" }?.value
+        val sessionId = tool.parameters.find { param -> param.name == "session_id" }?.value
 
                 if (sessionId.isNullOrBlank()) {
                     return@runBlocking ToolResult(
@@ -104,13 +104,12 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                                 ?.value
                                 ?.toLongOrNull()
                                 ?: 1800000L // 30 分钟
-
                 val terminal = Terminal.getInstance(context)
 
                 // 检查会话是否存储
-               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
+                if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
                     // 如果会话不存在，也从我们的映射中移除
-                    sessionNameToIdMap.entries.removeIf { it.value == sessionId }
+                sessionNameToIdMap.entries.removeIf { it.value == sessionId }
                     return@runBlocking ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -223,14 +222,14 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                         ?: 120000L
 
                 val terminal = Terminal.getInstance(context)
-                val hiddenResult =
+        val hiddenResult =
                     terminal.executeHiddenCommand(
                         command = command,
                         executorKey = executorKey,
                         timeoutMs = timeoutMs
                     )
                 val output = extractHiddenExecOutput(hiddenResult)
-                val didTimeout = hiddenResult.state == HiddenExecResult.State.TIMEOUT
+        val didTimeout = hiddenResult.state == HiddenExecResult.State.TIMEOUT
                 val errorMessage =
                     when {
                         didTimeout ->
@@ -290,9 +289,9 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                 }
 
                 val inputParam = tool.parameters.find { it.name == "input" }
-                val hasInput = inputParam != null
+        val hasInput = inputParam != null
                 val input = inputParam?.value ?: ""
-                val control = normalizeControl(tool.parameters.find { it.name == "control" }?.value)
+        val control = normalizeControl(tool.parameters.find { it.name == "control" }?.value)
 
                 if (!hasInput && control == null) {
                     return@runBlocking ToolResult(
@@ -306,7 +305,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                 val terminal = Terminal.getInstance(context)
 
                 // 检查会话是否存储
-               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
+                if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
                     sessionNameToIdMap.entries.removeIf { it.value == sessionId }
                     return@runBlocking ToolResult(
                         toolName = tool.name,
@@ -410,7 +409,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                 }
 
                 val terminal = Terminal.getInstance(context)
-                val session = terminal.terminalState.value.sessions.find { it.id == sessionId }
+        val session = terminal.terminalState.value.sessions.find { it.id == sessionId }
                 if (session == null) {
                     sessionNameToIdMap.entries.removeIf { it.value == sessionId }
                     return@runBlocking ToolResult(
@@ -422,9 +421,9 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                 }
 
                 val screen = session.ansiParser.getScreenContent()
-                val content = renderSingleScreen(screen)
+        val content = renderSingleScreen(screen)
                 val rows = screen.size
-                val cols = if (rows > 0) screen[0].size else 0
+        val cols = if (rows > 0) screen[0].size else 0
                 val commandRunning = session.currentExecutingCommand?.isExecuting == true
 
                 ToolResult(

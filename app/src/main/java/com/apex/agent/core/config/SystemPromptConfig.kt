@@ -278,7 +278,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
           customIntroPrompt: String
   ): String {
     // Always replace the introduction placeholder so an empty intro removes it cleanly.
-    var result = systemPrompt
+                var result = systemPrompt
 
     result = result.replace("BEGIN_SELF_INTRODUCTION_SECTION", customIntroPrompt)
 
@@ -338,7 +338,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
           dispatchToolPromptComposeHooks: (PromptHookContext) -> PromptHookContext = PromptHookRegistry::dispatchToolPromptComposeHooks
   ): String {
     val importedPackages = packageManager.getImportedPackages()
-    val packageSystemVisible = enableTools && (toolVisibility["use_package"] ?: true)
+        val packageSystemVisible = enableTools && (toolVisibility["use_package"] ?: true)
     val mcpServers = packageManager.getAvailableServerPackages().filterKeys { serverName ->
         allowedMcpServerNames?.contains(serverName) ?: true
     }
@@ -353,28 +353,28 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     }
 
     // Build the available packages section
-    val packagesSection = StringBuilder()
+                val packagesSection = StringBuilder()
 
     // Filter out imported packages that no longer exist in availablePackages
-    val validImportedPackages = importedPackages.filter { packageName ->
+                val validImportedPackages = importedPackages.filter { packageName ->
         packageManager.getPackageTools(packageName) != null &&
             !packageManager.isToolPkgContainer(packageName) &&
             (allowedPackageNames?.contains(packageName) ?: true)
     }
 
     // Check if any packages (JS, MCP, or Skills) are available
-    val hasPackages = packageSystemVisible &&
+                val hasPackages = packageSystemVisible &&
         (validImportedPackages.isNotEmpty() || mcpServers.isNotEmpty() || skillPackages.isNotEmpty())
 
     if (hasPackages) {
       packagesSection.appendLine("Available packages:")
 
       // List imported JS packages (only those that still exist)
-      for (packageName in validImportedPackages) {
+                for (packageName in validImportedPackages) {
         val packageTools = packageManager.getPackageTools(packageName)
         if (packageTools != null) {
           val preferredLanguage = if (useEnglish) "en" else "zh"
-          val resolvedDescription = try {
+        val resolvedDescription = try {
               packageTools.description.resolve(preferredLanguage)
           } catch (_: Exception) {
               packageTools.description.toString()
@@ -384,12 +384,12 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
       }
 
       // List available MCP servers as regular packages
-      for ((serverName, serverConfig) in mcpServers) {
+                for ((serverName, serverConfig) in mcpServers) {
         packagesSection.appendLine("- ${serverName} : ${serverConfig.description}")
       }
 
       // List available Skills as regular packages
-      for ((skillName, skill) in skillPackages) {
+                for ((skillName, skill) in skillPackages) {
         if (skill.description.isNotBlank()) {
           packagesSection.appendLine("- ${skillName} : ${skill.description}")
         } else {
@@ -402,7 +402,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
 
     if (packageSystemVisible) {
       // Information about using packages
-      packagesSection.appendLine()
+                packagesSection.appendLine()
       packagesSection.appendLine("To use a package:")
       packagesSection.appendLine(
               "<tool name=\"use_package\"><param name=\"package_name\">package_name_here</param></tool>"
@@ -410,16 +410,15 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     }
 
     // Select appropriate template based on custom template or language preference
-    val templateToUse = if (customSystemPromptTemplate.isNotEmpty()) {
+                val templateToUse = if (customSystemPromptTemplate.isNotEmpty()) {
         customSystemPromptTemplate
     } else {
         if (useEnglish) SYSTEM_PROMPT_TEMPLATE else SYSTEM_PROMPT_TEMPLATE_CN
     }
     val thinkingGuidancePromptToUse = if (useEnglish) THINKING_GUIDANCE_PROMPT else THINKING_GUIDANCE_PROMPT_CN
-    val defaultBehaviorGuidelines = if (useEnglish) BEHAVIOR_GUIDELINES_EN else BEHAVIOR_GUIDELINES_CN
+        val defaultBehaviorGuidelines = if (useEnglish) BEHAVIOR_GUIDELINES_EN else BEHAVIOR_GUIDELINES_CN
     val behaviorGuidelines = getBehaviorGuidelines(useEnglish, disableStatusTags)
-
-    val workspaceRuleFile =
+        val workspaceRuleFile =
         WorkspaceAttachmentProcessor.readWorkspaceRootRuleFile(
             context = context,
             workspacePath = workspacePath,
@@ -427,7 +426,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
         )
 
     // Generate workspace guidelines
-    val workspaceGuidelines = getWorkspaceGuidelines(
+                val workspaceGuidelines = getWorkspaceGuidelines(
         context = context,
         workspacePath = workspacePath,
         workspaceEnv = workspaceEnv,
@@ -437,13 +436,13 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     )
 
     // Build prompt with appropriate sections
-    var prompt = templateToUse
+                var prompt = templateToUse
         .replace(defaultBehaviorGuidelines, behaviorGuidelines)
         .replace("ACTIVE_PACKAGES_SECTION", if (enableTools) packagesSection.toString() else "")
         .replace("WORKSPACE_GUIDELINES_SECTION", workspaceGuidelines)
             
     // Add thinking guidance section if enabled
-    prompt =
+                prompt =
             if (thinkingGuidance) {
                 prompt.replace("THINKING_GUIDANCE_SECTION", thinkingGuidancePromptToUse)
             } else {
@@ -452,7 +451,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
 
     // Determine the available tools string based on memory query setting and image recognition
     // 当使用Tool Call API时，不在系统提示词中包含工具描述（工具已通过API的tools字段发送"),
-    val availableToolsEn = if (useToolCallApi) "" else (
+                val availableToolsEn = if (useToolCallApi) "" else (
         if (enableMemoryQuery) {
             getMemoryToolsEn(toolVisibility) +
                 getAvailableToolsEn(
@@ -510,9 +509,9 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     )
 
     // Handle tools disable/enable
-    if (enableTools) {
+                if (enableTools) {
         // 当使用Tool Call API时，使用简化的工具使用指南（保存调用前描述的重要指示），移除XML格式说明和工具列
-        if (useToolCallApi) {
+                if (useToolCallApi) {
             val packageGuidelines =
                 if (useEnglish) {
                     PACKAGE_SYSTEM_GUIDELINES_TOOL_CALL_EN
@@ -539,7 +538,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     } else {
         if (enableMemoryQuery) {
             // Only memory tools are available, package system is disabled
-            prompt = prompt
+                prompt = prompt
                 .replace("TOOL_USAGE_GUIDELINES_SECTION", getToolUsageGuidelines(useEnglish, disableStatusTags))
                 .replace("PACKAGE_SYSTEM_GUIDELINES_SECTION", "")
                 .replace(
@@ -549,7 +548,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
         } else {
             // Remove all guidance sections when tools and memory are disabled
             // Replace tool-related sections and remove behavior guidelines and workspace guidelines
-            prompt = prompt
+                prompt = prompt
                 .replace("TOOL_USAGE_GUIDELINES_SECTION", "")
                 .replace("PACKAGE_SYSTEM_GUIDELINES_SECTION", "")
                 .replace("AVAILABLE_TOOLS_SECTION", "")
@@ -569,7 +568,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     }
 
     // Clean up multiple consecutive blank lines (replace 3+ newlines with 2)
-    prompt = prompt.replace(Regex("\n{3,}"), "\n\n")
+                prompt = prompt.replace(Regex("\n{3,}"), "\n\n")
 
     return prompt
   }
@@ -618,9 +617,9 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
       workspaceRuleFileContent: String = ""
   ): String {
       val envLabel = workspaceEnv?.trim().orEmpty().ifBlank { "android" }
-      val shouldShowEnv = envLabel.isNotBlank()
+        val shouldShowEnv = envLabel.isNotBlank()
         val externalStoragePath = context.getExternalFilesDir(null)?.absolutePath ?: "/sdcard"
-      val appFilesPath = context.filesDir.absolutePath
+        val appFilesPath = context.filesDir.absolutePath
       return if (!workspacePath.isNullOrBlank()) {
           val baseGuidelines =
               if (useEnglish) {
@@ -786,7 +785,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
             )
         )
     val afterComposePrompt = composeContext.systemPrompt ?: composedPrompt
-    val afterContext =
+        val afterContext =
         dispatchSystemPromptComposeHooks(
             composeContext.copy(
                 stage = "after_compose_system_prompt",

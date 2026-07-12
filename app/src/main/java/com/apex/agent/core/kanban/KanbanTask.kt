@@ -18,31 +18,31 @@ class KanbanTask(
     var columnId: String,
     var order: Int = 0,
     // 任务状态
-    var status: KanbanTaskStatus = KanbanTaskStatus.PENDING,
+                var status: KanbanTaskStatus = KanbanTaskStatus.PENDING,
     // 分配信息
-    var assignedWorkerId: String? = null,
+                var assignedWorkerId: String? = null,
     var assignedAgentId: String? = null,
     var assignedAgentName: String? = null,
     var assignedRole: AgentRole? = null,
     // 任务属态
-    var priority: Int = 3,  // 1-5, 1 最高
-    var taskType: String = "general",
+                var priority: Int = 3,  // 1-5, 1 最高
+                var taskType: String = "general",
     val tags: MutableList<String> = mutableListOf(),
     // 依赖关系
-    val dependencies: MutableList<String> = mutableListOf(),  // 依赖的任务ID
-    val blockingTasks: MutableList<String> = mutableListOf(),  // 阻塞此任务的任务 ID
+                val dependencies: MutableList<String> = mutableListOf(),  // 依赖的任务ID
+                val blockingTasks: MutableList<String> = mutableListOf(),  // 阻塞此任务的任务 ID
     // 结果和输出
-    var result: TaskResult? = null,
+                var result: TaskResult? = null,
     var outputArtifacts: MutableList<TaskArtifact> = mutableListOf(),
     // 时间追踪
-    val createdAt: Long = System.currentTimeMillis(),
+                val createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis(),
     var startedAt: Long? = null,
     var completedAt: Long? = null,
     var estimatedMinutes: Int = 60,
     var actualMinutes: Int = 0,
     // 协作跟踪
-    var collaborationHistory: MutableList<CollaborationEvent> = mutableListOf()
+                var collaborationHistory: MutableList<CollaborationEvent> = mutableListOf()
 ) {
     /**
      * 分配结Worker/Agent
@@ -147,7 +147,7 @@ class KanbanTask(
         return dependencies.any { depId ->
             // 这里依赖外部的看板状态来判断
             // 实际使用时需要传入相关任务的状态
-            blockingTasks.contains(depId)
+                blockingTasks.contains(depId)
         }
     }
 
@@ -185,12 +185,12 @@ class KanbanTask(
  */
 enum class KanbanTaskStatus {
     PENDING,       // 待处理
-    ASSIGNED,      // 已分配
-    IN_PROGRESS,   // 进行为
-    COMPLETED,     // 已完成
-    FAILED,        // 失败
-    BLOCKED,       // 阻塞
-    CANCELLED      // 取消
+                ASSIGNED,      // 已分配
+                IN_PROGRESS,   // 进行为
+                COMPLETED,     // 已完成
+                FAILED,        // 失败
+                BLOCKED,       // 阻塞
+                CANCELLED      // 取消
 }
 
 /**
@@ -210,7 +210,7 @@ data class TaskArtifact(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
     val type: String,  // "file", "data", "link", etc.
-    val path: String? = null,
+                val path: String? = null,
     val content: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

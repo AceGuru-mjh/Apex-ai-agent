@@ -44,8 +44,7 @@ class CommandHistory(private val maxSize: Int = 50) {
 
     private val undoStack = Stack<CommandEntry<*>>()
     private val redoStack = Stack<CommandEntry<*>>()
-
-    val undoCount: Int get() = undoStack.size
+        val undoCount: Int get() = undoStack.size
     val redoCount: Int get() = redoStack.size
 
     /** 推入执行历史 */

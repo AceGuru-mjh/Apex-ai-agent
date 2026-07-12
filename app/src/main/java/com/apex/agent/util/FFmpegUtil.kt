@@ -25,7 +25,7 @@ object FFmpegUtil {
         try {
             AppLogger.d(TAG, "Executing FFmpeg command: ${command}")
             val session = FFmpegKit.execute(command)
-            val returnCode = session.returnCode
+        val returnCode = session.returnCode
 
             if (ReturnCode.isSuccess(returnCode)) {
                 AppLogger.d(TAG, "FFmpeg command executed successfully")

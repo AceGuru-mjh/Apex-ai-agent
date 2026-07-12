@@ -16,13 +16,13 @@ class MessageBus(private val context: android.content.Context) {
         }
 
     private val _messages = MutableStateFlow<Map<String, BusMessage>>(emptyMap())
-    val messages: StateFlow<List<BusMessage>> = _messages.map { it.values.toList() }.stateIn(
+        val messages: StateFlow<List<BusMessage>> = _messages.map { it.values.toList() }.stateIn(
         scope, SharingStarted.Eagerly, emptyList()
     )
 
     private val _subscribers = ConcurrentHashMap<String, MutableSharedFlow<BusMessage>>()
     private val _pendingMessages = MutableStateFlow<Map<String, BusMessage>>(emptyMap())
-    val pendingMessages: StateFlow<List<BusMessage>> = _pendingMessages.map { it.values.toList() }
+        val pendingMessages: StateFlow<List<BusMessage>> = _pendingMessages.map { it.values.toList() }
         .stateIn(scope, SharingStarted.Eagerly, emptyList())
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())

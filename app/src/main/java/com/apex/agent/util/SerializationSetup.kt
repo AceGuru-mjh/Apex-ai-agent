@@ -12,6 +12,6 @@ object SerializationSetup {
      */
     val module = SerializersModule {
         // Register the IntRange serializer as a contextual serializer
-        contextual(IntRangeSerializer)
+                contextual(IntRangeSerializer)
     }
 } 

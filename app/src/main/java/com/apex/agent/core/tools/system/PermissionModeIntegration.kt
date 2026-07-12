@@ -20,14 +20,14 @@ object PermissionModeIntegration {
     private var isInitialized = false
 
     // 管理器实例
-    private lateinit var modeManager: PermissionModeManager
+                private lateinit var modeManager: PermissionModeManager
     private lateinit var backupManager: PermissionConfigBackupManager
     private lateinit var smartSwitcher: SmartModeSwitcher
     private lateinit var advisor: PermissionModeAdvisor
 
     // 状态流
-    private val _isReady = androidx.compose.runtime.mutableStateOf(false)
-    val isReady: androidx.compose.runtime.State<Boolean> = _isReady
+                private val _isReady = androidx.compose.runtime.mutableStateOf(false)
+        val isReady: androidx.compose.runtime.State<Boolean> = _isReady
 
     /**
      * 初始化权限模式系结
@@ -43,35 +43,35 @@ object PermissionModeIntegration {
             AppLogger.d(TAG, "开始初始化权限模式系统...")
 
             // 1. 初始化增强的偏好管理
-            initEnhancedPermissionPreferences(context)
+                initEnhancedPermissionPreferences(context)
             AppLogger.d(TAG, "✓增强偏好管理初始化完成")
 
             // 2. 初始化RootManager
-            RootManager.initialize(context)
+                RootManager.initialize(context)
             AppLogger.d(TAG, "✓RootManager 初始化完成")
 
             // 3. 初始化ShizukuManager
-            ShizukuManager.initialize()
+                ShizukuManager.initialize()
             AppLogger.d(TAG, "✓ShizukuManager 初始化完成")
 
             // 4. 初始化PermissionModeManager
-            modeManager = PermissionModeManager.getInstance(context)
+                modeManager = PermissionModeManager.getInstance(context)
             AppLogger.d(TAG, "✓PermissionModeManager 初始化完成")
 
             // 5. 初始化备份管理器
-            backupManager = PermissionConfigBackupManager(context)
+                backupManager = PermissionConfigBackupManager(context)
             AppLogger.d(TAG, "✓PermissionConfigBackupManager 初始化完成")
 
             // 6. 初始化智能切换器
-            smartSwitcher = SmartModeSwitcher(modeManager)
+                smartSwitcher = SmartModeSwitcher(modeManager)
             AppLogger.d(TAG, "✓SmartModeSwitcher 初始化完成")
 
             // 7. 初始化建议器
-            advisor = PermissionModeAdvisor(modeManager)
+                advisor = PermissionModeAdvisor(modeManager)
             AppLogger.d(TAG, "✓PermissionModeAdvisor 初始化完成")
 
             // 8. 预加载执行器（不阻塞主线程）
-            integrationScope.launch {
+                integrationScope.launch {
                 try {
                     val factory = PermissionModeExecutorFactory.getInstance(context)
                     factory.preloadExecutors()
@@ -82,7 +82,7 @@ object PermissionModeIntegration {
             }
 
             // 9. 初始检测
-            integrationScope.launch {
+                integrationScope.launch {
                 try {
                     modeManager.checkAllModes(forceRefresh = false)
                     _isReady.value = true

@@ -94,7 +94,7 @@ class DragonBonesAvatarController(
     }
 
     // `lookAt` is not supported by the DragonBones implementation.
-    override fun lookAt(x: Float, y: Float) {
+                override fun lookAt(x: Float, y: Float) {
         // No-op
     }
 
@@ -141,7 +141,7 @@ class DragonBonesAvatarController(
         triggerAnimationMapping =
             mapping.entries.mapNotNull { (rawKey, rawAnimationName) ->
                 val key = AvatarMoodTypes.normalizeKey(rawKey)
-                val animationName = rawAnimationName.trim()
+        val animationName = rawAnimationName.trim()
                 if (key.isBlank() || animationName.isBlank()) {
                     return@mapNotNull null
                 }

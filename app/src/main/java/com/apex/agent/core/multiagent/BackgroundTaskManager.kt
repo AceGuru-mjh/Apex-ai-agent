@@ -36,7 +36,7 @@ class BackgroundTaskManager {
         }
 
         // 这里可以添加取消任务的逻辑
-        tasks[taskId] = TaskInfo(taskId, TaskStatus.CANCELLED)
+                tasks[taskId] = TaskInfo(taskId, TaskStatus.CANCELLED)
         return true
     }
 

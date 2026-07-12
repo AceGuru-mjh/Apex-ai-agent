@@ -255,7 +255,7 @@ fun File.listFilesRecursive(filter: ((File) -> Boolean)? = null): List<File> {
 fun File.findFiles(pattern: String, maxDepth: Int = Int.MAX_VALUE): List<File> {
     if (!isDirectory) return emptyList()
     val matcher = FileSystems.getDefault().getPathMatcher("glob:**/$pattern")
-    val result = mutableListOf<File>()
+        val result = mutableListOf<File>()
     Files.walkFileTree(toPath(), setOf(java.nio.file.FileVisitOption.FOLLOW_LINKS), maxDepth,
         object : SimpleFileVisitor<Path>() {
             override fun visitFile(file: Path, attrs: BasicFileAttributes): java.nio.file.FileVisitResult {
@@ -355,7 +355,7 @@ fun File.ensureDirectoryExists(): File {
 fun File.splitBySize(maxSize: Long): List<File> {
     if (!exists() || length() <= maxSize) return listOf(this)
     val parts = mutableListOf<File>()
-    val buffer = ByteArray(8192)
+        val buffer = ByteArray(8192)
     var partIndex = 0
     inputStream().use { input ->
         var output: FileOutputStream? = null

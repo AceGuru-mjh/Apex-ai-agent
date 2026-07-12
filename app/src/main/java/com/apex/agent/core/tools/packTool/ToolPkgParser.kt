@@ -206,7 +206,7 @@ internal object ToolPkgArchiveParser {
 
         manifest.subpackages.forEach { subpackage ->
             val rawSubpackageId = subpackage.id.trim()
-            val subpackageErrorKey =
+        val subpackageErrorKey =
                 if (rawSubpackageId.isNotBlank()) rawSubpackageId else "${manifest.toolpkgId}:unknown_subpackage"
 
             if (rawSubpackageId.isBlank()) {
@@ -225,7 +225,7 @@ internal object ToolPkgArchiveParser {
             }
 
             val normalizedSubpackageId = rawSubpackageId
-            val packageName = normalizedSubpackageId
+        val packageName = normalizedSubpackageId
 
             try {
                 val entryBytes =
@@ -234,8 +234,7 @@ internal object ToolPkgArchiveParser {
                             "Cannot find subpackage entry '${subpackage.entry}'"
                         )
                 val jsContent = entryBytes.toString(StandardCharsets.UTF_8)
-
-                val parsedPackage =
+        val parsedPackage =
                     parseJsPackage(jsContent) { _, error ->
                         reportPackageLoadError(packageName, "${sourcePath}:${subpackage.entry}: ${error}")
                     }
@@ -244,8 +243,7 @@ internal object ToolPkgArchiveParser {
                         )
 
                 val resolvedDescription = parsedPackage.description
-
-                val resolvedDisplayName =
+        val resolvedDisplayName =
                     if (hasLocalizedTextContent(parsedPackage.displayName)) {
                         parsedPackage.displayName
                     } else {
@@ -336,7 +334,7 @@ internal object ToolPkgArchiveParser {
             }
 
             val runtimeName = module.runtime.trim().ifBlank { TOOLPKG_RUNTIME_COMPOSE_DSL }
-            val normalizedScreenPath =
+        val normalizedScreenPath =
                 normalizeZipEntryPath(module.screen)
                     ?: throw IllegalArgumentException(
                         "${TOOLPKG_REGISTRATION_TOOLBOX_UI_MODULE}[${index}].screen is invalid: ${module.screen}"
@@ -369,7 +367,7 @@ internal object ToolPkgArchiveParser {
             }
 
             val event = hook.event.trim().lowercase()
-            val function = hook.function.trim()
+        val function = hook.function.trim()
             if (event.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].event is required")
             }
@@ -423,7 +421,7 @@ internal object ToolPkgArchiveParser {
             }
 
             val tag = hook.tag.trim().lowercase()
-            val function = hook.function.trim()
+        val function = hook.function.trim()
             if (tag.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_XML_RENDER_PLUGIN}[${index}].tag is required")
             }
@@ -712,7 +710,7 @@ internal object ToolPkgArchiveParser {
         ZipInputStream(input.buffered()).use { zipInput ->
             while (true) {
                 val entry = zipInput.nextEntry ?: break
-                val normalizedName = normalizeZipEntryPath(entry.name)
+        val normalizedName = normalizeZipEntryPath(entry.name)
                 if (!entry.isDirectory && normalizedName != null) {
                     entries[normalizedName] = zipInput.readBytes()
                 }
@@ -763,7 +761,7 @@ internal object ToolPkgArchiveParser {
                     continue
                 }
                 val normalizedEntry = normalizeZipEntryPath(entry.name) ?: continue
-                val outputFile = File(destinationDir, normalizedEntry)
+        val outputFile = File(destinationDir, normalizedEntry)
                 val parent = outputFile.parentFile
                 if (parent != null && !parent.exists()) {
                     parent.mkdirs()
@@ -794,7 +792,7 @@ internal object ToolPkgArchiveParser {
                     val normalizedEntry = normalizeZipEntryPath(entry.name)
                     if (normalizedEntry != null) {
                         val outputFile = File(destinationDir, normalizedEntry)
-                        val parent = outputFile.parentFile
+        val parent = outputFile.parentFile
                         if (parent != null && !parent.exists()) {
                             parent.mkdirs()
                         }

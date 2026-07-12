@@ -67,23 +67,24 @@ class MessageCoordinationDelegate(
     }
 
     // 总结状态（使用 summarizeHistory 时）
-    private val _isSummarizing = MutableStateFlow(false)
-    val isSummarizing: StateFlow<Boolean> = _isSummarizing.asStateFlow()
+                private val _isSummarizing = MutableStateFlow(false)
+        val isSummarizing: StateFlow<Boolean> = _isSummarizing.asStateFlow()
 
     private val _summarizingChatId = MutableStateFlow<String?>(null)
-    val summarizingChatId: StateFlow<String?> = _summarizingChatId.asStateFlow()
+        val summarizingChatId: StateFlow<String?> = _summarizingChatId.asStateFlow()
 
     // 发送消息触发的异步总结状态（使用 launchAsyncSummaryForSend 时）
-    private val _isSendTriggeredSummarizing = MutableStateFlow(false)
-    val isSendTriggeredSummarizing: StateFlow<Boolean> = _isSendTriggeredSummarizing.asStateFlow()
+                private val _isSendTriggeredSummarizing = MutableStateFlow(false)
+        val isSendTriggeredSummarizing: StateFlow<Boolean> = _isSendTriggeredSummarizing.asStateFlow()
 
     private val _sendTriggeredSummarizingChatId = MutableStateFlow<String?>(null)
-    val sendTriggeredSummarizingChatId: StateFlow<String?> = _sendTriggeredSummarizingChatId.asStateFlow()
+        val sendTriggeredSummarizingChatId: StateFlow<String?> = _sendTriggeredSummarizingChatId.asStateFlow()
 
     // 保存总结任务，Job 引用，用于取消   private var summaryJob: Job? = null
-    private var sendTriggeredSummaryJob: Job? = null
+                private var sendTriggeredSummaryJob: Job? = null
 
-    // 保存当前，promptFunctionType，用于自动继续时保持提示词一致，    private var currentPromptFunctionType: PromptFunctionType = PromptFunctionType.CHAT
+    // 保存当前，promptFunctionType，用于自动继续时保持提示词一致，
+                private var currentPromptFunctionType: PromptFunctionType = PromptFunctionType.CHAT
     private var currentChatModelConfigIdOverride: String? = null
     private var currentChatModelIndexOverride: Int? = null
 
@@ -259,19 +260,19 @@ class MessageCoordinationDelegate(
         chatModelIndexOverride: Int? = null
     ) {
         // 仅在没有指定 chatId 的情况下，才需要确保有当前对话
-        if (chatIdOverride.isNullOrBlank() && chatHistoryDelegate.currentChatId.value == null) {
+                if (chatIdOverride.isNullOrBlank() && chatHistoryDelegate.currentChatId.value == null) {
             AppLogger.d(TAG, "当前没有活跃对话，自动创建新对话")
 
             // 使用 coroutineScope 启动协程
-            coroutineScope.launch {
+                coroutineScope.launch {
                 // 使用现有的createNewChat方法创建新对象
-               chatHistoryDelegate.createNewChat()
+                chatHistoryDelegate.createNewChat()
 
                 // 等待对话ID更新
                 var waitCount = 0
                 while (chatHistoryDelegate.currentChatId.value == null && waitCount < 10) {
                     delay(100) // 短暂延迟等待对话创建完成
-                    waitCount++
+                waitCount++
                 }
 
                 if (chatHistoryDelegate.currentChatId.value == null) {
@@ -286,7 +287,7 @@ class MessageCoordinationDelegate(
                 )
 
                 // 对话创建完成后，发送消，
-               sendMessageInternal(
+                sendMessageInternal(
                     promptFunctionType,
                     roleCardIdOverride = roleCardIdOverride,
                     chatIdOverride = chatIdOverride,
@@ -298,7 +299,7 @@ class MessageCoordinationDelegate(
             }
         } else {
             // 已有对话，直接发送消，
-           sendMessageInternal(
+                sendMessageInternal(
                 promptFunctionType,
                 roleCardIdOverride = roleCardIdOverride,
                 chatIdOverride = chatIdOverride,
@@ -331,13 +332,13 @@ class MessageCoordinationDelegate(
         groupParticipantNamesText: String? = null
     ) {
         // 如果不是自动续写，更新当前的 promptFunctionType
-        if (!isAutoContinuation) {
+                if (!isAutoContinuation) {
             currentPromptFunctionType = promptFunctionType
         }
         val isBackgroundSend =
             !chatIdOverride.isNullOrBlank() && chatIdOverride != chatHistoryDelegate.currentChatId.value
         // 获取当前聊天ID和工作区路径
-        val chatId = chatIdOverride ?: chatHistoryDelegate.currentChatId.value
+                val chatId = chatIdOverride ?: chatHistoryDelegate.currentChatId.value
         if (chatId == null) {
             uiStateDelegate.showErrorMessage(context.getString(R.string.chat_no_active_conversation))
             return
@@ -391,13 +392,13 @@ class MessageCoordinationDelegate(
 
         if (!isBackgroundSend) {
             // 更新本地Web服务器的聊天ID
-            uiBridge.updateWebServerForCurrentChat(chatId)
+                uiBridge.updateWebServerForCurrentChat(chatId)
         }
 
         // 获取当前附件列表
-        val currentAttachments = if (isBackgroundSend) emptyList() else attachmentDelegate.attachments.value
+                val currentAttachments = if (isBackgroundSend) emptyList() else attachmentDelegate.attachments.value
         // 角色卡和群组地位相等，都可以及null，优先使，override，否则使用当前活跃的角色卡（可能力null，
-       val roleCardId = roleCardIdOverride?.takeIf { it.isNotBlank() }
+                val roleCardId = roleCardIdOverride?.takeIf { it.isNotBlank() }
             ?: runBlocking(Dispatchers.IO) { activePromptManager.resolveActiveCardIdForSend() }
         val (resolvedChatModelConfigIdOverride, resolvedChatModelIndexOverride) = try {
             if (promptFunctionType == PromptFunctionType.CHAT) {
@@ -429,15 +430,14 @@ class MessageCoordinationDelegate(
         }
 
         // 当前请求使用的Token使用率阈值，默认使用配置，
-       var tokenUsageThresholdForSend = apiConfigDelegate.summaryTokenThreshold.value.toDouble()
+                var tokenUsageThresholdForSend = apiConfigDelegate.summaryTokenThreshold.value.toDouble()
 
         // 如果不是续写，检查是否需要总结
-        if (!isBackgroundSend && !isContinuation && !skipSummaryCheck) {
+                if (!isBackgroundSend && !isContinuation && !skipSummaryCheck) {
             val currentMessages = chatHistoryDelegate.chatHistory.value
-            val currentTokens = tokenStatsDelegate.currentWindowSizeFlow.value
+        val currentTokens = tokenStatsDelegate.currentWindowSizeFlow.value
             val maxTokens = (apiConfigDelegate.contextLength.value * 1024).toInt()
-
-            val isShouldGenerateSummary = AIMessageManager.shouldGenerateSummary(
+        val isShouldGenerateSummary = AIMessageManager.shouldGenerateSummary(
                 messages = currentMessages,
                 currentTokens = currentTokens,
                 maxTokens = maxTokens,
@@ -449,10 +449,10 @@ class MessageCoordinationDelegate(
 
             if (isShouldGenerateSummary) {
                 val snapshotMessages = currentMessages.toList()
-                val insertPosition = chatHistoryDelegate.findProperSummaryPosition(snapshotMessages)
+        val insertPosition = chatHistoryDelegate.findProperSummaryPosition(snapshotMessages)
 
                 // 异步生成总结，不阻塞当前消息发通
-               launchAsyncSummaryForSend(
+                launchAsyncSummaryForSend(
                     snapshotMessages = snapshotMessages,
                     insertPosition = insertPosition,
                     originalChatId = chatId,
@@ -469,19 +469,19 @@ class MessageCoordinationDelegate(
         val proxySenderName = proxySenderNameOverride?.takeIf { it.isNotBlank() }
 
         // 检测是否附着了记忆文件夹
-        val hasMemoryFolder = currentAttachments.any {
+                val hasMemoryFolder = currentAttachments.any {
             it.fileName == "memory_context.xml" && it.mimeType == "application/xml"
         }
 
         // 如果是proxy sender，视为关闭记忆附着
-        val shouldEnableMemoryQuery = if (proxySenderName.isNullOrBlank()) {
+                val shouldEnableMemoryQuery = if (proxySenderName.isNullOrBlank()) {
             apiConfigDelegate.enableMemoryQuery.value || hasMemoryFolder
         } else {
             false
         }
 
         // 调用messageProcessingDelegate发送消息，并传递附件信息和工作区路径
-       messageProcessingDelegate.sendUserMessage(
+                messageProcessingDelegate.sendUserMessage(
             attachments = currentAttachments,
             chatId = chatId,
             messageTextOverride = messageTextOverride,
@@ -492,7 +492,7 @@ class MessageCoordinationDelegate(
             roleCardId = roleCardId,
             // Safety: thinking guidance and thinking mode are mutually exclusive.
             // When guidance is enabled, we avoid enabling provider-level thinking simultaneously.
-            enableThinking = apiConfigDelegate.enableThinkingMode.value && !apiConfigDelegate.enableThinkingGuidance.value,
+                enableThinking = apiConfigDelegate.enableThinkingMode.value && !apiConfigDelegate.enableThinkingGuidance.value,
             thinkingGuidance = apiConfigDelegate.enableThinkingGuidance.value,
             enableMemoryQuery = shouldEnableMemoryQuery,
             enableWorkspaceAttachment = !workspacePath.isNullOrBlank(),
@@ -509,7 +509,7 @@ class MessageCoordinationDelegate(
         )
 
         // 只有在非续写（即用户主动发送）时才清空附件和UI状态
-       if (!isBackgroundSend && !isContinuation) {
+                if (!isBackgroundSend && !isContinuation) {
             if (currentAttachments.isNotEmpty()) {
                 attachmentDelegate.clearAttachments()
             }
@@ -544,7 +544,6 @@ class MessageCoordinationDelegate(
         promptFunctionType: PromptFunctionType
     ): Boolean {
         val group = resolveTargetGroupForChat(chatId) ?: return false
-
         val orderedMembers = group.members
             .sortedBy { it.orderIndex }
             .filter { it.characterCardId.isNotBlank() }
@@ -671,7 +670,7 @@ class MessageCoordinationDelegate(
         AppLogger.d(TAG, "回答规划完成: ，{plannedRounds.rounds.size} 轮对象）"
 
         // 执行多轮对话
-        plannedRounds.rounds.forEachIndexed { roundIndex, roundMembers ->
+                plannedRounds.rounds.forEachIndexed { roundIndex, roundMembers ->
             AppLogger.d(TAG, "开始执行第 ${roundIndex + 1} 轮，成员，${roundMembers.size}")
 
             roundMembers.forEachIndexed { memberIndex, plannedMember ->
@@ -701,8 +700,8 @@ class MessageCoordinationDelegate(
                 val targetTurnCounter = messageProcessingDelegate.getTurnCompleteCounter(chatId) + 1L
 
                 // 第一轮第一个成员使用原始用户消息，其他使用空消息（不添加继结，
-               val isFirstMemberOfFirstRound = roundIndex == 0 && memberIndex == 0
-                val memberMessage = if (isFirstMemberOfFirstRound) {
+                val isFirstMemberOfFirstRound = roundIndex == 0 && memberIndex == 0
+        val memberMessage = if (isFirstMemberOfFirstRound) {
                     originalUserText
                 } else {
                     ""
@@ -747,7 +746,7 @@ class MessageCoordinationDelegate(
                     .firstOrNull { it.sender == "ai" && it.timestamp > beforeLastAiTimestamp }
                 if (newAiMessage != null && newAiMessage.content.isNotBlank()) {
                     val rawContent = newAiMessage.content
-                    val effectiveSpeech = extractEffectiveSpeechContent(rawContent)
+        val effectiveSpeech = extractEffectiveSpeechContent(rawContent)
                     if (effectiveSpeech.isNotBlank()) {
                         timeline.add("AI(${memberName})" to shrinkForMemberPrompt(effectiveSpeech))
                     } else {
@@ -791,7 +790,7 @@ class MessageCoordinationDelegate(
         }.getOrElse { emptyList<ModelParameter<*>>() }
 
         val memberLines = members.mapNotNull { member ->
-            val card = memberCardsById[member.characterCardId] ?: return@mapNotNull null
+        val card = memberCardsById[member.characterCardId] ?: return@mapNotNull null
             "- id: ${member.characterCardId}, name: ${card.name}"
         }.joinToString("\n")
 
@@ -836,7 +835,7 @@ class MessageCoordinationDelegate(
             trimmed.startsWith("{") && trimmed.endsWith("}") -> trimmed
             trimmed.contains("{") && trimmed.contains("}") -> {
                 val start = trimmed.indexOf("{")
-                val end = trimmed.lastIndexOf("}")
+        val end = trimmed.lastIndexOf("}")
                 if (start >= 0 && end > start) trimmed.substring(start, end + 1) else trimmed
             }
             else -> trimmed
@@ -863,7 +862,7 @@ class MessageCoordinationDelegate(
                             .ifBlank { item.optString("name") }
                     ) ?: return null
                     val skip = item.optBoolean("skip", false)
-                    val speak = item.optBoolean("speak", !skip)
+        val speak = item.optBoolean("speak", !skip)
                     PlannedMember(id, speak)
                 }
                 else -> null
@@ -874,12 +873,12 @@ class MessageCoordinationDelegate(
             val obj = JSONObject(jsonText)
 
             // 尝试解析新格式：{"rounds":[[...],[...]]}
-            val roundsArray = obj.optJSONArray("rounds")
+                val roundsArray = obj.optJSONArray("rounds")
             if (roundsArray != null) {
                 val rounds = mutableListOf<List<PlannedMember>>()
                 for (i in 0 until roundsArray.length()) {
                     val roundArray = roundsArray.optJSONArray(i) ?: continue
-                    val roundMembers = mutableListOf<PlannedMember>()
+        val roundMembers = mutableListOf<PlannedMember>()
                     val seen = mutableSetOf<String>()
 
                     for (j in 0 until roundArray.length()) {
@@ -898,13 +897,13 @@ class MessageCoordinationDelegate(
             }
 
             // 兼容旧格式：{"order":[...]}
-            val orderArray = obj.optJSONArray("order")
+                val orderArray = obj.optJSONArray("order")
                 ?: obj.optJSONArray("plan")
                 ?: obj.optJSONArray("members")
 
             if (orderArray != null) {
                 val members = mutableListOf<PlannedMember>()
-                val seen = mutableSetOf<String>()
+        val seen = mutableSetOf<String>()
 
                 for (i in 0 until orderArray.length()) {
                     val member = parseMemberFromJson(orderArray.get(i)) ?: continue
@@ -1053,7 +1052,7 @@ class MessageCoordinationDelegate(
                             break
                         }
                         val targetCounter = messageProcessingDelegate.getTurnCompleteCounter(chatId) + 1L
-                        val completed = awaitTurnComplete(chatId, targetCounter)
+        val completed = awaitTurnComplete(chatId, targetCounter)
                         if (!completed) {
                             AppLogger.w(TAG, "等待上一轮完成超时，取消自动续聊: chatId=${chatId}")
                             if (isSamePendingAutoContinuation(chatId, request)) {
@@ -1122,7 +1121,7 @@ class MessageCoordinationDelegate(
         )
         if (shouldSummarize) {
             // 群组编排后的总结，标记为群聊模式
-            summarizeHistory(
+                summarizeHistory(
                 autoContinue = false,
                 promptFunctionType = promptFunctionType,
                 chatIdOverride = chatId,
@@ -1195,7 +1194,7 @@ class MessageCoordinationDelegate(
         }
         coroutineScope.launch {
             val currentChatId = chatHistoryDelegate.currentChatId.value
-            val success =
+        val success =
                 summarizeHistory(
                     autoContinue = false,
                     chatIdOverride = currentChatId,
@@ -1267,7 +1266,8 @@ class MessageCoordinationDelegate(
             !shouldCancelCurrentSummarizingUi
         ) {
             if (targetChatId == null) {
-                // 兜住尚未被协调层标记，但底层 SUMMARY 请求仍在执行的场景，                cancelSummaryStreamingInternal()
+                // 兜住尚未被协调层标记，但底层 SUMMARY 请求仍在执行的场景，
+                cancelSummaryStreamingInternal()
             }
             return
         }
@@ -1306,7 +1306,8 @@ class MessageCoordinationDelegate(
             currentChatId?.let { affectedChatIds.add(it) }
         }
 
-        // 先真正取消SUMMARY 模型请求，再取消协程/清理 UI，避免进度继续推进程        cancelSummaryStreamingInternal()
+        // 先真正取消SUMMARY 模型请求，再取消协程/清理 UI，避免进度继续推进程
+                cancelSummaryStreamingInternal()
 
         jobsToCancel.forEach { job -> job.cancel() }
         jobsToCancel.forEach { job ->
@@ -1356,7 +1357,7 @@ class MessageCoordinationDelegate(
         }
 
         // 标记：有一次发送触发的异步总结正在进行
-        _isSendTriggeredSummarizing.value = true
+                _isSendTriggeredSummarizing.value = true
         _sendTriggeredSummarizingChatId.value = originalChatId
         messageProcessingDelegate.setPendingAsyncSummaryUiForChat(originalChatId, true)
         messageProcessingDelegate.setSuppressIdleCompletedStateForChat(originalChatId, true)
@@ -1372,7 +1373,7 @@ class MessageCoordinationDelegate(
 
                 // 检查是否是群聊
                 val currentChat = chatHistoryDelegate.chatHistories.value.firstOrNull { it.id == originalChatId }
-                val isGroupChat = currentChat?.characterGroupId != null
+        val isGroupChat = currentChat?.characterGroupId != null
 
                 val summaryMessage = AIMessageManager.summarizeMemory(
                     enhancedAiService = service,
@@ -1493,7 +1494,7 @@ class MessageCoordinationDelegate(
             }
 
             // 触发 preCompact 钩子，保存关键状态
-            if (currentChatId != null) {
+                if (currentChatId != null) {
                 try {
                     val sessionContext = SessionContext(
                         sessionId = currentChatId,
@@ -1511,7 +1512,7 @@ class MessageCoordinationDelegate(
             }
 
             val insertPosition = chatHistoryDelegate.findProperSummaryPosition(currentMessages)
-            val summaryMessage =
+        val summaryMessage =
                 AIMessageManager.summarizeMemory(service, currentMessages, autoContinue, effectiveIsGroupChat)
 
             if (summaryMessage != null) {
@@ -1536,7 +1537,7 @@ class MessageCoordinationDelegate(
             }
         } catch (e: CancellationException) {
             // 总结被取消，这是正常流程
-            AppLogger.d(TAG, "总结操作被取消）"
+                AppLogger.d(TAG, "总结操作被取消）"
             throw e // 重新抛出取消异常，让协程正确取消
         } catch (e: Exception) {
             AppLogger.e(TAG, "生成总结时出，${e.message}", e)
@@ -1556,7 +1557,7 @@ class MessageCoordinationDelegate(
                     messageProcessingDelegate.inputProcessingStateByChatId.value[currentChatId] is InputProcessingState.Summarizing
 
             // 刷新聚合加载状态；这里只更新派生值，不会直接解除当前 chat 的加载锁
-            messageProcessingDelegate.refreshGlobalLoadingState()
+                messageProcessingDelegate.refreshGlobalLoadingState()
 
             if (summarySuccess) {
                 if (autoContinue) {
@@ -1595,14 +1596,14 @@ class MessageCoordinationDelegate(
                     }
                 } else if (wasSummarizing) {
                     // 总结成功且不自动续写时，主动恢复到Idle
-                    if (currentChatId != null) {
+                if (currentChatId != null) {
                         messageProcessingDelegate.setSuppressIdleCompletedStateForChat(currentChatId, false)
                         messageProcessingDelegate.setInputProcessingStateForChat(currentChatId, InputProcessingState.Idle)
                     }
                 }
             } else if (wasSummarizing) {
                 // 总结未成功时也恢复到Idle，避免卡在Summarizing状态
-               if (currentChatId != null) {
+                if (currentChatId != null) {
                     messageProcessingDelegate.setSuppressIdleCompletedStateForChat(currentChatId, false)
                     messageProcessingDelegate.setInputProcessingStateForChat(currentChatId, InputProcessingState.Idle)
                 }

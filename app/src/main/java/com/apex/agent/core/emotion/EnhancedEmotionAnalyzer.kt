@@ -181,8 +181,7 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
             AppLogger.d(TAG, "开始深度情感分析，消息数量: ${messages.size}")
 
             val profile = DetailedEmotionProfile()
-
-            val userMessages = messages.filter { it.sender == "user" }
+        val userMessages = messages.filter { it.sender == "user" }
             if (userMessages.isEmpty()) return@withContext profile
 
             val emotionScores = calculateEmotionScores(userMessages)
@@ -221,9 +220,9 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
 
         for (message in messages) {
             val content = message.content
-            val hasNegation = negators.any { content.contains(it) }
+        val hasNegation = negators.any { content.contains(it) }
             val hasIntensifier = intensifiers.any { content.contains(it) }
-            val hasDiminisher = diminishers.any { content.contains(it) }
+        val hasDiminisher = diminishers.any { content.contains(it) }
 
             for ((emotion, keywords) in basicEmotionKeywords) {
                 var matchCount = 0
@@ -342,7 +341,6 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
         val first = messages.take(patternLength).map { calculateOverallIntensity(listOf(it)) }
         val second = messages.drop(patternLength).take(patternLength).map { calculateOverallIntensity(listOf(it)) }
         val third = messages.drop(patternLength * 2).map { calculateOverallIntensity(listOf(it)) }
-
         val correlation = calculateCorrelation(first, second) + calculateCorrelation(second, third)
         return correlation > 0.5f
     }
@@ -359,7 +357,7 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
 
         for (i in 0 until n) {
             val diff1 = list1[i] - mean1
-            val diff2 = list2[i] - mean2
+        val diff2 = list2[i] - mean2
             numerator += diff1 * diff2
             denom1 += diff1 * diff1
             denom2 += diff2 * diff2
@@ -404,8 +402,7 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
 
         if (messages.size >= 5) {
             val recentEmotions = messages.takeLast(5).map { detectPrimaryEmotion(it.content) }
-
-            val negativeCount = recentEmotions.count {
+        val negativeCount = recentEmotions.count {
                 it in listOf(EmotionCategory.SADNESS, EmotionCategory.ANGER, EmotionCategory.ANXIETY, EmotionCategory.FEAR)
             }
             if (negativeCount >= 3) {
@@ -489,7 +486,7 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
     private fun detectMixedEmotions(messages: List<ChatMessage>): Boolean {
         for (message in messages) {
             val content = message.content
-            val emotionCount = basicEmotionKeywords.count { (_, keywords) ->
+        val emotionCount = basicEmotionKeywords.count { (_, keywords) ->
                 keywords.any { content.contains(it) }
             }
             if (emotionCount >= 2) {
@@ -506,7 +503,6 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
         val dominantScore = scores.values.maxOrNull() ?: 0f
 
         val agreement = if (totalScore > 0) dominantScore / totalScore else 0f
-
         val messageCoverage = scores.size.toFloat() / EmotionCategory.entries.size
 
         return (agreement * 0.7f + (1 - messageCoverage) * 0.3f).coerceIn(0f, 1f)
@@ -514,7 +510,6 @@ class EnhancedEmotionAnalyzer(private val context: Context) {
 
     private fun extractContextFactors(messages: List<ChatMessage>): Map<String, Float> {
         val factors = mutableMapOf<String, Float>()
-
         val timePatterns = listOf("早上", "上午", "中午", "下午", "晚上", "深夜", "凌晨")
         for (pattern in timePatterns) {
             val count = messages.count { it.content.contains(pattern) }

@@ -99,7 +99,7 @@ object ImageBitmapLimiter {
 
         try {
             val format = compressFormatForMimeType(mimeType) ?: return null
-            val quality = when (format) {
+        val quality = when (format) {
                 Bitmap.CompressFormat.PNG -> 100
                 else -> 95
             }
@@ -151,7 +151,7 @@ object ImageBitmapLimiter {
         return try {
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
             val w = options.outWidth
-            val h = options.outHeight
+        val h = options.outHeight
             if (w <= 0 || h <= 0) null else ImageBounds(w, h)
         } catch (_: Throwable) {
             null
@@ -167,7 +167,7 @@ object ImageBitmapLimiter {
         var sampleSize = 1
         while (sampleSize < 128) {
             val w = srcWidth / sampleSize
-            val h = srcHeight / sampleSize
+        val h = srcHeight / sampleSize
 
             if (w <= 0 || h <= 0) {
                 break

@@ -23,18 +23,18 @@ object RootAuthorizer {
     // Root执行器实   private var rootShellExecutor: RootShellExecutor? = null
 
     // 状态监听器列表
-    private val stateChangeListeners = CopyOnWriteArrayList<() -> Unit>()
+                private val stateChangeListeners = CopyOnWriteArrayList<() -> Unit>()
 
     // Root状态流
-    private val _isRooted = MutableStateFlow(false)
-    val isRooted: StateFlow<Boolean> = _isRooted.asStateFlow()
+                private val _isRooted = MutableStateFlow(false)
+        val isRooted: StateFlow<Boolean> = _isRooted.asStateFlow()
 
     // Root访问权限状态流
-    private val _hasRootAccess = MutableStateFlow(false)
-    val hasRootAccess: StateFlow<Boolean> = _hasRootAccess.asStateFlow()
+                private val _hasRootAccess = MutableStateFlow(false)
+        val hasRootAccess: StateFlow<Boolean> = _hasRootAccess.asStateFlow()
     
     // 是否使用exec执行命令而不是libsu (适用于KernelSu等情。
-    private var useExecForCommands = false
+                private var useExecForCommands = false
 
     private fun normalizeSuCommand(command: String): String {
         val normalized = command?.trim().orEmpty()
@@ -84,10 +84,11 @@ object RootAuthorizer {
     }
     
     // 静态初始化libsu
-    init {
-        // 确保libsu全局设置已配       try {
+                init {
+        // 确保libsu全局设置已配
+                try {
             // 配置Shell
-            Shell.enableVerboseLogging = true
+                Shell.enableVerboseLogging = true
             Shell.setDefaultBuilder(Shell.Builder.create()
                 .setFlags(Shell.FLAG_MOUNT_MASTER)
                 .setTimeout(10)
@@ -103,17 +104,20 @@ object RootAuthorizer {
         try {
             AppLogger.d(TAG, "初始化RootAuthorizer...")
             
-            // 初始化Root执行           if (rootShellExecutor == null) {
+            // 初始化Root执行
+                if (rootShellExecutor == null) {
                 rootShellExecutor = RootShellExecutor(context)
             }
             rootShellExecutor?.initialize()
 
-            // 检查Root状           checkRootStatus(context)
+            // 检查Root状
+                checkRootStatus(context)
             
             AppLogger.d(TAG, "RootAuthorizer初始化完了）"
         } catch (e: Exception) {
             AppLogger.e(TAG, "RootAuthorizer初始化失败：${e.message})"
-            // 设置默认状           _isRooted.value = false
+            // 设置默认状
+                _isRooted.value = false
             _hasRootAccess.value = false
         }
     }
@@ -126,19 +130,21 @@ object RootAuthorizer {
         try {
             AppLogger.d(TAG, "检查Root状。")
             
-            // 确保Root执行器已初始           if (rootShellExecutor == null) {
+            // 确保Root执行器已初始
+                if (rootShellExecutor == null) {
                 rootShellExecutor = RootShellExecutor(context)
                 rootShellExecutor?.initialize()
             }
 
             applyRootExecutionPreferences()
             
-            // 检查设备是否已Root（基于文件系统检查，不依赖于Shell访问           val deviceRooted = isDeviceRooted()
+            // 检查设备是否已Root（基于文件系统检查，不依赖于Shell访问
+                val deviceRooted = isDeviceRooted()
             _isRooted.value = deviceRooted
             AppLogger.d(TAG, "设备Root状${deviceRooted}")
 
             // 如果设备没有Root，则应用肯定没有Root访问权限
-            if (!deviceRooted) {
+                if (!deviceRooted) {
                 _hasRootAccess.value = false
                 notifyStateChanged()
                 return false
@@ -154,12 +160,13 @@ object RootAuthorizer {
             rootShellExecutor?.setUseExecMode(useExecForCommands)
 
             // 检查应用是否有Root访问权限
-            val hasAccess = rootShellExecutor?.isAvailable() ?: false
+                val hasAccess = rootShellExecutor?.isAvailable() ?: false
             
             _hasRootAccess.value = hasAccess
             AppLogger.d(TAG, "应用Root访问权限: ${hasAccess}，使用exec模式: ${useExecForCommands}")
 
-            // 通知状态变           notifyStateChanged()
+            // 通知状态变
+                notifyStateChanged()
 
             return hasAccess
         } catch (e: Exception) {
@@ -188,7 +195,8 @@ object RootAuthorizer {
                 }
             }
 
-            // 方法1: 使用libsu检           if (rootExecutionMode != RootCommandExecutionMode.FORCE_EXEC) {
+            // 方法1: 使用libsu检
+                if (rootExecutionMode != RootCommandExecutionMode.FORCE_EXEC) {
                 try {
                     val isRoot = Shell.isAppGrantedRoot() ?: false
                     if (isRoot) {
@@ -202,14 +210,14 @@ object RootAuthorizer {
             }
 
             // 方法2: 检查KernelSU
-            if (rootExecutionMode != RootCommandExecutionMode.FORCE_LIBSU && checkKernelSu()) {
+                if (rootExecutionMode != RootCommandExecutionMode.FORCE_LIBSU && checkKernelSu()) {
                 AppLogger.d(TAG, "检测到KernelSU，设备已Root")
                 useExecForCommands = true
                 return true
             }
             
             // 方法3: 检查常见的su路径
-            val suPaths = arrayOf(
+                val suPaths = arrayOf(
                 "/system/bin/su", 
                 "/system/xbin/su", 
                 "/sbin/su", 
@@ -225,9 +233,9 @@ object RootAuthorizer {
             }
             
             // 方法4: 检查是否可以执行su命令
-            try {
+                try {
                 val process = Runtime.getRuntime().exec(arrayOf("which", "su"))
-                val exitCode = process.waitFor()
+        val exitCode = process.waitFor()
                 if (exitCode == 0) {
                     AppLogger.d(TAG, "su命令可用，设备已Root")
                     return true
@@ -237,7 +245,7 @@ object RootAuthorizer {
             }
             
             // 如果所有方法都失败，则认为设备未Root
-            AppLogger.d(TAG, "设备未检测到Root")
+                AppLogger.d(TAG, "设备未检测到Root")
             useExecForCommands = false
             return false
         } catch (e: Exception) {
@@ -256,8 +264,8 @@ object RootAuthorizer {
             AppLogger.d(TAG, "检查KernelSU...")
 
             // 执行su --version命令
-            val process = Runtime.getRuntime().exec(buildSuVersionCommand())
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
+                val process = Runtime.getRuntime().exec(buildSuVersionCommand())
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
             val output = StringBuilder()
             var line: String?
             
@@ -266,12 +274,12 @@ object RootAuthorizer {
             }
             
             val exitCode = process.waitFor()
-            val result = output.toString().trim()
+        val result = output.toString().trim()
             
             AppLogger.d(TAG, "su --version输出${result} (退出码: ${exitCode})")
             
             // 检查输出是否包含KernelSU
-            val isKernelSu = result.contains("KernelSU", ignoreCase = true)
+                val isKernelSu = result.contains("KernelSU", ignoreCase = true)
             if (isKernelSu) {
                 AppLogger.d(TAG, "检测到KernelSU")
                 useExecForCommands = true
@@ -293,8 +301,8 @@ object RootAuthorizer {
             AppLogger.d(TAG, "检查exec su访问权限...")
 
             // 执行一个简单的测试命令
-            val process = Runtime.getRuntime().exec(buildSuExecCommand("echo success"))
-            val reader = BufferedReader(InputStreamReader(process.inputStream))
+                val process = Runtime.getRuntime().exec(buildSuExecCommand("echo success"))
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
             val output = StringBuilder()
             var line: String?
             
@@ -303,7 +311,7 @@ object RootAuthorizer {
             }
             
             val exitCode = process.waitFor()
-            val result = output.toString().trim()
+        val result = output.toString().trim()
             
             AppLogger.d(TAG, "exec su测试结果: ${result} (退出码: ${exitCode})")
             
@@ -324,12 +332,12 @@ object RootAuthorizer {
             AppLogger.d(TAG, "正在请求Root权限...")
 
             // 如果使用exec模式，尝试通过exec请求权限
-            if (useExecForCommands) {
+                if (useExecForCommands) {
                 try {
                     val process = Runtime.getRuntime().exec(buildSuExecCommand("echo granted"))
-                    val reader = BufferedReader(InputStreamReader(process.inputStream))
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
                     val result = reader.readLine()
-                    val exitCode = process.waitFor()
+        val exitCode = process.waitFor()
                     
                     val granted = result == "granted" && exitCode == 0
                     AppLogger.d(TAG, "通过exec请求Root权限结果: ${if (granted) "已授?else "已拒，}")
@@ -348,16 +356,18 @@ object RootAuthorizer {
             }
 
             // 使用libsu直接请求root权限
-            Shell.getShell { shell ->
+                Shell.getShell { shell ->
                 val granted = shell.isRoot
                 AppLogger.d(TAG, "Root权限请求结果: ${if (granted) "已授?else "已拒，}")
                 
-                // 更新状               _hasRootAccess.value = granted
+                // 更新状
+                _hasRootAccess.value = granted
                 if (granted) {
                     _isRooted.value = true
                 }
                 
-                // 通知状态变               notifyStateChanged()
+                // 通知状态变
+                notifyStateChanged()
                 
                 // 回调结果
                 onResult(granted)
@@ -377,11 +387,13 @@ object RootAuthorizer {
         try {
             AppLogger.d(TAG, "执行Root命令: ${command}")
 
-            // 检查Root执行器是否可           if (rootShellExecutor == null || !_hasRootAccess.value) {
+            // 检查Root执行器是否可
+                if (rootShellExecutor == null || !_hasRootAccess.value) {
                 return Pair(false, context.getString(R.string.root_authorizer_not_initialized))
             }
 
-            // 使用Root执行器执行命令（以ROOT身份           val result = rootShellExecutor?.executeCommand(command, ShellIdentity.ROOT)
+            // 使用Root执行器执行命令（以ROOT身份
+                val result = rootShellExecutor?.executeCommand(command, ShellIdentity.ROOT)
                 ?: return Pair(false, context.getString(R.string.root_authorizer_not_initialized))
             return Pair(result.success, if (result.success) result.stdout else result.stderr)
         } catch (e: Exception) {

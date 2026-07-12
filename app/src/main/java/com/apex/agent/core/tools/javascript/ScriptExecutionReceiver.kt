@@ -128,7 +128,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                 resolveParamsJson(rawParamsJson = rawParamsJson, paramsFilePath = paramsFilePath)
             } catch (e: Exception) {
                 val fallbackParamsJson = rawParamsJson.orEmpty().ifBlank { "{}" }
-                val traceRecorder =
+        val traceRecorder =
                     JsExecutionTraceRecorder(
                         scriptPath = scriptIdentityPath,
                         functionName =
@@ -219,9 +219,9 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
 
         try {
             val engine = JsEngine(context)
-            val parsedParams = parseParams(paramsJson)
+        val parsedParams = parseParams(paramsJson)
             val envOverrides = parseEnvFile(envFilePath)
-            val result =
+        val result =
                 when (normalizedMode) {
                     EXECUTION_MODE_SCRIPT, EXECUTION_MODE_CODE ->
                         engine.executeScriptCode(
@@ -240,7 +240,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                         )
                 }
             val success = !result.toString().startsWith("Error:", ignoreCase = true)
-            val error =
+        val error =
                 if (success) {
                     null
                 } else {

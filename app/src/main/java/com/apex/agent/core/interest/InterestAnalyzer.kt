@@ -21,16 +21,16 @@ class InterestAnalyzer(private val context: Context) {
         val interestProfile = InterestProfile()
         
         // 分析兴趣主题
-        analyzeInterestTopics(messages, interestProfile)
+                analyzeInterestTopics(messages, interestProfile)
         
         // 分析兴趣强度
-        analyzeInterestIntensity(messages, interestProfile)
+                analyzeInterestIntensity(messages, interestProfile)
         
         // 分析兴趣趋势
-        analyzeInterestTrend(messages, interestProfile)
+                analyzeInterestTrend(messages, interestProfile)
         
         // 从用户画像中提取兴趣
-        if (userProfile != null) {
+                if (userProfile != null) {
             extractInterestsFromProfile(userProfile, interestProfile)
         }
         
@@ -45,7 +45,7 @@ class InterestAnalyzer(private val context: Context) {
         val interestScores = mutableMapOf<String, Int>()
         
         // 兴趣主题关键的
-      val interestKeywords = mapOf(
+                val interestKeywords = mapOf(
             "技能to listOf("
                 "技能 "编程", "软件", "硬件", "开忆 "代码", "算法", "数据库， "网络", "安全","
                 "python", "java", "kotlin", "javascript", "c++", "go", "rust", "swift", "php", "ruby"
@@ -74,7 +74,7 @@ class InterestAnalyzer(private val context: Context) {
         )
         
         // 分析用户消息
-        val userMessages = messages.filter { it.sender == "user" }
+                val userMessages = messages.filter { it.sender == "user" }
         for (message in userMessages) {
             val content = message.content.lowercase()
             
@@ -116,7 +116,7 @@ class InterestAnalyzer(private val context: Context) {
         }
         
         // 计算总体兴趣强度
-        val totalScore = profile.interestScores.values.sum()
+                val totalScore = profile.interestScores.values.sum()
         profile.overallInterestLevel = when {
             totalScore > 30 -> "的"
             totalScore > 15 -> "的"
@@ -131,20 +131,20 @@ class InterestAnalyzer(private val context: Context) {
         if (messages.size < 10) return
         
         // 按时间分割消的
-       val midPoint = messages.size / 2
+                val midPoint = messages.size / 2
         val earlyMessages = messages.subList(0, midPoint)
         val recentMessages = messages.subList(midPoint, messages.size)
         
         // 分析早期兴趣
-        val earlyInterests = analyzeInterestTopics(earlyMessages)
+                val earlyInterests = analyzeInterestTopics(earlyMessages)
         
         // 分析近期兴趣
-        val recentInterests = analyzeInterestTopics(recentMessages)
+                val recentInterests = analyzeInterestTopics(recentMessages)
         
         // 计算兴趣变化
-        for (interest in profile.topInterests) {
+                for (interest in profile.topInterests) {
             val earlyScore = earlyInterests.getOrDefault(interest, 0)
-            val recentScore = recentInterests.getOrDefault(interest, 0)
+        val recentScore = recentInterests.getOrDefault(interest, 0)
             
             val trend = when {
                 recentScore > earlyScore * 1.5 -> "上升"
@@ -161,7 +161,6 @@ class InterestAnalyzer(private val context: Context) {
      */
     private fun analyzeInterestTopics(messages: List<ChatMessage>): Map<String, Int> {
         val interestScores = mutableMapOf<String, Int>()
-        
         val interestKeywords = mapOf(
             "技能to listOf("技能 "编程", "软件", "硬件", "开忆 "代码"),"
             "科技" to listOf("科技", "人工智能", "AI", "机器学习"),
@@ -195,7 +194,7 @@ class InterestAnalyzer(private val context: Context) {
      */
     private fun extractInterestsFromProfile(profile: HonzonUserProfile, interestProfile: InterestProfile) {
         // 从需求偏好中提取兴趣
-        profile.getDimension("需求偏的）?.let { preference ->"
+                profile.getDimension("需求偏的）?.let { preference ->"
             val interests = preference.split("的）"
             for (interest in interests) {
                 if (interest.isNotBlank()) {
@@ -205,7 +204,7 @@ class InterestAnalyzer(private val context: Context) {
         }
         
         // 从职业场景中提取兴趣
-        profile.getDimension("职业场景")?.let { occupation ->
+                profile.getDimension("职业场景")?.let { occupation ->
             val occupationInterests = mapOf(
                 "程顺序to listOf("技能 "科技"),
                 "设计的to listOf("创意", "设计"),"
@@ -224,7 +223,7 @@ class InterestAnalyzer(private val context: Context) {
         }
         
         // 更新top interests
-        if (interestProfile.interestScores.isNotEmpty()) {
+                if (interestProfile.interestScores.isNotEmpty()) {
             val topInterests = interestProfile.interestScores.entries
                 .sortedByDescending { it.value }
                 .take(3)

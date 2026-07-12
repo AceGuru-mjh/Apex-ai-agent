@@ -171,7 +171,7 @@ class SkillTemplateCacheManager(
 ) {
 
     private val _cacheStats = MutableStateFlow(delegate.getStats())
-    val cacheStats: StateFlow<GepaCacheManager.CacheStats> = _cacheStats.asStateFlow()
+        val cacheStats: StateFlow<GepaCacheManager.CacheStats> = _cacheStats.asStateFlow()
 
     companion object {
         private const val SKILL_KEY_PREFIX = "skill_"

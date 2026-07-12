@@ -71,7 +71,7 @@ class WorkerRegistry private constructor() {
         }
 
         // 使用 PLUGIN 级别进行能力声明
-        val capability = CapabilityDeclaration(
+                val capability = CapabilityDeclaration(
             name = "kanban_worker_${worker.id}",
             level = FootprintLevel.PLUGIN,
             description = "Kanban Worker: ${worker.name}",
@@ -160,14 +160,14 @@ class WorkerRegistry private constructor() {
         }
 
         // 过滤有能力的 Worker
-        val capable = candidates.filter { worker ->
+                val capable = candidates.filter { worker ->
             worker.capabilities.any { cap ->
                 task.tags.any { tag -> cap.contains(tag, ignoreCase = true) }
             } || task.tags.isEmpty()
         }
 
         // 选择负载最低的
-        return capable.minByOrNull { it.getWorkload() }
+                return capable.minByOrNull { it.getWorkload() }
     }
 
     /**
@@ -175,12 +175,12 @@ class WorkerRegistry private constructor() {
      */
     fun findWorkerForColumn(column: KanbanColumn): Worker? {
         // 首先尝试列指定的 Worker
-        column.assignedWorker?.let { workerId ->
+                column.assignedWorker?.let { workerId ->
             return registeredWorkers[workerId]?.takeIf { it.isActive }
         }
 
         // 根据列要求的角色查找
-        if (column.requiredAgentRoles.isNotEmpty()) {
+                if (column.requiredAgentRoles.isNotEmpty()) {
             for (role in column.requiredAgentRoles) {
                 val workers = findWorkersByRole(role)
                 if (workers.isNotEmpty()) {
@@ -190,7 +190,7 @@ class WorkerRegistry private constructor() {
         }
 
         // 根据列要求的能力查找
-        if (column.requiredCapabilities.isNotEmpty()) {
+                if (column.requiredCapabilities.isNotEmpty()) {
             val workers = findWorkersByCapabilities(column.requiredCapabilities)
             if (workers.isNotEmpty()) {
                 return workers.first()

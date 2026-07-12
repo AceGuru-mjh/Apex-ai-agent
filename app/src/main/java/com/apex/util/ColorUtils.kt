@@ -55,7 +55,7 @@ object ColorUtils {
             when (cleanHex.length) {
                 3 -> {
                     val r = cleanHex[0].toString().repeat(2)
-                    val g = cleanHex[1].toString().repeat(2)
+        val g = cleanHex[1].toString().repeat(2)
                     val b = cleanHex[2].toString().repeat(2)
                     Color.parseColor("#FF$r$g$b")
                 }
@@ -219,13 +219,11 @@ object ColorUtils {
         val r = Color.red(color) / 255f
         val g = Color.green(color) / 255f
         val b = Color.blue(color) / 255f
-
         val max = maxOf(r, g, b)
         val min = minOf(r, g, b)
         val delta = max - min
 
         val lightness = (max + min) / 2f
-
         val hue = if (delta == 0f) 0f else {
             val h = when (max) {
                 r -> ((g - b) / delta) % 6f

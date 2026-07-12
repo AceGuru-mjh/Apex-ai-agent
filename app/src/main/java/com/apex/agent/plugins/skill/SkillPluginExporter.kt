@@ -62,7 +62,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
     suspend fun exportToFile(destinationDir: File): Result<File> = withContext(Dispatchers.IO) {
         try {
             val allPlugins = pluginManager.getAllPlugins()
-            val enabledIds = pluginManager.getEnabledPlugins().map { it.id }
+        val enabledIds = pluginManager.getEnabledPlugins().map { it.id }
 
             val entries = allPlugins.map { plugin ->
                 PluginEntry(
@@ -81,7 +81,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
             }
 
             val exportData = PluginExportData(plugins = entries, enabledPlugins = enabledIds)
-            val jsonContent = json.encodeToString(exportData)
+        val jsonContent = json.encodeToString(exportData)
 
             if (!destinationDir.exists()) destinationDir.mkdirs()
             val exportFile = File(destinationDir, EXPORT_FILE_NAME)
@@ -103,7 +103,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
                 }
 
                 val jsonContent = importFile.readText()
-                val exportData = json.decodeFromString<PluginExportData>(jsonContent)
+        val exportData = json.decodeFromString<PluginExportData>(jsonContent)
 
                 val existingPluginIds = pluginManager.getAllPlugins().map { it.id }.toSet()
                 var imported = 0
@@ -146,7 +146,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
         withContext(Dispatchers.IO) {
             try {
                 val installer = SkillBatchInstaller.getInstance(context)
-                val existingIds = pluginManager.getAllPlugins().map { it.id }.toSet()
+        val existingIds = pluginManager.getAllPlugins().map { it.id }.toSet()
 
                 val toInstall = pluginIds.filter { it !in existingIds }
 
@@ -155,8 +155,7 @@ class SkillPluginExporter private constructor(private val context: Context) {
                 }
 
                 val result = installer.installPlugins(toInstall)
-
-                val importResult = PluginImportResult(
+        val importResult = PluginImportResult(
                     imported = result.successCount,
                     skipped = pluginIds.size - toInstall.size,
                     errors = result.failures.map { "${it.pluginId}: ${it.reason}" }

@@ -76,7 +76,7 @@ class AdaptiveThreadPool private constructor(
         super.beforeExecute(t, r)
         if (r is FutureTask<*> || r is AdaptiveTask) {
             val task = if (r is AdaptiveTask) r else null
-            val startTime = task?.enqueueTime ?: System.nanoTime()
+        val startTime = task?.enqueueTime ?: System.nanoTime()
             val waitTime = System.nanoTime() - startTime
             totalQueueWaitTimeNs.addAndGet(waitTime)
             queueWaitSamples.incrementAndGet()
@@ -100,7 +100,7 @@ class AdaptiveThreadPool private constructor(
 
     fun <T> submitTask(task: () -> T): Future<T> {
         val future = object : FutureTask<T>(Callable { task() }) {
-            val enqueueTime = System.nanoTime()
+        val enqueueTime = System.nanoTime()
         }
         execute(future)
         return future
@@ -146,9 +146,9 @@ class AdaptiveThreadPool private constructor(
         if (!adjustmentLock.tryLock()) return
         try {
             val poolSize = poolSize
-            val active = activeCount
+        val active = activeCount
             val queueSize = queue.size
-            val utilization = if (poolSize > 0) active.toDouble() / poolSize else 0.0
+        val utilization = if (poolSize > 0) active.toDouble() / poolSize else 0.0
 
             historyUtilization.add(utilization)
             if (historyUtilization.size > adaptiveConfig.historySamples) {
@@ -156,12 +156,12 @@ class AdaptiveThreadPool private constructor(
             }
 
             val avgUtilization = historyUtilization.average()
-            val config = adaptiveConfig
+        val config = adaptiveConfig
 
             when {
                 avgUtilization > config.scaleUpThreshold && queueSize > 0 -> {
                     val newCore = min(corePoolSize + config.scaleStep, config.maxCoreThreads)
-                    val newMax = min(maximumPoolSize + config.scaleStep, config.maxCoreThreads * 2)
+        val newMax = min(maximumPoolSize + config.scaleStep, config.maxCoreThreads * 2)
                     if (newCore > corePoolSize || newMax > maximumPoolSize) {
                         setCorePoolSize(newCore)
                         setMaximumPoolSize(newMax)
@@ -170,7 +170,7 @@ class AdaptiveThreadPool private constructor(
                 }
                 avgUtilization < config.scaleDownThreshold && queueSize == 0 -> {
                     val newCore = max(corePoolSize - config.scaleStep, config.minCoreThreads)
-                    val newMax = max(maximumPoolSize - config.scaleStep, newCore)
+        val newMax = max(maximumPoolSize - config.scaleStep, newCore)
                     if (newCore < corePoolSize || newMax < maximumPoolSize) {
                         setCorePoolSize(newCore)
                         setMaximumPoolSize(newMax)

@@ -274,7 +274,6 @@ class PerformanceTuner(private val name: String = "tuner") {
 
     fun autoTune(metric: String, currentValue: Double, targetValue: Double): TuningParams {
         val ratio = if (targetValue > 0) currentValue / targetValue else 1.0
-
         val tuned = when {
             ratio > 1.2 -> {
                 params.copy(
@@ -312,7 +311,7 @@ class PerformanceTuner(private val name: String = "tuner") {
 
         fun calculateOptimalCacheSize(accessRate: Double, itemSize: Long, maxMemoryBytes: Long): Int {
             val byMemory = (maxMemoryBytes / itemSize.coerceAtLeast(1)).toInt()
-            val byAccess = (accessRate * 3600).toInt()
+        val byAccess = (accessRate * 3600).toInt()
             return minOf(byMemory, byAccess).coerceIn(10, 10000)
         }
     }

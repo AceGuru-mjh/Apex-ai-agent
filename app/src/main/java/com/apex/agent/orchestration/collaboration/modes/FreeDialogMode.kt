@@ -35,7 +35,7 @@ class FreeDialogMode @Inject constructor(
         }
 
         val activeAgents = state.agents.filter { agent ->
-            val count = state.agentMessageCount.getOrDefault(agent.id, 0)
+        val count = state.agentMessageCount.getOrDefault(agent.id, 0)
             count < 3
         }
 
@@ -49,7 +49,7 @@ class FreeDialogMode @Inject constructor(
             updateAgentStatus(state, speaker.id, AgentStatus.WORKING)
 
             val response = generateFreeResponse(speaker)
-            val message = createAgentMessage(speaker.id, "", response)
+        val message = createAgentMessage(speaker.id, "", response)
 
             state.dialogHistory.add(message)
             state.agentMessageCount[speaker.id] = state.agentMessageCount.getOrDefault(speaker.id, 0) + 1

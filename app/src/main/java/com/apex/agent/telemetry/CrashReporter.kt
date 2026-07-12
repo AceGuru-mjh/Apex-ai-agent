@@ -137,7 +137,7 @@ class CrashReporter private constructor() {
             .take(10)
             .map { it.key to it.value.get() }
         val uptimeDays = if (crashReports.isNotEmpty()) {
-            val first = crashReports.first().timestampMs
+        val first = crashReports.first().timestampMs
             val duration = now - first
             if (duration > 0) crashReports.size.toDouble() / (duration / 86400000.0) else 0.0
         } else 0.0
@@ -227,7 +227,6 @@ class CrashReporter private constructor() {
         val sw = StringWriter()
         throwable.printStackTrace(PrintWriter(sw))
         val stackTrace = sw.toString().take(config.maxStackTraceLength)
-
         val causeChain = mutableListOf<String>()
         var cause = throwable.cause
         while (cause != null) {

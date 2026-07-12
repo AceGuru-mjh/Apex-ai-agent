@@ -42,7 +42,7 @@ class MultiChannelSystem(private val context: Context) {
 
     private val adapters = mutableMapOf<CommunicationChannel, ChannelAdapter>()
     private val _messages = MutableStateFlow<List<ChannelMessage>>(emptyList())
-    val messages: StateFlow<List<ChannelMessage>> = _messages
+        val messages: StateFlow<List<ChannelMessage>> = _messages
 
     fun registerAdapter(adapter: ChannelAdapter) {
         adapters[adapter.channel] = adapter

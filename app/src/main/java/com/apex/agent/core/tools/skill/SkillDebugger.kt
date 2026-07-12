@@ -69,37 +69,37 @@ class SkillDebugger private constructor(private val context: Context) {
             return when {
                 expr.contains("==") -> {
                     val parts = expr.split("==").map { it.trim() }
-                    val left = resolveVariable(parts[0], ctx)
+        val left = resolveVariable(parts[0], ctx)
                     val right = resolveVariable(parts[1], ctx)
                     left == right
                 }
                 expr.contains("!=") -> {
                     val parts = expr.split("!=").map { it.trim() }
-                    val left = resolveVariable(parts[0], ctx)
+        val left = resolveVariable(parts[0], ctx)
                     val right = resolveVariable(parts[1], ctx)
                     left != right
                 }
                 expr.contains(">=") -> {
                     val parts = expr.split(">=").map { it.trim() }
-                    val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
+        val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left >= right
                 }
                 expr.contains("<=") -> {
                     val parts = expr.split("<=").map { it.trim() }
-                    val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
+        val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left <= right
                 }
                 expr.contains(">") -> {
                     val parts = expr.split(">").map { it.trim() }
-                    val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
+        val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left > right
                 }
                 expr.contains("<") -> {
                     val parts = expr.split("<").map { it.trim() }
-                    val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
+        val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left < right
                 }
@@ -335,7 +335,6 @@ class SkillDebugger private constructor(private val context: Context) {
 
     fun onToolCallEnd(toolName: String, output: Any?, error: String? = null) {
         val session = activeSession ?: return
-
         val toolCall = session.toolCalls.findLast {
             it.toolName == toolName && it.endTime == null
         }

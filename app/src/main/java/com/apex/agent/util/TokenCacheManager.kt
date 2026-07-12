@@ -9,17 +9,17 @@ import com.apex.util.ChatUtils
  */
 class TokenCacheManager {
     // 上一次的聊天历史
-    private var previousChatHistory: List<Pair<String, String>> = emptyList()
+                private var previousChatHistory: List<Pair<String, String>> = emptyList()
     // 对应于previousChatHistory的token数量
-    private var previousHistoryTokenCount = 0
+                private var previousHistoryTokenCount = 0
     
     // 缓存的输入token数量（对应于previousChatHistory的公共前缀，   private var _cachedInputTokenCount = 0
     
     // 当前请求的新增token数量
-    private var _currentInputTokenCount = 0
+                private var _currentInputTokenCount = 0
     
     // 当前输出token数量
-    private var _outputTokenCount = 0
+                private var _outputTokenCount = 0
     
     /**
      * 获取缓存的输入token数量
@@ -97,8 +97,8 @@ class TokenCacheManager {
         // 构建包含工具定义的历史记录列行
        // 策略：将toolsJson拼接到System Prompt前面，或者作为第一条System消息
         // 这样可以利用前缀匹配机制缓存工具定义
-        val historyWithTools = if (!toolsJson.isNullOrEmpty()) {
-            val mutableHistory = chatHistory.toMutableList()
+                val historyWithTools = if (!toolsJson.isNullOrEmpty()) {
+        val mutableHistory = chatHistory.toMutableList()
             val systemIndex = mutableHistory.indexOfFirst { it.first == "system" }
             
             if (systemIndex != -1) {
@@ -116,7 +116,7 @@ class TokenCacheManager {
 
         // 找到与之前历史的公共前缀长度
         // 注意：previousChatHistory现在存储的是包含工具定义的版有
-       val commonPrefixLength = findCommonPrefixLength(historyWithTools, previousChatHistory)
+                val commonPrefixLength = findCommonPrefixLength(historyWithTools, previousChatHistory)
         
         AppLogger.d("TokenCacheManager", "聊天历史比较: 当前=${historyWithTools.size}, 之前=${previousChatHistory.size}, 公共前缀=${commonPrefixLength}")
         
@@ -125,7 +125,7 @@ class TokenCacheManager {
 
         if (commonPrefixLength > 0) {
             // 有公共前缀，可以使用缓字
-           cachedTokens = if (commonPrefixLength == previousChatHistory.size) {
+                cachedTokens = if (commonPrefixLength == previousChatHistory.size) {
                 // 完全匹配之前的历史，直接使用缓存
                 previousHistoryTokenCount
             } else {
@@ -135,11 +135,11 @@ class TokenCacheManager {
             }
             
             // 计算新增部分的token数量 (history剩下的部， 当前消息，
-            val newPart = historyWithTools.drop(commonPrefixLength)
+                val newPart = historyWithTools.drop(commonPrefixLength)
             newTokens = calculateTokensForHistory(newPart)
         } else {
             // 没有公共前缀，重新计算所有token
-            val historyTokens = calculateTokensForHistory(historyWithTools)
+                val historyTokens = calculateTokensForHistory(historyWithTools)
             cachedTokens = 0
             newTokens = historyTokens
         }
@@ -149,10 +149,10 @@ class TokenCacheManager {
             _currentInputTokenCount = newTokens
 
             // 更新缓存的历史记，token 数量
-            previousHistoryTokenCount = cachedTokens + newTokens
+                previousHistoryTokenCount = cachedTokens + newTokens
 
             // 更新缓存的历史记录列表（包含工具定义，
-           if (chatHistory.isNotEmpty()) {
+                if (chatHistory.isNotEmpty()) {
                 previousChatHistory = historyWithTools
             }
 

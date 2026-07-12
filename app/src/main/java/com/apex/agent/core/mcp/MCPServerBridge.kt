@@ -122,7 +122,7 @@ class MCPServerBridge {
         private fun handleRequest(jsonStr: String) {
             try {
                 val request = json.decodeFromString<MCPRequest>(jsonStr)
-                val response = when (request.method) {
+        val response = when (request.method) {
                     "initialize" -> handleInitialize(request)
                     "tools/list" -> handleToolsList(request)
                     "tools/call" -> handleToolsCall(request)
@@ -198,10 +198,10 @@ class MCPServerBridge {
 
         private fun handleToolsCall(request: MCPRequest): MCPResponse {
             val params = request.params as? Map<String, Any> ?: return MCPResponse.error("Invalid params")
-            val toolName = params["name"] as? String ?: return MCPResponse.error("Tool name required")
+        val toolName = params["name"] as? String ?: return MCPResponse.error("Tool name required")
 
             val context = appContext ?: return MCPResponse.error("MCPServerBridge not initialized with context")
-            val tools = ConversationBridgeTools.getInstance(context)
+        val tools = ConversationBridgeTools.getInstance(context)
 
             return when (toolName) {
                 "conversations_list" -> runBlocking(Dispatchers.IO) {
@@ -248,7 +248,7 @@ class MCPServerBridge {
                 }
                 "messages_read" -> {
                     val conversationId = params["conversation_id"] as? String ?: return MCPResponse.error("Conversation ID required")
-                    val limit = (params["limit"] as? Number)?.toInt() ?: 50
+        val limit = (params["limit"] as? Number)?.toInt() ?: 50
                     runBlocking(Dispatchers.IO) {
                         val result = tools.messagesRead(conversationId, limit)
                         if (result.success) {
@@ -272,7 +272,7 @@ class MCPServerBridge {
                 }
                 "messages_send" -> {
                     val conversationId = params["conversation_id"] as? String ?: return MCPResponse.error("Conversation ID required")
-                    val content = params["content"] as? String ?: return MCPResponse.error("Content required")
+        val content = params["content"] as? String ?: return MCPResponse.error("Content required")
                     val role = params["role"] as? String ?: "user"
                     runBlocking(Dispatchers.IO) {
                         val result = tools.messagesSend(conversationId, content, role)
@@ -323,7 +323,7 @@ class MCPServerBridge {
                 }
                 "permissions_respond" -> {
                     val id = params["id"] as? String ?: return MCPResponse.error("ID required")
-                    val approved = params["approved"] as? Boolean ?: return MCPResponse.error("Approved required")
+        val approved = params["approved"] as? Boolean ?: return MCPResponse.error("Approved required")
                     runBlocking(Dispatchers.IO) {
                         val result = tools.permissionsRespond(id, approved)
                         if (result.success) {

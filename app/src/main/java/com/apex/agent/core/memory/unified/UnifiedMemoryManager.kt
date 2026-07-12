@@ -52,12 +52,12 @@ class UnifiedMemoryManager private constructor() {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private val _currentMode = MutableStateFlow(AgentMode.SINGLE_AGENT)
-    val currentMode: StateFlow<AgentMode> = _currentMode.asStateFlow()
+        val currentMode: StateFlow<AgentMode> = _currentMode.asStateFlow()
 
     private val config = ModeAwareMemoryConfig()
 
     private val _memoryEvents = MutableSharedFlow<MemoryTransferEvent>(replay = 0)
-    val memoryEvents: SharedFlow<MemoryTransferEvent> = _memoryEvents.asSharedFlow()
+        val memoryEvents: SharedFlow<MemoryTransferEvent> = _memoryEvents.asSharedFlow()
 
     private val modeMemory = ConcurrentHashMap<AgentMode, MutableList<UnifiedMemoryItem>>()
     private var initialized = false
@@ -241,7 +241,7 @@ class UnifiedMemoryManager private constructor() {
                     val allModes = AgentMode.values().toList()
                     for (m in allModes) {
                         val modeItems = modeMemory[m] ?: continue
-                        val matched = modeItems
+        val matched = modeItems
                             .filter { it.content.contains(query, ignoreCase = true) }
                             .take(limit / max(1, allModes.size))
                         results.addAll(matched)
@@ -268,7 +268,7 @@ class UnifiedMemoryManager private constructor() {
                 }
                 hierarchicalMemory?.let { hier ->
                     val taskId = query.split("\\s+".toRegex()).firstOrNull() ?: ""
-                    val items = hier.retrieveSync(taskId, query, limit)
+        val items = hier.retrieveSync(taskId, query, limit)
                     results.addAll(items.map { item ->
                         UnifiedMemoryItem(
                             id = item.id,
@@ -322,13 +322,12 @@ class UnifiedMemoryManager private constructor() {
         val modeConfig = getConfigForMode(mode)
         val items = modeMemory[mode] ?: return CompressionReport(mode, 0, 0)
         val before = items.size
-
         val report = compressor?.compress(this, mode) ?: CompressionReport(mode, before, before)
 
         val avgImpBefore = if (items.isNotEmpty()) items.sumOf { it.importance.toDouble() }.toFloat() / items.size else 0f
         val itemsAfter = modeMemory[mode]?.size ?: before
         val avgImpAfter = if (itemsAfter > 0) {
-            val remaining = modeMemory[mode] ?: emptyList()
+        val remaining = modeMemory[mode] ?: emptyList()
             remaining.sumOf { it.importance.toDouble() }.toFloat() / remaining.size
         } else 0f
 

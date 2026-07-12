@@ -127,7 +127,7 @@ internal class JsExternalJavaCodeLoader(private val context: Context) {
     ): String {
         return try {
             val normalizedPath = normalizeSourcePath(path)
-            val options = parseOptions(optionsJson)
+        val options = parseOptions(optionsJson)
             val sourceFile = File(normalizedPath)
 
             require(sourceFile.exists()) { "external code file does not exist: ${normalizedPath}" }
@@ -139,7 +139,7 @@ internal class JsExternalJavaCodeLoader(private val context: Context) {
             ensureJvmCompatibilitySystemProperties()
 
             val nativeLibraryDir = resolveNativeLibraryDir(options.nativeLibraryDir)
-            val artifactKey =
+        val artifactKey =
                 buildArtifactKey(
                     sourceType = sourceType,
                     canonicalPath = canonicalPath,
@@ -157,9 +157,9 @@ internal class JsExternalJavaCodeLoader(private val context: Context) {
                     canonicalPath = canonicalPath
                 )
             val optimizedDir = ensureOptimizedDir()
-            val parent = getEffectiveClassLoader(baseClassLoader)
+        val parent = getEffectiveClassLoader(baseClassLoader)
             val childFirstPrefixes = options.childFirstPrefixes
-            val classLoader =
+        val classLoader =
                 if (childFirstPrefixes.isEmpty()) {
                     DexClassLoader(
                         preparedSourceFile.absolutePath,

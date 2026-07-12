@@ -9,16 +9,16 @@ import kotlin.math.sqrt
 /** 表达式计算上下文，用于存储变量和函数 */
 object ExpressionContext {
     // 变量存储
-    private val variables = mutableMapOf<String, Any>()
+                private val variables = mutableMapOf<String, Any>()
 
     // 常量
-    init {
+                init {
         variables["PI"] = Math.PI
         variables["E"] = Math.E
     }
 
     // 日期格式
-    private val DATE_FORMATS =
+                private val DATE_FORMATS =
             arrayOf(
                     "yyyy-MM-dd",
                     "yyyy/MM/dd",
@@ -99,7 +99,7 @@ object ExpressionContext {
     fun callFunction(name: String, args: List<Double>): Double {
         return when {
             // 数学函数
-            name.equals("abs", ignoreCase = true) -> Math.abs(args[0])
+                name.equals("abs", ignoreCase = true) -> Math.abs(args[0])
             name.equals("sqrt", ignoreCase = true) -> Math.sqrt(args[0])
             name.equals("sin", ignoreCase = true) -> Math.sin(args[0])
             name.equals("cos", ignoreCase = true) -> Math.cos(args[0])
@@ -119,12 +119,12 @@ object ExpressionContext {
             name.equals("fact", ignoreCase = true) -> factorial(args[0].toInt()).toDouble()
 
             // 日期函数
-            name.equals("today", ignoreCase = true) ->
+                name.equals("today", ignoreCase = true) ->
                     TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis()).toDouble()
             name.equals("now", ignoreCase = true) -> System.currentTimeMillis().toDouble()
             name.equals("date", ignoreCase = true) -> {
                 val dateStr = args[0].toString()
-                val date =
+        val date =
                         parseDate(dateStr)
                                 ?: throw IllegalArgumentException("Cannot parse date: ${dateStr}")
                 TimeUnit.MILLISECONDS.toDays(date.time).toDouble()
@@ -144,7 +144,7 @@ object ExpressionContext {
                         parseDate(args[0].toString())
                                 ?: throw IllegalArgumentException("Cannot parse date")
                 val daysToAdd = args[1].toInt()
-                val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance()
                 calendar.time = date
                 calendar.add(Calendar.DAY_OF_YEAR, daysToAdd)
                 TimeUnit.MILLISECONDS.toDays(calendar.timeInMillis).toDouble()
@@ -183,7 +183,7 @@ object ExpressionContext {
             }
 
             // 统计函数
-            name.equals("stats.mean", ignoreCase = true) -> args.average()
+                name.equals("stats.mean", ignoreCase = true) -> args.average()
             name.equals("stats.median", ignoreCase = true) -> {
                 val sorted = args.sorted()
                 if (sorted.size % 2 == 0) {
@@ -197,15 +197,15 @@ object ExpressionContext {
             name.equals("stats.sum", ignoreCase = true) -> args.sum()
             name.equals("stats.stdev", ignoreCase = true) -> {
                 val mean = args.average()
-                val variance = args.map { (it - mean).pow(2) }.average()
+        val variance = args.map { (it - mean).pow(2) }.average()
                 sqrt(variance)
             }
 
             // 转换函数
-            name.equals("convert", ignoreCase = true) -> {
+                name.equals("convert", ignoreCase = true) -> {
                 if (args.size < 3) throw IllegalArgumentException("convert requires 3 parameters")
                 val value = args[0]
-                val fromUnit =
+        val fromUnit =
                         variables["_convert_from"] as? String
                                 ?: throw IllegalArgumentException("from_unit not provided")
                 val toUnit =
@@ -226,39 +226,39 @@ object ExpressionContext {
     private fun convertUnit(value: Double, fromUnit: String, toUnit: String): Double {
         return when {
             // 温度转换
-            fromUnit == "f" && toUnit == "c" -> (value - 32) * 5 / 9 // F to C
-            fromUnit == "c" && toUnit == "f" -> value * 9 / 5 + 32 // C to F
-            fromUnit == "c" && toUnit == "k" -> value + 273.15 // C to K
-            fromUnit == "k" && toUnit == "c" -> value - 273.15 // K to C
-            fromUnit == "f" && toUnit == "k" -> (value - 32) * 5 / 9 + 273.15 // F to K
-            fromUnit == "k" && toUnit == "f" -> (value - 273.15) * 9 / 5 + 32 // K to F
+                fromUnit == "f" && toUnit == "c" -> (value - 32) * 5 / 9 // F to C
+                fromUnit == "c" && toUnit == "f" -> value * 9 / 5 + 32 // C to F
+                fromUnit == "c" && toUnit == "k" -> value + 273.15 // C to K
+                fromUnit == "k" && toUnit == "c" -> value - 273.15 // K to C
+                fromUnit == "f" && toUnit == "k" -> (value - 32) * 5 / 9 + 273.15 // F to K
+                fromUnit == "k" && toUnit == "f" -> (value - 273.15) * 9 / 5 + 32 // K to F
 
             // 长度转换
-            fromUnit == "km" && toUnit == "mi" -> value * 0.621371 // km to miles
-            fromUnit == "mi" && toUnit == "km" -> value * 1.60934 // miles to km
-            fromUnit == "m" && toUnit == "ft" -> value * 3.28084 // meters to feet
-            fromUnit == "ft" && toUnit == "m" -> value * 0.3048 // feet to meters
-            fromUnit == "cm" && toUnit == "in" -> value * 0.393701 // cm to inches
-            fromUnit == "in" && toUnit == "cm" -> value * 2.54 // inches to cm
+                fromUnit == "km" && toUnit == "mi" -> value * 0.621371 // km to miles
+                fromUnit == "mi" && toUnit == "km" -> value * 1.60934 // miles to km
+                fromUnit == "m" && toUnit == "ft" -> value * 3.28084 // meters to feet
+                fromUnit == "ft" && toUnit == "m" -> value * 0.3048 // feet to meters
+                fromUnit == "cm" && toUnit == "in" -> value * 0.393701 // cm to inches
+                fromUnit == "in" && toUnit == "cm" -> value * 2.54 // inches to cm
 
             // 重量转换
-            fromUnit == "kg" && toUnit == "lb" -> value * 2.20462 // kg to pounds
-            fromUnit == "lb" && toUnit == "kg" -> value * 0.453592 // pounds to kg
-            fromUnit == "g" && toUnit == "oz" -> value * 0.035274 // grams to ounces
-            fromUnit == "oz" && toUnit == "g" -> value * 28.3495 // ounces to grams
+                fromUnit == "kg" && toUnit == "lb" -> value * 2.20462 // kg to pounds
+                fromUnit == "lb" && toUnit == "kg" -> value * 0.453592 // pounds to kg
+                fromUnit == "g" && toUnit == "oz" -> value * 0.035274 // grams to ounces
+                fromUnit == "oz" && toUnit == "g" -> value * 28.3495 // ounces to grams
 
             // 体积转换
-            fromUnit == "l" && toUnit == "gal" -> value * 0.264172 // liters to gallons
-            fromUnit == "gal" && toUnit == "l" -> value * 3.78541 // gallons to liters
-            fromUnit == "ml" && toUnit == "oz" -> value * 0.033814 // milliliters to fluid ounces
-            fromUnit == "oz" && toUnit == "ml" -> value * 29.5735 // fluid ounces to milliliters
+                fromUnit == "l" && toUnit == "gal" -> value * 0.264172 // liters to gallons
+                fromUnit == "gal" && toUnit == "l" -> value * 3.78541 // gallons to liters
+                fromUnit == "ml" && toUnit == "oz" -> value * 0.033814 // milliliters to fluid ounces
+                fromUnit == "oz" && toUnit == "ml" -> value * 29.5735 // fluid ounces to milliliters
 
             // 速度转换
-            fromUnit == "kph" && toUnit == "mph" -> value * 0.621371 // km/h to miles/h
-            fromUnit == "mph" && toUnit == "kph" -> value * 1.60934 // miles/h to km/h
+                fromUnit == "kph" && toUnit == "mph" -> value * 0.621371 // km/h to miles/h
+                fromUnit == "mph" && toUnit == "kph" -> value * 1.60934 // miles/h to km/h
 
             // 相同单位
-            fromUnit == toUnit -> value
+                fromUnit == toUnit -> value
             else -> throw IllegalArgumentException("Unsupported conversion: ${fromUnit} to ${toUnit}")
         }
     }
@@ -278,12 +278,12 @@ object ExpressionContext {
     /** 日期解析 */
     private fun parseDate(dateString: String): Date? {
         // 特殊情况：today()
-        if (dateString.trim() == "today()") {
+                if (dateString.trim() == "today()") {
             return Date(System.currentTimeMillis())
         }
 
         // 尝试所有支持的日期格式
-        for (format in DATE_FORMATS) {
+                for (format in DATE_FORMATS) {
             try {
                 val formatter = SimpleDateFormat(format, Locale.getDefault())
                 formatter.isLenient = false
@@ -299,17 +299,17 @@ object ExpressionContext {
         variables.clear()
 
         // 重新添加常量
-        variables["PI"] = Math.PI
+                variables["PI"] = Math.PI
         variables["E"] = Math.E
     }
 
     /** 格式化结果显示/
     fun formatResult(result: Double): String {
         // 如果是整数则不显示小数部，
-       if (result == Math.floor(result) && !result.isNaN() && !result.isInfinite()) {
+                if (result == Math.floor(result) && !result.isNaN() && !result.isInfinite()) {
             return result.toInt().toString()
         }
         // 否则使用小数格式
-        return "%.6f".format(result).trimEnd('0').trimEnd('.')
+                return "%.6f".format(result).trimEnd('0').trimEnd('.')
     }
 }

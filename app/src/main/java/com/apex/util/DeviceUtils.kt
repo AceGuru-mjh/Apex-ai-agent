@@ -283,7 +283,7 @@ object DeviceUtils {
     fun getTotalRam(): Long {
         return try {
             val reader = BufferedReader(FileReader("/proc/meminfo"))
-            val firstLine = reader.readLine()
+        val firstLine = reader.readLine()
             reader.close()
             val memInfo = firstLine.replace(Regex("[^0-9]"), "")
             memInfo.toLongOrNull()?.times(1024) ?: 0L
@@ -303,7 +303,7 @@ object DeviceUtils {
     fun getAvailableRam(context: Context): Long {
         return try {
             val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val memoryInfo = ActivityManager.MemoryInfo()
+        val memoryInfo = ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
             memoryInfo.availMem
         } catch (e: Exception) {

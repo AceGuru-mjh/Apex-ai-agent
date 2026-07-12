@@ -25,10 +25,10 @@ class CollaborationEngine(
     private val taskExecutors = ConcurrentHashMap<String, TaskExecutor>()
     private val eventChannel = Channel<CollaborationEvent>(Channel.UNLIMITED)
     private val _isRunning = MutableStateFlow(false)
-    val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
+        val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
 
     private val _eventFlow = MutableSharedFlow<CollaborationEvent>(replay = 0, extraBufferCapacity = 64)
-    val eventFlow: SharedFlow<CollaborationEvent> = _eventFlow.asSharedFlow()
+        val eventFlow: SharedFlow<CollaborationEvent> = _eventFlow.asSharedFlow()
 
     private val listeners = ConcurrentHashMap<String, CollaborationListener>()
     private var eventJob: Job? = null
@@ -188,7 +188,7 @@ class TaskExecutor(
 ) {
     private var job: Job? = null
     private val _isRunning = MutableStateFlow(false)
-    val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
+        val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
     private val _isPaused = MutableStateFlow(false)
     private val messageChannel = Channel<AgentMessage>(Channel.UNLIMITED)
     private val agentStates = ConcurrentHashMap<String, AgentExecutionState>()
@@ -759,7 +759,7 @@ class DebateReviewModeHandler(
     private suspend fun executeOpeningArguments() {
         if (swarmEngine != null && aiService != null) {
             val debate = swarmEngine.startDebate(task.description, task.agents.map { it.id })
-            val consensus = swarmEngine.reachConsensus(debate.id)
+        val consensus = swarmEngine.reachConsensus(debate.id)
             task.agents.forEach { agent ->
                 executor.updateAgentStatus(agent.id, AgentStatus.FINISHED)
             }
@@ -835,7 +835,7 @@ class DebateReviewModeHandler(
     private suspend fun generateQuestion(agent: Agent, prevArgs: List<Pair<String, String>>): String {
         if (aiService != null) {
             val context = prevArgs.takeLast(3).joinToString("\n") { "${it.first}: ${it.second}" }
-            val result = callAI(
+        val result = callAI(
                 "Based on these arguments:\n$context\n\nAsk a probing question.",
                 "You are ${agent.name}. Question the other participants' arguments."
             )
@@ -938,7 +938,7 @@ class FreeDialogModeHandler(
         if (speaker != null) {
             executor.updateAgentStatus(speaker.id, AgentStatus.WORKING)
             val response = generateFreeResponse(speaker, dialogHistory)
-            val message = AgentMessage(
+        val message = AgentMessage(
                 sender = speaker.name,
                 content = response,
                 timestamp = System.currentTimeMillis(),
@@ -959,7 +959,7 @@ class FreeDialogModeHandler(
         val thinkingSession = aiService?.let { AgentThinkingSession(context, it) }
         if (thinkingSession != null) {
             val recentContext = history.takeLast(5).joinToString("\n") { "${it.sender}: ${it.content}" }
-            val output = thinkingSession.thinkAndProduce(
+        val output = thinkingSession.thinkAndProduce(
                 agent = agent,
                 task = "Discuss: ${task.description}",
                 background = "Recent dialog:\n$recentContext",
@@ -971,7 +971,7 @@ class FreeDialogModeHandler(
         }
         if (aiService != null) {
             val context = history.takeLast(5).joinToString("\n") { "${it.sender}: ${it.content}" }
-            val result = callAI(
+        val result = callAI(
                 "Continue the discussion. Topic: ${task.description}\nRecent dialog:\n$context",
                 "You are ${agent.name}, a ${agent.role}. Contribute a thoughtful perspective."
             )

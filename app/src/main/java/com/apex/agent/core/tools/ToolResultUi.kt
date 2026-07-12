@@ -32,31 +32,31 @@ data class SimplifiedUINode(
         val sb = StringBuilder()
 
         // Node identifier
-        sb.append(indent)
+                sb.append(indent)
         if (isClickable) sb.append("，) else sb.append("，)
 
         // Class name
-        className?.let { sb.append("[${it}] ") }
+                className?.let { sb.append("[${it}] ") }
 
         // Text content (maximum 30 characters)
-        text?.takeIf { it.isNotBlank() }?.let {
+                text?.takeIf { it.isNotBlank() }?.let {
             val displayText = if (it.length > 30) "${it.take(27)}..." else it
             sb.append("T: \"${displayText}\" ")
         }
 
         // Content description
-        contentDesc?.takeIf { it.isNotBlank() }?.let { sb.append("D: \"${it}\" ") }
+                contentDesc?.takeIf { it.isNotBlank() }?.let { sb.append("D: \"${it}\" ") }
 
         // Resource ID
-        resourceId?.takeIf { it.isNotBlank() }?.let { sb.append("ID: ${it} ") }
+                resourceId?.takeIf { it.isNotBlank() }?.let { sb.append("ID: ${it} ") }
 
         // Bounds
-        bounds?.let { sb.append("，的${it}") }
+                bounds?.let { sb.append("，的${it}") }
 
         sb.append("\n")
 
         // Process children recursively
-        children.forEach { sb.append(it.toTreeString("${indent}  ")) }
+                children.forEach { sb.append(it.toTreeString("${indent}  ")) }
 
         return sb.toString()
     }
@@ -64,7 +64,7 @@ data class SimplifiedUINode(
     private fun shouldKeepNode(): Boolean {
         // Keep conditions: key element types or has content or clickable or has children that
         // should be kept
-        val isKeyElement =
+                val isKeyElement =
                 className in
                         setOf("Button", "TextView", "EditText", "ScrollView", "Switch", "ImageView")
         val hasContent = !text.isNullOrBlank() || !contentDesc.isNullOrBlank()

@@ -31,7 +31,7 @@ open class StandardFileSystemTools(context: Context) : FileSystemBaseTools(conte
     }
 
     // 保持原有方法的兼容的
-    override suspend fun listFiles(tool: AITool): ToolResult {
+                override suspend fun listFiles(tool: AITool): ToolResult {
         return super.listFiles(tool)
     }
 

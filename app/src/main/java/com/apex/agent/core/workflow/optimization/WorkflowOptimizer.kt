@@ -143,7 +143,7 @@ class WorkflowOptimizer(private val name: String = "workflow-optimizer") {
         fun getLevel(stepId: String): Int {
             nodeLevels[stepId]?.let { return it }
             val deps = dependencies[stepId] ?: emptySet()
-            val level = if (deps.isEmpty()) 0
+        val level = if (deps.isEmpty()) 0
             else (deps.mapNotNull { nodeLevels[it] }.maxOrNull() ?: 0) + 1
             nodeLevels[stepId] = level
             while (levels.size <= level) levels.add(mutableListOf())
@@ -389,7 +389,7 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
                     val start = System.currentTimeMillis()
                     try {
                         // In production, this would call the workflow engine
-                        val duration = System.currentTimeMillis() - start
+                val duration = System.currentTimeMillis() - start
                         recordExecution(id, true, duration)
                     } catch (e: Exception) {
                         val duration = System.currentTimeMillis() - start
@@ -436,7 +436,6 @@ class WorkflowStepOptimizer(private val name: String = "step-optimizer") {
         val avgExecTime = executionTimeHistory[stepId]?.average() ?: durationMs.toDouble()
         val avgInputSize = inputSizeHistory[stepId]?.average() ?: inputSize.toDouble()
         val avgOutputSize = outputSizeHistory[stepId]?.average() ?: outputSize.toDouble()
-
         val canBeCached = output != null && outputSize < 1024 * 1024
         val canBeParallelized = avgExecTime > 100
         val suggestedTimeout = (avgExecTime * 3).toLong().coerceAtLeast(5000)
