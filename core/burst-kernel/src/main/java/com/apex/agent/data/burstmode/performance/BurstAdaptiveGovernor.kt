@@ -151,7 +151,7 @@ class BurstAdaptiveGovernor(private val app: Application) {
         runCatching {
             val receiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
-                    runCatching { sampleOnce(forceBatteryIntent = intent) }
+                    scope.launch { runCatching { sampleOnce(forceBatteryIntent = intent) } }
                 }
             }
             app.registerReceiver(

@@ -60,7 +60,7 @@ class KernelDIContainer {
             ComponentScope.SINGLETON -> info.instance as? T
             ComponentScope.PROTOTYPE -> info.factory?.invoke() as? T
             ComponentScope.LAZY -> {
-                if (name !in lazyInstances) {
+                if (!lazyInstances.containsKey(name)) {
                     info.factory?.invoke()?.let { lazyInstances[name] = it }
                 }
                 lazyInstances[name] as? T

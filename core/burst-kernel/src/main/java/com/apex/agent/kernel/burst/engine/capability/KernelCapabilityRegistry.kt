@@ -42,7 +42,7 @@ class KernelCapabilityRegistry {
     fun register(capability: Capability): Boolean {
         // 检查依赖
         for (dep in capability.dependencies) {
-            if (dep !in capabilities) return false
+            if (!capabilities.containsKey(dep)) return false
         }
         capabilities[capability.id] = capability
         return true

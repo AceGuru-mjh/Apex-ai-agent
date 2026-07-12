@@ -72,10 +72,12 @@ class EnhancedSkillEventBus(
         val retryCount: Int = 0
     )
 
-    private val _events = MutableSharedFlow<BurstEvent>(extraBufferCapacity = 512)
+    @PublishedApi
+    internal val _events = MutableSharedFlow<BurstEvent>(extraBufferCapacity = 512)
     val events: SharedFlow<BurstEvent> = _events.asSharedFlow()
 
-    private val eventHistory = ConcurrentLinkedQueue<BurstEvent>()
+    @PublishedApi
+    internal val eventHistory = ConcurrentLinkedQueue<BurstEvent>()
     private val deadLetters = ConcurrentLinkedQueue<DeadLetterEntry>()
     private val eventCounter = AtomicLong(0)
     private val subscriberStats = ConcurrentHashMap<String, Int>()  // subscriberId -> eventCount

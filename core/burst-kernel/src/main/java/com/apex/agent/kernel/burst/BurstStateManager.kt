@@ -197,8 +197,8 @@ class BurstStateManager(app: Application) : IBurstStateManager {
                 logs
             }.onFailure {
                 Log.e(TAG, "getLogs failed for $taskId: ${it.message}")
-                emptyList()
-            }.getOrNull() ?: emptyList()
+                emptyList<ExecutionLog>()
+            }.getOrNull() ?: emptyList<ExecutionLog>()
         }
     }
 

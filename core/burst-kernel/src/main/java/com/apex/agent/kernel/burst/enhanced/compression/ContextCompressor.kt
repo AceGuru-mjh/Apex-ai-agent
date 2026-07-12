@@ -132,7 +132,7 @@ class ContextCompressor {
             val scored = sentences.map { s ->
                 var score = s.length.toFloat()
                 if (s.contains("重要") || s.contains("关键") || s.contains("必须")) score *= 2
-                if (s.contains("警告") || s.contains("错误")) score *= 1.5
+                if (s.contains("警告") || s.contains("错误")) score *= 1.5f
                 s to score
             }.sortedByDescending { it.second }
             val targetLen = targetTokens * 5 / 3

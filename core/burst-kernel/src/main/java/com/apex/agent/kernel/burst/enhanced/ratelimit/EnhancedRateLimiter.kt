@@ -69,7 +69,7 @@ class EnhancedRateLimiter(
     private val concurrentCounts = ConcurrentHashMap<String, AtomicLong>()
     private val dailyUsage = ConcurrentHashMap<String, AtomicLong>()
     private val adaptiveConfigs = ConcurrentHashMap<String, AdaptiveConfig>()
-    private val successRates = ConcurrentHashMap<String, mutableListOf<Boolean>>()
+    private val successRates = ConcurrentHashMap<String, MutableList<Boolean>>()
 
     private val _limitEvents = MutableStateFlow<List<LimitEvent>>(emptyList())
     val limitEvents: StateFlow<List<LimitEvent>> = _limitEvents.asStateFlow()

@@ -157,7 +157,7 @@ class SkillProfiler {
         if (recent.size < 5 || older.size < 5) return PerformanceTrend.UNKNOWN
         val recentAvg = recent.average()
         val olderAvg = older.average()
-        val diff = (recentAvg - olderAvg) / olderAvg.coerceAtLeast(1)
+        val diff = (recentAvg - olderAvg) / olderAvg.coerceAtLeast(1.0)
         return when {
             diff < -0.1 -> PerformanceTrend.IMPROVING
             diff > 0.2 -> PerformanceTrend.DEGRADING
