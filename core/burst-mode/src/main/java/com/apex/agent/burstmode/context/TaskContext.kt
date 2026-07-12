@@ -99,10 +99,9 @@ class TaskContext(
      * @return 类型匹配的值，不匹配返回 null
      */
     @Suppress("UNCHECKED_CAST")
-    @Suppress("UNCHECKED_CAST")
     fun <T> getOrNull(key: String): T? {
         val value = variables[key] ?: return parent?.getOrNull(key)
-        return if (value is T) value else null
+        return value as? T
     }
 
     /**
