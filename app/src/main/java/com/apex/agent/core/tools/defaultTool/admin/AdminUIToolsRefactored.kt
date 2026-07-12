@@ -91,7 +91,7 @@ open class AdminUIToolsRefactored(context: Context) :
                 ).toToolResult(tool.name)
 
             // 把 action 映射到 executeSystemOperation 使用的 operation 词汇表
-                val mappedTool = tool.copy(
+    val mappedTool = tool.copy(
                 parameters = tool.parameters.map { p ->
                     if (p.name == "action") p.copy(name = "operation", value = action) else p
                 }
@@ -123,7 +123,7 @@ open class AdminUIToolsRefactored(context: Context) :
         // 这里给出明确说明：清除缓存需要走 PackageManager.deleteApplicationCacheFiles，
         // shell 层只能近似为 `pm clear`，但会清掉数据。因此先尝试 `cmd package`，
         // 失败则回退并告知用户限制。
-                val cmd = "pm clear $pkg"
+    val cmd = "pm clear $pkg"
         AppLogger.w(TAG, "clear_cache falls back to `pm clear` (Android shell cannot clear cache alone); package=$pkg")
         return runShellAndPackage(cmd, tool, pkg, "cache cleared (note: pm clear also clears data)")
     }

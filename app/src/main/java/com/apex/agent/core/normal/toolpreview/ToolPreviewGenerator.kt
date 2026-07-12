@@ -151,7 +151,7 @@ class ToolPreviewGenerator {
     }
 
     // ============ 内部方法 ============
-                private fun estimateDuration(meta: ToolMetadata, args: Map<String, Any?>): Long {
+    private fun estimateDuration(meta: ToolMetadata, args: Map<String, Any?>): Long {
         var duration = meta.defaultDurationMs
         // 网络请求类工具耗时更长
                 if (meta.name.containsAny("http", "fetch", "request", "upload", "download")) {

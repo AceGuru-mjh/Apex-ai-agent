@@ -34,7 +34,7 @@ object AppLogger {
     private const val TOOLPKG_LOG_TAG = "ToolPkg"
 
     // Simple date formatter for log lines
-                private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
     private val startupFileDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US)
     private val packageIdRegexes = listOf(
         Pattern.compile("""\btoolPkgId=([A-Za-z0-9._:-]+)\b"""),
@@ -291,7 +291,7 @@ object AppLogger {
     }
 
     // --- Internal helpers ---
-                private fun writeToFile(priority: Int, tag: String, msg: String, tr: Throwable) {
+    private fun writeToFile(priority: Int, tag: String, msg: String, tr: Throwable) {
         if (!enableFileLogging) return
 
         val file = resolveLogFile() ?: return

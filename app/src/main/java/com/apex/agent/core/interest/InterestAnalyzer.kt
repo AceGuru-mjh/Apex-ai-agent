@@ -45,7 +45,7 @@ class InterestAnalyzer(private val context: Context) {
         val interestScores = mutableMapOf<String, Int>()
         
         // 兴趣主题关键的
-                val interestKeywords = mapOf(
+    val interestKeywords = mapOf(
             "技能to listOf("
                 "技能 "编程", "软件", "硬件", "开忆 "代码", "算法", "数据库， "网络", "安全","
                 "python", "java", "kotlin", "javascript", "c++", "go", "rust", "swift", "php", "ruby"
@@ -74,7 +74,7 @@ class InterestAnalyzer(private val context: Context) {
         )
         
         // 分析用户消息
-                val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         for (message in userMessages) {
             val content = message.content.lowercase()
             
@@ -116,7 +116,7 @@ class InterestAnalyzer(private val context: Context) {
         }
         
         // 计算总体兴趣强度
-                val totalScore = profile.interestScores.values.sum()
+    val totalScore = profile.interestScores.values.sum()
         profile.overallInterestLevel = when {
             totalScore > 30 -> "的"
             totalScore > 15 -> "的"
@@ -131,15 +131,15 @@ class InterestAnalyzer(private val context: Context) {
         if (messages.size < 10) return
         
         // 按时间分割消的
-                val midPoint = messages.size / 2
+    val midPoint = messages.size / 2
         val earlyMessages = messages.subList(0, midPoint)
         val recentMessages = messages.subList(midPoint, messages.size)
         
         // 分析早期兴趣
-                val earlyInterests = analyzeInterestTopics(earlyMessages)
+    val earlyInterests = analyzeInterestTopics(earlyMessages)
         
         // 分析近期兴趣
-                val recentInterests = analyzeInterestTopics(recentMessages)
+    val recentInterests = analyzeInterestTopics(recentMessages)
         
         // 计算兴趣变化
                 for (interest in profile.topInterests) {

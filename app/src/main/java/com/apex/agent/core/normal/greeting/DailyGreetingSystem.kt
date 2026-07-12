@@ -88,7 +88,7 @@ class DailyGreetingSystem {
 
     private val quotes = mutableListOf<DailyQuote>()
     private val lastGreeting = ConcurrentHashMap<String, Long>()  // userId -> 上次问候时间
-                private val userNicknames = ConcurrentHashMap<String, String>()
+    private val userNicknames = ConcurrentHashMap<String, String>()
 
     init {
         loadBuiltinQuotes()
@@ -132,7 +132,7 @@ class DailyGreetingSystem {
      */
     fun getDailyRecommendation(userId: String): Greeting {
         // 根据上次问候时间决定类型
-                val last = lastGreeting[userId] ?: 0
+    val last = lastGreeting[userId] ?: 0
         val hoursSince = (System.currentTimeMillis() - last) / (60 * 60_000)
 
         return when {
@@ -158,7 +158,7 @@ class DailyGreetingSystem {
     }
 
     // ============ 生成方法 ============
-                private fun generateTimeGreeting(timeOfDay: TimeOfDay, personalization: String): Greeting {
+    private fun generateTimeGreeting(timeOfDay: TimeOfDay, personalization: String): Greeting {
         return when (timeOfDay) {
             TimeOfDay.EARLY_MORNING -> Greeting(
                 GreetingType.TIME_BASED, "清晨问候",

@@ -38,7 +38,7 @@ class ApkReverseEngineer(private val context: Context) {
             newPackageName: String
     ) {
         // 递归处理所有节，
-                fun processNode(node: Axml.Node) {
+    fun processNode(node: Axml.Node) {
             // 处理当前节点的属态
                 for (attr in node.attrs) {
                 if (attr.value is String) {
@@ -185,7 +185,7 @@ class ApkReverseEngineer(private val context: Context) {
             )
 
             // 使用zipalign-java库进行对象
-                val rafIn = RandomAccessFile(inputApk, "r")
+    val rafIn = RandomAccessFile(inputApk, "r")
         val fos = FileOutputStream(outputApk)
 
             // ，so文件使用16KB边界对齐，其他文件使，字节对齐
@@ -537,7 +537,7 @@ class ApkReverseEngineer(private val context: Context) {
             outputApk.parentFile?.mkdirs()
 
             // 首先尝试使用PKCS12格式加载密钥，
-                val pkcs12Result =
+    val pkcs12Result =
                     trySignWithKeyStoreType(
                             unsignedApk,
                             keyStoreFile,
@@ -552,7 +552,7 @@ class ApkReverseEngineer(private val context: Context) {
             }
 
             // 如果PKCS12失败，尝试使用JKS格式
-                val jksResult =
+    val jksResult =
                     trySignWithKeyStoreType(
                             unsignedApk,
                             keyStoreFile,
@@ -591,7 +591,7 @@ class ApkReverseEngineer(private val context: Context) {
             AppLogger.d(TAG, "尝试着keyStoreType 格式加载密钥，"
 
             // 使用KeyStoreHelper获取密钥库实例
-                val keyStore = KeyStoreHelper.getKeyStoreInstance(keyStoreType)
+    val keyStore = KeyStoreHelper.getKeyStoreInstance(keyStoreType)
             if (keyStore == null) {
                 val errorMessage = context.getString(R.string.apk_get_keystore_instance_failed, keyStoreType)
                 AppLogger.e(TAG, errorMessage)
@@ -609,7 +609,7 @@ class ApkReverseEngineer(private val context: Context) {
                 }
 
                 // 获取可用的别，
-                val aliases = keyStore.aliases()
+    val aliases = keyStore.aliases()
         val aliasList = mutableListOf<String>()
                 while (aliases.hasMoreElements()) {
                     aliasList.add(aliases.nextElement())
@@ -655,7 +655,7 @@ class ApkReverseEngineer(private val context: Context) {
     ): Pair<Boolean, String?> {
         try {
             // 获取私钥
-                val key = keyStore.getKey(keyAlias, keyPassword.toCharArray())
+    val key = keyStore.getKey(keyAlias, keyPassword.toCharArray())
             if (key == null) {
                 val errorMessage = context.getString(R.string.apk_key_not_found_in_keystore, keyAlias)
                 AppLogger.e(TAG, errorMessage)
@@ -670,7 +670,7 @@ class ApkReverseEngineer(private val context: Context) {
             val privateKey = key
 
             // 获取证书，
-                val certificateChain = keyStore.getCertificateChain(keyAlias)
+    val certificateChain = keyStore.getCertificateChain(keyAlias)
             if (certificateChain == null || certificateChain.isEmpty()) {
                 val errorMessage = context.getString(R.string.apk_cannot_get_cert_chain, keyAlias)
                 AppLogger.e(TAG, errorMessage)
@@ -688,7 +688,7 @@ class ApkReverseEngineer(private val context: Context) {
                     }
 
             // 使用ApkSigner进行签名
-                val signer =
+    val signer =
                     ApkSigner.SignerConfig.Builder(keyAlias, privateKey, x509CertificateChain)
                             .build()
             val signerConfigs = listOf(signer)

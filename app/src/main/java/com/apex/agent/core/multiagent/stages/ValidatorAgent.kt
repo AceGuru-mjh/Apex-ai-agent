@@ -70,7 +70,7 @@ sb.appendLine("全部测试运行通过")
 sb.appendLine("全部测试运行失败")            failures.add("测试运行未通过：部分测试用例失败）"
 }
         sb.appendLine()        // 总结
-                val passed = failures.isEmpty()        sb.appendLine("## 验证结果")        sb.appendLine("状态${"
+    val passed = failures.isEmpty()        sb.appendLine("## 验证结果")        sb.appendLine("状态${"
 if (passed) "全部通过" else "存在失败"
 }
 ")        if (failures.isNotEmpty()) {"
@@ -95,7 +95,7 @@ keyword ->            codeContext.contains(keyword, ignoreCase = true)
     private
     fun verifyCompilation(codeContext: String): Boolean {
 // 检查代码块是否有明显的语法问题
-                val codeBlocks = codeContext.lines().filter {
+    val codeBlocks = codeContext.lines().filter {
 it.trim().startsWith("```")
 }
         // 代码块标记应成对出现

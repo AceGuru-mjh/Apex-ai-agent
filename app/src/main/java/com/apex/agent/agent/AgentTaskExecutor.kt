@@ -109,7 +109,7 @@ class AgentTaskExecutor(
         val job = scope.launch {
             try {
                 // 等待 Agent 就绪
-                val agentReady = lifecycleManager?.let { mgr ->
+    val agentReady = lifecycleManager?.let { mgr ->
                     mgr.getState(agent.agentId) == null || mgr.getState(agent.agentId) == AgentLifecycleState.ACTIVE
                 } ?: true
 
@@ -120,11 +120,11 @@ class AgentTaskExecutor(
                 }
 
                 // 进入运行状态
-                val runningState = TaskExecutionState.Running(agent.agentId, System.currentTimeMillis())
+    val runningState = TaskExecutionState.Running(agent.agentId, System.currentTimeMillis())
                 updateState(taskId, runningState, onStateUpdate)
 
                 // 执行（带重试）
-                val result = executeWithRetry(agent, task, config, taskId, onStateUpdate)
+    val result = executeWithRetry(agent, task, config, taskId, onStateUpdate)
         val finalState = if (result.success) {
                     TaskExecutionState.Completed(result)
                 } else {

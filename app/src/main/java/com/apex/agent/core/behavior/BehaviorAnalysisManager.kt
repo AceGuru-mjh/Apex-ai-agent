@@ -18,7 +18,7 @@ class BehaviorAnalysisManager private constructor(
     private val TAG = "BehaviorAnalysisManager"
     
     // 缓存行为分析结果
-                private val behaviorCache = ConcurrentHashMap<String, UserBehaviorProfile>()
+    private val behaviorCache = ConcurrentHashMap<String, UserBehaviorProfile>()
     
     companion object {
         @Volatile private var INSTANCE: BehaviorAnalysisManager? = null
@@ -41,7 +41,7 @@ class BehaviorAnalysisManager private constructor(
                 behaviorCache[userId]?.let { return@withContext it }
         
         // 分析行为
-                val profile = behaviorAnalyzer.analyzeUserBehavior(messages)
+    val profile = behaviorAnalyzer.analyzeUserBehavior(messages)
         behaviorCache[userId] = profile
         profile
     }

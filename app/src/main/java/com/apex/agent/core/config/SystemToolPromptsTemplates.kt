@@ -731,7 +731,7 @@ object SystemToolPromptsTemplates {
         )
 
     // 其他语言的工具类别定义将在此处添务
-                val internalToolCategoriesZh: List<SystemToolPromptCategory> = internalToolCategoriesEn
+    val internalToolCategoriesZh: List<SystemToolPromptCategory> = internalToolCategoriesEn
     val internalToolCategoriesEs: List<SystemToolPromptCategory> = internalToolCategoriesEn
     val internalToolCategoriesJp: List<SystemToolPromptCategory> = internalToolCategoriesEn
     val internalToolCategoriesKo: List<SystemToolPromptCategory> = internalToolCategoriesEn

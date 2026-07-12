@@ -743,7 +743,7 @@ class AgentCollaborationFramework(
             }
 
             // 更新原任务，关联子任务
-                val updatedTask = task.copy(
+    val updatedTask = task.copy(
                 subtasks = subtasks.map { it.id },
                 updatedAt = System.currentTimeMillis()
             )

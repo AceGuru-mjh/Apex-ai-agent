@@ -43,7 +43,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     private val mutex = Mutex()
 
     // 状态管理
-                private val _modeStates = MutableStateFlow<Map<PermissionMode, PermissionModeState>>(emptyMap())
+    private val _modeStates = MutableStateFlow<Map<PermissionMode, PermissionModeState>>(emptyMap())
         val modeStates: StateFlow<Map<PermissionMode, PermissionModeState>> = _modeStates.asStateFlow()
 
     private val _currentMode = MutableStateFlow<PermissionMode?>(null)
@@ -62,10 +62,10 @@ class PermissionModeManager private constructor(private val context: Context) {
         val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
 
     // 缓存
-                private val detectionCache = ConcurrentHashMap<PermissionMode, CachedResult>()
+    private val detectionCache = ConcurrentHashMap<PermissionMode, CachedResult>()
 
     // 状态监听器
-                private val stateChangeListeners = mutableSetOf<(PermissionModeState) -> Unit>()
+    private val stateChangeListeners = mutableSetOf<(PermissionModeState) -> Unit>()
     private val modeChangeListeners = mutableSetOf<(PermissionMode) -> Unit>()
 
     private data class CachedResult(
@@ -334,14 +334,14 @@ class PermissionModeManager private constructor(private val context: Context) {
 
         val result = try {
             // 使用 RootAuthorizer 检测
-                val isRooted = RootAuthorizer.isDeviceRooted()
+    val isRooted = RootAuthorizer.isDeviceRooted()
         val hasRootAccess = RootAuthorizer.hasRootAccess()
 
             // 检测Root 方案
-                val rootScheme = detectRootScheme()
+    val rootScheme = detectRootScheme()
 
             // 检测SELinux 状态
-                val seLinuxStatus = detectSELinuxStatus()
+    val seLinuxStatus = detectSELinuxStatus()
 
             RootDetectionResult(
                 isRooted = isRooted,

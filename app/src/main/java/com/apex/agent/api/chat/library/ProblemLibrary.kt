@@ -129,10 +129,10 @@ object ProblemLibrary {
             AppLogger.d(TAG, "找到 ${uncategorizedMemories.size} 条未分类记忆，开始批量分果.")
             
             // 获取现有文件夹列行
-                val existingFolders = memoryRepository.getAllFolderPaths()
+    val existingFolders = memoryRepository.getAllFolderPaths()
             
             // 分批处理（每的条）
-                val batches = uncategorizedMemories.chunked(10)
+    val batches = uncategorizedMemories.chunked(10)
             batches.forEachIndexed { batchIndex: Int, batch: List<Memory> ->
                 try {
                     AppLogger.d(TAG, "处理${{batchIndex + 1} 批记忆（${{batch.size} 条）...")
@@ -249,13 +249,13 @@ object ProblemLibrary {
         val memoryRepository = MemoryRepository(context, profileId)
 
             // Prune tool results to reduce token usage
-                val prunedContent =
+    val prunedContent =
                 ChatUtils.stripGeminiThoughtSignatureMeta(
                     pruneToolResultContent(context, content)
                 )
 
             // Process conversation history: remove system messages and clean user messages
-                val processedHistory = conversationHistory
+    val processedHistory = conversationHistory
                 .filter { it.first != "system" }
                 .map { (role, msgContent) ->
                     val cleanedContent = if (role == "user") {
@@ -280,7 +280,7 @@ object ProblemLibrary {
             }
 
             // Generate the graph analysis from the conversation
-                val analysis = generateAnalysis(
+    val analysis = generateAnalysis(
                 context = context,
                 aiService = aiService,
                 query = query,
@@ -297,7 +297,7 @@ object ProblemLibrary {
             }
 
             // Create a map to track all memories (new and updated) for linking
-                val createdMemories = mutableMapOf<String, Memory>()
+    val createdMemories = mutableMapOf<String, Memory>()
 
             // First, apply any merges to existing memories
                 if (analysis.mergedEntities.isNotEmpty()) {
@@ -364,7 +364,7 @@ object ProblemLibrary {
 
             try {
                 // 1. Create main problem memory
-                val mainProblemMemory = analysis.mainProblem?.let { mainProblem ->
+    val mainProblemMemory = analysis.mainProblem?.let { mainProblem ->
         val existingMemory = memoryRepository.findMemoryByTitle(mainProblem.title)
                     if (existingMemory != null) {
                         AppLogger.d(TAG, "1. 发现同名核心记忆，更新内字${mainProblem.title}'")
@@ -433,11 +433,11 @@ object ProblemLibrary {
                 AppLogger.d(TAG, "3. 开始创建记忆链接.")
                 analysis.links.forEach { link ->
                     // Try to find source: first in newly created/updated memories, then in existing DB
-                val source = createdMemories[link.sourceTitle] 
+    val source = createdMemories[link.sourceTitle] 
                         ?: memoryRepository.findMemoryByTitle(link.sourceTitle)
                     
                     // Try to find target: first in newly created/updated memories, then in existing DB
-                val target = createdMemories[link.targetTitle] 
+    val target = createdMemories[link.targetTitle] 
                         ?: memoryRepository.findMemoryByTitle(link.targetTitle)
                     
                     if (source != null && target != null) {
@@ -482,7 +482,7 @@ object ProblemLibrary {
 
             // --- Hybrid Strategy: Local rough search + LLM final decision ---
             // 1. Use a compact search query (question-focused) for rough candidate selection.
-                val contextQuery = buildCandidateSearchQuery(query, solution)
+    val contextQuery = buildCandidateSearchQuery(query, solution)
         val searchConfig = MemorySearchSettingsPreferences(context, profileId).load()
             val candidateMemories = memoryRepository.searchMemories(
                 query = contextQuery,
@@ -521,7 +521,7 @@ object ProblemLibrary {
             }
 
             // 2. Proactively find duplicates among candidates and instruct LLM to merge them
-                val duplicatesPromptPart = findAndDescribeDuplicates(candidateMemories, memoryRepository, useEnglish)
+    val duplicatesPromptPart = findAndDescribeDuplicates(candidateMemories, memoryRepository, useEnglish)
         val existingMemoriesPrompt = if (candidateMemories.isNotEmpty()) {
                 FunctionalPrompts.knowledgeGraphExistingMemoriesPrefix(useEnglish) +
                     candidateMemories.joinToString("\n") { "- \"${it.title}\": ${it.content.take(150).replace("\n", " ")}..." }
@@ -530,7 +530,7 @@ object ProblemLibrary {
             }
 
             // 获取现有文件夹列行
-                val existingFolders = memoryRepository.getAllFolderPaths()
+    val existingFolders = memoryRepository.getAllFolderPaths()
         val existingFoldersPrompt = FunctionalPrompts.knowledgeGraphExistingFoldersPrompt(
                 existingFolders = existingFolders,
                 useEnglish = useEnglish
@@ -718,7 +718,7 @@ object ProblemLibrary {
                 AppLogger.d(TAG, "AI 返回的完的JSON 指令:\n${json.toString(2)}")
 
             // Parse main_problem from "main" array
-                val mainProblem = json.optJSONArray("main")?.let {
+    val mainProblem = json.optJSONArray("main")?.let {
         val tags = it.optJSONArray(2)?.let { tagsArray -> List(tagsArray.length()) { i -> tagsArray.getString(i) } } ?: emptyList()
                 ParsedEntity(
                     title = it.getString(0),
@@ -730,7 +730,7 @@ object ProblemLibrary {
             }
 
             // Parse extracted_entities from "new" array
-                val extractedEntities = json.optJSONArray("new")?.let { entitiesArray ->
+    val extractedEntities = json.optJSONArray("new")?.let { entitiesArray ->
                 List(entitiesArray.length()) { i ->
                     val entityArr = entitiesArray.getJSONArray(i)
         val tags = entityArr.optJSONArray(2)?.let { tagsArray -> List(tagsArray.length()) { j -> tagsArray.getString(j) } } ?: emptyList()
@@ -746,7 +746,7 @@ object ProblemLibrary {
             } ?: emptyList()
 
             // Parse links from "links" array
-                val links = json.optJSONArray("links")?.let { linksArray ->
+    val links = json.optJSONArray("links")?.let { linksArray ->
                 List(linksArray.length()) { i ->
                     val linkArr = linksArray.getJSONArray(i)
                     ParsedLink(
@@ -760,7 +760,7 @@ object ProblemLibrary {
             } ?: emptyList()
 
             // Parse updated_entities from "update" array
-                val updatedEntities = json.optJSONArray("update")?.let { updatesArray ->
+    val updatedEntities = json.optJSONArray("update")?.let { updatesArray ->
                 List(updatesArray.length()) { i ->
                     val updateArr = updatesArray.getJSONArray(i)
         val credibility = if (!updateArr.isNull(3)) updateArr.getDouble(3).toFloat() else null
@@ -776,7 +776,7 @@ object ProblemLibrary {
             } ?: emptyList()
 
             // Parse merge_entities from "merge" array
-                val mergedEntities = json.optJSONArray("merge")?.let { mergeArray ->
+    val mergedEntities = json.optJSONArray("merge")?.let { mergeArray ->
                 List(mergeArray.length()) { i ->
                     val mergeObj = mergeArray.getJSONObject(i)
         val sourceTitles = mergeObj.getJSONArray("source_titles").let { titles ->
@@ -816,7 +816,7 @@ object ProblemLibrary {
     private fun parseUserPreferences(context: Context, preferencesObj: JSONObject): String {
         val preferenceParts = mutableListOf<String>()
         // Helper to add preference if it exists and is not "<UNCHANGED>"
-        fun addPref(key: String, prefix: String) {
+    fun addPref(key: String, prefix: String) {
             if (preferencesObj.has(key) && preferencesObj.get(key) != "<UNCHANGED>") {
                 val value = preferencesObj.get(key).toString()
                 if (value.isNotEmpty()) preferenceParts.add("${prefix}: ${value}")

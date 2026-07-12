@@ -99,7 +99,7 @@ class SmartLogQueryManager(private val context: Context) {
         
         try {
             // 自动检测日志类型
-                val detectedType = if (filter.logType == LogType.AUTO_DETECT) {
+    val detectedType = if (filter.logType == LogType.AUTO_DETECT) {
                 detectBestLogSource(filter)
             } else {
                 filter.logType
@@ -108,7 +108,7 @@ class SmartLogQueryManager(private val context: Context) {
             AppLogger.i(TAG, "Querying logs: type=${detectedType}, keyword=${filter.keyword}")
             
             // 根据类型执行查询
-                val result = when (detectedType) {
+    val result = when (detectedType) {
                 LogType.SYSTEM_LOGCAT -> querySystemLogcat(filter)
                 LogType.APP_LOGGER -> queryAppLogger(filter)
                 LogType.GEPA_LOGS -> queryGepaLogs(filter)
@@ -143,7 +143,7 @@ class SmartLogQueryManager(private val context: Context) {
      */
     private fun detectBestLogSource(filter: LogFilter): LogType {
         // 日志类型枚举
-                val keyword = filter.keyword?.lowercase() ?: ""
+    val keyword = filter.keyword?.lowercase() ?: ""
         val tag = filter.tag?.lowercase() ?: ""
         
         return when {
@@ -182,7 +182,7 @@ class SmartLogQueryManager(private val context: Context) {
     private suspend fun querySystemLogcat(filter: LogFilter): LogQueryResult {
         return try {
             // 构建 logcat 命令
-                val command = buildLogcatCommand(filter)
+    val command = buildLogcatCommand(filter)
         val process = Runtime.getRuntime().exec(command)
             val output = process.inputStream.bufferedReader().readText()
         val exitCode = process.waitFor()
@@ -200,7 +200,7 @@ class SmartLogQueryManager(private val context: Context) {
             }
             
             // 解析输出
-                val entries = parseLogcatOutput(output, filter)
+    val entries = parseLogcatOutput(output, filter)
             
             LogQueryResult(
                 success = true,
@@ -267,7 +267,7 @@ class SmartLogQueryManager(private val context: Context) {
         val lines = output.lines()
         
         // logcat 格式: MM-DD HH:MM:SS.mmm PID TID LEVEL TAG : Message
-                val logPattern = Regex("(\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+(\\d+)\\s+(\\d+)\\s+([VDIWEF])\\s+([^:]+):\\s+(.*)")
+    val logPattern = Regex("(\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+(\\d+)\\s+(\\d+)\\s+([VDIWEF])\\s+([^:]+):\\s+(.*)")
         
         for (line in lines) {
             val match = logPattern.find(line)
@@ -322,7 +322,7 @@ class SmartLogQueryManager(private val context: Context) {
             }
             
             // 读取日志文件
-                val lines = logFile.readLines()
+    val lines = logFile.readLines()
         val entries = parseAppLoggerLines(lines, filter)
             
             LogQueryResult(
@@ -356,7 +356,7 @@ class SmartLogQueryManager(private val context: Context) {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
         
         // AppLogger 格式: yyyy-MM-dd HH:mm:ss.SSS L/TAG: message
-                val logPattern = Regex("(\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+([VDIWEAF])/([^:]+):\\s+(.*)")
+    val logPattern = Regex("(\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+([VDIWEAF])/([^:]+):\\s+(.*)")
         
         for (line in lines) {
             val match = logPattern.find(line)
@@ -649,7 +649,7 @@ class SmartLogQueryManager(private val context: Context) {
             }
 
             // 排序 + 截断
-                val sorted = rawEntries.sortedBy { it.timestamp }
+    val sorted = rawEntries.sortedBy { it.timestamp }
         val limited = if (filter.maxResults > 0) sorted.takeLast(filter.maxResults) else sorted
 
             LogQueryResult(
@@ -704,7 +704,7 @@ class SmartLogQueryManager(private val context: Context) {
     private suspend fun queryBuildLogs(filter: LogFilter): LogQueryResult {
         return try {
             // 查找构建日志文件
-                val buildLogFiles = listOf(
+    val buildLogFiles = listOf(
                 File("build_error.log"),
                 File("build_log.txt"),
                 File("ai_terminal_build.log"),
@@ -761,7 +761,7 @@ class SmartLogQueryManager(private val context: Context) {
      */
     private suspend fun queryTerminalAgentLogs(filter: LogFilter): LogQueryResult {
         // Terminal Agent 日志主要通过 logcat 获取
-                val enhancedFilter = filter.copy(tag = filter.tag ?: "TerminalAgent")
+    val enhancedFilter = filter.copy(tag = filter.tag ?: "TerminalAgent")
         return querySystemLogcat(enhancedFilter)
     }
     
@@ -821,7 +821,7 @@ class SmartLogQueryManager(private val context: Context) {
         val stats = mutableMapOf<String, Any>()
         
         // AppLogger 统计
-                val appLogFile = AppLogger.getLogFile()
+    val appLogFile = AppLogger.getLogFile()
         if (appLogFile != null && appLogFile.exists()) {
             stats["app_logger_file_size"] = appLogFile.length()
             stats["app_logger_lines"] = appLogFile.readLines().size
@@ -831,7 +831,7 @@ class SmartLogQueryManager(private val context: Context) {
                 stats["gepa_log_count"] = GepaLogger.getLogs(Int.MAX_VALUE).size
         
         // 构建日志统计
-                val buildLogFiles = listOf(
+    val buildLogFiles = listOf(
             File("build_error.log"),
             File("build_log.txt"),
             File("ai_terminal_build.log")

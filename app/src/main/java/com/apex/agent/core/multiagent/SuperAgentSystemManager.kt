@@ -29,7 +29,7 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     // 核心管理器
-                val knowledgeGraphManager: KnowledgeGraphManager by lazy { KnowledgeGraphManager(context) }
+    val knowledgeGraphManager: KnowledgeGraphManager by lazy { KnowledgeGraphManager(context) }
     val federatedLearningManager: FederatedLearningManager by lazy { FederatedLearningManager(context) }
     val realTimeCollaborationManager: RealTimeCollaborationManager by lazy { RealTimeCollaborationManager(context) }
     val dynamicTopologyManager: DynamicTopologyManager by lazy { DynamicTopologyManager(context) }
@@ -44,11 +44,11 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
                 var multiAgentManager: MultiAgentManager? = null
 
     // 系统状态
-                private val _systemState = MutableStateFlow(SystemState.INITIALIZING)
+    private val _systemState = MutableStateFlow(SystemState.INITIALIZING)
         val systemState: StateFlow<SystemState> = _systemState
 
     // 性能指标
-                private val _performanceMetrics = MutableStateFlow(PerformanceMetrics())
+    private val _performanceMetrics = MutableStateFlow(PerformanceMetrics())
         val performanceMetrics: StateFlow<PerformanceMetrics> = _performanceMetrics
 
     /**
@@ -88,7 +88,7 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
 
     private suspend fun initializeDefaultAgents() {
         // 注册默认Agent到所有管理器
-                val defaultAgent = Agent(
+    val defaultAgent = Agent(
             id = "default_coordinator",
             name = "系统协调者",
             role = "COORDINATOR",
@@ -118,7 +118,7 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
     }
 
         // 更新状态
-                fun registerAgent(
+    fun registerAgent(
         id: String,
         name: String,
         role: String,
@@ -128,7 +128,7 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
     ) {
         scope.launch {
             // 注册到所有相关管理器
-                val defaultAgent = Agent(id, name, role, goal, backstory, tools)
+    val defaultAgent = Agent(id, name, role, goal, backstory, tools)
         val capabilities = calculateAgentCapabilities(role)
 
             dynamicTopologyManager.registerAgent(id, capabilities = capabilities, initialRole = mapRoleToEnum(role))
@@ -176,7 +176,7 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
                 "type" to taskType
             )
             // 1. 使用高级推理引擎进行任务规划
-                val reasoningResult = advancedReasoningEngine.reason(
+    val reasoningResult = advancedReasoningEngine.reason(
                 goal = description,
                 context = mapOf(
                 "taskType" to taskType,
@@ -188,14 +188,14 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
             onProgress(ProgressUpdate(0.3f, "分析完成"))
 
             // 2. 使用动态拓扑管理器分配任务
-                val suitableAgents = capabilities.mapNotNull { cap ->
+    val suitableAgents = capabilities.mapNotNull { cap ->
                 dynamicTopologyManager.findAgentsByCapability(cap).firstOrNull()?.first
             }.distinct()
 
             onProgress(ProgressUpdate(0.5f, "Agent分配完成"))
 
             // 3. 执行任务
-                val results = suitableAgents.map { agentId ->
+    val results = suitableAgents.map { agentId ->
                 federatedLearningManager.recordTaskOutcome(
                     agentId = agentId,
                     taskType = taskType,

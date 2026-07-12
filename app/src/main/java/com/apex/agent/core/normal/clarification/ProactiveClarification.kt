@@ -38,10 +38,10 @@ enum class ClarificationType {
 data class ClarificationNeed(
     val type: ClarificationType,
     val ambiguousPart: String,      // 模糊的部分
-                val possibleInterpretations: List<String>,  // 可能的解读
-                val suggestedQuestion: String,  // 建议的反问
-                val confidence: Float,          // 检测置信度
-                val options: List<String> = emptyList()  // 选项（如有）
+    val possibleInterpretations: List<String>,  // 可能的解读
+    val suggestedQuestion: String,  // 建议的反问
+    val confidence: Float,          // 检测置信度
+    val options: List<String> = emptyList()  // 选项（如有）
 )
 
 /**
@@ -83,7 +83,7 @@ class ProactiveClarification {
                 needs.addAll(detectMissingContext(userMessage, context))
 
         // 按置信度排序，取前 3 个
-                val topNeeds = needs.sortedByDescending { it.confidence }.take(3)
+    val topNeeds = needs.sortedByDescending { it.confidence }.take(3)
         val combinedQuestion = if (topNeeds.isNotEmpty()) {
             buildCombinedQuestion(topNeeds)
         } else ""
@@ -109,7 +109,7 @@ class ProactiveClarification {
     }
 
     // ============ 检测方法 ============
-                private fun detectPronounAmbiguity(message: String, context: Map<String, Any>): List<ClarificationNeed> {
+    private fun detectPronounAmbiguity(message: String, context: Map<String, Any>): List<ClarificationNeed> {
         val needs = mutableListOf<ClarificationNeed>()
         val pronouns = mapOf(
             "它" to "指代对象",
@@ -128,7 +128,7 @@ class ProactiveClarification {
         )
 
         // 如果上下文中没有明确的指代对象，标记为模糊
-                val hasRecentEntity = context.containsKey("last_entity") || context.containsKey("last_subject")
+    val hasRecentEntity = context.containsKey("last_entity") || context.containsKey("last_subject")
 
         for ((pronoun, desc) in pronouns) {
             if (message.contains(pronoun, ignoreCase = true) && !hasRecentEntity) {
@@ -188,7 +188,7 @@ class ProactiveClarification {
         for ((action, question) in actionPatterns) {
             if (message.contains(action, ignoreCase = true)) {
                 // 检查是否有明确的目标
-                val hasTarget = message.contains(Regex("(文件|目录|应用|程序|配置)[\\s]*[\"「『]([^\"」』]+)[\"」』]")) ||
+    val hasTarget = message.contains(Regex("(文件|目录|应用|程序|配置)[\\s]*[\"「『]([^\"」』]+)[\"」』]")) ||
                                message.contains(Regex("/\\S+"))  // 路径
                 if (!hasTarget) {
                     needs.add(ClarificationNeed(

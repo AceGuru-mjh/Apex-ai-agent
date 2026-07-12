@@ -150,7 +150,7 @@ class NLPOptimizer private constructor() {
         private val PARAMETER_PATTERN = Regex("--?(\\w+)[=:]?[\"']?([^\"'\\s]+)?[\"']?", RegexOption.IGNORE_CASE)
         private val FILE_PATH_PATTERN = Regex("(?:/[\\w.\\-]+)+|(?:[A-Za-z]:\\[\\w.\\-]+(?:\\[\\w.\\-]+)*)", RegexOption.IGNORE_CASE)
         private val URL_PATTERN = Regex("https?://[\\w.-]+(:\\d+)?(/[\\w./%-]*)?", RegexOption.IGNORE_CASE)
-                private val EMAIL_PATTERN = Regex("[\\w.-]+@[\\w.-]+\\.\\w{2,}", RegexOption.IGNORE_CASE)
+    private val EMAIL_PATTERN = Regex("[\\w.-]+@[\\w.-]+\\.\\w{2,}", RegexOption.IGNORE_CASE)
     }
 
     private fun loadLanguageProfiles(): List<LanguageProfile> = listOf(

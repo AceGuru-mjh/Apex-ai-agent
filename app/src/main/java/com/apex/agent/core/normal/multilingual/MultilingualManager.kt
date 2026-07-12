@@ -159,7 +159,7 @@ class MultilingualManager(
         if (thai > 0) ratios[Language.THAI] = thai / totalChars
 
         // 排序
-                val sorted = ratios.entries.sortedByDescending { it.value }
+    val sorted = ratios.entries.sortedByDescending { it.value }
         val primary = sorted.firstOrNull()?.key ?: Language.UNKNOWN
         val secondary = sorted.getOrNull(1)?.key
         val isMixed = sorted.size > 1 && (sorted.getOrNull(1)?.value ?: 0f) > 0.2f
@@ -271,7 +271,7 @@ class MultilingualManager(
     enum class TextDirection { LTR, RTL }
 
     // ============ 内部方法 ============
-                private fun detectScripts(text: String): Set<Script> {
+    private fun detectScripts(text: String): Set<Script> {
         val scripts = mutableSetOf<Script>()
         for (c in text) {
             val code = c.code

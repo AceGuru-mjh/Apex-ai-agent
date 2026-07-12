@@ -550,7 +550,7 @@ class StandardChatManagerTool(private val context: Context) {
     private var connectionDeferred = CompletableDeferred<Boolean>().apply { complete(false) }
 
     // Service 连接回调
-                private val serviceConnection = object : ServiceConnection {
+    private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder) {
             AppLogger.d(TAG, "Service connected")
             val binder = service as? FloatingChatService.LocalBinder
@@ -870,7 +870,7 @@ class StandardChatManagerTool(private val context: Context) {
             )
 
             // 获取创建前的 chat list
-                val previousChatIds = core.chatHistories.value.map { it.id }.toSet()
+    val previousChatIds = core.chatHistories.value.map { it.id }.toSet()
         val group = tool.parameters.find { it.name == "group" }?.value?.trim()
             val effectiveGroup = group?.takeIf { it.isNotBlank() }
         val rawSetAsCurrent = tool.parameters.find { it.name == "set_as_current_chat" }?.value?.trim()
@@ -1095,7 +1095,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             // 检查对话是否存在并获取标题
-                val targetChat = core.chatHistories.value.find { it.id == chatId }
+    val targetChat = core.chatHistories.value.find { it.id == chatId }
             if (targetChat == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -1187,7 +1187,7 @@ class StandardChatManagerTool(private val context: Context) {
 
             try {
                 // 可选的 chat_id 参数
-                val targetChatId = tool.parameters.find { it.name == "chat_id" }?.value?.trim()
+    val targetChatId = tool.parameters.find { it.name == "chat_id" }?.value?.trim()
         val hasTargetChat = !targetChatId.isNullOrBlank()
 
                 if (hasTargetChat) {

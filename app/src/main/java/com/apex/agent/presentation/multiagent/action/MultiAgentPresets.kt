@@ -220,7 +220,7 @@ object MultiAgentQuickActions {
         ))
 
         // 创建任务
-                val taskId = state.createTask(taskTitle, "由快捷操作创建", TaskPriority.NORMAL)
+    val taskId = state.createTask(taskTitle, "由快捷操作创建", TaskPriority.NORMAL)
 
         // 分配
                 state.assignTask(taskId, state.agents.value.map { it.id })

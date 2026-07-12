@@ -64,7 +64,7 @@ data class SimplifiedUINode(
     private fun shouldKeepNode(): Boolean {
         // Keep conditions: key element types or has content or clickable or has children that
         // should be kept
-                val isKeyElement =
+    val isKeyElement =
                 className in
                         setOf("Button", "TextView", "EditText", "ScrollView", "Switch", "ImageView")
         val hasContent = !text.isNullOrBlank() || !contentDesc.isNullOrBlank()

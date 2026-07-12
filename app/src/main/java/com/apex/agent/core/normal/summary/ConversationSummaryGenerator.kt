@@ -59,12 +59,12 @@ data class ConversationSummary(
  */
 data class StructuredSummary(
     val overview: String,           // 总览
-                val topics: List<TopicSummary>, // 按主题
-                val timeline: List<TimelineEvent>, // 时间线
-                val decisions: List<DecisionRecord>, // 决策
-                val actionItems: List<ActionItem>,   // 待办
-                val keyEntities: List<EntityRecord>, // 关键实体
-                val openQuestions: List<String>      // 未解决问题
+    val topics: List<TopicSummary>, // 按主题
+    val timeline: List<TimelineEvent>, // 时间线
+    val decisions: List<DecisionRecord>, // 决策
+    val actionItems: List<ActionItem>,   // 待办
+    val keyEntities: List<EntityRecord>, // 关键实体
+    val openQuestions: List<String>      // 未解决问题
 )
 
 data class TopicSummary(val topic: String, val summary: String, val messageRange: IntRange)
@@ -122,10 +122,10 @@ class ConversationSummaryGenerator {
         }
 
         // TextRank: 计算句子相似度并排序
-                val ranked = textrank(sentences)
+    val ranked = textrank(sentences)
 
         // 选取 top-N 句子（按 token 预算）
-                val selected = mutableListOf<Sentence>()
+    val selected = mutableListOf<Sentence>()
         var tokenCount = 0
         for (sentence in ranked) {
             val tokens = estimateTokens(sentence.text)
@@ -135,7 +135,7 @@ class ConversationSummaryGenerator {
         }
 
         // 按原始顺序排列
-                val ordered = selected.sortedBy { it.timestamp }
+    val ordered = selected.sortedBy { it.timestamp }
         val summaryText = ordered.joinToString(" ") { it.text }
 
         return ConversationSummary(
@@ -161,7 +161,7 @@ class ConversationSummaryGenerator {
         originalTokens: Int
     ): ConversationSummary {
         // 降级为抽取式
-                val extractive = generateExtractive(chatId, messages, maxTokens, originalTokens)
+    val extractive = generateExtractive(chatId, messages, maxTokens, originalTokens)
         return extractive.copy(strategy = SummaryStrategy.ABSTRACTIVE)
     }
 
@@ -233,7 +233,7 @@ class ConversationSummaryGenerator {
         val newSummary = generateStructured(chatId, newMessages, maxTokens, originalTokens)
 
         // 合并到旧摘要
-                val merged = if (lastSummary != null) {
+    val merged = if (lastSummary != null) {
             mergeSummaries(lastSummary, newSummary)
         } else newSummary
 
@@ -268,9 +268,9 @@ class ConversationSummaryGenerator {
     }
 
     // ============ 提取方法 ============
-                private fun extractTopics(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<TopicSummary> {
+    private fun extractTopics(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<TopicSummary> {
         // 按关键词聚类
-                val topicGroups = mutableMapOf<String, MutableList<com.apex.agent.core.normal.context.ConversationMessage>>()
+    val topicGroups = mutableMapOf<String, MutableList<com.apex.agent.core.normal.context.ConversationMessage>>()
         messages.forEach { msg ->
             val keywords = extractKeywords(msg.content)
             keywords.forEach { kw ->
@@ -326,7 +326,7 @@ class ConversationSummaryGenerator {
 
     private fun extractEntities(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<EntityRecord> {
         val entityCounts = mutableMapOf<String, MutableList<Pair<Long, String>>>()  // name -> [(timestamp, type)]
-        val entityTypes = mapOf(
+    val entityTypes = mapOf(
             "人名" to Regex("[A-Z][a-z]+ [A-Z][a-z]+|[\\u4e00-\\u9fa5]{2,3}(说|表示|认为|提出)"),
             "日期" to Regex("\\d{4}[-/年]\\d{1,2}[-/月]\\d{1,2}日?"),
             "数字" to Regex("\\b\\d+(?:\\.\\d+)?%?\\b"),
@@ -436,7 +436,7 @@ class ConversationSummaryGenerator {
         if (sentences.size <= 3) return sentences
 
         // 计算句子间相似度（基于词重叠）
-                val n = sentences.size
+    val n = sentences.size
         val similarity = Array(n) { FloatArray(n) }
         val words = sentences.map { tokenize(it.text) }
 
@@ -449,7 +449,7 @@ class ConversationSummaryGenerator {
         }
 
         // PageRank 迭代
-                val scores = FloatArray(n) { 1f }
+    val scores = FloatArray(n) { 1f }
         val d = 0.85f
         repeat(20) {
             val newScores = FloatArray(n)

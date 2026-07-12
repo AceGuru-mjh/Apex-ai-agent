@@ -26,7 +26,7 @@ class UserProfileBuilder(
         AppLogger.d(TAG, "开始从对话历史构建用户画像: ${userId}, 消息数量: ${chatMessages.size}")
         
         // 获取现有用户画像
-                val profile = memoryRepository.getHonzonProfile(userId)
+    val profile = memoryRepository.getHonzonProfile(userId)
         
         // 分析对话内容
                 analyzeChatContent(chatMessages, profile)
@@ -46,7 +46,7 @@ class UserProfileBuilder(
     */
     private fun analyzeChatContent(messages: List<ChatMessage>, profile: HonzonUserProfile) {
         // 过滤用户消息
-                val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         if (userMessages.isEmpty()) return
         
         // 提取职业信息
@@ -159,7 +159,7 @@ class UserProfileBuilder(
             }
             
             // 分析语言风格
-                val formalKeywords = listOf("的 "谢谢", "您好", "请问", "麻烦的）
+    val formalKeywords = listOf("的 "谢谢", "您好", "请问", "麻烦的）
         val casualKeywords = listOf("的 "的 "的 "呀", "的 "的）"
             
             for (keyword in formalKeywords) {
@@ -233,11 +233,11 @@ class UserProfileBuilder(
      */
     private fun analyzeChatPatterns(messages: List<ChatMessage>, profile: HonzonUserProfile) {
         // 分析对话频率
-                val messageCount = messages.size
+    val messageCount = messages.size
         val avgLength = messages.map { it.content.length }.average()
         
         // 分析回复速度（简化版有
-                val responsePattern = when {
+    val responsePattern = when {
             messageCount > 50 -> "高频"
             messageCount > 20 -> "中频"
             else -> "低频"
@@ -258,7 +258,7 @@ class UserProfileBuilder(
      */
     private fun analyzeUserPreferences(messages: List<ChatMessage>, profile: HonzonUserProfile) {
         // 分析时间偏好
-                val hourDistribution = mutableMapOf<Int, Int>()
+    val hourDistribution = mutableMapOf<Int, Int>()
         for (message in messages) {
             val hour = message.timestamp.substring(11, 13).toIntOrNull() ?: 0
             hourDistribution[hour] = hourDistribution.getOrDefault(hour, 0) + 1
@@ -278,7 +278,7 @@ class UserProfileBuilder(
         }
         
         // 分析话题偏好
-                val topicKeywords = mapOf(
+    val topicKeywords = mapOf(
             "技能to listOf("技能 "编程", "软件", "硬件", "开的）",
             "生活" to listOf("生活", "日常", "家庭", "朋友", "娱乐"),
             "工作" to listOf("工作", "职场", "业务", "项目", "任务"),

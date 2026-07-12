@@ -423,7 +423,7 @@ class AgentLifecycleManager(
     suspend fun broadcast(fromId: String, type: String, payload: Map<String, Any> = emptyMap()) {
         for ((agentId, _) in agents) {
             if (agentId == fromId) continue  // 不发给自己
-                val state = _states[agentId]?.value
+    val state = _states[agentId]?.value
             if (state == AgentLifecycleState.ACTIVE) {
                 sendMessage(
                     AgentMessage(
@@ -494,7 +494,7 @@ class AgentLifecycleManager(
     }
 
     // ===== 内部方法 =====
-                private fun transitionState(
+    private fun transitionState(
         agentId: String,
         expectedFrom: AgentLifecycleState,
         to: AgentLifecycleState

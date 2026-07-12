@@ -198,7 +198,7 @@ class ShellCommandManager(private val context: Context) {
                 history.add(0, record)
         
         // 限制历史记录大小
-                val trimmedHistory = history.take(MAX_HISTORY_SIZE)
+    val trimmedHistory = history.take(MAX_HISTORY_SIZE)
         
         // 保存到SharedPreferences
         // 在实际实现中，使用JSON序列化库将历史记录转换为JSON字符，

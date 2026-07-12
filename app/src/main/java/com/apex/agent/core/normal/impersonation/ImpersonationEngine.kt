@@ -30,8 +30,8 @@ data class ImpersonationProfile(
     val systemPrompt: String,
     val catchphrases: List<String>,
     val vocabulary: List<String>,        // 常用词汇
-                val sentencePatterns: List<String>,  // 句式模板
-                val toneDescription: String,
+    val sentencePatterns: List<String>,  // 句式模板
+    val toneDescription: String,
     val example: String
 )
 
@@ -127,7 +127,7 @@ class ImpersonationEngine {
     }
 
     // ============ 预置模仿对象 ============
-                private fun registerBuiltinProfiles() {
+    private fun registerBuiltinProfiles() {
         // 历史人物
                 register(ImpersonationProfile(
             "imp_luxun", "luxun", "鲁迅", "🖊️", "中国现代文学奠基人",

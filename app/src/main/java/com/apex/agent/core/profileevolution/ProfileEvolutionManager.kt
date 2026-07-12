@@ -43,10 +43,10 @@ class ProfileEvolutionManager private constructor(
         
         try {
             // 获取当前用户画像
-                val currentProfile = userProfileManager.getUserProfile(userId)
+    val currentProfile = userProfileManager.getUserProfile(userId)
             
             // 分析用户反馈
-                val suggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(messages, currentProfile)
+    val suggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(messages, currentProfile)
             
             if (suggestions.isEmpty()) {
                 AppLogger.d(TAG, "没有画像更新建议")
@@ -57,7 +57,7 @@ class ProfileEvolutionManager private constructor(
                 var updated = false
             for (suggestion in suggestions) {
                 if (suggestion.confidence > 0.6) { // 只应用置信度高于0.6的创建
-                val success = userProfileManager.updateProfileDimension(
+    val success = userProfileManager.updateProfileDimension(
                         userId = userId,
                         dimension = suggestion.dimension,
                         value = suggestion.newValue

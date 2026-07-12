@@ -278,11 +278,11 @@ class WorkflowScheduler(
                 if (waitMs > 0) delay(waitMs)
 
                 // 检查是否被取消或禁用
-                val latest = jobs[current.id] ?: break
+    val latest = jobs[current.id] ?: break
                 if (!latest.enabled) break
 
                 // 处理 misfire
-                val actualNow = System.currentTimeMillis()
+    val actualNow = System.currentTimeMillis()
                 if (actualNow - nextRun > MISFIRE_THRESHOLD_MS) {
                     val missedCount = ((actualNow - nextRun) / (current.scheduleConfig.intervalMs ?: 60_000L)).toInt()
                     when (latest.misfirePolicy) {

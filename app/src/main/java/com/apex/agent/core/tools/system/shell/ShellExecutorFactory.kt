@@ -11,7 +11,7 @@ class ShellExecutorFactory {
         private const val TAG = "ShellExecutorFactory"
 
         // 缓存已创建的执行器实例
-                private val executors = mutableMapOf<AndroidPermissionLevel, ShellExecutor>()
+    private val executors = mutableMapOf<AndroidPermissionLevel, ShellExecutor>()
 
         /**
          * 获取指定权限级别的Shell执行的
@@ -29,7 +29,7 @@ class ShellExecutorFactory {
             }
 
             // 创建新的执行器实例
-                val executor =
+    val executor =
                     when (permissionLevel) {
                         AndroidPermissionLevel.ROOT -> RootShellExecutor(context)
                         AndroidPermissionLevel.ADMIN -> AdminShellExecutor(context)
@@ -57,7 +57,7 @@ class ShellExecutorFactory {
         ): Pair<ShellExecutor, ShellExecutor.PermissionStatus> {
 
             // 按权限从高到低尝，
-                val levels =
+    val levels =
                     listOf(
                             AndroidPermissionLevel.ROOT,
                             AndroidPermissionLevel.ADMIN,
@@ -91,7 +91,7 @@ class ShellExecutorFactory {
             try {
                 val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
                 // 如果preferredLevel为null，使用标准权限级，
-                val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
+    val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
                 return getExecutor(context, actualLevel)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error getting preferred permission level, falling back to STANDARD", e)

@@ -118,7 +118,7 @@ class EnhancedWorkflowTest {
         cal.set(Calendar.MILLISECOND, 0)
 
         // 每分钟执行
-                val nextMin = CronParser.nextRun("* * * * *", cal.timeInMillis)
+    val nextMin = CronParser.nextRun("* * * * *", cal.timeInMillis)
         val expected = cal.apply { add(Calendar.MINUTE, 1); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
         assertEquals(expected, nextMin)
     }
@@ -152,7 +152,7 @@ class EnhancedWorkflowTest {
         val n3 = EnhancedNode(name = "N3", type = EnhancedNodeType.EXECUTE, config = EnhancedNodeConfig(actionType = "log"))
 
         // 创建环: n1 -> n2 -> n3 -> n1
-                val wf = EnhancedWorkflow(
+    val wf = EnhancedWorkflow(
             name = "cycle", nodes = listOf(n1, n2, n3),
             connections = listOf(
                 EnhancedConnection(n1.id, n2.id),
@@ -295,7 +295,7 @@ class EnhancedWorkflowTest {
         val json = serializer.toJson(wf)
 
         // 篡改 JSON（破坏校验和）
-                val tampered = json.replace("checksum-test", "tampered-test")
+    val tampered = json.replace("checksum-test", "tampered-test")
         val result = serializer.fromJson(tampered)
 
         // 校验和应该不匹配

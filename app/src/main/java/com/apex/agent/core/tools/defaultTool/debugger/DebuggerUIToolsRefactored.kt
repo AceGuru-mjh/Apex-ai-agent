@@ -54,7 +54,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             )
 
             // 2. 获取参数
-                val x = getRequiredParameter(tool, "x").toIntOrNull()
+    val x = getRequiredParameter(tool, "x").toIntOrNull()
         val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
@@ -68,7 +68,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
                 showTapOverlay(x, y)
 
             // 4. 执行Shell点击命令
-                val displayArg = getDisplayArg(tool)
+    val displayArg = getDisplayArg(tool)
         val command = "input ${displayArg}tap ${x} ${y}"
             val result = executeUiShellCommand(command)
 
@@ -113,7 +113,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             )
 
             // 2. 获取参数
-                val x = getRequiredParameter(tool, "x").toIntOrNull()
+    val x = getRequiredParameter(tool, "x").toIntOrNull()
         val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
@@ -127,7 +127,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
                 showTapOverlay(x, y)
 
             // 4. 执行Shell长按命令（使用swipe模模择
-                val displayArg = getDisplayArg(tool)
+    val displayArg = getDisplayArg(tool)
         val command = "input ${displayArg}swipe ${x} ${y} ${x} ${y} 800"
             val result = executeUiShellCommand(command)
 
@@ -172,7 +172,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             )
 
             // 2. 获取参数
-                val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
+    val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
         val startY = getRequiredParameter(tool, "start_y").toIntOrNull()
             val endX = getRequiredParameter(tool, "end_x").toIntOrNull()
         val endY = getRequiredParameter(tool, "end_y").toIntOrNull()
@@ -189,7 +189,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
                 showSwipeOverlay(startX, startY, endX, endY)
 
             // 4. 执行Shell滑动命令
-                val displayArg = getDisplayArg(tool)
+    val displayArg = getDisplayArg(tool)
         val command = "input ${displayArg}swipe ${startX} ${startY} ${endX} ${endY} ${duration}"
             val result = executeUiShellCommand(command)
 

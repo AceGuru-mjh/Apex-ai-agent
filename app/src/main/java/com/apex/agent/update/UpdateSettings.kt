@@ -164,7 +164,7 @@ object VersionComparator {
             .removePrefix("v")
             .removePrefix("V")
             .substringBefore('+') // 去掉 build 元数据
-                val (core, pre) = if (cleaned.contains('-')) {
+    val (core, pre) = if (cleaned.contains('-')) {
             val idx = cleaned.indexOf('-')
             cleaned.substring(0, idx) to cleaned.substring(idx + 1)
         } else {
@@ -185,7 +185,7 @@ object VersionComparator {
         val pa = parse(a)
         val pb = parse(b)
         // 比较 core 部分
-                val maxLen = maxOf(pa.core.size, pb.core.size)
+    val maxLen = maxOf(pa.core.size, pb.core.size)
         for (i in 0 until maxLen) {
             val av = pa.core.getOrElse(i) { 0 }
         val bv = pb.core.getOrElse(i) { 0 }
@@ -199,7 +199,7 @@ object VersionComparator {
             !pa.isRelease && pb.isRelease -> -1
             else -> {
                 // 都有预发布，逐段比较
-                val maxPre = maxOf(pa.pre.size, pb.pre.size)
+    val maxPre = maxOf(pa.pre.size, pb.pre.size)
                 for (i in 0 until maxPre) {
                     val av = pa.pre.getOrElse(i) { 0 }
         val bv = pb.pre.getOrElse(i) { 0 }
@@ -245,7 +245,7 @@ internal fun formatBytes(bytes: Long): String {
  */
 internal fun extractSha256(release: UpdateRelease, apkAsset: UpdateAsset): String? {
     // 1. 查同名 sha256 资源
-                val shaAsset = release.assets.firstOrNull { a ->
+    val shaAsset = release.assets.firstOrNull { a ->
         val n = a.name.lowercase()
         val apk = apkAsset.name.lowercase()
         n == "$apk.sha256" || n == "$apk.sha256sum" || n == "$apk.txt"

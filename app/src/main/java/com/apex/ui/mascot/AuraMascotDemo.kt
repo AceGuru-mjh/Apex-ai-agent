@@ -50,7 +50,7 @@ fun AuraMascotDemo(
     modifier: Modifier = Modifier,
 ) {
     // 1. 模拟真实状态源(实际使用时替换为真实模块 StateFlow)
-                val mockKernelState = remember { MutableStateFlow(MascotKernelState.RUNNING) }
+    val mockKernelState = remember { MutableStateFlow(MascotKernelState.RUNNING) }
         val mockIsThinking = remember { MutableStateFlow(false) }
     val mockIsExecuting = remember { MutableStateFlow(true) }
         val mockIsRootActive = remember { MutableStateFlow(true) }
@@ -78,7 +78,7 @@ fun AuraMascotDemo(
     }
 
     // 3. 获取当前形态
-                val controller = remember(sessionId) { integration.getController(sessionId) }
+    val controller = remember(sessionId) { integration.getController(sessionId) }
         val state by controller.state.collectAsState()
 
     // 4. 渲染水母

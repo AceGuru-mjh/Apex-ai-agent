@@ -19,12 +19,12 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
     companion object {
         private const val TAG = "StandardShellExecutor"
         private const val COMMAND_TIMEOUT = 30L //    }
-                override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.STANDARD
+    override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.STANDARD
 
     override fun isAvailable(): Boolean = true // 标准执行器始终可。
-                override fun hasPermission(): ShellExecutor.PermissionStatus =
+    override fun hasPermission(): ShellExecutor.PermissionStatus =
             ShellExecutor.PermissionStatus.granted() // 标准执行器不需要额外权。
-                override fun initialize() {
+    override fun initialize() {
         // 标准执行器不需要初始化
     }
 
@@ -47,10 +47,10 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 使用Runtime执行简单命
-                val process = Runtime.getRuntime().exec(command)
+    val process = Runtime.getRuntime().exec(command)
 
                     // 设置超时
-                val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
+    val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
                     if (!completed) {
                         process.destroy()
                         return@withContext ShellExecutor.CommandResult(
@@ -62,13 +62,13 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 读取标准输出
-                val stdout =
+    val stdout =
                             BufferedReader(InputStreamReader(process.inputStream)).use {
                                 it.readText()
                             }
 
                     // 读取错误输出
-                val stderr =
+    val stderr =
                             BufferedReader(InputStreamReader(process.errorStream)).use {
                                 it.readText()
                             }
@@ -101,10 +101,10 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
             withContext(Dispatchers.IO) {
                 try {
                     // 使用sh -c执行带有shell特性的命令
-                val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
+    val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
 
                     // 设置超时
-                val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
+    val completed = process.waitFor(COMMAND_TIMEOUT, TimeUnit.SECONDS)
                     if (!completed) {
                         process.destroy()
                         return@withContext ShellExecutor.CommandResult(
@@ -116,13 +116,13 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 读取标准输出
-                val stdout =
+    val stdout =
                             BufferedReader(InputStreamReader(process.inputStream)).use {
                                 it.readText()
                             }
 
                     // 读取错误输出
-                val stderr =
+    val stderr =
                             BufferedReader(InputStreamReader(process.errorStream)).use {
                                 it.readText()
                             }
@@ -130,7 +130,7 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
                     val exitCode = process.exitValue()
 
                     // 对于grep命令，即使没有匹配也认为成功
-                val success =
+    val success =
                             if (command.contains("grep")) {
                                 exitCode == 0 || exitCode == 1
                             } else {

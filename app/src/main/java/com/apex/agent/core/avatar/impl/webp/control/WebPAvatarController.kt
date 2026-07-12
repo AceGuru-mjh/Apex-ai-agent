@@ -23,7 +23,7 @@ class WebPAvatarController(
     override val state: StateFlow<AvatarState> = _state.asStateFlow()
 
     // Transform properties for scaling and positioning
-                private val _scale = MutableStateFlow(1.0f)
+    private val _scale = MutableStateFlow(1.0f)
         val scale: StateFlow<Float> = _scale.asStateFlow()
 
     private val _translateX = MutableStateFlow(0.0f)

@@ -55,7 +55,7 @@ class SessionStartHook : SessionLifecycleHook {
                 }
 
                 // 按修改时间倒序，取最新的
-                val latestFile = summaryFiles.maxByOrNull { it.lastModified() }
+    val latestFile = summaryFiles.maxByOrNull { it.lastModified() }
                     ?: return@withContext null
 
                 AppLogger.d(TAG, "Loading latest session summary: ${latestFile.name}")

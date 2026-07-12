@@ -292,7 +292,7 @@ class StreamKmpGraph {
         val patternObj = this.pattern ?: return StreamKmpMatchResult.Match(emptyMap(), isFullMatch)
 
         // 构建等效的正则表达式
-                val regexPattern = patternObj.toRegexPattern()
+    val regexPattern = patternObj.toRegexPattern()
         val text = characterStreamBuffer.toString()
 
         try {
@@ -305,7 +305,7 @@ class StreamKmpGraph {
                 // 从正则表达式的捕获组中提取匹，
                 patternObj.groupIds.forEachIndexed { index, groupId ->
                     // 跳过组索，（整个匹配，
-                val groupValue = matchResult.groupValues.getOrNull(index + 1)
+    val groupValue = matchResult.groupValues.getOrNull(index + 1)
                     if (groupValue != null) {
                         groups[groupId] = groupValue
                     }
@@ -321,7 +321,7 @@ class StreamKmpGraph {
     /** 处理一串字符/
     fun processText(text: String): List<Int> {
         reset() // Always start a full text scan from a clean state.
-                val matchPositions = mutableListOf<Int>()
+    val matchPositions = mutableListOf<Int>()
 
         text.forEachIndexed { index, c ->
             val result = processChar(c)
@@ -412,7 +412,7 @@ class StreamKmpGraphBuilder {
     fun build(pattern: KmpPattern): StreamKmpGraph {
         val graph = StreamKmpGraph()
         graph.pattern = pattern // 保存模式以便后续用于正则表达式匹，
-                val finalNode = buildRecursive(graph, graph.getStartNode(), pattern.conditions, 0).first
+    val finalNode = buildRecursive(graph, graph.getStartNode(), pattern.conditions, 0).first
         finalNode.isFinal = true
         setupFailureTransitions(graph)
         return graph
@@ -437,7 +437,7 @@ class StreamKmpGraphBuilder {
                     }
 
                     // 递归构建组内容的子图
-                val (lastNodeInGroup, finalGroupDepth) =
+    val (lastNodeInGroup, finalGroupDepth) =
                             buildRecursive(graph, currentNode, groupConditions, currentDepth)
 
                     // 主模式从组的子图末尾继续
@@ -446,7 +446,7 @@ class StreamKmpGraphBuilder {
                 }
                 is GreedyStarCondition -> {
                     // 为了使贪心星号真，贪忆但不"占有，，它不应消耗那些能让模式后续部分匹配的字符"
-                    val nextCondition = conditions.getOrNull(index + 1)
+    val nextCondition = conditions.getOrNull(index + 1)
         val loopCondition =
                             if (nextCondition != null) {
                                 // 循环条件：匹配星号条件并且不匹配序列中的下一个条，
@@ -679,7 +679,7 @@ fun notChars(vararg chars: Char): KmpCondition = NotCondition(CharSetCondition(*
 // 自由函数形式的否，fun not(condition: KmpCondition): KmpCondition = NotCondition(condition)
 
 // DSL构建，fun kmpPattern(init: KmpPattern.() -> Unit): KmpPattern {
-                val pattern = KmpPattern()
+    val pattern = KmpPattern()
     pattern.init()
     return pattern
 }

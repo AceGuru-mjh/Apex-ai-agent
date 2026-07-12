@@ -64,7 +64,7 @@ data class RedactedText(
     val original: String,
     val redacted: String,
     val mappings: Map<String, String>,  // placeholder -> original
-                val detectedTypes: Set<SensitiveType>
+    val detectedTypes: Set<SensitiveType>
 )
 
 /**
@@ -179,14 +179,14 @@ class SensitiveDataRedactor {
     }
 
     // ============ 内部方法 ============
-                private fun generatePlaceholder(
+    private fun generatePlaceholder(
         type: SensitiveType,
         original: String,
         sessionId: String?,
         currentMappings: Map<String, String>
     ): String {
         // 检查是否已经映射过同一个值
-                val existing = currentMappings.entries.find { it.value == original }?.key
+    val existing = currentMappings.entries.find { it.value == original }?.key
         if (existing != null) return existing
 
         val seq = counter.incrementAndGet()
@@ -197,7 +197,7 @@ class SensitiveDataRedactor {
             SensitiveType.PHONE_NUMBER -> "[PHONE_$seq]"
             SensitiveType.EMAIL -> {
                 // 邮箱部分脱敏：保留首字符和域名
-                val parts = original.split("@")
+    val parts = original.split("@")
                 if (parts.size == 2) {
                     val masked = parts[0].firstOrNull() + "***@" + parts[1]
                     return masked
@@ -211,7 +211,7 @@ class SensitiveDataRedactor {
             SensitiveType.SSN -> "[SSN_$seq]"
             SensitiveType.IP_ADDRESS -> {
                 // IP 部分脱敏：保留前两段
-                val parts = original.split(".")
+    val parts = original.split(".")
                 if (parts.size == 4) "${parts[0]}.${parts[1]}.***.***"
                 else "[IP_$seq]"
             }

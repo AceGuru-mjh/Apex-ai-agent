@@ -818,7 +818,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
         return try {
             // 检查位置权??
-                val hasFineLocationPermission =
+    val hasFineLocationPermission =
                     context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                             android.content.pm.PackageManager.PERMISSION_GRANTED
 
@@ -838,10 +838,10 @@ open class StandardSystemOperationTools(private val context: Context) {
             }
 
             // 根据精度要求和权限情况决定使用哪种精??
-                val actualHighAccuracy = highAccuracy && hasFineLocationPermission
+    val actualHighAccuracy = highAccuracy && hasFineLocationPermission
 
             // 使用Dispatchers.Main确保在主线程上执行位置操??            @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-                val locationResult =
+    val locationResult =
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                         kotlinx.coroutines.suspendCancellableCoroutine<Location?> { continuation ->
                             val locationManager =
@@ -849,7 +849,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                             LocationManager
 
                             // 选择合适的位置提供??
-                val provider =
+    val provider =
                                     when {
                                         actualHighAccuracy &&
                                                 locationManager.isProviderEnabled(
@@ -870,7 +870,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                             }
 
                             // 尝试获取最后已知位??
-                val lastKnownLocation =
+    val lastKnownLocation =
                                     try {
                                         if (actualHighAccuracy && hasFineLocationPermission) {
                                             locationManager.getLastKnownLocation(
@@ -904,7 +904,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                             }
 
                             // 否则请求位置更新
-                val locationListener =
+    val locationListener =
                                     object : android.location.LocationListener {
                                         override fun onLocationChanged(location: Location) {
                                             locationManager.removeUpdates(this)
@@ -997,7 +997,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             val resultData =
                     if (includeAddress) {
                         // 获取地址信息
-                val addressInfo =
+    val addressInfo =
                                 getAddressFromLocation(
                                         locationResult.latitude,
                                         locationResult.longitude
@@ -1049,7 +1049,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             val geocoder = Geocoder(context, Locale.getDefault())
 
             // 尝试获取地址
-                val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+    val addresses = geocoder.getFromLocation(latitude, longitude, 1)
 
             if (addresses != null && addresses.isNotEmpty()) {
                 val address = addresses[0]
@@ -1073,9 +1073,9 @@ open class StandardSystemOperationTools(private val context: Context) {
     /** 地址信息数据??*/
     data class AddressInfo(
             val address: String, // 完整地址
-                val city: String, // 城市
-                val province: String, // ????
-                val country: String, // 国家
-                val postalCode: String // 邮政编码
+    val city: String, // 城市
+    val province: String, // ????
+    val country: String, // 国家
+    val postalCode: String // 邮政编码
     )
 }

@@ -33,21 +33,25 @@ class ActionManager(private val context: Context) {
         }
     }
 
-    // 协程作用于   private val managerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    // 协程作用于
+    private val managerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     
     // 当前活跃的监听器
                 private var activeListener: ActionListener? = null
     
-    // 是否正在监听状态   private val _isListening = MutableStateFlow(false)
+    // 是否正在监听状态
+    private val _isListening = MutableStateFlow(false)
         val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
     
-    // 当前使用的权限级，   private val _currentPermissionLevel = MutableStateFlow<AndroidPermissionLevel?>(null)
+    // 当前使用的权限级，
+    private val _currentPermissionLevel = MutableStateFlow<AndroidPermissionLevel?>(null)
         val currentPermissionLevel: StateFlow<AndroidPermissionLevel?> = _currentPermissionLevel.asStateFlow()
     
     // 事件回调集合
-                private val eventCallbacks = ConcurrentHashMap<String, (ActionListener.ActionEvent) -> Unit>()
+    private val eventCallbacks = ConcurrentHashMap<String, (ActionListener.ActionEvent) -> Unit>()
     
-    // 监听状态变化回失   private val stateChangeCallbacks = mutableListOf<(Boolean, AndroidPermissionLevel) -> Unit>()
+    // 监听状态变化回失
+    private val stateChangeCallbacks = mutableListOf<(Boolean, AndroidPermissionLevel) -> Unit>()
 
     /**
      * 开始使用最高可用权限级别进行UI操作监听

@@ -28,14 +28,14 @@ import java.io.InputStreamReader
 object RootManager {
     private const val TAG = "RootManager"
     private const val DETECTION_CACHE_DURATION = 30000L // 30秒
-                private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutex = Mutex()
 
     // Root 执行器
                 private var rootShellExecutor: RootShellExecutor? = null
 
     // 状态流
-                private val _isRooted = MutableStateFlow(false)
+    private val _isRooted = MutableStateFlow(false)
         val isRooted: StateFlow<Boolean> = _isRooted.asStateFlow()
 
     private val _hasRootAccess = MutableStateFlow(false)
@@ -69,7 +69,7 @@ object RootManager {
     )
 
     // 常见的 su 路径
-                private val SU_PATHS = listOf(
+    private val SU_PATHS = listOf(
         "/system/bin/su",
         "/system/xbin/su",
         "/sbin/su",
@@ -224,7 +224,7 @@ object RootManager {
         AppLogger.d(TAG, "检测设备是否已 Root...")
 
         // 方法 1: 检查 su 文件
-                val suExists = checkSuFiles()
+    val suExists = checkSuFiles()
         if (suExists) {
             AppLogger.d(TAG, "检测到 su 文件")
             return true
@@ -242,7 +242,7 @@ object RootManager {
         }
 
         // 方法 3: 检查 known Root 应用
-                val rootAppExists = checkRootApplications(context)
+    val rootAppExists = checkRootApplications(context)
         if (rootAppExists) {
             AppLogger.d(TAG, "检测到 Root 管理应用")
             return true
@@ -547,7 +547,7 @@ object RootManager {
     }
 
     // 辅助方法
-                private fun normalizeSuCommand(command: String): String {
+    private fun normalizeSuCommand(command: String): String {
         val normalized = command?.trim().orEmpty()
         return normalized.ifEmpty { "su" }
     }

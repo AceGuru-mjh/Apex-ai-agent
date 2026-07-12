@@ -258,7 +258,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                 onProgress: ((Float, String) -> Unit)? = null
         ): Pair<String, String> {
             // 获取EnhancedAIService实例
-                val instance = getInstance(context)
+    val instance = getInstance(context)
 
             // 委托给FileBindingService处理
                 return instance.fileBindingService.processFileBinding(
@@ -299,20 +299,20 @@ class EnhancedAIService private constructor(private val context: Context) {
     }
 
     // MultiServiceManager 管理不同功能的AIService 实例
-                private val multiServiceManager = MultiServiceManager(context)
+    private val multiServiceManager = MultiServiceManager(context)
 
     private val initScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val initMutex = Mutex()
     @Volatile private var isServiceManagerInitialized = false
 
     // 添加ConversationService实例
-                private val conversationService = ConversationService(context, CustomEmojiRepository.getInstance(context))
+    private val conversationService = ConversationService(context, CustomEmojiRepository.getInstance(context))
 
     // 添加FileBindingService实例
-                private val fileBindingService = FileBindingService(context)
+    private val fileBindingService = FileBindingService(context)
 
     // Tool handler for executing tools
-                private val toolHandler = AIToolHandler.getInstance(context)
+    private val toolHandler = AIToolHandler.getInstance(context)
 
     private suspend fun ensureInitialized() {
         if (isServiceManagerInitialized) return
@@ -326,7 +326,7 @@ class EnhancedAIService private constructor(private val context: Context) {
     }
 
     // State flows for UI updates
-                private val _inputProcessingState =
+    private val _inputProcessingState =
             MutableStateFlow<InputProcessingState>(InputProcessingState.Idle)
     val inputProcessingState = _inputProcessingState.asStateFlow()
 
@@ -339,11 +339,11 @@ class EnhancedAIService private constructor(private val context: Context) {
     }
 
     // Per-request token counts
-                private val _perRequestTokenCounts = MutableStateFlow<Pair<Int, Int>?>(null)
+    private val _perRequestTokenCounts = MutableStateFlow<Pair<Int, Int>?>(null)
         val perRequestTokenCounts: StateFlow<Pair<Int, Int>?> = _perRequestTokenCounts.asStateFlow()
 
     // Stable request window estimate for the next model hop.
-                private val _requestWindowEstimate = MutableStateFlow<Int?>(null)
+    private val _requestWindowEstimate = MutableStateFlow<Int?>(null)
         val requestWindowEstimateFlow: StateFlow<Int?> = _requestWindowEstimate.asStateFlow()
 
     // Conversation management
@@ -352,7 +352,7 @@ class EnhancedAIService private constructor(private val context: Context) {
     // private val isConversationActive = AtomicBoolean(false) // Moved to MessageExecutionContext
 
     // Api Preferences for settings
-                private val apiPreferences = ApiPreferences.getInstance(context)
+    private val apiPreferences = ApiPreferences.getInstance(context)
 
     // Execution context for a single sendMessage call to achieve concurrency
                 private data class MessageExecutionContext(
@@ -398,7 +398,7 @@ class EnhancedAIService private constructor(private val context: Context) {
     }
 
     // Coroutine management
-                private val toolProcessingScope = CoroutineScope(Dispatchers.IO)
+    private val toolProcessingScope = CoroutineScope(Dispatchers.IO)
     private val toolExecutionJobs = ConcurrentHashMap<String, Job>()
     // private val conversationHistory = mutableListOf<Pair<String, String>>() // Moved to MessageExecutionContext
     // private val conversationMutex = Mutex() // Moved to MessageExecutionContext
@@ -411,7 +411,7 @@ class EnhancedAIService private constructor(private val context: Context) {
     private var currentCompleteCallback: (() -> Unit)? = null
 
     // Package manager for handling tool packages
-                private val packageManager = PackageManager.getInstance(context, toolHandler)
+    private val packageManager = PackageManager.getInstance(context, toolHandler)
 
     // 存储最后的回复内容，用于通知
                 private var lastReplyContent: String? = null
@@ -510,7 +510,7 @@ class EnhancedAIService private constructor(private val context: Context) {
         )
         val providerModel = service.providerModel
         // providerModel格式，PROVIDER:modelName"，使用第一个冒号分前"
-       val colonIndex = providerModel.indexOf(":")
+    val colonIndex = providerModel.indexOf(":")
         return if (colonIndex > 0) {
             val provider = providerModel.substring(0, colonIndex)
         val modelName = providerModel.substring(colonIndex + 1)
@@ -808,7 +808,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                     val startTime = messageTimingNow()
 
                     // Prepare conversation history with system prompt
-                val preparedHistory =
+    val preparedHistory =
                             prepareConversationHistory(
                                     execContext.conversationHistory, // 始终使用内部历史记录
                 message,
@@ -843,7 +843,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                     }
 
                     // Get all model parameters from preferences (with enabled state)
-                val modelParameters = getModelParametersForFunction(
+    val modelParameters = getModelParametersForFunction(
                         functionType = functionType,
                         chatModelConfigIdOverride = chatModelConfigIdOverride,
                         chatModelIndexOverride = chatModelIndexOverride
@@ -852,7 +852,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                     AppLogger.d(TAG, "sendMessage本地耗时: getModelParametersForFunction=${tAfterModelParams - tAfterPrepareHistory}ms")
 
                     // 获取对应功能类型的AIService实例
-                val serviceForFunction = getAIServiceForFunction(
+    val serviceForFunction = getAIServiceForFunction(
                         functionType = functionType,
                         chatModelConfigIdOverride = chatModelConfigIdOverride,
                         chatModelIndexOverride = chatModelIndexOverride
@@ -864,7 +864,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                 _perRequestTokenCounts.value = null
 
                     // 获取工具列表（如果启用Tool Call，
-                val availableTools = getAvailableToolsForFunction(
+    val availableTools = getAvailableToolsForFunction(
                         functionType = functionType,
                         roleCardId = roleCardId,
                         chatModelConfigIdOverride = chatModelConfigIdOverride,
@@ -1009,7 +1009,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                                 totalChars += content.length
 
                                 // 周期性日忆
-                val currentTime = messageTimingNow()
+    val currentTime = messageTimingNow()
                                 if (currentTime - lastLogTime > 5000) { // 每秒记录一次，
                 AppLogger.d(TAG, "已接收的${chunkCount} 个内容块，总计 ${totalChars} 个字符）"
                                     lastLogTime = currentTime
@@ -1034,7 +1034,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                     }
 
                     // Update accumulated token counts and persist them
-                val inputTokens = serviceForFunction.inputTokenCount
+    val inputTokens = serviceForFunction.inputTokenCount
         val cachedInputTokens = serviceForFunction.cachedInputTokenCount
                     val outputTokens = serviceForFunction.outputTokenCount
                     accumulatedInputTokenCount += inputTokens
@@ -1136,13 +1136,13 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
 
             // 创建字符流以应用流处理，使用 stream() 替代 asCharStream()
-                val charStream = content.stream()
+    val charStream = content.stream()
 
             // 使用XML插件来拆分流
-                val plugins = listOf(StreamXmlPlugin())
+    val plugins = listOf(StreamXmlPlugin())
 
             // 保存增强后的内容
-                val enhancedContent = StringBuilder()
+    val enhancedContent = StringBuilder()
 
             // 追踪是否发现了工具标等
                 var foundToolTag = false
@@ -1157,11 +1157,11 @@ class EnhancedAIService private constructor(private val context: Context) {
 
                         val xml = xmlContent.toString()
                         // 检查是否是工具标签
-                val tagName = ChatMarkupRegex.extractOpeningTagName(xml)
+    val tagName = ChatMarkupRegex.extractOpeningTagName(xml)
                         if (ChatMarkupRegex.isToolTagName(tagName) && tagName != null && isToolXmlBlock(xml, tagName)) {
                             foundToolTag = true
                             // 格式标准化，使其符合工具调用的正则表达式预期格式
-                val normalizedXml = normalizeToolXml(xml)
+    val normalizedXml = normalizeToolXml(xml)
                             enhancedContent.append(normalizedXml)
                             AppLogger.d(TAG, "工具调用XML被增强流处理检测到并标准化")
                         } else {
@@ -1534,7 +1534,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
 
             // Get response content
-                val content = context.streamBuffer.toString().trim()
+    val content = context.streamBuffer.toString().trim()
 
             // If content is empty, it means an error likely occurred or the model returned nothing.
             // We must still finalize the conversation to reset the state correctly.
@@ -1557,7 +1557,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
 
             // 禁止“纯思考输出”：移除 thinking 后正文为空时，发出专用告警并回传，AI 继续生成
-                val contentWithoutThinking = ChatUtils.removeThinkingContent(content)
+    val contentWithoutThinking = ChatUtils.removeThinkingContent(content)
             if (contentWithoutThinking.isEmpty()) {
                 val pureThinkingWarning =
                         ConversationMarkupManager.createWarningStatus(
@@ -1603,7 +1603,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
 
             // 使用增强的工具检测功能处理内定
-                val enhancedContent = enhanceToolDetection(content)
+    val enhancedContent = enhanceToolDetection(content)
         val truncatedToolRecovery = detectAndRepairTruncatedToolRound(content)
             val finalContent = truncatedToolRecovery?.repairedContent ?: enhancedContent
 
@@ -1622,7 +1622,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
 
             // 预先提取工具调用信息和完成标记，避免重复解析
-                val extractedToolInvocations =
+    val extractedToolInvocations =
                     if (truncatedToolRecovery == null) {
                         ToolExecutionManager.extractToolInvocations(finalContent)
                     } else {
@@ -1777,7 +1777,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             // 修改默认行为：如果没有特殊标记或工具调用，默认等待用户输出
            // 而不是直接标记为完成
             // 创建等待用户输入的内定
-                val userNeedContent =
+    val userNeedContent =
                     ConversationMarkupManager.createWaitForUserNeedContent(
                             context.roundManager.getDisplayContent()
                     )
@@ -2052,7 +2052,7 @@ class EnhancedAIService private constructor(private val context: Context) {
         context.conversationHistory.addAll(normalizedChatHistory)
 
         // Get current conversation history is now just the normalized context history
-                val currentChatHistory = context.conversationHistory
+    val currentChatHistory = context.conversationHistory
 
         // 不再需要，因为结果在调用时已实时输出
        // context.roundManager.appendContent(toolResultMessage)
@@ -2072,21 +2072,21 @@ class EnhancedAIService private constructor(private val context: Context) {
                 delay(300)
 
         // Get all model parameters from preferences (with enabled state)
-                val modelParameters = getModelParametersForFunction(
+    val modelParameters = getModelParametersForFunction(
             functionType = functionType,
             chatModelConfigIdOverride = chatModelConfigIdOverride,
             chatModelIndexOverride = chatModelIndexOverride
         )
 
         // 获取对应功能类型的AIService实例
-                val serviceForFunction = getAIServiceForFunction(
+    val serviceForFunction = getAIServiceForFunction(
             functionType = functionType,
             chatModelConfigIdOverride = chatModelConfigIdOverride,
             chatModelIndexOverride = chatModelIndexOverride
         )
         
         // 获取工具列表（如果启用Tool Call，提前获取，以便在token计算中使，
-                val availableTools = getAvailableToolsForFunction(
+    val availableTools = getAvailableToolsForFunction(
             functionType = functionType,
             roleCardId = roleCardId,
             chatModelConfigIdOverride = chatModelConfigIdOverride,
@@ -2123,7 +2123,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                 withContext(Dispatchers.IO) {
             try {
                 // 发送消息并获取响应，
-                val aiStartTime = messageTimingNow()
+    val aiStartTime = messageTimingNow()
         val responseStream =
                         serviceForFunction.sendMessage(
                                 context = this@EnhancedAIService.context,
@@ -2208,7 +2208,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                             totalChars += content.length
 
                             // 定期记录日志
-                val currentTime = messageTimingNow()
+    val currentTime = messageTimingNow()
                             if (currentTime - lastLogTime > 5000) { // 每秒记录一次，
                 lastLogTime = currentTime
                             }
@@ -2222,7 +2222,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                 }
 
                 // Update accumulated token counts and persist them
-                val inputTokens = serviceForFunction.inputTokenCount
+    val inputTokens = serviceForFunction.inputTokenCount
         val cachedInputTokens = serviceForFunction.cachedInputTokenCount
                 val outputTokens = serviceForFunction.outputTokenCount
                 accumulatedInputTokenCount += inputTokens
@@ -2409,12 +2409,12 @@ class EnhancedAIService private constructor(private val context: Context) {
     ): List<PromptTurn> {
         // Check if backend image recognition service is configured (for intent-based vision)
         // For subtasks, always disable backend image recognition (only support OCR)
-                val hasImageRecognition = if (isSubTask) false else multiServiceManager.hasImageRecognitionConfigured()
+    val hasImageRecognition = if (isSubTask) false else multiServiceManager.hasImageRecognitionConfigured()
         val hasAudioRecognition = if (isSubTask) false else multiServiceManager.hasAudioRecognitionConfigured()
         val hasVideoRecognition = if (isSubTask) false else multiServiceManager.hasVideoRecognitionConfigured()
 
         // 获取当前功能类型（通常是聊天模型）的模型配置，用于判断聊天模型是否自带识图能力
-                val config = getModelConfigForFunction(
+    val config = getModelConfigForFunction(
             functionType = functionType,
             chatModelConfigIdOverride = chatModelConfigIdOverride,
             chatModelIndexOverride = chatModelIndexOverride
@@ -2555,7 +2555,7 @@ class EnhancedAIService private constructor(private val context: Context) {
     ): List<ToolPrompt>? {
         return try {
             // 先读取全局工具和记忆开，
-                val enableTools = apiPreferences.enableToolsFlow.first()
+    val enableTools = apiPreferences.enableToolsFlow.first()
         val enableMemoryQuery = apiPreferences.enableMemoryQueryFlow.first()
             val toolPromptVisibility = runCatching {
                 apiPreferences.toolPromptVisibilityFlow.first()
@@ -2568,7 +2568,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
 
             // 获取对应功能类型的模型配置
-                val config = getModelConfigForFunction(
+    val config = getModelConfigForFunction(
                 functionType = functionType,
                 chatModelConfigIdOverride = chatModelConfigIdOverride,
                 chatModelIndexOverride = chatModelIndexOverride
@@ -2580,10 +2580,10 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
             
             // 获取所有工具分前
-                val isEnglish = LocaleUtils.getCurrentLanguage(context) == "en"
+    val isEnglish = LocaleUtils.getCurrentLanguage(context) == "en"
 
             // 后端识图服务是否可用（IMAGE_RECOGNITION 功能），用于 intent-based 视觉模型
-                val hasBackendImageRecognition = multiServiceManager.hasImageRecognitionConfigured()
+    val hasBackendImageRecognition = multiServiceManager.hasImageRecognitionConfigured()
         val hasBackendAudioRecognition = multiServiceManager.hasAudioRecognitionConfigured()
             val hasBackendVideoRecognition = multiServiceManager.hasVideoRecognitionConfigured()
         val safBookmarkNames = runCatching {
@@ -2591,7 +2591,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }.getOrElse { emptyList() }
 
             // 当前功能模型（通常是聊天模型）是否支持直接看图
-                val chatModelHasDirectImage = config.enableDirectImageProcessing
+    val chatModelHasDirectImage = config.enableDirectImageProcessing
         val chatModelHasDirectAudio = config.enableDirectAudioProcessing
             val chatModelHasDirectVideo = config.enableDirectVideoProcessing
         val categories = if (isEnglish) {
@@ -2617,7 +2617,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
 
             // 按类别拆分记忆工具和非记忆工具，以与 SystemPromptConfig 中的语义保持一，
-                val memoryCategoryName = context.getString(R.string.enhanced_memory_tools_category)
+    val memoryCategoryName = context.getString(R.string.enhanced_memory_tools_category)
         val memoryTools = categories
                 .firstOrNull { it.categoryName == memoryCategoryName }
                 ?.tools
@@ -2631,7 +2631,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             // - enableTools && enableMemoryQuery      -> 所有工具
            // - enableTools && !enableMemoryQuery     -> 仅非记忆工具
             // - !enableTools && enableMemoryQuery     -> 仅记忆工具
-                val selectedTools = mutableListOf<ToolPrompt>()
+    val selectedTools = mutableListOf<ToolPrompt>()
             if (enableTools) {
                 selectedTools.addAll(nonMemoryTools)
             }

@@ -39,7 +39,7 @@ class CapabilityRegistry private constructor() {
         AppLogger.d(TAG, "Registering capability: ${capability.name} at level ${capability.level.level}")
 
         // Validate the capability
-                val validationResult = coreNarrowWaistValidator.validate(capability)
+    val validationResult = coreNarrowWaistValidator.validate(capability)
 
         return when (validationResult) {
             is CoreNarrowWaistValidator.ValidationResult.Accepted -> {

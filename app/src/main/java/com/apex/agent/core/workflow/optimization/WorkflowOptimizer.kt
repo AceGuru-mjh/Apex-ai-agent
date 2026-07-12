@@ -389,7 +389,7 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
                     val start = System.currentTimeMillis()
                     try {
                         // In production, this would call the workflow engine
-                val duration = System.currentTimeMillis() - start
+    val duration = System.currentTimeMillis() - start
                         recordExecution(id, true, duration)
                     } catch (e: Exception) {
                         val duration = System.currentTimeMillis() - start

@@ -11,11 +11,11 @@ import com.apex.core.tools.adapters.QuickSearchToolAdapter
 object ToolAdapterManager {
 
     // 工具执行历史
-                private val executionHistory = mutableListOf<ToolExecutionRecord>()
+    private val executionHistory = mutableListOf<ToolExecutionRecord>()
     private val MAX_HISTORY_SIZE = 100
     
     // 工具使用统计
-                private val usageStats = mutableMapOf<String, ToolUsageStat>()
+    private val usageStats = mutableMapOf<String, ToolUsageStat>()
 
     init {
         // 初始化时注册默认工具适配置

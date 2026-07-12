@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 data class ShortcutCommand(
     val id: String,
     val name: String,           // 命令名（不含 /）
-                val displayName: String,
+    val displayName: String,
     val description: String,
     val icon: String,
     val category: CommandCategory,
@@ -31,7 +31,7 @@ data class ShortcutCommand(
     val aliases: List<String> = emptyList(),
     val parameters: List<CommandParameter> = emptyList(),
     val usage: String = "",     // 用法说明
-                val example: String = ""    // 示例
+    val example: String = ""    // 示例
 )
 
 enum class CommandCategory {
@@ -260,7 +260,7 @@ class ShortcutCommandRegistry {
     }
 
     // ============ 参数解析 ============
-                private fun parseArguments(argsStr: String, params: List<CommandParameter>): Map<String, String> {
+    private fun parseArguments(argsStr: String, params: List<CommandParameter>): Map<String, String> {
         if (argsStr.isBlank()) return emptyMap()
         if (params.isEmpty()) return mapOf("input" to argsStr)
 
@@ -274,7 +274,7 @@ class ShortcutCommandRegistry {
             val param = params[paramIdx]
             if (tokens[i].startsWith("--")) {
                 // 命名参数 --name value
-                val name = tokens[i].removePrefix("--")
+    val name = tokens[i].removePrefix("--")
         val paramDef = params.find { it.name == name }
                 if (paramDef != null && i + 1 < tokens.size) {
                     result[name] = tokens[i + 1]
@@ -322,7 +322,7 @@ class ShortcutCommandRegistry {
     }
 
     // ============ 预置命令 ============
-                private fun registerBuiltinCommands() {
+    private fun registerBuiltinCommands() {
         // AI 操作
                 register(ShortcutCommand(
             id = "cmd_translate",

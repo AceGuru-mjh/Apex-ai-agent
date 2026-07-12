@@ -18,7 +18,7 @@ object LogQueryToolExecutor {
             val logQueryManager = SmartLogQueryManager(context)
             
             // 解析参数
-                val keyword = tool.parameters.find { it.name == "keyword" }?.value
+    val keyword = tool.parameters.find { it.name == "keyword" }?.value
         val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
             val levelStr = tool.parameters.find { it.name == "level" }?.value
         val tag = tool.parameters.find { it.name == "tag" }?.value
@@ -27,7 +27,7 @@ object LogQueryToolExecutor {
             val agentId = tool.parameters.find { it.name == "agent_id" }?.value
             
             // 映射日志类型
-                val logType = when (logTypeStr.lowercase()) {
+    val logType = when (logTypeStr.lowercase()) {
                 "system", "logcat" -> SmartLogQueryManager.LogType.SYSTEM_LOGCAT
                 "app", "applogger" -> SmartLogQueryManager.LogType.APP_LOGGER
                 "gepa" -> SmartLogQueryManager.LogType.GEPA_LOGS
@@ -40,7 +40,7 @@ object LogQueryToolExecutor {
             }
             
             // 映射日志级别
-                val level = when (levelStr?.uppercase()) {
+    val level = when (levelStr?.uppercase()) {
                 "VERBOSE" -> SmartLogQueryManager.LogLevel.VERBOSE
                 "DEBUG" -> SmartLogQueryManager.LogLevel.DEBUG
                 "INFO" -> SmartLogQueryManager.LogLevel.INFO
@@ -51,7 +51,7 @@ object LogQueryToolExecutor {
             }
             
             // 构建过滤的
-                val filter = SmartLogQueryManager.LogFilter(
+    val filter = SmartLogQueryManager.LogFilter(
                 logType = logType,
                 level = level,
                 tag = tag,
@@ -62,11 +62,11 @@ object LogQueryToolExecutor {
             )
             
             // 执行查询
-                val result = logQueryManager.queryLogs(filter)
+    val result = logQueryManager.queryLogs(filter)
             
             if (result.success) {
                 // 格式化输的
-                val output = buildString {
+    val output = buildString {
                     appendLine("=== 日志查询结果 ===")
                     appendLine("日志类型: ${result.logType}")
                     appendLine("总条件${result.totalCount}")

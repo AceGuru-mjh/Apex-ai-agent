@@ -48,7 +48,7 @@ data class SearchFilters(
     val chatIds: Set<String> = emptySet(),
     val sessionIds: Set<String> = emptySet(),
     val roles: Set<String> = emptySet(),  // user/assistant/system
-                val topics: Set<String> = emptySet(),
+    val topics: Set<String> = emptySet(),
     val startTime: Long? = null,
     val endTime: Long? = null,
     val minImportance: Float = 0f,
@@ -144,7 +144,7 @@ class ConversationSearchEngine {
         sessionIndex.computeIfAbsent(message.sessionId) { mutableSetOf() }.add(message.messageId)
 
         // 倒排索引
-                val tokens = tokenize(message.content)
+    val tokens = tokenize(message.content)
         for (token in tokens) {
             invertedIndex.computeIfAbsent(token) { mutableSetOf() }.add(message.messageId)
         }
@@ -232,7 +232,7 @@ class ConversationSearchEngine {
     }
 
     // ============ 搜索方法 ============
-                private fun getFilteredCandidates(filters: SearchFilters): List<SearchableMessage> {
+    private fun getFilteredCandidates(filters: SearchFilters): List<SearchableMessage> {
         return messages.values.filter { msg ->
             (filters.chatIds.isEmpty() || msg.chatId in filters.chatIds) &&
             (filters.sessionIds.isEmpty() || msg.sessionId in filters.sessionIds) &&
@@ -248,7 +248,7 @@ class ConversationSearchEngine {
 
     private fun keywordSearch(query: String, candidates: List<SearchableMessage>): List<SearchResult> {
         // 解析查询：支持 AND / OR / NOT
-                val terms = parseQuery(query)
+    val terms = parseQuery(query)
         val positiveTerms = terms.filter { !it.startsWith("-") }
         val negativeTerms = terms.filter { it.startsWith("-") }.map { it.removePrefix("-") }
 
@@ -257,7 +257,7 @@ class ConversationSearchEngine {
         val matchedRanges = mutableListOf<IntRange>()
 
             // 正向匹配
-                val positiveMatches = positiveTerms.map { term ->
+    val positiveMatches = positiveTerms.map { term ->
         val idx = content.indexOf(term.lowercase())
                 if (idx >= 0) {
                     matchedRanges.add(idx until idx + term.length)
@@ -266,7 +266,7 @@ class ConversationSearchEngine {
             }
 
             // 负向匹配（不能包含）
-                val negativeMatches = negativeTerms.map { term ->
+    val negativeMatches = negativeTerms.map { term ->
                 content.contains(term.lowercase())
             }
 
@@ -375,9 +375,9 @@ class ConversationSearchEngine {
     }
 
     // ============ 辅助方法 ============
-                private fun parseQuery(query: String): List<String> {
+    private fun parseQuery(query: String): List<String> {
         // 支持 "quoted phrase" 和 -negative
-                val terms = mutableListOf<String>()
+    val terms = mutableListOf<String>()
         val regex = Regex("(?:\"([^\"]+)\"|(-?\\S+))")
         regex.findAll(query).forEach { match ->
             val quoted = match.groupValues[1]

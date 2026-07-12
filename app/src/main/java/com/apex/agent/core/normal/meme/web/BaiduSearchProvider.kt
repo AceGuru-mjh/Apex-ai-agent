@@ -48,13 +48,13 @@ class BaiduSearchProvider : WebSearchProvider {
     override suspend fun suggest(query: String): List<String> {
         return withContext(Dispatchers.IO) {
             // 百度建议 API 返回 JSONP: window.baidu.sug({...})
-                val url = "$suggestUrl?wd=${MemeHttpUtil.encode(query)}&action=opensearch&ie=UTF-8"
+    val url = "$suggestUrl?wd=${MemeHttpUtil.encode(query)}&action=opensearch&ie=UTF-8"
         val result = MemeHttpUtil.get(url)
 
             if (!result.success) return@withContext emptyList()
 
             // 百度返回 JSON 数组: ["query",["suggestion1","suggestion2",...]]
-                val array = MemeJsonUtil.parseArray(result.body)
+    val array = MemeJsonUtil.parseArray(result.body)
             if (array != null && array.length() > 1) {
                 val suggestions = array.optJSONArray(1)
                 if (suggestions != null) {
@@ -85,7 +85,7 @@ class BaiduSearchProvider : WebSearchProvider {
 
         // 百度结果块: <div class="result c-container ...">...<h3><a href="...">标题</a></h3>...摘要...</div>
         // 百度链接通常是跳转链接 http://www.baidu.com/link?url=...
-                val resultPattern = Regex(
+    val resultPattern = Regex(
             """<div[^>]*class="result[^"]*c-container[^"]*"[^>]*>.*?<h3[^>]*>\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>.*?</h3>.*?(?:<span[^>]*class="content-right_8Zs40"[^>]*>|<div[^>]*class="c-abstract"[^>]*>)(.*?)</""",
             RegexOption.DOT_MATCHES_ALL
         )

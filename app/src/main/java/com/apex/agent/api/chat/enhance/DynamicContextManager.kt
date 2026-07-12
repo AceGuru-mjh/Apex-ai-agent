@@ -15,7 +15,8 @@ object DynamicContextManager {
     
     // 核心信息最大长度（字符为   private const val MAX_CORE_INFO_LENGTH = 300
     
-    // 会话级核心信息存，   private val sessionCoreInfo = mutableMapOf<String, String>()
+    // 会话级核心信息存，
+    private val sessionCoreInfo = mutableMapOf<String, String>()
 
     /**
      * 处理聊天上下，
@@ -25,7 +26,7 @@ object DynamicContextManager {
     */
     fun processChatContext(sessionId: String, fullHistory: List<PromptTurn>): List<PromptTurn> {
         // 如果对话轮次很少，直接返回全量历，
-                val userTurns = fullHistory.count { it.kind == PromptTurnKind.USER }
+    val userTurns = fullHistory.count { it.kind == PromptTurnKind.USER }
         if (userTurns <= MAX_WINDOW_SIZE) {
             AppLogger.d(TAG, "${userTurns} <= ${MAX_WINDOW_SIZE}，直接返回全量历，"
             return fullHistory
@@ -34,12 +35,12 @@ object DynamicContextManager {
         AppLogger.d(TAG, "${userTurns} > ${MAX_WINDOW_SIZE}，开始压缩处理）"
         
         // 分割历史：旧历史 + 最近N，
-                val splitIndex = findSplitIndex(fullHistory)
+    val splitIndex = findSplitIndex(fullHistory)
         val oldHistory = fullHistory.subList(0, splitIndex)
         val recentHistory = fullHistory.subList(splitIndex, fullHistory.size)
 
         // 提取历史对话的核心信，
-                val coreInfo = extractCoreInfo(oldHistory)
+    val coreInfo = extractCoreInfo(oldHistory)
         
         // 存储核心信息
                 sessionCoreInfo[sessionId] = coreInfo
@@ -77,12 +78,12 @@ object DynamicContextManager {
      */
     private fun extractCoreInfo(oldHistory: List<PromptTurn>): String {
         // 提取所有用户输出
-                val userInputs = oldHistory
+    val userInputs = oldHistory
             .filter { it.kind == PromptTurnKind.USER }
             .map { it.content }
         
         // 简单的核心信息提取策略
-                val coreInfo = buildString {
+    val coreInfo = buildString {
             append("对话核心要点：\n")
             
             userInputs.take(5).forEachIndexed { index, input ->
@@ -110,7 +111,7 @@ object DynamicContextManager {
         recentHistory: List<PromptTurn>
     ): List<PromptTurn> {
         // 创建核心信息的系统提示
-                val coreInfoPrompt = """
+    val coreInfoPrompt = """
             【以下是之前对话的核心摘要的            ${coreInfo}
             
             【重要提示，            请牢记这些核心信息，在后续回答中保持一致性，            如果用户提到之前讨论过的内容，请根据核心摘要来理解上下文件       """.trimIndent()
@@ -118,7 +119,7 @@ object DynamicContextManager {
         // 构建最终上下文
                 return mutableListOf<PromptTurn>().apply {
             // 查找是否已存在系统提示
-                val existingSystemTurn = recentHistory.find { it.kind == PromptTurnKind.SYSTEM }
+    val existingSystemTurn = recentHistory.find { it.kind == PromptTurnKind.SYSTEM }
             
             if (existingSystemTurn != null) {
                 // 如果有系统提示，保留它，然后添加核心信息

@@ -53,7 +53,7 @@ class BingSearchProvider : WebSearchProvider {
 
             // Bing 建议返回 JSON 数组格式
             // [["query",["suggestion1","suggestion2",...]]]
-                val array = MemeJsonUtil.parseArray(result.body)
+    val array = MemeJsonUtil.parseArray(result.body)
             if (array != null && array.length() > 0) {
                 val first = array.optJSONArray(0)
                 if (first != null && first.length() > 1) {
@@ -74,7 +74,7 @@ class BingSearchProvider : WebSearchProvider {
      */
     private fun enhanceQuery(query: String): String {
         // 如果查询词很短，添加"梗"后缀
-                val trimmed = query.trim()
+    val trimmed = query.trim()
         return when {
             trimmed.contains("是什么") || trimmed.contains("什么意思") -> "$trimmed 梗 网络用语"
             trimmed.contains("梗") -> trimmed
@@ -91,7 +91,7 @@ class BingSearchProvider : WebSearchProvider {
 
         // 简化：用正则提取搜索结果
         // Bing 结果块: <li class="b_algo">...<h2><a href="...">标题</a></h2>...<p>摘要</p>...</li>
-                val resultPattern = Regex(
+    val resultPattern = Regex(
             """<li[^>]*class="b_algo"[^>]*>.*?<h2[^>]*>\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>.*?(?:<p[^>]*>|<div[^>]*class="b_caption"[^>]*>.*?<p[^>]*>)(.*?)</p>""",
             RegexOption.DOT_MATCHES_ALL
         )

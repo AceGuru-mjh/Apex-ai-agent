@@ -306,7 +306,7 @@ class WorkflowMigrationAdapter {
             val n8nType = nodeObj["type"]?.jsonPrimitive?.contentOrNull ?: "n8n-nodes-base.noOp"
 
             // n8n 节点类型映射
-                val (newType, warning) = when {
+    val (newType, warning) = when {
                 n8nType.contains("trigger", ignoreCase = true) -> EnhancedNodeType.TRIGGER to null
                 n8nType.contains("if", ignoreCase = true) -> EnhancedNodeType.CONDITION to null
                 n8nType.contains("switch", ignoreCase = true) -> EnhancedNodeType.CONDITION to null
@@ -322,7 +322,7 @@ class WorkflowMigrationAdapter {
 
             val newId = "enode_${System.currentTimeMillis()}_${nodes.size}"
             idMap[name] = newId  // n8n 用 name 作为连接引用
-                val parameters = (nodeObj["parameters"] as? JsonObject)?.let { p ->
+    val parameters = (nodeObj["parameters"] as? JsonObject)?.let { p ->
                 p.entries.associate { it.key to (it.value.jsonPrimitive.contentOrNull ?: "") }
             } ?: emptyMap()
 
@@ -442,7 +442,7 @@ class WorkflowMigrationAdapter {
     }
 
     // ============ 格式识别 ============
-                private fun isN8nFormat(obj: JsonObject): Boolean {
+    private fun isN8nFormat(obj: JsonObject): Boolean {
         val hasNodes = obj["nodes"] is JsonArray
         val hasConns = obj["connections"] is JsonObject
         val firstNode = (obj["nodes"] as? JsonArray)?.firstOrNull()?.jsonObject
@@ -480,7 +480,7 @@ class WorkflowMigrationAdapter {
     }
 
     // ============ 辅助方法 ============
-                private fun parseOldNodeConfig(nodeObj: JsonObject, type: EnhancedNodeType): EnhancedNodeConfig {
+    private fun parseOldNodeConfig(nodeObj: JsonObject, type: EnhancedNodeType): EnhancedNodeConfig {
         val configObj = nodeObj["config"] as? JsonObject
         val configMap = configObj?.entries?.associate { e ->
             e.key to (e.value.jsonPrimitive.contentOrNull ?: "")

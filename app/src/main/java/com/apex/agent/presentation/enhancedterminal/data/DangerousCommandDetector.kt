@@ -68,7 +68,7 @@ object DangerousCommandDetector {
         val lower = command.trim().lowercase()
         for (p in patterns) {
             // 构建正则:允许中间有空格变化
-                val regexStr = p.regex
+    val regexStr = p.regex
                 .replace(" ", "\\s+")
                 .replace(".", "\\.")
                 .replace("*", ".*")

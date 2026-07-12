@@ -10,9 +10,9 @@ class DynamicProfileUpdater {
     data class ProfileUpdateConfig(
         val agentId: String,
         val updateInterval: Long = 60, // 默认60??
-                val minSamples: Int = 5, // 最小样本数
-                val learningRate: Double = 0.1, // 学习，
-                val enabled: Boolean = true
+    val minSamples: Int = 5, // 最小样本数
+    val learningRate: Double = 0.1, // 学习，
+    val enabled: Boolean = true
     )
 
     data class TaskExecutionData(
@@ -74,11 +74,11 @@ class DynamicProfileUpdater {
         }
 
         // 按任务类别分，
-                val dataByCategory = dataList.groupBy { it.taskCategory }
+    val dataByCategory = dataList.groupBy { it.taskCategory }
 
         dataByCategory.forEach { (category, data) ->
             // 计算该类别的统计数据
-                val successRate = data.count { it.success }.toDouble() / data.size
+    val successRate = data.count { it.success }.toDouble() / data.size
         val avgQualityScore = data.map { it.qualityScore }.average()
             val avgCompletionTime = data.map { it.completionTime }.average()
         val avgUserFeedback = data.filter { it.userFeedback != null }.map { it.userFeedback!! }.average()
@@ -89,7 +89,7 @@ class DynamicProfileUpdater {
                            (if (avgUserFeedback > 0) avgUserFeedback / 5 * 0.1 else 0.05)
 
             // 更新能力评分
-                val profile = profileManager.getProfile(agentId)
+    val profile = profileManager.getProfile(agentId)
             if (profile != null) {
                 val currentScore = profile.capabilityScores.getOrDefault(category, 1.0)
         val newScore = currentScore * (1 - config.learningRate) + 综合得分 * config.learningRate
@@ -98,7 +98,7 @@ class DynamicProfileUpdater {
                 // 更新技能标，
                 if (综合得分 > 0.7) {
                     // 添加相关技能标，
-                val skills = getSkillsForCategory(category)
+    val skills = getSkillsForCategory(category)
                     skills.forEach { profile.skillTags.add(it) }
                 }
             }
@@ -137,7 +137,7 @@ class DynamicProfileUpdater {
         }
 
         // 按天分组
-                val dataByDay = recentData.groupBy { it.timestamp / (24 * 60 * 60 * 1000) }
+    val dataByDay = recentData.groupBy { it.timestamp / (24 * 60 * 60 * 1000) }
 
         return dataByDay.map { (_, dayData) ->
             dayData.map { it.qualityScore }.average()

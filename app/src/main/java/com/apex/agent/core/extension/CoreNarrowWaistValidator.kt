@@ -79,7 +79,7 @@ class CoreNarrowWaistValidator {
         AppLogger.d(TAG, "Validating capability: ${capability.name} at level ${capability.level}")
 
         // Check 1: Verify level is appropriate for the capability type
-                val levelValidation = validateLevelAppropriateness(capability)
+    val levelValidation = validateLevelAppropriateness(capability)
         if (levelValidation !is ValidationResult.Accepted) {
             return levelValidation
         }
@@ -93,7 +93,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check 3: Verify dependencies are appropriate
-                val depCheck = validateDependencies(capability)
+    val depCheck = validateDependencies(capability)
         if (depCheck !is ValidationResult.Accepted) {
             return depCheck
         }
@@ -132,7 +132,7 @@ class CoreNarrowWaistValidator {
         val name = capability.name.lowercase()
 
         // Check if capability belongs to core tools and is trying to use higher level
-                val isCoreTool = CORE_TOOLS.any { name.contains(it.lowercase()) }
+    val isCoreTool = CORE_TOOLS.any { name.contains(it.lowercase()) }
 
         if (isCoreTool && capability.level.level > FootprintLevel.CLI_COMMAND_SKILL.level) {
             return ValidationResult.NeedsReview(
@@ -144,7 +144,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if capability is suitable for MCP Server level
-                val isMcpSuitable = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+    val isMcpSuitable = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (isMcpSuitable && capability.level.level < FootprintLevel.MCP_SERVER.level) {
             return ValidationResult.NeedsReview(
                 reasons = listOf(
@@ -155,7 +155,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if capability is suitable for Plugin level
-                val isPluginSuitable = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+    val isPluginSuitable = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (isPluginSuitable && capability.level.level < FootprintLevel.PLUGIN.level) {
             return ValidationResult.NeedsReview(
                 reasons = listOf(
@@ -175,7 +175,7 @@ class CoreNarrowWaistValidator {
         val name = capability.name.lowercase()
 
         // Check if similar capability exists in core
-                val similarCoreTool = CORE_TOOLS.find { coreTool ->
+    val similarCoreTool = CORE_TOOLS.find { coreTool ->
             name.contains(coreTool.lowercase()) || coreTool.lowercase().contains(name)
         }
 
@@ -192,7 +192,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if this could be implemented via MCP
-                val couldBeMcp = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+    val couldBeMcp = MCP_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (couldBeMcp) {
             return ValidationResult.Rejected(
                 reason = "This capability should be implemented via MCP Server, not as core tool",
@@ -205,7 +205,7 @@ class CoreNarrowWaistValidator {
         }
 
         // Check if this could be a plugin
-                val couldBePlugin = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
+    val couldBePlugin = PLUGIN_SUITABLE_CAPABILITIES.any { name.contains(it.lowercase()) }
         if (couldBePlugin) {
             return ValidationResult.Rejected(
                 reason = "This capability should be implemented as Plugin, not as core tool",

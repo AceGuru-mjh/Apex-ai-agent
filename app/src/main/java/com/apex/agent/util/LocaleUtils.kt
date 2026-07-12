@@ -26,7 +26,7 @@ object LocaleUtils {
     const val PORTUGUESE_BRAZIL_LANGUAGE_CODE = "pt-BR"
 
     // 旧语言代码到新语言代码的别名映射
-                private val legacyLanguageCodeAliases =
+    private val legacyLanguageCodeAliases =
         mapOf("pt" to PORTUGUESE_BRAZIL_LANGUAGE_CODE)
 
     /**

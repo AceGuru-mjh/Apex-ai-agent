@@ -79,7 +79,7 @@ class Saga<T>(private val steps: List<SagaStep<T>>) {
             SagaResult.Success(outputs)
         } catch (e: Throwable) {
             // 反向执行补偿
-                val compensationResults = mutableListOf<CompensationResult>()
+    val compensationResults = mutableListOf<CompensationResult>()
             for ((step, result) in completed) {
                 val comp = step.compensate
                 if (comp != null) {
@@ -119,7 +119,7 @@ class ObservableSaga<T>(
     suspend fun run(): SagaResult<T> {
         // 注意：这是一个简化包装，实际事件需要在 Saga 内部发射
         // 生产实现应重构 Saga 类支持事件回调
-                val result = saga.run()
+    val result = saga.run()
         emitter(SagaEvent.SagaCompleted(result is SagaResult.Success))
         return result
     }

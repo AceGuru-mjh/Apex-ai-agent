@@ -95,7 +95,7 @@ class CronExpressionParser {
         }
         
         // 每N 分钟
-                val minutePattern = Regex("每\\d+)\\s*分钟")
+    val minutePattern = Regex("每\\d+)\\s*分钟")
         minutePattern.find(input)?.let {
             val minutes = it.groupValues[1].toInt()
             return TimeDescription(intervalMinutes = minutes)
@@ -107,14 +107,14 @@ class CronExpressionParser {
         }
         
         // 每N 小时
-                val hourPattern = Regex("每\\d+)\\s*小时")
+    val hourPattern = Regex("每\\d+)\\s*小时")
         hourPattern.find(input)?.let {
             val hours = it.groupValues[1].toInt()
             return TimeDescription(intervalHours = hours)
         }
         
         // 每周出
-                val weekdayPattern = Regex("每周([一二三四五六日天])?[早中晚]?上\\s*(\\d+)?[点]?(\\d+)?")
+    val weekdayPattern = Regex("每周([一二三四五六日天])?[早中晚]?上\\s*(\\d+)?[点]?(\\d+)?")
         weekdayPattern.find(input)?.let { match ->
             val dayOfWeek = mapWeekday(input)
         val hour = match.groupValues[2].toIntOrNull() ?: 9
@@ -127,7 +127,7 @@ class CronExpressionParser {
         }
         
         // 每月几号
-                val monthDayPattern = Regex("每月(\\d+)[号日]?[早中晚]?上\\s*(\\d+)?[点]?(\\d+)?")
+    val monthDayPattern = Regex("每月(\\d+)[号日]?[早中晚]?上\\s*(\\d+)?[点]?(\\d+)?")
         monthDayPattern.find(input)?.let { match ->
             val dayOfMonth = match.groupValues[1]
         val hour = match.groupValues[2].toIntOrNull() ?: 0
@@ -160,7 +160,7 @@ class CronExpressionParser {
         }
         
         // 每天定时 - 多种中文模式
-                val dailyPatterns = listOf(
+    val dailyPatterns = listOf(
             Regex("每天[早中晚]?上\\s*(\\d+)[点](\\d+)"),
             Regex("每天\\s*(\\d+)[点](\\d+)"),
             Regex("每天[早中晚]?上\\s*(\\d+)点"),
@@ -181,7 +181,7 @@ class CronExpressionParser {
         }
         
         // 早上/下午/晚上 + 小时
-                val timeOfDayPattern = Regex("(早上|上午|下午|晚上|中午|凌晨，\\d+)[点]?(\\d+)?")
+    val timeOfDayPattern = Regex("(早上|上午|下午|晚上|中午|凌晨，\\d+)[点]?(\\d+)?")
         timeOfDayPattern.find(input)?.let { match ->
             val timeOfDay = match.groupValues[1]
         val hour = match.groupValues[2].toInt()
@@ -191,7 +191,7 @@ class CronExpressionParser {
         }
         
         // HH:mm 格式
-                val timePattern = Regex("(\\d{1,2}):(\\d{2})")
+    val timePattern = Regex("(\\d{1,2}):(\\d{2})")
         timePattern.find(input)?.let { match ->
             val hour = match.groupValues[1].toInt()
         val minute = match.groupValues[2].toInt()
@@ -249,7 +249,7 @@ class CronExpressionParser {
         }
         
         // 英文
-                val englishMap = mapOf(
+    val englishMap = mapOf(
             "monday" to "1", "tuesday" to "2", "wednesday" to "3",
             "thursday" to "4", "friday" to "5", "saturday" to "6",
             "sunday" to "0"
@@ -327,7 +327,7 @@ class CronExpressionParser {
         }
         
         // 固定时间执行
-                val minute = minuteStr.toInt()
+    val minute = minuteStr.toInt()
         val hour = hourStr.toInt()
         
         calendar.set(Calendar.MINUTE, minute)
@@ -390,7 +390,7 @@ class CronExpressionParser {
         }
         
         // 单个值
-                val intValue = value.toInt()
+    val intValue = value.toInt()
         if (intValue < min || intValue > max) {
             throw IllegalArgumentException("值超出范回[${min}-${max}]: ${value}")
         }
@@ -421,7 +421,7 @@ class CronExpressionParser {
         }
         
         // 固定时间
-                val hour = hourStr.toInt()
+    val hour = hourStr.toInt()
         val minute = minuteStr.toInt()
         val timeStr = String.format("%02d:%02d", hour, minute)
         

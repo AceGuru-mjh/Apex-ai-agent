@@ -306,7 +306,7 @@ class ReinforcementLearningEngine(
 
     suspend fun evaluatePolicy(policyId: String, testEpisodes: Int): TrainingStats = withContext(Dispatchers.IO) {
         // 获取策略
-                val policy = policies[policyId]
+    val policy = policies[policyId]
         if (policy == null) {
             AppLogger.w(TAG, "Policy not found: ${policyId}, returning default stats")
             return@withContext TrainingStats(
@@ -322,7 +322,7 @@ class ReinforcementLearningEngine(
         AppLogger.d(TAG, "Evaluating policy: ${policy.name} (id: ${policyId})")
 
         // 获取最近的 episodes 进行评估（包含持久化加载的历史记录）
-                val recentEpisodes = getAllEpisodes().takeLast(testEpisodes.coerceAtLeast(1))
+    val recentEpisodes = getAllEpisodes().takeLast(testEpisodes.coerceAtLeast(1))
 
         if (recentEpisodes.isEmpty()) {
             AppLogger.d(TAG, "No episodes available for evaluation")
@@ -337,12 +337,12 @@ class ReinforcementLearningEngine(
         }
 
         // 计算统计信息
-                val successCount = recentEpisodes.count { it.success }
+    val successCount = recentEpisodes.count { it.success }
         val avgReward = recentEpisodes.map { it.totalReward }.average()
         val totalDuration = recentEpisodes.map { it.durationMs }.average()
 
         // 计算策略覆盖的状态数
-                val statesCovered = policy.stateActions.size
+    val statesCovered = policy.stateActions.size
 
         AppLogger.d(TAG, "Policy evaluation complete: ${recentEpisodes.size} episodes, " +
                 "success rate: ${successCount.toDouble() / recentEpisodes.size}, " +

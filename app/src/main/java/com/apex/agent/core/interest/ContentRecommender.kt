@@ -20,7 +20,7 @@ class ContentRecommender(private val context: Context, private val interestAnaly
         val interestProfile = interestAnalyzer.analyzeInterests(messages, userProfile)
         
         // 生成推荐内容
-                val recommendations = mutableListOf<ContentRecommendation>()
+    val recommendations = mutableListOf<ContentRecommendation>()
         
         // 基于主要兴趣生成推荐
                 interestProfile.primaryInterest?.let {

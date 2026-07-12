@@ -167,7 +167,7 @@ class FileBindingService(context: Context) {
         }
 
         // First, calculate stats
-                val sb = StringBuilder()
+    val sb = StringBuilder()
         var additions = 0
         var deletions = 0
         patch.deltas.forEach { delta ->
@@ -185,7 +185,7 @@ class FileBindingService(context: Context) {
         // sb.appendLine()
 
         // Generate a standard unified diff to process
-                val unifiedDiffLines = UnifiedDiffUtils.generateUnifiedDiff(
+    val unifiedDiffLines = UnifiedDiffUtils.generateUnifiedDiff(
             "a/file",
             "b/file",
             originalLines,
@@ -488,8 +488,8 @@ class FileBindingService(context: Context) {
                 AppLogger.d(TAG, "预计算完成，规范化后字符为${normalizedOriginalContent.length}")
 
         // --- 阶段一：计算目标窗口尺寸范回--
-                val delta = (numOldLines * 0.2).toInt() + 2 // 扩大于0%的容错范围，并确保至少有2行的浮动
-        val targetSizes = (maxOf(1, numOldLines - delta))..(numOldLines + delta)
+    val delta = (numOldLines * 0.2).toInt() + 2 // 扩大于0%的容错范围，并确保至少有2行的浮动
+    val targetSizes = (maxOf(1, numOldLines - delta))..(numOldLines + delta)
 
         var bestMatchScore = 0.0
         var bestMatchRange = -1 to -1
@@ -497,7 +497,7 @@ class FileBindingService(context: Context) {
         var bestMatchLengthDiff = Int.MAX_VALUE
 
         // --- 阶段二：并行滑动窗口搜索 ---
-                val totalIterations = originalLines.size.toLong() * targetSizes.count().toLong()
+    val totalIterations = originalLines.size.toLong() * targetSizes.count().toLong()
         AppLogger.d(TAG, "开始滑动窗口匹配（并行），总迭代次，${totalIterations}")
 
         val processedWindows = java.util.concurrent.atomic.AtomicLong(0L)
@@ -658,7 +658,7 @@ class FileBindingService(context: Context) {
         }
 
         // 记录最终结果
-                val totalTime = (System.currentTimeMillis() - startTime) / 1000.0
+    val totalTime = (System.currentTimeMillis() - startTime) / 1000.0
         val result = if (bestMatchScore > 0.9) {
 
             val (start, end) = bestMatchRange

@@ -65,7 +65,7 @@ class CoreModuleInitializer private constructor() {
     private var appContext: Context? = null
 
     // 使用自定义CoroutineScope 替代 GlobalScope
-                private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun initialize(context: Context) {
         if (isInitialized) {
@@ -226,14 +226,14 @@ object HermesIntegration {
     private val logger = LoggerFactory.getLogger(HermesIntegration::class.java)
     
     // 使用自定义CoroutineScope 替代 GlobalScope
-                private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     // Link state management
-                private val _linkState = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    private val _linkState = MutableStateFlow<Map<String, Boolean>>(emptyMap())
         val linkState: StateFlow<Map<String, Boolean>> = _linkState.asStateFlow()
 
     // Link references for coordinated access
-                private val linkedProviderProfile = MutableStateFlow<ProviderProfile?>(null)
+    private val linkedProviderProfile = MutableStateFlow<ProviderProfile?>(null)
     private val linkedModelSelector = MutableStateFlow<ModelSelector?>(null)
     private val linkedSkillManager = MutableStateFlow<SkillManager?>(null)
     private val linkedStorage = MutableStateFlow<AgentStorage?>(null)
@@ -244,15 +244,15 @@ object HermesIntegration {
     private val linkedWorkflowEngine = MutableStateFlow<WorkflowEngine?>(null)
 
     // Extension registry for capability-based linking
-                private val extensionRegistry = ConcurrentHashMap<String, AgentExtension>()
+    private val extensionRegistry = ConcurrentHashMap<String, AgentExtension>()
 
     // Scheduler-workflow integration state (keyed by scheduler instance)
-                private val schedulerWorkflowCallbacks = ConcurrentHashMap<TaskScheduler, suspend (String, Map<String, Any>) -> WorkflowEngine.ExecutionResult?>()
+    private val schedulerWorkflowCallbacks = ConcurrentHashMap<TaskScheduler, suspend (String, Map<String, Any>) -> WorkflowEngine.ExecutionResult?>()
     private val schedulerPriorityMappers = ConcurrentHashMap<TaskScheduler, (String) -> TaskPriority>()
     private val schedulerTaskStates = ConcurrentHashMap<TaskScheduler, ConcurrentHashMap<String, TaskState>>()
 
     // Capability change listener references to avoid GC
-                private val capabilityChangeListeners = mutableListOf<CapabilityRegistry.CapabilityChangeListener>()
+    private val capabilityChangeListeners = mutableListOf<CapabilityRegistry.CapabilityChangeListener>()
 
     fun integrateWithExistingSystems(context: Context) {
         logger.info("Integrating Hermes modules with existing Apex/Agent systems...")
@@ -316,13 +316,13 @@ object HermesIntegration {
                 logger.debug("Fetched ${models.size} models from provider ${providerProfile.name}")
 
                 // Filter models based on provider capabilities
-                val filteredModels = filterModelsByProviderCapability(models, providerProfile)
+    val filteredModels = filterModelsByProviderCapability(models, providerProfile)
 
                 // Update model selector with available models
                 logger.debug("Filtered to ${filteredModels.size} models based on provider capabilities")
 
                 // Set default model if available
-                val defaultModel = filteredModels.find { it.id == providerProfile.defaultModel }
+    val defaultModel = filteredModels.find { it.id == providerProfile.defaultModel }
                     ?: filteredModels.firstOrNull()
 
                 if (defaultModel != null) {
@@ -352,11 +352,11 @@ object HermesIntegration {
         linkedSkillManager.value = skillManager
 
         // Register all capabilities from CapabilityRegistry to SkillManager
-                val capabilityRegistry = CapabilityRegistry.getInstance()
+    val capabilityRegistry = CapabilityRegistry.getInstance()
         val allCapabilities = capabilityRegistry.getAllCapabilities()
 
         // Dynamic capability listener that keeps SkillManager in sync
-                val listener = object : CapabilityRegistry.CapabilityChangeListener {
+    val listener = object : CapabilityRegistry.CapabilityChangeListener {
             override fun onCapabilityRegistered(capability: Capability) {
                 registerCapabilityWithSkillManager(skillManager, capability)
             }
@@ -485,7 +485,7 @@ object HermesIntegration {
             override suspend fun loadMessages(chatId: String): List<ChatMessage> {
                 return try {
                     // Attempt to use ChatHistoryManager if available via reflection
-                val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
+    val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
         val getInstanceMethod = chatHistoryManagerClass.getMethod("getInstance", Context::class.java)
                     val manager = getInstanceMethod.invoke(null, context)
         val loadMessagesMethod = chatHistoryManagerClass.getMethod("loadChatMessages", String::class.java)
@@ -501,7 +501,7 @@ object HermesIntegration {
             override suspend fun saveMessage(chatId: String, message: ChatMessage): Boolean {
                 return try {
                     // Attempt to use ChatHistoryManager if available via reflection
-                val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
+    val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
         val getInstanceMethod = chatHistoryManagerClass.getMethod("getInstance", Context::class.java)
                     val manager = getInstanceMethod.invoke(null, context)
         val addMessageMethod = chatHistoryManagerClass.getMethod("addMessage", String::class.java, ChatMessage::class.java)
@@ -536,7 +536,7 @@ object HermesIntegration {
                 mcpBridge.initialize()
 
                 // Get available tools from MCP
-                val mcpTools = mcpBridge.discoverTools()
+    val mcpTools = mcpBridge.discoverTools()
 
                 logger.debug("Discovered ${mcpTools.size} MCP tools")
 
@@ -595,7 +595,7 @@ object HermesIntegration {
         linkedWorkflowEngine.value = workflowEngine
 
         // Register a dedicated agent so the scheduler can dispatch workflow tasks
-                val workflowAgent = WorkflowSubAgent(context, scheduler, workflowEngine)
+    val workflowAgent = WorkflowSubAgent(context, scheduler, workflowEngine)
         if (!scheduler.registerAgent(workflowAgent)) {
             logger.warn("Workflow agent registration returned false; an agent with the same id may already exist")
         }
@@ -648,7 +648,7 @@ object HermesIntegration {
     }
 
     // ============ Helper Methods ============
-                private fun filterModelsByProviderCapability(
+    private fun filterModelsByProviderCapability(
         models: List<ProviderProfile.ModelInfo>,
         provider: ProviderProfile
     ): List<ProviderProfile.ModelInfo> {

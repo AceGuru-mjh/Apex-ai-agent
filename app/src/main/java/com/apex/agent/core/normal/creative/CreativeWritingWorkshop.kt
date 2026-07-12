@@ -69,7 +69,7 @@ data class WritingProject(
     val genre: WritingGenre,
     val style: WritingStyle,
     val premise: String,            // 核心设定/主题
-                val characters: List<Character>,
+    val characters: List<Character>,
     val outline: List<OutlineNode>,
     val drafts: List<Draft>,
     val currentDraft: Draft? = null,
@@ -85,7 +85,7 @@ data class Character(
     val id: String,
     val name: String,
     val role: String,              // 主角/配角/反派
-                val description: String,
+    val description: String,
     val personality: String,
     val motivation: String,
     val relationships: Map<String, String> = emptyMap()  // 其他角色ID -> 关系
@@ -338,7 +338,7 @@ class CreativeWritingWorkshop {
         val avgSentenceLength = if (sentenceCount > 0) wordCount / sentenceCount else 0
 
         // 检查文学手法
-                val metaphors = Regex("(像|如同|仿佛|宛如|好似).+").findAll(content).count()
+    val metaphors = Regex("(像|如同|仿佛|宛如|好似).+").findAll(content).count()
         val dialogues = content.count { it == '"' || it == '"' || it == '「' }
         val descriptions = Regex("(色|香|味|声|光|影)").findAll(content).count()
 
@@ -366,7 +366,7 @@ class CreativeWritingWorkshop {
     )
 
     // ============ 内部方法 ============
-                private fun defaultStyle(genre: WritingGenre): WritingStyle {
+    private fun defaultStyle(genre: WritingGenre): WritingStyle {
         return when (genre) {
             WritingGenre.ANCIENT_POEM -> WritingStyle(WritingTone.LYRICAL, WritingMood.PEACEFUL, Perspective.FIRST_PERSON, Tense.PAST, LanguageStyle.CLASSICAL, 56)
             WritingGenre.MODERN_POEM -> WritingStyle(WritingTone.LYRICAL, WritingMood.MELANCHOLY, Perspective.FIRST_PERSON, Tense.PRESENT, LanguageStyle.LITERARY, 100)

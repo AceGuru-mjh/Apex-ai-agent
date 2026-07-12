@@ -78,9 +78,9 @@ object OCRUtils {
      */
     private fun preprocessBitmap(bitmap: Bitmap): Bitmap {
         // 对于高质量模式，我们放大图像。这可以显著提高小图像的OCR准确性，        // 我们使用一个缩放因子，但避免使图像过大
-                val scaleFactor = 2.0f
+    val scaleFactor = 2.0f
         val maxDimension = 4096 // 限制最大尺寸以避免OOM
-                val newWidth = (bitmap.width * scaleFactor).toInt()
+    val newWidth = (bitmap.width * scaleFactor).toInt()
         val newHeight = (bitmap.height * scaleFactor).toInt()
 
         // 如果图像已经足够大或放大后会超出限制，则不进行处
@@ -223,7 +223,7 @@ object OCRUtils {
             quality: Quality = Quality.LOW
     ): String {
         // 同时进行拉丁文和中文识别
-                val latinResult = recognizeTextFromBitmap(bitmap, Language.LATIN, quality)
+    val latinResult = recognizeTextFromBitmap(bitmap, Language.LATIN, quality)
         val chineseResult = recognizeTextFromBitmap(bitmap, Language.CHINESE, quality)
 
         val latinText = if (latinResult is OCRResult.Success) latinResult.getFullText() else ""
@@ -272,7 +272,7 @@ object OCRUtils {
     @WorkerThread
     suspend fun recognizeText(context: Context, uri: Uri, quality: Quality = Quality.LOW): String {
         // 同时进行拉丁文和中文识别
-                val latinResult = recognizeTextFromUri(context, uri, Language.LATIN, quality)
+    val latinResult = recognizeTextFromUri(context, uri, Language.LATIN, quality)
         val chineseResult = recognizeTextFromUri(context, uri, Language.CHINESE, quality)
 
         val latinText = if (latinResult is OCRResult.Success) latinResult.getFullText() else ""

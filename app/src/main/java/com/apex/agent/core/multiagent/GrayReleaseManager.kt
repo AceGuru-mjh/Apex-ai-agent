@@ -20,7 +20,7 @@ class GrayReleaseManager {
         val sessionId: String,
         val feedback: String,
         val rating: Int, // 1-5
-                val timestamp: Long
+    val timestamp: Long
     )
 
     private val grayConfigs = ConcurrentHashMap<String, GrayReleaseConfig>()

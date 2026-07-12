@@ -21,7 +21,7 @@ object EndpointCompleter {
         // å°è¯è§£æURLå¹¶å¤æ­å®æ¯å¦ä¸ºä¸ä¸ªéè¦è¡¥å¨çURL
                 try {
             // ä½¿ç¨åå«å°¾é¨ææ çç«¯ç¹è¿è¡è§£æï¼ä»¥æ­£ç¡®è¯å«è·¯å¾?
-                val url = URL(trimmedEndpoint)
+    val url = URL(trimmedEndpoint)
         val path = url.path.removeSuffix("/")
 
             // 1. å¦æè·¯å¾ä¸ºç©º (e.g., https://api.example.com)ï¼åè¡¥å¨ä¸ºæ åè·¯å¾?

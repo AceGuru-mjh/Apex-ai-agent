@@ -65,7 +65,7 @@ object AIMessageManager {
     // 聊天总结的消息数量阈， 移除硬编码，改用动态设置   // private const val SUMMARY_CHUNK_SIZE = 4
 
     // 使用独立的协程作用域，确保AI操作的生命周期独立于任何特定的ViewModel
-                private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private const val DEFAULT_CHAT_KEY = "__DEFAULT_CHAT__"
 
@@ -142,7 +142,7 @@ object AIMessageManager {
             }
 
         // 1. 构建回复标签（如果有回复消息，
-                val replyTagStartTime = messageTimingNow()
+    val replyTagStartTime = messageTimingNow()
         val replyTag = replyToMessage?.let { message ->
             val cleanContent = message.content
                 .replace(Regex("<[^>]*>"), "") // 移除XML标签
@@ -160,7 +160,7 @@ object AIMessageManager {
         )
 
         // 3. 根据开关决定是否生成工作区附着
-                val workspaceTagStartTime = messageTimingNow()
+    val workspaceTagStartTime = messageTimingNow()
         val workspaceTag = if (enableWorkspaceAttachment && !workspacePath.isNullOrBlank() && !processedMessageText.contains("<workspace_attachment>", ignoreCase = true)) {
             try {
                 val workspaceContent = WorkspaceAttachmentProcessor.generateWorkspaceAttachment(
@@ -181,7 +181,7 @@ object AIMessageManager {
         )
 
         // 4. 构建附件标签
-                val attachmentTagsStartTime = messageTimingNow()
+    val attachmentTagsStartTime = messageTimingNow()
         val attachmentTags = if (attachments.isNotEmpty()) {
             attachments.joinToString(" ") { attachment ->
                 // 如果启用直接图片处理且附件是图片，转换为link标签
@@ -192,7 +192,7 @@ object AIMessageManager {
                     } catch (e: Exception) {
                         AppLogger.e(TAG, "添加图片到池失败: ${attachment.filePath}", e)
                         // 失败时回退到普通附件格，
-                val attributes = buildString {
+    val attributes = buildString {
                             append("id=\"${attachment.filePath}\" ")
                             append("filename=\"${attachment.fileName}\" ")
                             append("type=\"${attachment.mimeType}\"")
@@ -242,7 +242,7 @@ object AIMessageManager {
                     }
                 } else {
                     // 非图片或未启用直接图片处理，使用普通附件格，
-                val attributes = buildString {
+    val attributes = buildString {
                         append("id=\"${attachment.filePath}\" ")
                         append("filename=\"${attachment.fileName}\" ")
                         append("type=\"${attachment.mimeType}\"")
@@ -261,7 +261,7 @@ object AIMessageManager {
         )
 
         // 5. 组合最终消，
-                val finalMessageContent = listOf(proxySenderTag, processedMessageText, attachmentTags, workspaceTag, replyTag)
+    val finalMessageContent = listOf(proxySenderTag, processedMessageText, attachmentTags, workspaceTag, replyTag)
             .filter { it.isNotBlank() }
             .joinToString(" ")
         logMessageTiming(
@@ -408,7 +408,7 @@ object AIMessageManager {
             }
 
             // 获取流式输出设置
-                val readStreamSettingStartTime = messageTimingNow()
+    val readStreamSettingStartTime = messageTimingNow()
         val disableStreamOutput = apiPreferences.disableStreamOutputFlow.first()
             val enableStream = !disableStreamOutput
             logMessageTiming(
@@ -418,7 +418,7 @@ object AIMessageManager {
             )
 
             // 使用普通模型
-                val prepareRequestStartTime = messageTimingNow()
+    val prepareRequestStartTime = messageTimingNow()
         val responseStream = enhancedAiService.sendMessage(
                 message = messageContent,
                 chatId = chatId,
@@ -811,18 +811,18 @@ object AIMessageManager {
         }
 
         // 群聊模式：将消息打包成多角色格式
-                val conversationToSummarize = if (isGroupChat) {
+    val conversationToSummarize = if (isGroupChat) {
             // 打包所有消息到一条用户消，
-                val packedContent = buildString {
+    val packedContent = buildString {
                 messagesToSummarize.forEach { message ->
                     // 清理消息内容：移，memory 标签，thinking 内容
-                val cleanedContent = if (message.sender == "user") {
+    val cleanedContent = if (message.sender == "user") {
                         stripMediaLinksForAssistant(
                             message.content.replace(memoryTagRegex, "").trim()
                         )
                     } else {
                         // AI 消息需要先移除 thinking 内容，再移除媒体链接
-                val withoutThinking = ChatUtils.removeThinkingContent(message.content)
+    val withoutThinking = ChatUtils.removeThinkingContent(message.content)
                         stripMediaLinksForAssistant(withoutThinking)
                     }
 
@@ -884,7 +884,7 @@ object AIMessageManager {
                 null
             } else {
                 // 如果是自动续写，在总结消息尾部添加续写提示
-                val trimmedSummary = summary.trim()
+    val trimmedSummary = summary.trim()
         val useEnglish = LocaleUtils.getCurrentLanguage(context).lowercase().startsWith("en")
                 val packageWarmupBlock = buildPackageWarmupBlock(messagesToSummarize, useEnglish)
         val summaryWithQuotes = buildString {
@@ -1144,7 +1144,7 @@ object AIMessageManager {
     ): List<PromptTurn> {
         val totalStartTime = messageTimingNow()
         // 1. 找到最后一条总结消息，只处理总结之后的消，
-                val lastSummaryIndex = messages.indexOfLast { it.sender == "summary" }
+    val lastSummaryIndex = messages.indexOfLast { it.sender == "summary" }
         val relevantMessages = if (lastSummaryIndex != -1) {
             messages.subList(lastSummaryIndex, messages.size)
         } else {
@@ -1152,17 +1152,17 @@ object AIMessageManager {
         }
 
         // 2. 判断是否启用角色隔离模式
-                val isRoleScopedMode = splitByRole && !targetRoleName.isNullOrBlank()
+    val isRoleScopedMode = splitByRole && !targetRoleName.isNullOrBlank()
         val normalizedTargetRole = targetRoleName?.trim().orEmpty()
 
         // 3. 辅助函数：移除状态标等
-                fun removeStatusTags(text: String): String {
+    fun removeStatusTags(text: String): String {
             val noStatus = ChatMarkupRegex.statusTag.replace(text, " ")
             return ChatMarkupRegex.statusSelfClosingTag.replace(noStatus, " ").trim()
         }
 
         // 4. 处理每条消息
-                val processedMessages = relevantMessages
+    val processedMessages = relevantMessages
             .filter { it.sender == "user" || it.sender == "ai" || it.sender == "summary" }
             .mapNotNull { message ->
                 when (message.sender) {
@@ -1202,7 +1202,7 @@ object AIMessageManager {
         removeStatusTags: (String) -> String
     ): PromptTurn? {
         // 清理思考内定
-                val cleanedContent = ChatUtils.removeThinkingContent(message.content).trim()
+    val cleanedContent = ChatUtils.removeThinkingContent(message.content).trim()
         val contentWithoutStatus = removeStatusTags(cleanedContent)
 
         // 非角色隔离模式：直接返回 assistant 消息
@@ -1214,7 +1214,7 @@ object AIMessageManager {
         }
 
         // 角色隔离模式：判断是当前角色还是其他角色
-                val messageRoleName = message.roleName.trim()
+    val messageRoleName = message.roleName.trim()
         return if (messageRoleName == targetRoleName) {
             // 当前角色的消息：作为 assistant 返回
                 PromptTurn(
@@ -1223,7 +1223,7 @@ object AIMessageManager {
             )
         } else {
             // 其他角色的消息：转换，user 消息，添加角色标等
-                val roleLabel = if (messageRoleName.isNotBlank()) messageRoleName else "unknown"
+    val roleLabel = if (messageRoleName.isNotBlank()) messageRoleName else "unknown"
         val bridgedContent = removeStatusTags(cleanedContent)
             if (bridgedContent.isBlank()) {
                 null

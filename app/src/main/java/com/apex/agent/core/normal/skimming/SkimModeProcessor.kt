@@ -86,7 +86,7 @@ class SkimModeProcessor {
 
     private fun extractHeadline(text: String): String {
         // 取第一个标题或第一句话
-                val firstLine = text.lines().firstOrNull { it.isNotBlank() } ?: ""
+    val firstLine = text.lines().firstOrNull { it.isNotBlank() } ?: ""
         return when {
             firstLine.matches(Regex("^#+\\s+.+")) -> firstLine.removePrefix("#").trim()
             firstLine.length < 50 -> firstLine
@@ -96,7 +96,7 @@ class SkimModeProcessor {
 
     private fun generateTLDR(text: String): String {
         // 取最重要的句子（第一个完整句子）
-                val sentences = text.split(Regex("[。.！!？?\\n]")).filter { it.isNotBlank() }
+    val sentences = text.split(Regex("[。.！!？?\\n]")).filter { it.isNotBlank() }
         val firstSentence = sentences.firstOrNull() ?: text.take(100)
         return if (firstSentence.length > 80) firstSentence.take(80) + "..." else firstSentence
     }

@@ -128,7 +128,7 @@ class StagedAgentPipeline {
 
         try {
             // 按阶段顺序执行
-                val stages = PipelineStage.entries.toList()
+    val stages = PipelineStage.entries.toList()
             var currentStageIndex = 0
 
             while (currentStageIndex < stages.size) {
@@ -145,7 +145,7 @@ class StagedAgentPipeline {
                 }
 
                 // 执行阶段
-                val stageResult = executeStage(stageAgent, context)
+    val stageResult = executeStage(stageAgent, context)
                 context.stageResults.add(stageResult)
 
                 progressListener?.onStageCompleted(stage, stageResult)
@@ -172,7 +172,7 @@ class StagedAgentPipeline {
             }
 
             // 所有阶段完于
-                val finalOutput = generateFinalOutput(context)
+    val finalOutput = generateFinalOutput(context)
         val totalDuration = System.currentTimeMillis() - startTime
             val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
 

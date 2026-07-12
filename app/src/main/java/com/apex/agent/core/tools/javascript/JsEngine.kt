@@ -526,7 +526,7 @@ class JsEngine(private val context: Context) {
     }
 
     // 预定义的错误消息，避免重复创建字符串
-                private val EMPTY_BRIDGE_RESPONSE = "empty bridge response"
+    private val EMPTY_BRIDGE_RESPONSE = "empty bridge response"
     private val INVALID_BRIDGE_RESPONSE_FORMAT = "invalid bridge response format"
     private val BRIDGE_CALL_FAILED = "bridge call failed"
     

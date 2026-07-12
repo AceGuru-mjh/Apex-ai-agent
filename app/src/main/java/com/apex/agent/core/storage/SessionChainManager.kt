@@ -42,11 +42,11 @@ class SessionChainManager(private val context: Context) {
         newSession: SessionEntity
     ): String = withContext(Dispatchers.IO) {
         // 验证父会话存在
-                val parentSession = sessionDao.getSessionById(parentSessionId)
+    val parentSession = sessionDao.getSessionById(parentSessionId)
             ?: throw IllegalArgumentException("Parent session not found: ${parentSessionId}")
         
         // 验证分裂点消息存在
-                val splitMessage = messageDao.getMessageById(splitFromMessageId)
+    val splitMessage = messageDao.getMessageById(splitFromMessageId)
             ?: throw IllegalArgumentException("Split message not found: ${splitFromMessageId}")
         
         if (splitMessage.sessionId != parentSessionId) {
@@ -60,7 +60,7 @@ class SessionChainManager(private val context: Context) {
                 sessionDao.insertSession(newSession)
         
         // 复制分裂点之前的消息到新会话
-                val messagesToCopy = messageDao.getMessagesBySessionIdSync(parentSessionId)
+    val messagesToCopy = messageDao.getMessagesBySessionIdSync(parentSessionId)
             .filter { it.createdAt <= splitMessage.createdAt }
         
         val newMessages = messagesToCopy.map { message ->
@@ -123,10 +123,10 @@ class SessionChainManager(private val context: Context) {
             ?: throw IllegalArgumentException("Session not found: ${sessionId}")
         
         // 获取当前会话的完整链
-                val chain = getSessionChain(sessionId)
+    val chain = getSessionChain(sessionId)
         
         // 收集所有相关消息
-                val allMessages = mutableListOf<MessageEntity>()
+    val allMessages = mutableListOf<MessageEntity>()
         
         chain.forEachIndexed { index, node ->
             val isCurrentSession = index == chain.size - 1
@@ -176,7 +176,7 @@ class SessionChainManager(private val context: Context) {
         val messages = messageDao.getMessagesBySessionIdSync(sessionId)
         
         // 保留策略：保留首尾消息和关键决策点
-                val importantMessageIds = mutableListOf<String>()
+    val importantMessageIds = mutableListOf<String>()
         
         // 保留第一条系统消息
                 messages.find { it.role == "system" }?.let { importantMessageIds.add(it.id) }
@@ -207,10 +207,10 @@ class SessionChainManager(private val context: Context) {
         val keepMessageIds = getCompressionSuggestions(sessionId)
         
         // 保留的消息
-                val keptMessages = messages.filter { it.id in keepMessageIds }
+    val keptMessages = messages.filter { it.id in keepMessageIds }
         
         // 创建压缩后的新会试
-                val compressedSession = session.copy(
+    val compressedSession = session.copy(
             id = "${sessionId}_compressed_${System.currentTimeMillis()}",
             parentSessionId = sessionId,
             splitFromMessageId = keepMessageIds.lastOrNull(),
@@ -224,7 +224,7 @@ class SessionChainManager(private val context: Context) {
                 sessionDao.insertSession(compressedSession)
         
         // 保存保留的消息到新会试
-                val newMessages = keptMessages.map { msg ->
+    val newMessages = keptMessages.map { msg ->
             msg.copy(
                 id = "${compressedSession.id}_${msg.id}",
                 sessionId = compressedSession.id,
@@ -293,13 +293,13 @@ class SessionChainManager(private val context: Context) {
         val sourceMessages = messageDao.getMessagesBySessionIdSync(sourceSessionId)
         
         // 只复制分裂点之前的消息
-                val splitMessage = messageDao.getMessageById(splitMessageId)
+    val splitMessage = messageDao.getMessageById(splitMessageId)
         val messagesToMerge = sourceMessages.filter { msg ->
             splitMessage?.let { msg.createdAt <= it.createdAt } ?: true
         }
         
         // 为每条消息创建新的ID以避免冲窗
-                val mergedMessages = messagesToMerge.map { msg ->
+    val mergedMessages = messagesToMerge.map { msg ->
             msg.copy(
                 id = "${targetSessionId}_merged_${msg.id}",
                 sessionId = targetSessionId

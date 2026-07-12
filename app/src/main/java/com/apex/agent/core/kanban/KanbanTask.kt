@@ -29,13 +29,13 @@ class KanbanTask(
                 var taskType: String = "general",
     val tags: MutableList<String> = mutableListOf(),
     // 依赖关系
-                val dependencies: MutableList<String> = mutableListOf(),  // 依赖的任务ID
-                val blockingTasks: MutableList<String> = mutableListOf(),  // 阻塞此任务的任务 ID
+    val dependencies: MutableList<String> = mutableListOf(),  // 依赖的任务ID
+    val blockingTasks: MutableList<String> = mutableListOf(),  // 阻塞此任务的任务 ID
     // 结果和输出
                 var result: TaskResult? = null,
     var outputArtifacts: MutableList<TaskArtifact> = mutableListOf(),
     // 时间追踪
-                val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis(),
     var startedAt: Long? = null,
     var completedAt: Long? = null,
@@ -210,7 +210,7 @@ data class TaskArtifact(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
     val type: String,  // "file", "data", "link", etc.
-                val path: String? = null,
+    val path: String? = null,
     val content: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

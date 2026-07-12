@@ -30,7 +30,7 @@ class StandardCalculator {
         /** 获取所有变量作为Map */
         private fun getVariablesMap(): Map<String, Double> {
             // 假设这些是CalcImpl内部常用的变重
-                val commonVars = listOf("ans", "pi", "e")
+    val commonVars = listOf("ans", "pi", "e")
         val result = mutableMapOf<String, Double>()
 
             for (varName in commonVars) {

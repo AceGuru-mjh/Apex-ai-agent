@@ -199,7 +199,7 @@ class EnhancedWorkflowExecutor private constructor(
         val startTime = System.currentTimeMillis()
 
         // 1. 校验
-                val validation = validator.validate(workflow)
+    val validation = validator.validate(workflow)
         if (!validation.isValid) {
             return@coroutineScope ExecutionResult(
                 threadId = threadId,
@@ -215,7 +215,7 @@ class EnhancedWorkflowExecutor private constructor(
         }
 
         // 2. 创建根 span
-                val rootSpan = tracer.startSpan(
+    val rootSpan = tracer.startSpan(
             name = "workflow:${workflow.name}",
             threadId = threadId,
             nodeId = null,
@@ -229,7 +229,7 @@ class EnhancedWorkflowExecutor private constructor(
         )
 
         // 3. 初始化上下文
-                val context = ExecutionContext(
+    val context = ExecutionContext(
             threadId = threadId,
             workflow = workflow,
             variables = inputs.toMutableMap(),
@@ -244,7 +244,7 @@ class EnhancedWorkflowExecutor private constructor(
 
         try {
             // 5. 根据 sagaMode 选择执行策略
-                val result = if (workflow.sagaMode) {
+    val result = if (workflow.sagaMode) {
                 executeAsSaga(workflow, context, rootSpan)
             } else {
                 executeNormal(workflow, context, rootSpan, resumeFromCheckpoint)
@@ -291,7 +291,7 @@ class EnhancedWorkflowExecutor private constructor(
         val startTime = System.currentTimeMillis()
 
         // 从触发节点开始
-                val triggerNodes = workflow.getTriggerNodes()
+    val triggerNodes = workflow.getTriggerNodes()
         val startNodes = if (triggerNodes.isNotEmpty()) triggerNodes else workflow.nodes.take(1)
 
         // 执行所有起始节点
@@ -324,7 +324,7 @@ class EnhancedWorkflowExecutor private constructor(
         val startTime = System.currentTimeMillis()
 
         // 收集所有 EXECUTE/SAGA 节点作为 saga steps（按拓扑顺序）
-                val sortedNodes = validator.validate(workflow).topologicalOrder.mapNotNull { id ->
+    val sortedNodes = validator.validate(workflow).topologicalOrder.mapNotNull { id ->
             workflow.getNodeById(id)
         }.filter { it.type == EnhancedNodeType.EXECUTE || it.type == EnhancedNodeType.SAGA }
 
@@ -413,7 +413,7 @@ class EnhancedWorkflowExecutor private constructor(
         }
 
         // 执行当前节点
-                val nodeResult = executeNodeInternal(node, context, parentSpanId)
+    val nodeResult = executeNodeInternal(node, context, parentSpanId)
 
         // 检查人工审批中断
                 if (nodeResult is NodeResult.WaitingHuman) {
@@ -421,7 +421,7 @@ class EnhancedWorkflowExecutor private constructor(
         }
 
         // 沿出边级联
-                val outgoing = context.workflow.getOutgoingConnections(node.id)
+    val outgoing = context.workflow.getOutgoingConnections(node.id)
         for (conn in outgoing.sortedBy { it.priority }) {
             val shouldTraverse = when (conn.condition) {
                 ConnectionConditionDef.ON_SUCCESS -> nodeResult is NodeResult.Success
@@ -564,7 +564,7 @@ class EnhancedWorkflowExecutor private constructor(
             ?: return NodeResult.Failure(IllegalStateException("未注册 action handler: $actionType"), 0)
 
         // 解析参数（支持节点引用）
-                val resolvedParams = node.config.actionConfig.mapValues { (_, v) ->
+    val resolvedParams = node.config.actionConfig.mapValues { (_, v) ->
             resolveParameterValue(v, context)
         }
 
@@ -618,7 +618,7 @@ class EnhancedWorkflowExecutor private constructor(
         val start = System.currentTimeMillis()
         val op = node.config.operator?.uppercase() ?: "AND"
         // 简化实现：对 inputs 列表求布尔值
-                val bools = node.config.inputs.map { p ->
+    val bools = node.config.inputs.map { p ->
         val v = p.resolve(context.variables)
             v.lowercase() in setOf("true", "1", "yes", "on")
         }
@@ -717,7 +717,7 @@ class EnhancedWorkflowExecutor private constructor(
             failFast = spec.failFast
         ) { idx, item ->
             // 为每个分支执行下游节点
-                val branchContext = context.variables.toMutableMap()
+    val branchContext = context.variables.toMutableMap()
             branchContext["__fanout_item"] = item
             branchContext["__fanout_index"] = idx
             for (dn in downstreamNodes) {
@@ -736,7 +736,7 @@ class EnhancedWorkflowExecutor private constructor(
             IllegalStateException("缺少 fanInSpec"), 0
         )
         // 从上游 fan-out 结果收集
-                val upstreamResults = context.nodeResults
+    val upstreamResults = context.nodeResults
             .filterKeys { nodeId ->
                 context.workflow.getIncomingConnections(node.id).any { it.sourceNodeId == nodeId }
             }

@@ -29,7 +29,7 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
                 private const val ROOT_ID = "workspace_root"
         
         // 默认文档，
-                private val DEFAULT_ROOT_PROJECTION = arrayOf(
+    private val DEFAULT_ROOT_PROJECTION = arrayOf(
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_MIME_TYPES,
             DocumentsContract.Root.COLUMN_FLAGS,
@@ -266,7 +266,7 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
             workspaceRoot
         } else {
             // 移除开头的/，拼接到workspace根目当
-                val relativePath = documentId.trimStart('/')
+    val relativePath = documentId.trimStart('/')
             File(workspaceRoot, relativePath)
         }
         

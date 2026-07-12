@@ -129,7 +129,7 @@ class AIForegroundService : Service() {
         @Volatile
         private var lastRequestedImeVisible: Boolean = false
         // 静态标志，用于从外部检查服务是否正在运，
-                val isRunning = java.util.concurrent.atomic.AtomicBoolean(false)
+    val isRunning = java.util.concurrent.atomic.AtomicBoolean(false)
        private val activeReplyNotificationTags = ConcurrentHashMap.newKeySet<String>()
        private val externalHttpStateFlow = MutableStateFlow(ExternalChatHttpState())
         val externalHttpState = externalHttpStateFlow.asStateFlow()
@@ -1715,7 +1715,7 @@ onTriggered = onTriggered@{ similarity ->
     private fun createNotification(): Notification {
         // 为了简单起见，使用一个安卓内置图标？
         // 在实际项目中，应替换为应用的自定义图标？
-                val wakeListeningEnabledSnapshot = wakeListeningEnabled
+    val wakeListeningEnabledSnapshot = wakeListeningEnabled
         val wakeListeningSuspendedSnapshot = wakeListeningSuspendedForIme || wakeListeningSuspendedForExternalRecording || wakeListeningSuspendedForFloatingFullscreen
         val externalHttpSnapshot = externalHttpStateFlow.value
         val title =
@@ -1767,7 +1767,7 @@ onTriggered = onTriggered@{ similarity ->
         .setSmallIcon(android.R.drawable.ic_dialog_info)
         .setPriority(NotificationCompat.PRIORITY_LOW)
         .setOngoing(true) // 使通知不可被用户清，
-                val contentIntent = Intent(this, MainActivity::class.java).apply {
+    val contentIntent = Intent(this, MainActivity::class.java).apply {
             flags =
             Intent.FLAG_ACTIVITY_NEW_TASK or
             Intent.FLAG_ACTIVITY_CLEAR_TOP or

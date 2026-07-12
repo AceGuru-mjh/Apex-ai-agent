@@ -22,7 +22,7 @@ class TokenStatisticsDelegate(
     }
 
     // --- UI State Flows ---
-                private val _cumulativeInputTokens = MutableStateFlow(0)
+    private val _cumulativeInputTokens = MutableStateFlow(0)
         val cumulativeInputTokensFlow: StateFlow<Int> = _cumulativeInputTokens.asStateFlow()
 
     private val _cumulativeOutputTokens = MutableStateFlow(0)
@@ -100,7 +100,7 @@ class TokenStatisticsDelegate(
 
     fun setupCollectors() {
         tokenCollectorJob?.cancel() // Cancel previous collector if any
-                val service = getEnhancedAiService() ?: return // Service not ready
+    val service = getEnhancedAiService() ?: return // Service not ready
                 tokenCollectorJob = coroutineScope.launch(Dispatchers.IO) {
             launch {
                 service.perRequestTokenCounts.collect { counts ->
@@ -170,7 +170,7 @@ class TokenStatisticsDelegate(
         perRequestTokenCountByChatKey.clear()
 
         // 同时重置服务中的token计数
-                val services = buildSet {
+    val services = buildSet {
             getEnhancedAiService()?.let { add(it) }
             addAll(boundServicesByChatKey.values)
         }
@@ -185,11 +185,11 @@ class TokenStatisticsDelegate(
         service?.let {
             try {
                 // 从AI服务获取最新的token统计
-                val currentInputTokens = it.getCurrentInputTokenCount()
+    val currentInputTokens = it.getCurrentInputTokenCount()
         val currentOutputTokens = it.getCurrentOutputTokenCount()
 
                 // 更新累计token，
-                val newInput = (cumulativeInputTokensByChatKey[key] ?: 0) + currentInputTokens
+    val newInput = (cumulativeInputTokensByChatKey[key] ?: 0) + currentInputTokens
         val newOutput = (cumulativeOutputTokensByChatKey[key] ?: 0) + currentOutputTokens
                 cumulativeInputTokensByChatKey[key] = newInput
                 cumulativeOutputTokensByChatKey[key] = newOutput

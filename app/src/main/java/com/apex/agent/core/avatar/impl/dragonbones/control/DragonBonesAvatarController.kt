@@ -94,7 +94,7 @@ class DragonBonesAvatarController(
     }
 
     // `lookAt` is not supported by the DragonBones implementation.
-                override fun lookAt(x: Float, y: Float) {
+    override fun lookAt(x: Float, y: Float) {
         // No-op
     }
 

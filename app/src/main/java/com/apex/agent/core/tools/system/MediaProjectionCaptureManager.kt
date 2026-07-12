@@ -51,7 +51,7 @@ class MediaProjectionCaptureManager(private val context: Context, private val me
             val densityDpi = metrics.densityDpi
 
             // Using RGBA_8888
-                val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
+    val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
             imageReader = reader
 
             val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR

@@ -72,12 +72,12 @@ class EnhancedTerminalViewModel @Inject constructor(
     private val tabCompleter = TabCompleter({ _aliases.value }, { _quickCommands.value }, { _globalHistory.value })
 
     // === 危险命令确认 ===
-                private val _pendingDangerousCommand = MutableStateFlow<DangerousCommandDetector.DetectionResult?>(null)
+    private val _pendingDangerousCommand = MutableStateFlow<DangerousCommandDetector.DetectionResult?>(null)
         val pendingDangerousCommand: StateFlow<DangerousCommandDetector.DetectionResult?> = _pendingDangerousCommand
     private var pendingCommandText: String? = null
 
     // === 代码段编辑器 ===
-                private val _snippetEditorOpen = MutableStateFlow(false)
+    private val _snippetEditorOpen = MutableStateFlow(false)
         val snippetEditorOpen: StateFlow<Boolean> = _snippetEditorOpen
     private val _editingSnippet = MutableStateFlow<Snippet?>(null)
         val editingSnippet: StateFlow<Snippet?> = _editingSnippet
@@ -151,7 +151,7 @@ class EnhancedTerminalViewModel @Inject constructor(
     }
 
     // === 代码段编辑器 ===
-                fun openSnippetEditor(existing: Snippet? = null) {
+    fun openSnippetEditor(existing: Snippet? = null) {
         _editingSnippet.value = existing
         _snippetEditorOpen.value = true
     }

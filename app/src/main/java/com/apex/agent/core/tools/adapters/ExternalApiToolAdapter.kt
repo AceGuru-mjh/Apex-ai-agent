@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit
  */
 class ExternalApiToolAdapter : ToolAdapter {
 
-    // 配置化的HTTP客户，   private val client: OkHttpClient by lazy {
+    // 配置化的HTTP客户，
+    private val client: OkHttpClient by lazy {
                 OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -32,10 +33,10 @@ class ExternalApiToolAdapter : ToolAdapter {
     }
     
     // 请求缓存
-                private val requestCache = ConcurrentHashMap<String, CachedResponse>()
+    private val requestCache = ConcurrentHashMap<String, CachedResponse>()
     private val MAX_CACHE_SIZE = 100
     private val CACHE_EXPIRE_TIME = 10 * 60 * 1000L // 10分钟
-                override fun getName(): String {
+    override fun getName(): String {
         return "external_api"
     }
 
@@ -65,7 +66,7 @@ class ExternalApiToolAdapter : ToolAdapter {
 
         try {
             // 检查缓存（仅GET请求，
-                val cacheKey = if (method.uppercase() == "GET") {
+    val cacheKey = if (method.uppercase() == "GET") {
                 "${method}:${url}:${headers.hashCode()}"
             } else {
                 null
@@ -84,7 +85,7 @@ class ExternalApiToolAdapter : ToolAdapter {
             }
 
             // 执行请求（支持重试）
-                val response = executeWithRetry(url, method, headers, body, contentType, timeout, maxRetries, followRedirects)
+    val response = executeWithRetry(url, method, headers, body, contentType, timeout, maxRetries, followRedirects)
 
             // 缓存响应（仅GET请求，
                 if (useCache && cacheKey != null && response.statusCode in 200..299) {
@@ -151,7 +152,7 @@ class ExternalApiToolAdapter : ToolAdapter {
         var retryCount = 0
 
         // 创建自定义超时的客户，
-                val customClient = client.newBuilder()
+    val customClient = client.newBuilder()
             .connectTimeout(timeout.toLong(), TimeUnit.SECONDS)
             .readTimeout(timeout.toLong(), TimeUnit.SECONDS)
             .writeTimeout(timeout.toLong(), TimeUnit.SECONDS)
@@ -169,7 +170,7 @@ class ExternalApiToolAdapter : ToolAdapter {
                 }
 
                 // 添加请求，
-                val request = if (body != null && 
+    val request = if (body != null && 
                     (method.uppercase() == "POST" || 
                      method.uppercase() == "PUT" || 
                      method.uppercase() == "PATCH")) {
@@ -192,7 +193,7 @@ class ExternalApiToolAdapter : ToolAdapter {
                 if (response.code in 500..599 && retryCount < maxRetries) {
                     retryCount++
                     // 等待时间递增
-                val waitTime = (1000 * retryCount).toLong()
+    val waitTime = (1000 * retryCount).toLong()
                     kotlinx.coroutines.delay(waitTime)
                     continue
                 }

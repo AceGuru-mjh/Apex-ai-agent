@@ -174,7 +174,7 @@ class UpdateDownloadService : Service() {
         super.onDestroy()
         AppLogger.d(TAG, "UpdateDownloadService onDestroy")
         // 若下载仍在进行中，显式取消，确保 Service 生命周期与下载一致
-                val manager = HotUpdateManager.getInstance(this)
+    val manager = HotUpdateManager.getInstance(this)
         val s = manager.state.value
         if (s is UpdateState.Downloading) {
             manager.cancelDownload()

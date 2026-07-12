@@ -100,10 +100,10 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
     }
 
     // 应用级协程作用域
-                private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // 懒加载数据库实例
-                private val database by lazy { AppDatabase.getDatabase(this) }
+    private val database by lazy { AppDatabase.getDatabase(this) }
     
     // 应用初始化器
                 private lateinit var appInitializer: AppInitializer
@@ -132,7 +132,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         AppIconManager.ensureComponentState(this)
 
         // Reset previous log on each cold start to prevent infinite log growth
-                val isCrashReportRecoveryStartup = CrashRecoveryState.consumePendingCrashReportLaunch(this)
+    val isCrashReportRecoveryStartup = CrashRecoveryState.consumePendingCrashReportLaunch(this)
         if (!isCrashReportRecoveryStartup) {
             AppLogger.resetLogFile()
         }
@@ -185,7 +185,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         AppLogger.d(TAG, "【启动计时】语言设置初始化完成- ${System.currentTimeMillis() - startTime}ms")
 
         // Initialize user preferences manager
-                val defaultProfileName = applicationContext.getString(R.string.default_profile)
+    val defaultProfileName = applicationContext.getString(R.string.default_profile)
         initUserPreferencesManager(applicationContext, defaultProfileName)
         AppLogger.d(TAG, "【启动计时】用户偏好管理器初始化完成- ${System.currentTimeMillis() - startTime}ms")
 
@@ -238,7 +238,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         AppLogger.d(TAG, "【启动计时】WaifuMessageProcessor初始化完成- ${System.currentTimeMillis() - startTime}ms")
 
         // Initialize global image loader (needed for UI)
-                val imageOkHttpClient = OkHttpClient.Builder()
+    val imageOkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -398,7 +398,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
             //
                 WakeWordPreferences(applicationContext).alwaysListeningEnabledFlow.first()
             // }
-                val externalHttpEnabled = runBlocking(Dispatchers.IO) {
+    val externalHttpEnabled = runBlocking(Dispatchers.IO) {
                 ExternalHttpApiPreferences.getInstance(applicationContext).enabledFlow.first()
             }
             if ((/* !alwaysListeningEnabled &amp;&amp; */ !externalHttpEnabled) || AIForegroundService.isRunning.get()) {
@@ -421,10 +421,10 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
     private fun initializeAppLanguage() {
         try {
             // 同步获取已保存的语言设置
-                val languageCode = runBlocking(Dispatchers.IO) {
+    val languageCode = runBlocking(Dispatchers.IO) {
                 try {
                     // 使用更安全的方式检查preferencesManager
-                val manager = runCatching { preferencesManager }.getOrNull()
+    val manager = runCatching { preferencesManager }.getOrNull()
                     if (manager != null) {
                         manager.appLanguage.first()
                     } else {
@@ -439,18 +439,18 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
             AppLogger.d(TAG, "获取语言设置: ${languageCode}")
 
             // 立即应用语言设置
-                val locale = LocaleUtils.getLocaleForLanguageCode(languageCode, this)
+    val locale = LocaleUtils.getLocaleForLanguageCode(languageCode, this)
             // 设置默认语言
                 Locale.setDefault(locale)
 
             if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.TIRAMISU) {
                 // Android 13+ 使用AppCompatDelegate API
-                val localeList = LocaleListCompat.create(locale)
+    val localeList = LocaleListCompat.create(locale)
                 AppCompatDelegate.setApplicationLocales(localeList)
                 AppLogger.d(TAG, "使用AppCompatDelegate设置语言: ${languageCode}")
             } else {
                 // 较旧版本Android - 此处使用的部分更新将在attachBaseContext中完成更完整更新
-                val config = Configuration()
+    val config = Configuration()
                 if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.N) {
                     val localeList = LocaleList(locale)
                     LocaleList.setDefault(localeList)
@@ -486,7 +486,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
             }
 
             // 使用createConfigurationContext创建新的上下文
-                val context = base.createConfigurationContext(config)
+    val context = base.createConfigurationContext(config)
             super.attachBaseContext(context)
             AppLogger.d(TAG, "成功应用基础上下文语言: ${code}")
         } catch (e: Exception) {

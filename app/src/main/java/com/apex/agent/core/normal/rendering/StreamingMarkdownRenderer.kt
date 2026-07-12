@@ -75,7 +75,7 @@ class StreamingMarkdownRenderer {
         buffer.append(chunk)
 
         // 按行处理（保留最后不完整的行）
-                val lines = buffer.toString().split("\n")
+    val lines = buffer.toString().split("\n")
         val completeLines = if (buffer.endsWith("\n")) lines.dropLast(1) else lines.dropLast(1)
 
         for (line in completeLines) {
@@ -129,7 +129,7 @@ class StreamingMarkdownRenderer {
     }
 
     // ============ 内部方法 ============
-                private fun processLine(line: String) {
+    private fun processLine(line: String) {
         when {
             // 代码块开始/结束
                 line.trimStart().startsWith("```") -> {

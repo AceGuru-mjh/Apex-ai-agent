@@ -76,7 +76,7 @@ class SwarmIntelligenceEngine(
             AppLogger.d(TAG, "Debate round ${round} for debate: ${debateId}")
 
             // 并行生成每个代理的论点（async/awaitAll，
-                val newArguments = debate.participants.map { agentId ->
+    val newArguments = debate.participants.map { agentId ->
                 async {
                     generateArgument(agentId, debate.topic, debate.arguments)
                 }
@@ -101,7 +101,7 @@ class SwarmIntelligenceEngine(
         val stance = getRandomStance()
 
         // AI 驱动：如果AI 失败则回退到模权
-                val aiPrompt = buildString {
+    val aiPrompt = buildString {
             append("请为辩论主题'${topic}'生成一个论点。\n")
             append("你的立场是 ${stance.name}\n")
             append("其他参与者最近的论点:\n")
@@ -188,7 +188,7 @@ class SwarmIntelligenceEngine(
         }
 
         // AI 驱动：让每个代理基于辩论历史生成真实意见
-                val opinions = debate.participants.map { agentId ->
+    val opinions = debate.participants.map { agentId ->
         val aiOpinion = callAI(
                 prompt = "关于辩论主题'${debate.topic}'，请阅读以下论点后给出你的最终意见和投票:\n${debate.arguments.takeLast(10).map { "- [${it.stance.name}] ${it.content}" }.replace("\\n\"},
                 systemPrompt = "你是一名辩论评估员，基于理性思考给出你的最终意见，请以明确表态。"
@@ -205,7 +205,7 @@ class SwarmIntelligenceEngine(
         val voteResults = calculateVoteResults(opinions)
 
         // AI 驱动：让 AI 作为辩论主席综合分析生成结论
-                val aiConclusion = callAI(
+    val aiConclusion = callAI(
             prompt = "请作为辩论主席，综合以下讨论，给出最终结论。\n\n辩论主题: ${debate.topic}\n参与者意解\n${opinions.joinToString("\n") { "- ${it.opinion} (投票: ${it.vote}" },"
             systemPrompt = "你是一名中立的辩论主席。你的回复应该客观、平衡，综合各方观点给出建设性结论。"
         )

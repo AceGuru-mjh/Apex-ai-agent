@@ -72,13 +72,13 @@ class ShizukuInstaller {
         fun installBundledShizuku(context: Context): Boolean {
             try {
                 // 记录是安装还是更文
-                val isUpdate = ShizukuAuthorizer.isShizukuInstalled(context)
+    val isUpdate = ShizukuAuthorizer.isShizukuInstalled(context)
         val action = if (isUpdate) context.getString(R.string.shizuku_install_update) else context.getString(R.string.shizuku_install_install)
 
                 AppLogger.d(TAG, "开，{action}内置Shizuku")
 
                 // 从assets目录提取APK
-                val apkFile = extractApkFromAssets(context)
+    val apkFile = extractApkFromAssets(context)
                 if (apkFile == null) {
                     AppLogger.e(TAG, "提取APK失败")
                     return false
@@ -87,7 +87,7 @@ class ShizukuInstaller {
                 AppLogger.d(TAG, "APK提取成功: ${apkFile.absolutePath}, 大小: ${apkFile.length()} 字节")
 
                 // 生成APK的URI，考虑文件提供者权限
-                val apkUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    val apkUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(
                         context,
                         "${context.packageName}.fileprovider",
@@ -100,7 +100,7 @@ class ShizukuInstaller {
                 AppLogger.d(TAG, "生成APK URI: ${apkUri}")
 
                 // 创建安装意图
-                val installIntent = Intent(Intent.ACTION_VIEW).apply {
+    val installIntent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(apkUri, "application/vnd.android.package-archive")
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -137,7 +137,7 @@ class ShizukuInstaller {
 
             try {
                 // 从assets读取版本信息文件
-                val versionInfo = context.assets.open("shizuku_version.txt").use { inputStream ->
+    val versionInfo = context.assets.open("shizuku_version.txt").use { inputStream ->
                     inputStream.bufferedReader().readText().trim()
                 }
                 AppLogger.i(TAG, "获取内置Shizuku版本: ${versionInfo}")
@@ -220,10 +220,10 @@ class ShizukuInstaller {
 
             try {
                 // 提取主版本号部分 (例如 "13.5.0.r1234" -> "13.5.0")
-                val installedMainVersion = extractMainVersion(installedVersion)
+    val installedMainVersion = extractMainVersion(installedVersion)
         val bundledMainVersion = extractMainVersion(bundledVersion)
                 // 将版本号分割为数字数据
-                val installed = installedMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
+    val installed = installedMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
         val bundled = bundledMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
 
                 // 比较主要版本，
@@ -243,7 +243,7 @@ class ShizukuInstaller {
                 }
 
                 // 如果前面的版本号都相同，但bundled有更多的版本号段，则认为需要更文
-                val updateNeeded = bundled.size > installed.size
+    val updateNeeded = bundled.size > installed.size
                 cachedUpdateNeeded = updateNeeded
                 updateCacheTimestamp()
                 return updateNeeded
@@ -261,7 +261,7 @@ class ShizukuInstaller {
          */
         private fun extractMainVersion(version: String): String {
             // 正则表达式匹配主版本号部，x.y.z)
-                val mainVersionRegex = """^(\d+)\.(\d+)\.(\d+)""".toRegex()
+    val mainVersionRegex = """^(\d+)\.(\d+)\.(\d+)""".toRegex()
         val matchResult = mainVersionRegex.find(version)
             
             val result = matchResult?.value ?: version.split("-", ".", "+", " ").take(3).joinToString(".")

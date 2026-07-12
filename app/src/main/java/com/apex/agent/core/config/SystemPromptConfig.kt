@@ -353,17 +353,17 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     }
 
     // Build the available packages section
-                val packagesSection = StringBuilder()
+    val packagesSection = StringBuilder()
 
     // Filter out imported packages that no longer exist in availablePackages
-                val validImportedPackages = importedPackages.filter { packageName ->
+    val validImportedPackages = importedPackages.filter { packageName ->
         packageManager.getPackageTools(packageName) != null &&
             !packageManager.isToolPkgContainer(packageName) &&
             (allowedPackageNames?.contains(packageName) ?: true)
     }
 
     // Check if any packages (JS, MCP, or Skills) are available
-                val hasPackages = packageSystemVisible &&
+    val hasPackages = packageSystemVisible &&
         (validImportedPackages.isNotEmpty() || mcpServers.isNotEmpty() || skillPackages.isNotEmpty())
 
     if (hasPackages) {
@@ -410,7 +410,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     }
 
     // Select appropriate template based on custom template or language preference
-                val templateToUse = if (customSystemPromptTemplate.isNotEmpty()) {
+    val templateToUse = if (customSystemPromptTemplate.isNotEmpty()) {
         customSystemPromptTemplate
     } else {
         if (useEnglish) SYSTEM_PROMPT_TEMPLATE else SYSTEM_PROMPT_TEMPLATE_CN
@@ -426,7 +426,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
         )
 
     // Generate workspace guidelines
-                val workspaceGuidelines = getWorkspaceGuidelines(
+    val workspaceGuidelines = getWorkspaceGuidelines(
         context = context,
         workspacePath = workspacePath,
         workspaceEnv = workspaceEnv,
@@ -451,7 +451,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
 
     // Determine the available tools string based on memory query setting and image recognition
     // 当使用Tool Call API时，不在系统提示词中包含工具描述（工具已通过API的tools字段发送"),
-                val availableToolsEn = if (useToolCallApi) "" else (
+    val availableToolsEn = if (useToolCallApi) "" else (
         if (enableMemoryQuery) {
             getMemoryToolsEn(toolVisibility) +
                 getAvailableToolsEn(

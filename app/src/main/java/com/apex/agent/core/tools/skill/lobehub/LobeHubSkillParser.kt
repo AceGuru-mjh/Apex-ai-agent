@@ -52,7 +52,7 @@ class LobeHubSkillParser {
                 parseFrontmatter(frontmatter, spec)
                 
                 // Parse body content
-                val bodyStart = endIndex + 2
+    val bodyStart = endIndex + 2
                 if (bodyStart < lines.size) {
                     parseBody(lines.subList(bodyStart, lines.size), spec)
                 }
@@ -174,7 +174,7 @@ class LobeHubSkillParser {
 
     private fun parseBody(lines: List<String>, spec: LobeHubSkillSpec) {
         // Extract title (first # heading)
-                val title = lines.find { it.startsWith("# ") }?.substringAfter("# ") ?: ""
+    val title = lines.find { it.startsWith("# ") }?.substringAfter("# ") ?: ""
         
         // Extract sections
                 var currentSection = ""
@@ -204,7 +204,7 @@ class LobeHubSkillParser {
         }
 
         // Update spec with parsed sections
-                val description = sections["description"] ?: sections["概述"] ?: ""
+    val description = sections["description"] ?: sections["概述"] ?: ""
         val usage = sections["usage"] ?: sections["使用方法"] ?: sections["使用者輸具] ?: ""
         val inputs = sections["inputs"] ?: sections["輸入"] ?: ""
 

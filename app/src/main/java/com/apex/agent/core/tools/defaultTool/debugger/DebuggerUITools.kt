@@ -145,7 +145,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
         try {
             AppLogger.d(TAG, "Attempting to long press at coordinates: (${x}, ${y}) via shell command")
             // Use swipe to simulate long press
-                val command = "input ${getDisplayArg(tool)}swipe ${x} ${y} ${x} ${y} 800"
+    val command = "input ${getDisplayArg(tool)}swipe ${x} ${y} ${x} ${y} 800"
         val result = executeUiShellCommand(command)
 
             if (result.success) {
@@ -284,7 +284,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
                 if (bounds != null) {
             try {
                 // 解析边界坐标格式 [left,top][right,bottom]
-                val boundsPattern = "\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]".toRegex()
+    val boundsPattern = "\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]".toRegex()
         val matchResult = boundsPattern.find(bounds)
 
                 if (matchResult == null || matchResult.groupValues.size < 5) {
@@ -297,17 +297,17 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
                 }
 
                 // 提取坐标
-                val x1 = matchResult.groupValues[1].toInt()
+    val x1 = matchResult.groupValues[1].toInt()
         val y1 = matchResult.groupValues[2].toInt()
                 val x2 = matchResult.groupValues[3].toInt()
         val y2 = matchResult.groupValues[4].toInt()
 
                 // 计算中心坐标
-                val centerX = (x1 + x2) / 2
+    val centerX = (x1 + x2) / 2
         val centerY = (y1 + y2) / 2
 
                 // 利用tap方法点击中心坐标
-                val tapTool =
+    val tapTool =
                         AITool(
                                 name = "tap",
                                 parameters =
@@ -350,7 +350,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
 
         try {
             // 获取屏幕中心作为文本输入的位，
-                val displayMetrics = context.resources.displayMetrics
+    val displayMetrics = context.resources.displayMetrics
         val centerX = displayMetrics.widthPixels / 2
             val centerY = displayMetrics.heightPixels / 2
 
@@ -394,7 +394,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
                 kotlinx.coroutines.delay(100)
 
             // 执行粘贴命令
-                val pasteCommand = "input ${getDisplayArg(tool)}keyevent KEYCODE_PASTE"
+    val pasteCommand = "input ${getDisplayArg(tool)}keyevent KEYCODE_PASTE"
         val pasteResult = executeUiShellCommand(pasteCommand)
 
             if (pasteResult.success) {
@@ -437,7 +437,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
     /** 使用Shell命令实现按键操作 */
     override suspend fun pressKey(tool: AITool): ToolResult {
         //直接用shell
-                val keyCode = tool.parameters.find { it.name == "key_code" }?.value
+    val keyCode = tool.parameters.find { it.name == "key_code" }?.value
 
         if (keyCode == null) {
             return ToolResult(
@@ -553,7 +553,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
 
         return try {
             // 获取UI数据
-                val uiData = getUIDataFromShell(tool)
+    val uiData = getUIDataFromShell(tool)
             if (uiData == null) {
                 return ToolResult(
                         toolName = tool.name,
@@ -564,13 +564,13 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
             }
 
             // 解析当前窗口信息
-                val focusInfo = extractFocusInfoFromShell(uiData.windowInfo)
+    val focusInfo = extractFocusInfoFromShell(uiData.windowInfo)
 
             // 简化布局信息
-                val simplifiedLayout = simplifyLayoutFromXml(uiData.uiXml)
+    val simplifiedLayout = simplifyLayoutFromXml(uiData.uiXml)
 
             // 创建结构化数据
-                val resultData =
+    val resultData =
                     UIPageResultData(
                             packageName = focusInfo.packageName ?: "Unknown",
                             activityName = focusInfo.activityName ?: "Unknown",
@@ -625,7 +625,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
             AppLogger.d(TAG, "uiautomator dump成功: ${dumpResult.stdout}")
 
             // 读取dump文件内容
-                val readResult = executeUiShellCommand("cat /sdcard/window_dump.xml")
+    val readResult = executeUiShellCommand("cat /sdcard/window_dump.xml")
             if (!readResult.success) {
                 AppLogger.e(TAG, "读取UI dump文件失败: ${readResult.stderr}")
                 return null
@@ -651,7 +651,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
     /** 获取窗口信息，使用多种命令尝，/
     private suspend fun getWindowInfoFromShell(): String {
         // 尝试多种命令来获取窗口信，
-                val commands =
+    val commands =
                 listOf(
                         // 标准命令，获取当前焦点和焦点应用
                         "dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp'",
@@ -752,7 +752,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
     }
 
     // 转换内部UINodeShell为SimplifiedUINode
-                private fun UINodeShell.toUINodeSimplified(): SimplifiedUINode {
+    private fun UINodeShell.toUINodeSimplified(): SimplifiedUINode {
         return SimplifiedUINode(
                 className = className,
                 text = text,
@@ -766,7 +766,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
 
     private fun createNodeShell(parser: XmlPullParser): UINodeShell {
         // 解析关键的
-                val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
+    val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
         val text = parser.getAttributeValue(null, "text")?.replace("&#10;", "\n")
         val contentDesc = parser.getAttributeValue(null, "content-desc")
         val resourceId = parser.getAttributeValue(null, "resource-id")
@@ -853,7 +853,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
      */
     private fun extractFromCurrentFocusShell(windowInfo: String, result: FocusInfoShell): Boolean {
         // 尝试多种mCurrentFocus格式模式
-                val currentFocusPatterns =
+    val currentFocusPatterns =
                 listOf(
                         // 标准格式，具有包/活动（同时也支持 mFocusedWindow??                        "(?:mCurrentFocus|mFocusedWindow)=.*?\\{.*?\\s+([a-zA-Z0-9_.]+)/([^\\s}]+)".toRegex(),
                         // 有时会看到的替代格式
@@ -889,7 +889,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
      */
     private fun extractFromFocusedAppShell(windowInfo: String, result: FocusInfoShell): Boolean {
         // mFocusedApp格式的多种模式
-                val focusedAppPatterns =
+    val focusedAppPatterns =
                 listOf(
                         // 带有ActivityRecord的标准格式                       "mFocusedApp=.*?ActivityRecord\\{.*?\\s+([a-zA-Z0-9_.]+)/\\.?([^\\s}]+)".toRegex(),
                         // 处理类似 mFocusedApp=null 后的真实输出，                       "ActivityRecord\\{.*?\\s+([a-zA-Z0-9_.]+)/\\.?([^\\s}]+)".toRegex(),
@@ -956,7 +956,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
      */
     private fun extractFromTopActivityShell(windowInfo: String, result: FocusInfoShell): Boolean {
         // topActivity格式的模，
-                val topActivityPatterns =
+    val topActivityPatterns =
                 listOf(
                         "topActivity=ComponentInfo\\{([a-zA-Z0-9_.]+)/\\.?([^}]+)\\}".toRegex(),
                         "topResumedActivity=ComponentInfo\\{([a-zA-Z0-9_.]+)/\\.?([^}]+)\\}".toRegex(),
@@ -974,7 +974,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
         }
 
         // 还要查找Recent tasks格式
-                val recentPattern = "Recent #0.*?\\{([a-zA-Z0-9_.]+)/\\.?([^\\s}]+)".toRegex()
+    val recentPattern = "Recent #0.*?\\{([a-zA-Z0-9_.]+)/\\.?([^\\s}]+)".toRegex()
         val recentMatch = recentPattern.find(windowInfo)
         if (recentMatch != null && recentMatch.groupValues.size >= 3) {
             result.packageName = recentMatch.groupValues[1]
@@ -996,7 +996,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
         // 尝试用各种模式提取包后
                 if (result.packageName == null) {
             // 查找常见的包模式，如com.android.something
-                val packagePatterns =
+    val packagePatterns =
                     listOf(
                             "\\s([a-zA-Z][a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+){2,})/".toRegex(), // com.example.app/
                             "\\s([a-zA-Z][a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+){2,})\\s".toRegex(), // com.example.app (空格，
@@ -1026,7 +1026,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
         // 如果我们还没有活动名称，尝试提取，
                 if (result.activityName == null) {
             // 查找活动名称模式
-                val activityPatterns =
+    val activityPatterns =
                     listOf(
                             "/\\.?([A-Z][a-zA-Z0-9_]+Activity)".toRegex(), // /.MainActivity or
                             // /MainActivity
@@ -1055,7 +1055,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
         // 特殊情况处理：如果我们有包名但没有活动名移
                 if (result.packageName != null && result.activityName == null) {
             // 尝试根据包猜测主活动名称
-                val packageParts = result.packageName!!.split(".")
+    val packageParts = result.packageName!!.split(".")
             if (packageParts.isNotEmpty()) {
                 val lastPart = packageParts.last().replaceFirstChar { if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString() }
                 result.activityName = "${lastPart}Activity"
@@ -1097,7 +1097,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
             }
 
             // 读取dump文件
-                val readCommand = "cat /sdcard/window_dump.xml"
+    val readCommand = "cat /sdcard/window_dump.xml"
         val readResult = executeUiShellCommand(readCommand)
 
             if (!readResult.success) {
@@ -1112,7 +1112,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
             val xml = readResult.stdout
 
             // 使用XML Parser查找匹配的元素（取代有问题的正则方式，
-                val hasSelectors = resourceId != null || className != null || contentDesc != null
+    val hasSelectors = resourceId != null || className != null || contentDesc != null
             if (!hasSelectors) {
                 return ToolResult(
                         toolName = tool.name,
@@ -1207,7 +1207,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
             }
 
             // 获取指定索引的节点bounds
-                val nodeBounds = matchingNodes[index].bounds
+    val nodeBounds = matchingNodes[index].bounds
             if (nodeBounds == null) {
                 return ToolResult(
                         toolName = tool.name,
@@ -1218,7 +1218,7 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
             }
 
             // 提取边界坐标
-                val boundsPattern = "\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]".toRegex()
+    val boundsPattern = "\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]".toRegex()
         val boundsMatch = boundsPattern.find(nodeBounds)
             if (boundsMatch == null || boundsMatch.groupValues.size < 5) {
                 return ToolResult(
@@ -1230,13 +1230,13 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
             }
 
             // 提取坐标
-                val x1 = boundsMatch.groupValues[1].toInt()
+    val x1 = boundsMatch.groupValues[1].toInt()
         val y1 = boundsMatch.groupValues[2].toInt()
             val x2 = boundsMatch.groupValues[3].toInt()
         val y2 = boundsMatch.groupValues[4].toInt()
 
             // 计算中心坐标
-                val centerX = (x1 + x2) / 2
+    val centerX = (x1 + x2) / 2
         val centerY = (y1 + y2) / 2
 
             // 执行点击（在主线程上显示反馈，
@@ -1313,13 +1313,13 @@ open class DebuggerUITools(context: Context) : AccessibilityUITools(context) {
         if (matchResult.groupValues.size < 5) return null
 
         // 提取坐标
-                val x1 = matchResult.groupValues[1].toInt()
+    val x1 = matchResult.groupValues[1].toInt()
         val y1 = matchResult.groupValues[2].toInt()
         val x2 = matchResult.groupValues[3].toInt()
         val y2 = matchResult.groupValues[4].toInt()
 
         // 计算并返回中心点
-                val centerX = (x1 + x2) / 2
+    val centerX = (x1 + x2) / 2
         val centerY = (y1 + y2) / 2
 
         return Pair(centerX, centerY)

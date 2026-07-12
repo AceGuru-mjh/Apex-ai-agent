@@ -189,7 +189,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                 return operation()
             } catch (e: Exception) {
                 // 检查是否是 read interrupted 异常
-                val isInterruptedRead =
+    val isInterruptedRead =
                         e is InterruptedIOException &&
                                 e.message?.contains("read interrupted") == true
 
@@ -227,7 +227,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                     )
 
                     // 拆分命令行参数 使用更智能的解析方法
-                val commandParts = parseCommand(command)
+    val commandParts = parseCommand(command)
 
                     // 创建进程
                 process = service.newProcess(commandParts, null, null)
@@ -241,7 +241,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 将ParcelFileDescriptor转换为InputStream
-                val processClass = process::class.java
+    val processClass = process::class.java
         val inputStream =
                             processClass.getMethod("getInputStream").invoke(process) as
                                     ParcelFileDescriptor?
@@ -250,7 +250,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                     ParcelFileDescriptor?
 
                     // 使用重试逻辑读取标准输出和错误输出
-                val stdout =
+    val stdout =
                             if (inputStream != null) {
                                 retryOperation {
                                     val stdoutStream = FileInputStream(inputStream.fileDescriptor)
@@ -333,10 +333,10 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                     )
 
                     // 检测是否包含重定向操作符进行写入操作
-                val containsRedirection = command.contains(">")
+    val containsRedirection = command.contains(">")
 
                     // 处理命令，确保使用完整路径
-                val processedCommand =
+    val processedCommand =
                             if (command.contains("|") && command.contains("grep")) {
                                 // 替换 'grep' ，/system/bin/grep'，确保使用系统grep命令
                 command.replace(" grep ", " /system/bin/grep ")
@@ -345,7 +345,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                             }
 
                     // 构建增强的shell环境和命，
-                val enhancedCommand =
+    val enhancedCommand =
                             if (containsRedirection) {
                                 // 为重定向操作添加更多环境支持
                                 "umask 0022 && PATH=\${PATH}:/system/bin:/system/xbin:/vendor/bin:/vendor/xbin && ${processedCommand}"
@@ -354,7 +354,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                             }
 
                     // 如果命令以单，'结尾（后台运行），我们只负责启动，不阻塞等待
-                val trimmedForBg = enhancedCommand.trimEnd()
+    val trimmedForBg = enhancedCommand.trimEnd()
         val isBackground =
                             trimmedForBg.endsWith("&") && !trimmedForBg.endsWith("&&")
 
@@ -362,7 +362,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     AppLogger.d(TAG, "Enhanced shell command: ${shellArgs.joinToString(", ", "[", "]")}")
 
                     // 创建进程
-                val process =
+    val process =
                             service.newProcess(shellArgs, null, null)
                                     ?: return@withContext ShellExecutor.CommandResult(
                                             false,
@@ -370,7 +370,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                                             "Failed to create process"
                                     )
                     // 处理输入输出出
-                val processClass = process::class.java
+    val processClass = process::class.java
         val inputStream =
                             processClass.getMethod("getInputStream").invoke(process) as
                                     ParcelFileDescriptor?
@@ -402,7 +402,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 使用重试逻辑读取标准输出和错误输出
-                val stdout =
+    val stdout =
                             if (inputStream != null) {
                                 retryOperation {
                                     val stdoutStream = FileInputStream(inputStream.fileDescriptor)
@@ -438,7 +438,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
                     }
 
                     // 确定命令是否成功
-                val success =
+    val success =
                             when {
                                 // 如果命令包含grep，即使没有找到匹配也认为成功
                 command.contains("grep") -> exitCode == 0 || exitCode == 1
@@ -465,7 +465,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             val connection = ShizukuAuthorizer.getOrResolveShizukuConnection() ?: return null
 
             // 检查缓存的服务是否可用
-                val cached = serviceCache[connection.uid]
+    val cached = serviceCache[connection.uid]
             if (cached != null) {
                 val isCachedAlive =
                         try {

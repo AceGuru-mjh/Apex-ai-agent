@@ -31,7 +31,7 @@ class ShizukuAuthorizer {
         private var lastPermissionErrorMessage = ""
 
         // 状态变更回失
-                private val stateChangeListeners = mutableListOf<() -> Unit>()
+    private val stateChangeListeners = mutableListOf<() -> Unit>()
 
         /**
          * 添加状态变更监听器
@@ -237,7 +237,7 @@ class ShizukuAuthorizer {
                 }
 
                 // 适用于Shizuku 13.x版本的权限检，
-                val result = Shizuku.checkSelfPermission()
+    val result = Shizuku.checkSelfPermission()
         val granted = result == PackageManager.PERMISSION_GRANTED
                 if (granted) {
                     lastPermissionErrorMessage = ""
@@ -371,7 +371,7 @@ class ShizukuAuthorizer {
                 binderReceivedListenerRegistered = true
 
                 // 立即检查服务是否已经在运行
-                val isRunning = isShizukuServiceRunning()
+    val isRunning = isShizukuServiceRunning()
                 AppLogger.d(TAG, "Initial Shizuku service status check: ${isRunning}")
                 if (isRunning) {
                     // 如果服务正在运行，检查权限

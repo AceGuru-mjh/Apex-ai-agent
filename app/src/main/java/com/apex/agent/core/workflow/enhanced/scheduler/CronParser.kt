@@ -69,7 +69,7 @@ object CronParser {
             cal.set(Calendar.MILLISECOND, 0)
 
             // 最多搜索 4 年（防死循环）
-                val maxIterations = 4 * 365 * 24 * 60
+    val maxIterations = 4 * 365 * 24 * 60
             var iter = 0
             while (iter < maxIterations) {
                 if (matches(cal)) return cal.timeInMillis

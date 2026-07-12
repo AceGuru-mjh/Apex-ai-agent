@@ -136,7 +136,7 @@ class NicknameRelationshipSystem {
             }
         }
         // 基于兴趣
-                val interestNicknames = mapOf(
+    val interestNicknames = mapOf(
             "编程" to listOf("代码侠", "Bug 猎手", "极客"),
             "音乐" to listOf("音律使者", "旋律精灵"),
             "读书" to listOf("书虫", "墨客"),

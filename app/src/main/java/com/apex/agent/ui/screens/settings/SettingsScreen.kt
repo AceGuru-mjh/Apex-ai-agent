@@ -41,7 +41,7 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
     var darkMode by remember { mutableStateOf(themeManager.getCurrentDarkMode() == ThemeManager.DarkMode.DARK) }
 
     // 权限状态
-                val storageGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    val storageGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         val micGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     val locationGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val cameraGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
@@ -57,7 +57,7 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
     var suiteTotal by remember { mutableStateOf(0) }
 
     // 热更新
-                val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
+    val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
         val updateState by hotUpdateManager.state.collectAsState()
     var showUpdateDialog by remember { mutableStateOf(false) }
     var showUpdateSettings by remember { mutableStateOf(false) }

@@ -95,7 +95,7 @@ internal suspend fun PermissionModeManager.checkAllModesOptimized(
                 for (mode in PermissionMode.values()) {
         if (!forceRefresh) {
             // 尝试使用缓存
-                val cached = stateCache.get(mode)
+    val cached = stateCache.get(mode)
             if (cached != null) {
                 states[mode] = cached
                 continue
@@ -103,7 +103,7 @@ internal suspend fun PermissionModeManager.checkAllModesOptimized(
         }
 
         // 检测模式状态
-                val state = checkModeInternal(mode)
+    val state = checkModeInternal(mode)
         states[mode] = state
         stateCache.put(mode, state)
     }

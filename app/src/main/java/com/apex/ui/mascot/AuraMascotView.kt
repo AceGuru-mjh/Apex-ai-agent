@@ -76,7 +76,7 @@ fun AuraMascotView(
     val accent = accentColorFor(form)
 
     // 浮动动画:轻微上下浮动(呼吸感)
-                val infiniteTransition = rememberInfiniteTransition(label = "aura_float")
+    val infiniteTransition = rememberInfiniteTransition(label = "aura_float")
         val floatY by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = -6f,
@@ -87,7 +87,7 @@ fun AuraMascotView(
         label = "aura_float_y"
     )
     // 呼吸缩放
-                val breathScale by infiniteTransition.animateFloat(
+    val breathScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.04f,
         animationSpec = infiniteRepeatable(

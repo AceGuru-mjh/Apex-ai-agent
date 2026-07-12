@@ -263,7 +263,8 @@ class LogAnalyticsManager {
         return logs.values.groupBy { it.component }.mapValues { it.value.size }
     }
 
-    // 高级分析功能：识别系统瓶，   fun identifyBottlenecks(): List<Pair<String, Double>> {
+    // 高级分析功能：识别系统瓶，
+    fun identifyBottlenecks(): List<Pair<String, Double>> {
                 return componentStats.map { (component, durations) ->
             val avgDuration = durations.average()
             Pair(component, avgDuration)
@@ -271,7 +272,7 @@ class LogAnalyticsManager {
     }
 
     // 高级分析功能：Agent性能排名
-                fun rankAgentsByPerformance(): List<Pair<String, Double>> {
+    fun rankAgentsByPerformance(): List<Pair<String, Double>> {
         return agentStats.map { (agentId, data) ->
             val successRate = data.count { it.first }.toDouble() / data.size
         val avgDuration = data.sumOf { it.second }.toDouble() / data.size

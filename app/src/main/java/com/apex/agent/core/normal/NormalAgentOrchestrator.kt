@@ -55,7 +55,7 @@ class NormalAgentOrchestrator(
     val config: NormalAgentConfig = NormalAgentConfig()
 ) {
     // ===== v1 组件 (F1-F15) =====
-                val intentStateMachine = ConversationIntentStateMachine()
+    val intentStateMachine = ConversationIntentStateMachine()
         val adaptiveDepth = AdaptiveResponseDepth()
     val contextCompressor = SmartContextCompressor(
         maxTokens = config.maxContextTokens,
@@ -148,41 +148,41 @@ class NormalAgentOrchestrator(
         recentMessages: List<Pair<String, String>> = emptyList()
     ): EnhancedInputProcessResult {
         // 先执行 v1 基础处理
-                val baseResult = processInput(userMessage, context)
+    val baseResult = processInput(userMessage, context)
         val additionalInjections = mutableListOf<String>()
         val additionalActions = mutableListOf<NormalAction>()
 
         // F20: 情感识别
-                val emotionAnalysis = emotionEngine.analyze(userMessage, context.chatId)
+    val emotionAnalysis = emotionEngine.analyze(userMessage, context.chatId)
         if (emotionAnalysis.primaryEmotion.name != "NEUTRAL") {
             additionalInjections.add(emotionEngine.generateEmpathyPrompt(emotionAnalysis))
             additionalActions.add(NormalAction.EmotionDetected(emotionAnalysis.primaryEmotion))
         }
 
         // F27: 多语言检测
-                val langDetection = multilingualManager.detect(userMessage)
+    val langDetection = multilingualManager.detect(userMessage)
         val responseLang = multilingualManager.decideResponseLanguage(langDetection, context.userId)
         val langPrompt = multilingualManager.generateLanguagePrompt(responseLang)
         if (langPrompt.isNotBlank()) additionalInjections.add(langPrompt)
 
         // F22: 知识图谱抽取
-                val extraction = knowledgeGraph.extractFromText(userMessage, context.chatId)
+    val extraction = knowledgeGraph.extractFromText(userMessage, context.chatId)
         if (extraction.extractedNodes.isNotEmpty()) {
             val knowledgePrompt = knowledgeGraph.generateKnowledgePrompt(userMessage)
             if (knowledgePrompt.isNotBlank()) additionalInjections.add(knowledgePrompt)
         }
 
         // F25: 提醒提取
-                val reminders = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
+    val reminders = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
             reminderManager.extractFromMessage(userMessage, context.chatId, "current")
         }
 
         // F30: 反馈学习 prompt
-                val feedbackPrompt = feedbackLearning.generateOptimizationPrompt(context.userId)
+    val feedbackPrompt = feedbackLearning.generateOptimizationPrompt(context.userId)
         if (feedbackPrompt.isNotBlank()) additionalInjections.add(feedbackPrompt)
 
         // F19: 智能建议
-                val suggestionContext = com.apex.agent.core.normal.suggestion.SuggestionContext(
+    val suggestionContext = com.apex.agent.core.normal.suggestion.SuggestionContext(
             currentInput = userMessage,
             recentMessages = recentMessages.map { (role, content) ->
                 com.apex.agent.core.normal.suggestion.RecentMessage(role, content, System.currentTimeMillis())
@@ -217,10 +217,10 @@ class NormalAgentOrchestrator(
         roundIndex: Int = 0
     ): EnhancedOutputProcessResult {
         // 先执行 v1 基础处理
-                val baseResult = processOutput(response, context, latencyMs, inputTokens, outputTokens)
+    val baseResult = processOutput(response, context, latencyMs, inputTokens, outputTokens)
 
         // F21: 质量评估
-                val quality = qualityEvaluator.evaluateRound(
+    val quality = qualityEvaluator.evaluateRound(
             chatId = context.chatId,
             roundIndex = roundIndex,
             userMessage = userMessage,
@@ -230,7 +230,7 @@ class NormalAgentOrchestrator(
         )
 
         // F22: 从 AI 回答中抽取知识
-                val extraction = knowledgeGraph.extractFromText(response, context.chatId)
+    val extraction = knowledgeGraph.extractFromText(response, context.chatId)
 
         // F16: 生成对话摘要（每 5 轮触发）
                 var summary: com.apex.agent.core.normal.summary.ConversationSummary? = null
@@ -306,12 +306,12 @@ class NormalAgentOrchestrator(
         }
 
         // 质量评估
-                val quality = qualityEvaluator.evaluateConversation(context.chatId)
+    val quality = qualityEvaluator.evaluateConversation(context.chatId)
         sb.appendLine(quality.format())
         sb.appendLine()
 
         // 情感追踪
-                val emotionTrack = emotionEngine.getEmotionTrack(context.chatId)
+    val emotionTrack = emotionEngine.getEmotionTrack(context.chatId)
         sb.appendLine("═══ 情感状态 ═══")
         sb.appendLine("主导情感: ${emotionTrack.dominantEmotion}")
         sb.appendLine("平均情感: ${emotionTrack.averageEmotion}")
@@ -324,14 +324,14 @@ class NormalAgentOrchestrator(
         sb.appendLine()
 
         // 知识图谱统计
-                val graphStats = knowledgeGraph.getFullGraph().stats
+    val graphStats = knowledgeGraph.getFullGraph().stats
         sb.appendLine("═══ 知识图谱 ═══")
         sb.appendLine("节点: ${graphStats.totalNodes} | 边: ${graphStats.totalEdges}")
         sb.appendLine("平均连接数: ${graphStats.avgConnections}")
         sb.appendLine()
 
         // 反馈学习洞察
-                val insights = feedbackLearning.getInsights(context.userId)
+    val insights = feedbackLearning.getInsights(context.userId)
         if (insights.isNotEmpty()) {
             sb.appendLine("═══ 学习洞察 ═══")
             insights.take(5).forEach { insight ->
@@ -353,12 +353,12 @@ class NormalAgentOrchestrator(
         recentMessages: List<Pair<String, String>> = emptyList()
     ): V3InputProcessResult {
         // 先执行 v2 增强
-                val v2Result = processInputEnhanced(userMessage, context, recentMessages)
+    val v2Result = processInputEnhanced(userMessage, context, recentMessages)
         val additionalInjections = mutableListOf<String>()
         val actions = mutableListOf<NormalAction>()
 
         // F31: 玩梗识别
-                val memeDetection = memeEngine.detect(userMessage)
+    val memeDetection = memeEngine.detect(userMessage)
         if (memeDetection.totalMemes > 0) {
             val memePrompt = memeEngine.generateMemePrompt(userMessage, "casual")
             if (memePrompt.isNotBlank()) additionalInjections.add(memePrompt)
@@ -367,14 +367,14 @@ class NormalAgentOrchestrator(
         }
 
         // F39: 彩蛋检测
-                val easterEgg = easterEggSystem.check(userMessage, context.userId)
+    val easterEgg = easterEggSystem.check(userMessage, context.userId)
         if (easterEgg != null) {
             additionalInjections.add("[彩蛋触发] ${easterEgg.egg.emoji} ${easterEgg.message}")
             actions.add(NormalAction.EasterEggTriggered(easterEgg.egg.id))
         }
 
         // F43: 节日感知
-                val festivalPrompt = festivalSystem.generateFestivalPrompt()
+    val festivalPrompt = festivalSystem.generateFestivalPrompt()
         if (festivalPrompt.isNotBlank()) additionalInjections.add(festivalPrompt)
 
         // F36: 每日问候（首次对话）
@@ -384,19 +384,19 @@ class NormalAgentOrchestrator(
         }
 
         // F45: 昵称关系
-                val relationshipPrompt = nicknameSystem.generateRelationshipPrompt(context.userId)
+    val relationshipPrompt = nicknameSystem.generateRelationshipPrompt(context.userId)
         if (relationshipPrompt.isNotBlank()) additionalInjections.add(relationshipPrompt)
 
         // F32: 人格化角色
-                val personaPrompt = personaRegistry.generatePersonaPrompt(context.chatId)
+    val personaPrompt = personaRegistry.generatePersonaPrompt(context.chatId)
         if (personaPrompt.isNotBlank()) additionalInjections.add(personaPrompt)
 
         // F40: 语气模仿
-                val impersonationPrompt = impersonationEngine.generateImpersonationPrompt(context.chatId)
+    val impersonationPrompt = impersonationEngine.generateImpersonationPrompt(context.chatId)
         if (impersonationPrompt.isNotBlank()) additionalInjections.add(impersonationPrompt)
 
         // F38: 表情包建议
-                val stickerPrompt = stickerSystem.generateStickerPrompt(userMessage, v2Result.emotionAnalysis.primaryEmotion.name)
+    val stickerPrompt = stickerSystem.generateStickerPrompt(userMessage, v2Result.emotionAnalysis.primaryEmotion.name)
         if (stickerPrompt.isNotBlank()) additionalInjections.add(stickerPrompt)
 
         return V3InputProcessResult(
@@ -422,7 +422,7 @@ class NormalAgentOrchestrator(
         recentMessages: List<Pair<String, String>> = emptyList()
     ): V3InputProcessResult {
         // 先执行 v3 基础处理
-                val result = processInputV3(userMessage, context, recentMessages)
+    val result = processInputV3(userMessage, context, recentMessages)
         val webInjections = mutableListOf<String>()
 
         // F31 增强: 网络搜梗 - 自动识别未知梗并查询解释
@@ -491,13 +491,13 @@ class NormalAgentOrchestrator(
         roundIndex: Int = 0
     ): V3OutputProcessResult {
         // 先执行 v2
-                val v2Result = processOutputEnhanced(response, context, latencyMs, inputTokens, outputTokens, userMessage, roundIndex)
+    val v2Result = processOutputEnhanced(response, context, latencyMs, inputTokens, outputTokens, userMessage, roundIndex)
 
         // F31: 玩梗注入
-                val memeResult = memeEngine.generateResponse(userMessage, response, "casual")
+    val memeResult = memeEngine.generateResponse(userMessage, response, "casual")
 
         // F38: 表情建议
-                val stickerSuggestions = stickerSystem.suggest(response, v2Result.quality.scores.keys.firstOrNull()?.name)
+    val stickerSuggestions = stickerSystem.suggest(response, v2Result.quality.scores.keys.firstOrNull()?.name)
 
         // F35: 记录成就指标
                 achievementSystem.recordMetric(context.userId, "messages", 1)
@@ -567,7 +567,7 @@ class NormalAgentOrchestrator(
         val actions = mutableListOf<NormalAction>()
 
         // 1. 敏感信息脱敏
-                val redactedMessage = if (config.enableSensitiveRedaction) {
+    val redactedMessage = if (config.enableSensitiveRedaction) {
         val redacted = sensitiveRedactor.redact(userMessage, context.sessionId)
             if (redacted.detectedTypes.isNotEmpty()) {
                 actions.add(NormalAction.SensitiveDetected(redacted.detectedTypes))
@@ -656,14 +656,14 @@ class NormalAgentOrchestrator(
         val chatId = context.chatId
 
         // 10. 流式渲染（这里处理完整响应）
-                val renderTree = if (config.enableStreamingRendering) {
+    val renderTree = if (config.enableStreamingRendering) {
             markdownRenderer.reset()
             response.split("\n").forEach { markdownRenderer.feed(it + "\n") }
             markdownRenderer.finalize()
         } else null
 
         // 11. 思考链解析
-                val thinkingChain = if (config.enableThinkingAnnotation) {
+    val thinkingChain = if (config.enableThinkingAnnotation) {
             thinkingChainParser.extractFromResponse(response)
         } else null
 
@@ -678,7 +678,7 @@ class NormalAgentOrchestrator(
         }
 
         // 还原脱敏
-                val restoredResponse = if (config.enableSensitiveRedaction) {
+    val restoredResponse = if (config.enableSensitiveRedaction) {
             sensitiveRedactor.restoreWithSession(response, context.sessionId)
         } else response
 
@@ -718,11 +718,11 @@ class NormalAgentOrchestrator(
         }
 
         // 生成预览
-                val preview = toolPreviewGenerator.generate(toolCallId, toolName, arguments)
+    val preview = toolPreviewGenerator.generate(toolCallId, toolName, arguments)
         val previewText = toolPreviewGenerator.formatPreview(preview)
 
         // 请求确认
-                val result = toolConfirmationGateway.requestConfirmation(preview)
+    val result = toolConfirmationGateway.requestConfirmation(preview)
         val approved = when (result) {
             is com.apex.agent.core.normal.toolpreview.ConfirmationResult.Approved -> {
                 healthCollector.onToolCall(chatId, true)

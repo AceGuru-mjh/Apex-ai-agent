@@ -57,10 +57,10 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         private const val PERMISSION_REQUEST_TIMEOUT_MS = 60000L // 60 seconds timeout
         
         // DataStore keys
-                private val MASTER_SWITCH = stringPreferencesKey("master_switch")
+    private val MASTER_SWITCH = stringPreferencesKey("master_switch")
         
         // Default permission setting
-                private val DEFAULT_MASTER_SWITCH = PermissionLevel.ASK.name
+    private val DEFAULT_MASTER_SWITCH = PermissionLevel.ASK.name
         
         @Volatile
         private var INSTANCE: ToolPermissionSystem? = null
@@ -76,7 +76,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
     private fun toolPermissionKey(toolName: String) = stringPreferencesKey("tool_permission_${toolName}")
     
     // Permission request management
-                private val mainHandler = Handler(Looper.getMainLooper())
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val permissionRequestOverlay = PermissionRequestOverlay(context)
     private var currentPermissionCallback: ((PermissionRequestResult) -> Unit)? = null
     private var permissionRequestInfo: Pair<AITool, String>? = null
@@ -93,11 +93,11 @@ class ToolPermissionSystem private constructor(private val context: Context) {
     }
     
     // Permission request state flow
-                private val _permissionRequestState = MutableStateFlow<Pair<AITool, String>?>(null)
+    private val _permissionRequestState = MutableStateFlow<Pair<AITool, String>?>(null)
         val permissionRequestState = _permissionRequestState.asStateFlow()
     
     // Permission level flows
-                val masterSwitchFlow: Flow<PermissionLevel> = context.toolPermissionsDataStore.data.map { preferences ->
+    val masterSwitchFlow: Flow<PermissionLevel> = context.toolPermissionsDataStore.data.map { preferences ->
         PermissionLevel.fromString(preferences[MASTER_SWITCH] ?: DEFAULT_MASTER_SWITCH)
     }
     
@@ -113,7 +113,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
     }
     
     // Registry of operation descriptions by tool name
-                private val operationDescriptionRegistry = mutableMapOf<String, (AITool) -> String>()
+    private val operationDescriptionRegistry = mutableMapOf<String, (AITool) -> String>()
     
     /**
      * Register a description generator for a tool
@@ -209,7 +209,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
      */
     private suspend fun requestPermission(tool: AITool): Boolean {
         // Get operation description
-                val operationDescription = getOperationDescription(tool)
+    val operationDescription = getOperationDescription(tool)
         
         AppLogger.d(TAG, "Requesting permission: ${tool.name}")
         
@@ -219,7 +219,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         _permissionRequestState.value = null
         
         // Set up new request
-                val requestInfo = Pair(tool, operationDescription)
+    val requestInfo = Pair(tool, operationDescription)
         permissionRequestInfo = requestInfo
         _permissionRequestState.value = requestInfo
         

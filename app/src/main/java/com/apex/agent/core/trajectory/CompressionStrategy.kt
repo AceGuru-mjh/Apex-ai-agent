@@ -65,7 +65,7 @@ class CompressionStrategy(
             if (firstToolCallIndex >= 0 && firstToolCallIndex <= headEnd + 2) {
                 protectedIndices.add(firstToolCallIndex)
                 // 同时保护对应的tool result
-                val toolResultIndex = findMatchingToolResult(turns, firstToolCallIndex)
+    val toolResultIndex = findMatchingToolResult(turns, firstToolCallIndex)
                 if (toolResultIndex != null) {
                     protectedIndices.add(toolResultIndex)
                 }
@@ -95,19 +95,19 @@ class CompressionStrategy(
         }
 
         // 确保头部保护数量
-                val actualHeadEnd = minOf(headEnd, headProtectionTurns - 1)
+    val actualHeadEnd = minOf(headEnd, headProtectionTurns - 1)
         for (i in 0..actualHeadEnd) {
             protectedIndices.add(i)
         }
 
         // 确保尾部保护数量
-                val actualTailStart = maxOf(tailStart, turns.size - tailProtectionTurns)
+    val actualTailStart = maxOf(tailStart, turns.size - tailProtectionTurns)
         for (i in actualTailStart until turns.size) {
             protectedIndices.add(i)
         }
 
         // 计算中间区域的边略
-                val sortedProtected = protectedIndices.sorted()
+    val sortedProtected = protectedIndices.sorted()
         val middleStart = if (sortedProtected.isNotEmpty()) sortedProtected.last() + 1 else 0
         val middleEnd = if (sortedProtected.isNotEmpty()) sortedProtected.first() - 1 else turns.size - 1
 
@@ -140,7 +140,7 @@ class CompressionStrategy(
         }
 
         // 找到分界点
-                val headEnd = plan.headProtectedIndices.maxOrNull() ?: 0
+    val headEnd = plan.headProtectedIndices.maxOrNull() ?: 0
         val tailStart = plan.tailProtectedIndices.minOrNull() ?: (turns.size - 1)
 
         val headTurns = if (headEnd >= 0) turns.subList(0, headEnd + 1) else emptyList()
@@ -148,7 +148,7 @@ class CompressionStrategy(
             turns.subList(headEnd + 1, tailStart)
         } else if (tailStart > 0 && headEnd < turns.size - 1) {
             // 如果中间区域太小，尝试获取一些轮次
-                val midStart = minOf(headEnd + 1, turns.size - 1)
+    val midStart = minOf(headEnd + 1, turns.size - 1)
         val midEnd = maxOf(tailStart, midStart + 1)
             if (midEnd <= turns.size) turns.subList(midStart, midEnd) else emptyList()
         } else {

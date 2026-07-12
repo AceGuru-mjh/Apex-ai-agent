@@ -117,10 +117,10 @@ object CostTracker {
     private const val TAG = "CostTracker"
 
     // 默认模型单价表（每千 Token，单位美元）
-                private val DEFAULT_PRICING = DefaultPricing.PRESET_2024
+    private val DEFAULT_PRICING = DefaultPricing.PRESET_2024
 
     // 用户自定义单价表（优先级高于默认值）
-                private val customPricing = ConcurrentHashMap<String, ModelPricing>()
+    private val customPricing = ConcurrentHashMap<String, ModelPricing>()
 
     private var dao: CostRecordDao? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -303,7 +303,7 @@ object CostTracker {
             val (startTime, endTime) = getTimeRange(CostPeriod.DAILY)
 
             // 1. 分析模型成本分布
-                val modelCosts = dao.getCostByModel(startTime, endTime)
+    val modelCosts = dao.getCostByModel(startTime, endTime)
             if (modelCosts.isNotEmpty()) {
                 val totalCost = modelCosts.sumOf { it.cost.toDouble() }.toFloat()
         val mostExpensive = modelCosts.maxByOrNull { it.cost }
@@ -319,7 +319,7 @@ object CostTracker {
             }
 
             // 2. 分析调用次数
-                val callCounts = dao.getCallCountByModel(startTime, endTime)
+    val callCounts = dao.getCallCountByModel(startTime, endTime)
             if (callCounts.isNotEmpty()) {
                 val highFreqModel = callCounts.maxByOrNull { it.count }
                 if (highFreqModel != null && highFreqModel.count > 100) {
@@ -334,7 +334,7 @@ object CostTracker {
             }
 
             // 3. 分析 Agent 成本
-                val agentCosts = dao.getCostByAgent(startTime, endTime)
+    val agentCosts = dao.getCostByAgent(startTime, endTime)
             if (agentCosts.size > 1) {
                 val sorted = agentCosts.sortedByDescending { it.cost }
         val topAgent = sorted.first()
@@ -348,7 +348,7 @@ object CostTracker {
             }
 
             // 4. 分析 Skill 成本
-                val skillCosts = dao.getCostBySkill(startTime, endTime)
+    val skillCosts = dao.getCostBySkill(startTime, endTime)
             if (skillCosts.isNotEmpty()) {
                 val topSkill = skillCosts.maxByOrNull { it.cost }
                 if (topSkill != null && topSkill.cost > totalCost(dao, startTime, endTime) * 0.3f) {

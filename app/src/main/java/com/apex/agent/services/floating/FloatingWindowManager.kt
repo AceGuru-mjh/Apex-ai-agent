@@ -529,7 +529,7 @@ class FloatingWindowManager(
                             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
                 
                 // 保持位置逻辑与球体类似，确保可见
-                val ballSizeInPx = (state.ballSize.value.value * density).toInt()
+    val ballSizeInPx = (state.ballSize.value.value * density).toInt()
         val minVisible = ballSizeInPx / 2
                 state.x = state.x.coerceIn(-ballSizeInPx + minVisible, screenWidth - minVisible)
                 state.y = state.y.coerceIn(0, screenHeight - minVisible)
@@ -602,7 +602,7 @@ class FloatingWindowManager(
     private fun isAtEdge(x: Int, width: Int): Boolean {
         val screenWidth = context.resources.displayMetrics.widthPixels
         // A small tolerance to account for rounding errors or slight offsets
-                val tolerance = 5 
+    val tolerance = 5 
         return x <= tolerance || x >= screenWidth - width - tolerance
     }
 
@@ -734,9 +734,9 @@ class FloatingWindowManager(
                     val ballSizeInPx = (state.ballSize.value.value * density).toInt()
                 
                 // 如果从全屏模式切换，球应该出现在屏幕右侧中间位置
-                val (newX, newY) = if (state.previousMode == FloatingMode.FULLSCREEN) {
+    val (newX, newY) = if (state.previousMode == FloatingMode.FULLSCREEN) {
                     // 球出现在屏幕右侧，垂直居，
-                val rightX = screenWidth - ballSizeInPx
+    val rightX = screenWidth - ballSizeInPx
         val centerY = (screenHeight - ballSizeInPx) / 2
                     Pair(rightX, centerY)
                 } else if (state.previousMode == FloatingMode.RESULT_DISPLAY) {
@@ -744,7 +744,7 @@ class FloatingWindowManager(
                 Pair(state.lastBallPositionX, state.lastBallPositionY)
                 } else {
                     // 处理 MATCH_PARENT (-1) 的情况，使用实际屏幕尺寸
-                val actualStartWidth = if (startWidth == WindowManager.LayoutParams.MATCH_PARENT) {
+    val actualStartWidth = if (startWidth == WindowManager.LayoutParams.MATCH_PARENT) {
                         screenWidth
                     } else {
                         startWidth
@@ -789,12 +789,12 @@ class FloatingWindowManager(
                     state.windowScale.value = state.lastWindowScale
 
                     // Coerce position to be within screen bounds for window mode
-                val finalX: Int
+    val finalX: Int
                 val finalY: Int
                 
                 if (isFromBall) {
                     // Limit strictly within screen when expanding from ball
-                val maxX = (screenWidth - width).coerceAtLeast(0)
+    val maxX = (screenWidth - width).coerceAtLeast(0)
         val maxY = (screenHeight - height).coerceAtLeast(0)
                     finalX = tempX.coerceIn(0, maxX)
                     finalY = tempY.coerceIn(0, maxY)
@@ -856,7 +856,7 @@ class FloatingWindowManager(
         }
 
         // 判断是否在球模式和其他模式之间切，
-                val isBallTransition = (state.previousMode == FloatingMode.BALL) ||
+    val isBallTransition = (state.previousMode == FloatingMode.BALL) ||
                                (newMode == FloatingMode.BALL)
         
         if (isBallTransition) {

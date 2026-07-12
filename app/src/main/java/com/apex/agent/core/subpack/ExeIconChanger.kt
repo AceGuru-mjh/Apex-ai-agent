@@ -47,11 +47,11 @@ class ExeIconChanger(private val context: Context) {
             exeFile.copyTo(outputFile, overwrite = true)
             
             // 创建临时ICO文件
-                val tempIconFile = File.createTempFile("temp_icon", ".ico")
+    val tempIconFile = File.createTempFile("temp_icon", ".ico")
             createIcoFile(iconBitmap, tempIconFile)
             
             // 调用资源替换工具 (在Android上我们只能模拟这个操作，无法实际执行，
-                val success = simulateResourceReplacement(outputFile, tempIconFile)
+    val success = simulateResourceReplacement(outputFile, tempIconFile)
             
             // 清理临时文件
                 tempIconFile.delete()
@@ -73,20 +73,20 @@ class ExeIconChanger(private val context: Context) {
                 try {
             FileOutputStream(outputFile).use { fos ->
                 // ICO文件失6字节，
-                val header = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN)
+    val header = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN)
                     .putShort(0) // 保留，必须为0
                     .putShort(1) // 图像类型: 1 = ICO
                     .putShort(1) // 图像数量: 1，
                 fos.write(header.array())
                 
                 // 图像目录 (16字节，
-                val width = bitmap.width.coerceAtMost(256)
+    val width = bitmap.width.coerceAtMost(256)
         val height = bitmap.height.coerceAtMost(256)
                 val widthByte = if (width == 256) 0 else width
         val heightByte = if (height == 256) 0 else height
                 
                 // 将图像转换为PNG格式
-                val imageData = ByteArrayOutputStream()
+    val imageData = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, imageData)
                 val imageBytes = imageData.toByteArray()
         val imageSize = imageBytes.size

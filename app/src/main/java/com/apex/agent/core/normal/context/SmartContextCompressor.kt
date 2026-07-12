@@ -88,7 +88,7 @@ class SmartContextCompressor(
         val total = history.size
 
         // 分层策略
-                val result = mutableListOf<ConversationMessage>()
+    val result = mutableListOf<ConversationMessage>()
 
         history.forEachIndexed { index, msg ->
             val fromEnd = total - index
@@ -166,7 +166,7 @@ class SmartContextCompressor(
                 if (Regex("\\d{4}|\\d+").containsMatchIn(message.content)) score += 0.15f
 
         // 包含决策性词汇 → 重要
-                val decisionWords = listOf("决定", "同意", "拒绝", "选择", "decided", "agreed", "chose", "will")
+    val decisionWords = listOf("决定", "同意", "拒绝", "选择", "decided", "agreed", "chose", "will")
         if (decisionWords.any { message.content.contains(it, ignoreCase = true) }) score += 0.2f
 
         // 包含人名/专有名词 → 重要
@@ -218,7 +218,7 @@ class SmartContextCompressor(
             .forEach { facts.add("人物:$it") }
 
         // 提取决策
-                val decisionPatterns = mapOf(
+    val decisionPatterns = mapOf(
             "决定" to "决定", "同意" to "同意", "拒绝" to "拒绝", "选择" to "选择",
             "decided" to "decided", "agreed" to "agreed"
         )

@@ -228,7 +228,7 @@ class ChatServiceCore(
         // 先取消总结（如果正在进行）
                 messageCoordinationDelegate.cancelSummary()
         // 然后取消“当前聊天”的消息处理
-                val chatId = chatHistoryDelegate.currentChatId.value
+    val chatId = chatHistoryDelegate.currentChatId.value
         if (chatId != null) {
             messageProcessingDelegate.cancelMessage(chatId)
         }
@@ -342,7 +342,7 @@ class ChatServiceCore(
     // ========== StateFlow 暴露 ==========
 
     // 消息处理相关
-                val userMessage: StateFlow<TextFieldValue>
+    val userMessage: StateFlow<TextFieldValue>
         get() = messageProcessingDelegate.userMessage
 
     val isLoading: StateFlow<Boolean>
@@ -367,7 +367,7 @@ class ChatServiceCore(
         get() = messageCoordinationDelegate.isSummarizing
 
     // 聊天历史相关
-                val chatHistory: StateFlow<List<ChatMessage>>
+    val chatHistory: StateFlow<List<ChatMessage>>
         get() = chatHistoryDelegate.chatHistory
 
     val currentChatId: StateFlow<String?>
@@ -380,7 +380,7 @@ class ChatServiceCore(
         get() = chatHistoryDelegate.showChatHistorySelector
 
     // API 配置相关
-                val enableThinkingMode: StateFlow<Boolean>
+    val enableThinkingMode: StateFlow<Boolean>
         get() = apiConfigDelegate.enableThinkingMode
 
     val enableThinkingGuidance: StateFlow<Boolean>
@@ -405,7 +405,7 @@ class ChatServiceCore(
         get() = apiConfigDelegate.enableTools
 
     // Token 统计相关
-                val cumulativeInputTokensFlow: StateFlow<Int>
+    val cumulativeInputTokensFlow: StateFlow<Int>
         get() = tokenStatisticsDelegate.cumulativeInputTokensFlow
 
     val cumulativeOutputTokensFlow: StateFlow<Int>
@@ -418,7 +418,7 @@ class ChatServiceCore(
         get() = tokenStatisticsDelegate.perRequestTokenCountFlow
 
     // 附件相关
-                val attachments: StateFlow<List<AttachmentInfo>>
+    val attachments: StateFlow<List<AttachmentInfo>>
         get() = attachmentDelegate.attachments
 
     val attachmentToastEvent: SharedFlow<String>

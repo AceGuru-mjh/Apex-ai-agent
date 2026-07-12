@@ -28,10 +28,10 @@ class KeyStoreHelper {
                 Security.removeProvider("BC")
 
                 // 创建新的BouncyCastle提供者实例
-                val provider = BouncyCastleProvider()
+    val provider = BouncyCastleProvider()
 
                 // 添加到安全提供者列表首位确保优先级
-                val position = Security.insertProviderAt(provider, 1)
+    val position = Security.insertProviderAt(provider, 1)
 
                 // 保存引用
                 bcProvider = provider
@@ -83,7 +83,7 @@ class KeyStoreHelper {
                 }
 
                 // 获取密钥库实例
-                val keyStore = getKeyStoreInstance(type) ?: return false
+    val keyStore = getKeyStoreInstance(type) ?: return false
 
                 // 加载密钥，
                 FileInputStream(file).use { input ->
@@ -161,7 +161,7 @@ class KeyStoreHelper {
                 registerBouncyCastleProvider()
 
             // 先尝试PKCS12格式
-                val pkcs12KeyStoreFile = File(context.filesDir, "pkcs12.keystore")
+    val pkcs12KeyStoreFile = File(context.filesDir, "pkcs12.keystore")
             if (pkcs12KeyStoreFile.exists() && pkcs12KeyStoreFile.length() > 1000) {
                 if (validateKeystore(pkcs12KeyStoreFile, "PKCS12", "android")) {
                     return pkcs12KeyStoreFile
@@ -169,7 +169,7 @@ class KeyStoreHelper {
             }
 
             // 再尝试JKS格式
-                val jksKeyStoreFile = File(context.filesDir, "jks.jks")
+    val jksKeyStoreFile = File(context.filesDir, "jks.jks")
             if (jksKeyStoreFile.exists() && jksKeyStoreFile.length() > 1000) {
                 if (validateKeystore(jksKeyStoreFile, "JKS", "android")) {
                     return jksKeyStoreFile
@@ -177,7 +177,7 @@ class KeyStoreHelper {
             }
 
             // 尝试从assets加载
-                val keystoreFiles = listOf(Pair("pkcs12.keystore", "PKCS12"), Pair("jks.jks", "JKS"))
+    val keystoreFiles = listOf(Pair("pkcs12.keystore", "PKCS12"), Pair("jks.jks", "JKS"))
 
             for ((assetName, type) in keystoreFiles) {
                 try {

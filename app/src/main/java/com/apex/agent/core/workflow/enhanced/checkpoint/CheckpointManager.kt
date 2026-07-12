@@ -20,16 +20,16 @@ import java.util.concurrent.ConcurrentHashMap
 @Serializable
 data class Checkpoint(
     val threadId: String,                 // 一次工作流执行的唯一标识
-                val checkpointId: String,             // 检查点唯一 ID
-                val parentCheckpointId: String?,      // 父检查点（链式）
-                val workflowId: String,
+    val checkpointId: String,             // 检查点唯一 ID
+    val parentCheckpointId: String?,      // 父检查点（链式）
+    val workflowId: String,
     val workflowVersion: Int,
     val nodeId: String,                   // 当前执行到的节点
-                val nodeState: CheckpointNodeState,   // 节点状态
-                val variables: Map<String, String>,   // 序列化后的上下文变量
-                val pendingInterrupts: List<String>,  // 待处理的 interrupt ID（HITL）
-                val executionPath: List<String>,      // 已执行的节点路径
-                val createdAt: Long = System.currentTimeMillis(),
+    val nodeState: CheckpointNodeState,   // 节点状态
+    val variables: Map<String, String>,   // 序列化后的上下文变量
+    val pendingInterrupts: List<String>,  // 待处理的 interrupt ID（HITL）
+    val executionPath: List<String>,      // 已执行的节点路径
+    val createdAt: Long = System.currentTimeMillis(),
     val metadata: Map<String, String> = emptyMap()
 )
 

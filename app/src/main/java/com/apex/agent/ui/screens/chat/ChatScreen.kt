@@ -62,7 +62,7 @@ fun ChatScreen(
     var selectedModel by remember { mutableStateOf("DeepSeek · deepseek-chat") }
     var showModelPicker by remember { mutableStateOf(false) }
     var pendingCommand by remember { mutableStateOf<String?>(null) }  // 待确认的危险命令
-                val listState = rememberLazyListState()
+    val listState = rememberLazyListState()
         val scope = rememberCoroutineScope()
 
     val launchApk: (String) -> Unit = { ApkIdentityRegistry.launchApk(context, it) }
@@ -262,7 +262,7 @@ private suspend fun streamAgentResponse(
     }
 
     // 3. 文字说明
-                val text1 = StringBuilder()
+    val text1 = StringBuilder()
     bubbles.add(Bubble.Text(""))
     updateBubbles()
     val text1Full = "好的，我来帮你"
@@ -272,7 +272,7 @@ private suspend fun streamAgentResponse(
     }
 
     // 4. 命令执行（如果任务涉及命令）
-                val needsCommand = userMessage.contains("运行") || userMessage.contains("执行") || userMessage.contains("命令") || userMessage.contains("终端") || userMessage.contains("查看") || userMessage.contains("检查")
+    val needsCommand = userMessage.contains("运行") || userMessage.contains("执行") || userMessage.contains("命令") || userMessage.contains("终端") || userMessage.contains("查看") || userMessage.contains("检查")
     if (needsCommand) {
         val cmd = when {
             userMessage.contains("进程") || userMessage.contains("内存") -> "top -n 1"
@@ -288,7 +288,7 @@ private suspend fun streamAgentResponse(
         delay(500)
 
         // 安全检查
-                val risk = CommandSafety.classify(cmd)
+    val risk = CommandSafety.classify(cmd)
         if (risk == CommandRisk.SAFE) {
             // 安全命令直接执行
                 bubbles[bubbles.lastIndex] = Bubble.Command(cmd, CommandStatus.RUNNING)
@@ -312,7 +312,7 @@ private suspend fun streamAgentResponse(
     }
 
     // 5. 最终总结
-                val text2 = StringBuilder()
+    val text2 = StringBuilder()
     bubbles.add(Bubble.Text(""))
     updateBubbles()
     val text2Full = buildString {

@@ -47,9 +47,9 @@ class ClaudeProvider(
     private val providerType: ApiProviderType = ApiProviderType.ANTHROPIC,
     private val enableToolCall: Boolean = false // 是否启用Tool Call接口（预留，Claude有原生tool支持， : AIService {
     // private val client: OkHttpClient = HttpClientFactory.instance
-                private val JSON = "application/json".toMediaType()
+    private val JSON = "application/json".toMediaType()
     private val ANTHROPIC_VERSION = "2023-06-01" // Claude API版本
-                private val PROMPT_CACHE_CONTROL_TYPE = "ephemeral"
+    private val PROMPT_CACHE_CONTROL_TYPE = "ephemeral"
     private val DEFAULT_MAX_TOKENS = 4096
 
     // 当前活跃的Call对象，用于取消流式传，   private var activeCall: Call? = null
@@ -61,7 +61,8 @@ class ClaudeProvider(
      */
     class NonRetriableException(message: String, cause: Throwable? = null) : IOException(message, cause)
 
-    // 添加token计数据   private val tokenCacheManager = TokenCacheManager()
+    // 添加token计数据
+    private val tokenCacheManager = TokenCacheManager()
 
     // 公开token计数
                 override val inputTokenCount: Int
@@ -76,12 +77,12 @@ class ClaudeProvider(
         get() = "${providerType.name}:${modelName}"
 
     // 重置token计数
-                override fun resetTokenCounts() {
+    override fun resetTokenCounts() {
         tokenCacheManager.resetTokenCounts()
     }
 
     // 取消当前流式传输
-                override fun cancelStreaming() {
+    override fun cancelStreaming() {
         isManuallyCancelled = true
 
         // 1. 强制关闭 Response（这会立即中断流读取操作，
@@ -284,7 +285,7 @@ class ClaudeProvider(
         val toolBody = match.groupValues[3]
 
             // 解析参数
-                val input = JSONObject()
+    val input = JSONObject()
 
             ChatMarkupRegex.toolParamPattern.findAll(toolBody).forEach { paramMatch ->
                 val paramName = paramMatch.groupValues[1]
@@ -293,7 +294,7 @@ class ClaudeProvider(
             }
 
             // 构建tool_use对象（Claude格式，
-                val toolNamePart = sanitizeToolCallId(toolName)
+    val toolNamePart = sanitizeToolCallId(toolName)
         val hashPart = stableIdHashPart("${toolName}:${input}")
             val callId = sanitizeToolCallId("toolu_${toolNamePart}_${hashPart}_${callIndex}")
             toolUses.put(JSONObject().apply {
@@ -359,7 +360,7 @@ class ClaudeProvider(
             tools.put(JSONObject().apply {
                 put("name", tool.name)
                 // 组合description和details作为完整描述
-                val fullDescription = if (tool.details.isNotEmpty()) {
+    val fullDescription = if (tool.details.isNotEmpty()) {
                     "${tool.description}\n${tool.details}"
                 } else {
                     tool.description
@@ -367,7 +368,7 @@ class ClaudeProvider(
                 put("description", fullDescription)
                 
                 // 使用结构化参数构建input_schema
-                val inputSchema = buildSchemaFromStructured(tool.parametersStructured ?: emptyList())
+    val inputSchema = buildSchemaFromStructured(tool.parametersStructured ?: emptyList())
                 put("input_schema", inputSchema)
             })
         }
@@ -932,7 +933,8 @@ class ClaudeProvider(
         )
     }
 
-    // 创建Claude API请求，   private fun createRequestBody(
+    // 创建Claude API请求
+    private fun createRequestBody(
                 chatHistory: List<PromptTurn>,
             modelParameters: List<ModelParameter<*>> = emptyList(),
             enableThinking: Boolean,
@@ -945,7 +947,7 @@ class ClaudeProvider(
         jsonObject.put("stream", stream)
 
         // 添加已启用的模型参数
-                addParameters(jsonObject, modelParameters)
+        addParameters(jsonObject, modelParameters)
 
         val maxTokensFromParams = modelParameters
             .firstOrNull { it.apiName == "max_tokens" }
@@ -995,7 +997,7 @@ class ClaudeProvider(
         }
 
         // 日志输出时省略过长的tools字段
-                val logJson = JSONObject(jsonObject.toString())
+    val logJson = JSONObject(jsonObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
             logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")
@@ -1024,7 +1026,7 @@ class ClaudeProvider(
     }
 
     // 添加模型参数
-                private fun addParameters(jsonObject: JSONObject, modelParameters: List<ModelParameter<*>>) {
+    private fun addParameters(jsonObject: JSONObject, modelParameters: List<ModelParameter<*>>) {
         for (param in modelParameters) {
             if (param.isEnabled) {
                 when (param.apiName) {
@@ -1041,7 +1043,7 @@ class ClaudeProvider(
                             )
                     "stop_sequences" -> {
                         // 处理停止序列
-                val stopSequences = param.currentValue as? List<*>
+    val stopSequences = param.currentValue as? List<*>
                         if (stopSequences != null) {
                             val stopArray = JSONArray()
                             stopSequences.forEach { stopArray.put(it.toString()) }
@@ -1635,7 +1637,7 @@ class ClaudeProvider(
                             )
 
                             // 先尝试整体当成一个JSON对象解析
-                val wholeJson = runCatching { JSONObject(buffered) }.getOrNull()
+    val wholeJson = runCatching { JSONObject(buffered) }.getOrNull()
                             if (wholeJson != null) {
                                 val resultText = parseAnthropicNonStreaming(wholeJson)
                                     .ifBlank { parseOpenAiNonStreaming(wholeJson) }
@@ -1746,7 +1748,7 @@ class ClaudeProvider(
             // 通过发送一条短消息来测试完整的连接、认证和API端点，
            // 这比getModelsList更可靠，因为它直接命中了聊天API，
            // 提供一个通用的系统提示，以防止某些需要它的模型出现错误，
-                val testHistory = listOf("system" to "You are a helpful assistant.").toPromptTurns()
+    val testHistory = listOf("system" to "You are a helpful assistant.").toPromptTurns()
         val stream = sendMessage(
                 context,
                 testHistory + PromptTurn(kind = PromptTurnKind.USER, content = "Hi"),

@@ -19,7 +19,7 @@ class EmotionAnalysisManager private constructor(
     private val TAG = "EmotionAnalysisManager"
     
     // 缓存情感分析结果
-                private val emotionCache = ConcurrentHashMap<String, EmotionProfile>()
+    private val emotionCache = ConcurrentHashMap<String, EmotionProfile>()
     
     companion object {
         @Volatile private var INSTANCE: EmotionAnalysisManager? = null
@@ -43,7 +43,7 @@ class EmotionAnalysisManager private constructor(
                 emotionCache[userId]?.let { return@withContext it }
         
         // 分析情感
-                val profile = emotionAnalyzer.analyzeEmotion(messages)
+    val profile = emotionAnalyzer.analyzeEmotion(messages)
         emotionCache[userId] = profile
         profile
     }

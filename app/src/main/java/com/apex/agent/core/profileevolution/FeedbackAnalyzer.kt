@@ -127,7 +127,7 @@ class FeedbackAnalyzer(private val context: Context) {
      */
     private fun analyzeImplicitFeedback(messages: List<ChatMessage>, result: FeedbackAnalysisResult) {
         // 分析回复速度
-                val responseTimes = mutableListOf<Long>()
+    val responseTimes = mutableListOf<Long>()
         
         for (i in 1 until messages.size) {
             val prevMessage = messages[i-1]
@@ -135,7 +135,7 @@ class FeedbackAnalyzer(private val context: Context) {
             
             if (prevMessage.sender != "user" && currentMessage.sender == "user") {
                 // 计算用户回复时间（简化版有
-                val responseTime = estimateResponseTime(prevMessage.timestamp, currentMessage.timestamp)
+    val responseTime = estimateResponseTime(prevMessage.timestamp, currentMessage.timestamp)
                 if (responseTime > 0) {
                     responseTimes.add(responseTime)
                 }
@@ -155,7 +155,7 @@ class FeedbackAnalyzer(private val context: Context) {
         }
         
         // 分析消息长度
-                val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         if (userMessages.isNotEmpty()) {
             val avgMessageLength = userMessages.map { it.content.length }.average()
             result.avgMessageLength = avgMessageLength

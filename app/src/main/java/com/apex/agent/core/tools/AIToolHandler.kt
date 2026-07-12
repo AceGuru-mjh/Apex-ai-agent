@@ -40,13 +40,13 @@ class AIToolHandler private constructor(
     }
 
     // Available tools registry
-                private val availableTools = ConcurrentHashMap<String, ToolExecutor>()
+    private val availableTools = ConcurrentHashMap<String, ToolExecutor>()
     private val toolHooks = CopyOnWriteArrayList<AIToolHook>()
     private val defaultToolsRegistered = AtomicBoolean(false)
     private val registrationLock = Any()
 
     // Tool permission system
-                private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
+    private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
 
     /** Get the tool permission system for UI use */
     fun getToolPermissionSystem(): ToolPermissionSystem {
@@ -145,7 +145,7 @@ class AIToolHandler private constructor(
     }
 
     // 工具注册的唯一方法 - 提供完整信息的注解
-                fun registerTool(
+    fun registerTool(
         name: String,
         descriptionGenerator: ((AITool) -> String)? = null,
         executor: ToolExecutor
@@ -158,7 +158,7 @@ class AIToolHandler private constructor(
     }
 
     // 添加重载方法接受函数式接口作为executor的便捷写法
-                fun registerTool(
+    fun registerTool(
         name: String,
         descriptionGenerator: ((AITool) -> String)? = null,
         executor: (AITool) -> ToolResult
@@ -175,7 +175,7 @@ class AIToolHandler private constructor(
     }
 
     // Register all default tools
-                fun registerDefaultTools() {
+    fun registerDefaultTools() {
         if (defaultToolsRegistered.get()) return
         synchronized(registrationLock) {
             if (defaultToolsRegistered.get()) return
@@ -302,7 +302,7 @@ class AIToolHandler private constructor(
             return notFoundResult
         }
         // Validate parameters
-                val validationResult = executor.validateParameters(tool)
+    val validationResult = executor.validateParameters(tool)
         if (!validationResult.valid) {
             val validationFailedResult = ToolResult(
                 toolName = tool.name,

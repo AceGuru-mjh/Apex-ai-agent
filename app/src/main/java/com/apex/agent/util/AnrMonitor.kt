@@ -60,14 +60,16 @@ class AnrMonitor(
     // 后备方案：如果协程有问题，使用ScheduledExecutorService
                 private var scheduledExecutor: ScheduledExecutorService? = null
     
-    // 记录ANR次数和严重程，   private val anrCount = AtomicInteger(0)
+    // 记录ANR次数和严重程，
+    private val anrCount = AtomicInteger(0)
                 private val warningCount = AtomicInteger(0)
     private val maxBlockDuration = AtomicLong(0)
     
     // 堆栈跟踪历史
-                private val stackTraces = mutableListOf<Pair<Long, String>>()
+    private val stackTraces = mutableListOf<Pair<Long, String>>()
     
-    // 跟踪调用者信，   private val callerInfo = ConcurrentHashMap<String, String>()
+    // 跟踪调用者信，
+    private val callerInfo = ConcurrentHashMap<String, String>()
     
     // 最后一次获取到的主线程引用
                 private var mainThread: Thread? = null
@@ -198,7 +200,7 @@ class AnrMonitor(
         
         if (timeSinceLastResponse > WARNING_THRESHOLD_MS) {
             // 主线程可能被阻塞
-                val message = context.getString(R.string.anr_main_thread_not_responding, timeSinceLastResponse)
+    val message = context.getString(R.string.anr_main_thread_not_responding, timeSinceLastResponse)
             
             if (timeSinceLastResponse > ANR_THRESHOLD_MS) {
                 // 已超过ANR阈，
@@ -227,8 +229,7 @@ class AnrMonitor(
             try {
                 val stackTrace = Thread.currentThread().stackTrace
                     .drop(3) // 跳过前三个元素（VM相关调用于                   .joinToString("\n") { "    at ${it}" }
-                    
-                val timeStamp = System.currentTimeMillis()
+    val timeStamp = System.currentTimeMillis()
         val trace = Pair(timeStamp, stackTrace)
                 
                 synchronized(stackTraces) {
@@ -240,7 +241,7 @@ class AnrMonitor(
                 }
                 
                 // 分析堆栈
-                val analysis = analyzeStackTrace(stackTrace)
+    val analysis = analyzeStackTrace(stackTrace)
                 
                 AppLogger.e(tag, "主线程堆栈跟，\n${stackTrace}\n${analysis}")
             } catch (e: Exception) {
@@ -258,7 +259,7 @@ class AnrMonitor(
                 Looper.getMainLooper().thread?.let { return it }
             
             // 尝试方法2：遍历所有线程查找main线程
-                val threadGroup = Thread.currentThread().threadGroup ?: return null
+    val threadGroup = Thread.currentThread().threadGroup ?: return null
         val threadCount = threadGroup.activeCount()
             val threads = arrayOfNulls<Thread>(threadCount)
             threadGroup.enumerate(threads)
@@ -281,7 +282,7 @@ class AnrMonitor(
             sbDump.append(context.getString(R.string.anr_thread_dump_header, dateFormat.format(Date())))
             
             // 首先获取主线程信，
-                val mainThreadStack: String = mainThread?.let {
+    val mainThreadStack: String = mainThread?.let {
                 try {
                     val stackTraceElements = it.stackTrace
         val stackStr = stackTraceElements.joinToString("\n") { element -> "    at ${element}" }
@@ -295,7 +296,7 @@ class AnrMonitor(
                 sbDump.append(context.getString(R.string.anr_main_thread_section, mainThreadStack))
             
             // 添加主线程分前
-                val analysis = analyzeStackTrace(mainThreadStack)
+    val analysis = analyzeStackTrace(mainThreadStack)
             
             // 检查是否和上次ANR相同，如果相同则不输出
                 if (analysis == lastAnrAnalysis) {
@@ -316,7 +317,7 @@ class AnrMonitor(
             }
             
             // 保存线程转储
-                val timestamp = System.currentTimeMillis()
+    val timestamp = System.currentTimeMillis()
         val trace = Pair(timestamp, sbDump.toString())
             
             // 更新堆栈跟踪历史
@@ -347,7 +348,7 @@ class AnrMonitor(
         
         for (line in stackTrace.lines()) {
             // 匹配堆栈行格，at package.Class.method(File.java:line)
-                val atIndex = line.indexOf("at ")
+    val atIndex = line.indexOf("at ")
             if (atIndex >= 0) {
                 val stackPart = line.substring(atIndex + 3).trim()
                 // 只保留com.apex包的堆栈

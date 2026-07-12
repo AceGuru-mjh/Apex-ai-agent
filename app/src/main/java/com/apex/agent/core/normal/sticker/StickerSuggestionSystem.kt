@@ -38,9 +38,9 @@ data class Sticker(
     val name: String,
     val description: String,
     val emotion: String,           // 关联情感
-                val contexts: List<String>,    // 适用场景
-                val keywords: List<String>,    // 触发关键词
-                val popularity: Float = 0.5f,
+    val contexts: List<String>,    // 适用场景
+    val keywords: List<String>,    // 触发关键词
+    val popularity: Float = 0.5f,
     val category: StickerCategory
 )
 
@@ -99,14 +99,14 @@ class StickerSuggestionSystem {
             }
 
             // 关键词匹配
-                val matchedKeywords = sticker.keywords.count { textLower.contains(it, ignoreCase = true) }
+    val matchedKeywords = sticker.keywords.count { textLower.contains(it, ignoreCase = true) }
             if (matchedKeywords > 0) {
                 score += matchedKeywords * 0.2f
                 reason = if (reason.isEmpty()) "关键词匹配" else "$reason + 关键词"
             }
 
             // 上下文匹配
-                val matchedContext = sticker.contexts.any { ctx ->
+    val matchedContext = sticker.contexts.any { ctx ->
                 textLower.contains(ctx, ignoreCase = true)
             }
             if (matchedContext) {
@@ -180,7 +180,7 @@ class StickerSuggestionSystem {
     }
 
     // ============ 预置表情 ============
-                private fun registerBuiltinStickers() {
+    private fun registerBuiltinStickers() {
         // 开心
                 stickers["s_happy_1"] = Sticker("s_happy_1", StickerType.EMOJI, "😄", "开心", "笑脸", "happy", listOf("开心", "高兴"), listOf("哈哈", "开心", "好棒"), 0.9f, StickerCategory.HAPPY)
         stickers["s_happy_2"] = Sticker("s_happy_2", StickerType.EMOJI, "🤣", "笑哭", "笑到流泪", "happy", listOf("好笑"), listOf("笑死", "哈哈哈哈", "lmao"), 0.95f, StickerCategory.HAPPY)

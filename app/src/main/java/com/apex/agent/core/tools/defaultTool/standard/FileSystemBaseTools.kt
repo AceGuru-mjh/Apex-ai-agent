@@ -132,7 +132,7 @@ open class FileSystemBaseTools(protected val context: Context) {
     protected fun getFilePermissions(file: File): String {
         // Java has limited capabilities for getting Unix-style file permissions
         // This is a simplified version that checks basic permissions
-                val canRead = if (file.canRead()) 'r' else '-'
+    val canRead = if (file.canRead()) 'r' else '-'
         val canWrite = if (file.canWrite()) 'w' else '-'
         val canExecute = if (file.canExecute()) 'x' else '-'
 

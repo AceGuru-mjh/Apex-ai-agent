@@ -26,9 +26,11 @@ object StreamingOutputOptimizer {
     // 每次渲染的字符数
                 private const val CHARS_PER_TICK = 2
 
-    // 断句识别：中文标点符   private val CHINESE_PUNCTUATION = setOf(' ' ' ' ' ' ' ' '。
+    // 断句识别：中文标点符
+    private val CHINESE_PUNCTUATION = setOf(' ' ' ' ' ' ' ' '。
     
-    // 断句识别：英文标点符   private val ENGLISH_PUNCTUATION = setOf('.', '!', '?', ';', ':', ',')
+    // 断句识别：英文标点符
+    private val ENGLISH_PUNCTUATION = setOf('.', '!', '?', ';', ':', ',')
 
     /**
      * 优化流式输出，实现顺滑打字效    * @param rawFlow 原始流式输出
@@ -37,13 +39,13 @@ object StreamingOutputOptimizer {
     suspend fun optimizeStream(rawFlow: suspend ((String) -> Unit) -> Unit): Flow<String> = 
         channelFlow {
             // 缓冲区：累积接收到但尚未渲染的内
-                val buffer = StringBuilder()
+    val buffer = StringBuilder()
             
             // 完整输出文本：用于异常恢
-                val fullText = StringBuilder()
+    val fullText = StringBuilder()
 
             // 匀速渲染协
-                val renderJob = scope.launch {
+    val renderJob = scope.launch {
                 try {
                     while (isActive) {
                         delay(TYPING_INTERVAL_MS)
@@ -68,7 +70,7 @@ object StreamingOutputOptimizer {
                 // 收集原始流式输出
                 rawFlow { chunk ->
                     // 处理断句，避免拆分汉字或词语
-                val processedChunk = handleWordBreak(chunk)
+    val processedChunk = handleWordBreak(chunk)
                     buffer.append(processedChunk)
                 }
 
@@ -80,7 +82,7 @@ object StreamingOutputOptimizer {
                 AppLogger.e(TAG, "流式输出异常", e)
                 
                 // 异常兜底：输出已收集的完整文
-                val remainingBuffer = buffer.toString()
+    val remainingBuffer = buffer.toString()
                 if (remainingBuffer.isNotEmpty()) {
                     send(remainingBuffer)
                 }

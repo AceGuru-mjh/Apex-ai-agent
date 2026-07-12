@@ -97,13 +97,13 @@ class TokenCacheManager {
         // 构建包含工具定义的历史记录列行
        // 策略：将toolsJson拼接到System Prompt前面，或者作为第一条System消息
         // 这样可以利用前缀匹配机制缓存工具定义
-                val historyWithTools = if (!toolsJson.isNullOrEmpty()) {
+    val historyWithTools = if (!toolsJson.isNullOrEmpty()) {
         val mutableHistory = chatHistory.toMutableList()
             val systemIndex = mutableHistory.indexOfFirst { it.first == "system" }
             
             if (systemIndex != -1) {
                 // 找到System消息，拼接在前面
-                val originalSystem = mutableHistory[systemIndex]
+    val originalSystem = mutableHistory[systemIndex]
                 mutableHistory[systemIndex] = originalSystem.copy(second = toolsJson + "\n" + originalSystem.second)
             } else {
                 // 没有System消息，在头部插入
@@ -116,7 +116,7 @@ class TokenCacheManager {
 
         // 找到与之前历史的公共前缀长度
         // 注意：previousChatHistory现在存储的是包含工具定义的版有
-                val commonPrefixLength = findCommonPrefixLength(historyWithTools, previousChatHistory)
+    val commonPrefixLength = findCommonPrefixLength(historyWithTools, previousChatHistory)
         
         AppLogger.d("TokenCacheManager", "聊天历史比较: 当前=${historyWithTools.size}, 之前=${previousChatHistory.size}, 公共前缀=${commonPrefixLength}")
         
@@ -130,16 +130,16 @@ class TokenCacheManager {
                 previousHistoryTokenCount
             } else {
                 // 部分匹配，重新计算公共前缀的token数量
-                val commonPrefix = historyWithTools.take(commonPrefixLength)
+    val commonPrefix = historyWithTools.take(commonPrefixLength)
                 calculateTokensForHistory(commonPrefix)
             }
             
             // 计算新增部分的token数量 (history剩下的部， 当前消息，
-                val newPart = historyWithTools.drop(commonPrefixLength)
+    val newPart = historyWithTools.drop(commonPrefixLength)
             newTokens = calculateTokensForHistory(newPart)
         } else {
             // 没有公共前缀，重新计算所有token
-                val historyTokens = calculateTokensForHistory(historyWithTools)
+    val historyTokens = calculateTokensForHistory(historyWithTools)
             cachedTokens = 0
             newTokens = historyTokens
         }

@@ -47,7 +47,7 @@ class TaskDispatcher(
      */
     suspend fun dispatchTask(task: KanbanTask): DispatchResult = withContext(Dispatchers.IO) {
         // 检查是否有未完成的依赖
-                val blockedBy = task.dependencies.filter { depId ->
+    val blockedBy = task.dependencies.filter { depId ->
         val depTask = board.getTask(depId)
             depTask?.status != KanbanTaskStatus.COMPLETED
         }
@@ -58,13 +58,13 @@ class TaskDispatcher(
         }
 
         // 检查列条件
-                val column = board.getColumn(task.columnId)
+    val column = board.getColumn(task.columnId)
         if (column != null && !column.canEnter(task)) {
             return@withContext DispatchResult.Failure(task, "Task does not meet column entry conditions")
         }
 
         // 找到最作Worker
-                val worker = workerRegistry.findBestWorker(task, task.assignedRole)
+    val worker = workerRegistry.findBestWorker(task, task.assignedRole)
             ?: return@withContext DispatchResult.Failure(task, "No suitable worker found")
 
         // 尝试分配分Worker
@@ -139,7 +139,7 @@ class TaskDispatcher(
      */
     suspend fun autoRouteTask(task: KanbanTask): Boolean = withContext(Dispatchers.IO) {
         // 根据任务属性自动选择分
-                val targetColumn = selectColumnForTask(task)
+    val targetColumn = selectColumnForTask(task)
         if (targetColumn != null && targetColumn.id != task.columnId) {
             board.moveTask(task.id, targetColumn.id)
             AppLogger.d(TAG, "Auto-routed task ${task.id} to column ${targetColumn.name}")
@@ -154,7 +154,7 @@ class TaskDispatcher(
      */
     private fun selectColumnForTask(task: KanbanTask): KanbanColumn? {
         // 简单实现：基于标签或类型选择
-                val typeColumnMap = mapOf(
+    val typeColumnMap = mapOf(
             "design" to "设计",
             "development" to "开取",
             "testing" to "测试",

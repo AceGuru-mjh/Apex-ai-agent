@@ -84,7 +84,7 @@ class ConversationIntentStateMachine {
         val (intent, confidence, keywords) = classifyIntent(msg, currentState, history)
 
         // 话题管理
-                val topicId: String
+    val topicId: String
         val topicSummary: String
         when (intent) {
             ConversationIntent.INITIAL_QUERY, ConversationIntent.TOPIC_SWITCH -> {
@@ -176,13 +176,13 @@ class ConversationIntentStateMachine {
     }
 
     // ============ 内部方法 ============
-                private fun classifyIntent(
+    private fun classifyIntent(
         message: String,
         currentState: IntentState?,
         history: List<String>
     ): Triple<ConversationIntent, Float, List<String>> {
         // 关键词模式匹配
-                val patterns = mapOf(
+    val patterns = mapOf(
             ConversationIntent.CORRECTION to listOf("不对", "错了", "不是这个意思", "重新", "纠正", "wrong", "incorrect", "no,"),
             ConversationIntent.SUPPLEMENT to listOf("补充", "另外", "还有", "加上", "对了", "顺便", "also", "additionally", "plus"),
             ConversationIntent.CONFIRMATION to listOf("对", "是的", "没错", "确认", "ok", "yes", "correct", "right"),

@@ -45,12 +45,12 @@ fun ApexMainScaffold() {
     var currentTab by remember { mutableStateOf(ApexTab.CHAT) }
 
     // 热更新状态：用于在"设置"导航项上显示红点 Badge
-                val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
+    val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
         val updateState by hotUpdateManager.state.collectAsState()
     val hasUpdate = updateState is UpdateState.UpdateAvailable
 
     // 会话管理
-                val sessionManager = remember { ChatSessionManager(context) }
+    val sessionManager = remember { ChatSessionManager(context) }
     var sessions by remember { mutableStateOf(sessionManager.listAll()) }
     var currentSessionId by remember { mutableStateOf<String?>(null) }
     var showSearchField by remember { mutableStateOf(false) }
@@ -58,10 +58,10 @@ fun ApexMainScaffold() {
     var renamingSession by remember { mutableStateOf<ChatSession?>(null) }
 
     // 筛选
-                val displaySessions = if (searchQuery.isBlank()) sessions else sessionManager.search(searchQuery)
+    val displaySessions = if (searchQuery.isBlank()) sessions else sessionManager.search(searchQuery)
 
     // 新建对话
-                val onNewChat: () -> Unit = {
+    val onNewChat: () -> Unit = {
         val newSession = sessionManager.create()
         currentSessionId = newSession.id
         currentTab = ApexTab.CHAT
@@ -70,21 +70,21 @@ fun ApexMainScaffold() {
     }
 
     // 切换对话
-                val onSwitchChat: (String) -> Unit = { id ->
+    val onSwitchChat: (String) -> Unit = { id ->
         currentSessionId = id
         currentTab = ApexTab.CHAT
         scope.launch { drawerState.close() }
     }
 
     // 删除对话
-                val onDeleteChat: (String) -> Unit = { id ->
+    val onDeleteChat: (String) -> Unit = { id ->
         sessionManager.delete(id)
         if (currentSessionId == id) currentSessionId = null
         sessions = sessionManager.listAll()
     }
 
     // 置顶
-                val onTogglePin: (String) -> Unit = { id ->
+    val onTogglePin: (String) -> Unit = { id ->
         sessionManager.togglePin(id)
         sessions = sessionManager.listAll()
     }

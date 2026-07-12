@@ -18,10 +18,10 @@ class DatabaseToolAdapter : ToolAdapter {
     private val connections = ConcurrentHashMap<String, Connection>()
     
     // 简单的查询缓存
-                private val queryCache = mutableMapOf<String, CachedQueryResult>()
+    private val queryCache = mutableMapOf<String, CachedQueryResult>()
     private val MAX_CACHE_SIZE = 50
     private val CACHE_EXPIRE_TIME = 5 * 60 * 1000L // 5分钟
-                override fun getName(): String {
+    override fun getName(): String {
         return "database"
     }
 
@@ -92,7 +92,7 @@ class DatabaseToolAdapter : ToolAdapter {
                 Class.forName(driver)
             
             // 创建连接
-                val connection = DriverManager.getConnection(url, username, password)
+    val connection = DriverManager.getConnection(url, username, password)
             
             // 设置连接属态
                 connection.autoCommit = true
@@ -122,7 +122,7 @@ class DatabaseToolAdapter : ToolAdapter {
         }
 
         // 检查缓字
-                val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
+    val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
         if (useCache) {
             queryCache[cacheKey]?.let { cached ->
                 if (System.currentTimeMillis() - cached.timestamp < CACHE_EXPIRE_TIME) {

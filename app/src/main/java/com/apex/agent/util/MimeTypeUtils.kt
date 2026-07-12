@@ -118,7 +118,7 @@ object MimeTypeUtils {
         .mapValues { it.value.first() }
 
     // 魔术字节到 MIME 类型的映射
-                private val MAGIC_BYTES: List<Pair<ByteArray, String>> = listOf(
+    private val MAGIC_BYTES: List<Pair<ByteArray, String>> = listOf(
         byteArrayOf(0x89, 0x50, 0x4E, 0x47) to "image/png",
         byteArrayOf(0xFF, 0xD8, 0xFF) to "image/jpeg",
         byteArrayOf(0x47, 0x49, 0x46, 0x38) to "image/gif",

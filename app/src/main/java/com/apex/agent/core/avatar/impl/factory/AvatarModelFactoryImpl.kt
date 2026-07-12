@@ -59,7 +59,7 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
         return when (type) {
             // AvatarType.DRAGONBONES -> {
             //
-                val defaultData = mapOf(
+    val defaultData = mapOf(
             //         "folderPath" to "assets/avatars/default",
             //         "skeletonFile" to "default_ske.json",
             //         "textureJsonFile" to "default_tex.json",
@@ -145,18 +145,18 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
     //
                 return try {
     //
-                val folderPath = data["folderPath"] as? String ?: return null
+    val folderPath = data["folderPath"] as? String ?: return null
     //
-                val skeletonFile = data["skeletonFile"] as? String ?: return null
+    val skeletonFile = data["skeletonFile"] as? String ?: return null
     //
-                val textureJsonFile = data["textureJsonFile"] as? String ?: return null
+    val textureJsonFile = data["textureJsonFile"] as? String ?: return null
     //
-                val textureImageFile = data["textureImageFile"] as? String ?: return null
+    val textureImageFile = data["textureImageFile"] as? String ?: return null
     //
-                val isBuiltIn = data["isBuiltIn"] as? Boolean ?: false
+    val isBuiltIn = data["isBuiltIn"] as? Boolean ?: false
     //
     //
-                val dataModel = DragonBonesModel(
+    val dataModel = DragonBonesModel(
     //
                 id = id,
     //
@@ -180,7 +180,7 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
                 null
     //     }
     // }
-                private fun createWebPModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
+    private fun createWebPModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
         return try {
             val basePath = data["basePath"] as? String ?: return null
         val availableFiles = extractAvailableMediaFiles(data, "webpFiles", setOf("webp"))

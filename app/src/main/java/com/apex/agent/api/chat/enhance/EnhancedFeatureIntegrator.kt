@@ -22,13 +22,13 @@ object EnhancedFeatureIntegrator {
         userInput: String
     ): List<ModelParameter<*>> {
         // 获取动态参数
-                val dynamicParams = DynamicModelParamsAdapter.getDynamicModelParams(userInput)
+    val dynamicParams = DynamicModelParamsAdapter.getDynamicModelParams(userInput)
         val scenario = DynamicModelParamsAdapter.getScenarioDescription(userInput)
         
         AppLogger.d(TAG, "应用动态参数场景=${scenario}, temp=${dynamicParams.temperature}")
         
         // 创建可修改的副本
-                val mutableParams = existingParams.toMutableList()
+    val mutableParams = existingParams.toMutableList()
         
         // 更新或添加temperature参数
                 updateOrAddParam(
@@ -110,13 +110,13 @@ object EnhancedFeatureIntegrator {
         maxValue: Any? = null
     ) {
         // 检查是否已存在该参数（通过apiName匹配置
-                val existingIndex = params.indexOfFirst { 
+    val existingIndex = params.indexOfFirst { 
             it.apiName == apiName || it.id == id
         }
         
         if (existingIndex >= 0) {
             // 更新现有参数 - 注意：这里我们创建一个新的参数对象
-                val existing = params[existingIndex]
+    val existing = params[existingIndex]
             
             @Suppress("UNCHECKED_CAST")
             val updatedParam = when (valueType) {
@@ -136,7 +136,7 @@ object EnhancedFeatureIntegrator {
             params[existingIndex] = updatedParam
         } else {
             // 添加新参数
-                val newParam = createParameter(
+    val newParam = createParameter(
                 id = id,
                 name = name,
                 apiName = apiName,

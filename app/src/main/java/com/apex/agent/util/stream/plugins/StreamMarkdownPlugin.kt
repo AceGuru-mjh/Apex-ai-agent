@@ -449,12 +449,12 @@ class StreamMarkdownHeaderPlugin(private val includeMarker: Boolean = true) : St
 
     // The problematic call from splitBy will now only perform a soft reset of the
     // matching state, without incorrectly assuming it's at the start of a line.
-                override fun reset() {
+    override fun reset() {
         resetInternal()
     }
 
     // Internal reset that doesn't touch atStartOfLine
-                private fun resetInternal() {
+    private fun resetInternal() {
         state = PluginState.IDLE
         headerMatcher.reset()
     }
@@ -1151,7 +1151,7 @@ class StreamMarkdownInlineLaTeXPlugin(private val includeDelimiters: Boolean = t
             }
         }
         return true // 不应该到达这，   }
-                override fun initPlugin(): Boolean {
+    override fun initPlugin(): Boolean {
         reset()
         return true
     }
@@ -1218,7 +1218,7 @@ class StreamMarkdownInlineParenLaTeXPlugin(private val includeDelimiters: Boolea
             }
         }
         return true // 不应该到达这，   }
-                override fun initPlugin(): Boolean {
+    override fun initPlugin(): Boolean {
         reset()
         return true
     }
@@ -1280,7 +1280,7 @@ class StreamMarkdownBlockLaTeXPlugin(private val includeDelimiters: Boolean = tr
             }
         }
         return true // 不应该到达这，   }
-                override fun initPlugin(): Boolean {
+    override fun initPlugin(): Boolean {
         reset()
         return true
     }
@@ -1341,7 +1341,7 @@ class StreamMarkdownBlockBracketLaTeXPlugin(private val includeDelimiters: Boole
             }
         }
         return true // 不应该到达这，   }
-                override fun initPlugin(): Boolean {
+    override fun initPlugin(): Boolean {
         reset()
         return true
     }
@@ -1369,7 +1369,8 @@ class StreamMarkdownTablePlugin(private val includeDelimiters: Boolean = true) :
                 private var foundHeaderSeparator = false
     private var emptyLineCount = 0 // 用于检测表格结束的空行计数
     
-    // 用于匹配表格行开，   private val tableRowMatcher =
+    // 用于匹配表格行开，
+    private val tableRowMatcher =
                 StreamKmpGraphBuilder()
                     .build(
                             kmpPattern {
@@ -1377,7 +1378,7 @@ class StreamMarkdownTablePlugin(private val includeDelimiters: Boolean = true) :
                     )
     
     // 用于匹配表头分隔符行
-                private val headerSeparatorMatcher =
+    private val headerSeparatorMatcher =
             StreamKmpGraphBuilder()
                     .build(
                             kmpPattern {
@@ -1386,8 +1387,9 @@ class StreamMarkdownTablePlugin(private val includeDelimiters: Boolean = true) :
                             }
                     )
     
-    // 用于检测其他块元素开始符取   private val otherBlockStarters = setOf('$', '`', '#', '>', '*', '-', '+')
-                override fun processChar(c: Char, atStartOfLine: Boolean): Boolean {
+    // 用于检测其他块元素开始符取
+    private val otherBlockStarters = setOf('$', '`', '#', '>', '*', '-', '+')
+    override fun processChar(c: Char, atStartOfLine: Boolean): Boolean {
         // 处理换行的
                 if (c == '\n') {
             if (state == PluginState.PROCESSING) {

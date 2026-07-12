@@ -163,7 +163,7 @@ class GitHubService {
     ): Result<FileContent?> = withContext(Dispatchers.IO) {
         try {
             // 尝试常见的README 文件后
-                val readmeNames = listOf("README.md", "README.rst", "README.txt", "readme.md")
+    val readmeNames = listOf("README.md", "README.rst", "README.txt", "readme.md")
             
             for (readmeName in readmeNames) {
                 val result = getFileContent(owner, repo, readmeName, branch, authConfig)
@@ -387,7 +387,7 @@ data class RepositoryInfo(
     val forks: Int,
     val language: String,
     val size: Long,  // KB
-                val isPrivate: Boolean,
+    val isPrivate: Boolean,
     val updatedAt: String
 )
 

@@ -50,7 +50,7 @@ sealed class NodeExecutionState {
  * 依赖图数据结，*/
 data class DependencyGraph(
     val adjacencyList: Map<String, List<String>>,  // 节点ID -> 后继节点列表
-                val inDegree: Map<String, Int>                 // 节点ID -> 入度
+    val inDegree: Map<String, Int>                 // 节点ID -> 入度
 )
 
 /**
@@ -539,7 +539,7 @@ class WorkflowExecutor(private val context: Context) {
 
         try {
             // 1. 找到所有触发节点作为入，
-                val allTriggerNodes = workflow.nodes.filterIsInstance<TriggerNode>()
+    val allTriggerNodes = workflow.nodes.filterIsInstance<TriggerNode>()
             
             if (allTriggerNodes.isEmpty()) {
                 runLogger.w(context.getString(R.string.workflow_log_no_trigger_node))
@@ -550,9 +550,9 @@ class WorkflowExecutor(private val context: Context) {
             }
             
             // 2. 根据 triggerNodeId 决定要执行哪些触发节，
-                val triggerNodes = if (triggerNodeId != null) {
+    val triggerNodes = if (triggerNodeId != null) {
                 // 如果指定了触发节点ID（通常是定时任务），只执行该触发节，
-                val specificNode = allTriggerNodes.find { it.id == triggerNodeId }
+    val specificNode = allTriggerNodes.find { it.id == triggerNodeId }
                 if (specificNode == null) {
                     runLogger.w(context.getString(R.string.workflow_log_trigger_node_not_exist, triggerNodeId))
                     return@withContext buildResult(
@@ -568,7 +568,7 @@ class WorkflowExecutor(private val context: Context) {
                 listOf(specificNode)
             } else {
                 // 如果没有指定触发节点ID（通常是手动触发），执行所有手动触发类型的节点
-                val manualTriggers = allTriggerNodes.filter { it.triggerType == "manual" }
+    val manualTriggers = allTriggerNodes.filter { it.triggerType == "manual" }
                 if (manualTriggers.isEmpty()) {
                     runLogger.w(context.getString(R.string.workflow_log_no_manual_trigger_node))
                     return@withContext buildResult(
@@ -591,7 +591,7 @@ class WorkflowExecutor(private val context: Context) {
             currentCoroutineContext().ensureActive()
 
             // 3. 构建依赖，
-                val dependencyGraph = buildDependencyGraph(workflow)
+    val dependencyGraph = buildDependencyGraph(workflow)
             
             // 4. 检测环
                 if (detectCycle(dependencyGraph.adjacencyList, workflow.nodes)) {
@@ -615,7 +615,7 @@ class WorkflowExecutor(private val context: Context) {
             }
             
             // 6. 使用拓扑排序执行所有后续节，
-                val executionResult = executeTopologicalOrder(
+    val executionResult = executeTopologicalOrder(
                 startNodeIds = triggerNodes.map { it.id },
                 workflow = workflow,
                 dependencyGraph = dependencyGraph,
@@ -803,7 +803,7 @@ class WorkflowExecutor(private val context: Context) {
             }
             
             // 查找节点
-                val node = nodeById[currentNodeId]
+    val node = nodeById[currentNodeId]
             if (node == null) {
                 runLogger.w(context.getString(R.string.workflow_log_node_not_exist, currentNodeId), nodeId = currentNodeId)
                 continue
@@ -899,7 +899,7 @@ class WorkflowExecutor(private val context: Context) {
             )
             
             // 执行节点
-                val executionSuccess =
+    val executionSuccess =
                 executeNode(
                     node,
                     workflow,
@@ -1199,10 +1199,10 @@ class WorkflowExecutor(private val context: Context) {
             }
             
             // 解析参数（支持静态值和节点引用于
-                val parameters = resolveParameters(node, nodeResults, triggerExtras)
+    val parameters = resolveParameters(node, nodeResults, triggerExtras)
             
             // 构，AITool
-                val tool = AITool(
+    val tool = AITool(
                 name = node.actionType,
                 parameters = parameters
             )
@@ -1216,7 +1216,7 @@ class WorkflowExecutor(private val context: Context) {
             currentCoroutineContext().ensureActive()
 
             // 执行工具
-                val result = toolHandler.executeTool(tool)
+    val result = toolHandler.executeTool(tool)
             
             if (result.success) {
                 val resultData = result.result

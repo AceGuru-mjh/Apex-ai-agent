@@ -11,7 +11,7 @@ class TrainingDataGenerator {
         val taskFeatures: Map<String, Double>,
         val agentFeatures: Map<String, Double>,
         val label: Double, // 0-1之间的匹配得，
-                val metadata: Map<String, Any>
+    val metadata: Map<String, Any>
     )
 
     data class DataPipelineConfig(
@@ -138,7 +138,7 @@ class TrainingDataGenerator {
         features["storageRequirement"] = task.resourceRequirement.storage.toDouble() / 1024.0 // 转换为GB
         
         // 任务类别独热编码
-                val categories = listOf("coding", "writing", "research", "design", "data", "communication", "planning", "testing", "documentation", "other")
+    val categories = listOf("coding", "writing", "research", "design", "data", "communication", "planning", "testing", "documentation", "other")
         categories.forEach { category ->
             features["category_${category}"] = if (task.category == category) 1.0 else 0.0
         }
@@ -154,11 +154,11 @@ class TrainingDataGenerator {
         features["totalTasks"] = agent.performanceMetrics.totalTasks.toDouble() / 100.0
         
         // Agent能力评分
-                val capabilityScore = agent.capabilityScores.getOrDefault(taskCategory, 1.0)
+    val capabilityScore = agent.capabilityScores.getOrDefault(taskCategory, 1.0)
         features["capabilityScore"] = capabilityScore / 2.0 // 归一化到0-1
         
         // 技能匹配度
-                val requiredSkills = getSkillsForCategory(taskCategory)
+    val requiredSkills = getSkillsForCategory(taskCategory)
         val skillMatch = requiredSkills.count { agent.skillTags.contains(it) }.toDouble() / requiredSkills.size
         features["skillMatch"] = skillMatch
 
@@ -178,7 +178,7 @@ class TrainingDataGenerator {
                 score += agentFeatures.getOrDefault("successRate", 0.0) * 0.2
         
         // 响应时间（越低越好）
-                val responseTimeScore = 1.0 - minOf(agentFeatures.getOrDefault("averageResponseTime", 0.0), 1.0)
+    val responseTimeScore = 1.0 - minOf(agentFeatures.getOrDefault("averageResponseTime", 0.0), 1.0)
         score += responseTimeScore * 0.1
         
         // 添加一些噪，
@@ -189,7 +189,7 @@ class TrainingDataGenerator {
 
     private fun normalizeFeatures(samples: List<TrainingSample>): List<TrainingSample> {
         // 计算特征均值和标准，
-                val taskFeatureStats = calculateFeatureStats(samples.map { it.taskFeatures })
+    val taskFeatureStats = calculateFeatureStats(samples.map { it.taskFeatures })
         val agentFeatureStats = calculateFeatureStats(samples.map { it.agentFeatures })
 
         return samples.map { sample ->
@@ -228,12 +228,12 @@ class TrainingDataGenerator {
 
     private fun balanceClasses(samples: List<TrainingSample>): List<TrainingSample> {
         // 按标签分，
-                val lowScoreSamples = samples.filter { it.label < 0.3 }
+    val lowScoreSamples = samples.filter { it.label < 0.3 }
         val mediumScoreSamples = samples.filter { it.label >= 0.3 && it.label < 0.7 }
         val highScoreSamples = samples.filter { it.label >= 0.7 }
         
         // 找到最小的组大，
-                val minSize = minOf(lowScoreSamples.size, mediumScoreSamples.size, highScoreSamples.size)
+    val minSize = minOf(lowScoreSamples.size, mediumScoreSamples.size, highScoreSamples.size)
         
         // 平衡样本
                 return lowScoreSamples.take(minSize) + mediumScoreSamples.take(minSize) + highScoreSamples.take(minSize)

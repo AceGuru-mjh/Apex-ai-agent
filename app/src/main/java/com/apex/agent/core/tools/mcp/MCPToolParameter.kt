@@ -181,12 +181,12 @@ data class MCPToolParameter(
                 if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
                     try {
                         // 尝试修复格式：将逗号分隔的无引号标识符转换为带引号的 JSON 数组
-                val content = trimmed.substring(1, trimmed.length - 1).trim()
+    val content = trimmed.substring(1, trimmed.length - 1).trim()
                         
                         // 检查是否是简单的标识符列表（只包含字母、数字、下划线和逗号，
                 if (content.matches(Regex("[\\w\\s,_-]+"))) {
                             // 分割元素并添加引，
-                val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                             
                             // 如果元素看起来像标识符（非数字），则保留为字符串
                 return elements.map { element -> 
@@ -201,7 +201,7 @@ data class MCPToolParameter(
                         }
                         
                         // 否则，尝试一般的逗号分隔解析
-                val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                         return elements.map { element -> smartConvert(element, null) }
                     } catch (ex: Exception) {
                         // 修复失败，返回原始，

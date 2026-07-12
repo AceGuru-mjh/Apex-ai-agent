@@ -36,7 +36,7 @@ object FileUtils {
     private const val BACKGROUND_VIDEOS_DIR = "background_videos"
 
     // List of common video file extensions
-                private val VIDEO_EXTENSIONS = listOf("mp4", "3gp", "webm", "mkv", "avi", "mov", "flv", "wmv")
+    private val VIDEO_EXTENSIONS = listOf("mp4", "3gp", "webm", "mkv", "avi", "mov", "flv", "wmv")
 
     private val TEXT_BASED_EXTENSIONS = setOf(
         "txt", "md", "log", "ini", "env", "csv", "tsv", "text", "me",

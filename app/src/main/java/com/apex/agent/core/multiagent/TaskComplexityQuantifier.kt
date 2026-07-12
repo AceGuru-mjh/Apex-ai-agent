@@ -9,17 +9,17 @@ class TaskComplexityQuantifier {
     data class TaskFeature(
         val category: String,
         val difficulty: Int, // 1-10
-                val resourceRequirement: ResourceRequirement,
+    val resourceRequirement: ResourceRequirement,
         val riskLevel: Int, // 1-5
-                val estimatedTime: Int, // minutes
-                val requiredSkills: List<String>
+    val estimatedTime: Int, // minutes
+    val requiredSkills: List<String>
     )
 
     data class ResourceRequirement(
         val memory: Int, // MB
-                val cpu: Int, // percentage
-                val network: Int, // Mbps
-                val storage: Int // MB
+    val cpu: Int, // percentage
+    val network: Int, // Mbps
+    val storage: Int // MB
     )
 
     data class SubTaskTicket(
@@ -155,7 +155,7 @@ class TaskComplexityQuantifier {
         }
         
         // 基于任务长度和复杂度进行调整
-                val lengthScore = min((taskDescription.length / 100) + 1, 5)
+    val lengthScore = min((taskDescription.length / 100) + 1, 5)
         val complexityScore = if (taskDescription.contains(":") || taskDescription.contains("步骤") || taskDescription.contains("流程")) {
             2
         } else {
@@ -251,7 +251,7 @@ class TaskComplexityQuantifier {
         }
         
         // 基于任务描述添加特定技，
-                val lowerDescription = taskDescription.lowercase()
+    val lowerDescription = taskDescription.lowercase()
         
         if (lowerDescription.contains("python")) skills.add("Python")
         if (lowerDescription.contains("java")) skills.add("Java")

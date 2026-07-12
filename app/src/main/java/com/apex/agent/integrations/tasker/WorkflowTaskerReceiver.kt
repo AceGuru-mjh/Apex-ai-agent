@@ -42,7 +42,7 @@ class WorkflowTaskerReceiver : BroadcastReceiver() {
         AppLogger.d(TAG, "Received workflow trigger broadcast for action: ${action}. Checking for matching workflows.")
 
         // Use goAsync to allow async work
-                val pendingResult = goAsync()
+    val pendingResult = goAsync()
         
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -78,7 +78,7 @@ class WorkflowBootReceiver : BroadcastReceiver() {
         AppLogger.d(TAG, "Device booted, rescheduling workflows")
 
         // Use goAsync to allow async work
-                val pendingResult = goAsync()
+    val pendingResult = goAsync()
         
         CoroutineScope(Dispatchers.IO).launch {
             try {

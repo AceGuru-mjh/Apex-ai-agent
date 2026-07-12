@@ -133,7 +133,7 @@ data class FileInfoData(
         val path: String,
         val exists: Boolean,
         val fileType: String, // "file", "directory", or "other"
-        val size: Long,
+    val size: Long,
         val permissions: String,
         val owner: String,
         val group: String,

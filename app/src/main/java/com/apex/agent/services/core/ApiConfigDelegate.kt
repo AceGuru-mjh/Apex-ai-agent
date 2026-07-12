@@ -33,13 +33,14 @@ class ApiConfigDelegate(
     }
 
     // Preferences
-                private val apiPreferences = ApiPreferences.getInstance(context)
+    private val apiPreferences = ApiPreferences.getInstance(context)
     private val modelConfigManager = ModelConfigManager(context)
     private val functionalConfigManager = FunctionalConfigManager(context)
 
     // State flows
-                private val _isConfigured = MutableStateFlow(true) // 默认已配置   val isConfigured: StateFlow<Boolean> = _isConfigured.asStateFlow()
-                private val _featureToggles = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    private val _isConfigured = MutableStateFlow(true) // 默认已配置
+    val isConfigured: StateFlow<Boolean> = _isConfigured.asStateFlow()
+    private val _featureToggles = MutableStateFlow<Map<String, Boolean>>(emptyMap())
         val featureToggles: StateFlow<Map<String, Boolean>> = _featureToggles.asStateFlow()
 
     private val _keepScreenOn = MutableStateFlow(ApiPreferences.DEFAULT_KEEP_SCREEN_ON)
@@ -122,7 +123,7 @@ class ApiConfigDelegate(
         val disableStatusTags: StateFlow<Boolean> = _disableStatusTags.asStateFlow()
 
     // 为了兼容现有代码，添加API密钥状态流
-                private val _apiKey = MutableStateFlow("")
+    private val _apiKey = MutableStateFlow("")
         val apiKey: StateFlow<String> = _apiKey.asStateFlow()
 
     private val _apiEndpoint = MutableStateFlow("")
@@ -356,7 +357,7 @@ class ApiConfigDelegate(
                 AppLogger.d(TAG, "API配置已保存到ModelConfigManager")
 
                 // 在IO线程上创建服务，避免阻塞
-                val enhancedAiService = withContext(Dispatchers.IO) {
+    val enhancedAiService = withContext(Dispatchers.IO) {
                     EnhancedAIService.getInstance(context)
                 }
 

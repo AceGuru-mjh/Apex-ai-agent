@@ -142,7 +142,7 @@ class StagedAgentPipeline @Inject constructor() {
 
         return try {
             // 按阶段顺序执行
-                val stages = PipelineStage.ALL
+    val stages = PipelineStage.ALL
             var currentStageIndex = 0
 
             while (currentStageIndex < stages.size) {
@@ -159,7 +159,7 @@ class StagedAgentPipeline @Inject constructor() {
                 }
 
                 // 执行阶段
-                val stageResult = executeStage(stageAgent, context)
+    val stageResult = executeStage(stageAgent, context)
                 context.stageResults.add(stageResult)
 
                 _progress.emit(PipelineProgressEvent.StageCompleted(stage, stageResult))
@@ -168,7 +168,7 @@ class StagedAgentPipeline @Inject constructor() {
                     AppLogger.w(TAG, "阶段执行失败: ${stage.name}, 错误: ${stageResult.error}")
 
                     // 通过 LoopBackHandler 判断是否需要回退
-                val loopDecision = loopBackHandler.shouldLoopBack(stage, context.loopCount, stageResult.error)
+    val loopDecision = loopBackHandler.shouldLoopBack(stage, context.loopCount, stageResult.error)
                     if (loopDecision.shouldLoopBack && loopDecision.targetStage != null) {
                         AppLogger.i(TAG, "回退分${loopDecision.targetStage.name}, 当前循环: ${context.loopCount}")
                         _progress.emit(PipelineProgressEvent.LoopBacktrack(context.loopCount + 1, loopDecision.reason))
@@ -187,7 +187,7 @@ class StagedAgentPipeline @Inject constructor() {
             }
 
             // 所有阶段完成
-                val finalOutput = generateFinalOutput(context)
+    val finalOutput = generateFinalOutput(context)
         val totalDuration = System.currentTimeMillis() - startTime
             val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
 
@@ -323,7 +323,7 @@ private class ResearchAgent : StageAgent {
 
         return try {
             // 模拟研究过程
-                val researchResult = performResearch(context.originalGoal)
+    val researchResult = performResearch(context.originalGoal)
 
             if (isCancelled) {
                 return StageAgentResult(
@@ -367,7 +367,7 @@ private class ResearchAgent : StageAgent {
         sb.appendLine()
 
         // 分析任务类型
-                val taskType = analyzeTaskType(goal)
+    val taskType = analyzeTaskType(goal)
         sb.appendLine("## 任务类型")
         sb.appendLine(taskType)
         sb.appendLine()
@@ -657,7 +657,7 @@ private class ImplementerAgent : StageAgent {
 
     private fun countFiles(implementation: String): Int {
         return 5 // 模拟，个主要文件    }
-                private fun countFunctions(implementation: String): Int {
+    private fun countFunctions(implementation: String): Int {
         return implementation.lines().count { it.contains("fun ") }
     }
 
@@ -760,7 +760,7 @@ private class ReviewerAgent : StageAgent {
         sb.appendLine()
 
         // 质量评分
-                val score = calculateQualityScore(qualityIssues, securityIssues, performanceIssues)
+    val score = calculateQualityScore(qualityIssues, securityIssues, performanceIssues)
         sb.appendLine("## 4. 质量评分")
         sb.appendLine("综合评分: $score / 100")
         sb.appendLine()
@@ -963,7 +963,7 @@ private class ValidatorAgent : StageAgent {
         sb.appendLine()
 
         // 总结
-                val passed = failures.isEmpty()
+    val passed = failures.isEmpty()
         sb.appendLine("## 验证结果")
         sb.appendLine("状态 ${if (passed) "✓全部通过" else "✓存在失败"}")
         if (failures.isNotEmpty()) {
@@ -986,7 +986,7 @@ private class ValidatorAgent : StageAgent {
 
     private fun verifyCompilation(codeContext: String): Boolean {
         // 检查代码块是否有明显的语法问题
-                val codeBlocks = codeContext.lines().filter { it.trim().startsWith("```") }
+    val codeBlocks = codeContext.lines().filter { it.trim().startsWith("```") }
         // 代码块标记应成对出现
                 return codeBlocks.size % 2 == 0
     }

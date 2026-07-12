@@ -33,7 +33,7 @@ object ApexAIIntegration {
     private var _swarmEngine: SwarmIntelligenceEngine? = null
 
     // 公开访问器，提供安全访问
-                val modelProvider: EnhancedModelProvider get() = _modelProvider ?: throw IllegalStateException("ApexAIIntegration not initialized")
+    val modelProvider: EnhancedModelProvider get() = _modelProvider ?: throw IllegalStateException("ApexAIIntegration not initialized")
     val emotionAnalyzer: EnhancedEmotionAnalyzer get() = _emotionAnalyzer ?: throw IllegalStateException("ApexAIIntegration not initialized")
     val graphReasoning: EnhancedGraphReasoning get() = _graphReasoning ?: throw IllegalStateException("ApexAIIntegration not initialized")
     val streamingManager: StreamingDataManager get() = _streamingManager ?: throw IllegalStateException("ApexAIIntegration not initialized")

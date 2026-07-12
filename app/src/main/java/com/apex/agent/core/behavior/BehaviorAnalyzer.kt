@@ -49,7 +49,7 @@ class BehaviorAnalyzer(private val context: Context) {
         if (messages.isEmpty()) return
         
         // 计算对话频率
-                val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         val aiMessages = messages.filter { it.sender == "ai" || it.sender == "assistant" }
         
         profile.messageCount = messages.size
@@ -226,7 +226,7 @@ class BehaviorAnalyzer(private val context: Context) {
         }
         
         // 分析回复模式
-                val responsePatterns = mutableMapOf<String, Int>()
+    val responsePatterns = mutableMapOf<String, Int>()
         
         for (i in 1 until messages.size) {
             val prevSender = messages[i-1].sender
@@ -249,7 +249,7 @@ class BehaviorAnalyzer(private val context: Context) {
         val userMessages = messages.filter { it.sender == "user" }
         
         // 分析场景关键的
-                val scenarios = mutableMapOf<String, Int>()
+    val scenarios = mutableMapOf<String, Int>()
         val scenarioKeywords = mapOf(
             "工作" to listOf("工作", "职场", "业务", "项目", "任务", "会议", "报告"),
             "学习" to listOf("学习", "教育", "知识", "课程", "考试", "作业", "研究"),

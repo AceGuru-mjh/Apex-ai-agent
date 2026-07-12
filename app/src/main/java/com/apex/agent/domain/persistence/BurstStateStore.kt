@@ -249,7 +249,7 @@ class BurstStateStore(private val storageDir: File) {
     }
 
     // ========== JSON序列化/反序列化（简单实现，无三方依赖） ==========
-                private fun buildStateJson(entry: StateEntry): String {
+    private fun buildStateJson(entry: StateEntry): String {
         val metaJson = entry.metadata.entries.joinToString(",") { (k, v) ->
             "\"${escapeJson(k)}\":\"${escapeJson(v)}\""
         }
@@ -307,7 +307,7 @@ class BurstStateStore(private val storageDir: File) {
     private fun parseIndexJson(json: String): List<StateEntry> {
         val entries = mutableListOf<StateEntry>()
         // 简单解析JSON数组
-                val arrayContent = json.trimStart().trimEnd()
+    val arrayContent = json.trimStart().trimEnd()
             .removePrefix("[").removeSuffix("]")
             .trim()
         if (arrayContent.isEmpty()) return emptyList()

@@ -21,7 +21,7 @@ class UserProfileManager private constructor(
     private val TAG = "UserProfileManager"
     
     // 缓存用户画像
-                private val profileCache = ConcurrentHashMap<String, HonzonUserProfile>()
+    private val profileCache = ConcurrentHashMap<String, HonzonUserProfile>()
     
     companion object {
         @Volatile private var INSTANCE: UserProfileManager? = null
@@ -45,7 +45,7 @@ class UserProfileManager private constructor(
                 profileCache[userId]?.let { return@withContext it }
         
         // 从存储获的
-                val profile = memoryRepository.getHonzonProfile(userId)
+    val profile = memoryRepository.getHonzonProfile(userId)
         profileCache[userId] = profile
         profile
     }
@@ -78,7 +78,7 @@ class UserProfileManager private constructor(
         val success = memoryRepository.updateHonzonProfile(userId, dimension, value)
         if (success) {
             // 更新缓存
-                val profile = profileCache[userId]
+    val profile = profileCache[userId]
             if (profile != null) {
                 profile.updateDimension(dimension, value)
             }

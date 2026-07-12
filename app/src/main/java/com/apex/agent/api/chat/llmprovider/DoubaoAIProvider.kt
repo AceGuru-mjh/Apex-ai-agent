@@ -49,17 +49,17 @@ class DoubaoAIProvider(
         preserveThinkInHistory: Boolean
     ): RequestBody {
         // 首先，调用父类的实现来获取一个标准的OpenAI格式的请求体JSON对象
-                val baseRequestBodyJson = super.createRequestBodyInternal(context, chatHistory, modelParameters, stream, availableTools, preserveThinkInHistory)
+    val baseRequestBodyJson = super.createRequestBodyInternal(context, chatHistory, modelParameters, stream, availableTools, preserveThinkInHistory)
         val jsonObject = JSONObject(baseRequestBodyJson)
 
         // 豆包思考模式显式传参，避免依赖服务端默认，
-                val thinkingType = if (enableThinking) "enabled" else "disabled"
+    val thinkingType = if (enableThinking) "enabled" else "disabled"
         val thinkingObject = JSONObject().put("type", thinkingType)
         jsonObject.put("thinking", thinkingObject)
         AppLogger.d("DoubaoAIProvider", "已为豆包模型设置思考模型${thinkingType}")
 
         // 记录最终的请求体（省略过长的tools字段，
-                val logJson = JSONObject(jsonObject.toString())
+    val logJson = JSONObject(jsonObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
             logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")

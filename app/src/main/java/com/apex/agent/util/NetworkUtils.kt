@@ -107,7 +107,7 @@ object NetworkUtils {
      */
     fun isVpnConnected(context: Context): Boolean {
         // 方法一：通过 ConnectivityManager 检查 VPN 传输层
-                val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork
         if (network != null) {
             val capabilities = connectivityManager.getNetworkCapabilities(network)
@@ -215,7 +215,7 @@ object NetworkUtils {
     fun getIpAddress(context: Context): String? {
         return try {
             // 优先通过 WiFiManager 获取
-                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val wifiInfo = wifiManager.connectionInfo
             val ipInt = wifiInfo.ipAddress
             if (ipInt != 0) {
@@ -229,7 +229,7 @@ object NetworkUtils {
             }
 
             // 备用：遍历网络接口获取 IPv4 地址
-                val interfaces = NetworkInterface.getNetworkInterfaces()
+    val interfaces = NetworkInterface.getNetworkInterfaces()
         val addresses = mutableListOf<InetAddress>()
             while (interfaces.hasMoreElements()) {
                 val networkInterface = interfaces.nextElement()

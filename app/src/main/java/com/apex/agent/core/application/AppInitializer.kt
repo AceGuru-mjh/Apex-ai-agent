@@ -24,7 +24,7 @@ class AppInitializer(private val context: Context) {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     // [优化2] 用于跟踪顺序执行 vs 并行执行的耗时对比
-                private val taskDurations = java.util.concurrent.atomic.AtomicLong(0L)
+    private val taskDurations = java.util.concurrent.atomic.AtomicLong(0L)
 
     sealed class InitializationPhase(val priority: Int) {
         data object Critical : InitializationPhase(0)
@@ -231,7 +231,7 @@ class AppInitializer(private val context: Context) {
 
     // [优化] 各阶段仍保持顺序（Critical→Normal→Low）以保证依赖关系
     // 但每个阶段内部的任务改为并发执行 (async + awaitAll)
-                fun startInitialization() {
+    fun startInitialization() {
         AppLogger.d(TAG, "Starting phased initialization [并发模式]")
         
         applicationScope.launch {

@@ -38,7 +38,7 @@ class FeedbackCollector {
                 IN_PROGRESS, // 处理，
                 RESOLVED,    // 已解，
                 CLOSED       // 已关，   }
-                private val feedbacks = ConcurrentHashMap<String, Feedback>()
+    private val feedbacks = ConcurrentHashMap<String, Feedback>()
     private val feedbackIdCounter = AtomicInteger(0)
 
     fun submitFeedback(userId: String, sessionId: String, type: FeedbackType, severity: Severity, content: String): String {

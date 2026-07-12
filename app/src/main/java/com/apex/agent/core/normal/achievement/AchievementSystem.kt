@@ -254,7 +254,7 @@ class AchievementSystem {
         }
 
         // 进度最高的未获得徽章
-                val progress = getBadgeProgress(userId).take(3)
+    val progress = getBadgeProgress(userId).take(3)
         if (progress.isNotEmpty()) {
             sb.appendLine("即将获得:")
             progress.forEach { p ->
@@ -267,7 +267,7 @@ class AchievementSystem {
     }
 
     // ============ 内部方法 ============
-                private fun initUser(userId: String): UserAchievement {
+    private fun initUser(userId: String): UserAchievement {
         val state = UserAchievement(
             userId = userId,
             level = 1,
@@ -381,7 +381,7 @@ class AchievementSystem {
     }
 
     // ============ 预置徽章 ============
-                private fun registerBuiltinBadges() {
+    private fun registerBuiltinBadges() {
         // 对话类
                 badges["badge_first_chat"] = Badge("badge_first_chat", "first_chat", "初次对话", "完成第一次对话", "💬", BadgeRarity.COMMON, BadgeCategory.CONVERSATION, AchievementRequirement.Count("messages", 1), 10)
         badges["badge_chatter"] = Badge("badge_chatter", "chatter", "话痨", "发送 100 条消息", "🗣️", BadgeRarity.UNCOMMON, BadgeCategory.CONVERSATION, AchievementRequirement.Count("messages", 100), 50)

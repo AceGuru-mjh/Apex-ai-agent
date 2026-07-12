@@ -251,7 +251,7 @@ import kotlinx.coroutines.Dispatchers.last
      
      override fun serialize(encoder: Encoder, value: EnvVar) {
          // Always serialize in new format
-                val jsonObject = buildJsonObject {
+    val jsonObject = buildJsonObject {
              put("name", value.name)
              put("description", Json.encodeToString(LocalizedTextSerializer, value.description).let {
                  Json.parseToJsonElement(it)
@@ -330,7 +330,7 @@ data class ToolPackageState(
      val description: LocalizedText,
      val parameters: List<PackageToolParameter>,
      val script: String, // JavaScript or compatible script that defines this tool's behavior (formerly operScript)
-                val advice: Boolean = false
+    val advice: Boolean = false
  )
  
  /**
@@ -341,7 +341,7 @@ data class ToolPackageState(
      val name: String,
      val description: LocalizedText,
      val type: String, // e.g., "string", "number", "boolean"
-     val required: Boolean = true
+    val required: Boolean = true
  )
  
  /**
@@ -357,7 +357,7 @@ data class ToolPackageState(
  
      override fun invoke(tool: AITool): ToolResult {
          // Parse packageName:toolName pattern
-                val parts = tool.name.split(":")
+    val parts = tool.name.split(":")
          if (parts.size != 2) {
              return ToolResult(
                  toolName = tool.name,
@@ -381,7 +381,7 @@ data class ToolPackageState(
          }
  
          // Find the tool in the package
-                val packageTool = toolPackage.tools.find { it.name == toolName }
+    val packageTool = toolPackage.tools.find { it.name == toolName }
              ?: return ToolResult(
                  toolName = tool.name,
                  success = false,
@@ -398,14 +398,14 @@ data class ToolPackageState(
  
      override fun invokeAndStream(tool: AITool): Flow<ToolResult> {
          // Find the tool in the package
-                val packageTool = toolPackage.tools.find { it.name.endsWith(tool.name.split(":").last()) }
+    val packageTool = toolPackage.tools.find { it.name.endsWith(tool.name.split(":").last()) }
              ?: error("Tool not found in package for streaming") // Should be validated before
                 return jsToolManager.executeScript(packageTool.script, tool)
      }
  
      override fun validateParameters(tool: AITool): ToolValidationResult {
          // Parse packageName:toolName pattern
-                val parts = tool.name.split(":")
+    val parts = tool.name.split(":")
          if (parts.size != 2) {
              return ToolValidationResult(
                  valid = false,
@@ -425,14 +425,14 @@ data class ToolPackageState(
          }
  
          // Find the tool in the package
-                val packageTool = toolPackage.tools.find { it.name == toolName }
+    val packageTool = toolPackage.tools.find { it.name == toolName }
              ?: return ToolValidationResult(
                  valid = false,
                  errorMessage = "Tool '${toolName}' not found in package '${toolPackage.name}'"
              )
  
          // Validate that all required parameters are present
-                val missingParams = packageTool.parameters
+    val missingParams = packageTool.parameters
              .filter { it.required }
              .map { it.name }
              .filter { paramName -> tool.parameters.none { it.name == paramName } }

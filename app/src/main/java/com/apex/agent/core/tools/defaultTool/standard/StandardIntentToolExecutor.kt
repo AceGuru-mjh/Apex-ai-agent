@@ -51,7 +51,7 @@ class StandardIntentToolExecutor(private val context: Context) {
 
     suspend fun invoke(tool: AITool): ToolResult {
         // Validate parameters
-                val validationResult = validateParameters(tool)
+    val validationResult = validateParameters(tool)
         if (!validationResult.valid) {
             return ToolResult(
                     toolName = tool.name,
@@ -71,7 +71,7 @@ class StandardIntentToolExecutor(private val context: Context) {
 
         return try {
             // Create the intent
-                val intent = Intent()
+    val intent = Intent()
 
             // Set action if provided
                 if (!action.isNullOrBlank()) {
@@ -220,7 +220,7 @@ class StandardIntentToolExecutor(private val context: Context) {
                 }
 
                 // Bundle up the intent details for the response
-                val extras = Bundle()
+    val extras = Bundle()
                 intent.extras?.let { extras.putAll(it) }
 
                 return ToolResult(

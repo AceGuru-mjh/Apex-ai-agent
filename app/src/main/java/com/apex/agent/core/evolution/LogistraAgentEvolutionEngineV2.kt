@@ -38,7 +38,7 @@ class LogistraAgentEvolutionEngineV2(
         AppLogger.d(TAG, "=== Evolution Cycle #${iterationCount} for ${currentSkill.skillId} ===")
 
         // Step 1: 语义评估
-                val evaluation = evaluator.evaluateExecution(
+    val evaluation = evaluator.evaluateExecution(
             taskGoal = taskGoal,
             executionLogs = executionLogs,
             finalOutput = finalOutput
@@ -58,7 +58,7 @@ class LogistraAgentEvolutionEngineV2(
         AppLogger.d(TAG, "Step 2: Fitness history updated (${currentSkill.metadata.fitnessHistory.size} records)")
 
         // Step 3: 如果评分低于阈值，触发 LLM 变异
-                val evolvedSkill = if (evaluation.score < EVOLUTION_THRESHOLD) {
+    val evolvedSkill = if (evaluation.score < EVOLUTION_THRESHOLD) {
             AppLogger.d(TAG, "Step 3: Score below threshold (${EVOLUTION_THRESHOLD}), triggering LLM mutation...")
             val newSkill = llmEngine.evolveSkill(
                 currentSkill = currentSkill,

@@ -75,12 +75,12 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     }
 
     // SSH文件管理器（单例，懒加载的
-                private val sshFileManager by lazy {
+    private val sshFileManager by lazy {
         SSHFileConnectionManager.getInstance(context)
     }
 
     // TerminalManager（单例，懒加载）
-                private val terminalManager by lazy {
+    private val terminalManager by lazy {
         TerminalManager.getInstance(context)
     }
 
@@ -93,7 +93,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     // Linux文件系统提供者，优先使用SSH连接，否则从TerminalManager获取
                 protected fun getLinuxFileSystem(): FileSystemProvider {
         // 先尝试获取SSH连接的文件系结
-                val sshProvider = sshFileManager.getFileSystemProvider()
+    val sshProvider = sshFileManager.getFileSystemProvider()
         
         // 如果SSH已登录，使用SSH文件系统
                 if (sshProvider != null) {
@@ -967,7 +967,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan, "Reading selected snippets (round ${round}/3)...")
                     // 由于我们在FileSystemAdvancedTools中没有直接访问readFilePart的权限，
                     // 这里我们需要使用一个默认实现，或者在StandardFileSystemTools中重写此方法
-                val enrichedDigestCandidates = digestCandidates
+    val enrichedDigestCandidates = digestCandidates
         val contextByKey = HashMap<String, String>()
                     for (id in readIds) {
                         val c = enrichedDigestCandidates.getOrNull(id) ?: continue

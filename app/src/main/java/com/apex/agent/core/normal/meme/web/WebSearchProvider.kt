@@ -231,7 +231,7 @@ object MemeJsonUtil {
     fun parseArray(json: String): JSONArray? {
         return try {
             // 去除可能的 JSONP 包装
-                val cleaned = cleanJsonp(json)
+    val cleaned = cleanJsonp(json)
             JSONArray(cleaned)
         } catch (e: Exception) {
             null

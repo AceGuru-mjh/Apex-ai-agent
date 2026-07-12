@@ -218,7 +218,7 @@ class XmlLayoutParser {
         
         try {
             // 解析 "[left,top][right,bottom]" 格式
-                val cleaned = boundsString.replace("[", "").replace("]", ",")
+    val cleaned = boundsString.replace("[", "").replace("]", ",")
         val parts = cleaned.split(",")
             
             if (parts.size >= 4) {
@@ -280,7 +280,7 @@ class XmlLayoutParser {
      */
     private fun createNode(parser: XmlPullParser): UINode {
         // 解析关键属态
-                val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
+    val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
         val text = parser.getAttributeValue(null, "text")?.replace("&#10;", "\n")
         val contentDesc = parser.getAttributeValue(null, "content-desc")
         val resourceId = parser.getAttributeValue(null, "resource-id")

@@ -73,7 +73,7 @@ object HookIntegrationTest {
                 HookRegistry.clearAll()
 
             // 注册三个钩子
-                val sessionStartHook = SessionStartHook()
+    val sessionStartHook = SessionStartHook()
         val preCompactHook = PreCompactHook()
             val sessionEndHook = SessionEndHook()
 
@@ -82,7 +82,7 @@ object HookIntegrationTest {
             HookRegistry.register(sessionEndHook)
 
             // 验证注册成功（通过触发钩子来间接验证）
-                val testContext = SessionContext(
+    val testContext = SessionContext(
                 sessionId = "test-registration-${UUID.randomUUID()}",
                 startTime = System.currentTimeMillis(),
                 lastActivity = System.currentTimeMillis(),
@@ -162,7 +162,7 @@ object HookIntegrationTest {
             )
 
             // 触发 PreCompact 钩子
-                val checkpointData = HookRegistry.triggerPreCompact(context, sessionContext)
+    val checkpointData = HookRegistry.triggerPreCompact(context, sessionContext)
 
             // 验证返回的checkpoint 数据
                 if (checkpointData.isEmpty()) {
@@ -172,7 +172,7 @@ object HookIntegrationTest {
             AppLogger.d(TAG, "[${testName}] Checkpoint 数据: ${checkpointData.keys}")
 
             // 验证 checkpoint 文件是否创建
-                val checkpointFile = File(context.filesDir, "session_checkpoint_${sessionId}.json")
+    val checkpointFile = File(context.filesDir, "session_checkpoint_${sessionId}.json")
             if (!checkpointFile.exists()) {
                 throw Exception("Checkpoint 文件未创建 ${checkpointFile.absolutePath}")
             }
@@ -203,7 +203,7 @@ object HookIntegrationTest {
             AppLogger.i(TAG, "[${testName}] 开始测试")
 
             // 先创建一为checkpoint
-                val sessionId = "test-restore-${UUID.randomUUID()}"
+    val sessionId = "test-restore-${UUID.randomUUID()}"
         val preCompactHook = PreCompactHook()
 
             val originalData = mapOf(
@@ -214,14 +214,14 @@ object HookIntegrationTest {
             )
 
             // 保存 checkpoint
-                val checkpointFile = File(context.filesDir, "session_checkpoint_${sessionId}.json")
+    val checkpointFile = File(context.filesDir, "session_checkpoint_${sessionId}.json")
         val jsonContent = org.json.JSONObject(originalData).toString(2)
             checkpointFile.writeText(jsonContent)
 
             AppLogger.d(TAG, "[${testName}] 已创建测试checkpoint: ${checkpointFile.name}")
 
             // 恢复 checkpoint
-                val restoredData = preCompactHook.restoreFromCheckpoint(context, sessionId)
+    val restoredData = preCompactHook.restoreFromCheckpoint(context, sessionId)
 
             if (restoredData == null) {
                 throw Exception("恢复的checkpoint 数据为空")
@@ -260,7 +260,7 @@ object HookIntegrationTest {
 
             val sessionId = "test-end-${UUID.randomUUID()}"
         val startTime = System.currentTimeMillis() - 7200000 // 2小时前
-                val sessionContext = SessionContext(
+    val sessionContext = SessionContext(
                 sessionId = sessionId,
                 startTime = startTime,
                 lastActivity = System.currentTimeMillis(),
@@ -278,7 +278,7 @@ object HookIntegrationTest {
 
             // SessionEndHook 会生成摘要并保存到文件
             // 验证摘要文件是否创建
-                val summaryFile = File(context.filesDir, "session_summary_${sessionId}.json")
+    val summaryFile = File(context.filesDir, "session_summary_${sessionId}.json")
             if (!summaryFile.exists()) {
                 throw Exception("摘要文件未创建 ${summaryFile.absolutePath}")
             }
@@ -287,7 +287,7 @@ object HookIntegrationTest {
             AppLogger.d(TAG, "[${testName}] 摘要文件内容: ${summaryContent}")
 
             // 验证摘要内容包含关键字段
-                val requiredFields = listOf("sessionId", "startTime", "endTime", "duration", "messageCount", "tokenUsage")
+    val requiredFields = listOf("sessionId", "startTime", "endTime", "duration", "messageCount", "tokenUsage")
             for (field in requiredFields) {
                 if (!summaryContent.contains(field)) {
                     throw Exception("摘要文件缺少字段: ${field}")
@@ -295,7 +295,7 @@ object HookIntegrationTest {
             }
 
             // 验证时长计算
-                val summaryJson = org.json.JSONObject(summaryContent)
+    val summaryJson = org.json.JSONObject(summaryContent)
         val duration = summaryJson.getLong("duration")
             if (duration < 7200000) {
                 throw Exception("时长计算错误: 期望 >= 7200000ms, 实际 ${duration}ms")
@@ -322,14 +322,14 @@ object HookIntegrationTest {
                 HookRegistry.clearAll()
 
             // 注册一个钩字
-                val hook = SessionStartHook()
+    val hook = SessionStartHook()
             HookRegistry.register(hook)
 
             // 注销钩子
                 HookRegistry.unregister(hook)
 
             // 触发钩子，应该不会有任何效果（因为没有注册的钩子，
-                val testContext = SessionContext(
+    val testContext = SessionContext(
                 sessionId = "test-unregister-${UUID.randomUUID()}",
                 startTime = System.currentTimeMillis(),
                 lastActivity = System.currentTimeMillis(),

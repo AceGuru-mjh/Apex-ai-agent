@@ -26,7 +26,7 @@ object PermissionModeIntegration {
     private lateinit var advisor: PermissionModeAdvisor
 
     // 状态流
-                private val _isReady = androidx.compose.runtime.mutableStateOf(false)
+    private val _isReady = androidx.compose.runtime.mutableStateOf(false)
         val isReady: androidx.compose.runtime.State<Boolean> = _isReady
 
     /**

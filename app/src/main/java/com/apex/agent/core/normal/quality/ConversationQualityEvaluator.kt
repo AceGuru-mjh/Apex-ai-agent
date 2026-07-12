@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 data class ConversationQuality(
     val chatId: String,
     val overallScore: Int,           // 0-100
-                val qualityLevel: QualityLevel,
+    val qualityLevel: QualityLevel,
     val dimensions: Map<QualityDimension, Int>,
     val metrics: QualityMetrics,
     val issues: List<QualityIssue>,
@@ -59,11 +59,11 @@ data class QualityMetrics(
     val totalTokensUsed: Long,
     val tokensPerRound: Float,
     val userEditRate: Float,        // 用户编辑 AI 回复的比例
-                val userFollowupRate: Float,    // 用户追问的比例
-                val toolCallSuccessRate: Float,
+    val userFollowupRate: Float,    // 用户追问的比例
+    val toolCallSuccessRate: Float,
     val clarificationRate: Float,   // 澄清次数/总轮数
-                val contextEfficiency: Float,   // 上下文利用率
-                val errorRecoveryRate: Float    // 错误恢复成功率
+    val contextEfficiency: Float,   // 上下文利用率
+    val errorRecoveryRate: Float    // 错误恢复成功率
 )
 
 /**
@@ -159,7 +159,7 @@ class ConversationQualityEvaluator {
                 scores[QualityDimension.ACCURACY] = 80  // 默认
 
         // 检测问题
-                val issues = detectIssues(
+    val issues = detectIssues(
             roundIndex, userMessage, assistantResponse, responseTimeMs,
             tokensUsed, scores, toolCalls, toolSuccesses, userFollowedUp
         )
@@ -200,12 +200,12 @@ class ConversationQualityEvaluator {
         }
 
         // 各维度平均分
-                val avgDimensions = QualityDimension.values().associateWith { dim ->
+    val avgDimensions = QualityDimension.values().associateWith { dim ->
             rounds.mapNotNull { it.scores[dim] }.average().toInt()
         }
 
         // 计算指标
-                val totalRounds = rounds.size
+    val totalRounds = rounds.size
         val avgResponseTime = rounds.map { it.responseTimeMs }.average().toLong()
         val totalTokens = rounds.sumOf { it.tokensUsed }
         val tokensPerRound = totalTokens.toFloat() / totalRounds
@@ -233,7 +233,7 @@ class ConversationQualityEvaluator {
         )
 
         // 汇总问题
-                val allIssues = rounds.flatMap { r -> r.issues.map { it to r.roundIndex } }
+    val allIssues = rounds.flatMap { r -> r.issues.map { it to r.roundIndex } }
             .groupBy { it.first.type }
             .map { (type, list) ->
                 val mostSevere = list.maxByOrNull { it.first.severity.ordinal }!!.first
@@ -247,7 +247,7 @@ class ConversationQualityEvaluator {
             }
 
         // 整体评分（加权平均）
-                val weights = mapOf(
+    val weights = mapOf(
             QualityDimension.RELEVANCE to 0.2,
             QualityDimension.ACCURACY to 0.2,
             QualityDimension.COMPLETENESS to 0.15,
@@ -271,7 +271,7 @@ class ConversationQualityEvaluator {
         }
 
         // 生成建议
-                val recommendations = generateRecommendations(avgDimensions, metrics, allIssues)
+    val recommendations = generateRecommendations(avgDimensions, metrics, allIssues)
 
         return ConversationQuality(
             chatId = chatId,
@@ -285,7 +285,7 @@ class ConversationQualityEvaluator {
     }
 
     // ============ 评估方法 ============
-                private fun evaluateRelevance(userMsg: String, response: String): Int {
+    private fun evaluateRelevance(userMsg: String, response: String): Int {
         val userKeywords = extractKeywords(userMsg)
         if (userKeywords.isEmpty()) return 70
 
@@ -355,7 +355,7 @@ class ConversationQualityEvaluator {
         val responseKeywords = extractKeywords(response).toSet()
 
         // 检查回答是否承接了之前的话题
-                val overlapWithLast = lastKeywords.intersect(responseKeywords).size
+    val overlapWithLast = lastKeywords.intersect(responseKeywords).size
         val overlapWithUser = currentUserKeywords.intersect(responseKeywords).size
 
         return when {

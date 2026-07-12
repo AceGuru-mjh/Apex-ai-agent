@@ -133,8 +133,8 @@ class AISkillOptimizer private constructor(private val context: Context) {
     data class UsagePattern(
         val skillId: String,
         val timeSlots: Map<Int, Int>, // hour -> count
-                val dayOfWeekPattern: Map<Int, Int>, // day -> count
-                val contextPatterns: List<ContextPattern>,
+    val dayOfWeekPattern: Map<Int, Int>, // day -> count
+    val contextPatterns: List<ContextPattern>,
         val sequentialPatterns: List<SequentialPattern>,
         val seasonalTrend: Float
     )
@@ -194,7 +194,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
     )
 
     // ========== 数据结构 ==========
-                private val _profiles = MutableStateFlow<Map<String, SkillProfile>>(emptyMap())
+    private val _profiles = MutableStateFlow<Map<String, SkillProfile>>(emptyMap())
         val profiles: StateFlow<Map<String, SkillProfile>> = _profiles.asStateFlow()
 
     private val _recommendations = MutableStateFlow<List<OptimizationRecommendation>>(emptyList())
@@ -267,7 +267,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
         val recommendations = mutableListOf<OptimizationRecommendation>()
 
         // 保持历史大小限制
-                val skillsToAnalyze = if (skillId != null) {
+    val skillsToAnalyze = if (skillId != null) {
             listOf(skillId)
         } else {
             skillManager.getAvailableSkills().keys.toList()
@@ -474,7 +474,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
         val cacheHitRate = cacheHitCount.toFloat() / skillMetrics.size
 
         // 保持历史大小限制
-                val hourCounts = skillMetrics.groupBy {
+    val hourCounts = skillMetrics.groupBy {
             LocalDateTime.ofInstant(
                 java.time.Instant.ofEpochMilli(it.timestamp),
                 java.time.ZoneId.systemDefault()
@@ -487,7 +487,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
             .map { it.key }
 
         // 保持历史大小限制
-                val commonContexts = skillMetrics
+    val commonContexts = skillMetrics
             .flatMap { it.context.entries }
             .groupBy { "${it.key}=${it.value}" }
             .mapValues { it.value.size }
@@ -497,7 +497,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
             .map { it.key }
 
         // 计算性能分数
-                val performanceScore = calculatePerformanceScore(
+    val performanceScore = calculatePerformanceScore(
             successRate = successRate,
             avgExecutionTime = avgTime,
             cacheHitRate = cacheHitRate,
@@ -505,10 +505,10 @@ class AISkillOptimizer private constructor(private val context: Context) {
         )
 
         // 保持历史大小限制
-                val healthStatus = determineHealthStatus(performanceScore, successRate)
+    val healthStatus = determineHealthStatus(performanceScore, successRate)
 
         // 生成建议
-                val recommendations = generateRecommendations(
+    val recommendations = generateRecommendations(
             SkillProfile(
                 skillId = skillId,
                 skillName = skill?.name ?: skillId,
@@ -555,7 +555,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
         executionCount: Int
     ): Float {
         // 加权评分
-                val successWeight = 0.4f
+    val successWeight = 0.4f
         val timeWeight = 0.3f
         val cacheWeight = 0.2f
         val usageWeight = 0.1f
@@ -563,13 +563,13 @@ class AISkillOptimizer private constructor(private val context: Context) {
         val successScore = successRate * 100
 
         // 时间评分：越快越好，1秒以内满分
-                val timeScore = max(0f, 100f - (avgExecutionTime / 100f))
+    val timeScore = max(0f, 100f - (avgExecutionTime / 100f))
 
         // 缓存评分
-                val cacheScore = cacheHitRate * 100
+    val cacheScore = cacheHitRate * 100
 
         // 使用频率评分
-                val usageScore = min(100f, executionCount / 10f)
+    val usageScore = min(100f, executionCount / 10f)
 
         return successScore * successWeight +
                 timeScore * timeWeight +
@@ -674,7 +674,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
                 when (recommendation.type) {
             RecommendationType.CACHE_OPTIMIZATION -> {
                 // 增加缓存 TTL
-                val skillCache = skillCache.getOrPut(skillId) {
+    val skillCache = skillCache.getOrPut(skillId) {
                     SkillCache.getInstance(context)
                 }
                 val currentConfig = skillCache.getConfig()
@@ -712,7 +712,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
         val skillMetrics = executionHistory.filter { it.skillId == skillId }
 
         // 时间模式
-                val hourCounts = skillMetrics.groupBy {
+    val hourCounts = skillMetrics.groupBy {
             LocalDateTime.ofInstant(
                 java.time.Instant.ofEpochMilli(it.timestamp),
                 java.time.ZoneId.systemDefault()
@@ -720,7 +720,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
         }.mapValues { it.value.size }
 
         // 星期模式
-                val dayCounts = skillMetrics.groupBy {
+    val dayCounts = skillMetrics.groupBy {
             LocalDateTime.ofInstant(
                 java.time.Instant.ofEpochMilli(it.timestamp),
                 java.time.ZoneId.systemDefault()
@@ -728,7 +728,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
         }.mapValues { it.value.size }
 
         // 保持历史大小限制
-                val contextPatterns = skillMetrics
+    val contextPatterns = skillMetrics
             .flatMap { it.context.entries }
             .groupBy { "${it.key}=${it.value}" }
             .map { (key, values) ->
@@ -745,10 +745,10 @@ class AISkillOptimizer private constructor(private val context: Context) {
             .take(10)
 
         // 顺序模式
-                val sequentialPatterns = analyzeSequentialPatterns(skillId)
+    val sequentialPatterns = analyzeSequentialPatterns(skillId)
 
         // 季节趋势
-                val seasonalTrend = calculateSeasonalTrend(skillId)
+    val seasonalTrend = calculateSeasonalTrend(skillId)
         val pattern = UsagePattern(
             skillId = skillId,
             timeSlots = hourCounts,
@@ -790,7 +790,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
 
     private fun calculateSeasonalTrend(skillId: String): Float {
         // 保持历史大小限制
-                val now = System.currentTimeMillis()
+    val now = System.currentTimeMillis()
         val weekMs = 7 * 24 * 60 * 60 * 1000L
 
         val recentCount = executionHistory.count {
@@ -809,7 +809,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
 
     private fun updateCachePrediction(skillId: String) {
         // 简化的缓存预测更新
-                val pattern = _usagePatterns.value[skillId]
+    val pattern = _usagePatterns.value[skillId]
         if (pattern != null) {
             val prediction = predictCacheNeeds(skillId)
             AppLogger.d(TAG, "Cache prediction for ${skillId}: likely=${prediction.likelyToBeUsed}, confidence=${prediction.confidence}")
@@ -825,7 +825,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
         }
 
         // 保持历史大小限制
-                val criticalSkills = _profiles.value.filter { (_, profile) ->
+    val criticalSkills = _profiles.value.filter { (_, profile) ->
             profile.healthStatus in listOf(HealthStatus.POOR, HealthStatus.CRITICAL)
         }
 
@@ -873,7 +873,7 @@ class AISkillOptimizer private constructor(private val context: Context) {
     }
 
     // ========== 工具方法 ==========
-                fun formatExecutionTime(ms: Long): String {
+    fun formatExecutionTime(ms: Long): String {
         return when {
             ms < 1000 -> "${ms}ms"
             ms < 60000 -> "${ms / 1000}s"

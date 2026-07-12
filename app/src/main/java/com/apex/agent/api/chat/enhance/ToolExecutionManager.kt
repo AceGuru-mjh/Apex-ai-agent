@@ -283,11 +283,11 @@ object ToolExecutionManager {
         val permissionTool = resolvedTarget.tool
 
         // 检查是否强制拒绝权限（deny_tool标记，
-                val hasPromptForPermission = !invocation.rawText.contains("deny_tool")
+    val hasPromptForPermission = !invocation.rawText.contains("deny_tool")
 
         if (hasPromptForPermission) {
             // 检查权限，如果需要则弹出权限请求界面
-                val toolPermissionSystem = toolHandler.getToolPermissionSystem()
+    val toolPermissionSystem = toolHandler.getToolPermissionSystem()
         val hasPermission = toolPermissionSystem.checkToolPermission(permissionTool)
 
             // 如果权限被拒绝，创建错误结果
@@ -342,7 +342,7 @@ object ToolExecutionManager {
         }
 
         // 1. 权限检查
-                val permittedInvocations = mutableListOf<ToolInvocation>()
+    val permittedInvocations = mutableListOf<ToolInvocation>()
         val permissionDeniedResults = mutableListOf<ToolResult>()
         for (invocation in invocations) {
             toolHandler.notifyToolCallRequested(invocation.tool)
@@ -375,7 +375,7 @@ object ToolExecutionManager {
             }
 
         // 2. 按并行串行对工具进行分结
-                val parallelizableToolNames = setOf(
+    val parallelizableToolNames = setOf(
             "list_files", "read_file", "read_file_part", "read_file_full", "file_exists",
             "find_files", "file_info", "grep_code", "calculate", "ffmpeg_info",
             "visit_web", "download_file"
@@ -387,10 +387,10 @@ object ToolExecutionManager {
         }
 
         // 3. 执行工具并收集聚合结果
-                val executionResults = ConcurrentHashMap<ToolInvocation, ToolResult>()
+    val executionResults = ConcurrentHashMap<ToolInvocation, ToolResult>()
 
         // 启动并行工具
-                val parallelJobs = parallelInvocations.map { invocation ->
+    val parallelJobs = parallelInvocations.map { invocation ->
             async {
                 val result = executeAndEmitTool(invocation, toolHandler, packageManager, collector)
                 executionResults[invocation] = result
@@ -407,7 +407,7 @@ object ToolExecutionManager {
                 parallelJobs.awaitAll()
 
         // 4. 按原始顺序重新排序结果
-                val orderedAggregated = injectedInvocations.mapNotNull { executionResults[it] }
+    val orderedAggregated = injectedInvocations.mapNotNull { executionResults[it] }
 
         // 5. 组合所有结果并返回
                 permissionDeniedResults + orderedAggregated
@@ -427,7 +427,7 @@ object ToolExecutionManager {
 
         return try {
             // 首先尝试使用传统工具执行的
-                val executor = toolHandler.getToolExecutorOrActivate(toolName)
+    val executor = toolHandler.getToolExecutorOrActivate(toolName)
             
             if (executor != null) {
                 // 使用传统工具执行器执行
@@ -437,7 +437,7 @@ object ToolExecutionManager {
                 executeToolSafely(invocation, executor, toolHandler).collect { result ->
                     collectedResults.add(result)
                     // 实时输出每个结果
-                val toolResultStatusContent =
+    val toolResultStatusContent =
                         ConversationMarkupManager.formatToolResultForMessage(result)
                     collector.emit(ensureEndsWithNewline(toolResultStatusContent))
                 }
@@ -491,16 +491,16 @@ object ToolExecutionManager {
     ): ToolResult {
         try {
             // 构建工具参数
-                val parameters = mutableMapOf<String, Any>()
+    val parameters = mutableMapOf<String, Any>()
             invocation.tool.parameters.forEach {
                 parameters[it.name] = it.value
             }
 
             // 执行工具
-                val resultData = ToolAdapterManager.executeTool(invocation.tool.name, parameters)
+    val resultData = ToolAdapterManager.executeTool(invocation.tool.name, parameters)
             
             // 构建工具结果
-                val result = ToolResult(
+    val result = ToolResult(
                 toolName = displayToolName,
                 success = true,
                 result = resultData,
@@ -508,7 +508,7 @@ object ToolExecutionManager {
             )
 
             // 输出结果
-                val toolResultStatusContent =
+    val toolResultStatusContent =
                 ConversationMarkupManager.formatToolResultForMessage(result)
             collector.emit(ensureEndsWithNewline(toolResultStatusContent))
             
@@ -554,7 +554,7 @@ object ToolExecutionManager {
                     "The tool package or MCP server '${packName}' does not exist."
                 } else {
                     // 包存在，检查是否已激活（通过检查该包的任何工具是否已注册）
-                val packageTools =
+    val packageTools =
                         packageManager.getPackageTools(packName)?.tools ?: emptyList()
                     val isAdviceTool = packageTools.any { it.advice && it.name == toolNamePart }
         val isPackageActivated = packageTools
@@ -573,7 +573,7 @@ object ToolExecutionManager {
 
             else -> {
                 // 检查是否直接把包名当作工具名调用了
-                val isPackageName = packageManager.getAvailablePackages().containsKey(toolName)
+    val isPackageName = packageManager.getAvailablePackages().containsKey(toolName)
                 if (isPackageName) {
                     "Error: '${toolName}' is a tool package, not a tool. Please use the 'use_package' tool with package name '${toolName}' to activate this package before using its tools."
                 } else {

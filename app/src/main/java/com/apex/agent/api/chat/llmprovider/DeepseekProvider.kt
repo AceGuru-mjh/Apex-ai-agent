@@ -52,7 +52,7 @@ class DeepseekProvider(
     ) {
 
     // DeepSeek 模型类型检测
-                private val isR1Model = modelName.contains("r1", ignoreCase = true) || 
+    private val isR1Model = modelName.contains("r1", ignoreCase = true) || 
                            modelName.contains("reasoner", ignoreCase = true)
     private val isV4Model = modelName.contains("v4", ignoreCase = true)
     private val isV3Model = modelName.contains("v3", ignoreCase = true) || 
@@ -109,7 +109,7 @@ class DeepseekProvider(
         preserveThinkInHistory: Boolean
     ): RequestBody {
         // 验证并修正DeepSeek 特定参数（R1 模型强制 temperature=1.0, top_p=0.95，
-                val validatedParameters = validateAndFixDeepSeekParameters(modelParameters)
+    val validatedParameters = validateAndFixDeepSeekParameters(modelParameters)
 
         fun applyThinkingParamsIfNeeded(jsonObject: JSONObject) {
             if (!enableThinking) return
@@ -165,7 +165,7 @@ class DeepseekProvider(
         }
 
         // 当工具为空时，将 enableToolCall 视为 false
-                val effectiveEnableToolCall = enableToolCall && availableTools != null && availableTools.isNotEmpty()
+    val effectiveEnableToolCall = enableToolCall && availableTools != null && availableTools.isNotEmpty()
 
         // 如果启用 Tool Call 且传入了工具列表，添务tools 定义
                 var toolsJson: String? = null
@@ -179,7 +179,7 @@ class DeepseekProvider(
         }
 
         // 使用特殊的消息构建方法（支持 reasoning_content，
-                val messagesArray = buildMessagesWithReasoning(
+    val messagesArray = buildMessagesWithReasoning(
             context,
             chatHistory,
             effectiveEnableToolCall
@@ -187,7 +187,7 @@ class DeepseekProvider(
         jsonObject.put("messages", messagesArray)
 
         // 记录最终的请求体（省略过长的tools 字段，
-                val logJson = JSONObject(jsonObject.toString())
+    val logJson = JSONObject(jsonObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
             logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")
@@ -499,7 +499,7 @@ class DeepseekProvider(
     override suspend fun testConnection(context: Context): Result<String> {
         return try {
             // 使用简单的测试消息进行连接测试
-                val testHistory = listOf(
+    val testHistory = listOf(
                 PromptTurn(kind = PromptTurnKind.SYSTEM, content = "You are a helpful assistant."),
                 PromptTurn(kind = PromptTurnKind.USER, content = "Hi")
             )

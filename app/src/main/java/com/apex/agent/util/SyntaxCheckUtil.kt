@@ -417,10 +417,10 @@ object SyntaxCheckUtil {
             if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEachIndexed
 
             // 检查块关键字开头的语句是否以冒号结尾
-                val keyword = pythonBlockKeywords.firstOrNull { trimmed.startsWith("$it ") || trimmed.startsWith("$it:") }
+    val keyword = pythonBlockKeywords.firstOrNull { trimmed.startsWith("$it ") || trimmed.startsWith("$it:") }
             if (keyword != null) {
                 // 提取关键字后的部分
-                val afterKeyword = trimmed.removePrefix(keyword).trim()
+    val afterKeyword = trimmed.removePrefix(keyword).trim()
                 // 跳过条件表达式中的括号内容，检查最终是否以冒号结尾
                 if (!trimmed.endsWith(":")) {
                     errors.add(
@@ -525,7 +525,7 @@ object SyntaxCheckUtil {
             }
         } catch (e: org.json.JSONException) {
             // 尝试从异常消息中提取行号和列号
-                val message = e.message ?: "Unknown JSON error"
+    val message = e.message ?: "Unknown JSON error"
         val lineMatch = Regex("""at line (\d+)""").find(message)
             val colMatch = Regex("""column (\d+)""").find(message)
         val line = lineMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
@@ -748,7 +748,7 @@ object SyntaxCheckUtil {
             if (trimmed.isEmpty() || trimmed.startsWith("--") || trimmed.startsWith("/*")) return@forEachIndexed
 
             // 检查每行中出现的 SQL 关键字
-                val words = trimmed.split(Regex("\\s+"))
+    val words = trimmed.split(Regex("\\s+"))
             for (word in words) {
                 val cleanWord = word.replace(Regex("[^a-zA-Z]"), "")
                 if (cleanWord.length >= 3 && cleanWord.uppercase() in sqlKeywords) {

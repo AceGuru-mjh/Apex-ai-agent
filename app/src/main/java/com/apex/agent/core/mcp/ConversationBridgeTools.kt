@@ -167,7 +167,7 @@ class ConversationBridgeTools(private val context: Context) {
                 
                 val messages = if (beforeId != null) {
                     // 获取指定消息之前的消息
-                val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
+    val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
         val beforeIndex = allMessages.indexOfFirst { it.id == beforeId }
                     if (beforeIndex > 0) {
                         allMessages.subList(0, minOf(beforeIndex, limit))
@@ -223,7 +223,7 @@ class ConversationBridgeTools(private val context: Context) {
                 }
                 
                 // 检查对话是否存在
-                val session = sessionDatabase.sessionDao().getSessionById(conversationId)
+    val session = sessionDatabase.sessionDao().getSessionById(conversationId)
                 if (session == null) {
                     return@withContext MessageSendResult(
                         success = false,

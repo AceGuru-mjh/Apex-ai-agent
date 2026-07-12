@@ -198,7 +198,8 @@ class WeightConfigManager {
         return Pair(predefinedConfigs.size, userConfigs.size)
     }
 
-    // 为特定任务类型推荐权重配，   fun recommendConfigForTaskType(taskType: String): String {
+    // 为特定任务类型推荐权重配，
+    fun recommendConfigForTaskType(taskType: String): String {
                 return when (taskType) {
             "coding", "development" -> "capability-focused"
             "writing", "content" -> "skill-matched"

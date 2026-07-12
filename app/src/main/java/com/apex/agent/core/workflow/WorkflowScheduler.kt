@@ -52,7 +52,7 @@ class WorkflowScheduler(private val context: Context) {
      */
     fun scheduleWorkflow(workflow: Workflow): Boolean {
         // Find the trigger node
-                val triggerNode = workflow.nodes.filterIsInstance<TriggerNode>()
+    val triggerNode = workflow.nodes.filterIsInstance<TriggerNode>()
             .firstOrNull { it.triggerType == "schedule" }
 
         if (triggerNode == null) {
@@ -93,7 +93,7 @@ class WorkflowScheduler(private val context: Context) {
         }
 
         // Minimum interval is 15 minutes per WorkManager restrictions
-                val intervalMinutes = (intervalMs / 60000).coerceAtLeast(15)
+    val intervalMinutes = (intervalMs / 60000).coerceAtLeast(15)
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
             .build()
@@ -199,7 +199,7 @@ class WorkflowScheduler(private val context: Context) {
         if (repeat) {
             // For repeated cron, we use the interval between executions
             // This is a simplified approach - ideally we'd reschedule after each execution
-                val intervalMs = calculateCronInterval(cronExpression)
+    val intervalMs = calculateCronInterval(cronExpression)
             if (intervalMs != null && intervalMs >= 15 * 60 * 1000) {
                 val intervalMinutes = intervalMs / 60000
         val workRequest = PeriodicWorkRequestBuilder<WorkflowWorker>(
@@ -440,7 +440,7 @@ class WorkflowScheduler(private val context: Context) {
             }
             SCHEDULE_TYPE_INTERVAL -> {
                 // For interval, next execution is interval from now
-                val intervalMs = config[CONFIG_INTERVAL_MS]?.toLongOrNull() ?: return null
+    val intervalMs = config[CONFIG_INTERVAL_MS]?.toLongOrNull() ?: return null
                 System.currentTimeMillis() + intervalMs
             }
             else -> null

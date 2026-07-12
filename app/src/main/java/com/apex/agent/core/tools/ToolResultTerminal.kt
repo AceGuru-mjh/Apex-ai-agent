@@ -188,7 +188,7 @@ data class GrepResultData(
             sb.appendLine("No matches found")
         } else {
             // Set display limit - show up to 30 match groups
-                val maxDisplayMatches = 30
+    val maxDisplayMatches = 30
             var displayedMatches = 0
             var collapsedMatches = 0
 
@@ -240,7 +240,7 @@ data class GrepResultData(
                         sb.appendLine() // Add blank line after each match block
                     } else {
                         // No context, show only matching line
-                val lineNumStr = String.format("%6d", lineMatch.lineNumber)
+    val lineNumStr = String.format("%6d", lineMatch.lineNumber)
                         sb.appendLine("${lineNumStr}| ${lineMatch.lineContent}")
                     }
                     displayedMatches++

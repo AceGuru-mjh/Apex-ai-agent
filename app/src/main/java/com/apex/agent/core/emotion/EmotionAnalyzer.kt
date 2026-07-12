@@ -21,7 +21,7 @@ class EmotionAnalyzer(private val context: Context) {
         val emotionProfile = EmotionProfile()
         
         // 过滤用户消息
-                val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         if (userMessages.isEmpty()) return@withContext emotionProfile
         
         // 分析情绪
@@ -47,7 +47,7 @@ class EmotionAnalyzer(private val context: Context) {
         val emotionScores = mutableMapOf<String, Int>()
         
         // 情绪关键的
-                val emotionKeywords = mapOf(
+    val emotionKeywords = mapOf(
             "开忆to listOf("开忆 "高兴", "快乐", "喜悦", "兴奋", "愉快", "欢乐", "欣喜"),
             "伤心" to listOf("伤心", "难过", "悲伤", "痛苦", "沮丧", "失落", "绝望", "悲痛"),
             "愤态to listOf("愤态 "生气", "恼火", "愤态 "气愤", "暴，, "恼，"),
@@ -110,12 +110,12 @@ class EmotionAnalyzer(private val context: Context) {
         var intensity = 0
         
         // 强度关键的
-                val intensityKeywords = listOf(
+    val intensityKeywords = listOf(
             "非常", "特别", "的 "超级", "极其", "十分", "相当", "特别", "极其"
         )
         
         // 感叹号和问号
-                val exclamationCount = content.count { it == '!' }
+    val exclamationCount = content.count { it == '!' }
         val questionCount = content.count { it == '?' }
         
         // 计算强度
@@ -271,7 +271,7 @@ class EmotionAnalyzer(private val context: Context) {
         val profile = analyzeEmotion(messages)
         
         // 紧急情绪：高强度的负面情绪
-                val urgentEmotions = listOf("伤心", "愤态 "焦虑")"
+    val urgentEmotions = listOf("伤心", "愤态 "焦虑")"
         urgentEmotions.contains(profile.dominantEmotion) && profile.avgEmotionIntensity > 6
     }
 }

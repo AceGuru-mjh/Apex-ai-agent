@@ -106,7 +106,7 @@ class DocumentTools(private val context: Context) {
                 val text = parser.extractText(inputStream, fileName)
 
                 // 对提取的文本进行安全消毒
-                val sanitizedText = try {
+    val sanitizedText = try {
         val sanitizeResult = inputSanitizer.sanitize(text)
                     if (sanitizeResult.findings.isNotEmpty()) {
                         AppLogger.d(TAG, "文档提取内容消毒完成: 发现${sanitizeResult.findings.size}个安全问题")

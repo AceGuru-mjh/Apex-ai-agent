@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 /** 表达式计算上下文，用于存储变量和函数 */
 object ExpressionContext {
     // 变量存储
-                private val variables = mutableMapOf<String, Any>()
+    private val variables = mutableMapOf<String, Any>()
 
     // 常量
                 init {
@@ -18,7 +18,7 @@ object ExpressionContext {
     }
 
     // 日期格式
-                private val DATE_FORMATS =
+    private val DATE_FORMATS =
             arrayOf(
                     "yyyy-MM-dd",
                     "yyyy/MM/dd",

@@ -18,13 +18,13 @@ class FloatingWindowState(context: Context) {
     var y: Int = 200
 
     // Window size
-                val windowWidth = mutableStateOf(300.dp)
+    val windowWidth = mutableStateOf(300.dp)
         val windowHeight = mutableStateOf(400.dp)
     val windowScale = mutableStateOf(0.8f)
     var lastWindowScale: Float = 0.8f
 
     // Mode state
-                val currentMode = mutableStateOf(FloatingMode.WINDOW)
+    val currentMode = mutableStateOf(FloatingMode.WINDOW)
     var previousMode: FloatingMode = FloatingMode.WINDOW
     val ballSize = mutableStateOf(60.dp)
         val isAtEdge = mutableStateOf(false)
@@ -41,10 +41,10 @@ class FloatingWindowState(context: Context) {
     val transitionDebounceTime = 500L // 防抖时间
     
     // Ball explosion animation state
-                val ballExploding = mutableStateOf(false)
+    val ballExploding = mutableStateOf(false)
 
     // Whether system-level cross-window blur is actually active for fullscreen
-                val fullscreenSystemBlurActive = mutableStateOf(false)
+    val fullscreenSystemBlurActive = mutableStateOf(false)
 
     init {
         val displayMetrics = context.resources.displayMetrics

@@ -67,7 +67,7 @@ class TaskTypeRegistry(private val context: Context) {
             override suspend fun execute(): ExecutionResult {
                 return try {
                     // 生成日报内容
-                val report = generateDailyReport()
+    val report = generateDailyReport()
                     ExecutionResult(true, report)
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)

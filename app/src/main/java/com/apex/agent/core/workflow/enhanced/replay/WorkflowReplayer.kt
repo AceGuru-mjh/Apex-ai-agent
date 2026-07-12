@@ -118,7 +118,7 @@ class WorkflowReplayer {
         val events = mutableListOf<TimelineEvent>()
 
         // 工作流开始
-                val rootSpan = spans.find { it.parentId == null }
+    val rootSpan = spans.find { it.parentId == null }
         if (rootSpan != null) {
             events.add(TimelineEvent(
                 timestampMs = rootSpan.startTimeMs,
@@ -160,7 +160,7 @@ class WorkflowReplayer {
         val nodeSpans = session.spans.filter { it.nodeId != null }
 
         // 找瓶颈节点
-                val sorted = nodeSpans.sortedByDescending { it.durationMs }
+    val sorted = nodeSpans.sortedByDescending { it.durationMs }
         val bottleneck = sorted.firstOrNull()
         val slowestNodes = sorted.take(5).map {
             NodeTiming(
@@ -172,7 +172,7 @@ class WorkflowReplayer {
         }
 
         // 失败链
-                val failureChain = nodeSpans.filter { it.status.name == "ERROR" }.map {
+    val failureChain = nodeSpans.filter { it.status.name == "ERROR" }.map {
             FailureRecord(
                 nodeId = it.nodeId ?: "",
                 nodeName = it.name,
@@ -182,10 +182,10 @@ class WorkflowReplayer {
         }
 
         // 关键路径（最长串行路径）
-                val criticalPath = computeCriticalPath(nodeSpans)
+    val criticalPath = computeCriticalPath(nodeSpans)
 
         // 并行度
-                val parallelism = if (session.totalDurationMs > 0) {
+    val parallelism = if (session.totalDurationMs > 0) {
             nodeSpans.sumOf { it.durationMs }.toFloat() / session.totalDurationMs
         } else 1f
 
@@ -207,7 +207,7 @@ class WorkflowReplayer {
      */
     private fun computeCriticalPath(spans: List<SpanRecord>): Long {
         // 简化算法：找最长串行链
-                val byParent = spans.groupBy { it.parentId }
+    val byParent = spans.groupBy { it.parentId }
         var maxPath = 0L
 
         fun dfs(spanId: String?, currentDuration: Long): Long {

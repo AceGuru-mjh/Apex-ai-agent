@@ -45,7 +45,8 @@ class Terminal private constructor(private val context: Context) {
     private val terminalManager = TerminalManager.getInstance(context)
     private val scope = CoroutineScope(Dispatchers.Main)
 
-    // ，TerminalManager 暴露状态和事件，   val commandEvents: SharedFlow<CommandExecutionEvent> = terminalManager.commandExecutionEvents
+    // ，TerminalManager 暴露状态和事件，
+    val commandEvents: SharedFlow<CommandExecutionEvent> = terminalManager.commandExecutionEvents
                 val directoryEvents: SharedFlow<SessionDirectoryEvent> = terminalManager.directoryChangeEvents
     val terminalState: StateFlow<TerminalState> = terminalManager.terminalState
     val sessions = terminalManager.sessions
@@ -102,11 +103,11 @@ class Terminal private constructor(private val context: Context) {
         var completionOutput: String? = null
         
         // 生成命令ID
-                val commandId = java.util.UUID.randomUUID().toString()
+    val commandId = java.util.UUID.randomUUID().toString()
         val collectorReady = CompletableDeferred<Unit>()
         
         // 先开始订阅事件流，然后再发送命，
-                val job = scope.launch {
+    val job = scope.launch {
             commandEvents
                 .filter { it.sessionId == sessionId && it.commandId == commandId }
                 .onStart { collectorReady.complete(Unit) } // 发出信号，表示已准备好收，               .collect { event ->

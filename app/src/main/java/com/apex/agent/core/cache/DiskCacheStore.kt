@@ -234,7 +234,7 @@ class DiskCacheStore(
                             CacheSerialization.JsonElement
                         >(content)
                         // 简化重建：仅记录 key 和文件存在性
-                val key = file.nameWithoutExtension
+    val key = file.nameWithoutExtension
         val entry = CacheEntry(
                             key = key,
                             value = content,

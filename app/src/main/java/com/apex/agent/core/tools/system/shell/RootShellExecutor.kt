@@ -141,7 +141,7 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
             }
 
             // 使用 libsu 检?root 权限
-                val hasRoot = Shell.getShell().isRoot
+    val hasRoot = Shell.getShell().isRoot
         val previousValue = rootAvailable
             rootAvailable = hasRoot
             
@@ -225,7 +225,7 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
     override fun requestPermission(onResult: (Boolean) -> Unit) {
         try {
             // Root权限无法通过代码请求，只能提示用于
-                val hasRoot = isAvailable()
+    val hasRoot = isAvailable()
             onResult(hasRoot)
 
             if (!hasRoot) {
@@ -244,12 +244,12 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
      */
     private fun extractActualCommand(command: String): String {
         // 检查命令是否是run-as格式
-                val runAsPattern = """run-as\s+(\S+)\s+sh\s+-c\s+['"](.+)['"]""".toRegex()
+    val runAsPattern = """run-as\s+(\S+)\s+sh\s+-c\s+['"](.+)['"]""".toRegex()
         val match = runAsPattern.find(command)
         
         return if (match != null) {
             // 获取内部命令
-                val innerCommand = match.groupValues[2]
+    val innerCommand = match.groupValues[2]
             // 使用更轻量的日志级别
                 AppLogger.v(TAG, "提取run-as内部命令: ${innerCommand}")
             innerCommand
@@ -305,7 +305,7 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
                 AppLogger.d(TAG, "使用exec执行Root命令: ${command}")
 
                 // 执行 su -c 命令
-                val process = Runtime.getRuntime().exec(buildSuExecCommand(command))
+    val process = Runtime.getRuntime().exec(buildSuExecCommand(command))
                 
                 var stdoutStr = ""
                 var stderrStr = ""
@@ -531,7 +531,7 @@ private class LibSuShellProcess(command: String) : ShellProcess {
     }
 
     // Execute the job asynchronously - enqueue() returns a Future in v6.0.0
-                private val future: java.util.concurrent.Future<Shell.Result> =
+    private val future: java.util.concurrent.Future<Shell.Result> =
         Shell.cmd(command).to(stdoutCallbackList, stderrCallbackList).enqueue()
 
     private val closeJob: Job = CoroutineScope(Dispatchers.IO).launch {

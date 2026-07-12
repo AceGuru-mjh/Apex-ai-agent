@@ -217,7 +217,7 @@ object TextSegmenter {
                 .filter { it.length > 1 && it !in stopWords }
 
             // 统计词频
-                val freqMap = mutableMapOf<String, Int>()
+    val freqMap = mutableMapOf<String, Int>()
             words.forEach { word ->
                 freqMap[word] = (freqMap[word] ?: 0) + 1
             }

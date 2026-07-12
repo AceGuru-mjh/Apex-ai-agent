@@ -114,7 +114,7 @@ class AdaptiveResponseDepth {
      */
     fun resolveWithContext(ctx: DepthContext): ResponseDepth {
         // 用户历史偏好优先（除非问题类型强烈建议其他深度）
-                val typeBasedDepth = when (ctx.questionType) {
+    val typeBasedDepth = when (ctx.questionType) {
             QuestionType.CHITCHAT -> ResponseDepth.BRIEF
             QuestionType.FACTUAL -> if (ctx.questionLength > 50) ResponseDepth.STANDARD else ResponseDepth.BRIEF
             QuestionType.EXPLANATORY -> ResponseDepth.DETAILED
@@ -125,7 +125,7 @@ class AdaptiveResponseDepth {
         }
 
         // 追问场景降级
-                val adjusted = if (ctx.isFollowUp && typeBasedDepth == ResponseDepth.COMPREHENSIVE) {
+    val adjusted = if (ctx.isFollowUp && typeBasedDepth == ResponseDepth.COMPREHENSIVE) {
             ResponseDepth.DETAILED
         } else typeBasedDepth
 

@@ -78,7 +78,7 @@ object DocumentConversionUtil {
     fun extractTextFromPdf(context: Context, sourceFile: File, targetFile: File): Boolean {
         try {
             // Step 1: Attempt direct text extraction with PDFBox
-                val extractedText = PDDocument.load(sourceFile).use { document ->
+    val extractedText = PDDocument.load(sourceFile).use { document ->
                 if (document.isEncrypted) {
                     try {
                         document.setAllSecurityToBeRemoved(true)
@@ -133,11 +133,11 @@ object DocumentConversionUtil {
                 val page = pdfRenderer.openPage(i)
                 
                 // Render page to bitmap
-                val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 
                 // Recognize text from bitmap using OCRUtils in high quality
-                val recognizedText =
+    val recognizedText =
                         OCRUtils.recognizeText(context, bitmap, OCRUtils.Quality.HIGH)
                 fullText.append(recognizedText).append("\n\n")
 
@@ -168,16 +168,16 @@ object DocumentConversionUtil {
     fun convertPdfToImage(sourceFile: File, targetFile: File, targetExt: String): Boolean {
         try {
             // Use Android's PdfRenderer to render PDF to Bitmap
-                val fileDescriptor =
+    val fileDescriptor =
                     ParcelFileDescriptor.open(sourceFile, ParcelFileDescriptor.MODE_READ_ONLY)
             val pdfRenderer = PdfRenderer(fileDescriptor)
 
             // Get the first page of the PDF
-                val page = pdfRenderer.openPage(0)
+    val page = pdfRenderer.openPage(0)
 
             // Create a bitmap with the appropriate dimensions
-                val scale = 2 // Scale for higher quality
-        val bitmap =
+    val scale = 2 // Scale for higher quality
+    val bitmap =
                     Bitmap.createBitmap(
                             page.width * scale,
                             page.height * scale,
@@ -189,7 +189,7 @@ object DocumentConversionUtil {
             page.close()
 
             // Save the bitmap to the target file in the requested format
-                val format =
+    val format =
                     when (targetExt.lowercase()) {
                         "jpg", "jpeg" -> Bitmap.CompressFormat.JPEG
                         "png" -> Bitmap.CompressFormat.PNG
@@ -198,7 +198,7 @@ object DocumentConversionUtil {
                     }
 
             // Determine quality based on format
-                val quality =
+    val quality =
                     when (format) {
                         Bitmap.CompressFormat.JPEG -> 95
                         Bitmap.CompressFormat.WEBP -> 95
@@ -237,17 +237,17 @@ object DocumentConversionUtil {
                     AppLogger.d(TAG, "Converting DOC to DOCX")
                     FileInputStream(sourceFile).use { fis ->
                         // Load the DOC file
-                val doc = HWPFDocument(fis)
+    val doc = HWPFDocument(fis)
 
                         // Create a new DOCX document
-                val docx = XWPFDocument()
+    val docx = XWPFDocument()
 
                         // Get document's paragraphs
-                val range = doc.range
+    val range = doc.range
         val paragraphCount = range.numParagraphs()
 
                         // Add title based on filename
-                val title = docx.createParagraph()
+    val title = docx.createParagraph()
                         title.alignment = org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER
                         val titleRun = title.createRun()
                         titleRun.setText(sourceFile.nameWithoutExtension)
@@ -338,7 +338,7 @@ object DocumentConversionUtil {
             val content = FileInputStream(sourceFile).bufferedReader().use { it.readText() }
 
             // Basic HTML tag removal
-                val textContent =
+    val textContent =
                     content.replace(Regex("<[^>]*>"), "") // Remove HTML tags
                             .replace(Regex("&[a-zA-Z]+;"), " ") // Replace HTML entities with space
                             .replace(Regex("\\s+"), " ") // Normalize whitespace
@@ -353,7 +353,7 @@ object DocumentConversionUtil {
                 }
                 "doc" -> {
                     // For HTML to DOC, we create a text file first (which is easier to convert)
-                val tempFile = File(context.cacheDir, "temp_${System.currentTimeMillis()}.txt")
+    val tempFile = File(context.cacheDir, "temp_${System.currentTimeMillis()}.txt")
                     FileOutputStream(tempFile).use { it.write(textContent.toByteArray()) }
 
                     // Instead of using FFmpeg, just rename the text file to .doc
@@ -370,10 +370,10 @@ object DocumentConversionUtil {
                 }
                 "docx" -> {
                     // Convert HTML to DOCX using Apache POI
-                val docx = XWPFDocument()
+    val docx = XWPFDocument()
 
                     // Split by paragraphs (may need improvement for complex HTML)
-                val paragraphs = textContent.split(Regex("\n\n|\r\n\r\n"))
+    val paragraphs = textContent.split(Regex("\n\n|\r\n\r\n"))
 
                     for (paragraph in paragraphs) {
                         if (paragraph.isNotBlank()) {
@@ -389,17 +389,17 @@ object DocumentConversionUtil {
                 }
                 "pdf" -> {
                     // Convert HTML to PDF using iText
-                val document = Document()
+    val document = Document()
                     PdfWriter.getInstance(document, FileOutputStream(targetFile))
                     document.open()
 
                     // Add title based on the filename
-                val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f)
+    val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f)
                     document.add(Paragraph(sourceFile.nameWithoutExtension, titleFont))
                     document.add(Paragraph(" ")) // Empty line
 
                     // Parse the content for paragraphs and add them to the PDF
-                val contentFont = FontFactory.getFont(FontFactory.HELVETICA, 12f)
+    val contentFont = FontFactory.getFont(FontFactory.HELVETICA, 12f)
         val contentParagraphs = textContent.split("\n\n")
                     contentParagraphs.forEach { para ->
                         if (para.trim().isNotEmpty()) {
@@ -472,7 +472,7 @@ object DocumentConversionUtil {
                         val text = extractor.text
 
                         // Create HTML structure
-                val htmlContent =
+    val htmlContent =
                                 StringBuilder()
                                         .append(
                                                 "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>"
@@ -510,7 +510,7 @@ object DocumentConversionUtil {
                         val text = extractor.text
 
                         // Create HTML structure
-                val htmlContent =
+    val htmlContent =
                                 StringBuilder()
                                         .append(
                                                 "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>"
@@ -532,7 +532,7 @@ object DocumentConversionUtil {
                                         para.text.replace("<", "&lt;").replace(">", "&gt;")
 
                                 // Check for any runs with formatting
-                val hasBold = para.runs.any { it.isBold }
+    val hasBold = para.runs.any { it.isBold }
         val hasItalic = para.runs.any { it.isItalic }
 
                                 if (hasBold) {
@@ -558,11 +558,11 @@ object DocumentConversionUtil {
                 "pdf" -> {
                     // For PDF to HTML, extract text and create simple HTML
                     // Create a temporary text file
-                val tempTextFile =
+    val tempTextFile =
                             File(context.cacheDir, "temp_${System.currentTimeMillis()}.txt")
                     if (extractTextFromPdf(context, sourceFile, tempTextFile)) {
                         // Now convert the text to HTML
-                val content =
+    val content =
                                 FileInputStream(tempTextFile).bufferedReader().use { it.readText() }
                         val htmlContent =
                                 StringBuilder()
@@ -802,7 +802,7 @@ object DocumentConversionUtil {
     /** 优化提取出的文本格式，压缩连续空/
     private fun optimizeTextFormat(text: String): String {
         // 将文本按行分
-                val lines = text.split("\n")
+    val lines = text.split("\n")
         val optimizedLines = mutableListOf<String>()
         var consecutiveEmptyLines = 0
         
@@ -844,7 +844,7 @@ object DocumentConversionUtil {
 
             // Step 1: Extract text from PDF.
             // We create a temporary text file to store the extracted content.
-                val tempTextFile = File(context.cacheDir, "temp_pdf_to_docx_${System.currentTimeMillis()}.txt")
+    val tempTextFile = File(context.cacheDir, "temp_pdf_to_docx_${System.currentTimeMillis()}.txt")
         val textExtractionSuccess = extractTextFromPdf(context, sourceFile, tempTextFile)
 
             if (!textExtractionSuccess) {
@@ -854,18 +854,18 @@ object DocumentConversionUtil {
             }
 
             // Step 2: Read the extracted text from the temporary file.
-                val content = tempTextFile.readText()
+    val content = tempTextFile.readText()
             tempTextFile.delete() // Clean up the temp file immediately after reading.
 
             // Step 3: Create a new DOCX document and write the content.
                 XWPFDocument().use { docx ->
                 // Split the content into paragraphs. We can split by one or more newlines.
-                val paragraphs = content.split(Regex("(\\r\\n|\\n){2,}"))
+    val paragraphs = content.split(Regex("(\\r\\n|\\n){2,}"))
                 
                 for (paraText in paragraphs) {
                     if (paraText.isNotBlank()) {
                         // Create a paragraph in the DOCX document.
-                val docxParagraph = docx.createParagraph()
+    val docxParagraph = docx.createParagraph()
         val run = docxParagraph.createRun()
                         run.setText(paraText.trim())
                     }
@@ -891,7 +891,7 @@ object DocumentConversionUtil {
             AppLogger.d(TAG, "Starting Word to PDF conversion for ${sourceFile.name}")
 
             // Step 1: Extract text from the Word document into a temporary file.
-                val tempTextFile = File(context.cacheDir, "temp_word_to_pdf_${System.currentTimeMillis()}.txt")
+    val tempTextFile = File(context.cacheDir, "temp_word_to_pdf_${System.currentTimeMillis()}.txt")
         val textExtractionSuccess = extractTextFromWord(sourceFile, tempTextFile, sourceExt)
 
             if (!textExtractionSuccess) {
@@ -901,7 +901,7 @@ object DocumentConversionUtil {
             }
 
             // Step 2: Convert the extracted text file to PDF.
-                val pdfConversionSuccess = convertTextToPdf(context, tempTextFile, targetFile)
+    val pdfConversionSuccess = convertTextToPdf(context, tempTextFile, targetFile)
 
             // Step 3: Clean up the temporary file.tempTextFile.delete()
                 if (pdfConversionSuccess) {

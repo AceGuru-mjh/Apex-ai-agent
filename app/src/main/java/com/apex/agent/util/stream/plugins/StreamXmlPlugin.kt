@@ -70,7 +70,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
 
         if (state == PluginState.PROCESSING) {
             // We are inside a tag, looking for the end tag.
-                val matcher = endTagMatcher!!
+    val matcher = endTagMatcher!!
         val result = matcher.processChar(c)
 
             return when (result) {
@@ -105,7 +105,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                 }
             }
             // We are in IDLE or TRYING state, looking for a start tag.
-                val previousState = state
+    val previousState = state
             when (val result = startTagMatcher.processChar(c)) {
                 is StreamKmpMatchResult.Match -> {
                     val tagName = result.groups[GROUP_TAG_NAME]

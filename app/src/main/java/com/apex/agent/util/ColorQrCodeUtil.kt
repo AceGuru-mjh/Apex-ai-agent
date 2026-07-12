@@ -495,7 +495,7 @@ object ColorQrCodeUtil {
         bitMatrix.setRegion(0, dimension - 8, 9, 8)
 
         // Alignment patterns
-                val centers = version.alignmentPatternCenters
+    val centers = version.alignmentPatternCenters
         val max = centers.size
         for (x in 0 until max) {
             val cx = centers[x]

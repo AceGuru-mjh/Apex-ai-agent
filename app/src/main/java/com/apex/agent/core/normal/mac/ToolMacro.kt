@@ -24,8 +24,8 @@ data class MacroStep(
     val arguments: Map<String, MacroValue>,
     val description: String = "",
     val condition: String? = null,  // 执行条件表达式
-                val onSuccess: String? = null,  // 成功后动作（continue/stop/skip_next）
-                val onFailure: String? = "stop" // 失败后动作（continue/stop/retry）
+    val onSuccess: String? = null,  // 成功后动作（continue/stop/skip_next）
+    val onFailure: String? = "stop" // 失败后动作（continue/stop/retry）
 )
 
 /**
@@ -36,7 +36,7 @@ sealed class MacroValue {
     data class Reference(val stepId: String, val jsonPath: String? = null) : MacroValue()
     data class InputParam(val paramName: String) : MacroValue()
     data class Template(val template: String) : MacroValue()  // 支持 ${param} 和 ${step.output}
-                fun resolve(inputs: Map<String, String>, stepOutputs: Map<String, Any>): String = when (this) {
+    fun resolve(inputs: Map<String, String>, stepOutputs: Map<String, Any>): String = when (this) {
         is Literal -> value
         is Reference -> {
             val output = stepOutputs[stepId]
@@ -127,7 +127,7 @@ class ToolMacroExecutor(
 
         try {
             // 校验必填参数
-                val missingParams = macro.inputParams.filter { param ->
+    val missingParams = macro.inputParams.filter { param ->
                 param.required && inputs[param.name].isNullOrBlank() && param.defaultValue.isNullOrBlank()
             }
             if (missingParams.isNotEmpty()) {
@@ -142,7 +142,7 @@ class ToolMacroExecutor(
             }
 
             // 合并默认值
-                val effectiveInputs = macro.inputParams.associate { param ->
+    val effectiveInputs = macro.inputParams.associate { param ->
                 param.name to (inputs[param.name] ?: param.defaultValue ?: "")
             } + inputs
 
@@ -154,12 +154,12 @@ class ToolMacroExecutor(
                 }
 
                 // 解析参数
-                val resolvedArgs = step.arguments.mapValues { (_, v) ->
+    val resolvedArgs = step.arguments.mapValues { (_, v) ->
                     v.resolve(effectiveInputs, stepOutputs)
                 }
 
                 // 执行工具
-                val result = try {
+    val result = try {
                     toolExecutor(step.toolName, resolvedArgs)
                 } catch (e: Exception) {
                     when (step.onFailure ?: "stop") {
@@ -215,7 +215,7 @@ class ToolMacroExecutor(
         outputs: Map<String, Any>
     ): Boolean {
         // 简化条件求值：支持 ${param} == 'value' 格式
-                val regex = Regex("\\$\\{([^}]+)}\\s*(==|!=)\\s*'([^']+)'")
+    val regex = Regex("\\$\\{([^}]+)}\\s*(==|!=)\\s*'([^']+)'")
         val match = regex.find(condition) ?: return true
         val (ref, op, value) = match.destructured
         val parts = ref.split(".")

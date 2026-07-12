@@ -42,10 +42,10 @@ class StandardHttpTools(private val context: Context) {
     }
 
     // 内存中的Cookie存储
-                private val cookieStore = mutableMapOf<String, List<Cookie>>()
+    private val cookieStore = mutableMapOf<String, List<Cookie>>()
 
     // 自定义CookieJar实现
-                private val cookieJar =
+    private val cookieJar =
             object : CookieJar {
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                     cookieStore[url.host] = cookies
@@ -57,7 +57,7 @@ class StandardHttpTools(private val context: Context) {
             }
 
     // 默认OkHttpClient实例，配置基本超时和Cookie支持
-                private val defaultClient =
+    private val defaultClient =
             OkHttpClient.Builder()
                     .connectTimeout(15, TimeUnit.SECONDS)
                     .readTimeout(20, TimeUnit.SECONDS)
@@ -66,7 +66,7 @@ class StandardHttpTools(private val context: Context) {
                     .build()
 
     // 创建可配置的OkHttpClient
-                private fun buildConfigurableClient(
+    private fun buildConfigurableClient(
             connectTimeout: Long = 15,
             readTimeout: Long = 20,
             writeTimeout: Long = 15,
@@ -159,7 +159,7 @@ class StandardHttpTools(private val context: Context) {
         val bodyType = bodyTypeParam?.lowercase() ?: "json"
 
         // 高级参数
-                val connectTimeoutParam = tool.parameters.find { it.name == "connect_timeout" }?.value
+    val connectTimeoutParam = tool.parameters.find { it.name == "connect_timeout" }?.value
         val readTimeoutParam = tool.parameters.find { it.name == "read_timeout" }?.value
         val writeTimeoutParam = tool.parameters.find { it.name == "write_timeout" }?.value
         val followRedirectsParam = tool.parameters.find { it.name == "follow_redirects" }?.value
@@ -201,16 +201,16 @@ class StandardHttpTools(private val context: Context) {
 
         return try {
             // 解析请请求
-                val headers = parseHeaders(headersParam)
+    val headers = parseHeaders(headersParam)
 
             // 解析自定义Cookie
-                val customCookies =
+    val customCookies =
                     if (!customCookiesParam.isNullOrBlank()) {
                         parseCookies(customCookiesParam, url)
                     } else null
 
             // 配置客户的
-                val client =
+    val client =
                     buildConfigurableClient(
                             connectTimeout = connectTimeoutParam?.toLongOrNull() ?: 15,
                             readTimeout = readTimeoutParam?.toLongOrNull() ?: 20,
@@ -232,7 +232,7 @@ class StandardHttpTools(private val context: Context) {
             }
 
             // 构建请求
-                val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
+    val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
 
             // 添加自定义请求头
                 headers.forEach { (name, value) -> requestBuilder.header(name, value) }
@@ -298,10 +298,10 @@ class StandardHttpTools(private val context: Context) {
             }
 
             // 执行请求
-                val request = requestBuilder.build()
+    val request = requestBuilder.build()
 
             // 详细记录请求信息
-                val logSB = StringBuilder("\n====== HTTP Request Details Start ======")
+    val logSB = StringBuilder("\n====== HTTP Request Details Start ======")
             logSB.append("\nURL: ${url}")
             logSB.append("\nMethod: ${method}")
             logSB.append("\nRequest headers:")
@@ -314,7 +314,7 @@ class StandardHttpTools(private val context: Context) {
             }
 
             // 记录Cookie存储情况
-                val requestCookieUrl = url.toHttpUrlOrNull()
+    val requestCookieUrl = url.toHttpUrlOrNull()
             if (requestCookieUrl != null && useCookiesParam?.lowercase() != "false") {
                 logSB.append("\nCookies:")
                 val cookies = cookieJar.loadForRequest(requestCookieUrl)
@@ -333,16 +333,16 @@ class StandardHttpTools(private val context: Context) {
             val response = client.newCall(request).execute()
 
             // 检查响应类的
-                val contentType = response.header("Content-Type") ?: ""
+    val contentType = response.header("Content-Type") ?: ""
 
             // 处理响应
-                val responseHeadersMap =
+    val responseHeadersMap =
                     response.headers.names().associateWith { name ->
                         response.headers.get(name) ?: ""
                     }
 
             // 提取响应的Cookie
-                val responseCookieUrl =
+    val responseCookieUrl =
                     url.toHttpUrlOrNull() ?: throw IllegalArgumentException("Invalid URL: ${url}")
             val responseCookies = cookieJar.loadForRequest(responseCookieUrl)
         val cookiesMap = responseCookies.associate { it.name to it.value }
@@ -372,7 +372,7 @@ class StandardHttpTools(private val context: Context) {
             AppLogger.i(TAG, "responseBodyString: ${responseBodyString}")
 
             // 返回原始内容
-                val httpResponseData =
+    val httpResponseData =
                     HttpResponseData(
                             url = url,
                             statusCode = response.code,
@@ -455,7 +455,7 @@ class StandardHttpTools(private val context: Context) {
                             Cookie.Builder().name(name).value(value.optString("value", ""))
 
                     // 如果有设置domain，使用指定值，否则使用URL的host
-                val domain = value.optString("domain", "")
+    val domain = value.optString("domain", "")
                     if (domain.isNotBlank()) {
                         cookieBuilder.domain(domain)
                     } else {
@@ -463,7 +463,7 @@ class StandardHttpTools(private val context: Context) {
                     }
 
                     // 其他可选属的
-                val path = value.optString("path", "")
+    val path = value.optString("path", "")
                     if (path.isNotBlank()) cookieBuilder.path(path)
 
                     val expiresAt = value.optLong("expiresAt", 0)
@@ -493,7 +493,7 @@ class StandardHttpTools(private val context: Context) {
             when (action) {
                 "get" -> {
                     // 获取指定域名的Cookie
-                val cookies =
+    val cookies =
                             if (domain.isNotBlank()) {
                                 cookieStore[domain] ?: emptyList()
                             } else {
@@ -502,7 +502,7 @@ class StandardHttpTools(private val context: Context) {
                             }
 
                     // 转换为可读格式
-                val cookiesMap =
+    val cookiesMap =
                             cookies.associate {
                                 it.name to
                                         mapOf(
@@ -535,7 +535,7 @@ class StandardHttpTools(private val context: Context) {
                     }
 
                     // 解析Cookie数据
-                val cookies = parseCookies(cookiesJson, "https://${domain}")
+    val cookies = parseCookies(cookiesJson, "https://${domain}")
                 if (cookies != null) {
                         cookieStore[domain] = cookies
                         ToolResult(
@@ -601,7 +601,7 @@ class StandardHttpTools(private val context: Context) {
         val filesParam = tool.parameters.find { it.name == "files" }?.value ?: "[]"
 
         // 高级参数
-                val connectTimeoutParam = tool.parameters.find { it.name == "connect_timeout" }?.value
+    val connectTimeoutParam = tool.parameters.find { it.name == "connect_timeout" }?.value
         val readTimeoutParam = tool.parameters.find { it.name == "read_timeout" }?.value
         val writeTimeoutParam = tool.parameters.find { it.name == "write_timeout" }?.value
         val followRedirectsParam = tool.parameters.find { it.name == "follow_redirects" }?.value
@@ -642,16 +642,16 @@ class StandardHttpTools(private val context: Context) {
 
         return try {
             // 解析请请求
-                val headers = parseHeaders(headersParam)
+    val headers = parseHeaders(headersParam)
 
             // 解析自定义Cookie
-                val customCookies =
+    val customCookies =
                     if (!customCookiesParam.isNullOrBlank()) {
                         parseCookies(customCookiesParam, url)
                     } else null
 
             // 配置客户的
-                val client =
+    val client =
                     buildConfigurableClient(
                             connectTimeout = connectTimeoutParam?.toLongOrNull() ?: 15,
                             readTimeout = readTimeoutParam?.toLongOrNull() ?: 20,
@@ -673,7 +673,7 @@ class StandardHttpTools(private val context: Context) {
             }
 
             // 构建多部分请求体
-                val multipartBodyBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
+    val multipartBodyBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
 
             // 解析并添加表单数据
                 try {
@@ -713,7 +713,7 @@ class StandardHttpTools(private val context: Context) {
                     }
 
                     // 添加文件到多部分表单的
-                val fileBody = file.asRequestBody(contentType.toMediaType())
+    val fileBody = file.asRequestBody(contentType.toMediaType())
                     multipartBodyBuilder.addFormDataPart(fieldName, fileName, fileBody)
                 }
             } catch (e: Exception) {
@@ -726,30 +726,30 @@ class StandardHttpTools(private val context: Context) {
             }
 
             // 构建请求
-                val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
+    val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
 
             // 添加自定义请求头
                 headers.forEach { (name, value) -> requestBuilder.header(name, value) }
 
             // 构建multipart请请求
-                val requestBody = multipartBodyBuilder.build()
+    val requestBody = multipartBodyBuilder.build()
             requestBuilder.method(method, requestBody)
 
             // 执行请求
-                val request = requestBuilder.build()
+    val request = requestBuilder.build()
         val response = client.newCall(request).execute()
 
             // 检查响应类的
-                val contentType = response.header("Content-Type") ?: ""
+    val contentType = response.header("Content-Type") ?: ""
 
             // 处理响应
-                val responseHeadersMap =
+    val responseHeadersMap =
                     response.headers.names().associateWith { name ->
                         response.headers.get(name) ?: ""
                     }
 
             // 提取响应的Cookie
-                val responseCookieUrl =
+    val responseCookieUrl =
                     url.toHttpUrlOrNull() ?: throw IllegalArgumentException("Invalid URL: ${url}")
             val responseCookies = cookieJar.loadForRequest(responseCookieUrl)
         val cookiesMap = responseCookies.associate { it.name to it.value }
@@ -777,7 +777,7 @@ class StandardHttpTools(private val context: Context) {
             }
             
             // 返回原始内容
-                val httpResponseData =
+    val httpResponseData =
                     HttpResponseData(
                             url = url,
                             statusCode = response.code,

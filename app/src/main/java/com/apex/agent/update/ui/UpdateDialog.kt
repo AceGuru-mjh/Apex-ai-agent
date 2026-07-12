@@ -214,7 +214,7 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
         )
         Spacer(Modifier.height(8.dp))
         // 简单 Markdown 渲染：按行展示，遇到 - 开头作为列表项
-                val lines = state.changelog.lines().take(60)
+    val lines = state.changelog.lines().take(60)
         lines.forEach { line ->
             val trimmed = line.trim()
             if (trimmed.isEmpty()) {

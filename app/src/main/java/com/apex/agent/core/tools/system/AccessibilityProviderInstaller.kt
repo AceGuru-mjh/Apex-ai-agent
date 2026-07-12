@@ -138,7 +138,7 @@ class AccessibilityProviderInstaller {
         fun launchInstall(context: Context) {
             UIHierarchyManager.launchProviderInstall(context)
             clearCache() // 清除缓存以在安装后刷新状态       }
-                private fun updateCacheTimestamp() {
+    private fun updateCacheTimestamp() {
             lastCheckTime = System.currentTimeMillis()
         }
 

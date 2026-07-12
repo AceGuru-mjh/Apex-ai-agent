@@ -24,11 +24,11 @@ class MultiServiceManager(private val context: Context) {
     }
 
     // 配置管理服务
-                private val modelConfigService = ModelConfigService.getInstance(context)
+    private val modelConfigService = ModelConfigService.getInstance(context)
     private val modelConfigManager = ModelConfigManager(context)
 
     // 服务实例缓存
-                private val serviceInstances = mutableMapOf<FunctionType, AIService>()
+    private val serviceInstances = mutableMapOf<FunctionType, AIService>()
     private val customServiceInstances = mutableMapOf<String, AIService>()
     private val serviceMutex = Mutex()
 
@@ -63,7 +63,7 @@ class MultiServiceManager(private val context: Context) {
 
             // 否则，创建新的服务实例
            // 所有功能类型都使用统一的活跃配置
-                val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
+    val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
         val service = createServiceFromConfig(config, 0) // 使用默认模型索引
                 serviceInstances[functionType] = service
 
@@ -214,7 +214,7 @@ class MultiServiceManager(private val context: Context) {
     /** 根据配置创建AIService实例 */
     private suspend fun createServiceFromConfig(config: ModelConfigData, modelIndex: Int): AIService {
         // 使用公共函数计算有效索引
-                val actualIndex = getValidModelIndex(config.modelName, modelIndex)
+    val actualIndex = getValidModelIndex(config.modelName, modelIndex)
         
         // 记录越界警告
                 if (actualIndex != modelIndex && modelIndex != 0) {
@@ -223,10 +223,10 @@ class MultiServiceManager(private val context: Context) {
         }
         
         // 根据实际索引选择具体模型
-                val selectedModelName = getModelByIndex(config.modelName, actualIndex)
+    val selectedModelName = getModelByIndex(config.modelName, actualIndex)
         
         // 创建一个临时配置，使用选中的模型名，
-                val configWithSelectedModel = config.copy(modelName = selectedModelName)
+    val configWithSelectedModel = config.copy(modelName = selectedModelName)
         
         AppLogger.d(TAG, "创建服务: 原始模型='${config.modelName}', 选中模型='${selectedModelName}' (请求索引=${modelIndex}, 实际索引=${actualIndex})")
 
@@ -280,7 +280,7 @@ class MultiServiceManager(private val context: Context) {
     ): List<com.apex.data.model.ModelParameter<*>> {
         ensureInitialized()
         // 所有功能类型都使用统一的活跃配置
-                val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
+    val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
         return modelConfigManager.getModelParametersForConfig(config.id)
     }
 

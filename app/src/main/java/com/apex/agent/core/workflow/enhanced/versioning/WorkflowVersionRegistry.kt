@@ -28,11 +28,11 @@ enum class VersionStatus {
 data class WorkflowVersion(
     val workflowId: String,
     val version: Int,                              // 单调递增
-                val definition: EnhancedWorkflow,
+    val definition: EnhancedWorkflow,
     val createdAt: Long = System.currentTimeMillis(),
     val status: VersionStatus = VersionStatus.DRAFT,
     val rampPercentage: Int = 0,                   // 0-100
-                val changelog: String = "",
+    val changelog: String = "",
     val createdBy: String = "system"
 )
 
@@ -133,7 +133,7 @@ class InMemoryVersionRegistry : WorkflowVersionRegistry {
     override suspend fun resolve(workflowId: String): WorkflowVersion? {
         val list = versions[workflowId]?.toList() ?: return null
         // 找所有可执行版本（ACTIVE 或 RAMPING）
-                val candidates = list.filter {
+    val candidates = list.filter {
             it.status == VersionStatus.ACTIVE || it.status == VersionStatus.RAMPING
         }.sortedByDescending { it.version }
 
@@ -142,7 +142,7 @@ class InMemoryVersionRegistry : WorkflowVersionRegistry {
                 if (candidates.size == 1) return candidates.first()
 
         // 按灰度比例随机选择
-                val roll = Random.nextInt(100)
+    val roll = Random.nextInt(100)
         var cumulative = 0
         for (v in candidates) {
             cumulative += if (v.status == VersionStatus.ACTIVE) {
@@ -166,7 +166,7 @@ class InMemoryVersionRegistry : WorkflowVersionRegistry {
     override suspend fun rollback(workflowId: String): WorkflowVersion? {
         val list = versions[workflowId]?.toList() ?: return null
         // 找到当前 ACTIVE 版本的前一个非 ARCHIVED 版本
-                val active = list.find { it.status == VersionStatus.ACTIVE } ?: return null
+    val active = list.find { it.status == VersionStatus.ACTIVE } ?: return null
         val prev = list.filter {
             it.version < active.version && it.status != VersionStatus.ARCHIVED
         }.maxByOrNull { it.version } ?: return null

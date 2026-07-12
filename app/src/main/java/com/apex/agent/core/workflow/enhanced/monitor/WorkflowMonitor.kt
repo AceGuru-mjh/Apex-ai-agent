@@ -110,7 +110,7 @@ class WorkflowMonitor {
     )
 
     // ============ 内部状态 ============
-                private val totalExecutions = AtomicLong(0)
+    private val totalExecutions = AtomicLong(0)
     private val totalSuccess = AtomicLong(0)
     private val totalFailure = AtomicLong(0)
     private val totalCancelled = AtomicLong(0)
@@ -364,7 +364,7 @@ class WorkflowMonitor {
     }
 
     // ============ 内部方法 ============
-                private fun refreshSnapshot() {
+    private fun refreshSnapshot() {
         val totals = ExecutionTotals(
             totalExecutions = totalExecutions.get(),
             successCount = totalSuccess.get(),

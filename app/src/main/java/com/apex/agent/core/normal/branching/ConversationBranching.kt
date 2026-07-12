@@ -20,14 +20,14 @@ import java.util.concurrent.ConcurrentHashMap
 data class BranchMessage(
     val id: String,
     val parentId: String?,       // 父消息 ID（null = 根）
-                val chatId: String,
+    val chatId: String,
     val role: Role,
     val content: String,
     val timestamp: Long = System.currentTimeMillis(),
     val childrenIds: MutableList<String> = mutableListOf(),
     val isActive: Boolean = false,  // 是否在当前活跃路径上
-                val branchLabel: String? = null,  // 分支标签
-                val metadata: Map<String, Any> = emptyMap()
+    val branchLabel: String? = null,  // 分支标签
+    val metadata: Map<String, Any> = emptyMap()
 ) {
     enum class Role { USER, ASSISTANT, SYSTEM }
 }
@@ -39,7 +39,7 @@ data class ConversationBranch(
     val id: String,
     val chatId: String,
     val fromMessageId: String,   // 从哪条消息分叉
-                val label: String,
+    val label: String,
     val createdAt: Long = System.currentTimeMillis(),
     val messageIds: List<String> = emptyList()
 )
@@ -61,8 +61,8 @@ data class BranchTree(
 class ConversationBranching {
 
     private val messages = ConcurrentHashMap<String, MutableMap<String, BranchMessage>>()  // chatId -> (msgId -> msg)
-                private val branches = ConcurrentHashMap<String, MutableList<ConversationBranch>>()     // chatId -> branches
-                private val activeTips = ConcurrentHashMap<String, String>()                            // chatId -> 当前活跃消息 ID
+    private val branches = ConcurrentHashMap<String, MutableList<ConversationBranch>>()     // chatId -> branches
+    private val activeTips = ConcurrentHashMap<String, String>()                            // chatId -> 当前活跃消息 ID
 
     /**
      * 添加消息（默认追加到当前活跃路径末尾）
@@ -140,7 +140,7 @@ class ConversationBranching {
         val branch = chatBranches.find { it.id == branchId } ?: return false
 
         // 找到分支的第一条消息
-                val chatMessages = messages[chatId] ?: return false
+    val chatMessages = messages[chatId] ?: return false
         val branchStartMsg = chatMessages.values.find {
             it.parentId == branch.fromMessageId && it.branchLabel == branch.label
         } ?: return false
@@ -151,7 +151,7 @@ class ConversationBranching {
         }
 
         // 启用从根到分支末尾的路径
-                val path = mutableListOf<String>()
+    val path = mutableListOf<String>()
         var current: BranchMessage? = branchStartMsg
         while (current != null) {
             path.add(current.id)
@@ -256,11 +256,11 @@ class ConversationBranching {
     }
 
     // ============ 内部方法 ============
-                private fun deactivateSubtree(chatId: String, fromMessageId: String) {
+    private fun deactivateSubtree(chatId: String, fromMessageId: String) {
         val chatMessages = messages[chatId] ?: return
         val from = chatMessages[fromMessageId] ?: return
         // 把 from 之后的所有消息标记为非活跃
-                val queue: ArrayDeque<String> = ArrayDeque(from.childrenIds)
+    val queue: ArrayDeque<String> = ArrayDeque(from.childrenIds)
         while (queue.isNotEmpty()) {
             val id = queue.removeFirst()
         val msg = chatMessages[id] ?: continue

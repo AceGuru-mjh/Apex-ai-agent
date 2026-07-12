@@ -111,7 +111,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // 内部存储
     // ========================================================================
-                private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val coldStart = ColdStartMetrics()
     private val concurrency = ConcurrencyMetrics()
@@ -147,7 +147,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // [优化1] 冷启动关键路径追踪
     // ========================================================================
-                fun beginColdStart() {
+    fun beginColdStart() {
         _criticalPathStart.set(System.currentTimeMillis())
         AppLogger.d(TAG, "→开始测量冷启动关键路径 [优化1]")
     }
@@ -173,7 +173,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // [优化2] 并发执行效率追踪
     // ========================================================================
-                fun recordPhaseExecution(
+    fun recordPhaseExecution(
         phaseName: String,
         sequentialTotalMs: Long,   // 如果顺序执行预计耗时
                 actualParallelMs: Long     // 实际并行执行耗时
@@ -195,7 +195,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // [优化3] 缓存命中率追踪(例AIServiceFactory 调用，
     // ========================================================================
-                fun recordCacheHit() {
+    fun recordCacheHit() {
         cache.cacheHits++
     }
 
@@ -210,7 +210,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // [优化4] kotlinx.serialization 性能监控
     // ========================================================================
-                fun <T> measureSerialization(block: () -> T): T {
+    fun <T> measureSerialization(block: () -> T): T {
         val start = System.nanoTime()
         val result = block()
         serialization.totalSerializationTimeNs += System.nanoTime() - start
@@ -229,7 +229,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // 内存监控 (周期性采样）
     // ========================================================================
-                private fun startPeriodicMemoryMonitor() {
+    private fun startPeriodicMemoryMonitor() {
         scope.launch {
             while (true) {
                 try {
@@ -260,9 +260,9 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // 报告输出
     // ========================================================================
-                fun reportHealth(): String {
+    fun reportHealth(): String {
         sampleMemory() // 采样最新内字
-                val snapshot = HealthSnapshot(
+    val snapshot = HealthSnapshot(
             coldStart = coldStart,
             concurrency = concurrency,
             cache = cache,
@@ -315,7 +315,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     }
 
     // 获取结构化快照(供调试UI 使用，
-                fun getSnapshot(): HealthSnapshot {
+    fun getSnapshot(): HealthSnapshot {
         sampleMemory()
         return HealthSnapshot(
             coldStart = coldStart,
@@ -327,7 +327,7 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     }
 
     // JSON 格式导出 (供日志分析）
-                fun exportSnapshotAsJson(): String {
+    fun exportSnapshotAsJson(): String {
         return json.encodeToString(getSnapshot())
     }
 }

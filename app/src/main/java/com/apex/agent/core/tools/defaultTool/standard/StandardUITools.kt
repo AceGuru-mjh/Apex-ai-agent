@@ -431,7 +431,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
 
         return try {
             // 获取专用户UI_CONTROLLER 的AIService 实例
-                val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
+    val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
         val systemPrompt = buildUiAutomationSystemPrompt()
 
             val metrics = context.resources.displayMetrics

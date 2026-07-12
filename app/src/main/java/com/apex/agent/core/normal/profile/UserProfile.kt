@@ -105,8 +105,8 @@ data class TechStack(
 
 data class ResponsePreference(
     val depth: String = "standard",  // brief/standard/detailed/comprehensive
-                val style: String = "balanced",  // balanced/technical/conversational/academic
-                val useEmoji: Boolean = false,
+    val style: String = "balanced",  // balanced/technical/conversational/academic
+    val useEmoji: Boolean = false,
     val includeExamples: Boolean = true,
     val preferBulletPoints: Boolean = false,
     val codeStyle: CodeStyle = CodeStyle.WITH_COMMENTS
@@ -213,7 +213,7 @@ class UserProfileManager {
     }
 
     // ============ 学习方法 ============
-                private fun detectLanguages(message: String, known: List<String>): List<String> {
+    private fun detectLanguages(message: String, known: List<String>): List<String> {
         val patterns = mapOf(
             "Python" to Regex("\\b(python|django|flask|pandas|numpy)\\b", RegexOption.IGNORE_CASE),
             "Kotlin" to Regex("\\b(kotlin|jetpack|compose)\\b", RegexOption.IGNORE_CASE),

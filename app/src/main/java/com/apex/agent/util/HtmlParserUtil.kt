@@ -220,7 +220,7 @@ object HtmlParserUtil {
             
             // The result from the new script is a list (or a single root object in a list)
             // We can wrap it in a root node for consistency with the old structure if needed
-                val rootChildren = result.tree ?: emptyList()
+    val rootChildren = result.tree ?: emptyList()
             
             return ComputerPageInfoNode(
                 interactionId = null,

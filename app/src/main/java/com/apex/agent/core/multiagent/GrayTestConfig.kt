@@ -14,7 +14,7 @@ class GrayTestConfig {
     private val grayUsers = ConcurrentHashMap<String, GrayUser>()
     private val isGrayEnabled = AtomicBoolean(false)
     private var grayPercentage = 5 // 默认5%用户
-                private val featureFlags = ConcurrentHashMap<String, Boolean>()
+    private val featureFlags = ConcurrentHashMap<String, Boolean>()
 
     fun enableGrayTest() {
         isGrayEnabled.set(true)
@@ -64,7 +64,7 @@ class GrayTestConfig {
 
     fun getMaxGrayUsers(): Int {
         // 假设总用户数，000，根据灰度比例计算最大灰度用户数
-                val totalUsers = 10000
+    val totalUsers = 10000
         return (totalUsers * grayPercentage / 100).coerceAtLeast(1)
     }
 
@@ -95,7 +95,8 @@ class GrayTestConfig {
         clearFeatureFlags()
     }
 
-    // 检查用户是否应该进入灰度测，   fun shouldUserEnterGrayTest(userId: String): Boolean {
+    // 检查用户是否应该进入灰度测，
+    fun shouldUserEnterGrayTest(userId: String): Boolean {
                 if (!isGrayTestEnabled()) {
             return false
         }
@@ -111,7 +112,7 @@ class GrayTestConfig {
         }
 
         // 否则，根据用户ID的哈希值和灰度比例决定
-                val hash = userId.hashCode() % 100
+    val hash = userId.hashCode() % 100
         return hash < grayPercentage
     }
 }

@@ -80,7 +80,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
                 }
 
                 // Window operations must be done on the UI thread.activity.runOnUiThread {
-                val window = activity.window
+    val window = activity.window
                     if (enable) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                         AppLogger.d(TAG, "FLAG_KEEP_SCREEN_ON added.")

@@ -17,7 +17,7 @@ context.originalGoal
 }
 ")        return try {"
 // 模拟研究过程
-                val researchResult = performResearch(context.originalGoal)            if (isCancelled) {
+    val researchResult = performResearch(context.originalGoal)            if (isCancelled) {
 return StageAgentResult(                    output = "",                    summary = "研究已取消，                    tokenCost = 0,                    success = false,                    error = "执行已取消               )
 }
     val summary = generateSummary(researchResult)            AppLogger.i(TAG, "研究阶段完成")            StageAgentResult(                output = researchResult,                summary = summary,                tokenCost = estimateTokenCost(researchResult),                success = true            )
@@ -29,7 +29,7 @@ AppLogger.e(TAG, "研究阶段执行失败", e)            StageAgentResult(    
     private
     fun performResearch(goal: String): String {
 val sb = StringBuilder()        sb.appendLine("# 研究报告")        sb.appendLine()        sb.appendLine("## 目标分析")        sb.appendLine("任务目标: ${goal}")        sb.appendLine()        // 分析任务类型
-        val taskType = analyzeTaskType(goal)        sb.appendLine("## 任务类型")        sb.appendLine(taskType)        sb.appendLine()        // 收集相关信息
+    val taskType = analyzeTaskType(goal)        sb.appendLine("## 任务类型")        sb.appendLine(taskType)        sb.appendLine()        // 收集相关信息
                 sb.appendLine("## 相关信息")        sb.appendLine("- 技术栈: Kotlin, Jetpack Compose, Android")        sb.appendLine("- 相关模块: multiagent, TaskPlanner, CollaborationEngine")        sb.appendLine("- 依赖关系: 需要与现有系统集成")        sb.appendLine()        // 识别关键需求
                 sb.appendLine("## 关键需求）        sb.appendLine("1. 实现阶段化管道执行）        sb.appendLine("2. 支持循环回退机制")        sb.appendLine("3. 与现，TaskPlanner 集成")        sb.appendLine("4. 提供可视化进度展，"
         sb.appendLine()        // 识别潜在风险

@@ -316,7 +316,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         return withContext(Dispatchers.IO) {
             readableDatabase.use { db ->
                 // 使用prefix search
-                val query = "${prefix}*"
+    val query = "${prefix}*"
                 db.rawQuery("""
                     SELECT DISTINCT content FROM ${FTS_CONTENT_TABLE}
                     WHERE content LIKE ?

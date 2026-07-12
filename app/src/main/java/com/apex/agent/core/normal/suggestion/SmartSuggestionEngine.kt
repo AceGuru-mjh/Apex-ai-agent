@@ -114,7 +114,7 @@ class SmartSuggestionEngine {
         }
 
         // 按置信度排序，去重
-                val deduped = allSuggestions
+    val deduped = allSuggestions
             .sortedByDescending { it.confidence }
             .distinctBy { it.text.lowercase() }
             .take(10)
@@ -139,7 +139,7 @@ class SmartSuggestionEngine {
     }
 
     // ============ 内置提供者 ============
-                private fun registerBuiltinProviders() {
+    private fun registerBuiltinProviders() {
         registerProvider(SuggestionType.INPUT_COMPLETION, InputCompletionProvider(userHistory))
         registerProvider(SuggestionType.FOLLOWUP_QUESTION, FollowupQuestionProvider())
         registerProvider(SuggestionType.ACTION_SUGGESTION, ActionSuggestionProvider())
@@ -173,7 +173,7 @@ class SmartSuggestionEngine {
             val suggestions = mutableListOf<Suggestion>()
 
             // 1. 基于用户历史
-                val history = userHistory[context.userId] ?: emptyList()
+    val history = userHistory[context.userId] ?: emptyList()
         val historyMatches = history
                 .filter { it.input.startsWith(input, ignoreCase = true) && it.input != input }
                 .groupingBy { it.input }
@@ -195,7 +195,7 @@ class SmartSuggestionEngine {
             suggestions.addAll(historyMatches)
 
             // 2. 基于常用短语
-                val commonPhrases = listOf(
+    val commonPhrases = listOf(
                 "帮我", "如何", "为什么", "什么是", "举个例子",
                 "翻译", "总结", "分析", "对比", "解释一下"
             )
@@ -229,7 +229,7 @@ class SmartSuggestionEngine {
             val suggestions = mutableListOf<Suggestion>()
 
             // 基于回答类型推荐后续问题
-                val questionTemplates = generateFollowupQuestions(lastUser.content, lastAssistant.content)
+    val questionTemplates = generateFollowupQuestions(lastUser.content, lastAssistant.content)
 
             return questionTemplates.mapIndexed { i, q ->
                 Suggestion(
@@ -383,7 +383,7 @@ class SmartSuggestionEngine {
             if (context.recentMessages.isNotEmpty()) return emptyList()
 
             // 新对话时推荐话题
-                val topics = listOf(
+    val topics = listOf(
                 "今天有什么新闻？" to "新闻",
                 "帮我写一段代码" to "编程",
                 "推荐一本书" to "阅读",
@@ -411,20 +411,20 @@ class SmartSuggestionEngine {
                 class ClarificationOptionProvider : SuggestionProvider {
         override fun suggest(context: SuggestionContext): List<Suggestion> {
             // 当 AI 提出澄清问题时，提供选项
-                val lastAssistant = context.recentMessages.lastOrNull { it.role == "assistant" } ?: return emptyList()
+    val lastAssistant = context.recentMessages.lastOrNull { it.role == "assistant" } ?: return emptyList()
         val content = lastAssistant.content
 
             // 检测是否是澄清问题
-                val isClarification = content.contains("?") || content.contains("？") ||
+    val isClarification = content.contains("?") || content.contains("？") ||
                 content.containsAny("还是", "哪个", "具体", "明确")
 
             if (!isClarification) return emptyList()
 
             // 从问题中提取选项
-                val options = mutableListOf<String>()
+    val options = mutableListOf<String>()
 
             // "A 还是 B" 模式
-                val orPattern = Regex("([\\u4e00-\\u9fa5A-Za-z0-9]+)\\s*还是\\s*([\\u4e00-\\u9fa5A-Za-z0-9]+)")
+    val orPattern = Regex("([\\u4e00-\\u9fa5A-Za-z0-9]+)\\s*还是\\s*([\\u4e00-\\u9fa5A-Za-z0-9]+)")
             orPattern.find(content)?.let { match ->
                 options.add(match.groupValues[1])
                 options.add(match.groupValues[2])

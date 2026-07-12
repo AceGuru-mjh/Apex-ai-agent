@@ -50,7 +50,7 @@ class QwenAIProvider(
         preserveThinkInHistory: Boolean
     ): RequestBody {
         // 首先，调用父类的实现来获取一个标准的OpenAI格式的请求体JSON对象
-                val baseRequestBodyJson = super.createRequestBodyInternal(context, chatHistory, modelParameters, stream, availableTools, preserveThinkInHistory)
+    val baseRequestBodyJson = super.createRequestBodyInternal(context, chatHistory, modelParameters, stream, availableTools, preserveThinkInHistory)
         val jsonObject = JSONObject(baseRequestBodyJson)
 
         // 如果启用了思考模式，则为Qwen模型添加特定的`enable_thinking`参数
@@ -60,7 +60,7 @@ class QwenAIProvider(
         }
 
         // 记录最终的请求体（省略过长的tools字段，
-                val logJson = JSONObject(jsonObject.toString())
+    val logJson = JSONObject(jsonObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
             logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")

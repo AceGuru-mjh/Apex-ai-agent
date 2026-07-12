@@ -71,7 +71,7 @@ class WorkerRegistry private constructor() {
         }
 
         // 使用 PLUGIN 级别进行能力声明
-                val capability = CapabilityDeclaration(
+    val capability = CapabilityDeclaration(
             name = "kanban_worker_${worker.id}",
             level = FootprintLevel.PLUGIN,
             description = "Kanban Worker: ${worker.name}",
@@ -153,14 +153,14 @@ class WorkerRegistry private constructor() {
             task.assignedRole != null -> findWorkersByRole(task.assignedRole!!)
             else -> {
                 // 尝试基于任务类型
-                val byType = findWorkersByTaskType(task.taskType)
+    val byType = findWorkersByTaskType(task.taskType)
                 if (byType.isNotEmpty()) byType
                 else getActiveWorkers()
             }
         }
 
         // 过滤有能力的 Worker
-                val capable = candidates.filter { worker ->
+    val capable = candidates.filter { worker ->
             worker.capabilities.any { cap ->
                 task.tags.any { tag -> cap.contains(tag, ignoreCase = true) }
             } || task.tags.isEmpty()

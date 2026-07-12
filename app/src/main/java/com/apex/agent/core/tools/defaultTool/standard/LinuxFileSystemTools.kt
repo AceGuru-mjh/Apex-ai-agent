@@ -35,7 +35,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         private const val TAG = "LinuxFileSystemTools"
     }
 
-    // 动态获取文件系统（支持SSH切换的   private val fs get() = getLinuxFileSystem()
+    // 动态获取文件系统（支持SSH切换的
+    private val fs get() = getLinuxFileSystem()
 
     /** 列出Linux目录中的文件 */
     override suspend fun listFiles(tool: AITool): ToolResult {
@@ -370,12 +371,12 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             // 检查文件大将
-                val fileSize = fs.getFileSize(path)
+    val fileSize = fs.getFileSize(path)
         val maxFileSizeBytes = ToolExecutionLimits.MAX_FILE_READ_BYTES
 
             if (fileSize > maxFileSizeBytes) {
                 // 文件过大，读取限制大将
-                val content = fs.readFileWithLimit(path, maxFileSizeBytes.toInt())
+    val content = fs.readFileWithLimit(path, maxFileSizeBytes.toInt())
                 if (content == null) {
                     return ToolResult(
                         toolName = tool.name,
@@ -448,10 +449,10 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             // 获取总行为
-                val totalLines = fs.getLineCount(path)
+    val totalLines = fs.getLineCount(path)
 
             // 计算实际的行号范围（行号。开始）
-                val startLine = maxOf(1, startLineParam).coerceIn(1, maxOf(1, totalLines))
+    val startLine = maxOf(1, startLineParam).coerceIn(1, maxOf(1, totalLines))
         val endLine =
                 (endLineParam
                         ?: (startLine + ToolExecutionLimits.DEFAULT_FILE_READ_PART_LINES - 1))
@@ -596,7 +597,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
 
         return try {
             // 解码base64内容
-                val bytes = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT)
+    val bytes = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT)
         val result = fs.writeFileBytes(path, bytes)
 
             if (!result.success) {

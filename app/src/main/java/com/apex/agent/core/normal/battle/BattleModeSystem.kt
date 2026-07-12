@@ -31,8 +31,8 @@ data class BattleContestant(
     val name: String,
     val avatar: String,
     val persona: String,            // 性格设定
-                val style: String,              // 说话风格
-                val catchphrase: String
+    val style: String,              // 说话风格
+    val catchphrase: String
 )
 
 data class BattleRound(

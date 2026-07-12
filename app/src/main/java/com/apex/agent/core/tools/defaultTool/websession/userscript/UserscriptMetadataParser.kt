@@ -3,8 +3,8 @@ package com.apex.agent.core.tools.defaultTool.websession.userscript
 internal object UserscriptMetadataParser {
     private val metadataBlockRegex =
         Regex("""(?m)^[ \t]*//[ \t]*==UserScript==\s*$([\s\S]*)(?m)^[ \t]*//[ \t]*==/UserScript==\s*$""")
-                private val metadataLineRegex = Regex("""^[ \t]*//[ \t]*@([A-Za-z0-9:_-]+)(?:[ \t]+(.*))?$""")
-                fun parse(rawSource: String): ParsedUserscriptMetadata {
+    private val metadataLineRegex = Regex("""^[ \t]*//[ \t]*@([A-Za-z0-9:_-]+)(?:[ \t]+(.*))?$""")
+    fun parse(rawSource: String): ParsedUserscriptMetadata {
         val match = metadataBlockRegex.find(rawSource)
             ?: throw IllegalArgumentException("Missing userscript metadata block")
         val block = match.groupValues[1]

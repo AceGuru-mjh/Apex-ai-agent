@@ -63,7 +63,7 @@ class MemeWebSearchEngine(
         }
 
         // 2. 并发搜索所有可用引擎
-                val providers = registry.getAvailableProviders()
+    val providers = registry.getAvailableProviders()
         if (providers.isEmpty()) {
             return MemeSearchResult(
                 query = query, engine = "none", items = emptyList(),
@@ -98,7 +98,7 @@ class MemeWebSearchEngine(
         }
 
         // 3. 合并结果
-                val merged = mergeResults(query, results)
+    val merged = mergeResults(query, results)
         val finalResult = merged.copy(searchTimeMs = System.currentTimeMillis() - start)
 
         // 4. 缓存合并结果
@@ -237,11 +237,11 @@ class MemeWebSearchEngine(
         val explanations = mutableListOf<MemeExplanation>()
 
         // 提取候选梗词（简化：连续的非空中文/英文片段）
-                val candidates = extractMemeCandidates(text)
+    val candidates = extractMemeCandidates(text)
 
         for (candidate in candidates) {
             // 先查缓存（已知的就不重复查）
-                val cached = cache.getWiki(candidate)
+    val cached = cache.getWiki(candidate)
             if (cached != null && cached.success) {
                 explanations.add(MemeExplanation(
                     term = candidate,
@@ -309,7 +309,7 @@ class MemeWebSearchEngine(
     fun cleanupCache(): Int = cache.cleanupExpired()
 
     // ============ 内部方法 ============
-                private fun mergeResults(query: String, results: List<MemeSearchResult>): MemeSearchResult {
+    private fun mergeResults(query: String, results: List<MemeSearchResult>): MemeSearchResult {
         val allItems = mutableListOf<MemeSearchResultItem>()
         val engines = mutableListOf<String>()
 
@@ -333,14 +333,14 @@ class MemeWebSearchEngine(
         }
 
         // 去重（按 URL）
-                val seen = mutableSetOf<String>()
+    val seen = mutableSetOf<String>()
         val deduped = allItems.filter { item ->
             val key = item.url.ifBlank { item.title }
             seen.add(key)
         }
 
         // 排序：标题/摘要包含查询词的优先
-                val queryLower = query.lowercase()
+    val queryLower = query.lowercase()
         val sorted = deduped.sortedWith(compareByDescending<MemeSearchResultItem> { item ->
             var score = 0
             if (item.title.contains(query, ignoreCase = true)) score += 3
@@ -363,7 +363,7 @@ class MemeWebSearchEngine(
 
     private fun extractMemeCandidates(text: String): List<String> {
         // 提取候选词：英文缩写（2-6字母）、中文短语（2-4字）、特殊词
-                val candidates = mutableSetOf<String>()
+    val candidates = mutableSetOf<String>()
 
         // 英文缩写：连续 2-6 个字母，可能带数字
                 Regex("\\b[A-Za-z]{2,6}\\d?\\b").findAll(text).forEach { m ->
@@ -380,7 +380,7 @@ class MemeWebSearchEngine(
         }
 
         // 已知梗模式
-                val knownPatterns = listOf("yyds", "绝绝子", "破防", "蚌埠", "栓Q", "芭比Q", "emo", "躺平", "摆烂", "卷王", "小镇做题家")
+    val knownPatterns = listOf("yyds", "绝绝子", "破防", "蚌埠", "栓Q", "芭比Q", "emo", "躺平", "摆烂", "卷王", "小镇做题家")
         knownPatterns.forEach { pattern ->
             if (text.contains(pattern, ignoreCase = true)) {
                 candidates.add(pattern)

@@ -83,12 +83,12 @@ class ExpressionParser(private val expression: String) {
                 // ç®åèµï¼?x = expr
                 nextToken() // è·³è¿=
                 nextToken() // è·åä¸ä¸ä¸ªtoken
-                val valueExpr = parseAssignment() // éå½è§£æå³ä¾§è¡¨è¾¾ï¼?
+    val valueExpr = parseAssignment() // éå½è§£æå³ä¾§è¡¨è¾¾ï¼?
                 return AssignmentNode(variableName, valueExpr)
             } else if (nextChar == '+' || nextChar == '-' || nextChar == '*' || nextChar == '/') {
                 if (position + 1 < expression.length && expression[position + 1] == '=') {
                     // å¤åèµï¼ x += expr, x -= expr, etc.
-                val operator = nextChar.toString() + "="
+    val operator = nextChar.toString() + "="
                     position += 2 // è·³è¿æä½ï¼?
                 nextToken()
 
@@ -221,7 +221,7 @@ class ExpressionParser(private val expression: String) {
         while (true) {
             if (currentToken == "[") {
                 nextToken() // è·³è¿[
-                val index = parseExpression()
+    val index = parseExpression()
 
                 if (currentToken != "]") {
                     throw IllegalArgumentException("Expected ']' in array access")
@@ -256,7 +256,7 @@ class ExpressionParser(private val expression: String) {
                 // å½æ°è°ç¨
                 if (currentToken == "(") {
                     nextToken() // è·³è¿(
-                val args = mutableListOf<ExpressionNode>()
+    val args = mutableListOf<ExpressionNode>()
 
                     if (currentToken != ")") {
                         args.add(parseExpression())
@@ -291,14 +291,14 @@ class ExpressionParser(private val expression: String) {
                 // æ°å­¦å¯¹è±¡æ¹æ³è°ç¨
                 if (identifier == "Math" && currentToken == ".") {
                     nextToken() // è·³è¿.
-                val methodName = currentToken
+    val methodName = currentToken
                     nextToken()
 
                     if (currentToken != "(") {
                         throw IllegalArgumentException("Expected '(' after Math.${methodName}")
                     }
                     nextToken() // è·³è¿(
-                val args = mutableListOf<ExpressionNode>()
+    val args = mutableListOf<ExpressionNode>()
                     if (currentToken != ")") {
                         args.add(parseExpression())
 
@@ -320,7 +320,7 @@ class ExpressionParser(private val expression: String) {
             }
             TokenType.LEFT_PAREN -> {
                 nextToken() // è·³è¿(
-                val expr = parseExpression()
+    val expr = parseExpression()
 
                 if (currentToken != ")") {
                     throw IllegalArgumentException("Expected ')'")
@@ -330,7 +330,7 @@ class ExpressionParser(private val expression: String) {
             }
             TokenType.LEFT_BRACKET -> {
                 nextToken() // è·³è¿[
-                val elements = mutableListOf<ExpressionNode>()
+    val elements = mutableListOf<ExpressionNode>()
 
                 if (currentToken != "]") {
                     elements.add(parseExpression())

@@ -23,7 +23,7 @@ class StandardActionListener(private val context: Context) : ActionListener {
     override suspend fun isAvailable(): Boolean = true // 标准监听器始终可的
                 override suspend fun hasPermission(): ActionListener.PermissionStatus =
         ActionListener.PermissionStatus.granted() // 标准监听器不需要额外权限
-                override fun initialize() {
+    override fun initialize() {
         AppLogger.d(TAG, "标准UI操作监听器初始化完成")
     }
 

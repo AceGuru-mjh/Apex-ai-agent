@@ -157,7 +157,7 @@ class HotUpdateManager private constructor(
             }
 
             // 被忽略的版本直接当作无更新
-                val ignored = UpdateSettings.getLastIgnoredVersion(context)
+    val ignored = UpdateSettings.getLastIgnoredVersion(context)
             if (ignored == latestTag) {
                 _state.value = UpdateState.Idle
                 return@withContext CheckResult.UpToDate(current, latestTag)
@@ -253,7 +253,7 @@ class HotUpdateManager private constructor(
         val registry = MirrorSourceRegistry.getInstance(context)
         var mirrors = registry.enabledMirrors().ifEmpty { MirrorSourceRegistry.BUILTIN_MIRRORS }
         // 把上次成功的镜像前置，加快下一次下载
-                val lastSuccessId = UpdateSettings.getLastDownloadMirrorId(context)
+    val lastSuccessId = UpdateSettings.getLastDownloadMirrorId(context)
         if (lastSuccessId.isNotBlank()) {
             mirrors = mirrors.sortedByDescending { it.id == lastSuccessId }
         }
@@ -342,7 +342,7 @@ class HotUpdateManager private constructor(
             return
         }
         // 取消任何已在进行的下载，并把新 job 原子写入（避免竞态）
-                val job = downloadScope.launch {
+    val job = downloadScope.launch {
             try {
                 val result = downloadAndInstall(
                     release = s.release,
@@ -426,7 +426,7 @@ class HotUpdateManager private constructor(
             .readTimeout(MIRROR_PROBE_TIMEOUT_S, TimeUnit.SECONDS)
             .build()
         val probeUrl = wrapUrlWithMirror(mirror, "https://github.com/mengjinghao/Apex-ai-agent")
-        val start = System.currentTimeMillis()
+    val start = System.currentTimeMillis()
         try {
             val req = Request.Builder()
                 .url(probeUrl)
@@ -447,7 +447,7 @@ class HotUpdateManager private constructor(
     }
 
     // ---------- 内部实现 ----------
-                private fun wrapUrlWithMirror(mirror: MirrorSource, originalUrl: String): String {
+    private fun wrapUrlWithMirror(mirror: MirrorSource, originalUrl: String): String {
         // kkgithub 是域名替换型镜像，单独处理
                 return if (mirror.id == "kkgithub") {
             MirrorSourceRegistry.applyKkGithub(originalUrl)
@@ -480,7 +480,7 @@ class HotUpdateManager private constructor(
                 if (resp.code == 404) return@withContext null
                 if (resp.code == 403) {
                     // Rate limit
-                val remaining = resp.header("X-RateLimit-Remaining")
+    val remaining = resp.header("X-RateLimit-Remaining")
         val reset = resp.header("X-RateLimit-Reset")
                     AppLogger.w(TAG, "GitHub API 限流：remaining=$remaining, reset=$reset")
                 }
@@ -508,7 +508,7 @@ class HotUpdateManager private constructor(
         val assets = release.assets.filter { it.name.endsWith(".apk", ignoreCase = true) }
         if (assets.isEmpty()) return null
         // 优先匹配主 APK
-                val preferred = assets.firstOrNull { asset ->
+    val preferred = assets.firstOrNull { asset ->
         val n = asset.name.lowercase()
             n.startsWith("app-") || n.startsWith("main-") || n.startsWith("apex-") ||
                 n.contains("main.apk") || n.contains("universal")
@@ -558,7 +558,7 @@ class HotUpdateManager private constructor(
                 throw IllegalStateException("下载失败 HTTP ${resp.code}")
             }
             // 服务器是否真的支持续传？只有 206 + Content-Range 才算
-                val supportsResume = isPartial && resp.header("Content-Range") != null
+    val supportsResume = isPartial && resp.header("Content-Range") != null
         val actualResumeFrom = if (supportsResume) resumeFrom else 0L
             if (!supportsResume && target.exists()) {
                 target.delete()

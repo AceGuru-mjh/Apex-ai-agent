@@ -165,25 +165,25 @@ class LobeHubMarketplaceClient private constructor() {
     ): Result<File> = withContext(Dispatchers.IO) {
         try {
             // First get the skill detail to find download URL
-                val detailResult = getSkillDetail(skillId)
+    val detailResult = getSkillDetail(skillId)
             if (detailResult.isFailure) {
                 return@withContext Result.failure(detailResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Get SKILL.md content
-                val mdResult = getSkillMd(skillId)
+    val mdResult = getSkillMd(skillId)
             if (mdResult.isFailure) {
                 return@withContext Result.failure(mdResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Create output directory
-                val skillDir = File(outputDir, skillId)
+    val skillDir = File(outputDir, skillId)
             if (!skillDir.exists()) {
                 skillDir.mkdirs()
             }
 
             // Write SKILL.md
-                val skillFile = File(skillDir, "SKILL.md")
+    val skillFile = File(skillDir, "SKILL.md")
             skillFile.writeText(mdResult.getOrNull() ?: "")
 
             Result.success(skillDir)

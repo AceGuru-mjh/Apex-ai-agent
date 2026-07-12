@@ -11,7 +11,7 @@ class ActionListenerFactory {
         private const val TAG = "ActionListenerFactory"
 
         // 缓存已创建的监听器实例
-                private val listeners = mutableMapOf<AndroidPermissionLevel, ActionListener>()
+    private val listeners = mutableMapOf<AndroidPermissionLevel, ActionListener>()
 
         /**
          * 获取指定权限级别的UI操作监听于
@@ -26,7 +26,7 @@ class ActionListenerFactory {
             }
 
             // 创建新的监听器实例
-                val listener = when (permissionLevel) {
+    val listener = when (permissionLevel) {
                 AndroidPermissionLevel.ROOT -> RootActionListener(context)
                 AndroidPermissionLevel.ADMIN -> AdminActionListener(context)
                 AndroidPermissionLevel.DEBUGGER -> DebuggerActionListener(context)
@@ -54,7 +54,7 @@ class ActionListenerFactory {
         ): Pair<ActionListener, ActionListener.PermissionStatus> {
 
             // 按权限从高到低尝，
-                val levels = listOf(
+    val levels = listOf(
                 AndroidPermissionLevel.ROOT,
                 AndroidPermissionLevel.ADMIN,
                 AndroidPermissionLevel.DEBUGGER,
@@ -87,7 +87,7 @@ class ActionListenerFactory {
             try {
                 val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
                 // 如果preferredLevel为null，使用标准权限级，
-                val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
+    val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
                 return getListener(context, actualLevel)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error getting preferred permission level, falling back to STANDARD", e)

@@ -40,7 +40,7 @@ class RootActionListener(private val context: Context) : ActionListener {
                 rootAvailable?.let { return it }
 
             // 检查Root权限
-                val hasRoot = shellExecutor.isAvailable()
+    val hasRoot = shellExecutor.isAvailable()
             rootAvailable = hasRoot
             
             AppLogger.d(TAG, "Root权限检，${hasRoot}")
@@ -69,7 +69,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
         try {
             // Root权限无法通过代码请求，只能提示用于
-                val hasRoot = isAvailable()
+    val hasRoot = isAvailable()
             onResult(hasRoot)
 
             if (!hasRoot) {
@@ -209,7 +209,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private suspend fun monitorRawInputEvents() {
         try {
             // 使用Root权限直接读取输入设备
-                val result = shellExecutor.executeCommand("cat /proc/bus/input/devices | grep -E 'Name|Handlers'")
+    val result = shellExecutor.executeCommand("cat /proc/bus/input/devices | grep -E 'Name|Handlers'")
             if (result.success) {
                 parseInputDeviceInfo(result.stdout)
             }
@@ -233,7 +233,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private suspend fun monitorKernelEvents() {
         try {
             // 读取最新的内核消息
-                val result = shellExecutor.executeCommand("dmesg -T | tail -5")
+    val result = shellExecutor.executeCommand("dmesg -T | tail -5")
             if (result.success && result.stdout.isNotEmpty()) {
                 parseKernelEvents(result.stdout)
             }
@@ -249,7 +249,7 @@ class RootActionListener(private val context: Context) : ActionListener {
     private suspend fun monitorProcessEvents() {
         try {
             // 获取当前运行的应用进程
-                val result = shellExecutor.executeCommand("ps -A | grep -v '\\[' | tail -10")
+    val result = shellExecutor.executeCommand("ps -A | grep -v '\\[' | tail -10")
             if (result.success) {
                 parseProcessEvents(result.stdout)
             }

@@ -91,7 +91,7 @@ class BatchRunStorage(context: Context) {
                 result = null
             )
             // 获取实体并更新错误信息
-                val entity = batchRunDao.getBatchRunById(batchRunId)
+    val entity = batchRunDao.getBatchRunById(batchRunId)
             entity?.let {
                 batchRunDao.updateBatchRun(it.copy(errorMessage = errorMessage))
             }
@@ -232,7 +232,7 @@ class BatchRunStorage(context: Context) {
     suspend fun cleanupOldData(olderThanTimestamp: Long) {
         withContext(Dispatchers.IO) {
             // 清理旧的批量运行（级联删除RL轨迹，
-                val allBatchRuns = batchRunDao.getBatchRunsByBatchId("")
+    val allBatchRuns = batchRunDao.getBatchRunsByBatchId("")
             // Note: This is simplified; in production you'd want a proper cleanup query
         }
     }

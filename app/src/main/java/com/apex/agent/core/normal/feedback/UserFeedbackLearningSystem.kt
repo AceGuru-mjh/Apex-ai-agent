@@ -50,7 +50,7 @@ data class FeedbackRecord(
     val messageId: String,
     val type: FeedbackType,
     val value: Any? = null,           // 评分值/编辑内容/反馈文本
-                val originalContent: String? = null,
+    val originalContent: String? = null,
     val editedContent: String? = null,
     val context: FeedbackContext,
     val timestamp: Long = System.currentTimeMillis()
@@ -229,7 +229,7 @@ class UserFeedbackLearningSystem {
     private fun analyzeAndLearn(userId: String) {
         val userFeedbacks = feedbacks[userId] ?: return
         if (userFeedbacks.size < 5) return  // 至少 5 条反馈才开始学习
-                val newInsights = mutableListOf<FeedbackInsight>()
+    val newInsights = mutableListOf<FeedbackInsight>()
 
         // 分析 1: 偏好长度
                 newInsights.add(analyzePreferredLength(userFeedbacks))
@@ -256,7 +256,7 @@ class UserFeedbackLearningSystem {
     }
 
     // ============ 分析方法 ============
-                private fun analyzePreferredLength(feedbacks: List<FeedbackRecord>): FeedbackInsight {
+    private fun analyzePreferredLength(feedbacks: List<FeedbackRecord>): FeedbackInsight {
         val positive = feedbacks.filter { isPositive(it.type) }
         val negative = feedbacks.filter { isNegative(it.type) }
 
@@ -340,7 +340,7 @@ class UserFeedbackLearningSystem {
         if (negative.size < 3) return null
 
         // 分析负面反馈的共同特征
-                val patterns = mutableMapOf<String, Int>()
+    val patterns = mutableMapOf<String, Int>()
 
         negative.forEach { fb ->
             val response = fb.context.assistantResponse
@@ -394,7 +394,7 @@ class UserFeedbackLearningSystem {
         if (edited.size < 3) return null
 
         // 分析用户常修改什么
-                val editTypes = mutableMapOf<String, Int>()
+    val editTypes = mutableMapOf<String, Int>()
         edited.forEach { fb ->
             val orig = fb.originalContent ?: ""
         val edited = fb.editedContent ?: ""

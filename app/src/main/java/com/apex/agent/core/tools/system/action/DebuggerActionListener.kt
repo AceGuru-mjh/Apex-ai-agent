@@ -180,7 +180,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private suspend fun startWindowFocusMonitoring() {
         try {
             // 使用watch命令每秒检查窗口焦点变重
-                val command = "while true; do dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | head -2; sleep 1; done"
+    val command = "while true; do dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | head -2; sleep 1; done"
             windowMonitorProcess = shellExecutor.startProcess(command)
             
             // 监听输出出
@@ -203,7 +203,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private suspend fun startActivityStackMonitoring() {
         try {
             // 使用watch命令每秒检查Activity栈变重
-                val command = "while true; do dumpsys activity activities | grep -E 'Running activities|TaskRecord' | head -5; sleep 1; done"
+    val command = "while true; do dumpsys activity activities | grep -E 'Running activities|TaskRecord' | head -5; sleep 1; done"
             activityMonitorProcess = shellExecutor.startProcess(command)
             
             // 监听输出出
@@ -231,7 +231,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
             AppLogger.v(TAG, "检测到窗口焦点变化: ${windowInfo.take(100)}")
             
             // 尝试从窗口信息中提取应用包名
-                val packageName = extractPackageNameFromWindowInfo(windowInfo)
+    val packageName = extractPackageNameFromWindowInfo(windowInfo)
             
             actionCallback?.let { callback ->
                 val event = ActionListener.ActionEvent(
@@ -258,7 +258,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
         AppLogger.v(TAG, "检测到Activity栈变重${activityStack.take(100)}")
         
         // 从Activity栈信息中提取当前前台Activity
-                val currentActivity = extractCurrentActivityFromStack(activityStack)
+    val currentActivity = extractCurrentActivityFromStack(activityStack)
         
         actionCallback?.let { callback ->
             val event = ActionListener.ActionEvent(
@@ -329,7 +329,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private fun extractPackageNameFromWindowInfo(windowInfo: String): String? {
         // 尝试从窗口信息中提取包名
         // 示例格式: mCurrentFocus=Window{abc123 u0 com.example.app/com.example.app.MainActivity}
-                val packagePattern = Regex("""([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)+)/""")
+    val packagePattern = Regex("""([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)+)/""")
         return packagePattern.find(windowInfo)?.groupValues?.get(1)
     }
 
@@ -341,7 +341,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private fun extractCurrentActivityFromStack(activityStack: String): String? {
         // 尝试从Activity栈信息中提取当前Activity
         // 示例格式: Running activities (most recent first): ActivityRecord{abc123 u0 com.example.app/.MainActivity t123}
-                val activityPattern = Regex("""ActivityRecord\{[^}]*\s+([^/]+/[^}]+)""")
+    val activityPattern = Regex("""ActivityRecord\{[^}]*\s+([^/]+/[^}]+)""")
         return activityPattern.find(activityStack)?.groupValues?.get(1)
     }
 } 

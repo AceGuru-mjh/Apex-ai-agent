@@ -30,7 +30,7 @@ import org.json.JSONObject
 fun registerAllTools(handler: AIToolHandler, context: Context) {
 
     // Helper function to wrap UI tool execution with visibility changes
-                suspend fun executeUiToolWithVisibility(
+    suspend fun executeUiToolWithVisibility(
         tool: AITool,
         showStatusIndicator: Boolean = true,
         delayMs: Long = 50,
@@ -1065,7 +1065,8 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
     )
 
     
-    // 工作流工具   val workflowTools = ToolGetter.getWorkflowTools(context)
+    // 工作流工具
+    val workflowTools = ToolGetter.getWorkflowTools(context)
 
     // 获取所有工作流
                 handler.registerTool(
@@ -1152,7 +1153,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
     )
 
     // 对话管理工具
-                val chatManagerTool = ToolGetter.getChatManagerTool(context)
+    val chatManagerTool = ToolGetter.getChatManagerTool(context)
 
     // 启动聊天服务
                 handler.registerTool(
@@ -1280,7 +1281,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
     )
 
     // 文件系统工具
-                val fileSystemTools = ToolGetter.getFileSystemTools(context)
+    val fileSystemTools = ToolGetter.getFileSystemTools(context)
 
     // 列出目录内容
                 handler.registerTool(
@@ -1405,7 +1406,8 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
             executor = { tool -> runBlocking(Dispatchers.IO) { fileSystemTools.deleteFile(tool) } }
     )
 
-    // UI自动化工具   val uiTools = ToolGetter.getUITools(context)
+    // UI自动化工具
+    val uiTools = ToolGetter.getUITools(context)
 
     // 点击元素
                 handler.registerTool(
@@ -1468,7 +1470,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
     )
 
     // HTTP请求工具
-                val httpTools = ToolGetter.getHttpTools(context)
+    val httpTools = ToolGetter.getHttpTools(context)
 
     // 发送HTTP请求
                 handler.registerTool(
@@ -1562,7 +1564,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
                 val environment = tool.parameters.find { it.name == "environment" }?.value
 
                 // 确定源和目标环境
-                val srcEnv = sourceEnv ?: environment ?: "android"
+    val srcEnv = sourceEnv ?: environment ?: "android"
         val dstEnv = destEnv ?: environment ?: "android"
 
                 val envInfo = formatEnvArrowInfo(srcEnv, dstEnv)
@@ -1739,7 +1741,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
     )
 
     // 系统操作工具
-                val systemOperationTools = ToolGetter.getSystemOperationTools(context)
+    val systemOperationTools = ToolGetter.getSystemOperationTools(context)
 
     handler.registerTool(
             name = "toast",

@@ -37,7 +37,7 @@ fun SuiteScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
     var refreshing by remember { mutableStateOf(false) }
 
     // 加载 APK 状态
-                fun refresh() {
+    fun refresh() {
         scope.launch {
             refreshing = true
             val states = withContext(Dispatchers.IO) {
@@ -162,7 +162,7 @@ private fun ApkCard(apk: ApkStateItem, context: android.content.Context) {
                 com.apex.sdk.common.ApkIdentityRegistry.launchApk(context, apk.apkId)
                     } else {
                         // 未安装 → 打开下载页
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(apk.downloadUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(apk.downloadUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         try { context.startActivity(intent) } catch (_: Throwable) {}
                     }
                 },

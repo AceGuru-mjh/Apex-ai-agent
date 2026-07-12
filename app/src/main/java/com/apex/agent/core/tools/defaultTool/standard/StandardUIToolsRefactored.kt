@@ -81,14 +81,14 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun getAppList(tool: AITool): ToolResult {
         return executeWithCatch("getAppList", tool) {
             // 1. 获取参数
-                val filter = getParameter(tool, "filter", null)
+    val filter = getParameter(tool, "filter", null)
         val limit = getParameter(tool, "limit", "100").toIntOrNull() ?: 100
 
             // 2. 扫描已安装应试
-                val appList = UIToolsConfig.scanInstalledApps(context)
+    val appList = UIToolsConfig.scanInstalledApps(context)
 
             // 3. 过滤（如果指定）
-                val filteredList = if (filter != null) {
+    val filteredList = if (filter != null) {
                 appList.filter { 
                     it.name.contains(filter, ignoreCase = true) || 
                     it.packageName.contains(filter, ignoreCase = true)
@@ -98,10 +98,10 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 4. 限制数量
-                val limitedList = filteredList.take(limit)
+    val limitedList = filteredList.take(limit)
 
             // 5. 构建结果
-                val resultData = AppListData(
+    val resultData = AppListData(
                 apps = limitedList.map { app ->
                     AppListData.AppInfo(
                         name = app.name,
@@ -132,10 +132,10 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
             )
 
             // 2. 获取查询参数
-                val query = getRequiredParameter(tool, "query")
+    val query = getRequiredParameter(tool, "query")
 
             // 3. 查找应用
-                val appInfo = UIToolsConfig.findAppByNameOrPackage(query)
+    val appInfo = UIToolsConfig.findAppByNameOrPackage(query)
 
             if (appInfo == null) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -145,7 +145,7 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 4. 构建结果
-                val resultData = mapOf(
+    val resultData = mapOf(
                 "name" to appInfo.name,
                 "packageName" to appInfo.packageName,
                 "versionName" to (appInfo.versionName ?: ""),
@@ -170,11 +170,11 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
             )
 
             // 2. 获取参数
-                val appName = getRequiredParameter(tool, "app")
+    val appName = getRequiredParameter(tool, "app")
         val activity = getParameter(tool, "activity", null)
 
             // 3. 查找应用包名
-                val packageInfo = UIToolsConfig.findAppByNameOrPackage(appName)
+    val packageInfo = UIToolsConfig.findAppByNameOrPackage(appName)
             
             if (packageInfo == null) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -184,7 +184,7 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 4. 启动应用
-                val success = launchApplication(packageInfo.packageName, activity)
+    val success = launchApplication(packageInfo.packageName, activity)
 
             if (!success) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -194,7 +194,7 @@ open class StandardUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 5. 构建结果
-                val resultData = mapOf(
+    val resultData = mapOf(
                 "action" to "launch",
                 "packageName" to packageInfo.packageName,
                 "activity" to (activity ?: "default"),

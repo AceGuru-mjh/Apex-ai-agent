@@ -90,7 +90,7 @@ open class OpenAIProvider(
     protected val supportsVision: Boolean = false, // 是否支持图片处理
                 protected val supportsAudio: Boolean = false, // 是否支持音频输入
                 protected val supportsVideo: Boolean = false, // 是否支持视频输入
-                val enableToolCall: Boolean = false // 是否启用Tool Call接口
+    val enableToolCall: Boolean = false // 是否启用Tool Call接口
 ) : AIService {
     // private val client: OkHttpClient = HttpClientFactory.instance
                 protected val JSON = "application/json".toMediaType()
@@ -109,7 +109,8 @@ open class OpenAIProvider(
     class NonRetriableException(message: String, cause: Throwable? = null) :
         IOException(message, cause)
 
-    // Token缓存管理，   val tokenCacheManager = TokenCacheManager()
+    // Token缓存管理，
+    val tokenCacheManager = TokenCacheManager()
                 protected open val useResponsesApi: Boolean = false
 
     // 公开token计数
@@ -176,7 +177,7 @@ open class OpenAIProvider(
     }
 
     // 重置token计数
-                override fun resetTokenCounts() {
+    override fun resetTokenCounts() {
         tokenCacheManager.resetTokenCounts()
     }
 
@@ -236,12 +237,12 @@ open class OpenAIProvider(
 
     // 工具函数：分块打印大型文本日忆   protected fun logLargeString(tag: String, message: String, prefix: String = "") {
         // 设置单次日志输出的最大长度（Android日志上限约为4000字符为
-                val maxLogSize = 3000
+    val maxLogSize = 3000
 
         // 如果消息长度超过限制，分块打开
                 if (message.length > maxLogSize) {
             // 计算需要分多少块打开
-                val chunkCount = message.length / maxLogSize + 1
+    val chunkCount = message.length / maxLogSize + 1
 
             for (i in 0 until chunkCount) {
                 val start = i * maxLogSize
@@ -583,7 +584,7 @@ open class OpenAIProvider(
         }
 
         // 当工具为空时，将enableToolCall视为false
-                val effectiveEnableToolCall =
+    val effectiveEnableToolCall =
             enableToolCall && availableTools != null && availableTools.isNotEmpty()
 
         // 如果启用Tool Call且传入了工具列表，添加tools定义
@@ -599,7 +600,7 @@ open class OpenAIProvider(
         }
 
         // 使用新的核心逻辑构建消息并获取token计数
-                val (messagesArray, tokenCount) = buildMessagesAndCountTokens(
+    val (messagesArray, tokenCount) = buildMessagesAndCountTokens(
             context,
             chatHistory,
             effectiveEnableToolCall,
@@ -618,7 +619,7 @@ open class OpenAIProvider(
         customizeFinalRequestObject(finalRequestObject, messagesArray, toolsJson)
 
         // 使用分块日志函数记录请求体（省略过长的tools字段，
-                val logJson = JSONObject(finalRequestObject.toString())
+    val logJson = JSONObject(finalRequestObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
             logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")
@@ -808,7 +809,7 @@ open class OpenAIProvider(
         val messagesArray = JSONArray()
 
         // 使用TokenCacheManager计算token数量（包含工具定义）
-                val comparableHistory = buildComparableHistory(chatHistory, preserveThinkInHistory)
+    val comparableHistory = buildComparableHistory(chatHistory, preserveThinkInHistory)
         val tokenCount = tokenCacheManager.calculateInputTokens(comparableHistory, toolsJson)
 
         val effectiveHistory = mergePromptTurnsForProvider(buildEffectiveHistory(chatHistory))
@@ -1025,11 +1026,11 @@ open class OpenAIProvider(
                     flushOpenToolCallsAsCancelled("tool_call_api_disabled")
                     val role = providerRoleForTurn(turn)
                     // 不启用Tool Call API时，保持原样
-                val historyMessage = JSONObject()
+    val historyMessage = JSONObject()
                     historyMessage.put("role", role)
 
                     // 检查assistant角色的空消息
-                val effectiveContent = if (role == "assistant" && content.isBlank()) {
+    val effectiveContent = if (role == "assistant" && content.isBlank()) {
                         AppLogger.d("AIService", "发现空的assistant消息，填充为[空消息]")
                         "[Empty]"
                     } else {
@@ -1052,7 +1053,7 @@ open class OpenAIProvider(
         availableTools: List<ToolPrompt>?
     ): Int {
         // 构建工具定义的JSON字符为
-                val toolsJson =
+    val toolsJson =
             if (enableToolCall && availableTools != null && availableTools.isNotEmpty()) {
                 val tools = buildToolDefinitions(availableTools)
                 if (tools.length() > 0) tools.toString() else null
@@ -1081,7 +1082,7 @@ open class OpenAIProvider(
                 put("function", JSONObject().apply {
                     put("name", tool.name)
                     // 组合description和details作为完整描述
-                val fullDescription = if (tool.details.isNotEmpty()) {
+    val fullDescription = if (tool.details.isNotEmpty()) {
                         "${tool.description}\n${tool.details}"
                     } else {
                         tool.description
@@ -1089,7 +1090,7 @@ open class OpenAIProvider(
                     put("description", fullDescription)
 
                     // 只使用结构化参数
-                val parametersSchema =
+    val parametersSchema =
                         buildSchemaFromStructured(tool.parametersStructured ?: emptyList())
                     put("parameters", parametersSchema)
                 })
@@ -1146,7 +1147,7 @@ open class OpenAIProvider(
         val function = toolCall.optJSONObject("function") ?: continue
 
             // 流式响应中，name和arguments可能不在同一个delta，
-                val name = function.optString("name", "")
+    val name = function.optString("name", "")
             if (name.isEmpty()) {
                 // 如果没有name，说明这是增量更新，跳过
                 continue
@@ -1155,7 +1156,7 @@ open class OpenAIProvider(
             val argumentsJson = function.optString("arguments", "")
 
             // 解析参数JSON
-                val params = if (argumentsJson.isNotEmpty()) {
+    val params = if (argumentsJson.isNotEmpty()) {
                 try {
                     JSONObject(argumentsJson)
                 } catch (e: Exception) {
@@ -1167,16 +1168,16 @@ open class OpenAIProvider(
             }
 
             // 构建XML格式
-                val toolTagName = ChatMarkupRegex.generateRandomToolTagName()
+    val toolTagName = ChatMarkupRegex.generateRandomToolTagName()
             xml.append("<${toolTagName} name=\"${name}\">")
 
             // 添加所有参数
-                val keys = params.keys()
+    val keys = params.keys()
             while (keys.hasNext()) {
                 val key = keys.next()
         val value = params.get(key)
                 // 必须对值进行XML转义，否则会破坏XML结构
-                val escapedValue = escapeXml(value.toString())
+    val escapedValue = escapeXml(value.toString())
                 xml.append("\n<param name=\"${key}\">${escapedValue}</param>")
             }
 
@@ -1231,7 +1232,8 @@ open class OpenAIProvider(
         return if (base.isEmpty()) "0" else base
     }
 
-    // 向后兼容的快捷方法   private fun escapeXml(text: String) = XmlEscaper.escape(text)
+    // 向后兼容的快捷方法
+    private fun escapeXml(text: String) = XmlEscaper.escape(text)
 
     /**
      * 字符串非空且，null"检，"
@@ -1473,7 +1475,7 @@ open class OpenAIProvider(
         val toolBody = match.groupValues[3]
 
             // 解析参数
-                val params = JSONObject()
+    val params = JSONObject()
 
             ChatMarkupRegex.toolParamPattern.findAll(toolBody).forEach { paramMatch ->
                 val paramName = paramMatch.groupValues[1]
@@ -1483,7 +1485,7 @@ open class OpenAIProvider(
 
             // 构建tool_call对象
             // 使用工具名和参数的哈希生成确定性ID
-                val toolNamePart = sanitizeToolCallId(toolName)
+    val toolNamePart = sanitizeToolCallId(toolName)
         val hashPart = stableIdHashPart("${toolName}:${params}")
             val callId = sanitizeToolCallId("call_${toolNamePart}_${hashPart}_${callIndex}")
             toolCalls.put(JSONObject().apply {
@@ -1510,7 +1512,7 @@ open class OpenAIProvider(
      */
     fun parseXmlToolResults(content: String): Pair<String, List<Pair<String, String>>?> {
         // 匹配带属性的tool_result标签，例，<tool_result name="..." status="...">...</tool_result>
-                val matches = ChatMarkupRegex.toolResultAnyPattern.findAll(content)
+    val matches = ChatMarkupRegex.toolResultAnyPattern.findAll(content)
 
         if (!matches.any()) {
             return Pair(content, null)
@@ -1522,7 +1524,7 @@ open class OpenAIProvider(
 
         matches.forEach { match ->
             // 提取<content>标签内的内容，如果有的话
-                val fullContent = match.groupValues[2].trim()
+    val fullContent = match.groupValues[2].trim()
         val contentMatch = ChatMarkupRegex.contentTag.find(fullContent)
             val resultContent = if (contentMatch != null) {
                 contentMatch.groupValues[1].trim()
@@ -1604,7 +1606,7 @@ open class OpenAIProvider(
         emitter: StreamEmitter
     ) {
         // 获取或创建该index的累积对象
-                val accumulated = state.accumulatedToolCalls.getOrPut(index) {
+    val accumulated = state.accumulatedToolCalls.getOrPut(index) {
             createToolCallAccumulator(index)
         }
 
@@ -1617,11 +1619,11 @@ open class OpenAIProvider(
         }
 
         // 处理function字段
-                val deltaFunction = deltaCall.optJSONObject("function") ?: return
+    val deltaFunction = deltaCall.optJSONObject("function") ?: return
         val accFunction = accumulated.getJSONObject("function")
         
         // 处理工具，
-                val name = deltaFunction.optString("name", "")
+    val name = deltaFunction.optString("name", "")
         if (name.isNotEmpty()) {
             accFunction.put("name", name)
             // 流式输出开始标等
@@ -1639,7 +1641,7 @@ open class OpenAIProvider(
                 state.toolCallState.nameEmitted[index] = true
 
                 // 如果参数先到，工具名后到，在此处一次性补喂已累计参数
-                val canonicalArgs = accFunction.optString("arguments", "")
+    val canonicalArgs = accFunction.optString("arguments", "")
                 if (canonicalArgs.isNotEmpty()) {
                     feedParserFromCanonical(index, canonicalArgs, state, emitter)
                 }
@@ -1647,7 +1649,7 @@ open class OpenAIProvider(
         }
         
         // 处理参数
-                val args = deltaFunction.optString("arguments", "")
+    val args = deltaFunction.optString("arguments", "")
         if (args.isNotEmpty()) {
             val currentArgs = accFunction.optString("arguments", "")
         val mergedArgs = mergeCanonicalArgs(currentArgs, args)
@@ -2029,7 +2031,7 @@ open class OpenAIProvider(
         val choice = choices.getJSONObject(0)
 
         // 处理delta格式（流式响应）
-                val delta = choice.optJSONObject("delta")
+    val delta = choice.optJSONObject("delta")
         if (delta != null) {
             val finishReason =
                 if (choice.has("finish_reason") && !choice.isNull("finish_reason")) {
@@ -2039,7 +2041,7 @@ open class OpenAIProvider(
                 }
 
             // 处理工具调用
-                val toolCallsDeltas = delta.optJSONArray("tool_calls")
+    val toolCallsDeltas = delta.optJSONArray("tool_calls")
             if (toolCallsDeltas != null && toolCallsDeltas.length() > 0 && enableToolCall) {
                 processToolCallsDelta(toolCallsDeltas, state, emitter)
             }
@@ -2050,7 +2052,7 @@ open class OpenAIProvider(
             }
 
             // 处理内容
-                val reasoningContent = delta.optString("reasoning_content", "").ifBlank {
+    val reasoningContent = delta.optString("reasoning_content", "").ifBlank {
                 delta.optString("reasoning", "")
             }
             val regularContent = delta.optString("content", "")
@@ -2115,7 +2117,7 @@ open class OpenAIProvider(
 
                 state.chunkCount++
                 // ，个块级0ms记录一次日忆
-                val currentTime = System.currentTimeMillis()
+    val currentTime = System.currentTimeMillis()
                 if (state.chunkCount % 10 == 0 || currentTime - state.lastLogTime > 500) {
                     state.lastLogTime = currentTime
                 }
@@ -2207,7 +2209,7 @@ open class OpenAIProvider(
             var lastException: Exception? = null
 
             // 用于保存当前 attempt 已接收到的内容；一旦需要重试，会整体回滚到请求起点
-                val receivedContent = StringBuilder()
+    val receivedContent = StringBuilder()
         val emitter = StreamEmitter(receivedContent, ::emit, eventChannel, onTokensUpdated)
             val requestSavepointId = "attempt_${UUID.randomUUID().toString().replace("-", "")}"
             emitter.emitSavepoint(requestSavepointId)
@@ -2231,7 +2233,7 @@ open class OpenAIProvider(
                     "【发送消息】准备构建请求体，模型参数数据${modelParameters.size}，已启用参数: ${modelParameters.count { it.isEnabled }}"
                 )
                 // 直接传递原始历史记录给createRequestBody，让具体的Provider决定如何处理（例如Deepseek需要保存think>标签，
-                val requestBody = createRequestBody(
+    val requestBody = createRequestBody(
                     context,
                     currentHistory,
                     modelParameters,
@@ -2254,7 +2256,7 @@ open class OpenAIProvider(
                 AppLogger.d("AIService", "【发送消息】准备连接到AI服务...")
 
                 // 创建Call对象并保存到activeCall中，以便可以取消
-                val call = client.newCall(request)
+    val call = client.newCall(request)
                 activeCall = call
 
                 AppLogger.d("AIService", "【发送消息】正在建立连接到服务，.")
@@ -2349,7 +2351,7 @@ open class OpenAIProvider(
 
                                         if (messageObj != null) {
                                             // 检查是否有tool_calls（Tool Call API，
-                val toolCalls = messageObj.optJSONArray("tool_calls")
+    val toolCalls = messageObj.optJSONArray("tool_calls")
                                             if (toolCalls != null && toolCalls.length() > 0 && enableToolCall) {
                                                 val xmlToolCalls = convertToolCallsToXml(toolCalls)
                                                 if (xmlToolCalls.isNotEmpty()) {

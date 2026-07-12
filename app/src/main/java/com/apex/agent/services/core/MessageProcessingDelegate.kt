@@ -74,7 +74,7 @@ class MessageProcessingDelegate(
             groupParticipantNamesText: String?
         ) -> Unit,
         // 添加自动朗读相关的回
-                private val getIsAutoReadEnabled: () -> Boolean,
+    private val getIsAutoReadEnabled: () -> Boolean,
         private var speakMessageHandler: (String, Boolean) -> Unit
 ) {
     companion object {
@@ -83,13 +83,14 @@ class MessageProcessingDelegate(
         private const val STREAM_PERSIST_INTERVAL_MS = 1000L
     }
 
-    // 模型配置管理   private val modelConfigManager = ModelConfigManager(context)
+    // 模型配置管理
+    private val modelConfigManager = ModelConfigManager(context)
     
     // 功能配置管理器，用于获取正确的模型配置ID
-                private val functionalConfigManager = FunctionalConfigManager(context)
+    private val functionalConfigManager = FunctionalConfigManager(context)
 
     // 省Token模式管理。
-                private val tokenSavingManager = TokenSavingManager.getInstance(context)
+    private val tokenSavingManager = TokenSavingManager.getInstance(context)
 
     private val _userMessage = MutableStateFlow(TextFieldValue(""))
         val userMessage: StateFlow<TextFieldValue> = _userMessage.asStateFlow()
@@ -130,7 +131,7 @@ class MessageProcessingDelegate(
         val securityAlert: StateFlow<SecurityAlert?> = _securityAlert.asStateFlow()
 
     // 输入消毒器实。
-                private val inputSanitizer = InputSanitizer()
+    private val inputSanitizer = InputSanitizer()
 
     // 当前活跃的AI响应   private data class ChatRuntime(
                 var sendJob: Job? = null,
@@ -146,7 +147,7 @@ class MessageProcessingDelegate(
     private val pendingAsyncSummaryUiByChatId = ConcurrentHashMap<String, Boolean>()
 
     // 速率限制：每chatId最近一次发送时间
-                private val lastSendTime = ConcurrentHashMap<String, AtomicLong>()
+    private val lastSendTime = ConcurrentHashMap<String, AtomicLong>()
 
     /**
      * 检查指定聊天的发送频率是否超过限制
@@ -501,7 +502,7 @@ class MessageProcessingDelegate(
             coroutineScope.launch(Dispatchers.IO) {
             val sendUserMessageStartTime = messageTimingNow()
             // 检查这是否是聊天中的第一条用户消息（忽略AI的开场白
-                val isFirstMessage = getChatHistory(chatId).none { it.sender == "user" }
+    val isFirstMessage = getChatHistory(chatId).none { it.sender == "user" }
             if (isFirstMessage && chatId != null) {
                 val newTitle =
                     when {
@@ -515,7 +516,7 @@ class MessageProcessingDelegate(
             AppLogger.d(TAG, "开始处理用户消息：附件数量=${attachments.size}")
 
             // 获取当前模型配置以检查是否启用直接图片处
-                val configId = chatModelConfigIdOverride?.takeIf { it.isNotBlank() }
+    val configId = chatModelConfigIdOverride?.takeIf { it.isNotBlank() }
                 ?: functionalConfigManager.getConfigIdForFunction(FunctionType.CHAT)
             val loadModelConfigStartTime = messageTimingNow()
         val currentModelConfig = modelConfigManager.getModelConfigFlow(configId).first()
@@ -530,7 +531,7 @@ class MessageProcessingDelegate(
             )
 
             // 1. 使用 AIMessageManager 构建最终消
-                val buildUserMessageStartTime = messageTimingNow()
+    val buildUserMessageStartTime = messageTimingNow()
         val finalMessageContent = AIMessageManager.buildUserMessageContent(
                 messageText,
                 proxySenderNameOverride,
@@ -552,7 +553,7 @@ class MessageProcessingDelegate(
             )
 
             // 自动继续且原本消息为空时，不添加到聊天历史（虽然会发送继续给AI           // 群组编排模式下，空消息也不添加到聊天历史
-                val shouldAddUserMessageToChat =
+    val shouldAddUserMessageToChat =
                 !suppressUserMessageInHistory &&
                 !(isAutoContinuation &&
                         originalMessageText.isBlank() &&
@@ -562,7 +563,7 @@ class MessageProcessingDelegate(
                         attachments.isEmpty())
             var userMessageAdded = false
             // 1.5 输入安全检查：在发送给LLM之前对消息内容进行消。
-                val userPreferencesManager = UserPreferencesManager.getInstance(context)
+    val userPreferencesManager = UserPreferencesManager.getInstance(context)
         val inputSanitizerEnabled = userPreferencesManager.inputSanitizerEnabled.first()
             var sanitizedMessageContent = finalMessageContent
             if (inputSanitizerEnabled) {
@@ -684,7 +685,7 @@ class MessageProcessingDelegate(
                 //
                 return@launch
                 // }
-                val acquireServiceStartTime = messageTimingNow()
+    val acquireServiceStartTime = messageTimingNow()
         val chatScopedService = EnhancedAIService.getChatInstance(context, activeChatId)
                 val service =
                     (chatScopedService
@@ -734,7 +735,7 @@ class MessageProcessingDelegate(
                 val userPreferencesManager = UserPreferencesManager.getInstance(context)
 
                 // 获取角色信息用于通知
-                val loadRoleInfoStartTime = messageTimingNow()
+    val loadRoleInfoStartTime = messageTimingNow()
                 val (characterName, avatarUri) = try {
                     val roleCard = characterCardManager.getCharacterCardFlow(effectiveRoleCardId).first()
         val avatar =
@@ -785,7 +786,7 @@ class MessageProcessingDelegate(
                 )
 
                 // 省Token模式优化
-                val tokenSavingStartTime = messageTimingNow()
+    val tokenSavingStartTime = messageTimingNow()
         val originalHistorySize = chatHistory.size
                 val originalTokens = chatHistory.sumOf { ChatUtils.estimateTokenCount(it.content) }
         val messagesForOptimization = chatHistory.map { msg ->
@@ -806,7 +807,7 @@ class MessageProcessingDelegate(
                 )
 
                 // 关闭总结时仍保留真实 limits，避免下游插件收/Infinity 这类无效 JSON 值，
-                val effectiveMaxTokens = maxTokens
+    val effectiveMaxTokens = maxTokens
         val effectiveTokenUsageThreshold = if (enableSummary) tokenUsageThreshold else Double.MAX_VALUE
                 val effectiveOnTokenLimitExceeded = if (enableSummary) {
                     suspend {
@@ -822,7 +823,7 @@ class MessageProcessingDelegate(
                 }
 
                 // 2. 使用 AIMessageManager 发送消               // 群组编排模式下，只有当消息内容不为空时才添加 [From user] 前缀
-                val requestMessageContent =
+    val requestMessageContent =
                     if (isGroupOrchestrationTurn &&
                         sanitizedMessageContent.trimStart().isNotEmpty() &&
                         !sanitizedMessageContent.trimStart().startsWith("[From user]")
@@ -841,7 +842,7 @@ class MessageProcessingDelegate(
 
                 val prepareResponseStreamStartTime = messageTimingNow()
                 // 使用省Token模式优化后的消息（如果启用）
-                val historyForAI = if (tokenSavingManager.isTokenSavingEnabled()) {
+    val historyForAI = if (tokenSavingManager.isTokenSavingEnabled()) {
                     optimizedMessages.map { msg ->
                         ChatMessage(
                             sender = when (msg.role.lowercase()) {
@@ -897,7 +898,7 @@ class MessageProcessingDelegate(
                 )
 
                 // 将字符串流共享，以便多个收集器可以使               // 关键修改：设置replay = Int.MAX_VALUE，确认UI 重组（重新订阅）时能收到所有历史字               // 文本数据占用内存极小，全量缓冲不会造成内存压力
-                val shareResponseStreamStartTime = messageTimingNow()
+    val shareResponseStreamStartTime = messageTimingNow()
         val sharedCharStream =
                     responseStream.shareRevisable(
                         scope = coroutineScope,
@@ -922,7 +923,7 @@ class MessageProcessingDelegate(
                 chatRuntime.responseStream = sharedCharStream
 
                 // 获取当前使用的provider和model信息
-                val loadProviderModelStartTime = messageTimingNow()
+    val loadProviderModelStartTime = messageTimingNow()
                 val (provider, modelName) = try {
                     service.getProviderAndModelForFunction(
                         functionType = com.apex.data.model.FunctionType.CHAT,
@@ -954,7 +955,7 @@ class MessageProcessingDelegate(
                 )
 
                 // 检查是否启用waifu模式来决定是否显示流式过
-                val waifuPreferences = WaifuPreferences.getInstance(context)
+    val waifuPreferences = WaifuPreferences.getInstance(context)
                 isWaifuModeEnabled = waifuPreferences.enableWaifuModeFlow.first()
                 
                 // 只有在非waifu模式下才添加初始的AI消息
@@ -967,7 +968,7 @@ class MessageProcessingDelegate(
                 }
                 
                 // 启动一个独立的协程来收集流内容并持续更新数据库
-                val streamCollectionResult = CompletableDeferred<Throwable?>()
+    val streamCollectionResult = CompletableDeferred<Throwable?>()
                 chatRuntime.streamCollectionJob =
                     coroutineScope.launch(Dispatchers.IO) {
                         try {
@@ -978,7 +979,7 @@ class MessageProcessingDelegate(
                             val autoReadBuffer = StringBuilder()
                             var isFirstAutoReadSegment = true
                             // 流式自动朗读只在较强的句边界切分，逗号不参与断句，避免语气被打断，
-                val endChars = ".!?;:。！？；：\n"
+    val endChars = ".!?;:。！？；：\n"
         val autoReadStream = XmlTextProcessor.processStreamToText(sharedCharStream)
                             val revisableStream = sharedCharStream as? TextStreamEventCarrier
 
@@ -1269,7 +1270,7 @@ class MessageProcessingDelegate(
                         val chatHistory = getChatHistory(activeChatId)
                         if (chatHistory.isNotEmpty()) {
                             // 调用新功能集
-                val chatViewModel = com.apex.agent.ui.features.chat.viewmodel.ChatViewModel.getInstance(context)
+    val chatViewModel = com.apex.agent.ui.features.chat.viewmodel.ChatViewModel.getInstance(context)
                             chatViewModel.integrateNewFeatures(activeChatId, chatHistory)
                         }
                     } catch (e: Exception) {
@@ -1322,7 +1323,7 @@ class MessageProcessingDelegate(
         try {
             val aiMessage = aiMessageProvider()
             // 优先使用共享流的全量重放缓存重建最终文本，避免完成信号早于收集协程处理尾部字符时丢字符
-                val finalContent = resolveFinalContent(aiMessage)
+    val finalContent = resolveFinalContent(aiMessage)
             aiMessage.content = finalContent
 
             withContext(Dispatchers.IO) {
@@ -1334,17 +1335,17 @@ class MessageProcessingDelegate(
                     AppLogger.d(TAG, "Waifu模式已启用，开始创建独立消息，内容长度: ${finalContent.length}")
 
                     // 获取配置的字符延迟时间和标点符号设置
-                val charDelay = waifuPreferences.waifuCharDelayFlow.first().toLong()
+    val charDelay = waifuPreferences.waifuCharDelayFlow.first().toLong()
         val removePunctuation = waifuPreferences.waifuRemovePunctuationFlow.first()
 
                     // 获取当前角色
-                val currentRoleName = try {
+    val currentRoleName = try {
                         characterCardManager.getCharacterCardFlow(roleCardId).first().name
                     } catch (e: Exception) {
                         "Apex" // 默认角色                   }
 
                     // 获取当前使用的provider和model信息（在finally块内重新获取
-                val (provider, modelName) = try {
+    val (provider, modelName) = try {
                         getEnhancedAiService()?.getProviderAndModelForFunction(
                             functionType = com.apex.data.model.FunctionType.CHAT,
                             chatModelConfigIdOverride = chatModelConfigIdOverride,
@@ -1367,14 +1368,14 @@ class MessageProcessingDelegate(
                         )
 
                         // 分割句子
-                val sentences =
+    val sentences =
                             WaifuMessageProcessor.splitMessageBySentences(finalContent, removePunctuation)
                         AppLogger.d(TAG, "分割为{sentences.size}个句子）"
 
                         // 为每个句子创建独立的消息
                 for ((index, sentence) in sentences.withIndex()) {
                             // 根据当前句子字符数计算延迟（模拟说话时间
-                val characterCount = sentence.length
+    val characterCount = sentence.length
         val calculatedDelay =
                                 WaifuMessageProcessor.calculateSentenceDelay(characterCount, charDelay)
 
@@ -1387,7 +1388,7 @@ class MessageProcessingDelegate(
                             AppLogger.d(TAG, "创建，{index + 1}个独立消${sentence}")
 
                             // 创建独立的AI消息（使用外层已获取的provider和modelName
-                val sentenceMessage = ChatMessage(
+    val sentenceMessage = ChatMessage(
                                 sender = "ai",
                                 content = sentence,
                                 contentStream = null,
@@ -1450,7 +1451,7 @@ class MessageProcessingDelegate(
                     }
                 } else {
                     // 普通模式，直接清理
-                val finalMessage = aiMessage.copy(content = finalContent, contentStream = null)
+    val finalMessage = aiMessage.copy(content = finalContent, contentStream = null)
                     withContext(Dispatchers.Main) {
                         if (chatId != null) {
                             addMessageToChat(chatId, finalMessage)

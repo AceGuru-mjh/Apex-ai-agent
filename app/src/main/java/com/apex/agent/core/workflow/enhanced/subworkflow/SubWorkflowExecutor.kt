@@ -9,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap
 data class SubWorkflowInvocation(
     val subWorkflowId: String,
     val subWorkflowVersion: Int? = null,          // null=最新
-                val inputs: Map<String, Any> = emptyMap(),
+    val inputs: Map<String, Any> = emptyMap(),
     val waitForCompletion: Boolean = true,        // false=fire-and-forget
-                val timeoutMs: Long = 5 * 60_000L,
+    val timeoutMs: Long = 5 * 60_000L,
     val inheritContext: Boolean = false,
     val parentThreadId: String,
     val parentNodeId: String
@@ -114,7 +114,7 @@ class DelegatingSubWorkflowExecutor(
             kotlinx.coroutines.withTimeout(invocation.timeoutMs) {
                 // 实际工作流需要从注册表加载，这里简化为占位
                 // 真实实现应调用 workflowRegistry.get(invocation.subWorkflowId) 加载定义
-                val mockWorkflow = EnhancedWorkflow(
+    val mockWorkflow = EnhancedWorkflow(
                     id = invocation.subWorkflowId,
                     name = "SubWorkflow_${invocation.subWorkflowId}",
                     nodes = emptyList(),

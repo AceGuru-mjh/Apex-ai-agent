@@ -24,7 +24,7 @@ object FileSystemUtils {
     private const val TAG = "FileSystemUtils"
 
     // 特殊文件类型扩展名列表（需要特殊处理提取文本的文件类型，
-                val SPECIAL_FILE_EXTENSIONS = listOf(
+    val SPECIAL_FILE_EXTENSIONS = listOf(
         "doc", "docx",      // Word documents
         "pdf",              // PDF documents
         "jpg", "jpeg",      // Image files

@@ -134,17 +134,17 @@ object ValidationUtils {
         val trimmed = idCard.trim()
 
         // 支持 15 位旧版身份证
-                val idCard15Regex = Pattern.compile("^[1-9]\\d{7}(?:0\\d|1[0-2])(?:[0-2]\\d|3[01])\\d{3}$")
+    val idCard15Regex = Pattern.compile("^[1-9]\\d{7}(?:0\\d|1[0-2])(?:[0-2]\\d|3[01])\\d{3}$")
         if (idCard15Regex.matcher(trimmed).matches()) return true
 
         // 18 位身份证
-                val idCard18Regex = Pattern.compile("^[1-9]\\d{5}(?:19|20)\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])\\d{3}[\\dXx]$")
+    val idCard18Regex = Pattern.compile("^[1-9]\\d{5}(?:19|20)\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])\\d{3}[\\dXx]$")
         if (!idCard18Regex.matcher(trimmed).matches()) return false
 
         // 加权因子
-                val weightFactors = intArrayOf(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2)
+    val weightFactors = intArrayOf(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2)
         // 校验码对应表
-                val checkCodes = charArrayOf('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2')
+    val checkCodes = charArrayOf('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2')
 
         var sum = 0
         for (i in 0..16) {

@@ -41,17 +41,17 @@ class QualityAssuredCodeGenerator(
                 )
                 
                 // 2. 生成代码
-                val code = generateCode(task, attempt)
+    val code = generateCode(task, attempt)
                 
                 // 3. 静态分析
-                val analysisResult = codeAnalyzer?.analyze(code, task.language)
+    val analysisResult = codeAnalyzer?.analyze(code, task.language)
                     ?: CodeAnalysisResult(isValid = true, issues = emptyList())
                 
                 // 4. 计算质量分数
-                val qualityScore = calculateQualityScore(code, analysisResult, task)
+    val qualityScore = calculateQualityScore(code, analysisResult, task)
                 
                 // 5. 创建结果对象
-                val result = CodeGenerationResult(
+    val result = CodeGenerationResult(
                     code = code,
                     qualityScore = qualityScore,
                     analysisResult = analysisResult,
@@ -165,7 +165,7 @@ class QualityAssuredCodeGenerator(
         }
         
         // 4. 静态分析（如果有）
-                val analysisResult = codeAnalyzer?.analyze(code, task.language)
+    val analysisResult = codeAnalyzer?.analyze(code, task.language)
         analysisResult?.issues?.forEach { issue ->
             issues.add("${issue.severity}: ${issue.message}")
         }
@@ -278,7 +278,7 @@ class QualityAssuredCodeGenerator(
                 if (code.length > 10000) score -= 0.1f // 太长可能冗余
         
         // 3. 检查是否满足约束条件
-                val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
+    val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
         score -= unmetConstraints * 0.1f
         
         // 4. 静态分析（如果有）

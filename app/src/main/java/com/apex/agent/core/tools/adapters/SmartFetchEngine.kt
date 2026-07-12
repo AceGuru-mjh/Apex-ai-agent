@@ -29,7 +29,7 @@ object SmartFetchEngine {
     )
 
     // 内容缓存
-                private val contentCache = ConcurrentHashMap<String, CachedContent>()
+    private val contentCache = ConcurrentHashMap<String, CachedContent>()
     private const val CACHE_EXPIRE = 20 * 60 * 1000L // 20分钟
                 private const val MAX_CACHE_SIZE = 60
     private const val CLEANUP_BATCH_SIZE = 20
@@ -41,7 +41,7 @@ object SmartFetchEngine {
     )
 
     // OkHttp客户端
-                private val client by lazy {
+    private val client by lazy {
         OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
@@ -74,7 +74,7 @@ object SmartFetchEngine {
             cleanExpiredCache()
             if (contentCache.size >= MAX_CACHE_SIZE) {
                 // 按时间排序，删除最旧的缓存
-                val sortedKeys = contentCache.entries
+    val sortedKeys = contentCache.entries
                     .sortedBy { it.value.timestamp }
                     .take(CLEANUP_BATCH_SIZE)
                     .map { it.key }
@@ -145,7 +145,7 @@ object SmartFetchEngine {
 
         try {
             // 构建请求
-                val request = Request.Builder()
+    val request = Request.Builder()
                 .url(cleanUrl)
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
                 .header("Accept-Language", "zh-CN,zh;q=0.9")
@@ -153,7 +153,7 @@ object SmartFetchEngine {
                 .build()
 
             // 执行请求
-                val response = client.newCall(request).execute()
+    val response = client.newCall(request).execute()
             
             // 检查响应状态
                 if (!response.isSuccessful) {
@@ -167,7 +167,7 @@ object SmartFetchEngine {
             }
             
             // 检查Content-Type
-                val contentType = response.header("Content-Type") ?: ""
+    val contentType = response.header("Content-Type") ?: ""
             if (!contentType.contains("text/html") && !contentType.contains("application/xhtml")) {
                 return@withContext FetchResult(
                     url = cleanUrl,
@@ -203,10 +203,10 @@ object SmartFetchEngine {
             }
 
             // 提纯正文内容
-                val rawContent = extractPureContent(html)
+    val rawContent = extractPureContent(html)
 
             // 对提取的内容进行安全消毒
-                val pureContent = try {
+    val pureContent = try {
         val sanitizeResult = inputSanitizer.sanitize(rawContent)
                 if (sanitizeResult.findings.isNotEmpty()) {
                     AppLogger.d(TAG, "网页内容消毒完成: 发现${sanitizeResult.findings.size}个安全问题")
@@ -294,7 +294,7 @@ object SmartFetchEngine {
         }
 
         // 步骤2：尝试找到主要内容区基
-                val mainContent = tryExtractMainContent(text)
+    val mainContent = tryExtractMainContent(text)
         if (mainContent.isNotEmpty()) {
             text = mainContent
         }
@@ -328,7 +328,7 @@ object SmartFetchEngine {
         }
 
         // 步骤6：保留有效内定
-                val lines = text.split("\n")
+    val lines = text.split("\n")
             .map { it.trim() }
             .filter { it.length > 10 } // 过滤太短的行
             .take(300) // 限制行数
@@ -338,7 +338,7 @@ object SmartFetchEngine {
                 if (text.length > MAX_CONTENT_LENGTH) {
             text = text.take(MAX_CONTENT_LENGTH)
             // 尝试在完整句子处截断
-                val lastPeriod = text.lastIndexOf("。")
+    val lastPeriod = text.lastIndexOf("。")
         val lastComma = text.lastIndexOf("，")
             val lastDot = text.lastIndexOf(".")
         val cutPoint = listOf(lastPeriod, lastComma, lastDot).maxOrNull() ?: MAX_CONTENT_LENGTH
@@ -356,7 +356,7 @@ object SmartFetchEngine {
      */
     private fun tryExtractMainContent(html: String): String {
         // 常见的主要内容区域标试
-                val contentSelectors = listOf(
+    val contentSelectors = listOf(
             """<article[\s\S]*?<\/article>""",
             """<main[\s\S]*?<\/main>""",
             """<div[^>]*class="[^"]*content[^"]*"[\s\S]*?<\/div>""",

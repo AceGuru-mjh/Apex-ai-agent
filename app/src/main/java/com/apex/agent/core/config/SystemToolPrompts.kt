@@ -37,7 +37,7 @@ object SystemToolPrompts {
     }
     
     // ==================== 基础工具 ====================
-                val basicTools = SystemToolPromptCategory(
+    val basicTools = SystemToolPromptCategory(
         categoryName = "Available tools",
         tools = listOf(
             ToolPrompt(
@@ -83,7 +83,7 @@ object SystemToolPrompts {
     )
     
     // ==================== 文件系统工具 ====================
-                val fileSystemTools = SystemToolPromptCategory(
+    val fileSystemTools = SystemToolPromptCategory(
         categoryName = "File System Tools",
         tools = listOf(
             ToolPrompt(
@@ -397,7 +397,7 @@ object SystemToolPrompts {
     )
     
     // ==================== HTTP工具 ====================
-                val httpTools = SystemToolPromptCategory(
+    val httpTools = SystemToolPromptCategory(
         categoryName = "HTTP Tools",
         tools = listOf(
             ToolPrompt(
@@ -740,7 +740,7 @@ object SystemToolPrompts {
     )
     
     // ==================== 记忆库工具===================
-                val memoryTools = SystemToolPromptCategory(
+    val memoryTools = SystemToolPromptCategory(
         categoryName = "Memory and Memory Library Tools",
         tools = listOf(
             ToolPrompt(

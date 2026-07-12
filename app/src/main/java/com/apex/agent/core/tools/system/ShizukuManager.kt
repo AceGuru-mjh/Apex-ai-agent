@@ -26,7 +26,7 @@ object ShizukuManager {
     private val mainHandler = Handler(Looper.getMainLooper())
 
     // 状态流
-                private val _isInitialized = MutableStateFlow(false)
+    private val _isInitialized = MutableStateFlow(false)
         val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
 
     private val _isShizukuInstalled = MutableStateFlow(false)
@@ -52,7 +52,7 @@ object ShizukuManager {
     private var permissionRequestListenerRegistered = false
 
     // 状态监听器
-                private val stateChangeListeners = mutableSetOf<() -> Unit>()
+    private val stateChangeListeners = mutableSetOf<() -> Unit>()
 
     /**
      * 初始化Shizuku 管理器

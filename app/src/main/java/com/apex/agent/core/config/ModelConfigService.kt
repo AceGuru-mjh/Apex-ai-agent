@@ -35,29 +35,29 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 依赖的管理器
-                private val modelConfigManager by lazy { ModelConfigManager(context) }
+    private val modelConfigManager by lazy { ModelConfigManager(context) }
     private val functionalConfigManager by lazy { FunctionalConfigManager(context) }
 
     // 当前活跃的配置ID
-                private val _activeConfigId = MutableStateFlow(ModelConfigManager.DEFAULT_CONFIG_ID)
+    private val _activeConfigId = MutableStateFlow(ModelConfigManager.DEFAULT_CONFIG_ID)
         val activeConfigId: StateFlow<String> = _activeConfigId.asStateFlow()
 
     // 当前活跃的配置
-                private val _activeConfig = MutableStateFlow<ModelConfigData?>(null)
+    private val _activeConfig = MutableStateFlow<ModelConfigData?>(null)
         val activeConfig: StateFlow<ModelConfigData?> = _activeConfig.asStateFlow()
 
     // 配置列表
-                private val _configList = MutableStateFlow<List<String>>(emptyList())
+    private val _configList = MutableStateFlow<List<String>>(emptyList())
         val configList: StateFlow<List<String>> = _configList.asStateFlow()
 
     // 配置缓存，使用ConcurrentHashMap提高并发性能
-                private val configCache = ConcurrentHashMap<String, ModelConfigData>()
+    private val configCache = ConcurrentHashMap<String, ModelConfigData>()
 
     // 缓存操作互斥错
-                private val cacheMutex = Mutex()
+    private val cacheMutex = Mutex()
 
     // 配置变更通知
-                private val _configChangeEvent = MutableSharedFlow<ConfigChangeEvent>()
+    private val _configChangeEvent = MutableSharedFlow<ConfigChangeEvent>()
         val configChangeEvent = _configChangeEvent.asSharedFlow()
 
     // 配置变更事件类型
@@ -77,7 +77,7 @@ class ModelConfigService private constructor(private val context: Context) {
     )
 
     // 预定义的配置模板 - 支持所有主流API和本地部署模型
-                val CONFIG_TEMPLATES = listOf(
+    val CONFIG_TEMPLATES = listOf(
         // ========== OpenAI 系列 ==========
                 ModelConfigTemplate(
             name = "OpenAI GPT-4o",
@@ -582,7 +582,7 @@ class ModelConfigService private constructor(private val context: Context) {
     )
 
     // 初始化
-                private fun initialize() {
+    private fun initialize() {
         CoroutineScope(Dispatchers.IO).launch {
             // 初始化配置管理器
                 modelConfigManager.initializeIfNeeded()
@@ -604,7 +604,7 @@ class ModelConfigService private constructor(private val context: Context) {
                 configCache[configId]?.let { return it }
 
         // 从ModelConfigManager加载
-                val config = modelConfigManager.getModelConfig(configId)
+    val config = modelConfigManager.getModelConfig(configId)
 
         // 更新缓存
                 configCache[configId] = config
@@ -615,7 +615,7 @@ class ModelConfigService private constructor(private val context: Context) {
                 private suspend fun loadActiveConfig() {
         mutex.withLock {
             // 获取对话功能当前绑定的模型配置
-                val chatConfigId = functionalConfigManager.getConfigIdForFunction(com.apex.data.model.FunctionType.CHAT)
+    val chatConfigId = functionalConfigManager.getConfigIdForFunction(com.apex.data.model.FunctionType.CHAT)
         val availableConfigIds = _configList.value
 
             val configId = availableConfigIds.firstOrNull { it == chatConfigId }
@@ -634,7 +634,7 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 设置活跃配置
-                suspend fun setActiveConfig(configId: String) {
+    suspend fun setActiveConfig(configId: String) {
         mutex.withLock {
             _activeConfigId.value = configId
             // 同时更新功能配置，确保所有功能使用相同的配置
@@ -649,7 +649,7 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 获取当前活跃配置
-                suspend fun getCurrentConfig(): ModelConfigData? {
+    suspend fun getCurrentConfig(): ModelConfigData? {
         return _activeConfig.value ?: run {
             loadActiveConfig()
             _activeConfig.value
@@ -657,12 +657,12 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 刷新配置
-                suspend fun refreshConfig() {
+    suspend fun refreshConfig() {
         loadActiveConfig()
     }
 
     // 创建新配置
-                suspend fun createConfig(name: String): String {
+    suspend fun createConfig(name: String): String {
         val configId = modelConfigManager.createConfig(name)
         // 发布配置变更通知
                 _configChangeEvent.emit(ConfigChangeEvent.ConfigAdded(configId))
@@ -672,7 +672,7 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 删除配置
-                suspend fun deleteConfig(configId: String) {
+    suspend fun deleteConfig(configId: String) {
         if (configId == ModelConfigManager.DEFAULT_CONFIG_ID) {
             return // 不允许删除默认配置
         }
@@ -692,7 +692,7 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 重命名配置
-                suspend fun renameConfig(configId: String, newName: String) {
+    suspend fun renameConfig(configId: String, newName: String) {
         modelConfigManager.updateConfigBase(configId, newName)
         // 更新缓存
                 configCache[configId]?.let {
@@ -704,7 +704,7 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 根据模板创建配置
-                suspend fun createConfigFromTemplate(template: ModelConfigTemplate, customName: String? = null): String {
+    suspend fun createConfigFromTemplate(template: ModelConfigTemplate, customName: String? = null): String {
         val configName = customName ?: template.name
         val configId = modelConfigManager.createConfig(configName)
 
@@ -725,7 +725,7 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 获取所有配置模权
-                fun getConfigTemplates(): List<ModelConfigTemplate> {
+    fun getConfigTemplates(): List<ModelConfigTemplate> {
         return CONFIG_TEMPLATES
     }
 
@@ -738,13 +738,13 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 获取所有配置摘要
-                suspend fun getAllConfigSummaries() = modelConfigManager.getAllConfigSummaries()
+    suspend fun getAllConfigSummaries() = modelConfigManager.getAllConfigSummaries()
 
     // 导出所有配置
-                suspend fun exportAllConfigs() = modelConfigManager.exportAllConfigs()
+    suspend fun exportAllConfigs() = modelConfigManager.exportAllConfigs()
 
     // 导入配置
-                suspend fun importConfigs(jsonContent: String): Triple<Int, Int, Int> {
+    suspend fun importConfigs(jsonContent: String): Triple<Int, Int, Int> {
         val result = modelConfigManager.importConfigs(jsonContent)
         // 导入后清除缓存，确保下次加载最新配置
                 configCache.clear()
@@ -752,23 +752,23 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 预加载所有配置到缓存
-                suspend fun preloadConfigs() {
+    suspend fun preloadConfigs() {
         modelConfigManager.preloadConfigs()
         // 从ModelConfigManager的缓存同步到当前服务的缓字
-                val configList = _configList.value
+    val configList = _configList.value
         for (configId in configList) {
             getConfigFromCacheOrLoad(configId)
         }
     }
 
     // 清除配置缓存
-                fun clearConfigCache() {
+    fun clearConfigCache() {
         configCache.clear()
         modelConfigManager.clearConfigCache()
     }
 
     // 获取配置缓存状态
-                fun getCacheSize(): Int {
+    fun getCacheSize(): Int {
         return configCache.size
     }
 
@@ -799,7 +799,7 @@ class ModelConfigService private constructor(private val context: Context) {
         }
 
         // 验证API密钥（某些提供商需要）
-                val providersRequiringKey = listOf(
+    val providersRequiringKey = listOf(
             com.apex.data.model.ApiProviderType.OPENAI,
             com.apex.data.model.ApiProviderType.ANTHROPIC,
             com.apex.data.model.ApiProviderType.GOOGLE,
