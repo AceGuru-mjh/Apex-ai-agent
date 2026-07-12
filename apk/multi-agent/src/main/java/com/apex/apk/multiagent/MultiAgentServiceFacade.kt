@@ -125,7 +125,7 @@ class MultiAgentServiceFacade(private val context: Context) {
             priority = 50
         ) { input, _ ->
             AgentOutput(result = "[Worker] 已执行：${input.prompt.take(200)}", confidence = 0.85f)
-        }
+        })
         engine.registerAgent(Agent(
             id = "builtin.reviewer",
             displayName = "审查者",
@@ -143,7 +143,7 @@ class MultiAgentServiceFacade(private val context: Context) {
             priority = 60
         ) { input, _ ->
             AgentOutput(result = "[Critic] 质疑：${input.prompt.take(200)} 需进一步验证", confidence = 0.7f)
-        }
+        })
         engine.registerAgent(Agent(
             id = "builtin.observer",
             displayName = "旁观者",
