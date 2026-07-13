@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.hilt.android)
@@ -196,6 +196,7 @@ ksp {
 // Kotlin 编译配置
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
+        languageVersion = "1.9"
         jvmTarget = "17"
         jvmTarget = "17"
     }
@@ -356,13 +357,13 @@ dependencies {
 
     // Hilt 依赖注入
     implementation(libs.google.hilt.android)
-    ksp(libs.google.hilt.compiler)
+    kapt(libs.google.hilt.compiler)
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Room 数据库
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
+    kapt(libs.androidx.room.compiler)
 
     // ObjectBox
     // implementation(libs.objectbox.kotlin) // Disabled: ObjectBox plugin removed
