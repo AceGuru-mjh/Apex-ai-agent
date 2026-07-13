@@ -44,17 +44,16 @@ annotation class WorkflowDsl
 @WorkflowDsl
 class WorkflowBuilder(private val name: String) {
     var description: String = ""
-    var sagaMode: Boolean = false
+        var sagaMode: Boolean = false
     var maxConcurrency: Int = 10
     var defaultRetryPolicy: RetryPolicyDef = RetryPolicyDef()
-    var timeoutMs: Long = 30 * 60_000L
+        var timeoutMs: Long = 30 * 60_000L
     var version: Int = 1
     var tags: List<String> = emptyList()
-    var metadata: Map<String, String> = emptyMap()
-
-    private val nodes = mutableListOf<EnhancedNode>()
-    private val connections = mutableListOf<EnhancedConnection>()
-    private val nodeNameMap = mutableMapOf<String, String>()  // name -> id
+        var metadata: Map<String, String> = emptyMap()
+        private val nodes = mutableListOf<EnhancedNode>()
+        private val connections = mutableListOf<EnhancedConnection>()
+        private val nodeNameMap = mutableMapOf<String, String>()  // name -> id
 
     /**
      * 添加节点
@@ -133,7 +132,7 @@ class WorkflowBuilder(private val name: String) {
         return node(name) {
             type = EnhancedNodeType.CONDITION
             config = EnhancedNodeConfig(left = left, operator = operator, right = right)
-            block()
+        block()
         }
     }
 
@@ -181,7 +180,7 @@ class WorkflowBuilder(private val name: String) {
             config = EnhancedNodeConfig(
                 fanOutSpec = FanOutSpecDef(itemsExpression, maxConcurrency, failFast)
             )
-            block()
+        block()
         }
     }
 
@@ -198,7 +197,7 @@ class WorkflowBuilder(private val name: String) {
             config = EnhancedNodeConfig(
                 fanInSpec = FanInSpecDef(aggregatorType = aggregatorType)
             )
-            block()
+        block()
         }
     }
 
@@ -223,7 +222,7 @@ class WorkflowBuilder(private val name: String) {
                     bodyNodeIds = bodyNodeIds
                 )
             )
-            block()
+        block()
         }
     }
 
@@ -244,7 +243,7 @@ class WorkflowBuilder(private val name: String) {
                     waitForCompletion = waitForCompletion
                 )
             )
-            block()
+        block()
         }
     }
 
@@ -302,34 +301,30 @@ class WorkflowBuilder(private val name: String) {
 open class NodeBuilder(protected val nodeName: String) {
     var type: EnhancedNodeType = EnhancedNodeType.EXECUTE
     var config: EnhancedNodeConfig = EnhancedNodeConfig()
-    var retryPolicy: RetryPolicyDef? = null
+        var retryPolicy: RetryPolicyDef? = null
     var timeoutMs: Long? = null
     var enabled: Boolean = true
     var description: String = ""
-
-    fun trigger(type: TriggerTypeDef, block: TriggerConfigDefBuilder.() -> Unit = {}) {
+        fun trigger(type: TriggerTypeDef, block: TriggerConfigDefBuilder.() -> Unit = {}) {
         this.type = EnhancedNodeType.TRIGGER
         val builder = TriggerConfigDefBuilder(type)
         builder.block()
         config = config.copy(triggerConfig = builder.build())
     }
-
-    fun execute(actionType: String, vararg params: Pair<String, String>) {
+        fun execute(actionType: String, vararg params: Pair<String, String>) {
         this.type = EnhancedNodeType.EXECUTE
         config = config.copy(
             actionType = actionType,
             actionConfig = params.toMap()
         )
     }
-
-    fun compensate(actionType: String, vararg params: Pair<String, String>) {
+        fun compensate(actionType: String, vararg params: Pair<String, String>) {
         config = config.copy(
             compensateActionType = actionType,
             compensateActionConfig = params.toMap()
         )
     }
-
-    open fun build(): EnhancedNode {
+        open fun build(): EnhancedNode {
         return EnhancedNode(
             name = nodeName,
             type = type,
@@ -345,8 +340,7 @@ open class NodeBuilder(protected val nodeName: String) {
 @WorkflowDsl
 class TriggerBuilder(name: String) : NodeBuilder(name) {
     init { type = EnhancedNodeType.TRIGGER }
-
-    var triggerType: TriggerTypeDef = TriggerTypeDef.MANUAL
+        var triggerType: TriggerTypeDef = TriggerTypeDef.MANUAL
     var cronExpression: String? = null
     var intervalMs: Long? = null
     var specificTime: String? = null
@@ -358,19 +352,17 @@ class TriggerBuilder(name: String) : NodeBuilder(name) {
                 scheduleType = ScheduleTypeDef.CRON,
                 cronExpression = cronExpression
             )
-            intervalMs != null -> ScheduleConfigDef(
+        intervalMs != null -> ScheduleConfigDef(
                 scheduleType = ScheduleTypeDef.INTERVAL,
                 intervalMs = intervalMs
             )
-            specificTime != null -> ScheduleConfigDef(
+        specificTime != null -> ScheduleConfigDef(
                 scheduleType = ScheduleTypeDef.SPECIFIC_TIME,
                 specificTime = specificTime
             )
-            else -> null
+        else -> null
         }
-
         val eventConfig = eventType?.let { EventTriggerConfigDef(eventType = it) }
-
         config = config.copy(
             triggerConfig = TriggerConfigDef(
                 triggerType = triggerType,
@@ -385,10 +377,9 @@ class TriggerBuilder(name: String) : NodeBuilder(name) {
 @WorkflowDsl
 class ExecuteBuilder(name: String) : NodeBuilder(name) {
     init { type = EnhancedNodeType.EXECUTE }
-    var actionType: String = "log"
-    val params = mutableMapOf<String, String>()
-
-    override fun build(): EnhancedNode {
+        var actionType: String = "log"
+        val params = mutableMapOf<String, String>()
+        override fun build(): EnhancedNode {
         config = config.copy(actionType = actionType, actionConfig = params.toMap())
         return super.build()
     }
@@ -397,11 +388,10 @@ class ExecuteBuilder(name: String) : NodeBuilder(name) {
 @WorkflowDsl
 class SagaBuilder(name: String) : NodeBuilder(name) {
     init { type = EnhancedNodeType.SAGA }
-    var actionType: String = ""
-    var compensateActionType: String = ""
-    val params = mutableMapOf<String, String>()
-
-    override fun build(): EnhancedNode {
+        var actionType: String = ""
+        var compensateActionType: String = ""
+        val params = mutableMapOf<String, String>()
+        override fun build(): EnhancedNode {
         config = config.copy(
             actionType = actionType,
             actionConfig = params.toMap(),
@@ -414,9 +404,9 @@ class SagaBuilder(name: String) : NodeBuilder(name) {
 @WorkflowDsl
 class HumanInputBuilder(name: String) : NodeBuilder(name) {
     init { type = EnhancedNodeType.HUMAN_INPUT }
-    var prompt: String = ""
-    var options: List<String> = listOf("approve", "reject")
-    var timeoutMs: Long = 24 * 60 * 60_000L
+        var prompt: String = ""
+        var options: List<String> = listOf("approve", "reject")
+        var timeoutMs: Long = 24 * 60 * 60_000L
 
     override fun build(): EnhancedNode {
         config = config.copy(
@@ -442,12 +432,10 @@ class TriggerConfigDefBuilder(private val type: TriggerTypeDef) {
         b.block()
         schedule = b.build()
     }
-
-    fun event(eventType: String, filter: String? = null) {
+        fun event(eventType: String, filter: String? = null) {
         event = EventTriggerConfigDef(eventType = eventType, filterExpression = filter)
     }
-
-    fun build(): TriggerConfigDef {
+        fun build(): TriggerConfigDef {
         return TriggerConfigDef(
             triggerType = type,
             scheduleConfig = schedule,
@@ -479,6 +467,6 @@ class ScheduleConfigDefBuilder {
  */
 fun workflow(name: String, block: WorkflowBuilder.() -> Unit): EnhancedWorkflow {
     val builder = WorkflowBuilder(name)
-    builder.block()
-    return builder.build()
+        builder.block()
+        return builder.build()
 }

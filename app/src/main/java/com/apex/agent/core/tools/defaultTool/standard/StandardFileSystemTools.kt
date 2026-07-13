@@ -26,48 +26,39 @@ import org.json.JSONObject
  */
 open class StandardFileSystemTools(context: Context) : FileSystemBaseTools(context), FileSystemAdvancedTools by FileSystemAdvancedTools(context) {
     private val enhancedTools = FileSystemEnhancedTools(context)
-    companion object {
+        companion object {
         protected const val TAG = "FileSystemTools"
     }
 
     // 保持原有方法的兼容的
-                override suspend fun listFiles(tool: AITool): ToolResult {
+        override suspend fun listFiles(tool: AITool): ToolResult {
         return super.listFiles(tool)
     }
-
-    override suspend fun readFile(tool: AITool): ToolResult {
+        override suspend fun readFile(tool: AITool): ToolResult {
         return super.readFile(tool)
     }
-
-    override suspend fun writeFile(tool: AITool): ToolResult {
+        override suspend fun writeFile(tool: AITool): ToolResult {
         return super.writeFile(tool)
     }
-
-    override suspend fun appendFile(tool: AITool): ToolResult {
+        override suspend fun appendFile(tool: AITool): ToolResult {
         return super.appendFile(tool)
     }
-
-    override suspend fun fileExists(tool: AITool): ToolResult {
+        override suspend fun fileExists(tool: AITool): ToolResult {
         return super.fileExists(tool)
     }
-
-    override suspend fun fileInfo(tool: AITool): ToolResult {
+        override suspend fun fileInfo(tool: AITool): ToolResult {
         return super.fileInfo(tool)
     }
-
-    override suspend fun readFilePart(tool: AITool): ToolResult {
+        override suspend fun readFilePart(tool: AITool): ToolResult {
         return super.readFilePart(tool)
     }
-
-    override suspend fun findFiles(tool: AITool): ToolResult {
+        override suspend fun findFiles(tool: AITool): ToolResult {
         return super.findFiles(tool)
     }
-
-    override suspend fun grepCode(tool: AITool): ToolResult {
+        override suspend fun grepCode(tool: AITool): ToolResult {
         return super.grepCode(tool)
     }
-
-    override suspend fun grepContext(tool: AITool): ToolResult {
+        override suspend fun grepContext(tool: AITool): ToolResult {
         return super.grepContext(tool)
     }
 

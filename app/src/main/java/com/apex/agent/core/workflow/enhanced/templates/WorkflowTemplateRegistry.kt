@@ -28,7 +28,7 @@ data class TemplateParameter(
     val defaultValue: String? = null,
     val description: String = "",
     val options: List<String>? = null,        // SELECT/MULTI_SELECT 选项
-    val placeholder: String? = null,
+        val placeholder: String? = null,
     val secret: Boolean = false               // 是否敏感（不回显）
 )
 
@@ -40,7 +40,7 @@ data class TemplateMeta(
     val description: String,
     val author: String = "anonymous",
     val category: String = "general",         // automation / rag / agent / data / utility
-    val tags: List<String> = emptyList(),
+        val tags: List<String> = emptyList(),
     val version: String = "1.0.0",
     val previewImageUrl: String? = null,
     val requiredPermissions: List<String> = emptyList(),
@@ -54,7 +54,7 @@ data class WorkflowTemplate(
     val id: String = "tpl_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}",
     val meta: TemplateMeta,
     val definitionJson: String,               // EnhancedWorkflow JSON
-    val parameters: List<TemplateParameter> = emptyList(),
+        val parameters: List<TemplateParameter> = emptyList(),
     val installCount: Int = 0,
     val rating: Double = 0.0,
     val ratingCount: Int = 0,
@@ -67,9 +67,9 @@ data class WorkflowTemplate(
  */
 sealed class TemplateInstallResult {
     data class Success(val workflow: EnhancedWorkflow, val warnings: List<String> = emptyList()) : TemplateInstallResult()
-    data class ValidationError(val errors: List<String>) : TemplateInstallResult()
-    data class MissingParameters(val missing: List<String>) : TemplateInstallResult()
-    data class Failure(val error: Throwable) : TemplateInstallResult()
+        data class ValidationError(val errors: List<String>) : TemplateInstallResult()
+        data class MissingParameters(val missing: List<String>) : TemplateInstallResult()
+        data class Failure(val error: Throwable) : TemplateInstallResult()
 }
 
 /**
@@ -112,10 +112,9 @@ interface WorkflowTemplateRegistry {
 class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
 
     private val templates = ConcurrentHashMap<String, WorkflowTemplate>()
-    private val ratings = ConcurrentHashMap<String, MutableList<Int>>()
-    private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
-
-    override suspend fun list(
+        private val ratings = ConcurrentHashMap<String, MutableList<Int>>()
+        private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
+        override suspend fun list(
         category: String?,
         query: String?,
         tags: List<String>,
@@ -133,8 +132,7 @@ class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
             .sortedByDescending { it.installCount }
             .take(limit)
     }
-
-    override suspend fun get(templateId: String): WorkflowTemplate? = templates[templateId]
+        override suspend fun get(templateId: String): WorkflowTemplate? = templates[templateId]
 
     override suspend fun install(
         templateId: String,
@@ -144,37 +142,34 @@ class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
             ?: return TemplateInstallResult.Failure(IllegalArgumentException("模板 $templateId 不存在"))
 
         // 校验必填参数
-    val missing = template.parameters.filter { it.required && params[it.key].isNullOrBlank() }.map { it.key }
+        val missing = template.parameters.filter { it.required && params[it.key].isNullOrBlank() }.map { it.key }
         if (missing.isNotEmpty()) return TemplateInstallResult.MissingParameters(missing)
 
         // 解析模板，替换参数占位符
-                return try {
+        return try {
             var jsonStr = template.definitionJson
             template.parameters.forEach { p ->
                 val value = params[p.key] ?: p.defaultValue ?: ""
         val placeholder = "\${{${p.key}}}"
-                jsonStr = jsonStr.replace(placeholder, value)
+        jsonStr = jsonStr.replace(placeholder, value)
             }
-
-            val workflow = EnhancedWorkflow.fromJson(jsonStr)
+        val workflow = EnhancedWorkflow.fromJson(jsonStr)
                 ?: return TemplateInstallResult.ValidationError(listOf("模板 JSON 解析失败"))
-
-            val validation = workflow.validate()
-            if (!validation.isValid) {
+        val validation = workflow.validate()
+        if (!validation.isValid) {
                 return TemplateInstallResult.ValidationError(validation.errors)
             }
 
             // 增加安装计数
-    val updated = template.copy(installCount = template.installCount + 1)
-            templates[templateId] = updated
+        val updated = template.copy(installCount = template.installCount + 1)
+        templates[templateId] = updated
 
             TemplateInstallResult.Success(workflow, validation.warnings)
         } catch (e: Exception) {
             TemplateInstallResult.Failure(e)
         }
     }
-
-    override suspend fun publish(
+        override suspend fun publish(
         definition: EnhancedWorkflow,
         meta: TemplateMeta,
         parameters: List<TemplateParameter>
@@ -187,8 +182,7 @@ class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
         templates[template.id] = template
         return template
     }
-
-    override suspend fun rate(templateId: String, score: Int): WorkflowTemplate? {
+        override suspend fun rate(templateId: String, score: Int): WorkflowTemplate? {
         val template = templates[templateId] ?: return null
         val s = score.coerceIn(1, 5)
         ratings.computeIfAbsent(templateId) { mutableListOf() }.add(s)
@@ -198,16 +192,13 @@ class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
         templates[templateId] = updated
         return updated
     }
-
-    override suspend fun delete(templateId: String): Boolean {
+        override suspend fun delete(templateId: String): Boolean {
         return templates.remove(templateId) != null
     }
-
-    override suspend fun popular(limit: Int): List<WorkflowTemplate> {
+        override suspend fun popular(limit: Int): List<WorkflowTemplate> {
         return templates.values.sortedByDescending { it.installCount }.take(limit)
     }
-
-    override suspend fun topRated(limit: Int): List<WorkflowTemplate> {
+        override suspend fun topRated(limit: Int): List<WorkflowTemplate> {
         return templates.values
             .filter { it.ratingCount > 0 }
             .sortedByDescending { it.rating }
@@ -221,7 +212,6 @@ class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
 object TemplateRegistryHolder {
     @Volatile
     private var instance: WorkflowTemplateRegistry = InMemoryTemplateRegistry()
-
-    fun get(): WorkflowTemplateRegistry = instance
+        fun get(): WorkflowTemplateRegistry = instance
     fun set(registry: WorkflowTemplateRegistry) { instance = registry }
 }

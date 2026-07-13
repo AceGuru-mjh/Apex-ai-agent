@@ -160,7 +160,7 @@ object PathUtils {
         return try {
             val basePath = Paths.get(base).normalize()
         val childPath = Paths.get(child).normalize()
-            childPath.startsWith(basePath)
+        childPath.startsWith(basePath)
         } catch (_: Exception) {
             false
         }
@@ -195,7 +195,7 @@ object PathUtils {
     fun createDirectories(path: String): Boolean {
         return try {
             Files.createDirectories(Paths.get(path))
-            true
+        true
         } catch (_: Exception) {
             false
         }
@@ -250,7 +250,7 @@ object PathUtils {
             Files.walk(Paths.get(path))
                 .sorted(java.util.Comparator.reverseOrder())
                 .forEach { Files.deleteIfExists(it) }
-            true
+        true
         } catch (_: Exception) {
             false
         }

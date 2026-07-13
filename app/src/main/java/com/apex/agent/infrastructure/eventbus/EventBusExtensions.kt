@@ -30,7 +30,7 @@ fun <T> EventFlow<T>.subscribe(scope: CoroutineScope): Flow<T> {
     scope.launch {
         flow.collect { /* 启动收集 */ }
     }
-    return flow
+        return flow
 }
 
 /**
@@ -63,7 +63,7 @@ private val lastThrottleTimes = ConcurrentHashMap<Class<*>, AtomicLong>()
 fun <T : Any> EventBus.throttledEvent(event: T, minIntervalMs: Long) {
     val now = System.currentTimeMillis()
         val lastTime = lastThrottleTimes.getOrPut(event.javaClass) { AtomicLong(0) }
-    if (now - lastTime.get() >= minIntervalMs) {
+        if (now - lastTime.get() >= minIntervalMs) {
         lastTime.set(now)
         publish(event)
     }
@@ -82,7 +82,7 @@ fun <T : Any> EventBus.debouncedEvent(
 ) {
     val key = event.javaClass
     debounceJobs[key]?.cancel()
-    debounceJobs[key] = scope.launch {
+        debounceJobs[key] = scope.launch {
         delay(waitMs)
         publish(event)
         debounceJobs.remove(key)

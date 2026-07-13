@@ -66,23 +66,21 @@ class NvidiaAIProvider(
         val jsonObject = JSONObject(baseRequestBodyJson)
 
         // Explicit thinking toggle for NVIDIA template-based reasoning models.
-    val chatTemplateKwargs = jsonObject.optJSONObject("chat_template_kwargs") ?: JSONObject()
+        val chatTemplateKwargs = jsonObject.optJSONObject("chat_template_kwargs") ?: JSONObject()
         chatTemplateKwargs.put("enable_thinking", enableThinking)
         jsonObject.put("chat_template_kwargs", chatTemplateKwargs)
 
         // GPT-OSS models on NVIDIA use reasoning_effort to control reasoning depth.
-    val modelNameLower = modelName.lowercase()
+        val modelNameLower = modelName.lowercase()
         val isGptOss = modelNameLower.contains("gpt-oss")
         val appliedGptOssDefaultEffort = enableThinking && isGptOss && !jsonObject.has("reasoning_effort")
         if (appliedGptOssDefaultEffort) {
             jsonObject.put("reasoning_effort", "medium")
         }
-
         AppLogger.d(
             "NvidiaAIProvider",
             "NVIDIA thinking params applied: enable_thinking=${enableThinking}, gpt_oss_default_effort=${appliedGptOssDefaultEffort}"
         )
-
         return createJsonRequestBody(jsonObject.toString())
     }
 }

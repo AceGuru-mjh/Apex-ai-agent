@@ -41,27 +41,27 @@ import java.util.Locale
 fun ApexMainScaffold() {
     val context = LocalContext.current
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    var currentTab by remember { mutableStateOf(ApexTab.CHAT) }
+        val scope = rememberCoroutineScope()
+        var currentTab by remember { mutableStateOf(ApexTab.CHAT) }
 
     // 热更新状态：用于在"设置"导航项上显示红点 Badge
-    val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
+        val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
         val updateState by hotUpdateManager.state.collectAsState()
-    val hasUpdate = updateState is UpdateState.UpdateAvailable
+        val hasUpdate = updateState is UpdateState.UpdateAvailable
 
     // 会话管理
-    val sessionManager = remember { ChatSessionManager(context) }
-    var sessions by remember { mutableStateOf(sessionManager.listAll()) }
-    var currentSessionId by remember { mutableStateOf<String?>(null) }
-    var showSearchField by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    var renamingSession by remember { mutableStateOf<ChatSession?>(null) }
+        val sessionManager = remember { ChatSessionManager(context) }
+        var sessions by remember { mutableStateOf(sessionManager.listAll()) }
+        var currentSessionId by remember { mutableStateOf<String?>(null) }
+        var showSearchField by remember { mutableStateOf(false) }
+        var searchQuery by remember { mutableStateOf("") }
+        var renamingSession by remember { mutableStateOf<ChatSession?>(null) }
 
     // 筛选
-    val displaySessions = if (searchQuery.isBlank()) sessions else sessionManager.search(searchQuery)
+        val displaySessions = if (searchQuery.isBlank()) sessions else sessionManager.search(searchQuery)
 
     // 新建对话
-    val onNewChat: () -> Unit = {
+        val onNewChat: () -> Unit = {
         val newSession = sessionManager.create()
         currentSessionId = newSession.id
         currentTab = ApexTab.CHAT
@@ -70,51 +70,50 @@ fun ApexMainScaffold() {
     }
 
     // 切换对话
-    val onSwitchChat: (String) -> Unit = { id ->
+        val onSwitchChat: (String) -> Unit = { id ->
         currentSessionId = id
         currentTab = ApexTab.CHAT
         scope.launch { drawerState.close() }
     }
 
     // 删除对话
-    val onDeleteChat: (String) -> Unit = { id ->
+        val onDeleteChat: (String) -> Unit = { id ->
         sessionManager.delete(id)
         if (currentSessionId == id) currentSessionId = null
         sessions = sessionManager.listAll()
     }
 
     // 置顶
-    val onTogglePin: (String) -> Unit = { id ->
+        val onTogglePin: (String) -> Unit = { id ->
         sessionManager.togglePin(id)
         sessions = sessionManager.listAll()
     }
-
-    ModalNavigationDrawer(
+        ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.width(320.dp)) {
                 // 头部 — 新建对话 + 搜索
-                Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Apex AI Agent", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                        Spacer(Modifier.weight(1f))
-                        IconButton(onClick = { showSearchField = !showSearchField }) {
+        Spacer(Modifier.weight(1f))
+        IconButton(onClick = { showSearchField = !showSearchField }) {
                             Icon(Icons.Default.Search, "搜索")
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Button(
+        Spacer(Modifier.height(8.dp))
+        Button(
                         onClick = onNewChat,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Icon(Icons.Default.Add, null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("新建对话")
+        Spacer(Modifier.width(8.dp))
+        Text("新建对话")
                     }
-                    if (showSearchField) {
+        if (showSearchField) {
                         Spacer(Modifier.height(8.dp))
-                        OutlinedTextField(
+        OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
                             modifier = Modifier.fillMaxWidth(),
@@ -124,10 +123,10 @@ fun ApexMainScaffold() {
                         )
                     }
                 }
-                HorizontalDivider()
+        HorizontalDivider()
 
                 // 历史对话列表
-                if (displaySessions.isEmpty()) {
+        if (displaySessions.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxWidth().padding(32.dp),
                         contentAlignment = Alignment.Center
@@ -156,18 +155,17 @@ fun ApexMainScaffold() {
                         }
                     }
                 }
-
-                HorizontalDivider()
+        HorizontalDivider()
 
                 // 导航项
-                ApexTab.values().forEach { tab ->
+        ApexTab.values().forEach { tab ->
                     NavigationDrawerItem(
                         label = { Text(tab.label) },
                         selected = currentTab == tab,
                         icon = {
                             if (tab == ApexTab.SETTINGS && hasUpdate) {
                                 // 发现新版本时，在设置图标右上角加红点 Badge
-                BadgedBox(badge = { Badge() }) {
+        BadgedBox(badge = { Badge() }) {
                                     Icon(tab.icon, tab.description)
                                 }
                             } else {
@@ -179,11 +177,10 @@ fun ApexMainScaffold() {
                         shape = RoundedCornerShape(16.dp)
                     )
                 }
-
-                HorizontalDivider()
+        HorizontalDivider()
 
                 // 关于
-                NavigationDrawerItem(
+        NavigationDrawerItem(
                     label = { Text("关于") },
                     selected = false,
                     icon = { Icon(Icons.Default.Info, "关于") },
@@ -191,12 +188,12 @@ fun ApexMainScaffold() {
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
                     shape = RoundedCornerShape(16.dp)
                 )
-                Column(modifier = Modifier.padding(24.dp)) {
+        Column(modifier = Modifier.padding(24.dp)) {
                     Text("Apex Suite · Material You 3", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(4.dp))
-                    Text("开发者：MJH", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("QQ：2544240258", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("微信：meng4117222", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(4.dp))
+        Text("开发者：MJH", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("QQ：2544240258", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("微信：meng4117222", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -209,17 +206,17 @@ fun ApexMainScaffold() {
                 currentSessionId = currentSessionId,
                 onSessionUpdate = { id, lastMsg, count ->
                     sessionManager.updateLastMessage(id, lastMsg, count)
-                    sessions = sessionManager.listAll()
+        sessions = sessionManager.listAll()
                 }
             )
-            ApexTab.SUITE -> com.apex.agent.ui.screens.suite.SuiteScreen(onMenuClick = { scope.launch { drawerState.open() } })
-            ApexTab.DIAGNOSTICS -> com.apex.agent.ui.screens.diagnostics.DiagnosticsScreen(onMenuClick = { scope.launch { drawerState.open() } })
-            ApexTab.SETTINGS -> com.apex.agent.ui.screens.settings.SettingsScreen(onMenuClick = { scope.launch { drawerState.open() } })
+        ApexTab.SUITE -> com.apex.agent.ui.screens.suite.SuiteScreen(onMenuClick = { scope.launch { drawerState.open() } })
+        ApexTab.DIAGNOSTICS -> com.apex.agent.ui.screens.diagnostics.DiagnosticsScreen(onMenuClick = { scope.launch { drawerState.open() } })
+        ApexTab.SETTINGS -> com.apex.agent.ui.screens.settings.SettingsScreen(onMenuClick = { scope.launch { drawerState.open() } })
         }
     }
 
     // 重命名弹窗
-                renamingSession?.let { session ->
+        renamingSession?.let { session ->
         var newTitle by remember(session.id) { mutableStateOf(session.title) }
         AlertDialog(
             onDismissRequest = { renamingSession = null },
@@ -236,8 +233,8 @@ fun ApexMainScaffold() {
             confirmButton = {
                 FilledButton(onClick = {
                     sessionManager.rename(session.id, newTitle)
-                    sessions = sessionManager.listAll()
-                    renamingSession = null
+        sessions = sessionManager.listAll()
+        renamingSession = null
                 }) { Text("确定") }
             },
             dismissButton = { TextButton(onClick = { renamingSession = null }) { Text("取消") } }
@@ -271,9 +268,9 @@ private fun SessionItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (session.pinned) {
                     Text("📌", style = MaterialTheme.typography.labelSmall)
-                    Spacer(Modifier.width(4.dp))
+        Spacer(Modifier.width(4.dp))
                 }
-                Text(
+        Text(
                     session.title,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
@@ -282,7 +279,7 @@ private fun SessionItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            if (session.lastMessage.isNotBlank()) {
+        if (session.lastMessage.isNotBlank()) {
                 Text(
                     session.lastMessage,
                     style = MaterialTheme.typography.labelSmall,
@@ -291,7 +288,7 @@ private fun SessionItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Text(
+        Text(
                 "${dateFormat.format(Date(session.updatedAt))} · ${session.messageCount} 条",
                 style = MaterialTheme.typography.labelSmall,
                 color = fg.copy(alpha = 0.4f)
@@ -299,7 +296,7 @@ private fun SessionItem(
         }
 
         // 操作菜单
-                IconButton(onClick = onPin, modifier = Modifier.size(32.dp)) {
+        IconButton(onClick = onPin, modifier = Modifier.size(32.dp)) {
             Icon(
                 Icons.Default.PushPin,
                 if (session.pinned) "取消置顶" else "置顶",

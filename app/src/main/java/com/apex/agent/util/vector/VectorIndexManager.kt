@@ -29,8 +29,8 @@ class VectorIndexManager<T : Item<Id, FloatArray>, Id : Any>(
             } catch (e: Exception) {
                 com.apex.util.AppLogger.e("VectorIndexManager", "Failed to load index, creating new one.", e)
                 // 如果加载失败，删除可能已损坏的文件并创建一个新，
-                indexFile.delete()
-                HnswIndex
+        indexFile.delete()
+        HnswIndex
                     .newBuilder(dimensions, DistanceFunctions.FLOAT_COSINE_DISTANCE, maxElements)
                     .withRemoveEnabled()
                     .build()
@@ -58,8 +58,7 @@ class VectorIndexManager<T : Item<Id, FloatArray>, Id : Any>(
     fun findNearest(query: FloatArray, k: Int): List<T> {
         return index?.findNearest(query, k)?.map { it.item() } ?: emptyList()
     }
-
-    fun size(): Int = index?.size() ?: 0
+        fun size(): Int = index?.size() ?: 0
 
     fun maxItemCount(): Int = index?.maxItemCount ?: maxElements
 
@@ -75,8 +74,8 @@ class VectorIndexManager<T : Item<Id, FloatArray>, Id : Any>(
         if (indexFile != null && index != null) {
             try {
                 // 确保父目录存，
-                indexFile.parentFile?.mkdirs()
-                ObjectOutputStream(indexFile.outputStream()).use { it.writeObject(index) }
+        indexFile.parentFile?.mkdirs()
+        ObjectOutputStream(indexFile.outputStream()).use { it.writeObject(index) }
             } catch (e: IOException) {
                 com.apex.util.AppLogger.e("VectorIndexManager", "Failed to save index to ${indexFile.absolutePath}", e)
             }

@@ -104,15 +104,13 @@ object KeyboardUtils {
     fun registerKeyboardVisibilityListener(activity: Activity, onVisibilityChanged: (Boolean) -> Unit) {
         val rootView = activity.window.decorView
         var lastVisible = isKeyboardVisible(activity)
-
         rootView.viewTreeObserver.addOnGlobalLayoutListener {
             val currentVisible = isKeyboardVisible(activity)
-            if (currentVisible != lastVisible) {
+        if (currentVisible != lastVisible) {
                 lastVisible = currentVisible
                 onVisibilityChanged(currentVisible)
             }
         }
-
         if (activity is AppCompatActivity) {
             activity.lifecycle.addObserver(LifecycleEventObserver { source: LifecycleOwner, event: Lifecycle.Event ->
                 if (event == Lifecycle.Event.ON_DESTROY) {

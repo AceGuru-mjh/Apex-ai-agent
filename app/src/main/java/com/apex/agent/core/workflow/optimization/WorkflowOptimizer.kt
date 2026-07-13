@@ -18,12 +18,10 @@ class WorkflowOptimizer(private val name: String = "workflow-optimizer") {
         val retryCount: Int = 0,
         val timeoutMs: Long = 30000L
     )
-
-    enum class StepType {
+        enum class StepType {
         COMPUTE, IO, NETWORK, LLM_CALL, TOOL_EXECUTION, DATA_TRANSFORM, CONDITIONAL, PARALLEL
     }
-
-    data class WorkflowPlan(
+        data class WorkflowPlan(
         val workflowId: String,
         val steps: List<WorkflowStep>,
         val parallelGroups: List<List<String>>,
@@ -31,8 +29,7 @@ class WorkflowOptimizer(private val name: String = "workflow-optimizer") {
         val estimatedTotalMs: Long,
         val optimizationScore: Double
     )
-
-    data class OptimizationMetrics(
+        data class OptimizationMetrics(
         val totalWorkflows: Long,
         val totalSteps: Long,
         val optimizedSteps: Long,
@@ -41,24 +38,20 @@ class WorkflowOptimizer(private val name: String = "workflow-optimizer") {
         val cacheHitRate: Double,
         val totalTimeSavedMs: Long
     )
-
-    private val logger = LoggerFactory.getLogger("WorkflowOptimizer-$name")
-    private val stepTimings = ConcurrentHashMap<String, MutableList<Long>>()
-    private val stepResults = ConcurrentHashMap<String, Any?>()
-    private val optimizedPlans = ConcurrentHashMap<String, WorkflowPlan>()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    private val totalWorkflows = AtomicLong(0)
-    private val totalSteps = AtomicLong(0)
-    private val optimizedSteps = AtomicLong(0)
-    private val totalTimeSaved = AtomicLong(0)
-    private val stepTimingHits = AtomicLong(0)
-    private val stepTimingMisses = AtomicLong(0)
-
-    suspend fun analyzeWorkflow(workflowId: String, steps: List<WorkflowStep>): WorkflowPlan {
+        private val logger = LoggerFactory.getLogger("WorkflowOptimizer-$name")
+        private val stepTimings = ConcurrentHashMap<String, MutableList<Long>>()
+        private val stepResults = ConcurrentHashMap<String, Any?>()
+        private val optimizedPlans = ConcurrentHashMap<String, WorkflowPlan>()
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        private val totalWorkflows = AtomicLong(0)
+        private val totalSteps = AtomicLong(0)
+        private val optimizedSteps = AtomicLong(0)
+        private val totalTimeSaved = AtomicLong(0)
+        private val stepTimingHits = AtomicLong(0)
+        private val stepTimingMisses = AtomicLong(0)
+        suspend fun analyzeWorkflow(workflowId: String, steps: List<WorkflowStep>): WorkflowPlan {
         totalWorkflows.incrementAndGet()
         totalSteps.addAndGet(steps.size.toLong())
-
         val dependencies = buildDependencyMap(steps)
         val parallelGroups = findParallelGroups(steps, dependencies)
         val criticalPath = findCriticalPath(steps, dependencies)
@@ -77,43 +70,36 @@ class WorkflowOptimizer(private val name: String = "workflow-optimizer") {
             estimatedTotalMs = estimatedTotal,
             optimizationScore = optimizationScore
         )
-
         optimizedPlans[workflowId] = plan
         optimizedSteps.addAndGet(steps.size.toLong())
         totalTimeSaved.addAndGet(sequentialTotal - estimatedTotal)
-
         return plan
     }
-
-    suspend fun recordStepTiming(stepId: String, durationMs: Long) {
+        suspend fun recordStepTiming(stepId: String, durationMs: Long) {
         val timings = stepTimings.getOrPut(stepId) { mutableListOf() }
         timings.add(durationMs)
         if (timings.size > 20) timings.removeAt(0)
     }
-
-    suspend fun getEstimatedStepDuration(stepId: String): Long {
+        suspend fun getEstimatedStepDuration(stepId: String): Long {
         val timings = stepTimings[stepId]
         return if (timings != null && timings.isNotEmpty()) {
             stepTimingHits.incrementAndGet()
-            timings.average().toLong()
+        timings.average().toLong()
         } else {
             stepTimingMisses.incrementAndGet()
             1000L
         }
     }
-
-    suspend fun cacheStepResult(stepId: String, result: Any?, ttlMs: Long = 60000L) {
+        suspend fun cacheStepResult(stepId: String, result: Any?, ttlMs: Long = 60000L) {
         stepResults[stepId] = result
     }
-
-    fun getCachedStepResult(stepId: String): Any? = stepResults[stepId]
+        fun getCachedStepResult(stepId: String): Any? = stepResults[stepId]
 
     suspend fun getOptimizedExecution(workflowId: String): List<List<String>> {
         val plan = optimizedPlans[workflowId] ?: return emptyList()
         return plan.parallelGroups
     }
-
-    fun getMetrics(): OptimizationMetrics {
+        fun getMetrics(): OptimizationMetrics {
         val totalHits = stepTimingHits.get()
         val totalMisses = stepTimingMisses.get()
         return OptimizationMetrics(
@@ -123,70 +109,60 @@ class WorkflowOptimizer(private val name: String = "workflow-optimizer") {
             averageCriticalPathMs = 0.0,
             averageParallelismGain = 0.0,
             cacheHitRate = if (totalHits + totalMisses > 0)
-                totalHits.toDouble() / (totalHits + totalMisses) else 0.0,
+        totalHits.toDouble() / (totalHits + totalMisses) else 0.0,
             totalTimeSavedMs = totalTimeSaved.get()
         )
     }
-
-    private fun buildDependencyMap(steps: List<WorkflowStep>): Map<String, Set<String>> {
+        private fun buildDependencyMap(steps: List<WorkflowStep>): Map<String, Set<String>> {
         val deps = mutableMapOf<String, Set<String>>()
         for (step in steps) {
             deps[step.id] = step.dependencies.toSet()
         }
         return deps
     }
-
-    private fun findParallelGroups(steps: List<WorkflowStep>, dependencies: Map<String, Set<String>>): List<List<String>> {
+        private fun findParallelGroups(steps: List<WorkflowStep>, dependencies: Map<String, Set<String>>): List<List<String>> {
         val levels = mutableListOf<MutableList<String>>()
         val nodeLevels = mutableMapOf<String, Int>()
-
         fun getLevel(stepId: String): Int {
             nodeLevels[stepId]?.let { return it }
-            val deps = dependencies[stepId] ?: emptySet()
+        val deps = dependencies[stepId] ?: emptySet()
         val level = if (deps.isEmpty()) 0
             else (deps.mapNotNull { nodeLevels[it] }.maxOrNull() ?: 0) + 1
             nodeLevels[stepId] = level
             while (levels.size <= level) levels.add(mutableListOf())
-            levels[level].add(stepId)
-            return level
+        levels[level].add(stepId)
+        return level
         }
-
         for (step in steps) { getLevel(step.id) }
         return levels
     }
-
-    private fun findCriticalPath(steps: List<WorkflowStep>, dependencies: Map<String, Set<String>>): List<String> {
+        private fun findCriticalPath(steps: List<WorkflowStep>, dependencies: Map<String, Set<String>>): List<String> {
         val longestPath = mutableListOf<String>()
         val visited = mutableSetOf<String>()
-
         fun dfs(stepId: String, path: MutableList<String>) {
             if (stepId in visited) return
             visited.add(stepId)
-            path.add(stepId)
-
-            val deps = dependencies[stepId] ?: emptySet()
-            if (deps.isEmpty()) {
+        path.add(stepId)
+        val deps = dependencies[stepId] ?: emptySet()
+        if (deps.isEmpty()) {
                 if (path.sumOf { id -> steps.find { it.id == id }?.estimatedDurationMs ?: 0 } >
                     longestPath.sumOf { id -> steps.find { it.id == id }?.estimatedDurationMs ?: 0 }) {
                     longestPath.clear()
-                    longestPath.addAll(path)
+        longestPath.addAll(path)
                 }
             } else {
                 for (dep in deps) {
                     dfs(dep, path)
                 }
             }
-
-            path.removeAt(path.lastIndex)
-            visited.remove(stepId)
+        path.removeAt(path.lastIndex)
+        visited.remove(stepId)
         }
-
         for (step in steps) {
             if (step.dependencies.isEmpty()) {
                 dfs(step.id, mutableListOf())
             }
         }
-
         return longestPath
     }
 }
@@ -200,70 +176,62 @@ class WorkflowCache(private val name: String = "workflow-cache") {
         val cachedAt: Long,
         val expiresAt: Long
     )
-
-    private val cache = ConcurrentHashMap<String, CachedStep>()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val hits = AtomicLong(0)
-    private val misses = AtomicLong(0)
-    private val evictions = AtomicLong(0)
-    private val maxEntries = 500
+        private val cache = ConcurrentHashMap<String, CachedStep>()
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        private val hits = AtomicLong(0)
+        private val misses = AtomicLong(0)
+        private val evictions = AtomicLong(0)
+        private val maxEntries = 500
 
     init {
         scope.launch {
             while (true) {
                 delay(60000)
-                cleanup()
+        cleanup()
             }
         }
     }
-
-    fun getOrNull(stepId: String, workflowId: String, input: Map<String, Any?>): Any? {
+        fun getOrNull(stepId: String, workflowId: String, input: Map<String, Any?>): Any? {
         val key = buildKey(stepId, workflowId, input)
         val entry = cache[key]
         if (entry != null && System.currentTimeMillis() < entry.expiresAt) {
             hits.incrementAndGet()
-            return entry.output
+        return entry.output
         }
         if (entry != null) {
             cache.remove(key)
-            evictions.incrementAndGet()
+        evictions.incrementAndGet()
         }
         misses.incrementAndGet()
         return null
     }
-
-    fun put(stepId: String, workflowId: String, input: Map<String, Any?>, output: Any?, ttlMs: Long = 60000L) {
+        fun put(stepId: String, workflowId: String, input: Map<String, Any?>, output: Any?, ttlMs: Long = 60000L) {
         while (cache.size >= maxEntries) {
             val oldest = cache.minByOrNull { it.value.cachedAt }?.key ?: break
             cache.remove(oldest)
-            evictions.incrementAndGet()
+        evictions.incrementAndGet()
         }
         val key = buildKey(stepId, workflowId, input)
         val now = System.currentTimeMillis()
         cache[key] = CachedStep(stepId, workflowId, input, output, now, now + ttlMs)
     }
-
-    fun invalidateWorkflow(workflowId: String) {
+        fun invalidateWorkflow(workflowId: String) {
         cache.entries.removeAll { it.value.workflowId == workflowId }
     }
-
-    fun invalidateStep(stepId: String) {
+        fun invalidateStep(stepId: String) {
         cache.entries.removeAll { it.value.stepId == stepId }
     }
-
-    fun clear() {
+        fun clear() {
         cache.clear()
         hits.set(0)
         misses.set(0)
         evictions.set(0)
     }
-
-    fun getHitRate(): Double {
+        fun getHitRate(): Double {
         val total = hits.get() + misses.get()
         return if (total > 0) hits.get().toDouble() / total else 0.0
     }
-
-    fun getStats(): Map<String, Any> = mapOf(
+        fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "size" to cache.size,
         "hits" to hits.get(),
@@ -271,12 +239,10 @@ class WorkflowCache(private val name: String = "workflow-cache") {
         "evictions" to evictions.get(),
         "hitRate" to getHitRate()
     )
-
-    private fun buildKey(stepId: String, workflowId: String, input: Map<String, Any?>): String {
+        private fun buildKey(stepId: String, workflowId: String, input: Map<String, Any?>): String {
         return "$workflowId::$stepId::${input.hashCode()}"
     }
-
-    fun shutdown() { scope.cancel() }
+        fun shutdown() { scope.cancel() }
 }
 
 class WorkflowScheduler(private val name: String = "workflow-scheduler") {
@@ -288,12 +254,11 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
         val enabled: Boolean = true,
         val createdAt: Long = System.currentTimeMillis()
     )
-
-    private val logger = LoggerFactory.getLogger("WorkflowScheduler-$name")
-    private val schedules = ConcurrentHashMap<String, ScheduledWorkflow>()
-    private val executionHistory = CopyOnWriteArrayList<ExecutionRecord>()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val maxHistorySize = 1000
+        private val logger = LoggerFactory.getLogger("WorkflowScheduler-$name")
+        private val schedules = ConcurrentHashMap<String, ScheduledWorkflow>()
+        private val executionHistory = CopyOnWriteArrayList<ExecutionRecord>()
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        private val maxHistorySize = 1000
     private val scheduleCheckIntervalMs = 10000L
 
     data class ExecutionRecord(
@@ -304,8 +269,7 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
         val error: String? = null,
         val durationMs: Long
     )
-
-    data class SchedulerMetrics(
+        data class SchedulerMetrics(
         val totalSchedules: Int,
         val activeSchedules: Int,
         val totalExecutions: Long,
@@ -313,38 +277,31 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
         val failedExecutions: Long,
         val averageExecutionDurationMs: Double
     )
-
-    init {
+        init {
         scope.launch {
             while (true) {
                 delay(scheduleCheckIntervalMs)
-                checkSchedules()
+        checkSchedules()
             }
         }
     }
-
-    fun registerSchedule(schedule: ScheduledWorkflow) {
+        fun registerSchedule(schedule: ScheduledWorkflow) {
         schedules[schedule.workflowId] = schedule
         logger.info("Registered schedule: {} [{}]", schedule.workflowId, schedule.cronExpression)
     }
-
-    fun unregisterSchedule(workflowId: String) {
+        fun unregisterSchedule(workflowId: String) {
         schedules.remove(workflowId)
     }
-
-    fun enableSchedule(workflowId: String) {
+        fun enableSchedule(workflowId: String) {
         schedules.computeIfPresent(workflowId) { _, s -> s.copy(enabled = true) }
     }
-
-    fun disableSchedule(workflowId: String) {
+        fun disableSchedule(workflowId: String) {
         schedules.computeIfPresent(workflowId) { _, s -> s.copy(enabled = false) }
     }
-
-    fun getSchedule(workflowId: String): ScheduledWorkflow? = schedules[workflowId]
+        fun getSchedule(workflowId: String): ScheduledWorkflow? = schedules[workflowId]
 
     fun getAllSchedules(): List<ScheduledWorkflow> = schedules.values.toList()
-
-    fun recordExecution(workflowId: String, success: Boolean, durationMs: Long, error: String? = null) {
+        fun recordExecution(workflowId: String, success: Boolean, durationMs: Long, error: String? = null) {
         val record = ExecutionRecord(
             workflowId = workflowId,
             startTime = System.currentTimeMillis() - durationMs,
@@ -356,12 +313,10 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
         executionHistory.add(record)
         while (executionHistory.size > maxHistorySize) executionHistory.removeAt(0)
     }
-
-    fun getExecutionHistory(workflowId: String, limit: Int = 10): List<ExecutionRecord> {
+        fun getExecutionHistory(workflowId: String, limit: Int = 10): List<ExecutionRecord> {
         return executionHistory.filter { it.workflowId == workflowId }.takeLast(limit)
     }
-
-    fun getMetrics(): SchedulerMetrics {
+        fun getMetrics(): SchedulerMetrics {
         val total = executionHistory.size
         val successful = executionHistory.count { it.success }
         return SchedulerMetrics(
@@ -371,25 +326,23 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
             successfulExecutions = successful.toLong(),
             failedExecutions = (total - successful).toLong(),
             averageExecutionDurationMs = if (total > 0)
-                executionHistory.sumOf { it.durationMs }.toDouble() / total else 0.0
+        executionHistory.sumOf { it.durationMs }.toDouble() / total else 0.0
         )
     }
-
-    fun shutdown() {
+        fun shutdown() {
         scope.cancel()
         schedules.clear()
     }
-
-    private suspend fun checkSchedules() {
+        private suspend fun checkSchedules() {
         for ((id, schedule) in schedules) {
             if (!schedule.enabled) continue
             if (shouldExecute(schedule)) {
                 logger.debug("Triggering scheduled workflow: {}", id)
-                scope.launch {
+        scope.launch {
                     val start = System.currentTimeMillis()
-                    try {
+        try {
                         // In production, this would call the workflow engine
-    val duration = System.currentTimeMillis() - start
+        val duration = System.currentTimeMillis() - start
                         recordExecution(id, true, duration)
                     } catch (e: Exception) {
                         val duration = System.currentTimeMillis() - start
@@ -399,8 +352,7 @@ class WorkflowScheduler(private val name: String = "workflow-scheduler") {
             }
         }
     }
-
-    private fun shouldExecute(schedule: ScheduledWorkflow): Boolean {
+        private fun shouldExecute(schedule: ScheduledWorkflow): Boolean {
         return true
     }
 }
@@ -415,24 +367,19 @@ class WorkflowStepOptimizer(private val name: String = "step-optimizer") {
         val estimatedInputSize: Long,
         val estimatedOutputSize: Long
     )
-
-    private val stepAnalysis = ConcurrentHashMap<String, StepOptimization>()
-    private val inputSizeHistory = ConcurrentHashMap<String, MutableList<Long>>()
-    private val outputSizeHistory = ConcurrentHashMap<String, MutableList<Long>>()
-    private val executionTimeHistory = ConcurrentHashMap<String, MutableList<Long>>()
-
-    fun analyzeStep(stepId: String, input: Any?, output: Any?, durationMs: Long) {
+        private val stepAnalysis = ConcurrentHashMap<String, StepOptimization>()
+        private val inputSizeHistory = ConcurrentHashMap<String, MutableList<Long>>()
+        private val outputSizeHistory = ConcurrentHashMap<String, MutableList<Long>>()
+        private val executionTimeHistory = ConcurrentHashMap<String, MutableList<Long>>()
+        fun analyzeStep(stepId: String, input: Any?, output: Any?, durationMs: Long) {
         val inputSize = estimateSize(input)
         val outputSize = estimateSize(output)
-
         inputSizeHistory.computeIfAbsent(stepId) { mutableListOf() }.add(inputSize)
         outputSizeHistory.computeIfAbsent(stepId) { mutableListOf() }.add(outputSize)
         executionTimeHistory.computeIfAbsent(stepId) { mutableListOf() }.add(durationMs)
-
         trimHistory(inputSizeHistory.getValue(stepId))
         trimHistory(outputSizeHistory.getValue(stepId))
         trimHistory(executionTimeHistory.getValue(stepId))
-
         val avgExecTime = executionTimeHistory[stepId]?.average() ?: durationMs.toDouble()
         val avgInputSize = inputSizeHistory[stepId]?.average() ?: inputSize.toDouble()
         val avgOutputSize = outputSizeHistory[stepId]?.average() ?: outputSize.toDouble()
@@ -451,8 +398,7 @@ class WorkflowStepOptimizer(private val name: String = "step-optimizer") {
             estimatedOutputSize = avgOutputSize.toLong()
         )
     }
-
-    fun getOptimization(stepId: String): StepOptimization? = stepAnalysis[stepId]
+        fun getOptimization(stepId: String): StepOptimization? = stepAnalysis[stepId]
 
     fun clear() {
         stepAnalysis.clear()
@@ -460,26 +406,23 @@ class WorkflowStepOptimizer(private val name: String = "step-optimizer") {
         outputSizeHistory.clear()
         executionTimeHistory.clear()
     }
-
-    fun getStats(): Map<String, Any> = mapOf(
+        fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "stepsAnalyzed" to stepAnalysis.size,
         "cacheableSteps" to stepAnalysis.count { it.value.canBeCached },
         "parallelizableSteps" to stepAnalysis.count { it.value.canBeParallelized }
     )
-
-    private fun estimateSize(obj: Any?): Long {
+        private fun estimateSize(obj: Any?): Long {
         if (obj == null) return 0L
         return when (obj) {
             is String -> obj.length.toLong()
-            is ByteArray -> obj.size.toLong()
-            is List<*> -> obj.size * 100L
+        is ByteArray -> obj.size.toLong()
+        is List<*> -> obj.size * 100L
             is Map<*, *> -> obj.size * 200L
             else -> 100L
         }
     }
-
-    private fun trimHistory(list: MutableList<Long>) {
+        private fun trimHistory(list: MutableList<Long>) {
         while (list.size > 20) list.removeAt(0)
     }
 }

@@ -22,8 +22,7 @@ class TaskComplexityQuantifier @Inject constructor() {
             reasoning = buildReasoning(taskDescription, category, difficulty, complexityScore)
         )
     }
-
-    fun createSubTaskTickets(originalTask: String, subTasks: List<String>): List<SubTaskTicket> {
+        fun createSubTaskTickets(originalTask: String, subTasks: List<String>): List<SubTaskTicket> {
         return subTasks.mapIndexed { index, description ->
             SubTaskTicket(
                 id = "subtask_${System.currentTimeMillis()}_$index",
@@ -32,14 +31,12 @@ class TaskComplexityQuantifier @Inject constructor() {
             )
         }
     }
-
-    data class SubTaskTicket(
+        data class SubTaskTicket(
         val id: String,
         val description: String,
         val features: ComplexityReport
     )
-
-    private val categoryPatterns = listOf(
+        private val categoryPatterns = listOf(
         "coding" to listOf(
             "code", "program", "开取", "编程", "implement", "function", "class",
             "algorithm", "api", "endpoint", "database", "sql", "bug", "fix", "refactor"
@@ -89,18 +86,16 @@ class TaskComplexityQuantifier @Inject constructor() {
             "安全", "ssl", "oauth", "jwt", "xss", "sql injection"
         )
     )
-
-    fun identifyCategory(description: String): String {
+        fun identifyCategory(description: String): String {
         val lower = description.lowercase()
         val scores = categoryPatterns.map { (category, patterns) ->
             val matchCount = patterns.count { pattern -> lower.contains(pattern) }
-            category to matchCount
+        category to matchCount
         }
         val best = scores.maxByOrNull { it.second }
         return if (best != null && best.second > 0) best.first else "other"
     }
-
-    fun estimateDifficulty(description: String): Int {
+        fun estimateDifficulty(description: String): Int {
         val lower = description.lowercase()
         var score = 3
 
@@ -116,28 +111,24 @@ class TaskComplexityQuantifier @Inject constructor() {
             -1 to listOf("typo", "rename", "cosmetic", "format"),
             -2 to listOf("quick", "快通", "easy", "straightforward")
         )
-
         for ((delta, patterns) in complexityIndicators) {
             if (patterns.any { lower.contains(it) }) {
                 score += delta
             }
         }
-
         if (lower.length > 200) score += 1
         if (lower.length > 500) score += 1
         if (lower.contains("\n") && lower.lines().size > 20) score += 1
 
         return score.coerceIn(1, 10)
     }
-
-    fun computeComplexityScore(description: String, difficulty: Int): Float {
+        fun computeComplexityScore(description: String, difficulty: Int): Float {
         val difficultyScore = difficulty.toFloat() / 10f
         val lengthScore = (description.length.toFloat() / 1000f).coerceAtMost(0.3f)
         val indicatorScore = countComplexityIndicators(description).toFloat() / 10f
         return (difficultyScore * 0.5f + lengthScore * 0.2f + indicatorScore * 0.3f).coerceIn(0f, 1f)
     }
-
-    private fun estimateResourceRequirement(category: String, difficulty: Int): ComplexityReport.ResourceRequirement {
+        private fun estimateResourceRequirement(category: String, difficulty: Int): ComplexityReport.ResourceRequirement {
         val multiplier = 1.0 + (difficulty - 1) * 0.15
         val baseMemory = when (category) {
             "coding" -> 256; "data" -> 512; "debugging" -> 384
@@ -152,8 +143,7 @@ class TaskComplexityQuantifier @Inject constructor() {
             storage = (20 * multiplier).toInt()
         )
     }
-
-    private fun estimateRiskLevel(description: String): Int {
+        private fun estimateRiskLevel(description: String): Int {
         val lower = description.lowercase()
         var risk = 2
         val riskIndicators = listOf(
@@ -170,8 +160,7 @@ class TaskComplexityQuantifier @Inject constructor() {
         }
         return risk.coerceIn(1, 5)
     }
-
-    private fun estimateTime(difficulty: Int): Int {
+        private fun estimateTime(difficulty: Int): Int {
         return when {
             difficulty <= 2 -> difficulty * 5
             difficulty <= 5 -> difficulty * 10
@@ -179,8 +168,7 @@ class TaskComplexityQuantifier @Inject constructor() {
             else -> difficulty * 30
         }
     }
-
-    private fun identifyRequiredSkills(category: String, description: String): List<String> {
+        private fun identifyRequiredSkills(category: String, description: String): List<String> {
         val skills = mutableListOf<String>()
         val lower = description.lowercase()
         val categorySkills = mapOf(
@@ -213,18 +201,16 @@ class TaskComplexityQuantifier @Inject constructor() {
         }
         return skills.distinct().take(8)
     }
-
-    private fun buildReasoning(description: String, category: String, difficulty: Int, score: Float): String {
+        private fun buildReasoning(description: String, category: String, difficulty: Int, score: Float): String {
         val diffLabel = when {
             difficulty <= 3 -> "简单"
-            difficulty <= 6 -> "中等"
-            difficulty <= 8 -> "复杂"
-            else -> "极复权"
+        difficulty <= 6 -> "中等"
+        difficulty <= 8 -> "复杂"
+        else -> "极复权"
         }
         return "类别: $category, 难度: $diffLabel($difficulty/10), 复杂度分数 ${"%.2f".format(score)}"
     }
-
-    private fun countComplexityIndicators(description: String): Int {
+        private fun countComplexityIndicators(description: String): Int {
         val indicators = listOf(
             "integrat", "distribut", "concurr", "optimiz", "scalable",
             "resilien", "failover", "redundan", "consisten", "transaction",

@@ -35,216 +35,180 @@ class SkillPluginManager private constructor(private val context: Context) {
         private val KEY_ENABLED_PLUGINS = stringPreferencesKey("enabled_plugins")
         private val KEY_PLUGIN_SETTINGS = stringPreferencesKey("plugin_settings")
         private val KEY_PLUGIN_ORDER = stringPreferencesKey("plugin_order")
-
         fun getInstance(context: Context): SkillPluginManager {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: SkillPluginManager(context.applicationContext).also { INSTANCE = it }
             }
         }
     }
-
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
-
-    private val plugins = ConcurrentHashMap<String, SkillPlugin>()
-    private val pluginScopes = ConcurrentHashMap<String, CoroutineScope>()
-    private val eventListeners = CopyOnWriteArrayList<PluginEventListener>()
-
-    private val enabledPluginIds = ConcurrentHashMap.newKeySet<String>()
-    private val pluginSettings = ConcurrentHashMap<String, Map<String, Any>>()
-    private var pluginOrder = listOf<String>()
-
-    private val loader by lazy { SkillPluginLoader.getInstance(context) }
-    private val skillManager by lazy { SkillManager.getInstance(context) }
-    private val usageTracker by lazy { SkillUsageTracker.getInstance(context) }
-
-    private val scope = CoroutineScope(Dispatchers.Main)
+        private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+        private val plugins = ConcurrentHashMap<String, SkillPlugin>()
+        private val pluginScopes = ConcurrentHashMap<String, CoroutineScope>()
+        private val eventListeners = CopyOnWriteArrayList<PluginEventListener>()
+        private val enabledPluginIds = ConcurrentHashMap.newKeySet<String>()
+        private val pluginSettings = ConcurrentHashMap<String, Map<String, Any>>()
+        private var pluginOrder = listOf<String>()
+        private val loader by lazy { SkillPluginLoader.getInstance(context) }
+        private val skillManager by lazy { SkillManager.getInstance(context) }
+        private val usageTracker by lazy { SkillUsageTracker.getInstance(context) }
+        private val scope = CoroutineScope(Dispatchers.Main)
         val pluginCount: Int get() = plugins.size
     val enabledCount: Int get() = enabledPluginIds.size
 
     fun registerPlugin(plugin: SkillPlugin) {
         val pluginId = plugin.id
         AppLogger.d(TAG, "Registering plugin: ${pluginId}")
-
         plugins[pluginId]?.let { existing ->
             AppLogger.w(TAG, "Plugin ${pluginId} is already registered, replacing")
-            unregisterPlugin(pluginId)
+        unregisterPlugin(pluginId)
         }
-
         plugins[pluginId] = plugin
         savePluginOrder()
         notifyPluginLoaded(plugin)
-
         AppLogger.i(TAG, "Plugin registered: ${pluginId}")
     }
-
-    fun unregisterPlugin(pluginId: String) {
+        fun unregisterPlugin(pluginId: String) {
         val plugin = plugins.remove(pluginId)
         if (plugin != null) {
             if (plugin.isEnabled) {
                 disablePlugin(pluginId)
             }
-            loader.unloadPlugin(pluginId)
-            pluginScopes.remove(pluginId)
-            enabledPluginIds.remove(pluginId)
-            savePluginOrder()
-            notifyPluginUnloaded(pluginId)
-            AppLogger.i(TAG, "Plugin unregistered: ${pluginId}")
+        loader.unloadPlugin(pluginId)
+        pluginScopes.remove(pluginId)
+        enabledPluginIds.remove(pluginId)
+        savePluginOrder()
+        notifyPluginUnloaded(pluginId)
+        AppLogger.i(TAG, "Plugin unregistered: ${pluginId}")
         }
     }
-
-    fun enablePlugin(pluginId: String) {
+        fun enablePlugin(pluginId: String) {
         val plugin = plugins[pluginId] ?: run {
             AppLogger.w(TAG, "Cannot enable plugin ${pluginId}: not found")
-            return
+        return
         }
-
         if (plugin.isEnabled) {
             AppLogger.d(TAG, "Plugin ${pluginId} is already enabled")
-            return
+        return
         }
-
         try {
             plugin.onEnable()
-            enabledPluginIds.add(pluginId)
-            persistEnabledState()
-            notifyPluginEnabled(pluginId)
-            AppLogger.i(TAG, "Plugin enabled: ${pluginId}")
+        enabledPluginIds.add(pluginId)
+        persistEnabledState()
+        notifyPluginEnabled(pluginId)
+        AppLogger.i(TAG, "Plugin enabled: ${pluginId}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to enable plugin ${pluginId}", e)
-            notifyPluginError(pluginId, e)
+        notifyPluginError(pluginId, e)
         }
     }
-
-    fun disablePlugin(pluginId: String) {
+        fun disablePlugin(pluginId: String) {
         val plugin = plugins[pluginId] ?: run {
             AppLogger.w(TAG, "Cannot disable plugin ${pluginId}: not found")
-            return
+        return
         }
-
         if (!plugin.isEnabled) {
             AppLogger.d(TAG, "Plugin ${pluginId} is already disabled")
-            return
+        return
         }
-
         try {
             plugin.onDisable()
-            enabledPluginIds.remove(pluginId)
-            persistEnabledState()
-            notifyPluginDisabled(pluginId)
-            AppLogger.i(TAG, "Plugin disabled: ${pluginId}")
+        enabledPluginIds.remove(pluginId)
+        persistEnabledState()
+        notifyPluginDisabled(pluginId)
+        AppLogger.i(TAG, "Plugin disabled: ${pluginId}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to disable plugin ${pluginId}", e)
-            notifyPluginError(pluginId, e)
+        notifyPluginError(pluginId, e)
         }
     }
-
-    fun getPlugin(pluginId: String): SkillPlugin? = plugins[pluginId]
+        fun getPlugin(pluginId: String): SkillPlugin? = plugins[pluginId]
 
     fun getAllPlugins(): List<SkillPlugin> = plugins.values.toList()
-
-    fun getEnabledPlugins(): List<SkillPlugin> {
+        fun getEnabledPlugins(): List<SkillPlugin> {
         return enabledPluginIds.mapNotNull { plugins[it] }
     }
-
-    fun getPluginsByCategory(category: SkillPluginCategory): List<SkillPlugin> {
+        fun getPluginsByCategory(category: SkillPluginCategory): List<SkillPlugin> {
         return plugins.values.filter { it.category == category }
     }
-
-    fun isPluginEnabled(pluginId: String): Boolean = enabledPluginIds.contains(pluginId)
-
-    fun getPluginSettings(pluginId: String): Map<String, Any> {
+        fun isPluginEnabled(pluginId: String): Boolean = enabledPluginIds.contains(pluginId)
+        fun getPluginSettings(pluginId: String): Map<String, Any> {
         return pluginSettings[pluginId] ?: emptyMap()
     }
-
-    fun setPluginSettings(pluginId: String, settings: Map<String, Any>) {
+        fun setPluginSettings(pluginId: String, settings: Map<String, Any>) {
         pluginSettings[pluginId] = settings
         persistSettings()
     }
-
-    fun updatePluginSetting(pluginId: String, key: String, value: Any) {
+        fun updatePluginSetting(pluginId: String, key: String, value: Any) {
         val current = pluginSettings[pluginId]?.toMutableMap() ?: mutableMapOf()
         current[key] = value
         pluginSettings[pluginId] = current
         persistSettings()
     }
-
-    fun addEventListener(listener: PluginEventListener) {
+        fun addEventListener(listener: PluginEventListener) {
         eventListeners.add(listener)
     }
-
-    fun removeEventListener(listener: PluginEventListener) {
+        fun removeEventListener(listener: PluginEventListener) {
         eventListeners.remove(listener)
     }
-
-    fun onSkillInvoked(skillName: String, params: Map<String, Any>) {
+        fun onSkillInvoked(skillName: String, params: Map<String, Any>) {
         enabledPlugins.forEach { plugin ->
             try {
                 plugin.onSkillInvoked(skillName, params)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error in plugin ${plugin.id} for skill ${skillName}", e)
-                notifyPluginError(plugin.id, e)
+        notifyPluginError(plugin.id, e)
             }
         }
     }
-
-    private val enabledPlugins: List<SkillPlugin>
+        private val enabledPlugins: List<SkillPlugin>
         get() = enabledPluginIds.mapNotNull { plugins[it] }
-
-    suspend fun initialize() {
+        suspend fun initialize() {
         AppLogger.d(TAG, "Initializing plugin manager")
         loadPersistedState()
         AppLogger.i(TAG, "Plugin manager initialized with ${plugins.size} plugins, ${enabledPluginIds.size} enabled")
     }
-
-    private suspend fun loadPersistedState() {
+        private suspend fun loadPersistedState() {
         context.pluginManagerDataStore.data.first().let { preferences ->
             val enabledJson = preferences[KEY_ENABLED_PLUGINS] ?: "[]"
         val settingsJson = preferences[KEY_PLUGIN_SETTINGS] ?: "{}"
-            val orderJson = preferences[KEY_PLUGIN_ORDER] ?: "[]"
-
-            try {
+        val orderJson = preferences[KEY_PLUGIN_ORDER] ?: "[]"
+        try {
                 enabledPluginIds.clear()
-                enabledPluginIds.addAll(json.decodeFromString<List<String>>(enabledJson))
+        enabledPluginIds.addAll(json.decodeFromString<List<String>>(enabledJson))
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to load enabled plugins", e)
             }
-
-            try {
+        try {
                 pluginSettings.clear()
-                val settingsMap = json.decodeFromString<Map<String, Map<String, Any>>>(settingsJson)
-                pluginSettings.putAll(settingsMap)
+        val settingsMap = json.decodeFromString<Map<String, Map<String, Any>>>(settingsJson)
+        pluginSettings.putAll(settingsMap)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to load plugin settings", e)
             }
-
-            try {
+        try {
                 pluginOrder = json.decodeFromString<List<String>>(orderJson)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to load plugin order", e)
             }
         }
     }
-
-    private suspend fun persistEnabledState() {
+        private suspend fun persistEnabledState() {
         context.pluginManagerDataStore.edit { preferences ->
             preferences[KEY_ENABLED_PLUGINS] = json.encodeToString(enabledPluginIds.toList())
         }
     }
-
-    private suspend fun persistSettings() {
+        private suspend fun persistSettings() {
         context.pluginManagerDataStore.edit { preferences ->
             preferences[KEY_PLUGIN_SETTINGS] = json.encodeToString(pluginSettings.toMap())
         }
     }
-
-    private suspend fun savePluginOrder() {
+        private suspend fun savePluginOrder() {
         pluginOrder = plugins.keys.toList()
         context.pluginManagerDataStore.edit { preferences ->
             preferences[KEY_PLUGIN_ORDER] = json.encodeToString(pluginOrder)
         }
     }
-
-    private fun notifyPluginLoaded(plugin: SkillPlugin) {
+        private fun notifyPluginLoaded(plugin: SkillPlugin) {
         eventListeners.forEach { listener ->
             try {
                 listener.onPluginLoaded(plugin)
@@ -253,8 +217,7 @@ class SkillPluginManager private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyPluginUnloaded(pluginId: String) {
+        private fun notifyPluginUnloaded(pluginId: String) {
         eventListeners.forEach { listener ->
             try {
                 listener.onPluginUnloaded(pluginId)
@@ -263,8 +226,7 @@ class SkillPluginManager private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyPluginEnabled(pluginId: String) {
+        private fun notifyPluginEnabled(pluginId: String) {
         eventListeners.forEach { listener ->
             try {
                 listener.onPluginEnabled(pluginId)
@@ -273,8 +235,7 @@ class SkillPluginManager private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyPluginDisabled(pluginId: String) {
+        private fun notifyPluginDisabled(pluginId: String) {
         eventListeners.forEach { listener ->
             try {
                 listener.onPluginDisabled(pluginId)
@@ -283,8 +244,7 @@ class SkillPluginManager private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyPluginError(pluginId: String, error: Throwable) {
+        private fun notifyPluginError(pluginId: String, error: Throwable) {
         eventListeners.forEach { listener ->
             try {
                 listener.onPluginError(pluginId, error)
@@ -293,44 +253,36 @@ class SkillPluginManager private constructor(private val context: Context) {
             }
         }
     }
-
-    fun getPluginDirectory(): File = loader.getPluginsDirectory()
-
-    fun getPluginDataDirectory(pluginId: String): File {
+        fun getPluginDirectory(): File = loader.getPluginsDirectory()
+        fun getPluginDataDirectory(pluginId: String): File {
         val dataDir = File(context.filesDir, "${SkillPluginConstants.PLUGIN_DATA_DIR}/${pluginId}")
         if (!dataDir.exists()) {
             dataDir.mkdirs()
         }
         return dataDir
     }
-
-    fun createPluginContext(pluginId: String): SkillPluginContext {
+        fun createPluginContext(pluginId: String): SkillPluginContext {
         return object : SkillPluginContext {
             override fun getPluginDirectory(): File {
                 return File(loader.getPluginsDirectory(), pluginId)
             }
-
-            override fun getPluginDataDirectory(pluginId: String): File {
+        override fun getPluginDataDirectory(pluginId: String): File {
                 return this@SkillPluginManager.getPluginDataDirectory(pluginId)
             }
-
-            override fun getAppContext(): Context = context
+        override fun getAppContext(): Context = context
 
             override fun registerService(service: Any) {
                 AppLogger.d(TAG, "Service registered for plugin ${pluginId}: ${service.javaClass.simpleName}")
             }
-
-            override fun <T> getService(serviceClass: Class<T>): T? {
+        override fun <T> getService(serviceClass: Class<T>): T? {
                 return context.getSystemService(serviceClass) as? T
             }
-
-            override fun getSkillManager(): SkillManager = this@SkillPluginManager.skillManager
+        override fun getSkillManager(): SkillManager = this@SkillPluginManager.skillManager
 
             override fun getUsageTracker(): SkillUsageTracker = this@SkillPluginManager.usageTracker
         }
     }
-
-    class PluginState(
+        class PluginState(
         val id: String,
         val name: String,
         val version: String,
@@ -338,8 +290,7 @@ class SkillPluginManager private constructor(private val context: Context) {
         val isEnabled: Boolean,
         val isLoaded: Boolean
     )
-
-    fun getPluginStates(): List<PluginState> {
+        fun getPluginStates(): List<PluginState> {
         return plugins.values.map { plugin ->
             PluginState(
                 id = plugin.id,
@@ -357,24 +308,19 @@ class DefaultPluginEventListener : PluginEventListener {
     override fun onPluginLoaded(plugin: SkillPlugin) {
         AppLogger.d("PluginListener", "Plugin loaded: ${plugin.id}")
     }
-
-    override fun onPluginUnloaded(pluginId: String) {
+        override fun onPluginUnloaded(pluginId: String) {
         AppLogger.d("PluginListener", "Plugin unloaded: ${pluginId}")
     }
-
-    override fun onPluginEnabled(pluginId: String) {
+        override fun onPluginEnabled(pluginId: String) {
         AppLogger.d("PluginListener", "Plugin enabled: ${pluginId}")
     }
-
-    override fun onPluginDisabled(pluginId: String) {
+        override fun onPluginDisabled(pluginId: String) {
         AppLogger.d("PluginListener", "Plugin disabled: ${pluginId}")
     }
-
-    override fun onPluginError(pluginId: String, error: Throwable) {
+        override fun onPluginError(pluginId: String, error: Throwable) {
         AppLogger.e("PluginListener", "Plugin error in ${pluginId}", error)
     }
-
-    override fun onSkillInvoked(skillName: String, pluginId: String, params: Map<String, Any>) {
+        override fun onSkillInvoked(skillName: String, pluginId: String, params: Map<String, Any>) {
         AppLogger.v("PluginListener", "Skill ${skillName} invoked by plugin ${pluginId}")
     }
 }

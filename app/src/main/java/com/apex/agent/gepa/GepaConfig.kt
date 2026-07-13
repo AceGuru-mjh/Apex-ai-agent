@@ -7,60 +7,46 @@ import androidx.core.content.edit
 class GepaConfig(context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-    var isEnabled: Boolean
+        var isEnabled: Boolean
         get() = prefs.getBoolean(KEY_ENABLED, true)
         set(value) = prefs.edit { putBoolean(KEY_ENABLED, value) }
-
-    var minSuccessRateForMatch: Float
+        var minSuccessRateForMatch: Float
         get() = prefs.getFloat(KEY_MIN_SUCCESS_RATE, 0.5f)
         set(value) = prefs.edit { putFloat(KEY_MIN_SUCCESS_RATE, value.coerceIn(0f, 1f)) }
-
-    var minExecutionsForHighQuality: Int
+        var minExecutionsForHighQuality: Int
         get() = prefs.getInt(KEY_MIN_EXECUTIONS, 3)
         set(value) = prefs.edit { putInt(KEY_MIN_EXECUTIONS, value.coerceAtLeast(1)) }
-
-    var autoExtractOnSuccess: Boolean
+        var autoExtractOnSuccess: Boolean
         get() = prefs.getBoolean(KEY_AUTO_EXTRACT, true)
         set(value) = prefs.edit { putBoolean(KEY_AUTO_EXTRACT, value) }
-
-    var maxStoredSkills: Int
+        var maxStoredSkills: Int
         get() = prefs.getInt(KEY_MAX_STORED_SKILLS, 1000)
         set(value) = prefs.edit { putInt(KEY_MAX_STORED_SKILLS, value.coerceAtLeast(10)) }
-
-    var cleanupThresholdDays: Int
+        var cleanupThresholdDays: Int
         get() = prefs.getInt(KEY_CLEANUP_DAYS, 30)
         set(value) = prefs.edit { putInt(KEY_CLEANUP_DAYS, value.coerceAtLeast(7)) }
-
-    var matchConfidenceThreshold: Float
+        var matchConfidenceThreshold: Float
         get() = prefs.getFloat(KEY_CONFIDENCE_THRESHOLD, 0.5f)
         set(value) = prefs.edit { putFloat(KEY_CONFIDENCE_THRESHOLD, value.coerceIn(0f, 1f)) }
-
-    var enableParallelExecution: Boolean
+        var enableParallelExecution: Boolean
         get() = prefs.getBoolean(KEY_PARALLEL_EXECUTION, true)
         set(value) = prefs.edit { putBoolean(KEY_PARALLEL_EXECUTION, value) }
-
-    var maxConcurrentTasks: Int
+        var maxConcurrentTasks: Int
         get() = prefs.getInt(KEY_MAX_CONCURRENT, 5)
         set(value) = prefs.edit { putInt(KEY_MAX_CONCURRENT, value.coerceAtLeast(1)) }
-
-    var taskTimeoutMs: Long
+        var taskTimeoutMs: Long
         get() = prefs.getLong(KEY_TASK_TIMEOUT, 300000L)
         set(value) = prefs.edit { putLong(KEY_TASK_TIMEOUT, value.coerceAtLeast(10000)) }
-
-    var enableSkillVersioning: Boolean
+        var enableSkillVersioning: Boolean
         get() = prefs.getBoolean(KEY_VERSIONING, true)
         set(value) = prefs.edit { putBoolean(KEY_VERSIONING, value) }
-
-    var autoMergeSimilarSkills: Boolean
+        var autoMergeSimilarSkills: Boolean
         get() = prefs.getBoolean(KEY_AUTO_MERGE, false)
         set(value) = prefs.edit { putBoolean(KEY_AUTO_MERGE, value) }
-
-    var skillSimilarityThreshold: Float
+        var skillSimilarityThreshold: Float
         get() = prefs.getFloat(KEY_SIMILARITY_THRESHOLD, 0.85f)
         set(value) = prefs.edit { putFloat(KEY_SIMILARITY_THRESHOLD, value.coerceIn(0f, 1f)) }
-
-    fun getMatchConfidenceForMinRate(): MatchConfidence {
+        fun getMatchConfidenceForMinRate(): MatchConfidence {
         return when {
             minSuccessRateForMatch >= 0.8f -> MatchConfidence.HIGH
             minSuccessRateForMatch >= 0.6f -> MatchConfidence.MEDIUM
@@ -68,12 +54,10 @@ class GepaConfig(context: Context) {
             else -> MatchConfidence.VERY_LOW
         }
     }
-
-    fun reset() {
+        fun reset() {
         prefs.edit { clear() }
     }
-
-    fun export(): Map<String, Any> {
+        fun export(): Map<String, Any> {
         return mapOf(
             KEY_ENABLED to isEnabled,
             KEY_MIN_SUCCESS_RATE to minSuccessRateForMatch,
@@ -90,22 +74,20 @@ class GepaConfig(context: Context) {
             KEY_SIMILARITY_THRESHOLD to skillSimilarityThreshold
         )
     }
-
-    fun import(config: Map<String, Any>) {
+        fun import(config: Map<String, Any>) {
         prefs.edit {
             config.forEach { (key, value) ->
                 when (value) {
                     is Boolean -> putBoolean(key, value)
-                    is Float -> putFloat(key, value)
-                    is Int -> putInt(key, value)
-                    is Long -> putLong(key, value)
-                    is String -> putString(key, value)
+        is Float -> putFloat(key, value)
+        is Int -> putInt(key, value)
+        is Long -> putLong(key, value)
+        is String -> putString(key, value)
                 }
             }
         }
     }
-
-    companion object {
+        companion object {
         private const val PREFS_NAME = "gepa_config"
         private const val KEY_ENABLED = "gepa_enabled"
         private const val KEY_MIN_SUCCESS_RATE = "min_success_rate"

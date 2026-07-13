@@ -19,13 +19,10 @@ class SessionEndHook : SessionLifecycleHook {
         private const val SUMMARY_FILE_PREFIX = "session_summary_"
         private const val SUMMARY_FILE_SUFFIX = ".json"
     }
-
-    override suspend fun onSessionEnd(context: Context, sessionContext: SessionContext) {
+        override suspend fun onSessionEnd(context: Context, sessionContext: SessionContext) {
         AppLogger.i(TAG, "Session ending: ${sessionContext.sessionId}")
-
         val summary = generateSessionSummary(sessionContext)
         saveSummary(context, sessionContext.sessionId, summary)
-
         notifySkillSystem(context, summary)
     }
 
@@ -37,7 +34,6 @@ class SessionEndHook : SessionLifecycleHook {
      */
     private fun generateSessionSummary(sessionContext: SessionContext): Map<String, Any> {
         val summary = mutableMapOf<String, Any>()
-
         summary["sessionId"] = sessionContext.sessionId
         summary["startTime"] = sessionContext.startTime
         summary["endTime"] = System.currentTimeMillis()
@@ -46,25 +42,25 @@ class SessionEndHook : SessionLifecycleHook {
         summary["tokenUsage"] = sessionContext.tokenUsage
 
         // 提取关键决策
-    val decisions = extractKeyDecisions(sessionContext.environmentState)
+        val decisions = extractKeyDecisions(sessionContext.environmentState)
         if (decisions.isNotEmpty()) {
             summary["keyDecisions"] = decisions
         }
 
         // 提取学习成果
-    val learnings = extractLearnings(sessionContext.environmentState)
+        val learnings = extractLearnings(sessionContext.environmentState)
         if (learnings.isNotEmpty()) {
             summary["learnings"] = learnings
         }
 
         // 提取未完成工作
-    val incompleteWork = extractIncompleteWork(sessionContext.environmentState)
+        val incompleteWork = extractIncompleteWork(sessionContext.environmentState)
         if (incompleteWork.isNotEmpty()) {
             summary["incompleteWork"] = incompleteWork
         }
 
         // 提取环境状态快照
-                summary["environmentSnapshot"] = sessionContext.environmentState
+        summary["environmentSnapshot"] = sessionContext.environmentState
 
         AppLogger.d(TAG, "Generated session summary with ${summary.keys.size} fields")
         return summary
@@ -79,11 +75,11 @@ class SessionEndHook : SessionLifecycleHook {
             val jsonArray = JSONArray(decisionsJson)
             (0 until jsonArray.length()).map {
                 val obj = jsonArray.getJSONObject(it)
-                obj.keys().asSequence().associateWith { key -> obj.getString(key) }
+        obj.keys().asSequence().associateWith { key -> obj.getString(key) }
             }
         } catch (e: Exception) {
             AppLogger.w(TAG, "Failed to parse key decisions", e)
-            emptyList()
+        emptyList()
         }
     }
 
@@ -97,7 +93,7 @@ class SessionEndHook : SessionLifecycleHook {
             (0 until jsonArray.length()).map { jsonArray.getString(it) }
         } catch (e: Exception) {
             AppLogger.w(TAG, "Failed to parse learnings", e)
-            emptyList()
+        emptyList()
         }
     }
 
@@ -111,7 +107,7 @@ class SessionEndHook : SessionLifecycleHook {
             (0 until jsonArray.length()).map { jsonArray.getString(it) }
         } catch (e: Exception) {
             AppLogger.w(TAG, "Failed to parse incomplete work", e)
-            emptyList()
+        emptyList()
         }
     }
 
@@ -129,11 +125,9 @@ class SessionEndHook : SessionLifecycleHook {
         try {
             val fileName = "${SUMMARY_FILE_PREFIX}${sessionId}${SUMMARY_FILE_SUFFIX}"
         val file = File(context.filesDir, fileName)
-
-            val jsonContent = convertMapToJson(summary)
-            file.writeText(jsonContent.toString(2))
-
-            AppLogger.i(TAG, "Session summary saved to: ${file.absolutePath}")
+        val jsonContent = convertMapToJson(summary)
+        file.writeText(jsonContent.toString(2))
+        AppLogger.i(TAG, "Session summary saved to: ${file.absolutePath}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to save session summary for session: ${sessionId}", e)
         }
@@ -147,28 +141,28 @@ class SessionEndHook : SessionLifecycleHook {
         for ((key, value) in map) {
             when (value) {
                 is String -> json.put(key, value)
-                is Int -> json.put(key, value)
-                is Long -> json.put(key, value)
-                is Boolean -> json.put(key, value)
-                is Map<*, *> -> {
+        is Int -> json.put(key, value)
+        is Long -> json.put(key, value)
+        is Boolean -> json.put(key, value)
+        is Map<*, *> -> {
                     @Suppress("UNCHECKED_CAST")
-                    json.put(key, convertMapToJson(value as Map<String, Any>))
+        json.put(key, convertMapToJson(value as Map<String, Any>))
                 }
-                is List<*> -> {
+        is List<*> -> {
                     val jsonArray = JSONArray()
-                    for (item in value) {
+        for (item in value) {
                         when (item) {
                             is String -> jsonArray.put(item)
-                            is Map<*, *> -> {
+        is Map<*, *> -> {
                                 @Suppress("UNCHECKED_CAST")
-                                jsonArray.put(convertMapToJson(item as Map<String, Any>))
+        jsonArray.put(convertMapToJson(item as Map<String, Any>))
                             }
-                            else -> jsonArray.put(item.toString())
+        else -> jsonArray.put(item.toString())
                         }
                     }
-                    json.put(key, jsonArray)
+        json.put(key, jsonArray)
                 }
-                else -> json.put(key, value.toString())
+        else -> json.put(key, value.toString())
             }
         }
         return json
@@ -183,25 +177,24 @@ class SessionEndHook : SessionLifecycleHook {
     private suspend fun notifySkillSystem(context: Context, summary: Map<String, Any>) {
         try {
             // 尝试动态加转AutoSkillExtractor 类
-    val autoSkillExtractorClass = try {
+        val autoSkillExtractorClass = try {
                 Class.forName("com.apex.agent.core.skills.AutoSkillExtractor")
             } catch (e: ClassNotFoundException) {
                 AppLogger.d(TAG, "AutoSkillExtractor not found, skipping skill extraction")
-                return
+        return
             }
 
             // 获取单例实例
-    val getInstanceMethod = autoSkillExtractorClass.getMethod("getInstance", Context::class.java)
+        val getInstanceMethod = autoSkillExtractorClass.getMethod("getInstance", Context::class.java)
         val extractor = getInstanceMethod.invoke(null, context)
 
             // 调用 extractFromSession 方法
-    val extractMethod = autoSkillExtractorClass.getMethod(
+        val extractMethod = autoSkillExtractorClass.getMethod(
                 "extractFromSession",
                 Map::class.java
             )
-
-            AppLogger.i(TAG, "Notifying AutoSkillExtractor to check for extractable patterns")
-            extractMethod.invoke(extractor, summary)
+        AppLogger.i(TAG, "Notifying AutoSkillExtractor to check for extractable patterns")
+        extractMethod.invoke(extractor, summary)
 
         } catch (e: Exception) {
             AppLogger.w(TAG, "Failed to notify skill system", e)

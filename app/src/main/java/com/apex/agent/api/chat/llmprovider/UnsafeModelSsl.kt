@@ -17,18 +17,14 @@ internal object UnsafeModelSsl {
                     chain: Array<out X509Certificate>?,
                     authType: String?
                 ) {}
-
-                override fun checkServerTrusted(
+        override fun checkServerTrusted(
                     chain: Array<out X509Certificate>?,
                     authType: String?
                 ) {}
-
-                override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
+        override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
             }
-
         val sslContext = SSLContext.getInstance("TLS")
         sslContext.init(null, arrayOf<TrustManager>(trustManager), SecureRandom())
-
         return builder
             .sslSocketFactory(sslContext.socketFactory, trustManager)
             .hostnameVerifier { _, _ -> true }

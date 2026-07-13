@@ -70,58 +70,54 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     }
 
     // ApiPreferences 实例，用于动态获取配置
-                protected val apiPreferences: ApiPreferences by lazy {
+        protected val apiPreferences: ApiPreferences by lazy {
         ApiPreferences.getInstance(context)
     }
 
     // SSH文件管理器（单例，懒加载的
-    private val sshFileManager by lazy {
+        private val sshFileManager by lazy {
         SSHFileConnectionManager.getInstance(context)
     }
 
     // TerminalManager（单例，懒加载）
-    private val terminalManager by lazy {
+        private val terminalManager by lazy {
         TerminalManager.getInstance(context)
     }
-
-    private val terminalSourceManager by lazy {
+        private val terminalSourceManager by lazy {
         SourceManager(context)
     }
-
-    private var lastLinuxFileSystemProviderLabel: String? = null
+        private var lastLinuxFileSystemProviderLabel: String? = null
 
     // Linux文件系统提供者，优先使用SSH连接，否则从TerminalManager获取
-                protected fun getLinuxFileSystem(): FileSystemProvider {
+        protected fun getLinuxFileSystem(): FileSystemProvider {
         // 先尝试获取SSH连接的文件系结
-    val sshProvider = sshFileManager.getFileSystemProvider()
+        val sshProvider = sshFileManager.getFileSystemProvider()
         
         // 如果SSH已登录，使用SSH文件系统
-                if (sshProvider != null) {
+        if (sshProvider != null) {
             if (lastLinuxFileSystemProviderLabel != "ssh") {
                 AppLogger.d(TAG, "Using SSH file system provider")
-                lastLinuxFileSystemProviderLabel = "ssh"
+        lastLinuxFileSystemProviderLabel = "ssh"
             }
-            return sshProvider
+        return sshProvider
         }
         
         // 否则使用本地Terminal的文件系结
-                if (lastLinuxFileSystemProviderLabel != "local") {
+        if (lastLinuxFileSystemProviderLabel != "local") {
             AppLogger.d(TAG, "Using local terminal file system provider")
-            lastLinuxFileSystemProviderLabel = "local"
+        lastLinuxFileSystemProviderLabel = "local"
         }
         return terminalManager.getFileSystemProvider()
     }
 
     // Linux文件系统工具实例
-                protected val linuxTools: LinuxFileSystemTools by lazy {
+        protected val linuxTools: LinuxFileSystemTools by lazy {
         LinuxFileSystemTools(context)
     }
-
-    private val safTools: SafFileSystemTools by lazy {
+        private val safTools: SafFileSystemTools by lazy {
         SafFileSystemTools(context, apiPreferences)
     }
-
-    protected fun isSafEnvironment(environment: String): Boolean {
+        protected fun isSafEnvironment(environment: String): Boolean {
         return environment?.startsWith("repo:", ignoreCase = true) == true
     }
 
@@ -129,8 +125,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     protected fun isLinuxEnvironment(environment: String): Boolean {
         return environment?.lowercase() == "linux"
     }
-
-    protected data class GrepContextCandidate(
+        protected data class GrepContextCandidate(
         val filePath: String,
         val lineNumber: Int,
         val lineContent: String,
@@ -138,41 +133,35 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         val query: String,
         val round: Int
     )
-
-    protected data class RipgrepBlockLine(
+        protected data class RipgrepBlockLine(
         val lineNumber: Int,
         val text: String,
         val isMatch: Boolean
     )
-
-    protected data class RipgrepBlock(
+        protected data class RipgrepBlock(
         val filePath: String,
         val firstMatchLine: Int,
         val lineContent: String,
         val matchContext: String,
         val matchCount: Int
     )
-
-    private data class RipgrepQueryExecution(
+        private data class RipgrepQueryExecution(
         val index: Int,
         val query: String,
         val commandResult: HiddenExecResult,
         val parsedBlocks: List<RipgrepBlock>
     )
-
-    protected suspend fun getGrepService(): AIService {
+        protected suspend fun getGrepService(): AIService {
         return EnhancedAIService.getAIServiceForFunction(context, FunctionType.GREP)
     }
-
-    protected suspend fun getGrepModelParameters(): List<ModelParameter<*>> {
+        protected suspend fun getGrepModelParameters(): List<ModelParameter<*>> {
         val functionalConfigManager = FunctionalConfigManager(context)
         functionalConfigManager.initializeIfNeeded()
         val modelConfigManager = ModelConfigManager(context)
         val mapping = functionalConfigManager.getConfigMappingForFunction(FunctionType.GREP)
         return modelConfigManager.getModelParametersForConfig(mapping.configId)
     }
-
-    protected suspend fun runGrepModel(prompt: String): String {
+        protected suspend fun runGrepModel(prompt: String): String {
         val service = getGrepService()
         val modelParameters = getGrepModelParameters()
         val sb = StringBuilder()
@@ -187,8 +176,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         stream.collect { chunk -> sb.append(chunk) }
         return sb.toString().trim()
     }
-
-    protected fun extractFirstJsonObject(text: String): JSONObject? {
+        protected fun extractFirstJsonObject(text: String): JSONObject? {
         val start = text.indexOf('{')
         val end = text.lastIndexOf('}')
         if (start < 0 || end <= start) return null
@@ -198,70 +186,62 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             null
         }
     }
-
-    protected fun parseQueryListFromModelOutput(text: String, fallback: List<String>): List<String> {
+        protected fun parseQueryListFromModelOutput(text: String, fallback: List<String>): List<String> {
         val obj = extractFirstJsonObject(text) ?: return fallback
         val arr = obj.optJSONArray("queries") ?: return fallback
         val queries = mutableListOf<String>()
         for (i in 0 until arr.length()) {
             val q = arr.optString(i, "").trim()
-            if (q.isNotBlank()) queries.add(q)
+        if (q.isNotBlank()) queries.add(q)
         }
         return if (queries.isEmpty()) fallback else queries
     }
-
-    protected fun parseSelectedIdsFromModelOutput(text: String): List<Int> {
+        protected fun parseSelectedIdsFromModelOutput(text: String): List<Int> {
         val obj = extractFirstJsonObject(text) ?: return emptyList()
         val arr = obj.optJSONArray("selected") ?: return emptyList()
         val ids = mutableListOf<Int>()
         for (i in 0 until arr.length()) {
             val v = arr.optInt(i, -1)
-            if (v >= 0) ids.add(v)
+        if (v >= 0) ids.add(v)
         }
         return ids
     }
-
-    protected fun parseReadIdsFromModelOutput(text: String): List<Int> {
+        protected fun parseReadIdsFromModelOutput(text: String): List<Int> {
         val obj = extractFirstJsonObject(text) ?: return emptyList()
         val arr = obj.optJSONArray("read") ?: return emptyList()
         val ids = mutableListOf<Int>()
         for (i in 0 until arr.length()) {
             val v = arr.optInt(i, -1)
-            if (v >= 0) ids.add(v)
+        if (v >= 0) ids.add(v)
         }
         return ids
     }
-
-    protected fun normalizeQueries(queries: List<String>): List<String> {
+        protected fun normalizeQueries(queries: List<String>): List<String> {
         val seen = LinkedHashSet<String>()
         for (q in queries) {
             val trimmed = q.trim()
-            if (trimmed.isNotBlank()) {
+        if (trimmed.isNotBlank()) {
                 val isDotPlaceholder = trimmed.length >= 3 && trimmed.all { it == '.' }
         val isEllipsisPlaceholder = trimmed.all { it == '的}
-                if (isDotPlaceholder || isEllipsisPlaceholder) continue
+        if (isDotPlaceholder || isEllipsisPlaceholder) continue
                 seen.add(trimmed)
             }
         }
         return seen.toList()
     }
-
-    private fun shellQuote(value: String): String {
+        private fun shellQuote(value: String): String {
         return "'" + value.replace("'", "'\"'\"'") + "'"
     }
-
-    private fun clipGrepText(raw: String, maxChars: Int): String {
+        private fun clipGrepText(raw: String, maxChars: Int): String {
         val trimmed = raw.trim()
         if (trimmed.length <= maxChars) return trimmed
         return trimmed.take(maxChars) + "...(truncated)"
     }
-
-    private fun buildRipgrepCommand(args: List<String>): String {
+        private fun buildRipgrepCommand(args: List<String>): String {
         val quotedArgs = args.joinToString(" ") { shellQuote(it) }
         return "rg ${quotedArgs}"
     }
-
-    private fun buildRipgrepCodeCommand(
+        private fun buildRipgrepCodeCommand(
         path: String,
         pattern: String,
         filePattern: String,
@@ -283,15 +263,14 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         }
         if (filePattern.isNotBlank() && filePattern != "*") {
             args.add("-g")
-            args.add(filePattern)
+        args.add(filePattern)
         }
         args.add("--")
         args.add(pattern)
         args.add(path)
         return buildRipgrepCommand(args)
     }
-
-    private fun buildRipgrepContextCommand(
+        private fun buildRipgrepContextCommand(
         path: String,
         queries: List<String>,
         filePattern: String,
@@ -311,22 +290,20 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         )
         if (filePattern.isNotBlank() && filePattern != "*") {
             args.add("-g")
-            args.add(filePattern)
+        args.add(filePattern)
         }
         queries.forEach { query ->
             args.add("-e")
-            args.add(query)
+        args.add(query)
         }
         args.add("--")
         args.add(path)
         return buildRipgrepCommand(args)
     }
-
-    private fun extractRipgrepPath(json: JSONObject): String? {
+        private fun extractRipgrepPath(json: JSONObject): String? {
         return json.optJSONObject("path")?.optString("text")?.takeIf { it.isNotBlank() }
     }
-
-    private fun finalizeRipgrepBlock(
+        private fun finalizeRipgrepBlock(
         filePath: String,
         lines: List<RipgrepBlockLine>
     ): RipgrepBlock? {
@@ -342,12 +319,10 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 .joinToString(" | ") { clipGrepText(it.text, 80) }
             "${matchLines.size} matches: ${digest.take(200)}..."
         }
-
         val matchContext = clipGrepText(
             lines.joinToString("\n") { clipGrepText(it.text, 400) },
             4000
         )
-
         return RipgrepBlock(
             filePath = filePath,
             firstMatchLine = matchLines.first().lineNumber,
@@ -356,8 +331,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             matchCount = matchLines.size
         )
     }
-
-    private fun parseRipgrepBlocks(output: String): Pair<List<RipgrepBlock>, Int> {
+        private fun parseRipgrepBlocks(output: String): Pair<List<RipgrepBlock>, Int> {
         val blocks = mutableListOf<RipgrepBlock>()
         val currentBlocks = LinkedHashMap<String, MutableList<RipgrepBlockLine>>()
         val seenFiles = LinkedHashSet<String>()
@@ -367,10 +341,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             val current = currentBlocks.remove(filePath) ?: return
             finalizeRipgrepBlock(filePath, current)?.let { blocks.add(it) }
         }
-
         output.lineSequence().forEach { rawLine ->
             val trimmed = rawLine.trim()
-            if (!trimmed.startsWith("{")) return@forEach
+        if (!trimmed.startsWith("{")) return@forEach
 
             val json = runCatching { JSONObject(trimmed) }.getOrNull() ?: return@forEach
             when (json.optString("type")) {
@@ -382,11 +355,11 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     val data = json.optJSONObject("data") ?: return@forEach
         val filePath = extractRipgrepPath(data) ?: return@forEach
                     val lineNumber = data.optInt("line_number", -1)
-                    if (lineNumber < 1) return@forEach
+        if (lineNumber < 1) return@forEach
                     val text = data.optJSONObject("lines")?.optString("text")?.trimEnd('\n', '\r') ?: return@forEach
 
                     seenFiles.add(filePath)
-                    val current = currentBlocks[filePath]
+        val current = currentBlocks[filePath]
                     if (current == null) {
                         currentBlocks[filePath] = mutableListOf(
                             RipgrepBlockLine(
@@ -399,7 +372,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                         val previousLine = current.lastOrNull()?.lineNumber ?: -1
                         if (previousLine >= 0 && lineNumber > previousLine + 1) {
                             flushBlock(filePath)
-                            currentBlocks[filePath] = mutableListOf(
+        currentBlocks[filePath] = mutableListOf(
                                 RipgrepBlockLine(
                                     lineNumber = lineNumber,
                                     text = text,
@@ -420,62 +393,53 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 "end" -> {
                     val data = json.optJSONObject("data") ?: return@forEach
         val filePath = extractRipgrepPath(data)
-                    if (!filePath.isNullOrBlank()) {
+        if (!filePath.isNullOrBlank()) {
                         flushBlock(filePath)
                     }
                 }
                 "summary" -> {
                     summarySearches = json.optJSONObject("data")?.optJSONObject("stats")?.optInt("searches")
-                    currentBlocks.keys.toList().forEach { flushBlock(it) }
+        currentBlocks.keys.toList().forEach { flushBlock(it) }
                 }
             }
         }
-
         currentBlocks.keys.toList().forEach { flushBlock(it) }
         return Pair(blocks, summarySearches ?: seenFiles.size)
     }
-
-    private fun extractRipgrepNonJsonLines(output: String): List<String> {
+        private fun extractRipgrepNonJsonLines(output: String): List<String> {
         return output.lineSequence()
             .map { it.trim() }
             .filter { line -> line.isNotBlank() && !line.startsWith("{") }
             .distinct()
             .toList()
     }
-
-    private fun buildRipgrepAvailabilityCheckCommand(): String {
+        private fun buildRipgrepAvailabilityCheckCommand(): String {
         return "command -v rg >/dev/null 2>&1 && printf '__APEX_RG_READY__\n' || printf '__APEX_RG_MISSING__\n'"
     }
-
-    private fun buildRipgrepInstallCommand(): String {
+        private fun buildRipgrepInstallCommand(): String {
         val aptSource = terminalSourceManager.getSelectedSource(PackageManagerType.APT)
         val aptSourceCommand = terminalSourceManager.getAptSourceChangeCommand(aptSource)
         return buildString {
             appendLine(aptSourceCommand)
-            appendLine("export DEBIAN_FRONTEND=noninteractive")
-            appendLine("apt update")
-            appendLine("apt install -y ripgrep")
+        appendLine("export DEBIAN_FRONTEND=noninteractive")
+        appendLine("apt update")
+        appendLine("apt install -y ripgrep")
         }.trim()
     }
-
-    private fun buildRipgrepInstallFailureMessage(output: String): String {
+        private fun buildRipgrepInstallFailureMessage(output: String): String {
         val lines = output.lineSequence()
             .map { it.trim() }
             .filter { it.isNotBlank() }
             .toList()
-
         if (lines.any { it.contains("Unable to locate package ripgrep", ignoreCase = true) }) {
             return "Failed to install ripgrep automatically: package ripgrep was not found in apt sources"
         }
-
         if (lines.any { it.contains("Could not get lock", ignoreCase = true) }) {
             return "Failed to install ripgrep automatically: apt is locked by another process"
         }
-
         if (lines.any { it.contains("apt: command not found", ignoreCase = true) || it.contains("command not found: apt", ignoreCase = true) }) {
             return "Failed to install ripgrep automatically: apt is not available in the terminal environment"
         }
-
         val tail = lines.takeLast(12).joinToString("\n")
         return if (tail.isNotBlank()) {
             "Failed to install ripgrep automatically:\n${tail}"
@@ -483,8 +447,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             "Failed to install ripgrep automatically"
         }
     }
-
-    private suspend fun executeInRipgrepExecutor(
+        private suspend fun executeInRipgrepExecutor(
         command: String,
         executorKey: String,
         timeoutMs: Long = 120000L
@@ -496,8 +459,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             timeoutMs = timeoutMs
         )
     }
-
-    private fun buildHiddenCommandFailureMessage(
+        private fun buildHiddenCommandFailureMessage(
         action: String,
         result: HiddenExecResult
     ): String {
@@ -505,24 +467,23 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         val preview = result.rawOutputPreview.trim()
         return buildString {
             append(action)
-            append(": ")
-            append(reason)
-            append(" [state=")
-            append(result.state)
-            append("]")
-            if (result.exitCode >= 0) {
+        append(": ")
+        append(reason)
+        append(" [state=")
+        append(result.state)
+        append("]")
+        if (result.exitCode >= 0) {
                 append(" (exit code ")
-                append(result.exitCode)
-                append(")")
+        append(result.exitCode)
+        append(")")
             }
-            if (preview.isNotBlank()) {
+        if (preview.isNotBlank()) {
                 append("\nRaw terminal output tail:\n")
-                append(preview)
+        append(preview)
             }
         }
     }
-
-    private fun requireHiddenCommandSuccess(
+        private fun requireHiddenCommandSuccess(
         action: String,
         result: HiddenExecResult
     ): HiddenExecResult {
@@ -531,31 +492,27 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         }
         throw IllegalStateException(buildHiddenCommandFailureMessage(action, result))
     }
-
-    private suspend fun ensureRipgrepAvailable(toolName: String) {
+        private suspend fun ensureRipgrepAvailable(toolName: String) {
         if (ripgrepAvailabilityVerified) {
             return
         }
-
         ripgrepInstallMutex.withLock {
             if (ripgrepAvailabilityVerified) {
                 return
             }
-
-            val checkResult = requireHiddenCommandSuccess(
+        val checkResult = requireHiddenCommandSuccess(
                 action = "Failed to check ripgrep availability",
                 result = executeInRipgrepExecutor(
                     command = buildRipgrepAvailabilityCheckCommand(),
                     executorKey = "rg-setup"
                 )
             )
-            if (checkResult.output.contains("__APEX_RG_READY__")) {
+        if (checkResult.output.contains("__APEX_RG_READY__")) {
                 ripgrepAvailabilityVerified = true
                 return
             }
-
-            ToolProgressBus.update(toolName, 0.08f, "Installing ripgrep...")
-            val installResult = requireHiddenCommandSuccess(
+        ToolProgressBus.update(toolName, 0.08f, "Installing ripgrep...")
+        val installResult = requireHiddenCommandSuccess(
                 action = "Failed to install ripgrep",
                 result = executeInRipgrepExecutor(
                     command = buildRipgrepInstallCommand(),
@@ -563,25 +520,24 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     timeoutMs = 600000L
                 )
             )
-            val verifyResult = requireHiddenCommandSuccess(
+        val verifyResult = requireHiddenCommandSuccess(
                 action = "Failed to verify ripgrep installation",
                 result = executeInRipgrepExecutor(
                     command = buildRipgrepAvailabilityCheckCommand(),
                     executorKey = "rg-setup"
                 )
             )
-            if (!verifyResult.output.contains("__APEX_RG_READY__")) {
+        if (!verifyResult.output.contains("__APEX_RG_READY__")) {
                 throw IllegalStateException(
                     buildRipgrepInstallFailureMessage(
                         if (installResult.output.isNotBlank()) installResult.output else verifyResult.output
                     )
                 )
             }
-            ripgrepAvailabilityVerified = true
+        ripgrepAvailabilityVerified = true
         }
     }
-
-    private suspend fun executeRipgrepCommand(
+        private suspend fun executeRipgrepCommand(
         toolName: String,
         command: String,
         executorKey: String
@@ -596,14 +552,11 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             )
         )
     }
-
-    private fun buildRipgrepFailureMessage(output: String, exitCode: Int? = null): String {
+        private fun buildRipgrepFailureMessage(output: String, exitCode: Int? = null): String {
         val nonJsonLines = extractRipgrepNonJsonLines(output)
-
         if (exitCode == 127) {
             return "ripgrep (rg) is not available in the terminal environment"
         }
-
         return nonJsonLines.joinToString("\n").ifBlank { 
             if (exitCode != null) {
                 "ripgrep command failed with exit code ${exitCode}"
@@ -612,8 +565,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             }
         }
     }
-
-    protected fun buildCandidateDigestForModel(
+        protected fun buildCandidateDigestForModel(
         candidates: List<GrepContextCandidate>,
         maxCharsPerItem: Int
     ): String {
@@ -626,15 +578,13 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 .append(" round=").append(c.round)
                 .append(" query=\"").append(c.query.replace("\"", "'"))
                 .append("\"\n")
-
-            val ctx = (c.matchContext ?: c.lineContent).trim()
+        val ctx = (c.matchContext ?: c.lineContent).trim()
         val limited = if (ctx.length > maxCharsPerItem) ctx.take(maxCharsPerItem) else ctx
             sb.append(limited).append("\n\n")
         }
         return sb.toString().trim()
     }
-
-    protected suspend fun enrichCandidatesWithReadContext(
+        protected suspend fun enrichCandidatesWithReadContext(
         candidates: List<GrepContextCandidate>,
         environment: String?,
         readContextLines: Int,
@@ -654,30 +604,26 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 .take(maxCandidatesToRead)
                 .toList()
         }
-
         if (indexesToRead.isEmpty()) return candidates
 
         val indexSet = indexesToRead.toHashSet()
         val enriched = ArrayList<GrepContextCandidate>(candidates.size)
-
         for ((idx, c) in candidates.withIndex()) {
             if (!indexSet.contains(idx)) {
                 enriched.add(c)
-                continue
+        continue
             }
-
-            val startLine = maxOf(1, c.lineNumber - readContextLines)
+        val startLine = maxOf(1, c.lineNumber - readContextLines)
         val endLine = c.lineNumber + readContextLines
             val params = mutableListOf(
                 ToolParameter("path", c.filePath),
                 ToolParameter("start_line", startLine.toString()),
                 ToolParameter("end_line", endLine.toString())
             )
-            if (!environment.isNullOrBlank()) {
+        if (!environment.isNullOrBlank()) {
                 params.add(ToolParameter("environment", environment))
             }
-
-            val readRes = readFilePartFunc(AITool(name = "read_file_part", parameters = params))
+        val readRes = readFilePartFunc(AITool(name = "read_file_part", parameters = params))
         val snippet = (readRes.result as? FilePartContentData)?.content
 
             if (readRes.success && !snippet.isNullOrBlank()) {
@@ -686,11 +632,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 enriched.add(c)
             }
         }
-
         return enriched
     }
-
-    protected suspend fun runGrepCodeBatch(
+        protected suspend fun runGrepCodeBatch(
         searchPath: String,
         environment: String?,
         filePattern: String,
@@ -706,15 +650,12 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         val limitedQueries = normalizeQueries(queries).take(8)
         val candidates = mutableListOf<GrepContextCandidate>()
         val dedup = HashSet<String>()
-
         if (limitedQueries.isEmpty()) {
             return Pair(emptyList(), 0)
         }
-
         if (prefetchedFiles != null && prefetchedFiles.isEmpty()) {
             return Pair(emptyList(), 0)
         }
-
         val indexedQueries = limitedQueries.mapIndexedNotNull { index, query ->
             if (runCatching { Regex(query, RegexOption.IGNORE_CASE) }.isSuccess) {
                 index to query
@@ -722,11 +663,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 null
             }
         }
-
         if (indexedQueries.isEmpty()) {
             return Pair(emptyList(), 0)
         }
-
         val completedQueries = AtomicInteger(0)
         val executions = coroutineScope {
             indexedQueries.map { (index, query) ->
@@ -738,26 +677,24 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                         caseInsensitive = true,
                         contextLines = 3
                     )
-                    val commandResult = executeRipgrepCommand(
+        val commandResult = executeRipgrepCommand(
                         toolName = toolNameForProgress ?: "grep_context",
                         command = command,
                         executorKey = "rg-${index % RIPGREP_EXECUTOR_POOL_SIZE}"
                     )
-                    val output = commandResult.output
+        val output = commandResult.output
                     val (parsedBlocks, _) = parseRipgrepBlocks(output)
-
-                    if (toolNameForProgress != null && progressSpan > 0f) {
+        if (toolNameForProgress != null && progressSpan > 0f) {
                         val completed = completedQueries.incrementAndGet()
         val fraction = (completed.toFloat() / indexedQueries.size.toFloat()).coerceIn(0f, 1f)
-                        val msg = if (progressMessage.isNotBlank()) progressMessage else "Searching..."
-                        ToolProgressBus.update(
+        val msg = if (progressMessage.isNotBlank()) progressMessage else "Searching..."
+        ToolProgressBus.update(
                             toolNameForProgress,
                             (progressBase + progressSpan * fraction).coerceIn(0f, 0.99f),
                             "${msg} (query ${completed}/${indexedQueries.size})"
                         )
                     }
-
-                    RipgrepQueryExecution(
+        RipgrepQueryExecution(
                         index = index,
                         query = query,
                         commandResult = commandResult,
@@ -766,7 +703,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 }
             }.awaitAll()
         }.sortedBy { it.index }
-
         executions.forEach { execution ->
             if (execution.parsedBlocks.isEmpty()) {
                 if (execution.commandResult.exitCode > 1) {
@@ -777,10 +713,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                         )
                     )
                 }
-                return@forEach
+        return@forEach
             }
-
-            var remaining = perQueryMaxResults
+        var remaining = perQueryMaxResults
             execution.parsedBlocks.forEach { block ->
                 if (remaining <= 0) return@forEach
                 val candidate = GrepContextCandidate(
@@ -791,32 +726,29 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     query = execution.query,
                     round = round
                 )
-                val key = "${candidate.filePath}#${candidate.lineNumber}#${(candidate.matchContext ?: "").take(120)}"
-                if (!dedup.add(key)) return@forEach
+        val key = "${candidate.filePath}#${candidate.lineNumber}#${(candidate.matchContext ?: "").take(120)}"
+        if (!dedup.add(key)) return@forEach
                 candidates.add(candidate)
-                remaining--
+        remaining--
             }
         }
-
         if (toolNameForProgress != null && progressSpan > 0f) {
             val msg = if (progressMessage.isNotBlank()) progressMessage else "Searching..."
-            ToolProgressBus.update(
+        ToolProgressBus.update(
                 toolNameForProgress,
                 (progressBase + progressSpan).coerceIn(0f, 0.99f),
                 "${msg} (query ${indexedQueries.size}/${indexedQueries.size})"
             )
         }
-
         return Pair(candidates, 0)
     }
-
-    private fun groupRipgrepBlocks(
+        private fun groupRipgrepBlocks(
         blocks: List<RipgrepBlock>
     ): List<GrepResultData.FileMatch> {
         val grouped = LinkedHashMap<String, MutableList<GrepResultData.LineMatch>>()
         blocks.forEach { block ->
             val lineMatches = grouped.getOrPut(block.filePath) { mutableListOf() }
-            lineMatches.add(
+        lineMatches.add(
                 GrepResultData.LineMatch(
                     lineNumber = block.firstMatchLine,
                     lineContent = block.lineContent,
@@ -824,7 +756,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 )
             )
         }
-
         return grouped.map { (filePath, lineMatches) ->
             GrepResultData.FileMatch(
                 filePath = filePath,
@@ -832,8 +763,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             )
         }
     }
-
-    protected suspend fun grepCodeWithRipgrep(
+        protected suspend fun grepCodeWithRipgrep(
         toolName: String,
         path: String,
         pattern: String,
@@ -845,23 +775,23 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     ): ToolResult {
         return try {
             ToolProgressBus.update(toolName, 0.05f, "Running ripgrep...")
-            val command = buildRipgrepCodeCommand(
+        val command = buildRipgrepCodeCommand(
                 path = path,
                 pattern = pattern,
                 filePattern = filePattern,
                 caseInsensitive = caseInsensitive,
                 contextLines = contextLines
             )
-            val commandResult = executeRipgrepCommand(
+        val commandResult = executeRipgrepCommand(
                 toolName = toolName,
                 command = command,
                 executorKey = "rg-0"
             )
-            val output = commandResult.output
+        val output = commandResult.output
 
             ToolProgressBus.update(toolName, 0.7f, "Parsing ripgrep results...")
-            val (parsedBlocks, filesSearched) = parseRipgrepBlocks(output)
-            if (commandResult.exitCode > 1) {
+        val (parsedBlocks, filesSearched) = parseRipgrepBlocks(output)
+        if (commandResult.exitCode > 1) {
                 return ToolResult(
                     toolName = toolName,
                     success = false,
@@ -869,11 +799,10 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     error = buildRipgrepFailureMessage(output, commandResult.exitCode)
                 )
             }
-            val limitedBlocks = parsedBlocks.take(maxResults.coerceAtLeast(0))
+        val limitedBlocks = parsedBlocks.take(maxResults.coerceAtLeast(0))
         val fileMatches = groupRipgrepBlocks(limitedBlocks)
-            ToolProgressBus.update(toolName, 1f, "Search completed")
-
-            ToolResult(
+        ToolProgressBus.update(toolName, 1f, "Search completed")
+        ToolResult(
                 toolName = toolName,
                 success = true,
                 result = GrepResultData(
@@ -888,8 +817,8 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error performing ripgrep code search", e)
-            ToolProgressBus.update(toolName, 1f, "Search failed")
-            ToolResult(
+        ToolProgressBus.update(toolName, 1f, "Search failed")
+        ToolResult(
                 toolName = toolName,
                 success = false,
                 result = StringResultData(""),
@@ -897,8 +826,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             )
         }
     }
-
-    protected suspend fun grepContextAgentic(
+        protected suspend fun grepContextAgentic(
         toolName: String,
         displayPath: String,
         searchPath: String,
@@ -910,24 +838,21 @@ open class FileSystemAdvancedTools(protected val context: Context) {
     ): ToolResult {
         return try {
             val overallStartTime = System.currentTimeMillis()
-            ToolProgressBus.update(toolName, 0f, "Preparing search...")
-
-            val useEnglish = LocaleUtils.getCurrentLanguage(context).lowercase().startsWith("en")
+        ToolProgressBus.update(toolName, 0f, "Preparing search...")
+        val useEnglish = LocaleUtils.getCurrentLanguage(context).lowercase().startsWith("en")
         val fallback = listOf(intent.take(60)).filter { it.isNotBlank() }
-            var queries = normalizeQueries(fallback).take(8)
-            if (queries.isEmpty()) queries = fallback
+        var queries = normalizeQueries(fallback).take(8)
+        if (queries.isEmpty()) queries = fallback
             ToolProgressBus.update(toolName, 0.05f, "Starting search rounds...")
-
-            val allCandidates = mutableListOf<GrepContextCandidate>()
+        val allCandidates = mutableListOf<GrepContextCandidate>()
         val overallDedup = HashSet<String>()
-
-            val perRoundSearchSpan = 0.2f
+        val perRoundSearchSpan = 0.2f
         val perRoundRefineSpan = 0.05f
 
             for (round in 1..3) {
                 val roundBase = 0.1f + (round - 1) * (perRoundSearchSpan + perRoundRefineSpan)
-                AppLogger.d(TAG, "grep_context: Starting search round ${round}/3. queries=${queries.joinToString(" | ") { it.take(60) }}")
-                val (batchCandidates, _) = runGrepCodeBatch(
+        AppLogger.d(TAG, "grep_context: Starting search round ${round}/3. queries=${queries.joinToString(" | ") { it.take(60) }}")
+        val (batchCandidates, _) = runGrepCodeBatch(
                     searchPath = searchPath,
                     environment = environment,
                     filePattern = filePattern,
@@ -939,13 +864,11 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     progressSpan = perRoundSearchSpan,
                     progressMessage = "Searching (round ${round}/3)"
                 )
-
-                var storedBatchCandidates = batchCandidates
+        var storedBatchCandidates = batchCandidates
 
                 val digestCandidates = storedBatchCandidates.take(24)
         val digest = buildCandidateDigestForModel(digestCandidates, 800)
-
-                val planPrompt = FunctionalPrompts.grepContextRefineWithReadPrompt(
+        val planPrompt = FunctionalPrompts.grepContextRefineWithReadPrompt(
                     intent = intent,
                     displayPath = displayPath,
                     filePattern = filePattern,
@@ -953,56 +876,50 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     maxRead = 8,
                     useEnglish = useEnglish
                 )
-
-                ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan, "Planning next steps (round ${round}/3)...")
-                val planStart = System.currentTimeMillis()
+        ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan, "Planning next steps (round ${round}/3)...")
+        val planStart = System.currentTimeMillis()
         val planRaw = runGrepModel(planPrompt)
-                val plannedQueries = normalizeQueries(parseQueryListFromModelOutput(planRaw, queries)).take(8)
+        val plannedQueries = normalizeQueries(parseQueryListFromModelOutput(planRaw, queries)).take(8)
         val readIds = parseReadIdsFromModelOutput(planRaw)
                     .distinct()
                     .filter { it >= 0 && it < digestCandidates.size }
                     .take(8)
-
-                if (readIds.isNotEmpty()) {
+        if (readIds.isNotEmpty()) {
                     ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan, "Reading selected snippets (round ${round}/3)...")
                     // 由于我们在FileSystemAdvancedTools中没有直接访问readFilePart的权限，
                     // 这里我们需要使用一个默认实现，或者在StandardFileSystemTools中重写此方法
-    val enrichedDigestCandidates = digestCandidates
+        val enrichedDigestCandidates = digestCandidates
         val contextByKey = HashMap<String, String>()
-                    for (id in readIds) {
+        for (id in readIds) {
                         val c = enrichedDigestCandidates.getOrNull(id) ?: continue
         val ctx = c.matchContext ?: continue
                         contextByKey["${c.filePath}#${c.lineNumber}"] = ctx
                     }
-
-                    storedBatchCandidates = storedBatchCandidates.map { c ->
+        storedBatchCandidates = storedBatchCandidates.map { c ->
                         val key = "${c.filePath}#${c.lineNumber}"
         val ctx = contextByKey[key]
                         if (!ctx.isNullOrBlank()) c.copy(matchContext = ctx) else c
                     }
                 }
-
-                val planElapsed = System.currentTimeMillis() - planStart
+        val planElapsed = System.currentTimeMillis() - planStart
                 if (round < 3 && plannedQueries.isNotEmpty()) {
                     queries = plannedQueries
                 }
-                ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan + perRoundRefineSpan, "Prepared next steps")
-                AppLogger.d(
+        ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan + perRoundRefineSpan, "Prepared next steps")
+        AppLogger.d(
                     TAG,
                     "grep_context: Plan after round ${round}/3 completed in ${planElapsed}ms. nextQueries=${plannedQueries.joinToString(" | ") { it.take(60) }} readIds=${readIds.joinToString(",") }"
                 )
-
-                storedBatchCandidates.forEach { c ->
+        storedBatchCandidates.forEach { c ->
                     val key = "${c.filePath}#${c.lineNumber}"
-                    if (overallDedup.add(key)) {
+        if (overallDedup.add(key)) {
                         allCandidates.add(c)
                     }
                 }
             }
-
-            if (allCandidates.isEmpty()) {
+        if (allCandidates.isEmpty()) {
                 ToolProgressBus.update(toolName, 1f, "Search completed, found 0")
-                return ToolResult(
+        return ToolResult(
                     toolName = toolName,
                     success = true,
                     result = GrepResultData(
@@ -1016,8 +933,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     error = ""
                 )
             }
-
-            val selectionDigest = buildCandidateDigestForModel(allCandidates.take(60), 1000)
+        val selectionDigest = buildCandidateDigestForModel(allCandidates.take(60), 1000)
         val selectPrompt = FunctionalPrompts.grepContextSelectPrompt(
                 intent = intent,
                 displayPath = displayPath,
@@ -1025,16 +941,14 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 maxResults = maxResults,
                 useEnglish = useEnglish
             )
-
-            ToolProgressBus.update(toolName, 0.85f, "Selecting most relevant matches...")
-            val selectedIds = parseSelectedIdsFromModelOutput(runGrepModel(selectPrompt))
+        ToolProgressBus.update(toolName, 0.85f, "Selecting most relevant matches...")
+        val selectedIds = parseSelectedIdsFromModelOutput(runGrepModel(selectPrompt))
         val selectedCandidates = if (selectedIds.isNotEmpty()) {
                 selectedIds.mapNotNull { id -> allCandidates.getOrNull(id) }.take(maxResults)
             } else {
                 allCandidates.take(maxResults)
             }
-
-            val fileOrder = selectedCandidates.map { it.filePath }.distinct()
+        val fileOrder = selectedCandidates.map { it.filePath }.distinct()
         val fileMatches = fileOrder.map { filePath ->
                 val lineMatches = selectedCandidates
                     .filter { it.filePath == filePath }
@@ -1045,16 +959,15 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                             matchContext = it.matchContext
                         )
                     }
-                GrepResultData.FileMatch(filePath = filePath, lineMatches = lineMatches)
+        GrepResultData.FileMatch(filePath = filePath, lineMatches = lineMatches)
             }
-
-            ToolProgressBus.update(toolName, 1f, "Search completed, found ${selectedCandidates.size}")
-            val overallElapsed = System.currentTimeMillis() - overallStartTime
+        ToolProgressBus.update(toolName, 1f, "Search completed, found ${selectedCandidates.size}")
+        val overallElapsed = System.currentTimeMillis() - overallStartTime
             AppLogger.d(
                 TAG,
                 "grep_context: Completed in ${overallElapsed}ms. selected=${selectedCandidates.size} candidates=${allCandidates.size}"
             )
-            ToolResult(
+        ToolResult(
                 toolName = toolName,
                 success = true,
                 result = GrepResultData(
@@ -1069,7 +982,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error performing context search", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -1092,7 +1005,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             return safTools.findFiles(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1101,11 +1013,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val directory = File(path)
-
-            if (!directory.exists()) {
+        if (!directory.exists()) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -1113,8 +1023,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     error = "Directory does not exist: ${path}"
                 )
             }
-
-            if (!directory.isDirectory) {
+        if (!directory.isDirectory) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -1122,11 +1031,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     error = "Path is not a directory: ${path}"
                 )
             }
-
-            val foundFiles = mutableListOf<String>()
+        val foundFiles = mutableListOf<String>()
         val patternRegex = Regex(pattern.replace("*", ".*"))
-
-            fun searchFiles(currentDir: File) {
+        fun searchFiles(currentDir: File) {
                 val files = currentDir.listFiles() ?: return
                 for (file in files) {
                     if (file.isDirectory) {
@@ -1140,11 +1047,9 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     }
                 }
             }
-
-            searchFiles(directory)
-            AppLogger.d(TAG, "Found ${foundFiles.size} files matching pattern '${pattern}' in ${path}")
-
-            return ToolResult(
+        searchFiles(directory)
+        AppLogger.d(TAG, "Found ${foundFiles.size} files matching pattern '${pattern}' in ${path}")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FindFilesResultData(path, pattern, foundFiles),
@@ -1152,7 +1057,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error finding files", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -1178,7 +1083,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             return safTools.grepCode(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1187,7 +1091,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         if (pattern.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1196,7 +1099,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 error = "Pattern parameter is required"
             )
         }
-
         return grepCodeWithRipgrep(
             toolName = tool.name,
             path = path,
@@ -1224,7 +1126,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             return safTools.grepContext(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1233,7 +1134,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         if (intent.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1242,7 +1142,6 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                 error = "Intent parameter is required"
             )
         }
-
         return grepContextAgentic(
             toolName = tool.name,
             displayPath = path,

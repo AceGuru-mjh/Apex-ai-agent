@@ -27,13 +27,11 @@ data class SemVer(
             else -> this.preRelease!!.compareTo(other.preRelease!!)
         }
     }
-
-    override fun toString(): String {
+        override fun toString(): String {
         val base = "$major.$minor.$patch"
         return if (preRelease != null) "$base-$preRelease" else base
     }
-
-    companion object {
+        companion object {
         /**
          * 解析版本字符串为SemVer实例
          * @param version 版本字符串，如 "1.2.3" 或 "1.2.3-beta"
@@ -41,11 +39,11 @@ data class SemVer(
         fun parse(version: String): SemVer? {
             val cleaned = version.trim().trimStart('v', 'V')
         val parts = cleaned.split("-", limit = 2)
-            val numeric = parts[0]
+        val numeric = parts[0]
         val pre = if (parts.size > 1) parts[1] else null
 
             val numParts = numeric.split(".")
-            if (numParts.size !in 1..3) return null
+        if (numParts.size !in 1..3) return null
 
             val major = numParts[0].toIntOrNull() ?: return null
         val minor = if (numParts.size > 1) numParts[1].toIntOrNull() ?: 0 else 0
@@ -74,16 +72,15 @@ data class SemVer(
             val cleaned = constraint.trim()
         val operator = when {
                 cleaned.startsWith(">=") -> ">="
-                cleaned.startsWith("<=") -> "<="
-                cleaned.startsWith(">") -> ">"
-                cleaned.startsWith("<") -> "<"
-                cleaned.startsWith("=") -> "="
-                cleaned.startsWith("~>") -> "~>"
-                cleaned.startsWith("^") -> "^"
-                else -> "="
+        cleaned.startsWith("<=") -> "<="
+        cleaned.startsWith(">") -> ">"
+        cleaned.startsWith("<") -> "<"
+        cleaned.startsWith("=") -> "="
+        cleaned.startsWith("~>") -> "~>"
+        cleaned.startsWith("^") -> "^"
+        else -> "="
             }
-
-            val target = cleaned.removePrefix(operator).trim()
+        val target = cleaned.removePrefix(operator).trim()
         val semVer = parse(version) ?: return false
             val targetVer = parse(target) ?: return false
 

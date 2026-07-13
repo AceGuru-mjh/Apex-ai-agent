@@ -63,8 +63,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             get() = status == NodeStatus.ACTIVE &&
                     (System.currentTimeMillis() - lastHeartbeat) < HEARTBEAT_TIMEOUT_MS
     }
-
-    enum class NodeStatus {
+        enum class NodeStatus {
         ACTIVE,
         INACTIVE,
         SUSPECTED,
@@ -146,35 +145,27 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     }
 
     // ========== 数据结构 ==========
-    private val _localNode = MutableStateFlow<NodeInfo?>(null)
+        private val _localNode = MutableStateFlow<NodeInfo?>(null)
         val localNode: StateFlow<NodeInfo?> = _localNode.asStateFlow()
-
-    private val _registeredNodes = MutableStateFlow<Map<String, NodeInfo>>(emptyMap())
+        private val _registeredNodes = MutableStateFlow<Map<String, NodeInfo>>(emptyMap())
         val registeredNodes: StateFlow<Map<String, NodeInfo>> = _registeredNodes.asStateFlow()
-
-    private val _serviceRegistry = MutableStateFlow<Map<String, List<ServiceRegistration>>>(emptyMap())
+        private val _serviceRegistry = MutableStateFlow<Map<String, List<ServiceRegistration>>>(emptyMap())
         val serviceRegistry: StateFlow<Map<String, List<ServiceRegistration>>> = _serviceRegistry.asStateFlow()
-
-    private val _activeCalls = MutableStateFlow<Map<String, RemoteCallRequest>>(emptyMap())
+        private val _activeCalls = MutableStateFlow<Map<String, RemoteCallRequest>>(emptyMap())
         val activeCalls: StateFlow<Map<String, RemoteCallRequest>> = _activeCalls.asStateFlow()
-
-    private val _distributedLocks = MutableStateFlow<Map<String, DistributedLock>>(emptyMap())
+        private val _distributedLocks = MutableStateFlow<Map<String, DistributedLock>>(emptyMap())
         val distributedLocks: StateFlow<Map<String, DistributedLock>> = _distributedLocks.asStateFlow()
-
-    private val _loadBalancer = MutableStateFlow<LoadBalanceStrategy>(LoadBalanceStrategy.ROUND_ROBIN)
+        private val _loadBalancer = MutableStateFlow<LoadBalanceStrategy>(LoadBalanceStrategy.ROUND_ROBIN)
         val loadBalancer: StateFlow<LoadBalanceStrategy> = _loadBalancer.asStateFlow()
-
-    private val nodeConnections = ConcurrentHashMap<String, Socket>()
-    private val serviceCache = ConcurrentHashMap<String, Pair<List<ServiceInstance>, Long>>()
-    private val pendingRequests = ConcurrentHashMap<String, CompletableDeferred<RemoteCallResponse>>()
-
-    private val serverSocket: ServerSocket? = null
+        private val nodeConnections = ConcurrentHashMap<String, Socket>()
+        private val serviceCache = ConcurrentHashMap<String, Pair<List<ServiceInstance>, Long>>()
+        private val pendingRequests = ConcurrentHashMap<String, CompletableDeferred<RemoteCallResponse>>()
+        private val serverSocket: ServerSocket? = null
     private val discoverySocket: DatagramSocket? = null
 
     private val executor = Executors.newFixedThreadPool(10)
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    private var serverJob: Job? = null
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        private var serverJob: Job? = null
     private var heartbeatJob: Job? = null
     private var cleanupJob: Job? = null
 
@@ -191,7 +182,6 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         if (isRunning) return true
 
         val nodeId = generateNodeId()
-
         _localNode.value = NodeInfo(
             nodeId = nodeId,
             host = getLocalIpAddress(),
@@ -204,14 +194,13 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
 
         // 启动服务
-                startServer(port)
+        startServer(port)
         startDiscovery()
         startHeartbeat()
         startCleanup()
 
         // 启动服务
-                registerLocalSkills()
-
+        registerLocalSkills()
         isRunning = true
         AppLogger.i(TAG, "Distributed support started: ${nodeName} (${_localNode.value?.nodeId})")
         return true
@@ -230,16 +219,15 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         cleanupJob?.cancel()
 
         // 启动服务
-                nodeConnections.values.forEach {
+        nodeConnections.values.forEach {
             try { it.close() } catch (e: Exception) { AppLogger.w(TAG, "Error closing node connection", e) }
         }
         nodeConnections.clear()
 
         // 启动服务
-                _localNode.value?.let { node ->
+        _localNode.value?.let { node ->
             broadcastLeave(node.nodeId)
         }
-
         _registeredNodes.value = emptyMap()
         _serviceRegistry.value = emptyMap()
         _localNode.value = null
@@ -276,7 +264,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
 
         // 更新本地注册
-    val currentServices = _serviceRegistry.value.toMutableMap()
+        val currentServices = _serviceRegistry.value.toMutableMap()
         val skillServices = currentServices.getOrPut(skillId) { mutableListOf() }
         skillServices.removeAll { it.skillId == skillId && it.nodeId == node.nodeId }
         skillServices.add(registration)
@@ -284,11 +272,10 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         _serviceRegistry.value = currentServices
 
         // 广播注册
-                broadcastServiceRegistration(registration)
+        broadcastServiceRegistration(registration)
 
         // 清除缓存
-                serviceCache.remove(skillId)
-
+        serviceCache.remove(skillId)
         AppLogger.d(TAG, "Service registered: ${skillId} on ${node.nodeId}")
         true
     }
@@ -306,12 +293,11 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             _serviceRegistry.value = currentServices
 
             // 广播注销
-                broadcastServiceUnregistration(skillId, node.nodeId)
+        broadcastServiceUnregistration(skillId, node.nodeId)
 
             // 清除缓存
-                serviceCache.remove(skillId)
+        serviceCache.remove(skillId)
         }
-
         removed
     }
 
@@ -320,7 +306,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
      */
     suspend fun discoverService(skillId: String, useCache: Boolean = true): List<ServiceInstance> = withContext(Dispatchers.IO) {
         // 启动服务
-                if (useCache) {
+        if (useCache) {
             val cached = serviceCache[skillId]
             if (cached != null && System.currentTimeMillis() - cached.second < SERVICE_CACHE_TTL_MS) {
                 return@withContext cached.first
@@ -328,7 +314,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 从注册表获取
-    val registrations = _serviceRegistry.value[skillId] ?: emptyList()
+        val registrations = _serviceRegistry.value[skillId] ?: emptyList()
         val instances = registrations.mapNotNull { reg ->
             val node = _registeredNodes.value[reg.nodeId]
             if (node != null && node.isHealthy) {
@@ -341,10 +327,9 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 缓存结果
-                if (instances.isNotEmpty()) {
+        if (instances.isNotEmpty()) {
             serviceCache[skillId] = instances to System.currentTimeMillis()
         }
-
         instances
     }
 
@@ -372,13 +357,13 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 选择实例
-    val instance = selectInstance(instances)
+        val instance = selectInstance(instances)
         if (instance == null) {
             return@withContext null
         }
 
         // 执行调用
-                executeRemoteCall(instance, method, parameters, timeoutMs)
+        executeRemoteCall(instance, method, parameters, timeoutMs)
     }
 
     /**
@@ -400,20 +385,17 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             parameters = parameters,
             timeoutMs = timeoutMs
         )
-
         _activeCalls.value = _activeCalls.value.toMutableMap().apply {
             put(requestId, request)
         }
-
         val deferred = CompletableDeferred<RemoteCallResponse>()
         pendingRequests[requestId] = deferred
 
         val startTime = System.currentTimeMillis()
-
         try {
             // 广播注销
-    val connection = getConnection(node)
-            if (connection == null) {
+        val connection = getConnection(node)
+        if (connection == null) {
                 return@withContext RemoteCallResponse(
                     requestId = requestId,
                     success = false,
@@ -425,18 +407,17 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             }
 
             // 广播注销
-    val requestJson = serializeRequest(request)
+        val requestJson = serializeRequest(request)
         val requestBytes = requestJson.toByteArray()
-
-            synchronized(connection) {
+        synchronized(connection) {
                 val outputStream = DataOutputStream(connection.getOutputStream())
-                outputStream.writeInt(requestBytes.size)
-                outputStream.write(requestBytes)
-                outputStream.flush()
+        outputStream.writeInt(requestBytes.size)
+        outputStream.write(requestBytes)
+        outputStream.flush()
             }
 
             // 等待响应（简化实现）
-    val response = withTimeoutOrNull(timeoutMs) {
+        val response = withTimeoutOrNull(timeoutMs) {
                 pendingRequests[requestId]?.await()
             } ?: RemoteCallResponse(
                 requestId = requestId,
@@ -446,11 +427,10 @@ class DistributedSkillSupport private constructor(private val context: Context) 
                 latencyMs = System.currentTimeMillis() - startTime,
                 fromNodeId = node.nodeId
             )
-
-            response
+        response
         } catch (e: Exception) {
             AppLogger.e(TAG, "Remote call failed", e)
-            RemoteCallResponse(
+        RemoteCallResponse(
                 requestId = requestId,
                 success = false,
                 result = null,
@@ -462,7 +442,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             _activeCalls.value = _activeCalls.value.toMutableMap().apply {
                 remove(requestId)
             }
-            pendingRequests.remove(requestId)
+        pendingRequests.remove(requestId)
         }
     }
 
@@ -481,27 +461,26 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     private fun selectInstance(instances: List<ServiceInstance>): ServiceInstance? {
         if (instances.isEmpty()) return null
         if (instances.size == 1) return instances.first()
-
         return when (_loadBalancer.value) {
             LoadBalanceStrategy.ROUND_ROBIN -> {
                 // 简化实现
-                instances.random()
+        instances.random()
             }
-            LoadBalanceStrategy.LEAST_CONNECTIONS -> {
+        LoadBalanceStrategy.LEAST_CONNECTIONS -> {
                 instances.minByOrNull { _activeCalls.value.count {
                     it.value.serviceId == it.value.serviceId } } ?: instances.first()
             }
-            LoadBalanceStrategy.RANDOM -> instances.random()
-            LoadBalanceStrategy.WEIGHTED -> {
+        LoadBalanceStrategy.RANDOM -> instances.random()
+        LoadBalanceStrategy.WEIGHTED -> {
                 val totalWeight = instances.sumOf { it.registration.weight }
-                var random = (Math.random() * totalWeight).toInt()
-                for (instance in instances) {
+        var random = (Math.random() * totalWeight).toInt()
+        for (instance in instances) {
                     random -= instance.registration.weight
                     if (random <= 0) return instance
                 }
-                instances.first()
+        instances.first()
             }
-            LoadBalanceStrategy.LATENCY_BASED -> {
+        LoadBalanceStrategy.LATENCY_BASED -> {
                 instances.filter { it.latencyMs != null }
                     .minByOrNull { it.latencyMs!! }
                     ?: instances.first()
@@ -523,31 +502,29 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         val node = _localNode.value ?: return@withContext false
 
         // 启动服务
-    val existingLock = _distributedLocks.value[lockId]
+        val existingLock = _distributedLocks.value[lockId]
         if (existingLock != null && !existingLock.isExpired) {
             // 尝试竞争
-                if (retryCount > 0) {
+        if (retryCount > 0) {
                 delay(retryDelayMs)
-                return@withContext tryLock(lockId, ttlMs, retryCount - 1, retryDelayMs)
+        return@withContext tryLock(lockId, ttlMs, retryCount - 1, retryDelayMs)
             }
-            return@withContext false
+        return@withContext false
         }
 
         // 启动服务
-    val lock = DistributedLock(
+        val lock = DistributedLock(
             lockId = lockId,
             ownerNodeId = node.nodeId,
             acquiredAt = System.currentTimeMillis(),
             expiresAt = System.currentTimeMillis() + ttlMs
         )
-
         _distributedLocks.value = _distributedLocks.value.toMutableMap().apply {
             put(lockId, lock)
         }
 
         // 启动服务
-                broadcastLockAcquired(lock)
-
+        broadcastLockAcquired(lock)
         AppLogger.d(TAG, "Lock acquired: ${lockId} by ${node.nodeId}")
         true
     }
@@ -561,14 +538,12 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         if (lock == null || lock.ownerNodeId != node.nodeId) {
             return@withContext false
         }
-
         _distributedLocks.value = _distributedLocks.value.toMutableMap().apply {
             remove(lockId)
         }
 
         // 启动服务
-                broadcastLockReleased(lockId, node.nodeId)
-
+        broadcastLockReleased(lockId, node.nodeId)
         AppLogger.d(TAG, "Lock released: ${lockId}")
         true
     }
@@ -596,29 +571,27 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     suspend fun connectToNode(host: String, port: Int): Boolean = withContext(Dispatchers.IO) {
         try {
             val socket = Socket(host, port)
-            socket.soTimeout = 10000
+        socket.soTimeout = 10000
             nodeConnections["${host}:${port}"] = socket
 
             // 广播注销
-    val local = _localNode.value ?: return@withContext false
+        val local = _localNode.value ?: return@withContext false
         val handshake = mapOf(
                 "type" to "handshake",
                 "nodeId" to local.nodeId,
                 "name" to local.name,
                 "capabilities" to local.capabilities
             )
-
-            synchronized(socket) {
+        synchronized(socket) {
                 val outputStream = DataOutputStream(socket.getOutputStream())
-                outputStream.writeUTF(serializeToJson(handshake))
-                outputStream.flush()
+        outputStream.writeUTF(serializeToJson(handshake))
+        outputStream.flush()
             }
-
-            AppLogger.d(TAG, "Connected to node: ${host}:${port}")
-            true
+        AppLogger.d(TAG, "Connected to node: ${host}:${port}")
+        true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to connect to node: ${host}:${port}", e)
-            false
+        false
         }
     }
 
@@ -632,7 +605,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
 
         connection?.let {
             try { it.close() } catch (e: Exception) { AppLogger.w(TAG, "Error closing node connection", e) }
-            nodeConnections.remove("${it.inetAddress.hostAddress}:${it.port}")
+        nodeConnections.remove("${it.inetAddress.hostAddress}:${it.port}")
         }
     }
 
@@ -644,41 +617,38 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     }
 
     // ========== 私有方法 ==========
-    private fun startServer(port: Int) {
+        private fun startServer(port: Int) {
         serverJob = scope.launch {
             try {
                 val server = ServerSocket(port)
-                AppLogger.d(TAG, "Server started on port ${port}")
-
-                while (isRunning && isActive) {
+        AppLogger.d(TAG, "Server started on port ${port}")
+        while (isRunning && isActive) {
                     try {
                         val client = withContext(Dispatchers.IO) {
                             server.accept()
                         }
-                        handleClient(client)
+        handleClient(client)
                     } catch (e: Exception) {
                         if (isRunning) {
                             AppLogger.e(TAG, "Error accepting connection", e)
                         }
                     }
                 }
-
-                server.close()
+        server.close()
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Server error", e)
             }
         }
     }
-
-    private fun handleClient(socket: Socket) {
+        private fun handleClient(socket: Socket) {
         scope.launch {
             try {
                 val inputStream = DataInputStream(socket.getInputStream())
         val data = ByteArray(inputStream.readInt())
-                inputStream.readFully(data)
-                val message = String(data)
+        inputStream.readFully(data)
+        val message = String(data)
         val json = parseJson(message)
-                when (json["type"] as? String) {
+        when (json["type"] as? String) {
                     "handshake" -> handleHandshake(socket, json)
                     "service_register" -> handleServiceRegistration(json)
                     "service_unregister" -> handleServiceUnregistration(json)
@@ -697,8 +667,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             }
         }
     }
-
-    private fun handleHandshake(socket: Socket, json: Map<String, Any>) {
+        private fun handleHandshake(socket: Socket, json: Map<String, Any>) {
         val nodeId = json["nodeId"] as? String ?: return
         val name = json["name"] as? String ?: ""
         val capabilities = json["capabilities"] as? List<String> ?: emptyList()
@@ -712,15 +681,12 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             lastHeartbeat = System.currentTimeMillis(),
             registeredSkills = emptyList()
         )
-
         _registeredNodes.value = _registeredNodes.value.toMutableMap().apply {
             put(nodeId, node)
         }
-
         AppLogger.d(TAG, "Node joined: ${name} (${nodeId})")
     }
-
-    private fun handleServiceRegistration(json: Map<String, Any>) {
+        private fun handleServiceRegistration(json: Map<String, Any>) {
         val skillId = json["skillId"] as? String ?: return
         val nodeId = json["nodeId"] as? String ?: return
 
@@ -728,7 +694,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         val skillServices = currentServices.getOrPut(skillId) { mutableListOf() }
 
         // 添加注册（简化实现）
-                skillServices.add(ServiceRegistration(
+        skillServices.add(ServiceRegistration(
             serviceId = "${skillId}_${nodeId}",
             skillId = skillId,
             skillName = json["skillName"] as? String ?: skillId,
@@ -738,12 +704,10 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             registeredAt = System.currentTimeMillis(),
             version = json["version"] as? String ?: "1.0.0"
         ))
-
         _serviceRegistry.value = currentServices
         serviceCache.remove(skillId)
     }
-
-    private fun handleServiceUnregistration(skillId: String, nodeId: String) {
+        private fun handleServiceUnregistration(skillId: String, nodeId: String) {
         val currentServices = _serviceRegistry.value.toMutableMap()
         val skillServices = currentServices[skillId] ?: return
 
@@ -752,8 +716,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         _serviceRegistry.value = currentServices
         serviceCache.remove(skillId)
     }
-
-    private fun handleNodeJoin(json: Map<String, Any>) {
+        private fun handleNodeJoin(json: Map<String, Any>) {
         val nodeId = json["nodeId"] as? String ?: return
         val node = NodeInfo(
             nodeId = nodeId,
@@ -765,13 +728,11 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             lastHeartbeat = System.currentTimeMillis(),
             registeredSkills = json["skills"] as? List<String> ?: emptyList()
         )
-
         _registeredNodes.value = _registeredNodes.value.toMutableMap().apply {
             put(nodeId, node)
         }
     }
-
-    private fun handleNodeLeave(json: Map<String, Any>) {
+        private fun handleNodeLeave(json: Map<String, Any>) {
         val nodeId = json["nodeId"] as? String ?: return
 
         _registeredNodes.value = _registeredNodes.value.toMutableMap().apply {
@@ -779,15 +740,14 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 启动服务
-    val currentServices = _serviceRegistry.value.toMutableMap()
+        val currentServices = _serviceRegistry.value.toMutableMap()
         currentServices.forEach { (skillId, services) ->
             services.removeAll { it.nodeId == nodeId }
-            currentServices[skillId] = services
+        currentServices[skillId] = services
         }
         _serviceRegistry.value = currentServices
     }
-
-    private fun handleHeartbeat(json: Map<String, Any>) {
+        private fun handleHeartbeat(json: Map<String, Any>) {
         val nodeId = json["nodeId"] as? String ?: return
 
         _registeredNodes.value[nodeId]?.let { node ->
@@ -799,14 +759,13 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             }
         }
     }
-
-    private suspend fun handleRemoteCall(socket: Socket, json: Map<String, Any>) {
+        private suspend fun handleRemoteCall(socket: Socket, json: Map<String, Any>) {
         val requestId = json["requestId"] as? String ?: return
         val method = json["method"] as? String ?: return
         val parameters = json["parameters"] as? Map<String, Any?> ?: emptyMap()
 
         // 简化：直接返回成功响应
-    val response = RemoteCallResponse(
+        val response = RemoteCallResponse(
             requestId = requestId,
             success = true,
             result = mapOf("status" to "executed"),
@@ -816,9 +775,9 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
 
         // 启动服务
-                synchronized(socket) {
+        synchronized(socket) {
             val outputStream = DataOutputStream(socket.getOutputStream())
-            outputStream.writeUTF(serializeToJson(mapOf(
+        outputStream.writeUTF(serializeToJson(mapOf(
                 "type" to "remote_response",
                 "requestId" to response.requestId,
                 "success" to response.success,
@@ -827,11 +786,10 @@ class DistributedSkillSupport private constructor(private val context: Context) 
                 "latencyMs" to response.latencyMs,
                 "fromNodeId" to response.fromNodeId
             )))
-            outputStream.flush()
+        outputStream.flush()
         }
     }
-
-    private fun handleRemoteResponse(json: Map<String, Any>) {
+        private fun handleRemoteResponse(json: Map<String, Any>) {
         val requestId = json["requestId"] as? String ?: return
         val response = RemoteCallResponse(
             requestId = requestId,
@@ -841,11 +799,9 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             latencyMs = (json["latencyMs"] as? Number)?.toLong() ?: 0,
             fromNodeId = json["fromNodeId"] as? String ?: ""
         )
-
         pendingRequests[requestId]?.complete(response)
     }
-
-    private fun handleLockAcquired(json: Map<String, Any>) {
+        private fun handleLockAcquired(json: Map<String, Any>) {
         val lockId = json["lockId"] as? String ?: return
         val ownerNodeId = json["ownerNodeId"] as? String ?: return
 
@@ -855,13 +811,11 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             acquiredAt = System.currentTimeMillis(),
             expiresAt = (json["expiresAt"] as? Number)?.toLong() ?: System.currentTimeMillis() + 30000
         )
-
         _distributedLocks.value = _distributedLocks.value.toMutableMap().apply {
             put(lockId, lock)
         }
     }
-
-    private fun handleLockReleased(lockId: String, nodeId: String) {
+        private fun handleLockReleased(lockId: String, nodeId: String) {
         val lock = _distributedLocks.value[lockId]
         if (lock?.ownerNodeId == nodeId) {
             _distributedLocks.value = _distributedLocks.value.toMutableMap().apply {
@@ -869,26 +823,23 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             }
         }
     }
-
-    private fun startDiscovery() {
+        private fun startDiscovery() {
         scope.launch {
             try {
                 val multicastSocket = DatagramSocket(DISCOVERY_PORT)
-                multicastSocket.soTimeout = 5000
+        multicastSocket.soTimeout = 5000
 
                 // 监听发现请求
-                while (isRunning && isActive) {
+        while (isRunning && isActive) {
                     try {
                         val buffer = ByteArray(1024)
         val packet = DatagramPacket(buffer, buffer.size)
-                        multicastSocket.receive(packet)
-
-                        val message = String(packet.data, 0, packet.length)
+        multicastSocket.receive(packet)
+        val message = String(packet.data, 0, packet.length)
         val json = parseJson(message)
-
-                        if (json["type"] == "discovery_request") {
+        if (json["type"] == "discovery_request") {
                             // 响应发现请求
-    val local = _localNode.value ?: continue
+        val local = _localNode.value ?: continue
         val response = mapOf(
                                 "type" to "discovery_response",
                                 "nodeId" to local.nodeId,
@@ -896,63 +847,59 @@ class DistributedSkillSupport private constructor(private val context: Context) 
                                 "port" to local.port,
                                 "name" to local.name
                             )
-
-                            val responseBytes = serializeToJson(response).toByteArray()
+        val responseBytes = serializeToJson(response).toByteArray()
         val responsePacket = DatagramPacket(
                                 responseBytes,
                                 responseBytes.size,
                                 packet.address,
                                 DISCOVERY_PORT
                             )
-                            multicastSocket.send(responsePacket)
+        multicastSocket.send(responsePacket)
                         }
                     } catch (e: SocketTimeoutException) {
                         // 正常超时
                     }
                 }
-
-                multicastSocket.close()
+        multicastSocket.close()
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Discovery error", e)
             }
         }
     }
-
-    private fun startHeartbeat() {
+        private fun startHeartbeat() {
         heartbeatJob = scope.launch {
             while (isRunning && isActive) {
                 delay(HEARTBEAT_INTERVAL_MS)
 
                 // 更新本地心跳
-                _localNode.value?.let { node ->
+        _localNode.value?.let { node ->
                     _localNode.value = node.copy(lastHeartbeat = System.currentTimeMillis())
                 }
 
                 // 简化实现
-    val now = System.currentTimeMillis()
-                _registeredNodes.value.forEach { (nodeId, node) ->
+        val now = System.currentTimeMillis()
+        _registeredNodes.value.forEach { (nodeId, node) ->
                     if (now - node.lastHeartbeat > HEARTBEAT_TIMEOUT_MS) {
                         // 正常超时
-                _registeredNodes.value = _registeredNodes.value.toMutableMap().apply {
+        _registeredNodes.value = _registeredNodes.value.toMutableMap().apply {
                             put(nodeId, node.copy(status = NodeStatus.SUSPECTED))
                         }
                     }
                 }
 
                 // 广播心跳
-                broadcastHeartbeat()
+        broadcastHeartbeat()
             }
         }
     }
-
-    private fun startCleanup() {
+        private fun startCleanup() {
         cleanupJob = scope.launch {
             while (isRunning && isActive) {
                 delay(HEARTBEAT_INTERVAL_MS * 2)
 
                 // 清理过期的锁
-    val now = System.currentTimeMillis()
-                _distributedLocks.value.forEach { (lockId, lock) ->
+        val now = System.currentTimeMillis()
+        _distributedLocks.value.forEach { (lockId, lock) ->
                     if (lock.expiresAt < now) {
                         _distributedLocks.value = _distributedLocks.value.toMutableMap().apply {
                             remove(lockId)
@@ -961,27 +908,26 @@ class DistributedSkillSupport private constructor(private val context: Context) 
                 }
 
                 // 清理不健康的节点
-                _registeredNodes.value.forEach { (nodeId, node) ->
+        _registeredNodes.value.forEach { (nodeId, node) ->
                     if (now - node.lastHeartbeat > HEARTBEAT_TIMEOUT_MS * 3) {
                         _registeredNodes.value = _registeredNodes.value.toMutableMap().apply {
                             remove(nodeId)
                         }
-                        disconnectFromNode(nodeId)
+        disconnectFromNode(nodeId)
                     }
                 }
 
                 // 清理服务缓存
-                serviceCache.entries.removeAll { (_, pair) ->
+        serviceCache.entries.removeAll { (_, pair) ->
                     System.currentTimeMillis() - pair.second > SERVICE_CACHE_TTL_MS
                 }
             }
         }
     }
-
-    private fun registerLocalSkills() {
+        private fun registerLocalSkills() {
         scope.launch {
             val skills = skillManager.getAvailableSkills()
-            skills.forEach { (skillId, skill) ->
+        skills.forEach { (skillId, skill) ->
                 registerService(
                     skillId = skillId,
                     skillName = skill.name,
@@ -991,24 +937,22 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             }
 
             // 广播注销
-                _localNode.value?.let { node ->
+        _localNode.value?.let { node ->
                 _localNode.value = node.copy(
                     registeredSkills = skills.keys.toList()
                 )
             }
         }
     }
-
-    private fun getConnection(node: NodeInfo): Socket? {
+        private fun getConnection(node: NodeInfo): Socket? {
         val key = "${node.host}:${node.port}"
         return nodeConnections.getOrPut(key) {
             Socket(node.host, node.port)
         }
     }
-
-    private fun broadcastServiceRegistration(registration: ServiceRegistration) {
+        private fun broadcastServiceRegistration(registration: ServiceRegistration) {
         // 启动服务
-    val message = mapOf(
+        val message = mapOf(
             "type" to "service_register",
             "skillId" to registration.skillId,
             "skillName" to registration.skillName,
@@ -1017,8 +961,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
         broadcast(message)
     }
-
-    private fun broadcastServiceUnregistration(skillId: String, nodeId: String) {
+        private fun broadcastServiceUnregistration(skillId: String, nodeId: String) {
         val message = mapOf(
             "type" to "service_unregister",
             "skillId" to skillId,
@@ -1026,8 +969,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
         broadcast(message)
     }
-
-    private fun broadcastNodeJoin() {
+        private fun broadcastNodeJoin() {
         val node = _localNode.value ?: return
         val message = mapOf(
             "type" to "node_join",
@@ -1040,16 +982,14 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
         broadcast(message)
     }
-
-    private fun broadcastLeave(nodeId: String) {
+        private fun broadcastLeave(nodeId: String) {
         val message = mapOf(
             "type" to "node_leave",
             "nodeId" to nodeId
         )
         broadcast(message)
     }
-
-    private fun broadcastHeartbeat() {
+        private fun broadcastHeartbeat() {
         val node = _localNode.value ?: return
         val message = mapOf(
             "type" to "heartbeat",
@@ -1058,8 +998,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
         broadcast(message)
     }
-
-    private fun broadcastLockAcquired(lock: DistributedLock) {
+        private fun broadcastLockAcquired(lock: DistributedLock) {
         val message = mapOf(
             "type" to "lock_acquired",
             "lockId" to lock.lockId,
@@ -1068,8 +1007,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
         broadcast(message)
     }
-
-    private fun broadcastLockReleased(lockId: String, nodeId: String) {
+        private fun broadcastLockReleased(lockId: String, nodeId: String) {
         val message = mapOf(
             "type" to "lock_released",
             "lockId" to lockId,
@@ -1077,18 +1015,16 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
         broadcast(message)
     }
-
-    private fun broadcast(message: Map<String, Any>) {
+        private fun broadcast(message: Map<String, Any>) {
         scope.launch {
             val data = serializeToJson(message).toByteArray()
-
-            nodeConnections.values.forEach { socket ->
+        nodeConnections.values.forEach { socket ->
                 try {
                     synchronized(socket) {
                         val outputStream = DataOutputStream(socket.getOutputStream())
-                        outputStream.writeInt(data.size)
-                        outputStream.write(data)
-                        outputStream.flush()
+        outputStream.writeInt(data.size)
+        outputStream.write(data)
+        outputStream.flush()
                     }
                 } catch (e: Exception) {
                     AppLogger.w(TAG, "Broadcast failed to one node", e)
@@ -1098,27 +1034,24 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     }
 
     // ========== 工具方法 ==========
-    private fun generateNodeId(): String {
+        private fun generateNodeId(): String {
         val mac = getLocalMacAddress()
         return "node_${mac}_${(Math.random() * 10000).toInt()}"
     }
-
-    private fun generateRequestId(): String {
+        private fun generateRequestId(): String {
         return "req_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
     }
-
-    private fun getLocalIpAddress(): String {
+        private fun getLocalIpAddress(): String {
         return try {
             InetAddress.getLocalHost().hostAddress ?: "127.0.0.1"
         } catch (e: Exception) {
             "127.0.0.1"
         }
     }
-
-    private fun getLocalMacAddress(): String {
+        private fun getLocalMacAddress(): String {
         return try {
             val networkInterfaces = NetworkInterface.getNetworkInterfaces()
-            while (networkInterfaces.hasMoreElements()) {
+        while (networkInterfaces.hasMoreElements()) {
                 val ni = networkInterfaces.nextElement()
         val mac = ni.hardwareAddress
                 if (mac != null && mac.isNotEmpty()) {
@@ -1130,33 +1063,31 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             "00:00:00:00:00:00"
         }
     }
-
-    private fun serializeToJson(map: Map<String, Any?>): String {
+        private fun serializeToJson(map: Map<String, Any?>): String {
         val sb = StringBuilder()
         sb.append("{")
         map.entries.forEachIndexed { index, (key, value) ->
             if (index > 0) sb.append(",")
-            sb.append("\"${key}\":")
-            when (value) {
+        sb.append("\"${key}\":")
+        when (value) {
                 is String -> sb.append("\"${value.replace("\"", "\\\"")}\"")
-                is Number, is Boolean -> sb.append(value)
-                is List<*> -> sb.append(serializeToJson(value.associate { "v${index}" to it }))
-                is Map<*, *> -> sb.append(serializeToJson(value as? Map<String, Any?> ?: emptyMap()))
-                null -> sb.append("null")
-                else -> sb.append("\"${value.toString().replace("\"", "\\\"")}\"")
+        is Number, is Boolean -> sb.append(value)
+        is List<*> -> sb.append(serializeToJson(value.associate { "v${index}" to it }))
+        is Map<*, *> -> sb.append(serializeToJson(value as? Map<String, Any?> ?: emptyMap()))
+        null -> sb.append("null")
+        else -> sb.append("\"${value.toString().replace("\"", "\\\"")}\"")
             }
         }
         sb.append("}")
         return sb.toString()
     }
-
-    private fun parseJson(json: String): Map<String, Any> {
+        private fun parseJson(json: String): Map<String, Any> {
         // 简化实现：实际应使用 JSON 库
-                return emptyMap()
+        return emptyMap()
     }
 
     // ========== 状态类 ==========
-    fun getClusterStats(): ClusterStats {
+        fun getClusterStats(): ClusterStats {
         return ClusterStats(
             localNode = _localNode.value,
             totalNodes = _registeredNodes.value.size + 1,
@@ -1166,8 +1097,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             locksHeld = _distributedLocks.value.size
         )
     }
-
-    data class ClusterStats(
+        data class ClusterStats(
         val localNode: NodeInfo?,
         val totalNodes: Int,
         val healthyNodes: Int,

@@ -76,12 +76,12 @@ interface PromptEstimateFinalizeHook {
 
 object PromptHookRegistry {
     private val promptInputHooks = CopyOnWriteArrayList<PromptInputHook>()
-    private val promptHistoryHooks = CopyOnWriteArrayList<PromptHistoryHook>()
-    private val promptEstimateHistoryHooks = CopyOnWriteArrayList<PromptEstimateHistoryHook>()
-    private val systemPromptComposeHooks = CopyOnWriteArrayList<SystemPromptComposeHook>()
-    private val toolPromptComposeHooks = CopyOnWriteArrayList<ToolPromptComposeHook>()
-    private val promptFinalizeHooks = CopyOnWriteArrayList<PromptFinalizeHook>()
-    private val promptEstimateFinalizeHooks = CopyOnWriteArrayList<PromptEstimateFinalizeHook>()
+        private val promptHistoryHooks = CopyOnWriteArrayList<PromptHistoryHook>()
+        private val promptEstimateHistoryHooks = CopyOnWriteArrayList<PromptEstimateHistoryHook>()
+        private val systemPromptComposeHooks = CopyOnWriteArrayList<SystemPromptComposeHook>()
+        private val toolPromptComposeHooks = CopyOnWriteArrayList<ToolPromptComposeHook>()
+        private val promptFinalizeHooks = CopyOnWriteArrayList<PromptFinalizeHook>()
+        private val promptEstimateFinalizeHooks = CopyOnWriteArrayList<PromptEstimateFinalizeHook>()
 
     @Synchronized
     fun registerPromptInputHook(hook: PromptInputHook) {
@@ -159,8 +159,7 @@ object PromptHookRegistry {
     fun unregisterPromptEstimateFinalizeHook(hookId: String) {
         promptEstimateFinalizeHooks.removeAll { it.id == hookId }
     }
-
-    fun dispatchPromptInputHooks(initialContext: PromptHookContext): PromptHookContext {
+        fun dispatchPromptInputHooks(initialContext: PromptHookContext): PromptHookContext {
         return dispatch(
             initialContext = initialContext,
             hooks = promptInputHooks,
@@ -169,8 +168,7 @@ object PromptHookRegistry {
             hook.onEvent(context)
         }
     }
-
-    fun dispatchPromptHistoryHooks(initialContext: PromptHookContext): PromptHookContext {
+        fun dispatchPromptHistoryHooks(initialContext: PromptHookContext): PromptHookContext {
         return dispatch(
             initialContext = initialContext,
             hooks = promptHistoryHooks,
@@ -179,8 +177,7 @@ object PromptHookRegistry {
             hook.onEvent(context)
         }
     }
-
-    fun dispatchPromptEstimateHistoryHooks(initialContext: PromptHookContext): PromptHookContext {
+        fun dispatchPromptEstimateHistoryHooks(initialContext: PromptHookContext): PromptHookContext {
         return dispatch(
             initialContext = initialContext,
             hooks = promptEstimateHistoryHooks,
@@ -189,8 +186,7 @@ object PromptHookRegistry {
             hook.onEvent(context)
         }
     }
-
-    fun dispatchSystemPromptComposeHooks(initialContext: PromptHookContext): PromptHookContext {
+        fun dispatchSystemPromptComposeHooks(initialContext: PromptHookContext): PromptHookContext {
         return dispatch(
             initialContext = initialContext,
             hooks = systemPromptComposeHooks,
@@ -199,8 +195,7 @@ object PromptHookRegistry {
             hook.onEvent(context)
         }
     }
-
-    fun dispatchToolPromptComposeHooks(initialContext: PromptHookContext): PromptHookContext {
+        fun dispatchToolPromptComposeHooks(initialContext: PromptHookContext): PromptHookContext {
         return dispatch(
             initialContext = initialContext,
             hooks = toolPromptComposeHooks,
@@ -209,8 +204,7 @@ object PromptHookRegistry {
             hook.onEvent(context)
         }
     }
-
-    fun dispatchPromptFinalizeHooks(initialContext: PromptHookContext): PromptHookContext {
+        fun dispatchPromptFinalizeHooks(initialContext: PromptHookContext): PromptHookContext {
         return dispatch(
             initialContext = initialContext,
             hooks = promptFinalizeHooks,
@@ -219,8 +213,7 @@ object PromptHookRegistry {
             hook.onEvent(context)
         }
     }
-
-    fun dispatchPromptEstimateFinalizeHooks(initialContext: PromptHookContext): PromptHookContext {
+        fun dispatchPromptEstimateFinalizeHooks(initialContext: PromptHookContext): PromptHookContext {
         return dispatch(
             initialContext = initialContext,
             hooks = promptEstimateFinalizeHooks,
@@ -229,8 +222,7 @@ object PromptHookRegistry {
             hook.onEvent(context)
         }
     }
-
-    private fun <THook> dispatch(
+        private fun <THook> dispatch(
         initialContext: PromptHookContext,
         hooks: List<THook>,
         hookLabel: String,
@@ -249,8 +241,7 @@ object PromptHookRegistry {
         }
         return current
     }
-
-    private fun applyMutation(
+        private fun applyMutation(
         current: PromptHookContext,
         mutation: PromptHookMutation
     ): PromptHookContext {

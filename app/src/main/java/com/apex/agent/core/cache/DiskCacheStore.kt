@@ -41,16 +41,14 @@ class DiskCacheStore(
 ) : ICacheStore<String, String> {
 
     private val log = LoggerFactory.getLogger(DiskCacheStore::class.java)
-    private val lock = ReentrantReadWriteLock()
-    private val index = ConcurrentHashMap<String, CacheEntry<String>>()
-
-    private val serializer = CacheSerialization
+        private val lock = ReentrantReadWriteLock()
+        private val index = ConcurrentHashMap<String, CacheEntry<String>>()
+        private val serializer = CacheSerialization
     private val scheduler: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { r ->
             Thread(r, "disk-cache-cleanup").apply { isDaemon = true }
         }
-
-    private var hits: Long = 0L
+        private var hits: Long = 0L
     private var misses: Long = 0L
     private var evictions: Long = 0L
     private var currentDiskBytes: Long = 0L
@@ -67,91 +65,84 @@ class DiskCacheStore(
             TimeUnit.SECONDS
         )
     }
-
-    override fun get(key: String): CacheEntry<String>? {
+        override fun get(key: String): CacheEntry<String>? {
         val start = System.nanoTime()
         lock.read {
             val entry = index[key] ?: return null.also {
                 lock.write { misses++ }
             }
-            if (entry.isExpired()) {
+        if (entry.isExpired()) {
                 lock.write {
                     deleteFile(key)
-                    index.remove(key)
-                    misses++
+        index.remove(key)
+        misses++
                 }
-                return null
+        return null
             }
-            val jsonString = readFile(key) ?: return null.also {
+        val jsonString = readFile(key) ?: return null.also {
                 lock.write {
                     index.remove(key)
-                    misses++
+        misses++
                 }
             }
-            val deserialized = serializer.deserialize(jsonString) { it }
+        val deserialized = serializer.deserialize(jsonString) { it }
         val updated = deserialized.recordAccess()
-            index[key] = updated
+        index[key] = updated
             lock.write {
                 hits++
             }
-            return updated
+        return updated
         }
     }
-
-    override fun put(entry: CacheEntry<String>) {
+        override fun put(entry: CacheEntry<String>) {
         lock.write {
             val jsonString = serializer.serialize(entry)
-            writeFileAtomic(entry.key, jsonString)
-            index[entry.key] = entry
+        writeFileAtomic(entry.key, jsonString)
+        index[entry.key] = entry
             currentDiskBytes += entry.sizeBytes.coerceAtLeast(0)
-            evictIfNeeded()
+        evictIfNeeded()
         }
     }
-
-    override fun remove(key: String): Boolean {
+        override fun remove(key: String): Boolean {
         lock.write {
             val existed = index.containsKey(key)
-            if (existed) {
+        if (existed) {
                 deleteFile(key)
-                val entry = index.remove(key)
-                if (entry != null) {
+        val entry = index.remove(key)
+        if (entry != null) {
                     currentDiskBytes -= entry.sizeBytes.coerceAtLeast(0)
                 }
             }
-            return existed
+        return existed
         }
     }
-
-    override fun clear() {
+        override fun clear() {
         lock.write {
             cacheDir.listFiles()?.forEach { dir ->
                 dir.deleteRecursively()
             }
-            index.clear()
-            currentDiskBytes = 0L
+        index.clear()
+        currentDiskBytes = 0L
             hits = 0L
             misses = 0L
             evictions = 0L
         }
     }
-
-    override fun contains(key: String): Boolean {
+        override fun contains(key: String): Boolean {
         lock.read {
             val entry = index[key] ?: return false
             if (entry.isExpired()) {
                 lock.write {
                     deleteFile(key)
-                    index.remove(key)
+        index.remove(key)
                 }
-                return false
+        return false
             }
-            return fileFor(key).exists()
+        return fileFor(key).exists()
         }
     }
-
-    override fun size(): Int = lock.read { index.size }
-
-    override fun stats(): CacheStats {
+        override fun size(): Int = lock.read { index.size }
+        override fun stats(): CacheStats {
         lock.read {
             return CacheStats(
                 hits = hits,
@@ -163,47 +154,45 @@ class DiskCacheStore(
             )
         }
     }
-
-    override fun evict(policy: CachePolicy): List<String> {
+        override fun evict(policy: CachePolicy): List<String> {
         lock.write {
             val evictedKeys = mutableListOf<String>()
         val candidates = when (policy) {
                 is CachePolicy.TtlPolicy -> {
                     index.values.filter { it.isExpired() }.map { it.key }
                 }
-                is CachePolicy.LruPolicy -> {
+        is CachePolicy.LruPolicy -> {
                     policy.evictCandidates(index.values).map { it.key }
                 }
-                is CachePolicy.LfuPolicy -> {
+        is CachePolicy.LfuPolicy -> {
                     policy.evictCandidates(index.values).map { it.key }
                 }
-                is CachePolicy.FifoPolicy -> {
+        is CachePolicy.FifoPolicy -> {
                     policy.evictCandidates(index.values).map { it.key }
                 }
-                is CachePolicy.HybridPolicy -> {
+        is CachePolicy.HybridPolicy -> {
                     index.values.sortedByDescending { policy.evictionScore(it) }
                         .take((index.size * 0.25).toInt().coerceAtLeast(1))
                         .map { it.key }
                 }
             }
-            for (key in candidates) {
+        for (key in candidates) {
                 deleteFile(key)
-                val entry = index.remove(key)
-                if (entry != null) {
+        val entry = index.remove(key)
+        if (entry != null) {
                     currentDiskBytes -= entry.sizeBytes.coerceAtLeast(0)
-                    evictedKeys.add(key)
+        evictedKeys.add(key)
                 }
             }
-            evictions += evictedKeys.size
+        evictions += evictedKeys.size
             return evictedKeys
         }
     }
-
-    override fun warmUp(keys: Collection<String>): Int {
+        override fun warmUp(keys: Collection<String>): Int {
         var loaded = 0
         for (key in keys) {
             val file = fileFor(key)
-            if (file.exists()) {
+        if (file.exists()) {
                 loaded++
             }
         }
@@ -225,7 +214,7 @@ class DiskCacheStore(
     private fun rebuildIndex() {
         lock.write {
             index.clear()
-            currentDiskBytes = 0L
+        currentDiskBytes = 0L
             cacheDir.walkTopDown().forEach { file ->
                 if (file.isFile && file.extension == "json") {
                     try {
@@ -234,21 +223,21 @@ class DiskCacheStore(
                             CacheSerialization.JsonElement
                         >(content)
                         // 简化重建：仅记录 key 和文件存在性
-    val key = file.nameWithoutExtension
+        val key = file.nameWithoutExtension
         val entry = CacheEntry(
                             key = key,
                             value = content,
                             createdAt = file.lastModified(),
                             serialized = true
                         )
-                        index[key] = entry
+        index[key] = entry
                         currentDiskBytes += file.length()
                     } catch (e: Exception) {
                         log.warn("rebuildIndex: skip corrupted file {}", file.name)
                     }
                 }
             }
-            log.info("rebuildIndex: loaded {} entries, {} bytes",
+        log.info("rebuildIndex: loaded {} entries, {} bytes",
                 index.size, currentDiskBytes)
         }
     }
@@ -288,10 +277,10 @@ class DiskCacheStore(
         if (file.exists()) {
             file.delete()
             // 清理空目录
-                file.parentFile?.let { parent ->
+        file.parentFile?.let { parent ->
                 if (parent.isDirectory && parent.listFiles().isNullOrEmpty()) {
                     parent.delete()
-                    parent.parentFile?.let { grandParent ->
+        parent.parentFile?.let { grandParent ->
                         if (grandParent.isDirectory && grandParent.listFiles().isNullOrEmpty()) {
                             grandParent.delete()
                         }
@@ -306,26 +295,26 @@ class DiskCacheStore(
         if (maxSize > 0 && index.size > maxSize) {
             val overage = index.size - maxSize
         val entries = index.values.sortedBy { it.lastAccessedAt }
-            for (i in 0 until overage) {
+        for (i in 0 until overage) {
                 if (i >= entries.size) break
                 val key = entries[i].key
                 deleteFile(key)
-                val removed = index.remove(key)
-                if (removed != null) {
+        val removed = index.remove(key)
+        if (removed != null) {
                     currentDiskBytes -= removed.sizeBytes.coerceAtLeast(0)
-                    evictions++
+        evictions++
                 }
             }
         }
         if (maxDiskBytes > 0 && currentDiskBytes > maxDiskBytes) {
             val entries = index.values.sortedBy { it.lastAccessedAt }
-            for (entry in entries) {
+        for (entry in entries) {
                 if (currentDiskBytes <= maxDiskBytes) break
                 deleteFile(entry.key)
-                val removed = index.remove(entry.key)
-                if (removed != null) {
+        val removed = index.remove(entry.key)
+        if (removed != null) {
                     currentDiskBytes -= removed.sizeBytes.coerceAtLeast(0)
-                    evictions++
+        evictions++
                 }
             }
         }
@@ -335,13 +324,13 @@ class DiskCacheStore(
     private fun cleanupExpired() {
         lock.write {
             val expired = index.values.filter { it.isExpired() }
-            for (entry in expired) {
+        for (entry in expired) {
                 deleteFile(entry.key)
-                index.remove(entry.key)
-                currentDiskBytes -= entry.sizeBytes.coerceAtLeast(0)
-                evictions++
+        index.remove(entry.key)
+        currentDiskBytes -= entry.sizeBytes.coerceAtLeast(0)
+        evictions++
             }
-            if (expired.isNotEmpty()) {
+        if (expired.isNotEmpty()) {
                 log.info("cleanupExpired: removed {} expired entries", expired.size)
             }
         }

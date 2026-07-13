@@ -21,7 +21,7 @@ object TaskComplexityAnalyzer {
     private const val TAG = "TaskComplexityAnalyzer"
 
     // 任务类型关键词映将
-    private val taskTypeKeywords = mapOf(
+        private val taskTypeKeywords = mapOf(
         TaskComplexity.SIMPLE to listOf(
             "你好", "hello", "hi", "谢谢", "thanks",
             "是什义, "what is", "简单, "simple", "基本", "basic"
@@ -49,7 +49,7 @@ object TaskComplexityAnalyzer {
     )
 
     // 复杂度到推荐层级的映将
-    private val complexityToTier = mapOf(
+        private val complexityToTier = mapOf(
         TaskComplexity.SIMPLE to "lightweight",
         TaskComplexity.SINGLE_FILE to "standard",
         TaskComplexity.MULTI_FILE to "capable",
@@ -74,27 +74,25 @@ object TaskComplexityAnalyzer {
         }
 
         // 1. 分析文本结构
-    val wordCount = countWords(input)
+        val wordCount = countWords(input)
         val paragraphCount = countParagraphs(input)
         val charCount = input.length
 
         AppLogger.d(TAG, "文本分析: words=${wordCount}, paragraphs=${paragraphCount}, chars=${charCount}")
 
         // 2. 检测任务类型关键词
-    val detectedTypes = detectTaskTypes(input)
+        val detectedTypes = detectTaskTypes(input)
         AppLogger.d(TAG, "检测到的任务类型 ${detectedTypes.keys}")
 
         // 3. 评估预估 Token 消者
-    val estimatedTokens = estimateTokens(input, wordCount, paragraphCount)
+        val estimatedTokens = estimateTokens(input, wordCount, paragraphCount)
         AppLogger.d(TAG, "预估 Token 消者 ${estimatedTokens}")
 
         // 4. 综合评估复杂应
-    val complexity = evaluateComplexity(wordCount, paragraphCount, detectedTypes, estimatedTokens)
+        val complexity = evaluateComplexity(wordCount, paragraphCount, detectedTypes, estimatedTokens)
         val suggestedTier = complexityToTier[complexity] ?: "standard"
         val confidence = calculateConfidence(detectedTypes, wordCount)
-
         AppLogger.i(TAG, "复杂度分析结果 complexity=${complexity}, tier=${suggestedTier}, confidence=${confidence}")
-
         return ComplexityReport(
             complexity = complexity,
             estimatedTokens = estimatedTokens,
@@ -110,10 +108,10 @@ object TaskComplexityAnalyzer {
     private fun countWords(text: String): Int {
         var count = 0
         // 英文单词数
-    val englishWords = text.split(Regex("\\s+")).filter { it.isNotBlank() && it.any { c -> c.isLetter() && c.code < 128 } }
+        val englishWords = text.split(Regex("\\s+")).filter { it.isNotBlank() && it.any { c -> c.isLetter() && c.code < 128 } }
         count += englishWords.size
         // 中文字符数（每个中文字符算一个词，
-    val chineseChars = text.count { it.code in 0x4E00..0x9FFF }
+        val chineseChars = text.count { it.code in 0x4E00..0x9FFF }
         count += chineseChars
         return count
     }
@@ -135,16 +133,14 @@ object TaskComplexityAnalyzer {
     private fun detectTaskTypes(input: String): Map<TaskComplexity, List<String>> {
         val lowerInput = input.lowercase()
         val result = mutableMapOf<TaskComplexity, List<String>>()
-
         for ((complexity, keywords) in taskTypeKeywords) {
             val matched = keywords.filter { keyword ->
                 lowerInput.contains(keyword.lowercase())
             }
-            if (matched.isNotEmpty()) {
+        if (matched.isNotEmpty()) {
                 result[complexity] = matched
             }
         }
-
         return result
     }
 
@@ -158,23 +154,22 @@ object TaskComplexityAnalyzer {
      */
     private fun estimateTokens(text: String, wordCount: Int, paragraphCount: Int): Int {
         // 基础 token 估算
-    val englishWords = text.split(Regex("\\s+")).filter { it.isNotBlank() && it.any { c -> c.isLetter() && c.code < 128 } }.size
+        val englishWords = text.split(Regex("\\s+")).filter { it.isNotBlank() && it.any { c -> c.isLetter() && c.code < 128 } }.size
         val chineseChars = text.count { it.code in 0x4E00..0x9FFF }
-
         var tokens = (englishWords * 1.3 + chineseChars * 1.5).toInt()
 
         // 代码块检测（简单的 { } 或关键词，
-    val hasCode = text.contains(Regex("(function|class|def |const |let |var |public |private )")) ||
+        val hasCode = text.contains(Regex("(function|class|def |const |let |var |public |private )")) ||
                 text.contains("{") && text.contains("}")
         if (hasCode) {
             tokens = (tokens * 1.2).toInt()
         }
 
         // 段落分隔符
-                tokens += (paragraphCount - 1) * 5
+        tokens += (paragraphCount - 1) * 5
 
         // 最小值保技
-                return tokens.coerceAtLeast(10)
+        return tokens.coerceAtLeast(10)
     }
 
     /**
@@ -187,7 +182,7 @@ object TaskComplexityAnalyzer {
         estimatedTokens: Int
     ): TaskComplexity {
         // 如果没有检测到任何关键词，基于文本长度判断
-                if (detectedTypes.isEmpty()) {
+        if (detectedTypes.isEmpty()) {
             return when {
                 wordCount < 20 -> TaskComplexity.SIMPLE
                 wordCount < 100 -> TaskComplexity.SINGLE_FILE
@@ -198,24 +193,22 @@ object TaskComplexityAnalyzer {
 
         // 基于检测到的任务类型，选择最高复杂度
         // 优先级：SECURITY > COMPLEX > MULTI_FILE > SINGLE_FILE > SIMPLE
-    val priorityOrder = listOf(
+        val priorityOrder = listOf(
             TaskComplexity.SECURITY,
             TaskComplexity.COMPLEX,
             TaskComplexity.MULTI_FILE,
             TaskComplexity.SINGLE_FILE,
             TaskComplexity.SIMPLE
         )
-
         for (complexity in priorityOrder) {
             if (detectedTypes.containsKey(complexity)) {
                 // 如果文本很短但检测到高复杂度关键词，降级处理
-                if (wordCount < 10 && complexity.ordinal > TaskComplexity.SIMPLE.ordinal) {
+        if (wordCount < 10 && complexity.ordinal > TaskComplexity.SIMPLE.ordinal) {
                     continue
                 }
-                return complexity
+        return complexity
             }
         }
-
         return TaskComplexity.SIMPLE
     }
 
@@ -226,22 +219,22 @@ object TaskComplexityAnalyzer {
     private fun calculateConfidence(detectedTypes: Map<TaskComplexity, List<String>>, wordCount: Int): Float {
         if (detectedTypes.isEmpty()) {
             // 没有关键词匹配，置信度较作
-                return if (wordCount > 50) 0.6f else 0.4f
+        return if (wordCount > 50) 0.6f else 0.4f
         }
 
         // 关键词越多，置信度越高
-    val totalKeywords = detectedTypes.values.sumOf { it.size }
+        val totalKeywords = detectedTypes.values.sumOf { it.size }
         val keywordScore = (totalKeywords * 0.15f).coerceAtMost(0.5f)
 
         // 文本长度适中时置信度更高
-    val lengthScore = when {
+        val lengthScore = when {
             wordCount in 20..200 -> 0.3f
             wordCount in 200..500 -> 0.2f
             else -> 0.1f
         }
 
         // 如果只检测到一种类型，置信度更高
-    val typeClarity = if (detectedTypes.size == 1) 0.2f else 0f
+        val typeClarity = if (detectedTypes.size == 1) 0.2f else 0f
 
         return (0.4f + keywordScore + lengthScore + typeClarity).coerceAtMost(1.0f)
     }

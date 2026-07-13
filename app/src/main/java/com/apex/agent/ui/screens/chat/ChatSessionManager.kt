@@ -40,11 +40,10 @@ data class ChatSession(
 class ChatSessionManager(context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
-    private val file = File(context.filesDir, "apex-chat-sessions.json")
-    private val messageStore = ChatMessageStore(context)
-    private val sessions = ConcurrentHashMap<String, ChatSession>()
-
-    init { load() }
+        private val file = File(context.filesDir, "apex-chat-sessions.json")
+        private val messageStore = ChatMessageStore(context)
+        private val sessions = ConcurrentHashMap<String, ChatSession>()
+        init { load() }
 
     /** 新建会话。 */
     fun create(title: String = "新对话"): ChatSession {
@@ -95,7 +94,7 @@ class ChatSessionManager(context: Context) {
         s.messageCount = messageCount
         s.updatedAt = System.currentTimeMillis()
         // 如果标题是默认的"新对话"，自动用最后消息生成标题
-                if (s.title == "新对话" && lastMessage.isNotBlank()) {
+        if (s.title == "新对话" && lastMessage.isNotBlank()) {
             s.title = lastMessage.take(20).let { if (lastMessage.length > 20) "$it..." else it }
         }
         persist()
@@ -114,7 +113,7 @@ class ChatSessionManager(context: Context) {
         val removed = sessions.remove(sessionId) != null
         if (removed) {
             messageStore.delete(sessionId)
-            persist()
+        persist()
         }
         return removed
     }
@@ -157,21 +156,19 @@ class ChatSessionManager(context: Context) {
         is Bubble.Command -> PersistedBubble.Command(command, status.name, output)
         is Bubble.Search -> PersistedBubble.Search(query, results, status)
     }
-
-    private fun persist() {
+        private fun persist() {
         try {
             file.writeText(json.encodeToString(sessions.values.toList()))
         } catch (t: Throwable) {
             ApexLog.w("chat", "[SessionManager] persist failed: ${t.message}")
         }
     }
-
-    private fun load() {
+        private fun load() {
         try {
             if (!file.exists()) return
             val data = json.decodeFromString<List<ChatSession>>(file.readText())
-            data.forEach { sessions[it.id] = it }
-            ApexLog.d("chat", "[SessionManager] loaded ${sessions.size} sessions")
+        data.forEach { sessions[it.id] = it }
+        ApexLog.d("chat", "[SessionManager] loaded ${sessions.size} sessions")
         } catch (_: Throwable) {}
     }
 }

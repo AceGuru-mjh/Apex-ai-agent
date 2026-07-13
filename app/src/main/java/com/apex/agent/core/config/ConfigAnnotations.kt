@@ -70,7 +70,6 @@ class ConfigAnnotationProcessor(
         val groupPrefix = cls.annotations
             .filterIsInstance<ConfigGroup>()
             .firstOrNull()?.prefix ?: ""
-
         for (member in cls.members) {
             val configurable = member.annotations
                 .filterIsInstance<Configurable>()
@@ -81,8 +80,7 @@ class ConfigAnnotationProcessor(
             } else {
                 configurable.key
             }
-
-            val configKey = ConfigKey(
+        val configKey = ConfigKey(
                 path = fullPath,
                 defaultValue = configurable.defaultValue.ifBlank { null },
                 description = configurable.description,
@@ -90,11 +88,10 @@ class ConfigAnnotationProcessor(
                 required = configurable.required,
                 secret = configurable.secret
             )
-
-            if (strict && registeredKeys.containsKey(fullPath)) {
+        if (strict && registeredKeys.containsKey(fullPath)) {
                 throw IllegalStateException("配置键路径重复: $fullPath")
             }
-            registeredKeys[fullPath] = configKey
+        registeredKeys[fullPath] = configKey
             configManager.registerKey(configKey)
         }
     }
@@ -112,8 +109,8 @@ class ConfigAnnotationProcessor(
             } catch (e: Exception) {
                 key.defaultValue
             }
-            val valueToValidate = currentValue ?: key.defaultValue ?: ""
-            results[path] = configManager.validate(key)
+        val valueToValidate = currentValue ?: key.defaultValue ?: ""
+        results[path] = configManager.validate(key)
         }
         return results
     }

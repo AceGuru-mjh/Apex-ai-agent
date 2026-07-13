@@ -26,7 +26,7 @@ object LocaleUtils {
     const val PORTUGUESE_BRAZIL_LANGUAGE_CODE = "pt-BR"
 
     // 旧语言代码到新语言代码的别名映射
-    private val legacyLanguageCodeAliases =
+        private val legacyLanguageCodeAliases =
         mapOf("pt" to PORTUGUESE_BRAZIL_LANGUAGE_CODE)
 
     /**
@@ -74,7 +74,7 @@ object LocaleUtils {
     private val languageEmojiMap = mapOf(
         "zh" to "\uD83C\uDDE8\uD83C\uDDF3",  // 🇨🇳
         "en" to "\uD83C\uDDFA\uD83C\uDDF8",  // 🇺🇸
-                PORTUGUESE_BRAZIL_LANGUAGE_CODE to "\uD83C\uDDE7\uD83C\uDDF7", // 🇧🇷
+        PORTUGUESE_BRAZIL_LANGUAGE_CODE to "\uD83C\uDDE7\uD83C\uDDF7", // 🇧🇷
         "ja" to "\uD83C\uDDEF\uD83C\uDDF5",  // 🇯🇵
         "ko" to "\uD83C\uDDF0\uD83C\uDDF7",  // 🇰🇷
         "fr" to "\uD83C\uDDEB\uD83C\uDDF7",  // 🇫🇷
@@ -112,7 +112,6 @@ object LocaleUtils {
             } else {
                 resolveSupportedLanguageCode(languageCode)
             }
-
         return Locale.forLanguageTag(resolvedCode)
             .takeIf { it.language.isNotBlank() }
             ?: Locale(resolvedCode)
@@ -130,18 +129,15 @@ object LocaleUtils {
     fun getLocalizedContext(context: Context): Context {
         val lang = getCurrentLanguage(context)
         val locale = getLocaleForLanguageCode(lang, context)
-
         val configuration = Configuration(context.resources.configuration)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             configuration.setLocale(locale)
-            val localeList = LocaleList(locale)
-            configuration.setLocales(localeList)
+        val localeList = LocaleList(locale)
+        configuration.setLocales(localeList)
         } else {
             @Suppress("DEPRECATION")
-            configuration.setLocale(locale)
+        configuration.setLocale(locale)
         }
-
         return context.createConfigurationContext(configuration)
     }
 
@@ -156,16 +152,15 @@ object LocaleUtils {
     fun getCurrentLanguage(context: Context): String {
         try {
             val manager = runCatching { preferencesManager }.getOrNull()
-            if (manager != null) {
+        if (manager != null) {
                 val savedLanguage = manager.getCurrentLanguage()
-                if (savedLanguage.isNotEmpty() && savedLanguage != AUTO_LANGUAGE_CODE) {
+        if (savedLanguage.isNotEmpty() && savedLanguage != AUTO_LANGUAGE_CODE) {
                     return resolveSupportedLanguageCode(savedLanguage)
                 }
             }
         } catch (e: Exception) {
             // 错误时静默处理
         }
-
         return getCurrentSystemLanguage(context)
     }
 
@@ -192,7 +187,7 @@ object LocaleUtils {
 
         try {
             val manager = runCatching { preferencesManager }.getOrNull()
-            if (manager != null) {
+        if (manager != null) {
                 runBlocking(Dispatchers.IO) {
                     manager.saveAppLanguage(languageCode)
                 }
@@ -200,36 +195,31 @@ object LocaleUtils {
         } catch (e: Exception) {
             // 错误时静默处理
         }
-
         val localeToSet = getLocaleForLanguageCode(languageCode, context)
-
         Locale.setDefault(localeToSet)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val localeList = LocaleListCompat.create(localeToSet)
-            AppCompatDelegate.setApplicationLocales(localeList)
+        AppCompatDelegate.setApplicationLocales(localeList)
         } else {
             try {
                 val config = Configuration(context.resources.configuration)
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     val localeList = LocaleList(localeToSet)
-                    LocaleList.setDefault(localeList)
-                    config.setLocales(localeList)
+        LocaleList.setDefault(localeList)
+        config.setLocales(localeList)
                 } else {
                     config.locale = localeToSet
                 }
 
                 @Suppress("DEPRECATION")
-                context.resources.updateConfiguration(config, context.resources.displayMetrics)
-
-                try {
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+        try {
                     val ctx = context.applicationContext
                     if (ctx is ContextWrapper) {
                         val baseContext = ctx.baseContext
                         if (baseContext != null) {
                             @Suppress("DEPRECATION")
-                            baseContext.resources.updateConfiguration(
+        baseContext.resources.updateConfiguration(
                                 config,
                                 baseContext.resources.displayMetrics
                             )
@@ -321,7 +311,7 @@ object LocaleUtils {
             context.resources.configuration.locales.get(0)
         } else {
             @Suppress("DEPRECATION")
-            context.resources.configuration.locale
+        context.resources.configuration.locale
         }
     }
 
@@ -348,7 +338,6 @@ object LocaleUtils {
         if (languageCode.isBlank() || languageCode == AUTO_LANGUAGE_CODE) {
             return languageCode
         }
-
         val normalizedCode = languageCode.replace("_", "-").replace("-r", "-")
         val canonicalCode =
             Locale.forLanguageTag(normalizedCode)
@@ -374,11 +363,9 @@ object LocaleUtils {
         if (normalizedCode.isBlank() || normalizedCode == AUTO_LANGUAGE_CODE) {
             return normalizedCode
         }
-
         if (normalizedCode in supportedLanguageCodes) {
             return normalizedCode
         }
-
         val locale =
             Locale.forLanguageTag(normalizedCode)
                 .takeIf { it.language.isNotBlank() }
@@ -389,7 +376,6 @@ object LocaleUtils {
         if (languageOnlyMatch != null) {
             return languageOnlyMatch
         }
-
         val sameLanguageVariants =
             supportedLanguageCodes.filter {
                 Locale.forLanguageTag(it).language.equals(language, ignoreCase = true)
@@ -397,7 +383,6 @@ object LocaleUtils {
         if (sameLanguageVariants.size == 1) {
             return sameLanguageVariants.first()
         }
-
         return normalizedCode
     }
 }

@@ -44,16 +44,13 @@ data class PipelineContext(
             "，{result.stage.displayName}】\n${result.summary}"
         }
     }
-
-    fun getLastStageResult(): StageResult? {
+        fun getLastStageResult(): StageResult? {
         return stageResults.lastOrNull()
     }
-
-    fun shouldContinueLoop(): Boolean {
+        fun shouldContinueLoop(): Boolean {
         return loopCount < maxLoops
     }
-
-    fun incrementLoop(): PipelineContext {
+        fun incrementLoop(): PipelineContext {
         return copy(loopCount = loopCount + 1)
     }
 }
@@ -80,21 +77,19 @@ class StagedAgentPipeline {
         private const val TAG = "StagedAgentPipeline"
         private const val MAX_LOOPS = 3
     }
-
-    private val stageAgents = mutableMapOf<PipelineStage, StageAgent>()
-    private var isExecuting = false
+        private val stageAgents = mutableMapOf<PipelineStage, StageAgent>()
+        private var isExecuting = false
     private var progressListener: PipelineProgressListener? = null
 
     init {
         // 初始化各阶段 Agent
-                stageAgents[PipelineStage.RESEARCH] = ResearchAgent()
+        stageAgents[PipelineStage.RESEARCH] = ResearchAgent()
         stageAgents[PipelineStage.PLAN] = PlannerAgent()
         stageAgents[PipelineStage.IMPLEMENT] = ImplementerAgent()
         stageAgents[PipelineStage.REVIEW] = ReviewerAgent()
         stageAgents[PipelineStage.VALIDATE] = ValidatorAgent()
     }
-
-    fun setProgressListener(listener: PipelineProgressListener) {
+        fun setProgressListener(listener: PipelineProgressListener) {
         progressListener = listener
     }
 
@@ -104,7 +99,7 @@ class StagedAgentPipeline {
     fun execute(goal: String, constraints: List<String> = emptyList()): PipelineResult {
         if (isExecuting) {
             AppLogger.w(TAG, "管道正在执行中，忽略重复调用")
-            return PipelineResult(
+        return PipelineResult(
                 success = false,
                 finalOutput = "",
                 stageResults = emptyList(),
@@ -113,73 +108,60 @@ class StagedAgentPipeline {
                 loopCount = 0,
                 error = "管道正在执行的"            )
         }
-
         isExecuting = true
         val startTime = System.currentTimeMillis()
-
         AppLogger.i(TAG, "开始执行管，${goal}")
         progressListener?.onPipelineStarted(goal)
-
         var context = PipelineContext(
             originalGoal = goal,
             constraints = constraints,
             maxLoops = MAX_LOOPS
         )
-
         try {
             // 按阶段顺序执行
-    val stages = PipelineStage.entries.toList()
-            var currentStageIndex = 0
+        val stages = PipelineStage.entries.toList()
+        var currentStageIndex = 0
 
             while (currentStageIndex < stages.size) {
                 val stage = stages[currentStageIndex]
                 context = context.copy(currentStage = stage)
-
-                AppLogger.d(TAG, "执行阶段: ${stage.displayName}, 循环次数: ${context.loopCount}")
-                progressListener?.onStageStarted(stage, context.loopCount)
-
-                val stageAgent = stageAgents[stage]
+        AppLogger.d(TAG, "执行阶段: ${stage.displayName}, 循环次数: ${context.loopCount}")
+        progressListener?.onStageStarted(stage, context.loopCount)
+        val stageAgent = stageAgents[stage]
                 if (stageAgent == null) {
                     AppLogger.e(TAG, "未找到阶，Agent: ${stage}")
-                    return createFailureResult(context, startTime, "未找到阶，Agent: ${stage}")
+        return createFailureResult(context, startTime, "未找到阶，Agent: ${stage}")
                 }
 
                 // 执行阶段
-    val stageResult = executeStage(stageAgent, context)
-                context.stageResults.add(stageResult)
-
-                progressListener?.onStageCompleted(stage, stageResult)
-
-                if (!stageResult.success) {
+        val stageResult = executeStage(stageAgent, context)
+        context.stageResults.add(stageResult)
+        progressListener?.onStageCompleted(stage, stageResult)
+        if (!stageResult.success) {
                     AppLogger.w(TAG, "阶段执行失败: ${stage.displayName}, 错误: ${stageResult.error}")
 
                     // 验证阶段失败时回退到实现阶段
-                if (stage == PipelineStage.VALIDATE && context.shouldContinueLoop()) {
+        if (stage == PipelineStage.VALIDATE && context.shouldContinueLoop()) {
                         AppLogger.i(TAG, "验证失败，回退到实现阶段，当前循环: ${context.loopCount}")
-                        progressListener?.onLoopBacktrack(context.loopCount + 1)
-
-                        context = context.incrementLoop()
+        progressListener?.onLoopBacktrack(context.loopCount + 1)
+        context = context.incrementLoop()
                         // 移除失败的验证结果，回退到实现阶段
-                context.stageResults.removeAt(context.stageResults.size - 1)
-                        currentStageIndex = stages.indexOf(PipelineStage.IMPLEMENT)
-                        continue
+        context.stageResults.removeAt(context.stageResults.size - 1)
+        currentStageIndex = stages.indexOf(PipelineStage.IMPLEMENT)
+        continue
                     }
-
-                    return createFailureResult(context, startTime, stageResult.error ?: "阶段执行失败")
+        return createFailureResult(context, startTime, stageResult.error ?: "阶段执行失败")
                 }
-
-                currentStageIndex++
+        currentStageIndex++
             }
 
             // 所有阶段完于
-    val finalOutput = generateFinalOutput(context)
+        val finalOutput = generateFinalOutput(context)
         val totalDuration = System.currentTimeMillis() - startTime
             val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
-
-            AppLogger.i(TAG, "管道执行完成，耗时: ${totalDuration}ms, Token消， ${totalTokenCost}")
-            progressListener?.onPipelineCompleted(finalOutput)
-
-            return PipelineResult(
+        AppLogger.i(TAG, "管道执行完成，耗时: ${totalDuration}ms, Token消， ${totalTokenCost}")
+        progressListener?.onPipelineCompleted(finalOutput)
+        return PipelineResult(
                 success = true,
                 finalOutput = finalOutput,
                 stageResults = context.stageResults.toList(),
@@ -190,15 +172,13 @@ class StagedAgentPipeline {
 
         } catch (e: Exception) {
             AppLogger.e(TAG, "管道执行异常", e)
-            return createFailureResult(context, startTime, e.message ?: "未知错误")
+        return createFailureResult(context, startTime, e.message ?: "未知错误")
         } finally {
             isExecuting = false
         }
     }
-
-    private fun executeStage(agent: StageAgent, context: PipelineContext): StageResult {
+        private fun executeStage(agent: StageAgent, context: PipelineContext): StageResult {
         val startTime = System.currentTimeMillis()
-
         return try {
             val result = agent.execute(context)
         val duration = System.currentTimeMillis() - startTime
@@ -215,8 +195,7 @@ class StagedAgentPipeline {
         } catch (e: Exception) {
             val duration = System.currentTimeMillis() - startTime
             AppLogger.e(TAG, "阶段执行异常: ${context.currentStage}", e)
-
-            StageResult(
+        StageResult(
                 stage = context.currentStage,
                 output = "",
                 summary = "执行失败",
@@ -227,8 +206,7 @@ class StagedAgentPipeline {
             )
         }
     }
-
-    private fun generateFinalOutput(context: PipelineContext): String {
+        private fun generateFinalOutput(context: PipelineContext): String {
         val sb = StringBuilder()
         sb.appendLine("# 任务执行报告")
         sb.appendLine()
@@ -237,32 +215,26 @@ class StagedAgentPipeline {
         sb.appendLine()
         sb.appendLine("## 执行过程")
         sb.appendLine()
-
         context.stageResults.forEach { result ->
             sb.appendLine("### ${result.stage.displayName}")
-            sb.appendLine("- 状态${if (result.success) "，成务 else "，失败}")
-            sb.appendLine("- 耗时: ${result.duration}ms")
-            sb.appendLine("- Token消， ${result.tokenCost}")
-            sb.appendLine()
-            sb.appendLine("**摘要:**")
-            sb.appendLine(result.summary)
-            sb.appendLine()
+        sb.appendLine("- 状态${if (result.success) "，成务 else "，失败}")
+        sb.appendLine("- 耗时: ${result.duration}ms")
+        sb.appendLine("- Token消， ${result.tokenCost}")
+        sb.appendLine()
+        sb.appendLine("**摘要:**")
+        sb.appendLine(result.summary)
+        sb.appendLine()
         }
-
         sb.appendLine("## 总结")
         sb.appendLine("- 总循环次，${context.loopCount}")
         sb.appendLine("- 总耗时: ${System.currentTimeMillis() - context.startTime}ms")
         sb.appendLine("- 总Token消， ${context.stageResults.sumOf { it.tokenCost }}")
-
         return sb.toString()
     }
-
-    private fun createFailureResult(context: PipelineContext, startTime: Long, error: String): PipelineResult {
+        private fun createFailureResult(context: PipelineContext, startTime: Long, error: String): PipelineResult {
         val totalDuration = System.currentTimeMillis() - startTime
         val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
-
         progressListener?.onPipelineFailed(error)
-
         return PipelineResult(
             success = false,
             finalOutput = "",
@@ -273,15 +245,14 @@ class StagedAgentPipeline {
             error = error
         )
     }
-
-    fun isExecuting(): Boolean = isExecuting
+        fun isExecuting(): Boolean = isExecuting
 
     fun cancel() {
         if (isExecuting) {
             AppLogger.i(TAG, "取消管道执行")
-            isExecuting = false
+        isExecuting = false
             // 取消当前正在执行的阶，
-                stageAgents.values.forEach { it.cancel() }
+        stageAgents.values.forEach { it.cancel() }
         }
     }
 }
@@ -309,9 +280,9 @@ data class StageAgentResult(
  * 管道进度监听于*/
 interface PipelineProgressListener {
     fun onPipelineStarted(goal: String) {}
-    fun onStageStarted(stage: PipelineStage, loopCount: Int) {}
-    fun onStageCompleted(stage: PipelineStage, result: StageResult) {}
-    fun onLoopBacktrack(newLoopCount: Int) {}
-    fun onPipelineCompleted(finalOutput: String) {}
-    fun onPipelineFailed(error: String) {}
+        fun onStageStarted(stage: PipelineStage, loopCount: Int) {}
+        fun onStageCompleted(stage: PipelineStage, result: StageResult) {}
+        fun onLoopBacktrack(newLoopCount: Int) {}
+        fun onPipelineCompleted(finalOutput: String) {}
+        fun onPipelineFailed(error: String) {}
 }

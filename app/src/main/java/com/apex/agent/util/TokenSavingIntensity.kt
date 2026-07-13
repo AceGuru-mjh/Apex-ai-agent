@@ -109,7 +109,7 @@ data class TokenSavingIntensity(
          */
         fun getIntensity(level: Int): TokenSavingIntensity {
             val clampedLevel = level.coerceIn(1, 10)
-            return intensityLevels.firstOrNull { it.level == clampedLevel } ?: intensityLevels[4]
+        return intensityLevels.firstOrNull { it.level == clampedLevel } ?: intensityLevels[4]
         }
 
         /**
@@ -120,7 +120,7 @@ data class TokenSavingIntensity(
                 return getIntensity(currentLevel)
             }
             // 复杂任务时降级到级别5（标准）
-                return getIntensity(5)
+        return getIntensity(5)
         }
 
         /**

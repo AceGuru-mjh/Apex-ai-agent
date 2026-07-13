@@ -31,19 +31,15 @@ class SkillVersionManager private constructor(private val context: Context) {
                 INSTANCE ?: SkillVersionManager(context.applicationContext).also { INSTANCE = it }
             }
         }
-
         fun resetInstance() {
             INSTANCE = null
         }
     }
-
-    private val skillManager by lazy { SkillManager.getInstance(context) }
-    private val database by lazy { SkillDatabase.getInstance(context) }
-    private val versionDao by lazy { database.skillVersionDao() }
-
-    private val versionCache = ConcurrentHashMap<String, List<SkillVersionRecord>>()
-
-    data class SkillVersionRecord(
+        private val skillManager by lazy { SkillManager.getInstance(context) }
+        private val database by lazy { SkillDatabase.getInstance(context) }
+        private val versionDao by lazy { database.skillVersionDao() }
+        private val versionCache = ConcurrentHashMap<String, List<SkillVersionRecord>>()
+        data class SkillVersionRecord(
         val id: Int,
         val skillId: String,
         val versionNumber: String,
@@ -53,30 +49,25 @@ class SkillVersionManager private constructor(private val context: Context) {
         val createdAt: Long,
         val isActive: Boolean
     )
-
-    data class RollbackResult(
+        data class RollbackResult(
         val success: Boolean,
         val message: String,
         val rolledBackVersion: String?,
         val newCurrentVersion: String?
     )
-
-    private fun getVersionHistoryDir(): File {
+        private fun getVersionHistoryDir(): File {
         val dir = File(context.filesDir, VERSION_HISTORY_DIR)
         if (!dir.exists()) dir.mkdirs()
         return dir
     }
-
-    suspend fun saveVersion(skillId: String, version: String, changelog: String = ""): Result<SkillVersionRecord> =
+        suspend fun saveVersion(skillId: String, version: String, changelog: String = ""): Result<SkillVersionRecord> =
         withContext(Dispatchers.IO) {
             try {
                 val skill = skillManager.getAvailableSkills()[skillId]
                     ?: return@withContext Result.failure(Exception("Skill not found: ${skillId}"))
-
-                val backupPath = createSkillBackup(skillId, skill.directory)
+        val backupPath = createSkillBackup(skillId, skill.directory)
                     ?: return@withContext Result.failure(Exception("Failed to create backup"))
-
-                val versionCode = parseVersionCode(version)
+        val versionCode = parseVersionCode(version)
         val record = SkillVersionRecord(
                     id = 0,
                     skillId = skillId,
@@ -87,26 +78,21 @@ class SkillVersionManager private constructor(private val context: Context) {
                     createdAt = System.currentTimeMillis(),
                     isActive = true
                 )
-
-                deactivateAllVersions(skillId)
-
-                val savedRecord = saveToHistory(record)
-                versionCache.remove(skillId)
-
-                Result.success(savedRecord)
+        deactivateAllVersions(skillId)
+        val savedRecord = saveToHistory(record)
+        versionCache.remove(skillId)
+        Result.success(savedRecord)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to save version for ${skillId}", e)
-                Result.failure(e)
+        Result.failure(e)
             }
         }
-
-    suspend fun getVersionHistory(skillId: String): List<SkillVersionRecord> = withContext(Dispatchers.IO) {
+        suspend fun getVersionHistory(skillId: String): List<SkillVersionRecord> = withContext(Dispatchers.IO) {
         versionCache.getOrPut(skillId) {
             loadVersionHistory(skillId)
         }
     }
-
-    fun getVersionHistoryFlow(skillId: String): Flow<List<SkillVersionRecord>> {
+        fun getVersionHistoryFlow(skillId: String): Flow<List<SkillVersionRecord>> {
         return versionDao.getVersionsForSkill(skillId.hashCode()).map { dbVersions ->
             dbVersions.map { dbVersion ->
                 SkillVersionRecord(
@@ -122,23 +108,19 @@ class SkillVersionManager private constructor(private val context: Context) {
             }
         }
     }
-
-    suspend fun rollbackToVersion(skillId: String, versionNumber: String): RollbackResult = withContext(Dispatchers.IO) {
+        suspend fun rollbackToVersion(skillId: String, versionNumber: String): RollbackResult = withContext(Dispatchers.IO) {
         try {
             val history = getVersionHistory(skillId)
         val targetVersion = history.find { it.versionNumber == versionNumber }
                 ?: return@withContext RollbackResult(false, "Version not found: ${versionNumber}", null, null)
-
-            if (!targetVersion.isActive) {
+        if (!targetVersion.isActive) {
                 return@withContext RollbackResult(false, "Version is not active: ${versionNumber}", null, null)
             }
-
-            val currentSkill = skillManager.getAvailableSkills()[skillId]
+        val currentSkill = skillManager.getAvailableSkills()[skillId]
                 ?: return@withContext RollbackResult(false, "Skill not found: ${skillId}", null, null)
-
-            val currentBackupPath = createSkillBackup(skillId, currentSkill.directory)
+        val currentBackupPath = createSkillBackup(skillId, currentSkill.directory)
         val rollbackSuccess = performRollback(skillId, targetVersion)
-            if (!rollbackSuccess) {
+        if (!rollbackSuccess) {
                 if (currentBackupPath != null) {
                     val currentRecord = SkillVersionRecord(
                         id = 0,
@@ -150,34 +132,28 @@ class SkillVersionManager private constructor(private val context: Context) {
                         createdAt = System.currentTimeMillis(),
                         isActive = true
                     )
-                    saveToHistory(currentRecord)
+        saveToHistory(currentRecord)
                 }
-                return@withContext RollbackResult(false, "Rollback failed", null, null)
+        return@withContext RollbackResult(false, "Rollback failed", null, null)
             }
-
-            deactivateAllVersions(skillId)
-            activateVersion(skillId, targetVersion.versionNumber)
-
-            val newVersion = skillManager.getAvailableSkills()[skillId]?.version
+        deactivateAllVersions(skillId)
+        activateVersion(skillId, targetVersion.versionNumber)
+        val newVersion = skillManager.getAvailableSkills()[skillId]?.version
 
             versionCache.remove(skillId)
-
-            RollbackResult(true, "Successfully rolled back to ${versionNumber}", versionNumber, newVersion)
+        RollbackResult(true, "Successfully rolled back to ${versionNumber}", versionNumber, newVersion)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Rollback failed for ${skillId}", e)
-            RollbackResult(false, e.message ?: "Rollback failed", null, null)
+        RollbackResult(false, e.message ?: "Rollback failed", null, null)
         }
     }
-
-    suspend fun rollbackToPreviousVersion(skillId: String): RollbackResult = withContext(Dispatchers.IO) {
+        suspend fun rollbackToPreviousVersion(skillId: String): RollbackResult = withContext(Dispatchers.IO) {
         val history = getVersionHistory(skillId)
         val previousVersion = history.drop(1).firstOrNull()
             ?: return@withContext RollbackResult(false, "No previous version available", null, null)
-
         rollbackToVersion(skillId, previousVersion.versionNumber)
     }
-
-    suspend fun deleteVersion(skillId: String, versionNumber: String): Boolean = withContext(Dispatchers.IO) {
+        suspend fun deleteVersion(skillId: String, versionNumber: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val history = getVersionHistory(skillId)
         val version = history.find { it.versionNumber == versionNumber }
@@ -185,42 +161,38 @@ class SkillVersionManager private constructor(private val context: Context) {
 
             if (version.isActive) {
                 AppLogger.w(TAG, "Cannot delete active version: ${versionNumber}")
-                return@withContext false
+        return@withContext false
             }
-
-            deleteBackup(version.backupPath)
-            removeFromHistory(skillId, versionNumber)
-            versionCache.remove(skillId)
-            true
+        deleteBackup(version.backupPath)
+        removeFromHistory(skillId, versionNumber)
+        versionCache.remove(skillId)
+        true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to delete version ${versionNumber} for ${skillId}", e)
-            false
+        false
         }
     }
-
-    suspend fun pruneOldVersions(skillId: String, keepCount: Int = MAX_VERSION_HISTORY): Int =
+        suspend fun pruneOldVersions(skillId: String, keepCount: Int = MAX_VERSION_HISTORY): Int =
         withContext(Dispatchers.IO) {
             try {
                 val history = getVersionHistory(skillId)
-                if (history.size <= keepCount) return@withContext 0
+        if (history.size <= keepCount) return@withContext 0
 
                 val inactiveVersions = history.filter { !it.isActive }.drop(keepCount - 1)
-                var deletedCount = 0
+        var deletedCount = 0
 
                 for (version in inactiveVersions) {
                     if (deleteVersion(skillId, version.versionNumber)) {
                         deletedCount++
                     }
                 }
-
-                deletedCount
+        deletedCount
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to prune old versions for ${skillId}", e)
                 0
             }
         }
-
-    suspend fun getRollbackStatus(skillId: String): RollbackStatus = withContext(Dispatchers.IO) {
+        suspend fun getRollbackStatus(skillId: String): RollbackStatus = withContext(Dispatchers.IO) {
         try {
             val history = getVersionHistory(skillId)
         val currentSkill = skillManager.getAvailableSkills()[skillId]
@@ -234,7 +206,7 @@ class SkillVersionManager private constructor(private val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to get rollback status for ${skillId}", e)
-            RollbackStatus(
+        RollbackStatus(
                 canRollback = false,
                 currentVersion = "unknown",
                 previousVersion = null,
@@ -243,64 +215,53 @@ class SkillVersionManager private constructor(private val context: Context) {
             )
         }
     }
-
-    data class RollbackStatus(
+        data class RollbackStatus(
         val canRollback: Boolean,
         val currentVersion: String,
         val previousVersion: String?,
         val isRollingBack: Boolean,
         val lastRollbackTime: Long?
     )
-
-    private fun createSkillBackup(skillId: String, skillDir: File): String? {
+        private fun createSkillBackup(skillId: String, skillDir: File): String? {
         return try {
             val backupDir = getVersionHistoryDir()
         val timestamp = System.currentTimeMillis()
-            val backupPath = File(backupDir, "${skillId}_v${timestamp}")
-
-            skillDir.copyRecursively(backupPath, overwrite = false)
-
-            val metadataFile = File(backupPath, ".version_metadata")
-            metadataFile.writeText("""
-                skillId=${skillId}
-                timestamp=${timestamp}
-                backedUpAt=${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US).format(java.util.Date())}
+        val backupPath = File(backupDir, "${skillId}_v${timestamp}")
+        skillDir.copyRecursively(backupPath, overwrite = false)
+        val metadataFile = File(backupPath, ".version_metadata")
+        metadataFile.writeText("""
+        skillId=${skillId}
+        timestamp=${timestamp}
+        backedUpAt=${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US).format(java.util.Date())}
             """.trimIndent())
-
-            AppLogger.i(TAG, "Backup created: ${backupPath.absolutePath}")
-            backupPath.absolutePath
+        AppLogger.i(TAG, "Backup created: ${backupPath.absolutePath}")
+        backupPath.absolutePath
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to create backup for ${skillId}", e)
-            null
+        null
         }
     }
-
-    private fun performRollback(skillId: String, targetVersion: SkillVersionRecord): Boolean {
+        private fun performRollback(skillId: String, targetVersion: SkillVersionRecord): Boolean {
         return try {
             val backupDir = File(targetVersion.backupPath)
-            if (!backupDir.exists()) {
+        if (!backupDir.exists()) {
                 AppLogger.e(TAG, "Backup directory does not exist: ${targetVersion.backupPath}")
-                return false
+        return false
             }
-
-            val currentSkill = skillManager.getAvailableSkills()[skillId]
+        val currentSkill = skillManager.getAvailableSkills()[skillId]
             if (currentSkill != null && currentSkill.directory.exists()) {
                 currentSkill.directory.deleteRecursively()
             }
-
-            backupDir.copyRecursively(currentSkill?.directory ?: return false, overwrite = false)
-
-            skillManager.refreshAvailableSkills()
-
-            AppLogger.i(TAG, "Rollback completed for ${skillId} to version ${targetVersion.versionNumber}")
-            true
+        backupDir.copyRecursively(currentSkill?.directory ?: return false, overwrite = false)
+        skillManager.refreshAvailableSkills()
+        AppLogger.i(TAG, "Rollback completed for ${skillId} to version ${targetVersion.versionNumber}")
+        true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Rollback failed for ${skillId}", e)
-            false
+        false
         }
     }
-
-    private suspend fun saveToHistory(record: SkillVersionRecord): SkillVersionRecord = withContext(Dispatchers.IO) {
+        private suspend fun saveToHistory(record: SkillVersionRecord): SkillVersionRecord = withContext(Dispatchers.IO) {
         val dbVersion = SkillVersion(
             id = 0,
             skillId = record.skillId.hashCode(),
@@ -313,15 +274,13 @@ class SkillVersionManager private constructor(private val context: Context) {
             changeDescription = record.changelog,
             isActive = record.isActive
         )
-
         val id = versionDao.insertVersion(dbVersion)
         record.copy(id = id.toInt())
     }
-
-    private suspend fun loadVersionHistory(skillId: String): List<SkillVersionRecord> = withContext(Dispatchers.IO) {
+        private suspend fun loadVersionHistory(skillId: String): List<SkillVersionRecord> = withContext(Dispatchers.IO) {
         try {
             val dbVersions = versionDao.getVersionsForSkill(skillId.hashCode())
-            dbVersions.map { dbVersion ->
+        dbVersions.map { dbVersion ->
                 SkillVersionRecord(
                     id = dbVersion.id,
                     skillId = skillId,
@@ -335,71 +294,65 @@ class SkillVersionManager private constructor(private val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to load version history for ${skillId}", e)
-            emptyList()
+        emptyList()
         }
     }
-
-    private suspend fun deactivateAllVersions(skillId: String) = withContext(Dispatchers.IO) {
+        private suspend fun deactivateAllVersions(skillId: String) = withContext(Dispatchers.IO) {
         try {
             versionDao.deactivateAllVersions(skillId.hashCode())
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to deactivate versions for ${skillId}", e)
         }
     }
-
-    private suspend fun activateVersion(skillId: String, versionNumber: String) = withContext(Dispatchers.IO) {
+        private suspend fun activateVersion(skillId: String, versionNumber: String) = withContext(Dispatchers.IO) {
         try {
             val versionCode = parseVersionCode(versionNumber)
         val versions = versionDao.getVersionsForSkill(skillId.hashCode())
-            val targetVersion = versions.find { it.versionNumber == versionCode }
-            if (targetVersion != null) {
+        val targetVersion = versions.find { it.versionNumber == versionCode }
+        if (targetVersion != null) {
                 versionDao.activateVersion(targetVersion.id)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to activate version ${versionNumber} for ${skillId}", e)
         }
     }
-
-    private suspend fun removeFromHistory(skillId: String, versionNumber: String) = withContext(Dispatchers.IO) {
+        private suspend fun removeFromHistory(skillId: String, versionNumber: String) = withContext(Dispatchers.IO) {
         try {
             val versionCode = parseVersionCode(versionNumber)
         val versions = versionDao.getVersionsForSkill(skillId.hashCode())
-            val targetVersion = versions.find { it.versionNumber == versionCode }
-            if (targetVersion != null) {
+        val targetVersion = versions.find { it.versionNumber == versionCode }
+        if (targetVersion != null) {
                 versionDao.deleteVersion(targetVersion)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to remove version ${versionNumber} from history for ${skillId}", e)
         }
     }
-
-    private fun deleteBackup(backupPath: String): Boolean {
+        private fun deleteBackup(backupPath: String): Boolean {
         return try {
             val backupDir = File(backupPath)
-            if (backupDir.exists()) {
+        if (backupDir.exists()) {
                 backupDir.deleteRecursively()
             } else {
                 true
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to delete backup: ${backupPath}", e)
-            false
+        false
         }
     }
-
-    private fun parseVersionCode(version: String): Int {
+        private fun parseVersionCode(version: String): Int {
         val parts = version.split(".")
         return when {
             parts.size >= 3 -> (parts[0].toIntOrNull() ?: 1) * 10000 +
                     (parts[1].toIntOrNull() ?: 0) * 100 +
                     (parts[2].replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0)
-            parts.size >= 2 -> (parts[0].toIntOrNull() ?: 1) * 10000 +
+        parts.size >= 2 -> (parts[0].toIntOrNull() ?: 1) * 10000 +
                     (parts[1].toIntOrNull() ?: 0) * 100
             else -> (parts[0].toIntOrNull() ?: 1) * 10000
         }
     }
-
-    suspend fun exportVersion(skillId: String, versionNumber: String, outputFile: File): Boolean =
+        suspend fun exportVersion(skillId: String, versionNumber: String, outputFile: File): Boolean =
         withContext(Dispatchers.IO) {
             try {
                 val history = getVersionHistory(skillId)
@@ -407,32 +360,29 @@ class SkillVersionManager private constructor(private val context: Context) {
                     ?: return@withContext false
 
                 val backupDir = File(version.backupPath)
-                if (!backupDir.exists()) {
+        if (!backupDir.exists()) {
                     return@withContext false
                 }
-
-                ZipOutputStream(FileOutputStream(outputFile)).use { zos ->
+        ZipOutputStream(FileOutputStream(outputFile)).use { zos ->
                     backupDir.walkTopDown().filter { it.isFile }.forEach { file ->
                         val entryName = backupDir.toURI().relativize(file.toURI()).path.removePrefix("/")
-                        zos.putNextEntry(ZipEntry(entryName))
-                        FileInputStream(file).use { fis ->
+        zos.putNextEntry(ZipEntry(entryName))
+        FileInputStream(file).use { fis ->
                             fis.copyTo(zos)
                         }
-                        zos.closeEntry()
+        zos.closeEntry()
                     }
                 }
-
-                true
+        true
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to export version ${versionNumber} for ${skillId}", e)
-                false
+        false
             }
         }
-
-    suspend fun getVersionStorageSize(): Long = withContext(Dispatchers.IO) {
+        suspend fun getVersionStorageSize(): Long = withContext(Dispatchers.IO) {
         try {
             val historyDir = getVersionHistoryDir()
-            historyDir.walkTopDown().filter { it.isFile }.map { it.length() }.sum()
+        historyDir.walkTopDown().filter { it.isFile }.map { it.length() }.sum()
         } catch (e: Exception) {
             0L
         }

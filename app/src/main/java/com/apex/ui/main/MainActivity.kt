@@ -23,8 +23,7 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_AUTO_ENTER_VOICE_CHAT = "auto_enter_voice_chat"
         const val EXTRA_CHAT_ID = "chat_id"
     }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ApexTheme {

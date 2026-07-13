@@ -27,8 +27,7 @@ data class IndexItem<Id : Any, T>(
         if (id != other.id) return false
         return true
     }
-
-    override fun hashCode(): Int {
+        override fun hashCode(): Int {
         return id.hashCode()
     }
 } 

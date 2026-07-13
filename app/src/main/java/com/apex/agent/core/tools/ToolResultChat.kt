@@ -63,33 +63,30 @@ data class ChatListResultData(
         val outputTokens: Int,
         val characterCardName: String? = null
     )
-    
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("Chat List (${totalCount} total):")
         if (currentChatId != null) {
             sb.appendLine("Current Chat ID: ${currentChatId}")
         }
         sb.appendLine()
-
         if (chats.isEmpty()) {
             sb.appendLine("No chats")
         } else {
             chats.forEach { chat ->
                 val currentMarker = if (chat.isCurrent) " [Current]" else ""
-                sb.appendLine("ID: ${chat.id}${currentMarker}")
-                sb.appendLine("Title: ${chat.title}")
-                sb.appendLine("Message Count: ${chat.messageCount}")
-                if (!chat.characterCardName.isNullOrBlank()) {
+        sb.appendLine("ID: ${chat.id}${currentMarker}")
+        sb.appendLine("Title: ${chat.title}")
+        sb.appendLine("Message Count: ${chat.messageCount}")
+        if (!chat.characterCardName.isNullOrBlank()) {
                     sb.appendLine("Character Card: ${chat.characterCardName}")
                 }
-                sb.appendLine("Token Statistics: Input ${chat.inputTokens} / Output ${chat.outputTokens}")
-                sb.appendLine("Created: ${chat.createdAt}")
-                sb.appendLine("Updated: ${chat.updatedAt}")
-                sb.appendLine("---")
+        sb.appendLine("Token Statistics: Input ${chat.inputTokens} / Output ${chat.outputTokens}")
+        sb.appendLine("Created: ${chat.createdAt}")
+        sb.appendLine("Updated: ${chat.updatedAt}")
+        sb.appendLine("---")
             }
         }
-
         return sb.toString().trim()
     }
 }
@@ -186,8 +183,7 @@ data class ChatMessagesResultData(
         val provider: String = "",
         val modelName: String = ""
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         return "Chat messages: ${chatId} (order=${order}, limit=${limit})\nTotal: ${messages.size}"
     }
 }

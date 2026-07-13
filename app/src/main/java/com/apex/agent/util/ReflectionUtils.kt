@@ -21,7 +21,7 @@ object ReflectionUtils {
         while (currentClass != null) {
             try {
                 val field = currentClass.getDeclaredField(fieldName)
-                field.isAccessible = true
+        field.isAccessible = true
                 return field.get(obj)
             } catch (e: NoSuchFieldException) {
                 currentClass = currentClass.superclass
@@ -42,9 +42,9 @@ object ReflectionUtils {
         while (currentClass != null) {
             try {
                 val field = currentClass.getDeclaredField(fieldName)
-                field.isAccessible = true
+        field.isAccessible = true
                 field.set(obj, value)
-                return
+        return
             } catch (e: NoSuchFieldException) {
                 currentClass = currentClass.superclass
             }
@@ -65,7 +65,7 @@ object ReflectionUtils {
         while (currentClass != null) {
             try {
                 val method = currentClass.getDeclaredMethod(methodName, *paramTypes)
-                method.isAccessible = true
+        method.isAccessible = true
                 return method.invoke(obj, *args)
             } catch (e: NoSuchMethodException) {
                 currentClass = currentClass.superclass
@@ -85,11 +85,11 @@ object ReflectionUtils {
         return try {
             val clazz = Class.forName(className)
         val field = clazz.getDeclaredField(fieldName)
-            field.isAccessible = true
+        field.isAccessible = true
             val modifiers = Field::class.java.getDeclaredField("modifiers")
-            modifiers.isAccessible = true
+        modifiers.isAccessible = true
             modifiers.setInt(field, field.modifiers and Modifier.FINAL.inv())
-            field.get(null)
+        field.get(null)
         } catch (e: Exception) {
             null
         }
@@ -106,11 +106,11 @@ object ReflectionUtils {
         try {
             val clazz = Class.forName(className)
         val field = clazz.getDeclaredField(fieldName)
-            field.isAccessible = true
+        field.isAccessible = true
             val modifiers = Field::class.java.getDeclaredField("modifiers")
-            modifiers.isAccessible = true
+        modifiers.isAccessible = true
             modifiers.setInt(field, field.modifiers and Modifier.FINAL.inv())
-            field.set(null, value)
+        field.set(null, value)
         } catch (ignored: Exception) {
         }
     }
@@ -128,7 +128,7 @@ object ReflectionUtils {
         return try {
             val clazz = Class.forName(className)
         val method = clazz.getDeclaredMethod(methodName, *paramTypes)
-            method.isAccessible = true
+        method.isAccessible = true
             method.invoke(null, *args)
         } catch (e: Exception) {
             null
@@ -144,7 +144,7 @@ object ReflectionUtils {
     fun getAllFields(className: String): List<String> {
         return try {
             val clazz = Class.forName(className)
-            clazz.declaredFields.map { it.name }
+        clazz.declaredFields.map { it.name }
         } catch (e: Exception) {
             emptyList()
         }
@@ -159,7 +159,7 @@ object ReflectionUtils {
     fun getAllMethods(className: String): List<String> {
         return try {
             val clazz = Class.forName(className)
-            clazz.declaredMethods.map { it.name }
+        clazz.declaredMethods.map { it.name }
         } catch (e: Exception) {
             emptyList()
         }
@@ -175,16 +175,16 @@ object ReflectionUtils {
     fun hasField(className: String, fieldName: String): Boolean {
         return try {
             val clazz = Class.forName(className)
-            var currentClass: Class<*>? = clazz
+        var currentClass: Class<*>? = clazz
             while (currentClass != null) {
                 try {
                     currentClass.getDeclaredField(fieldName)
-                    return true
+        return true
                 } catch (e: NoSuchFieldException) {
                     currentClass = currentClass.superclass
                 }
             }
-            false
+        false
         } catch (e: Exception) {
             false
         }
@@ -200,16 +200,16 @@ object ReflectionUtils {
     fun hasMethod(className: String, methodName: String): Boolean {
         return try {
             val clazz = Class.forName(className)
-            var currentClass: Class<*>? = clazz
+        var currentClass: Class<*>? = clazz
             while (currentClass != null) {
                 try {
                     currentClass.getDeclaredMethod(methodName)
-                    return true
+        return true
                 } catch (e: NoSuchMethodException) {
                     currentClass = currentClass.superclass
                 }
             }
-            false
+        false
         } catch (e: Exception) {
             false
         }
@@ -227,7 +227,7 @@ object ReflectionUtils {
         return try {
             val clazz = Class.forName(className)
         val constructor = clazz.getDeclaredConstructor(*paramTypes)
-            constructor.isAccessible = true
+        constructor.isAccessible = true
             constructor.newInstance(*args)
         } catch (e: Exception) {
             null
@@ -243,7 +243,7 @@ object ReflectionUtils {
     fun getSuperclass(className: String): String? {
         return try {
             val clazz = Class.forName(className)
-            clazz.superclass?.name
+        clazz.superclass?.name
         } catch (e: Exception) {
             null
         }
@@ -258,7 +258,7 @@ object ReflectionUtils {
     fun getInterfaces(className: String): Array<String> {
         return try {
             val clazz = Class.forName(className)
-            clazz.interfaces.map { it.name }.toTypedArray()
+        clazz.interfaces.map { it.name }.toTypedArray()
         } catch (e: Exception) {
             emptyArray()
         }

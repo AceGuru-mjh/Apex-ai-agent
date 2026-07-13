@@ -25,11 +25,11 @@ object ToolGetterRefactored {
     fun getUITools(context: Context): StandardUIToolsRefactored {
         return when (androidPermissionPreferences.getPreferredPermissionLevel()) {
             AndroidPermissionLevel.ROOT -> RootUIToolsRefactored(context)
-            AndroidPermissionLevel.ADMIN -> AdminUIToolsRefactored(context)
-            AndroidPermissionLevel.DEBUGGER -> DebuggerUIToolsRefactored(context)
-            AndroidPermissionLevel.ACCESSIBILITY -> AccessibilityUIToolsRefactored(context)
-            AndroidPermissionLevel.STANDARD -> StandardUIToolsRefactored(context)
-            null -> StandardUIToolsRefactored(context) // 默认使用标准权限级别
+        AndroidPermissionLevel.ADMIN -> AdminUIToolsRefactored(context)
+        AndroidPermissionLevel.DEBUGGER -> DebuggerUIToolsRefactored(context)
+        AndroidPermissionLevel.ACCESSIBILITY -> AccessibilityUIToolsRefactored(context)
+        AndroidPermissionLevel.STANDARD -> StandardUIToolsRefactored(context)
+        null -> StandardUIToolsRefactored(context) // 默认使用标准权限级别
         }
     }
 

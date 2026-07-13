@@ -20,13 +20,10 @@ class SessionStartHook : SessionLifecycleHook {
         private const val SUMMARY_FILE_PREFIX = "session_summary_"
         private const val SUMMARY_FILE_SUFFIX = ".json"
     }
-
-    override suspend fun onSessionStart(context: Context, sessionContext: SessionContext) {
+        override suspend fun onSessionStart(context: Context, sessionContext: SessionContext) {
         AppLogger.i(TAG, "Session starting: ${sessionContext.sessionId}")
-
         val previousSummary = loadPreviousSessionSummary(context)
         val environmentReport = detectEnvironmentState(context)
-
         AppLogger.i(TAG, "Environment report generated with ${environmentReport.size} entries")
         if (previousSummary != null) {
             AppLogger.d(TAG, "Loaded previous session summary")
@@ -51,19 +48,19 @@ class SessionStartHook : SessionLifecycleHook {
 
                 if (summaryFiles.isEmpty()) {
                     AppLogger.d(TAG, "No session summary files found in ${filesDir.absolutePath}")
-                    return@withContext null
+        return@withContext null
                 }
 
                 // 按修改时间倒序，取最新的
-    val latestFile = summaryFiles.maxByOrNull { it.lastModified() }
+        val latestFile = summaryFiles.maxByOrNull { it.lastModified() }
                     ?: return@withContext null
 
                 AppLogger.d(TAG, "Loading latest session summary: ${latestFile.name}")
-                val content = latestFile.readText()
-                JSONObject(content)
+        val content = latestFile.readText()
+        JSONObject(content)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to load previous session summary", e)
-                null
+        null
             }
         }
 
@@ -77,48 +74,47 @@ class SessionStartHook : SessionLifecycleHook {
             val envState = mutableMapOf<String, String>()
 
             // 检测网络连接状态
-                try {
+        try {
                 val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
-                envState["networkAvailable"] = isNetworkAvailable.toString()
-                envState["networkType"] = if (isNetworkAvailable) {
+        envState["networkAvailable"] = isNetworkAvailable.toString()
+        envState["networkType"] = if (isNetworkAvailable) {
                     NetworkUtils.getNetworkType(context)
                 } else {
                     "disconnected"
                 }
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Failed to detect network state", e)
-                envState["networkAvailable"] = "unknown"
+        envState["networkAvailable"] = "unknown"
             }
 
             // 检测可用模型列行
-                try {
+        try {
                 val modelsDir = File(context.filesDir, "models")
-                if (modelsDir.exists()) {
+        if (modelsDir.exists()) {
                     val modelFiles = modelsDir.listFiles { file ->
                         file.extension == "gguf" || file.extension == "bin" || file.extension == "mnn"
                     } ?: emptyArray()
-                    envState["availableModels"] = modelFiles.joinToString(",") { it.nameWithoutExtension }
-                    envState["modelCount"] = modelFiles.size.toString()
+        envState["availableModels"] = modelFiles.joinToString(",") { it.nameWithoutExtension }
+        envState["modelCount"] = modelFiles.size.toString()
                 } else {
                     envState["availableModels"] = ""
-                    envState["modelCount"] = "0"
+        envState["modelCount"] = "0"
                 }
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Failed to detect available models", e)
-                envState["availableModels"] = "error"
+        envState["availableModels"] = "error"
             }
 
             // 检测当前权限模式
-                try {
+        try {
                 val prefs = context.getSharedPreferences("permission_mode_prefs", Context.MODE_PRIVATE)
         val currentMode = prefs.getString("current_permission_mode", "standard") ?: "standard"
-                envState["permissionMode"] = currentMode
+        envState["permissionMode"] = currentMode
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Failed to detect permission mode", e)
-                envState["permissionMode"] = "unknown"
+        envState["permissionMode"] = "unknown"
             }
-
-            envState
+        envState
         }
 
     /**
@@ -130,7 +126,7 @@ class SessionStartHook : SessionLifecycleHook {
         val envState = detectEnvironmentState(context)
         val report = JSONObject().apply {
             put("timestamp", System.currentTimeMillis())
-            put("environment", JSONObject(envState))
+        put("environment", JSONObject(envState))
         }
         report.toString(2)
     }

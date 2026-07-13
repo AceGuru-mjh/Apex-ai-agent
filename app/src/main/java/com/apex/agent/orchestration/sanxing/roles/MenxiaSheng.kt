@@ -20,7 +20,7 @@ class MenxiaSheng @Inject constructor() : BaseSanxingRole() {
         defaultModel = "claude-3.5-sonnet",
         provider = "anthropic",
         endpoint = "https://api.anthropic.com/v1/messages",
-                temperature = 0.3,
+        temperature = 0.3,
         permissionTags = setOf(PERM_TOOLS, PERM_INTERNET, PERM_READ, PERM_CALL_AGENTS),
         systemPrompt = """
             你现在是「门下省・审核封驳」，负责以下核心职责，

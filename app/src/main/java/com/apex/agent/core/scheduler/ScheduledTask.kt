@@ -115,7 +115,6 @@ data class ScheduledTask(
         val lastExec = lastExecutedAt?.let { formatTime(it) } ?: "从未执行"
         val nextExec = nextExecutionTime?.let { formatTime(it) } ?: "未知"
         val errorInfo = lastError?.let { " (错误: ${it})" } ?: ""
-        
         return """
             任务: ${name}
             类型: ${taskType.displayName}
@@ -134,8 +133,7 @@ data class ScheduledTask(
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
         return sdf.format(java.util.Date(timestamp))
     }
-    
-    companion object {
+        companion object {
         /**
          * 创建日报任务
          */

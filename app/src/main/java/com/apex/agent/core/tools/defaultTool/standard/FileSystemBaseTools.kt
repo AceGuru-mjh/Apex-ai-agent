@@ -29,15 +29,13 @@ open class FileSystemBaseTools(protected val context: Context) {
     }
 
     // Linux文件系统工具实例
-                protected val linuxTools: LinuxFileSystemTools by lazy {
+        protected val linuxTools: LinuxFileSystemTools by lazy {
         LinuxFileSystemTools(context)
     }
-
-    private val safTools: SafFileSystemTools by lazy {
+        private val safTools: SafFileSystemTools by lazy {
         SafFileSystemTools(context, apiPreferences)
     }
-
-    protected fun isSafEnvironment(environment: String): Boolean {
+        protected fun isSafEnvironment(environment: String): Boolean {
         return environment?.startsWith("repo:", ignoreCase = true) == true
     }
 
@@ -52,14 +50,13 @@ open class FileSystemBaseTools(protected val context: Context) {
         val environment = tool.parameters.find { it.name == "environment" }?.value
 
         // 如果是Linux环境，委托给LinuxFileSystemTools
-                if (isLinuxEnvironment(environment)) {
+        if (isLinuxEnvironment(environment)) {
             return linuxTools.listFiles(tool)
         }
         if (isSafEnvironment(environment)) {
             return safTools.listFiles(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -68,11 +65,9 @@ open class FileSystemBaseTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val directory = File(path)
-
-            if (!directory.exists()) {
+        if (!directory.exists()) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -80,8 +75,7 @@ open class FileSystemBaseTools(protected val context: Context) {
                     error = "Directory does not exist: ${path}"
                 )
             }
-
-            if (!directory.isDirectory) {
+        if (!directory.isDirectory) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -89,13 +83,10 @@ open class FileSystemBaseTools(protected val context: Context) {
                     error = "Path is not a directory: ${path}"
                 )
             }
-
-            val entries = mutableListOf<DirectoryListingData.FileEntry>()
+        val entries = mutableListOf<DirectoryListingData.FileEntry>()
         val files = directory.listFiles() ?: emptyArray()
-
-            val dateFormat = SimpleDateFormat("MMM dd HH:mm", Locale.US)
-
-            for (file in files) {
+        val dateFormat = SimpleDateFormat("MMM dd HH:mm", Locale.US)
+        for (file in files) {
                 if (file.name != "." && file.name != "..") {
                     entries.add(
                         DirectoryListingData.FileEntry(
@@ -108,10 +99,8 @@ open class FileSystemBaseTools(protected val context: Context) {
                     )
                 }
             }
-
-            AppLogger.d(TAG, "Listed ${entries.size} entries in directory ${path}")
-
-            return ToolResult(
+        AppLogger.d(TAG, "Listed ${entries.size} entries in directory ${path}")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = DirectoryListingData(path, entries),
@@ -119,7 +108,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error listing directory", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -132,12 +121,12 @@ open class FileSystemBaseTools(protected val context: Context) {
     protected fun getFilePermissions(file: File): String {
         // Java has limited capabilities for getting Unix-style file permissions
         // This is a simplified version that checks basic permissions
-    val canRead = if (file.canRead()) 'r' else '-'
+        val canRead = if (file.canRead()) 'r' else '-'
         val canWrite = if (file.canWrite()) 'w' else '-'
         val canExecute = if (file.canExecute()) 'x' else '-'
 
         // For simplicity, we'll use the same permissions for user, group, and others
-                return "${canRead}${canWrite}${canExecute}${canRead}-${canExecute}${canRead}-${canExecute}"
+        return "${canRead}${canWrite}${canExecute}${canRead}-${canExecute}${canRead}-${canExecute}"
     }
 
     /** Read file content */
@@ -152,7 +141,6 @@ open class FileSystemBaseTools(protected val context: Context) {
             return safTools.readFile(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -161,11 +149,9 @@ open class FileSystemBaseTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val file = File(path)
-
-            if (!file.exists()) {
+        if (!file.exists()) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -173,8 +159,7 @@ open class FileSystemBaseTools(protected val context: Context) {
                     error = "File does not exist: ${path}"
                 )
             }
-
-            if (file.isDirectory) {
+        if (file.isDirectory) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -182,11 +167,9 @@ open class FileSystemBaseTools(protected val context: Context) {
                     error = "Path is a directory, not a file: ${path}"
                 )
             }
-
-            val content = file.readText()
-            AppLogger.d(TAG, "Read file ${path}, size: ${content.length} bytes")
-
-            return ToolResult(
+        val content = file.readText()
+        AppLogger.d(TAG, "Read file ${path}, size: ${content.length} bytes")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileContentData(path, content),
@@ -194,7 +177,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error reading file", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -216,7 +199,6 @@ open class FileSystemBaseTools(protected val context: Context) {
             return safTools.writeFile(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -225,21 +207,18 @@ open class FileSystemBaseTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val file = File(path)
 
             // Create parent directory if it doesn't exist
-                file.parentFile?.let { parent ->
+        file.parentFile?.let { parent ->
                 if (!parent.exists()) {
                     parent.mkdirs()
                 }
             }
-
-            file.writeText(content)
-            AppLogger.d(TAG, "Wrote file ${path}, size: ${content.length} bytes")
-
-            return ToolResult(
+        file.writeText(content)
+        AppLogger.d(TAG, "Wrote file ${path}, size: ${content.length} bytes")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData("File written successfully: ${path}"),
@@ -247,7 +226,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error writing file", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -269,7 +248,6 @@ open class FileSystemBaseTools(protected val context: Context) {
             return safTools.appendFile(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -278,21 +256,18 @@ open class FileSystemBaseTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val file = File(path)
 
             // Create parent directory if it doesn't exist
-                file.parentFile?.let { parent ->
+        file.parentFile?.let { parent ->
                 if (!parent.exists()) {
                     parent.mkdirs()
                 }
             }
-
-            file.appendText(content)
-            AppLogger.d(TAG, "Appended to file ${path}, size: ${content.length} bytes")
-
-            return ToolResult(
+        file.appendText(content)
+        AppLogger.d(TAG, "Appended to file ${path}, size: ${content.length} bytes")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData("Content appended successfully: ${path}"),
@@ -300,7 +275,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error appending to file", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -321,7 +296,6 @@ open class FileSystemBaseTools(protected val context: Context) {
             return safTools.fileExists(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -330,13 +304,11 @@ open class FileSystemBaseTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val file = File(path)
         val exists = file.exists()
-            AppLogger.d(TAG, "Checked file existence: ${path} -> ${exists}")
-
-            return ToolResult(
+        AppLogger.d(TAG, "Checked file existence: ${path} -> ${exists}")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileExistsData(path, exists),
@@ -344,7 +316,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error checking file existence", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -365,7 +337,6 @@ open class FileSystemBaseTools(protected val context: Context) {
             return safTools.fileInfo(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -374,11 +345,9 @@ open class FileSystemBaseTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val file = File(path)
-
-            if (!file.exists()) {
+        if (!file.exists()) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -386,8 +355,7 @@ open class FileSystemBaseTools(protected val context: Context) {
                     error = "File does not exist: ${path}"
                 )
             }
-
-            val info = FileInfoData(
+        val info = FileInfoData(
                 path = path,
                 exists = true,
                 isDirectory = file.isDirectory,
@@ -395,10 +363,8 @@ open class FileSystemBaseTools(protected val context: Context) {
                 permissions = getFilePermissions(file),
                 lastModified = file.lastModified()
             )
-
-            AppLogger.d(TAG, "Got file info for: ${path}")
-
-            return ToolResult(
+        AppLogger.d(TAG, "Got file info for: ${path}")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = info,
@@ -406,7 +372,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error getting file info", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -429,7 +395,6 @@ open class FileSystemBaseTools(protected val context: Context) {
             return safTools.readFilePart(tool)
         }
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -438,11 +403,9 @@ open class FileSystemBaseTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val file = File(path)
-
-            if (!file.exists()) {
+        if (!file.exists()) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -450,8 +413,7 @@ open class FileSystemBaseTools(protected val context: Context) {
                     error = "File does not exist: ${path}"
                 )
             }
-
-            if (file.isDirectory) {
+        if (file.isDirectory) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -459,16 +421,13 @@ open class FileSystemBaseTools(protected val context: Context) {
                     error = "Path is a directory, not a file: ${path}"
                 )
             }
-
-            val startLine = startLineStr.toIntOrNull() ?: 1
+        val startLine = startLineStr.toIntOrNull() ?: 1
         val endLine = endLineStr.toIntOrNull() ?: 100
 
             val content = readLinesFromFile(file, startLine - 1, endLine)
         val totalLines = countFileLines(file)
-
-            AppLogger.d(TAG, "Read file part ${path}, lines ${startLine}-${endLine} of ${totalLines}")
-
-            return ToolResult(
+        AppLogger.d(TAG, "Read file part ${path}, lines ${startLine}-${endLine} of ${totalLines}")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FilePartContentData(path, content, startLine, endLine, totalLines),
@@ -476,7 +435,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error reading file part", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -495,11 +454,11 @@ open class FileSystemBaseTools(protected val context: Context) {
                 if (currentLine >= startLine) {
                     partContent.append(it).append('\n')
                 }
-                currentLine++
+        currentLine++
             }
         }
         // Remove last newline if content is not empty
-                if (partContent.isNotEmpty()) {
+        if (partContent.isNotEmpty()) {
             partContent.setLength(partContent.length - 1)
         }
         return partContent.toString()

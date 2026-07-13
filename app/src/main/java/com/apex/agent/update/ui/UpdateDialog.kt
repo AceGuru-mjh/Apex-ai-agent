@@ -48,8 +48,8 @@ fun UpdateDialog(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
-                Spacer(Modifier.width(8.dp))
-                Text("软件更新", fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.width(8.dp))
+        Text("软件更新", fontWeight = FontWeight.SemiBold)
             }
         },
         text = {
@@ -57,38 +57,38 @@ fun UpdateDialog(
                 UpdateState.Idle, UpdateState.Checking -> {
                     Column(Modifier.fillMaxWidth()) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                        Spacer(Modifier.height(8.dp))
-                        Text(
+        Spacer(Modifier.height(8.dp))
+        Text(
                             "正在检查 GitHub Releases...",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
-                is UpdateState.UpdateAvailable -> UpdateAvailableBody(state)
-                is UpdateState.Downloading -> DownloadingBody(state.progress)
-                UpdateState.Downloaded -> {
+        is UpdateState.UpdateAvailable -> UpdateAvailableBody(state)
+        is UpdateState.Downloading -> DownloadingBody(state.progress)
+        UpdateState.Downloaded -> {
                     Column(Modifier.fillMaxWidth()) {
                         Text(
                             "下载完成，请在弹出的系统安装界面完成更新。",
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
+        Spacer(Modifier.height(4.dp))
+        Text(
                             "若安装界面被关闭，可点击下方按钮重新打开。",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
-                is UpdateState.Failed -> {
+        is UpdateState.Failed -> {
                     Column(Modifier.fillMaxWidth()) {
                         Text(
                             "更新失败：${state.message}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error
                         )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
+        Spacer(Modifier.height(4.dp))
+        Text(
                             "可点击下方按钮重试，或前往镜像管理测试连通性。",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -104,40 +104,40 @@ fun UpdateDialog(
                         TextButton(onClick = { onIgnore(state.latestVersion) }) {
                             Text("跳过该版本")
                         }
-                        Spacer(Modifier.width(8.dp))
-                        Button(onClick = onDownload) {
+        Spacer(Modifier.width(8.dp))
+        Button(onClick = onDownload) {
                             Icon(Icons.Default.CloudDownload, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text("立即更新")
+        Spacer(Modifier.width(6.dp))
+        Text("立即更新")
                         }
                     }
                 }
-                is UpdateState.Downloading -> {
+        is UpdateState.Downloading -> {
                     OutlinedButton(onClick = onCancel) { Text("取消下载") }
                 }
-                UpdateState.Downloaded -> {
+        UpdateState.Downloaded -> {
                     Row {
                         TextButton(onClick = onDismiss) { Text("关闭") }
-                        Spacer(Modifier.width(8.dp))
-                        Button(onClick = onRetryInstall) {
+        Spacer(Modifier.width(8.dp))
+        Button(onClick = onRetryInstall) {
                             Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text("重新打开安装")
+        Spacer(Modifier.width(6.dp))
+        Text("重新打开安装")
                         }
                     }
                 }
-                is UpdateState.Failed -> {
+        is UpdateState.Failed -> {
                     Row {
                         TextButton(onClick = onDismiss) { Text("关闭") }
-                        Spacer(Modifier.width(8.dp))
-                        Button(onClick = onRetryDownload) {
+        Spacer(Modifier.width(8.dp))
+        Button(onClick = onRetryDownload) {
                             Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text("重试下载")
+        Spacer(Modifier.width(6.dp))
+        Text("重试下载")
                         }
                     }
                 }
-                UpdateState.Idle, UpdateState.Checking -> {
+        UpdateState.Idle, UpdateState.Checking -> {
                     OutlinedButton(onClick = onDismiss) { Text("取消") }
                 }
             }
@@ -160,14 +160,14 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
             .verticalScroll(rememberScrollState())
     ) {
         // 版本号
-                Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 "发现新版本",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(Modifier.width(8.dp))
-            Surface(
+        Spacer(Modifier.width(8.dp))
+        Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(50)
             ) {
@@ -187,9 +187,9 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         // SHA-256 校验状态徽章
-                if (state.expectedSha256 != null) {
+        if (state.expectedSha256 != null) {
             Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     color = MaterialTheme.colorScheme.tertiaryContainer,
                     shape = RoundedCornerShape(50)
@@ -206,7 +206,7 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
         }
         Spacer(Modifier.height(16.dp))
         // 更新日志
-                Text(
+        Text(
             "更新内容",
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
@@ -214,15 +214,15 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
         )
         Spacer(Modifier.height(8.dp))
         // 简单 Markdown 渲染：按行展示，遇到 - 开头作为列表项
-    val lines = state.changelog.lines().take(60)
+        val lines = state.changelog.lines().take(60)
         lines.forEach { line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty()) {
+        if (trimmed.isEmpty()) {
                 Spacer(Modifier.height(6.dp))
             } else if (trimmed.startsWith("-") || trimmed.startsWith("*")) {
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
                     Text("•  ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                    Text(trimmed.removePrefix("-").removePrefix("*").trim(), style = MaterialTheme.typography.bodySmall)
+        Text(trimmed.removePrefix("-").removePrefix("*").trim(), style = MaterialTheme.typography.bodySmall)
                 }
             } else {
                 Text(
@@ -234,7 +234,7 @@ private fun UpdateAvailableBody(state: UpdateState.UpdateAvailable) {
         }
         if (state.changelog.lines().size > 60) {
             Spacer(Modifier.height(6.dp))
-            Text(
+        Text(
                 "... 完整日志见 GitHub Release 页面",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -270,7 +270,7 @@ private fun DownloadingBody(progress: DownloadProgress) {
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
-            Text(
+        Text(
                 "${formatBytes(progress.bytesRead)} / ${formatBytes(progress.totalBytes)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -22,10 +22,10 @@ private const val COST_EFFICIENCY_FACTOR = 0.5f
 /** 任务复杂度枚举，用于智能模型路由 */
 enum class TaskComplexity {
     SIMPLE,       // 简单问答、闲聊
-                SINGLE_FILE,  // 单文件操作、简单代码生成
-                MULTI_FILE,   // 多文件操作、跨模块修改
-                COMPLEX,      // 复杂架构设计、系统级任务
-                SECURITY      // 安全审计、敏感操作
+        SINGLE_FILE,  // 单文件操作、简单代码生成
+        MULTI_FILE,   // 多文件操作、跨模块修改
+        COMPLEX,      // 复杂架构设计、系统级任务
+        SECURITY      // 安全审计、敏感操作
 }
 
 /** 模型层级定义 - 描述一个可用模型的成本/速度特征 */
@@ -50,7 +50,7 @@ object SmartModelRouter {
     private const val TAG = "SmartModelRouter"
 
     // 复杂度映射推荐层级名称
-    private val complexityToTier = mapOf(
+        private val complexityToTier = mapOf(
         TaskComplexity.SIMPLE to "lightweight",
         TaskComplexity.SINGLE_FILE to "standard",
         TaskComplexity.MULTI_FILE to "capable",
@@ -59,7 +59,7 @@ object SmartModelRouter {
     )
 
     // 成本敏感模式下的降级映射
-    private val costSensitiveTier = mapOf(
+        private val costSensitiveTier = mapOf(
         TaskComplexity.SIMPLE to "lightweight",
         TaskComplexity.SINGLE_FILE to "lightweight",
         TaskComplexity.MULTI_FILE to "standard",
@@ -82,16 +82,16 @@ object SmartModelRouter {
     ): RoutingDecision? {
         if (availableModels.isEmpty()) {
             AppLogger.w(TAG, "无可用模型，跳过路由")
-            return null
+        return null
         }
         // 用户手动选择preferredProvider，跳过自动路由
-                if (request.preferredProvider != null) {
+        if (request.preferredProvider != null) {
             val manualConfig = availableModels.find {
                 it.provider == request.preferredProvider
             }
-            if (manualConfig != null) {
+        if (manualConfig != null) {
                 AppLogger.i(TAG, "用户手动选择模型: ${manualConfig.provider}, 跳过自动路由")
-                return RoutingDecision(
+        return RoutingDecision(
                     selectedTier = configToTier(manualConfig),
                     reason = "用户手动选择: ${manualConfig.provider.displayName}",
                     estimatedCost = 0f,
@@ -100,18 +100,18 @@ object SmartModelRouter {
             }
         }
         // 分析任务复杂度
-    val complexity = TaskComplexityAnalyzer.analyzeComplexity(request.query)
+        val complexity = TaskComplexityAnalyzer.analyzeComplexity(request.query)
         AppLogger.d(TAG, "任务复杂度分析: complexity=${complexity.complexity}, " +
                 "tokens=${complexity.estimatedTokens}, " +
                 "confidence=${complexity.confidence}")
         // 确定目标层级
-    val targetTierName = if (costSensitive) {
+        val targetTierName = if (costSensitive) {
             costSensitiveTier[complexity.complexity] ?: "standard"
         } else {
             complexityToTier[complexity.complexity] ?: "standard"
         }
         // 将 ModelConfig 转为 ModelTier 列表
-    val tiers = availableModels
+        val tiers = availableModels
             .filter {
                 it.isEnabled
             }
@@ -120,10 +120,10 @@ object SmartModelRouter {
             }
         if (tiers.isEmpty()) {
             AppLogger.w(TAG, "无已启用的模型可用")
-            return null
+        return null
         }
         // 对候选模型评分并选择最优
-    val scored = tiers.map {
+        val scored = tiers.map {
             tier -> tier to scoreTier(tier, targetTierName, complexity.estimatedTokens, costSensitive)
         }
         val best = scored.maxByOrNull {
@@ -132,7 +132,7 @@ object SmartModelRouter {
         val selectedTier = best?.first ?: tiers.first()
         val reason = buildReason(selectedTier, targetTierName, complexity.complexity, costSensitive)
         // 估算成本和延迟
-    val estimatedCost = complexity.estimatedTokens * selectedTier.costPerToken
+        val estimatedCost = complexity.estimatedTokens * selectedTier.costPerToken
         val estimatedLatency = (complexity.estimatedTokens.toLong() * selectedTier.speedRank) / 100L
         AppLogger.i(TAG, "路由决策: model=${selectedTier.modelName}, " +
                 "tier=${selectedTier.tier}, " +
@@ -153,9 +153,9 @@ object SmartModelRouter {
     private fun configToTier(config: ModelConfig): ModelTier {
         val tierName = when {
             config.maxTokens <= TOKEN_THRESHOLD_LIGHTWEIGHT -> "lightweight"
-            config.maxTokens <= TOKEN_THRESHOLD_STANDARD -> "standard"
-            config.maxTokens <= TOKEN_THRESHOLD_CAPABLE -> "capable"
-            else -> "powerful"
+        config.maxTokens <= TOKEN_THRESHOLD_STANDARD -> "standard"
+        config.maxTokens <= TOKEN_THRESHOLD_CAPABLE -> "capable"
+        else -> "powerful"
         }
         val costPerToken = when (tierName) {
             "lightweight" -> COST_LIGHTWEIGHT
@@ -196,8 +196,8 @@ object SmartModelRouter {
         } else {
             val tierOrder = listOf("lightweight", "standard", "capable", "powerful")
         val targetIdx = tierOrder.indexOf(targetTierName)
-            val currentIdx = tierOrder.indexOf(tier.tier)
-            if (targetIdx >= 0 && currentIdx >= 0) {
+        val currentIdx = tierOrder.indexOf(tier.tier)
+        if (targetIdx >= 0 && currentIdx >= 0) {
                 score -= abs(currentIdx - targetIdx) * TIER_MISMATCH_PENALTY_PER_LEVEL
             }
         }

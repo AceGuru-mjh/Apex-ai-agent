@@ -71,13 +71,12 @@ class LoopExecutor {
     ): LoopResult = coroutineScope {
         when (spec) {
             is LoopSpec.Count -> executeCount(spec, body, shouldBreak, shouldContinue)
-            is LoopSpec.ForEach -> executeForEach(spec, body, shouldBreak, shouldContinue)
-            is LoopSpec.While -> executeWhile(spec, body, shouldBreak, shouldContinue)
-            is LoopSpec.MapReduce -> executeMapReduce(spec, body)
+        is LoopSpec.ForEach -> executeForEach(spec, body, shouldBreak, shouldContinue)
+        is LoopSpec.While -> executeWhile(spec, body, shouldBreak, shouldContinue)
+        is LoopSpec.MapReduce -> executeMapReduce(spec, body)
         }
     }
-
-    private suspend fun executeCount(
+        private suspend fun executeCount(
         spec: LoopSpec.Count,
         body: suspend (LoopContext) -> Any?,
         shouldBreak: (LoopContext, Any?) -> Boolean,
@@ -89,7 +88,7 @@ class LoopExecutor {
 
         if (spec.parallel) {
             // 并行执行
-    val semaphore = Semaphore(spec.times.coerceAtMost(8))
+        val semaphore = Semaphore(spec.times.coerceAtMost(8))
         val deferred = (0 until spec.times).map { i ->
                 async {
                     semaphore.withPermit {
@@ -98,11 +97,11 @@ class LoopExecutor {
                             isLast = i == spec.times - 1,
                             previousResult = lastResult
                         )
-                        if (shouldContinue(ctx)) null else body(ctx)
+        if (shouldContinue(ctx)) null else body(ctx)
                     }
                 }
             }
-            outputs.addAll(deferred.awaitAll())
+        outputs.addAll(deferred.awaitAll())
         } else {
             for (i in 0 until spec.times) {
                 val ctx = LoopContext(
@@ -110,13 +109,13 @@ class LoopExecutor {
                     isLast = i == spec.times - 1,
                     previousResult = lastResult
                 )
-                if (shouldContinue(ctx)) {
+        if (shouldContinue(ctx)) {
                     outputs.add(null)
-                    continue
+        continue
                 }
-                val result = body(ctx)
-                outputs.add(result)
-                lastResult = result
+        val result = body(ctx)
+        outputs.add(result)
+        lastResult = result
                 if (shouldBreak(ctx, result)) {
                     brokeEarly = true
                     break
@@ -125,8 +124,7 @@ class LoopExecutor {
         }
         return LoopResult(outputs, outputs.size, brokeEarly, lastResult)
     }
-
-    private suspend fun executeForEach(
+        private suspend fun executeForEach(
         spec: LoopSpec.ForEach,
         body: suspend (LoopContext) -> Any?,
         shouldBreak: (LoopContext, Any?) -> Boolean,
@@ -143,18 +141,15 @@ class LoopExecutor {
                         item = item,
                         isLast = i == spec.items.size - 1
                     )
-                    if (shouldContinue(ctx)) null else body(ctx)
+        if (shouldContinue(ctx)) null else body(ctx)
                 }
             }
         }
-
         val results = deferred.awaitAll()
         results.forEachIndexed { i, r -> outputs[i] = r }
-
         LoopResult(outputs.toSortedMap().values.toList(), spec.items.size, brokeEarly, results.lastOrNull())
     }
-
-    private suspend fun executeWhile(
+        private suspend fun executeWhile(
         spec: LoopSpec.While,
         body: suspend (LoopContext) -> Any?,
         shouldBreak: (LoopContext, Any?) -> Boolean,
@@ -171,45 +166,43 @@ class LoopExecutor {
                 isLast = false,
                 previousResult = lastResult
             )
-            if (shouldContinue(ctx)) {
+        if (shouldContinue(ctx)) {
                 outputs.add(null)
-                iteration++
+        iteration++
                 continue
             }
-            val result = body(ctx)
-            outputs.add(result)
-            lastResult = result
+        val result = body(ctx)
+        outputs.add(result)
+        lastResult = result
             if (shouldBreak(ctx, result)) {
                 brokeEarly = true
                 break
             }
-            iteration++
+        iteration++
         }
         return LoopResult(outputs, iteration, brokeEarly, lastResult)
     }
-
-    private suspend fun executeMapReduce(
+        private suspend fun executeMapReduce(
         spec: LoopSpec.MapReduce,
         body: suspend (LoopContext) -> Any?
     ): LoopResult = coroutineScope {
         val semaphore = Semaphore(spec.maxConcurrency.coerceAtLeast(1))
 
         // Map 阶段：并行
-    val mapped = spec.items.mapIndexed { i, item ->
+        val mapped = spec.items.mapIndexed { i, item ->
             async {
                 semaphore.withPermit {
                     val ctx = LoopContext(iteration = i, item = item)
-                    body(ctx)
+        body(ctx)
                 }
             }
         }.awaitAll()
 
         // Reduce 阶段：串行
-                var acc: Any? = null
+        var acc: Any? = null
         mapped.forEachIndexed { i, v ->
             acc = spec.reducer(acc, v)
         }
-
         LoopResult(mapped, spec.items.size, false, acc)
     }
 }

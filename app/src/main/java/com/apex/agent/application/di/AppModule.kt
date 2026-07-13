@@ -56,21 +56,21 @@ abstract class AppModule {
 
     @Binds
     @Named("supervisor")
-    abstract fun bindSupervisorExecutionMode(mode: SupervisorExecutionMode): TaskExecutor
+        abstract fun bindSupervisorExecutionMode(mode: SupervisorExecutionMode): TaskExecutor
 
     @Binds
     @Named("serial")
-    abstract fun bindSerialPipelineMode(mode: SerialPipelineMode): TaskExecutor
+        abstract fun bindSerialPipelineMode(mode: SerialPipelineMode): TaskExecutor
 
     @Binds
     @Named("parallel")
-    abstract fun bindParallelExecutionMode(mode: ParallelExecutionMode): TaskExecutor
+        abstract fun bindParallelExecutionMode(mode: ParallelExecutionMode): TaskExecutor
 
     @Binds
     @Named("debate")
-    abstract fun bindDebateReviewMode(mode: DebateReviewMode): TaskExecutor
+        abstract fun bindDebateReviewMode(mode: DebateReviewMode): TaskExecutor
 
     @Binds
     @Named("free")
-    abstract fun bindFreeDialogMode(mode: FreeDialogMode): TaskExecutor
+        abstract fun bindFreeDialogMode(mode: FreeDialogMode): TaskExecutor
 }

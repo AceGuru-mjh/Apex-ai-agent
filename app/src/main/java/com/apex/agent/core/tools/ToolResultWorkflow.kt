@@ -45,7 +45,7 @@ data class WorkflowResultData(
         sb.appendLine("Failed Executions: ${failedExecutions}")
         if (lastExecutionTime != null) {
             sb.appendLine("Last Execution Time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date(lastExecutionTime))}")
-            sb.appendLine("Last Execution Status: ${lastExecutionStatus ?: "Unknown"}")
+        sb.appendLine("Last Execution Status: ${lastExecutionStatus ?: "Unknown"}")
         }
         return sb.toString().trim()
     }
@@ -67,18 +67,17 @@ data class WorkflowListResultData(
         sb.appendLine()
         workflows.forEach { workflow ->
             sb.appendLine("ID: ${workflow.id}")
-            sb.appendLine("Name: ${workflow.name}")
-            sb.appendLine("Description: ${workflow.description}")
-            sb.appendLine("Status: ${if (workflow.enabled) "Enabled" else "Disabled"}")
-            sb.appendLine("Node Count: ${workflow.nodeCount}")
-            sb.appendLine("Connection Count: ${workflow.connectionCount}")
-            sb.appendLine("Total Executions: ${workflow.totalExecutions}")
-            sb.appendLine("---")
+        sb.appendLine("Name: ${workflow.name}")
+        sb.appendLine("Description: ${workflow.description}")
+        sb.appendLine("Status: ${if (workflow.enabled) "Enabled" else "Disabled"}")
+        sb.appendLine("Node Count: ${workflow.nodeCount}")
+        sb.appendLine("Connection Count: ${workflow.connectionCount}")
+        sb.appendLine("Total Executions: ${workflow.totalExecutions}")
+        sb.appendLine("---")
         }
         return sb.toString().trim()
     }
-    
-    companion object {
+        companion object {
         /**
          * 创建一个空的WorkflowListResultData，用于错误情，
         */
@@ -115,77 +114,83 @@ data class WorkflowDetailResultData(
         sb.appendLine("Description: ${description}")
         sb.appendLine("Status: ${if (enabled) "Enabled" else "Disabled"}")
         sb.appendLine()
-
         sb.appendLine("Nodes (${nodes.size}):")
         nodes.forEach { node ->
             when (node) {
                 is com.apex.data.model.TriggerNode -> {
                     sb.appendLine("  - [Trigger] ${node.name} (${node.id})")
-                    sb.appendLine("    Type: ${node.triggerType}")
-                    if (node.description.isNotBlank()) {
-                        sb.appendLine("    Description: ${node.description}")
+        sb.appendLine("
+        Type: ${node.triggerType}")
+        if (node.description.isNotBlank()) {
+                        sb.appendLine("
+        Description: ${node.description}")
                     }
                 }
-                is com.apex.data.model.ExecuteNode -> {
+        is com.apex.data.model.ExecuteNode -> {
                     sb.appendLine("  - [Execute] ${node.name} (${node.id})")
-                    sb.appendLine("    Action: ${node.actionType}")
-                    if (node.description.isNotBlank()) {
-                        sb.appendLine("    Description: ${node.description}")
+        sb.appendLine("
+        Action: ${node.actionType}")
+        if (node.description.isNotBlank()) {
+                        sb.appendLine("
+        Description: ${node.description}")
                     }
                 }
-                is com.apex.data.model.ConditionNode -> {
+        is com.apex.data.model.ConditionNode -> {
                     sb.appendLine("  - [Condition] ${node.name} (${node.id})")
-                    sb.appendLine("    Operator: ${node.operator}")
-                    if (node.description.isNotBlank()) {
-                        sb.appendLine("    Description: ${node.description}")
+        sb.appendLine("
+        Operator: ${node.operator}")
+        if (node.description.isNotBlank()) {
+                        sb.appendLine("
+        Description: ${node.description}")
                     }
                 }
-                is com.apex.data.model.LogicNode -> {
+        is com.apex.data.model.LogicNode -> {
                     sb.appendLine("  - [Logic] ${node.name} (${node.id})")
-                    sb.appendLine("    Operator: ${node.operator}")
-                    if (node.description.isNotBlank()) {
-                        sb.appendLine("    Description: ${node.description}")
+        sb.appendLine("
+        Operator: ${node.operator}")
+        if (node.description.isNotBlank()) {
+                        sb.appendLine("
+        Description: ${node.description}")
                     }
                 }
-                is com.apex.data.model.ExtractNode -> {
+        is com.apex.data.model.ExtractNode -> {
                     sb.appendLine("  - [Extract] ${node.name} (${node.id})")
-                    sb.appendLine("    Mode: ${node.mode}")
-                    if (node.expression.isNotBlank()) {
-                        sb.appendLine("    Expression: ${node.expression}")
+        sb.appendLine("
+        Mode: ${node.mode}")
+        if (node.expression.isNotBlank()) {
+                        sb.appendLine("
+        Expression: ${node.expression}")
                     }
-                    if (node.description.isNotBlank()) {
-                        sb.appendLine("    Description: ${node.description}")
+        if (node.description.isNotBlank()) {
+                        sb.appendLine("
+        Description: ${node.description}")
                     }
                 }
             }
         }
         sb.appendLine()
-
         sb.appendLine("Connections (${connections.size}):")
         connections.forEach { conn ->
             val sourceName = nodes.find { it.id == conn.sourceNodeId }?.name ?: conn.sourceNodeId
         val targetName = nodes.find { it.id == conn.targetNodeId }?.name ?: conn.targetNodeId
             sb.append("  - ${sourceName} ，的${targetName}")
-            if (conn.condition != null) {
+        if (conn.condition != null) {
                 sb.append(" (Condition: ${conn.condition})")
             }
-            sb.appendLine()
+        sb.appendLine()
         }
         sb.appendLine()
-
         sb.appendLine("Execution Statistics:")
         sb.appendLine("  Total Executions: ${totalExecutions}")
         sb.appendLine("  Successful Executions: ${successfulExecutions}")
         sb.appendLine("  Failed Executions: ${failedExecutions}")
         if (lastExecutionTime != null) {
             sb.appendLine("  Last Execution Time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date(lastExecutionTime))}")
-            sb.appendLine("  Last Execution Status: ${lastExecutionStatus ?: "Unknown"}")
+        sb.appendLine("  Last Execution Status: ${lastExecutionStatus ?: "Unknown"}")
         }
-
         return sb.toString().trim()
     }
-    
-    companion object {
+        companion object {
         /**
          * 创建一个空的WorkflowDetailResultData，用于错误情，
         */

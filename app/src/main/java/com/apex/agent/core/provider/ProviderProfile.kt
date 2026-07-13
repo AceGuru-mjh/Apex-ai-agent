@@ -29,36 +29,30 @@ data class ProviderProfile(
         OAUTH,
         NONE
     }
-
-    enum class ProviderType {
+        enum class ProviderType {
         CLOUD,
         LOCAL,
         SELF_HOSTED
     }
-
-    fun getHostname(): String {
+        fun getHostname(): String {
         return hostname ?: run {
             val url = baseUrl.removePrefix("https://").removePrefix("http://")
-                url.split("/")[0]
+        url.split("/")[0]
         }
     }
-
-    open fun prepareMessages(messages: List<Message>): List<Message> {
+        open fun prepareMessages(messages: List<Message>): List<Message> {
         return messages
     }
-
-    open fun buildExtraBody(ctx: Map<String, Any>): Map<String, Any> {
+        open fun buildExtraBody(ctx: Map<String, Any>): Map<String, Any> {
         return emptyMap()
     }
-
-    open fun buildApiKwargsExtras(ctx: Map<String, Any>): Pair<Map<String, Any>, Map<String, Any>> {
+        open fun buildApiKwargsExtras(ctx: Map<String, Any>): Pair<Map<String, Any>, Map<String, Any>> {
         return emptyMap() to emptyMap()
     }
-
-    open suspend fun fetchModels(apiKey: String? = null): List<ModelInfo> {
+        open suspend fun fetchModels(apiKey: String? = null): List<ModelInfo> {
         return withContext(Dispatchers.IO) {
             val url = if (modelsUrl.isNotEmpty()) modelsUrl else "${baseUrl}/models"
-            try {
+        try {
                 val client = OkHttpClient()
         val request = Request.Builder()
                     .url(url)
@@ -69,8 +63,7 @@ data class ProviderProfile(
                     }
                     .get()
                     .build()
-
-                client.newCall(request).execute().use { response ->
+        client.newCall(request).execute().use { response ->
                     if (response.isSuccessful) {
                         response.body?.string()?.let { parseModels(it) } ?: emptyList()
                     } else {
@@ -79,21 +72,18 @@ data class ProviderProfile(
                 }
             } catch (e: Exception) {
                 LoggerFactory.getLogger(javaClass).warn("Failed to fetch models for ${name}: ${e.message}")
-                emptyList()
+        emptyList()
             }
         }
     }
-
-    protected open fun parseModels(json: String): List<ModelInfo> {
+        protected open fun parseModels(json: String): List<ModelInfo> {
         return emptyList()
     }
-
-    data class Message(
+        data class Message(
         @SerializedName("role") val role: String,
         @SerializedName("content") val content: String
     )
-
-    data class ModelInfo(
+        data class ModelInfo(
         val id: String,
         val name: String,
         val description: String = "",
@@ -101,19 +91,17 @@ data class ProviderProfile(
         val supportsVision: Boolean = false,
         val pricing: Pricing? = null
     )
-
-    data class Pricing(
+        data class Pricing(
         val input: Double = 0.0,
         val output: Double = 0.0,
         val unit: String = "per_1k_tokens"
     )
-
-    companion object {
+        companion object {
         fun openAI(): ProviderProfile {
             return ProviderProfile(
                 name = "openai",
                 baseUrl = "https://api.openai.com/v1",
-                apiKeyEnvVar = "OPENAI_API_KEY",
+        apiKeyEnvVar = "OPENAI_API_KEY",
                 authType = AuthType.API_KEY,
                 supportsStreaming = true,
                 defaultModel = "gpt-4o",
@@ -121,12 +109,11 @@ data class ProviderProfile(
                 modelsUrl = "https://api.openai.com/v1/models"
             )
         }
-
         fun anthropic(): ProviderProfile {
             return ProviderProfile(
                 name = "anthropic",
                 baseUrl = "https://api.anthropic.com/v1",
-                apiKeyEnvVar = "ANTHROPIC_API_KEY",
+        apiKeyEnvVar = "ANTHROPIC_API_KEY",
                 authType = AuthType.API_KEY,
                 supportsStreaming = true,
                 defaultModel = "claude-3-5-sonnet-20240620",
@@ -134,71 +121,65 @@ data class ProviderProfile(
                 modelsUrl = "https://api.anthropic.com/v1/models"
             )
         }
-
         fun google(): ProviderProfile {
             return ProviderProfile(
                 name = "google",
                 baseUrl = "https://generativelanguage.googleapis.com/v1",
-                apiKeyEnvVar = "GOOGLE_API_KEY",
+        apiKeyEnvVar = "GOOGLE_API_KEY",
                 authType = AuthType.API_KEY,
                 supportsStreaming = true,
                 defaultModel = "gemini-1.5-pro",
                 defaultAuxModel = "gemini-1.5-flash"
             )
         }
-
         fun openRouter(): ProviderProfile {
             return ProviderProfile(
                 name = "openrouter",
                 baseUrl = "https://openrouter.ai/api/v1",
-                apiKeyEnvVar = "OPENROUTER_API_KEY",
+        apiKeyEnvVar = "OPENROUTER_API_KEY",
                 authType = AuthType.API_KEY,
                 supportsStreaming = true,
                 defaultModel = "anthropic/claude-3-5-sonnet",
                 modelsUrl = "https://openrouter.ai/api/v1/models"
             )
         }
-
         fun ollama(): ProviderProfile {
             return ProviderProfile(
                 name = "ollama",
                 baseUrl = "http://localhost:11434/api",
-                apiKeyEnvVar = "",
+        apiKeyEnvVar = "",
                 authType = AuthType.NONE,
                 supportsStreaming = true,
                 defaultModel = "llama3",
                 providerType = ProviderType.LOCAL
             )
         }
-
         fun kimi(): ProviderProfile {
             return ProviderProfile(
                 name = "kimi",
                 baseUrl = "https://api.moonshot.cn/v1",
-                apiKeyEnvVar = "KIMI_API_KEY",
+        apiKeyEnvVar = "KIMI_API_KEY",
                 authType = AuthType.API_KEY,
                 supportsStreaming = true,
                 defaultModel = "moonshot-v1-8k",
                 defaultAuxModel = "moonshot-v1-32k"
             )
         }
-
         fun minimax(): ProviderProfile {
             return ProviderProfile(
                 name = "minimax",
                 baseUrl = "https://api.minimax.chat/v1",
-                apiKeyEnvVar = "MINIMAX_API_KEY",
+        apiKeyEnvVar = "MINIMAX_API_KEY",
                 authType = AuthType.API_KEY,
                 supportsStreaming = true,
                 defaultModel = "abab6.5s-chat"
             )
         }
-
         fun zai(): ProviderProfile {
             return ProviderProfile(
                 name = "zai",
                 baseUrl = "https://api.z.ai/v1",
-                apiKeyEnvVar = "ZAI_API_KEY",
+        apiKeyEnvVar = "ZAI_API_KEY",
                 authType = AuthType.API_KEY,
                 supportsStreaming = true,
                 defaultModel = "chatglm3-6b"
@@ -210,19 +191,18 @@ data class ProviderProfile(
 class ProviderRegistry private constructor() {
 
     private val logger = LoggerFactory.getLogger(ProviderRegistry::class.java)
-    private val providers = ConcurrentHashMap<String, ProviderProfile>()
-    private var isInitialized = false
+        private val providers = ConcurrentHashMap<String, ProviderProfile>()
+        private var isInitialized = false
 
     fun registerProvider(profile: ProviderProfile, overwrite: Boolean = false) {
         if (providers.containsKey(profile.name) && !overwrite) {
             logger.warn("Provider ${profile.name} already registered, skipping")
-            return
+        return
         }
         providers[profile.name] = profile
         logger.info("Registered provider: ${profile.name}")
     }
-
-    fun registerCustomProvider(
+        fun registerCustomProvider(
         name: String,
         baseUrl: String,
         apiKeyEnvVar: String = "",
@@ -235,34 +215,28 @@ class ProviderRegistry private constructor() {
         ).apply(configure)
         registerProvider(profile)
     }
-
-    fun getProviderProfile(name: String): ProviderProfile? {
+        fun getProviderProfile(name: String): ProviderProfile? {
         ensureInitialized()
         return providers[name]
     }
-
-    fun listProviders(): List<ProviderProfile> {
+        fun listProviders(): List<ProviderProfile> {
         ensureInitialized()
         return providers.values.toList()
     }
-
-    fun findProviderByHostname(hostname: String): ProviderProfile? {
+        fun findProviderByHostname(hostname: String): ProviderProfile? {
         ensureInitialized()
         return providers.values.firstOrNull { it.getHostname() == hostname }
     }
-
-    fun findProviderByUrl(url: String): ProviderProfile? {
+        fun findProviderByUrl(url: String): ProviderProfile? {
         ensureInitialized()
         val hostname = url.removePrefix("https://").removePrefix("http://").split("/")[0]
-                return findProviderByHostname(hostname)
+        return findProviderByHostname(hostname)
     }
-
-    fun findProvidersByModel(modelId: String): List<ProviderProfile> {
+        fun findProvidersByModel(modelId: String): List<ProviderProfile> {
         ensureInitialized()
         return providers.values.filter { it.defaultModel == modelId }
     }
-
-    fun registerDefaultProviders() {
+        fun registerDefaultProviders() {
         registerProvider(ProviderProfile.openAI())
         registerProvider(ProviderProfile.anthropic())
         registerProvider(ProviderProfile.google())
@@ -272,23 +246,19 @@ class ProviderRegistry private constructor() {
         registerProvider(ProviderProfile.minimax())
         registerProvider(ProviderProfile.zai())
     }
-
-    private fun ensureInitialized() {
+        private fun ensureInitialized() {
         if (!isInitialized) {
             registerDefaultProviders()
-            isInitialized = true
+        isInitialized = true
         }
     }
-
-    fun isProviderRegistered(name: String): Boolean {
+        fun isProviderRegistered(name: String): Boolean {
         return providers.containsKey(name)
     }
-
-    fun getProviderCount(): Int {
+        fun getProviderCount(): Int {
         return providers.size
     }
-
-    companion object {
+        companion object {
         @Volatile
         private var instance: ProviderRegistry? = null
 

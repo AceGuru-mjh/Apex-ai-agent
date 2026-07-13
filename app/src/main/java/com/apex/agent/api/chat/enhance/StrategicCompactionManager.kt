@@ -42,18 +42,18 @@ object StrategicCompactionManager {
     private const val TAG = "StrategicCompactionManager"
     
     // 上下文窗口大小限制（token，
-                private const val CONTEXT_WINDOW_LIMIT = 128000
+        private const val CONTEXT_WINDOW_LIMIT = 128000
     
     // 建议压缩的阈值百分比
-                private const val COMPACTION_THRESHOLD_PERCENT = 75f
+        private const val COMPACTION_THRESHOLD_PERCENT = 75f
     
     // 关键信息保留权重
-                private const val KEY_INFO_WEIGHT = 0.4f
+        private const val KEY_INFO_WEIGHT = 0.4f
     private const val RECENT_INFO_WEIGHT = 0.3f
     private const val TOOL_RESULT_WEIGHT = 0.3f
 
     // 会话级统计数据
-    private val sessionStats = mutableMapOf<String, SessionStatistics>()
+        private val sessionStats = mutableMapOf<String, SessionStatistics>()
 
     /**
      * 检测是否需要建议压缓
@@ -65,24 +65,23 @@ object StrategicCompactionManager {
         val usagePercent = stats.windowUsagePercent
         
         AppLogger.d(TAG, "检查会试${sessionId} 的压缩需求 使用现${usagePercent}%")
-
         return when {
             usagePercent >= 90f -> CompactionSuggestion(
                 shouldCompact = true,
                 reason = "上下文使用率已达 ${usagePercent}%，接近上限，强烈建议压缩",
                 urgency = 90
             )
-            usagePercent >= COMPACTION_THRESHOLD_PERCENT -> CompactionSuggestion(
+        usagePercent >= COMPACTION_THRESHOLD_PERCENT -> CompactionSuggestion(
                 shouldCompact = true,
                 reason = "上下文使用率已达 ${usagePercent}%，建议压缩以优化性能",
                 urgency = ((usagePercent - COMPACTION_THRESHOLD_PERCENT) / (100f - COMPACTION_THRESHOLD_PERCENT) * 50 + 40).toInt()
             )
-            stats.messageCount > 50 -> CompactionSuggestion(
+        stats.messageCount > 50 -> CompactionSuggestion(
                 shouldCompact = true,
                 reason = "对话轮次较多，{stats.messageCount} 条），建议压缩历取",
                 urgency = 50
             )
-            else -> CompactionSuggestion(
+        else -> CompactionSuggestion(
                 shouldCompact = false,
                 reason = "${usagePercent}%，",
                 urgency = 0
@@ -98,14 +97,13 @@ object StrategicCompactionManager {
      */
     suspend fun executeCompaction(sessionId: String, context: Context): CompactionResult {
         AppLogger.i(TAG, "开始执行会试${sessionId} 的上下文压缩")
-
         return try {
             // 获取压缩前的统计
-    val beforeStats = getSessionStats(sessionId)
+        val beforeStats = getSessionStats(sessionId)
         val beforeTokens = beforeStats.estimatedTokens
 
             // 创建会话上下文用于钩子调用
-    val sessionContext = SessionContext(
+        val sessionContext = SessionContext(
                 sessionId = sessionId,
                 startTime = System.currentTimeMillis(),
                 lastActivity = System.currentTimeMillis(),
@@ -114,23 +112,21 @@ object StrategicCompactionManager {
             )
 
             // 压缩前触发钩字
-                AppLogger.d(TAG, "触发压缩前钩字")
-            HookRegistry.triggerPreCompact(context, sessionContext)
+        AppLogger.d(TAG, "触发压缩前钩字")
+        HookRegistry.triggerPreCompact(context, sessionContext)
 
             // 执行压缩逻辑
-    val preservedItems = performCompaction(sessionId, beforeStats)
+        val preservedItems = performCompaction(sessionId, beforeStats)
             
             // 计算压缩后的统计
-    val afterStats = getSessionStats(sessionId)
+        val afterStats = getSessionStats(sessionId)
         val afterTokens = afterStats.estimatedTokens
             val tokensSaved = beforeTokens - afterTokens
 
             // 计算质量评分
-    val qualityScore = calculateCompactionQuality(beforeStats, afterStats, preservedItems)
-
-            AppLogger.i(TAG, "压缩完成: 节省 ${tokensSaved} tokens, 质量评分 ${qualityScore}")
-
-            CompactionResult(
+        val qualityScore = calculateCompactionQuality(beforeStats, afterStats, preservedItems)
+        AppLogger.i(TAG, "压缩完成: 节省 ${tokensSaved} tokens, 质量评分 ${qualityScore}")
+        CompactionResult(
                 success = true,
                 qualityScore = qualityScore,
                 tokensSaved = tokensSaved,
@@ -138,7 +134,7 @@ object StrategicCompactionManager {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "执行压缩失败", e)
-            CompactionResult(
+        CompactionResult(
                 success = false,
                 qualityScore = 0f,
                 tokensSaved = 0,
@@ -200,19 +196,19 @@ object StrategicCompactionManager {
         // 实际实现中，这里应该调用 LLM 进行智能摘要
         
         // 保留最近的关键对话
-                preservedItems.add("最返5 轮对话的核心要点")
+        preservedItems.add("最返5 轮对话的核心要点")
         
         // 保留重要的工具调用结果
-                if (stats.toolCallCount > 0) {
+        if (stats.toolCallCount > 0) {
             preservedItems.add("关键工具调用的结果摘要")
         }
         
         // 保留用户明确指定的重要信息
-                preservedItems.add("用户强调的重要上下文")
+        preservedItems.add("用户强调的重要上下文")
         
         // 更新压缩后的统计
-    val reducedTokens = (stats.estimatedTokens * 0.4).toInt() // 压缩分40%
-                stats.estimatedTokens = reducedTokens
+        val reducedTokens = (stats.estimatedTokens * 0.4).toInt() // 压缩分40%
+        stats.estimatedTokens = reducedTokens
         stats.windowUsagePercent = (reducedTokens.toFloat() / CONTEXT_WINDOW_LIMIT) * 100f
         
         return preservedItems
@@ -227,11 +223,11 @@ object StrategicCompactionManager {
         preservedItems: List<String>
     ): Float {
         // 基于保留信息的完整度评分
-    val preservationRatio = preservedItems.size.toFloat() / 10f // 假设最多保略10 项关键信息
-    val compressionRatio = 1f - (after.estimatedTokens.toFloat() / before.estimatedTokens.toFloat())
+        val preservationRatio = preservedItems.size.toFloat() / 10f // 假设最多保略10 项关键信息
+        val compressionRatio = 1f - (after.estimatedTokens.toFloat() / before.estimatedTokens.toFloat())
         
         // 综合评分：保留信息越完整、压缩比越合理，分数越高
-    val score = (preservationRatio * KEY_INFO_WEIGHT + 
+        val score = (preservationRatio * KEY_INFO_WEIGHT + 
                     compressionRatio * (1 - KEY_INFO_WEIGHT)) * 100f
         
         return score.coerceIn(0f, 100f)

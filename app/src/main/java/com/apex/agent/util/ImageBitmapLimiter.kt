@@ -16,13 +16,11 @@ object ImageBitmapLimiter {
         val base64: String,
         val mimeType: String
     )
-
-    private data class ImageBounds(
+        private data class ImageBounds(
         val width: Int,
         val height: Int
     )
-
-    fun decodeDownsampledBitmap(
+        fun decodeDownsampledBitmap(
         bytes: ByteArray,
         maxPixels: Long = UI_MAX_PIXELS,
         maxDimension: Int = UI_MAX_DIMENSION
@@ -30,43 +28,36 @@ object ImageBitmapLimiter {
         val boundsOptions = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
-
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, boundsOptions)
-
         val srcWidth = boundsOptions.outWidth
         val srcHeight = boundsOptions.outHeight
         if (srcWidth <= 0 || srcHeight <= 0) {
             return null
         }
-
         val sampleSize = calculateSampleSize(
             srcWidth = srcWidth,
             srcHeight = srcHeight,
             maxPixels = maxPixels,
             maxDimension = maxDimension
         )
-
         val decodeOptions = BitmapFactory.Options().apply {
             inJustDecodeBounds = false
             inSampleSize = sampleSize
             inPreferredConfig = Bitmap.Config.ARGB_8888
         }
-
         return try {
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, decodeOptions)
         } catch (_: Throwable) {
             null
         }
     }
-
-    fun limitBase64ForAi(base64: String, mimeType: String): LimitedImage? {
+        fun limitBase64ForAi(base64: String, mimeType: String): LimitedImage? {
         val bytes = try {
             Base64.decode(base64, Base64.DEFAULT)
         } catch (e: Throwable) {
             android.util.Log.w("Apex", "Operation failed", e)
-            return null
+        return null
         }
-
         val bounds = decodeImageBounds(bytes) ?: return null
         val needsDownsample =
             bounds.width > AI_MAX_DIMENSION ||
@@ -79,7 +70,6 @@ object ImageBitmapLimiter {
                 mimeType = mimeType
             )
         }
-
         val sampleSizeForLog = calculateSampleSize(
             srcWidth = bounds.width,
             srcHeight = bounds.height,
@@ -90,7 +80,6 @@ object ImageBitmapLimiter {
             "ImageBitmapLimiter",
             "AI image resize triggered: mimeType=${mimeType}, src=${bounds.width}x${bounds.height}, sampleSize=${sampleSizeForLog}"
         )
-
         val bitmap = decodeDownsampledBitmap(
             bytes = bytes,
             maxPixels = AI_MAX_PIXELS,
@@ -103,21 +92,18 @@ object ImageBitmapLimiter {
                 Bitmap.CompressFormat.PNG -> 100
                 else -> 95
             }
-
-            val outBytes = encodeBitmap(bitmap, format, quality)
-
-            AppLogger.i(
+        val outBytes = encodeBitmap(bitmap, format, quality)
+        AppLogger.i(
                 "ImageBitmapLimiter",
                 "AI image re-encoded: mimeType=${mimeType}, format=${format}, outBytes=${outBytes.size}, bitmap=${bitmap.width}x${bitmap.height}"
             )
-
-            return LimitedImage(
+        return LimitedImage(
                 base64 = Base64.encodeToString(outBytes, Base64.NO_WRAP),
                 mimeType = mimeType
             )
         } catch (e: Throwable) {
             android.util.Log.w("Apex", "Operation failed", e)
-            return null
+        return null
         } finally {
             try {
                 bitmap.recycle()
@@ -125,16 +111,14 @@ object ImageBitmapLimiter {
             }
         }
     }
-
-    private fun encodeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int): ByteArray {
+        private fun encodeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int): ByteArray {
         val stream = ByteArrayOutputStream()
         stream.use { out ->
             bitmap.compress(format, quality, out)
-            return out.toByteArray()
+        return out.toByteArray()
         }
     }
-
-    private fun compressFormatForMimeType(mimeType: String): Bitmap.CompressFormat? {
+        private fun compressFormatForMimeType(mimeType: String): Bitmap.CompressFormat? {
         val mt = mimeType.trim().lowercase().substringBefore(';')
         return when {
             mt == "image/png" -> Bitmap.CompressFormat.PNG
@@ -143,22 +127,20 @@ object ImageBitmapLimiter {
             else -> null
         }
     }
-
-    private fun decodeImageBounds(bytes: ByteArray): ImageBounds? {
+        private fun decodeImageBounds(bytes: ByteArray): ImageBounds? {
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
         return try {
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
-            val w = options.outWidth
+        val w = options.outWidth
         val h = options.outHeight
             if (w <= 0 || h <= 0) null else ImageBounds(w, h)
         } catch (_: Throwable) {
             null
         }
     }
-
-    private fun calculateSampleSize(
+        private fun calculateSampleSize(
         srcWidth: Int,
         srcHeight: Int,
         maxPixels: Long,
@@ -172,12 +154,10 @@ object ImageBitmapLimiter {
             if (w <= 0 || h <= 0) {
                 break
             }
-
-            if (w <= maxDimension && h <= maxDimension && w.toLong() * h.toLong() <= maxPixels) {
+        if (w <= maxDimension && h <= maxDimension && w.toLong() * h.toLong() <= maxPixels) {
                 break
             }
-
-            sampleSize *= 2
+        sampleSize *= 2
         }
         return sampleSize
     }

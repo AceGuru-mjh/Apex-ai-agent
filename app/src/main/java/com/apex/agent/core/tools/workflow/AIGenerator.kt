@@ -15,17 +15,13 @@ class AIGenerator {
             suggestions = generateSuggestions(workflow)
         )
     }
-
-    private fun parseDescriptionToWorkflow(description: String): Workflow {
+        private fun parseDescriptionToWorkflow(description: String): Workflow {
         val nodes = mutableListOf<WorkflowNode>()
         val connections = mutableListOf<WorkflowNodeConnection>()
-
         val triggerNode = createTriggerNode(description)
         nodes.add(triggerNode)
-
         val actionNodes = createActionNodes(description)
         nodes.addAll(actionNodes)
-
         var previousNodeId = triggerNode.id
         actionNodes.forEach { node ->
             connections.add(
@@ -34,9 +30,8 @@ class AIGenerator {
                     targetNodeId = node.id
                 )
             )
-            previousNodeId = node.id
+        previousNodeId = node.id
         }
-
         return Workflow(
             id = java.util.UUID.randomUUID().toString(),
             name = extractWorkflowName(description),
@@ -45,15 +40,13 @@ class AIGenerator {
             connections = connections
         )
     }
-
-    private fun createTriggerNode(description: String): TriggerNode {
+        private fun createTriggerNode(description: String): TriggerNode {
         val triggerType = when {
             description.contains("每天") || description.contains("定时") -> "schedule"
-            description.contains("收到") || description.contains("当") -> "intent"
-            description.contains("截图") -> "screenshot"
-            else -> "manual"
+        description.contains("收到") || description.contains("当") -> "intent"
+        description.contains("截图") -> "screenshot"
+        else -> "manual"
         }
-
         return TriggerNode(
             id = java.util.UUID.randomUUID().toString(),
             name = "触发器",
@@ -62,10 +55,8 @@ class AIGenerator {
             triggerConfig = extractTriggerConfig(description)
         )
     }
-
-    private fun createActionNodes(description: String): List<ExecuteNode> {
+        private fun createActionNodes(description: String): List<ExecuteNode> {
         val actions = mutableListOf<ExecuteNode>()
-
         when {
             description.contains("天气") -> {
                 actions.add(
@@ -80,7 +71,7 @@ class AIGenerator {
                     )
                 )
             }
-            description.contains("通知") || description.contains("发通") -> {
+        description.contains("通知") || description.contains("发通") -> {
                 actions.add(
                     ExecuteNode(
                         id = java.util.UUID.randomUUID().toString(),
@@ -90,7 +81,7 @@ class AIGenerator {
                     )
                 )
             }
-            description.contains("截图") || description.contains("OCR") -> {
+        description.contains("截图") || description.contains("OCR") -> {
                 actions.add(
                     ExecuteNode(
                         id = java.util.UUID.randomUUID().toString(),
@@ -99,7 +90,7 @@ class AIGenerator {
                         actionType = "capture_screenshot"
                     )
                 )
-                actions.add(
+        actions.add(
                     ExecuteNode(
                         id = java.util.UUID.randomUUID().toString(),
                         name = "OCR识别",
@@ -108,7 +99,7 @@ class AIGenerator {
                     )
                 )
             }
-            description.contains("保存") || description.contains("备忘当") -> {
+        description.contains("保存") || description.contains("备忘当") -> {
                 actions.add(
                     ExecuteNode(
                         id = java.util.UUID.randomUUID().toString(),
@@ -119,31 +110,25 @@ class AIGenerator {
                 )
             }
         }
-
         return actions
     }
-
-    private fun extractTriggerConfig(description: String): Map<String, String> {
+        private fun extractTriggerConfig(description: String): Map<String, String> {
         val config = mutableMapOf<String, String>()
         val timeRegex = Regex("(\\d{1,2})点|(\\d{1,2}):(\\d{2})")
         timeRegex.find(description)?.let { match ->
             config["time"] = match.value
         }
-
         if (description.contains("每天")) {
             config["frequency"] = "daily"
         }
-
         return config
     }
-
-    private fun extractWorkflowName(description: String): String {
+        private fun extractWorkflowName(description: String): String {
         return description.take(20).let {
             if (it.length < description.length) "${it}..." else it
         }
     }
-
-    private fun calculateConfidence(description: String, workflow: Workflow): Float {
+        private fun calculateConfidence(description: String, workflow: Workflow): Float {
         var confidence = 0.5f
 
         if (workflow.nodes.size >= 2) confidence += 0.2f
@@ -153,38 +138,30 @@ class AIGenerator {
         keywords.forEach { keyword ->
             if (description.contains(keyword)) confidence += 0.03f
         }
-
         return confidence.coerceAtMost(1.0f)
     }
-
-    private fun generateSuggestions(workflow: Workflow): List<String> {
+        private fun generateSuggestions(workflow: Workflow): List<String> {
         val suggestions = mutableListOf<String>()
-
         if (workflow.nodes.size == 1) {
             suggestions.add("建议添加更多操作步骤以实现更复杂的工作流")
         }
-
         if (!workflow.connections.any { it.condition != null }) {
             suggestions.add("可以考虑添加条件判断来实现更智能的自动化")
         }
-
         return suggestions
     }
-
-    suspend fun suggestImprovements(workflow: Workflow): List<String> = withContext(Dispatchers.IO) {
+        suspend fun suggestImprovements(workflow: Workflow): List<String> = withContext(Dispatchers.IO) {
         val suggestions = mutableListOf<String>()
         val nodeTypes = workflow.nodes.map { it.type }.distinct()
         if (nodeTypes.size < 2) {
             suggestions.add("工作流较为简单，可以考虑添加更多节点")
         }
-
         val hasErrorHandling = workflow.nodes.any {
             it is ExecuteNode && it.actionConfig.containsKey("on_error")
         }
         if (!hasErrorHandling) {
             suggestions.add("建议添加错误处理机制以提高稳定态")
         }
-
         suggestions
     }
 }

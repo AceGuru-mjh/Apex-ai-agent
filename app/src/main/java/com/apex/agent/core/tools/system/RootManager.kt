@@ -27,40 +27,33 @@ import java.io.InputStreamReader
  */
 object RootManager {
     private const val TAG = "RootManager"
-    private const val DETECTION_CACHE_DURATION = 30000L // 30秒
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val mutex = Mutex()
+        private const val DETECTION_CACHE_DURATION = 30000L // 30秒
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        private val mutex = Mutex()
 
     // Root 执行器
-                private var rootShellExecutor: RootShellExecutor? = null
+        private var rootShellExecutor: RootShellExecutor? = null
 
     // 状态流
-    private val _isRooted = MutableStateFlow(false)
+        private val _isRooted = MutableStateFlow(false)
         val isRooted: StateFlow<Boolean> = _isRooted.asStateFlow()
-
-    private val _hasRootAccess = MutableStateFlow(false)
+        private val _hasRootAccess = MutableStateFlow(false)
         val hasRootAccess: StateFlow<Boolean> = _hasRootAccess.asStateFlow()
-
-    private val _rootScheme = MutableStateFlow<RootScheme>(RootScheme.UNKNOWN)
+        private val _rootScheme = MutableStateFlow<RootScheme>(RootScheme.UNKNOWN)
         val rootScheme: StateFlow<RootScheme> = _rootScheme.asStateFlow()
-
-    private val _seLinuxStatus = MutableStateFlow<SELinuxStatus>(SELinuxStatus.UNKNOWN)
+        private val _seLinuxStatus = MutableStateFlow<SELinuxStatus>(SELinuxStatus.UNKNOWN)
         val seLinuxStatus: StateFlow<SELinuxStatus> = _seLinuxStatus.asStateFlow()
-
-    private val _rootExecutionMode = MutableStateFlow<RootExecutionMode>(RootExecutionMode.AUTO)
+        private val _rootExecutionMode = MutableStateFlow<RootExecutionMode>(RootExecutionMode.AUTO)
         val rootExecutionMode: StateFlow<RootExecutionMode> = _rootExecutionMode.asStateFlow()
-
-    private val _isInitialized = MutableStateFlow(false)
+        private val _isInitialized = MutableStateFlow(false)
         val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
-
-    private val _isChecking = MutableStateFlow(false)
+        private val _isChecking = MutableStateFlow(false)
         val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
 
     // 缓存
-                private var cachedDetection: CachedDetection? = null
+        private var cachedDetection: CachedDetection? = null
     private val stateChangeListeners = mutableSetOf<() -> Unit>()
-
-    private data class CachedDetection(
+        private data class CachedDetection(
         val isRooted: Boolean,
         val hasRootAccess: Boolean,
         val rootScheme: RootScheme,
@@ -69,7 +62,7 @@ object RootManager {
     )
 
     // 常见的 su 路径
-    private val SU_PATHS = listOf(
+        private val SU_PATHS = listOf(
         "/system/bin/su",
         "/system/xbin/su",
         "/sbin/su",
@@ -88,29 +81,27 @@ object RootManager {
                 AppLogger.d(TAG, "初始化 Root 管理器...")
 
                 // 初始化 libsu
-                initializeLibsu()
+        initializeLibsu()
 
                 // 初始化执行器
-                if (rootShellExecutor == null) {
+        if (rootShellExecutor == null) {
                     rootShellExecutor = RootShellExecutor(context)
                 }
-                rootShellExecutor?.initialize()
+        rootShellExecutor?.initialize()
 
                 // 加载执行模式偏好
-                loadExecutionModePreference()
+        loadExecutionModePreference()
 
                 // 初始化执行器
-                checkRootStatus(context, forceRefresh = true)
-
-                _isInitialized.value = true
+        checkRootStatus(context, forceRefresh = true)
+        _isInitialized.value = true
                 AppLogger.d(TAG, "Root 管理器初始化完成")
             } catch (e: Exception) {
                 AppLogger.e(TAG, "初始化 Root 管理器失败", e)
             }
         }
     }
-
-    private fun initializeLibsu() {
+        private fun initializeLibsu() {
         try {
             Shell.enableVerboseLogging = true
             Shell.setDefaultBuilder(
@@ -118,17 +109,16 @@ object RootManager {
                     .setFlags(Shell.FLAG_MOUNT_MASTER)
                     .setTimeout(10)
             )
-            AppLogger.d(TAG, "libsu 配置完成")
+        AppLogger.d(TAG, "libsu 配置完成")
         } catch (e: Exception) {
             AppLogger.e(TAG, "libsu 检查失败", e)
         }
     }
-
-    private fun loadExecutionModePreference() {
+        private fun loadExecutionModePreference() {
         try {
             val mode = androidPermissionPreferences.getRootExecutionMode()
-            _rootExecutionMode.value = RootExecutionMode.fromLegacyMode(mode)
-            AppLogger.d(TAG, "已加载 Root 执行模式: ${_rootExecutionMode.value}")
+        _rootExecutionMode.value = RootExecutionMode.fromLegacyMode(mode)
+        AppLogger.d(TAG, "已加载 Root 执行模式: ${_rootExecutionMode.value}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "加载 Root 执行模式失败", e)
         }
@@ -144,11 +134,11 @@ object RootManager {
         val now = System.currentTimeMillis()
 
         // 检查缓存
-                if (!forceRefresh) {
+        if (!forceRefresh) {
             cachedDetection?.let { cached ->
                 if (now - cached.timestamp < DETECTION_CACHE_DURATION) {
                     AppLogger.v(TAG, "使用缓存的 Root 检测结果")
-                    return RootDetectionResult(
+        return RootDetectionResult(
                         isRooted = cached.isRooted,
                         hasRootAccess = cached.hasRootAccess,
                         rootScheme = cached.rootScheme,
@@ -158,32 +148,28 @@ object RootManager {
                 }
             }
         }
-
         _isChecking.value = true
         AppLogger.d(TAG, "开始检测 Root 状态...")
-
         val result = try {
         val mode = _rootExecutionMode.value
             applyExecutionMode(mode)
-
-            val isRooted = detectIsRooted(context)
+        val isRooted = detectIsRooted(context)
         val hasRootAccess = checkRootAccess(context)
-            val rootScheme = detectRootScheme(context)
+        val rootScheme = detectRootScheme(context)
         val seLinuxStatus = detectSELinuxStatus()
 
             // 更新状态
-                updateState(isRooted, hasRootAccess, rootScheme, seLinuxStatus)
+        updateState(isRooted, hasRootAccess, rootScheme, seLinuxStatus)
 
             // 缓存结果
-                cachedDetection = CachedDetection(
+        cachedDetection = CachedDetection(
                 isRooted = isRooted,
                 hasRootAccess = hasRootAccess,
                 rootScheme = rootScheme,
                 seLinuxStatus = seLinuxStatus,
                 timestamp = now
             )
-
-            RootDetectionResult(
+        RootDetectionResult(
                 isRooted = isRooted,
                 hasRootAccess = hasRootAccess,
                 rootScheme = rootScheme,
@@ -192,7 +178,7 @@ object RootManager {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "加载 Root 执行模式失败", e)
-            RootDetectionResult(
+        RootDetectionResult(
                 isRooted = false,
                 hasRootAccess = false,
                 detectionTimestamp = now,
@@ -201,69 +187,64 @@ object RootManager {
         } finally {
             _isChecking.value = false
         }
-
         return result
     }
-
-    private fun applyExecutionMode(mode: RootExecutionMode) {
+        private fun applyExecutionMode(mode: RootExecutionMode) {
         when (mode) {
             RootExecutionMode.AUTO -> {
                 rootShellExecutor?.setUseExecMode(false)
             }
-            RootExecutionMode.FORCE_LIBSU, RootExecutionMode.FORCE_MAGISK -> {
+        RootExecutionMode.FORCE_LIBSU, RootExecutionMode.FORCE_MAGISK -> {
                 rootShellExecutor?.setUseExecMode(false)
             }
-            RootExecutionMode.FORCE_EXEC, RootExecutionMode.FORCE_KERNELSU -> {
+        RootExecutionMode.FORCE_EXEC, RootExecutionMode.FORCE_KERNELSU -> {
                 rootShellExecutor?.setUseExecMode(true)
             }
         }
         AppLogger.d(TAG, "已应用 Root 执行模式: $mode")
     }
-
-    private fun detectIsRooted(context: Context): Boolean {
+        private fun detectIsRooted(context: Context): Boolean {
         AppLogger.d(TAG, "检测设备是否已 Root...")
 
         // 方法 1: 检查 su 文件
-    val suExists = checkSuFiles()
+        val suExists = checkSuFiles()
         if (suExists) {
             AppLogger.d(TAG, "检测到 su 文件")
-            return true
+        return true
         }
 
         // 方法 2: 使用 libsu 检测
-                try {
+        try {
             val libsuRooted = Shell.isAppGrantedRoot() ?: false
             if (libsuRooted) {
                 AppLogger.d(TAG, "libsu 检测到 Root")
-                return true
+        return true
             }
         } catch (e: Exception) {
             AppLogger.w(TAG, "libsu 检测失败", e)
         }
 
         // 方法 3: 检查 known Root 应用
-    val rootAppExists = checkRootApplications(context)
+        val rootAppExists = checkRootApplications(context)
         if (rootAppExists) {
             AppLogger.d(TAG, "检测到 Root 管理应用")
-            return true
+        return true
         }
 
         // 方法 4: 尝试执行 which su
-                try {
+        try {
             val process = Runtime.getRuntime().exec(arrayOf("which", "su"))
         val exitCode = process.waitFor()
-            if (exitCode == 0) {
+        if (exitCode == 0) {
                 AppLogger.d(TAG, "which su 成功")
-                return true
+        return true
             }
         } catch (e: Exception) {
             AppLogger.w(TAG, "which su 检测失败", e)
         }
-
         return false
     }
-
-    private fun checkSuFiles(): Boolean {
+        private fun checkSuFiles(): Boolean {
         return SU_PATHS.any { path ->
             try {
                 File(path).exists()
@@ -272,88 +253,79 @@ object RootManager {
             }
         }
     }
-
-    private fun checkRootApplications(context: Context): Boolean {
+        private fun checkRootApplications(context: Context): Boolean {
         val rootPackages = listOf(
             "me.weishu.kernelsu",
             "me.bmax.apatch",
             "eu.chainfire.supersu",
             "com.kingroot.kinguser"
         )
-
         val pm = context.packageManager
         return rootPackages.any { pkg ->
             try {
                 pm.getPackageInfo(pkg, 0)
-                true
+        true
             } catch (e: Exception) {
                 false
             }
         }
     }
-
-    private fun checkRootAccess(context: Context): Boolean {
+        private fun checkRootAccess(context: Context): Boolean {
         AppLogger.d(TAG, "开始检测 Root 状态...")
-
         val mode = _rootExecutionMode.value
 
         return when (mode) {
             RootExecutionMode.AUTO -> {
                 // 先尝试 libsu，失败则尝试 exec
-                checkLibsuAccess() || checkExecSuAccess()
+        checkLibsuAccess() || checkExecSuAccess()
             }
-            RootExecutionMode.FORCE_LIBSU, RootExecutionMode.FORCE_MAGISK -> {
+        RootExecutionMode.FORCE_LIBSU, RootExecutionMode.FORCE_MAGISK -> {
                 checkLibsuAccess()
             }
-            RootExecutionMode.FORCE_EXEC, RootExecutionMode.FORCE_KERNELSU -> {
+        RootExecutionMode.FORCE_EXEC, RootExecutionMode.FORCE_KERNELSU -> {
                 checkExecSuAccess()
             }
         }
     }
-
-    private fun checkLibsuAccess(): Boolean {
+        private fun checkLibsuAccess(): Boolean {
         return try {
             val shell = Shell.getShell()
         val hasAccess = shell.isRoot
             AppLogger.d(TAG, "libsu 检查结果: $hasAccess")
-            hasAccess
+        hasAccess
         } catch (e: Exception) {
             AppLogger.e(TAG, "libsu 检查失败", e)
-            false
+        false
         }
     }
-
-    private fun checkExecSuAccess(): Boolean {
+        private fun checkExecSuAccess(): Boolean {
         return try {
             val process = Runtime.getRuntime().exec(buildSuExecCommand("echo test"))
         val reader = BufferedReader(InputStreamReader(process.inputStream))
-            val output = StringBuilder()
-            var line: String?
+        val output = StringBuilder()
+        var line: String?
 
             while (reader.readLine().also { line = it } != null) {
                 output.append(line)
             }
-
-            val exitCode = process.waitFor()
+        val exitCode = process.waitFor()
         val hasAccess = exitCode == 0 && output.toString().contains("test")
-
-            AppLogger.d(TAG, "exec su 检查结果: $hasAccess (exitCode: $exitCode)")
-            hasAccess
+        AppLogger.d(TAG, "exec su 检查结果: $hasAccess (exitCode: $exitCode)")
+        hasAccess
         } catch (e: Exception) {
             AppLogger.e(TAG, "exec su 检查失败", e)
-            false
+        false
         }
     }
-
-    private fun detectRootScheme(context: Context): RootScheme {
+        private fun detectRootScheme(context: Context): RootScheme {
         val pm = context.packageManager
 
         for (scheme in RootScheme.values()) {
             if (scheme.packageName != null) {
                 try {
                     pm.getPackageInfo(scheme.packageName, 0)
-                    AppLogger.d(TAG, "检测到 Root 方案: ${scheme.displayName}")
-                    return scheme
+        AppLogger.d(TAG, "检测到 Root 方案: ${scheme.displayName}")
+        return scheme
                 } catch (e: Exception) {
                     continue
                 }
@@ -361,38 +333,33 @@ object RootManager {
         }
 
         // 尝试通过 su --version 检测
-                try {
+        try {
             val process = Runtime.getRuntime().exec(buildSuVersionCommand())
         val output = process.inputStream.bufferedReader().readText().lowercase()
-            process.waitFor()
-
-            when {
+        process.waitFor()
+        when {
                 output.contains("kernelsu") -> return RootScheme.KERNELSU
                 output.contains("apatch") -> return RootScheme.APATCH
             }
         } catch (e: Exception) {
             AppLogger.w(TAG, "通过 su 版本检测 Root 方案失败", e)
         }
-
         return RootScheme.UNKNOWN
     }
-
-    private fun detectSELinuxStatus(): SELinuxStatus {
+        private fun detectSELinuxStatus(): SELinuxStatus {
         return try {
             val process = Runtime.getRuntime().exec("getenforce")
         val output = process.inputStream.bufferedReader().readText().trim().lowercase()
-            process.waitFor()
-
-            val status = SELinuxStatus.fromString(output)
-            AppLogger.d(TAG, "SELinux 状态: ${status.displayName}")
-            status
+        process.waitFor()
+        val status = SELinuxStatus.fromString(output)
+        AppLogger.d(TAG, "SELinux 状态: ${status.displayName}")
+        status
         } catch (e: Exception) {
             AppLogger.w(TAG, "检测 SELinux 状态失败", e)
-            SELinuxStatus.UNKNOWN
+        SELinuxStatus.UNKNOWN
         }
     }
-
-    private fun updateState(
+        private fun updateState(
         isRooted: Boolean,
         hasRootAccess: Boolean,
         rootScheme: RootScheme,
@@ -412,33 +379,29 @@ object RootManager {
     fun requestRootPermission(onResult: (Boolean) -> Unit) {
         scope.launch {
             AppLogger.d(TAG, "请求 Root 权限...")
-
-            try {
+        try {
                 val mode = _rootExecutionMode.value
         val granted = when (mode) {
                     RootExecutionMode.AUTO, RootExecutionMode.FORCE_LIBSU, RootExecutionMode.FORCE_MAGISK -> {
                         requestRootViaLibsu()
                     }
-                    RootExecutionMode.FORCE_EXEC, RootExecutionMode.FORCE_KERNELSU -> {
+        RootExecutionMode.FORCE_EXEC, RootExecutionMode.FORCE_KERNELSU -> {
                         requestRootViaExec()
                     }
                 }
-
-                if (granted) {
+        if (granted) {
                     _hasRootAccess.value = true
                     notifyStateChange()
                 }
-
-                AppLogger.d(TAG, "Root 权限请求结果: ${granted}")
-                onResult(granted)
+        AppLogger.d(TAG, "Root 权限请求结果: ${granted}")
+        onResult(granted)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "请求 Root 权限失败", e)
-                onResult(false)
+        onResult(false)
             }
         }
     }
-
-    private suspend fun requestRootViaLibsu(): Boolean {
+        private suspend fun requestRootViaLibsu(): Boolean {
         return try {
             Shell.getShell { shell ->
                 val granted = shell.isRoot
@@ -446,14 +409,13 @@ object RootManager {
                     _hasRootAccess.value = true
                 }
             }
-            _hasRootAccess.value
+        _hasRootAccess.value
         } catch (e: Exception) {
             AppLogger.e(TAG, "通过 libsu 请求 Root 失败", e)
-            false
+        false
         }
     }
-
-    private fun requestRootViaExec(): Boolean {
+        private fun requestRootViaExec(): Boolean {
         return checkExecSuAccess()
     }
 
@@ -464,18 +426,17 @@ object RootManager {
         _rootExecutionMode.value = mode
 
         // 检查缓存
-                try {
+        try {
             androidPermissionPreferences.saveRootExecutionMode(mode.toLegacyMode())
         } catch (e: Exception) {
             AppLogger.e(TAG, "保存 Root 执行模式失败", e)
         }
-
         applyExecutionMode(mode)
 
         // 检查缓存
-                if (_isInitialized.value) {
+        if (_isInitialized.value) {
             // å·²åå§åæ¶ï¼éæ°æ£æµ Root ç¶æä»¥åºç¨æ°æ¨¡å¼
-                try {
+        try {
                 checkRootAccess()
             } catch (e: Exception) {
                 AppLogger.w(TAG, "åæ¢æ§è¡æ¨¡å¼åéæ°æ£æµ Root å¤±è´¥: ${e.message}")
@@ -489,8 +450,8 @@ object RootManager {
     suspend fun setCustomSuCommand(command: String) {
         try {
             androidPermissionPreferences.saveCustomSuCommand(command)
-            rootShellExecutor?.setExecSuCommand(command)
-            AppLogger.d(TAG, "已设置自定义 su 命令: ${command}")
+        rootShellExecutor?.setExecSuCommand(command)
+        AppLogger.d(TAG, "已设置自定义 su 命令: ${command}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "设置自定义 su 命令失败", e)
         }
@@ -511,12 +472,11 @@ object RootManager {
                     it.initialize()
                 }
             }
-
-            val result = executor.executeCommand(command, identity)
-            return Pair(result.success, if (result.success) result.stdout else result.stderr)
+        val result = executor.executeCommand(command, identity)
+        return Pair(result.success, if (result.success) result.stdout else result.stderr)
         } catch (e: Exception) {
             AppLogger.e(TAG, "执行 Root 命令失败", e)
-            return Pair(false, "执行失败: ${e.message}")
+        return Pair(false, "执行失败: ${e.message}")
         }
     }
 
@@ -533,8 +493,7 @@ object RootManager {
     fun removeStateChangeListener(listener: () -> Unit) {
         stateChangeListeners.remove(listener)
     }
-
-    private fun notifyStateChange() {
+        private fun notifyStateChange() {
         stateChangeListeners.forEach { it() }
     }
 
@@ -547,16 +506,14 @@ object RootManager {
     }
 
     // 辅助方法
-    private fun normalizeSuCommand(command: String): String {
+        private fun normalizeSuCommand(command: String): String {
         val normalized = command?.trim().orEmpty()
         return normalized.ifEmpty { "su" }
     }
-
-    private fun parseSuCommandTokens(command: String): List<String> {
+        private fun parseSuCommandTokens(command: String): List<String> {
         return normalizeSuCommand(command).split(Regex("\\s+")).filter { it.isNotEmpty() }
     }
-
-    private fun getConfiguredSuCommand(): String {
+        private fun getConfiguredSuCommand(): String {
         return try {
             normalizeSuCommand(androidPermissionPreferences.getCustomSuCommand())
         } catch (e: Exception) {
@@ -564,13 +521,11 @@ object RootManager {
             "su"
         }
     }
-
-    private fun buildSuExecCommand(command: String): Array<String> {
+        private fun buildSuExecCommand(command: String): Array<String> {
         val tokens = parseSuCommandTokens(getConfiguredSuCommand())
         return (tokens + listOf("-c", command)).toTypedArray()
     }
-
-    private fun buildSuVersionCommand(): Array<String> {
+        private fun buildSuVersionCommand(): Array<String> {
         val tokens = parseSuCommandTokens(getConfiguredSuCommand())
         return (tokens + "--version").toTypedArray()
     }

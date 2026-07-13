@@ -22,25 +22,25 @@ import java.util.concurrent.ConcurrentHashMap
  */
 enum class Emotion {
     // 积极
-                HAPPY,        // 开心
-                EXCITED,      // 兴奋
-                GRATEFUL,     // 感激
-                CURIOUS,      // 好奇
-                HOPEFUL,      // 充满希望
+        HAPPY,        // 开心
+        EXCITED,      // 兴奋
+        GRATEFUL,     // 感激
+        CURIOUS,      // 好奇
+        HOPEFUL,      // 充满希望
 
     // 中性
-                NEUTRAL,      // 中性
-                FOCUSED,      // 专注
-                CONFUSED,     // 困惑
+        NEUTRAL,      // 中性
+        FOCUSED,      // 专注
+        CONFUSED,     // 困惑
 
     // 消极
-                SAD,          // 悲伤
-                ANGRY,        // 愤怒
-                FRUSTRATED,   // 挫败
-                ANXIOUS,      // 焦虑
-                DISAPPOINTED, // 失望
-                TIRED,        // 疲惫
-                LONELY        // 孤独
+        SAD,          // 悲伤
+        ANGRY,        // 愤怒
+        FRUSTRATED,   // 挫败
+        ANXIOUS,      // 焦虑
+        DISAPPOINTED, // 失望
+        TIRED,        // 疲惫
+        LONELY        // 孤独
 }
 
 /**
@@ -48,8 +48,8 @@ enum class Emotion {
  */
 data class EmotionDimension(
     val pleasure: Float,   // 愉悦度 -1..1
-    val arousal: Float,    // 唤醒度 -1..1
-    val dominance: Float   // 支配度 -1..1
+        val arousal: Float,    // 唤醒度 -1..1
+        val dominance: Float   // 支配度 -1..1
 )
 
 /**
@@ -60,7 +60,7 @@ data class EmotionAnalysis(
     val secondaryEmotion: Emotion? = null,
     val confidence: Float,
     val intensity: Float,         // 0..1
-    val dimensions: EmotionDimension,
+        val dimensions: EmotionDimension,
     val detectedCues: List<EmotionCue>,
     val suggestedResponseTone: ResponseTone
 )
@@ -76,12 +76,12 @@ data class EmotionCue(
 
 enum class CueType {
     KEYWORD,          // 关键词
-                PUNCTUATION,      // 标点
-                EMOJI,            // 表情符号
-                CAPITALIZATION,   // 大写
-                REPETITION,       // 重复
-                NEGATION,         // 否定
-                INTENSIFIER       // 强度词
+        PUNCTUATION,      // 标点
+        EMOJI,            // 表情符号
+        CAPITALIZATION,   // 大写
+        REPETITION,       // 重复
+        NEGATION,         // 否定
+        INTENSIFIER       // 强度词
 }
 
 /**
@@ -89,11 +89,11 @@ enum class CueType {
  */
 data class ResponseTone(
     val warmth: Float,        // 温暖度 0..1
-    val formality: Float,     // 正式度 0..1
-    val empathy: Float,       // 共情度 0..1
-    val encouragement: Float, // 鼓励度 0..1
-    val humor: Float,         // 幽默度 0..1
-    val directness: Float     // 直接度 0..1
+        val formality: Float,     // 正式度 0..1
+        val empathy: Float,       // 共情度 0..1
+        val encouragement: Float, // 鼓励度 0..1
+        val humor: Float,         // 幽默度 0..1
+        val directness: Float     // 直接度 0..1
 ) {
     fun toPromptSnippet(): String {
         val sb = StringBuilder()
@@ -128,10 +128,10 @@ data class EmotionTrackEntry(
 
 enum class EmotionTrend {
     IMPROVING,      // 情绪变好
-                STABLE,         // 稳定
-                DECLINING,      // 情绪变差
-                VOLATILE,       // 波动大
-                UNKNOWN
+        STABLE,         // 稳定
+        DECLINING,      // 情绪变差
+        VOLATILE,       // 波动大
+        UNKNOWN
 }
 
 /**
@@ -142,7 +142,7 @@ class EmotionRecognitionEngine {
     private val tracks = ConcurrentHashMap<String, MutableList<EmotionTrackEntry>>()
 
     // 情感关键词词典
-    private val emotionKeywords = mapOf(
+        private val emotionKeywords = mapOf(
         Emotion.HAPPY to listOf("开心", "高兴", "快乐", "棒", "好", "喜欢", "happy", "great", "awesome", "love", "nice"),
         Emotion.EXCITED to listOf("兴奋", "激动", "期待", "wow", "excited", "amazing", "fantastic", "太棒了"),
         Emotion.GRATEFUL to listOf("谢谢", "感谢", "感激", "thanks", "thank you", "appreciate", "grateful"),
@@ -159,14 +159,14 @@ class EmotionRecognitionEngine {
     )
 
     // 强度词
-    private val intensifiers = mapOf(
+        private val intensifiers = mapOf(
         "非常" to 1.5f, "特别" to 1.5f, "超级" to 1.8f, "极其" to 2.0f,
         "很" to 1.3f, "挺" to 1.2f, "比较" to 1.1f,
         "very" to 1.5f, "extremely" to 2.0f, "really" to 1.4f, "so" to 1.3f
     )
 
     // 表情符号映射
-    private val emojiEmotions = mapOf(
+        private val emojiEmotions = mapOf(
         "😀" to Emotion.HAPPY, "😄" to Emotion.HAPPY, "😊" to Emotion.HAPPY, "🙂" to Emotion.HAPPY,
         "😍" to Emotion.HAPPY, "🥰" to Emotion.HAPPY, "😎" to Emotion.HAPPY,
         "🎉" to Emotion.EXCITED, "🤩" to Emotion.EXCITED, "🎊" to Emotion.EXCITED,
@@ -188,9 +188,8 @@ class EmotionRecognitionEngine {
         val cues = mutableListOf<EmotionCue>()
 
         // 1. 关键词匹配
-    val emotionScores = mutableMapOf<Emotion, Float>()
+        val emotionScores = mutableMapOf<Emotion, Float>()
         val textLower = text.lowercase()
-
         for ((emotion, keywords) in emotionKeywords) {
             for (kw in keywords) {
                 if (textLower.contains(kw, ignoreCase = true)) {
@@ -202,7 +201,7 @@ class EmotionRecognitionEngine {
         }
 
         // 2. 表情符号
-                for ((emoji, emotion) in emojiEmotions) {
+        for ((emoji, emotion) in emojiEmotions) {
             if (text.contains(emoji)) {
                 emotionScores[emotion] = (emotionScores[emotion] ?: 0f) + 1.5f
                 cues.add(EmotionCue(CueType.EMOJI, emoji, 1.5f))
@@ -210,14 +209,13 @@ class EmotionRecognitionEngine {
         }
 
         // 3. 标点符号（感叹号=兴奋/愤怒，问号=困惑）
-    val exclamationCount = text.count { it == '!' || it == '！' }
+        val exclamationCount = text.count { it == '!' || it == '！' }
         if (exclamationCount >= 2) {
             // 根据上下文判断是兴奋还是愤怒
-    val targetEmotion = if (emotionScores[Emotion.ANGRY] ?: 0f > 0) Emotion.ANGRY else Emotion.EXCITED
+        val targetEmotion = if (emotionScores[Emotion.ANGRY] ?: 0f > 0) Emotion.ANGRY else Emotion.EXCITED
             emotionScores[targetEmotion] = (emotionScores[targetEmotion] ?: 0f) + exclamationCount * 0.3f
             cues.add(EmotionCue(CueType.PUNCTUATION, "!".repeat(exclamationCount), exclamationCount * 0.3f))
         }
-
         val questionCount = text.count { it == '?' || it == '？' }
         if (questionCount >= 2) {
             emotionScores[Emotion.CONFUSED] = (emotionScores[Emotion.CONFUSED] ?: 0f) + questionCount * 0.2f
@@ -225,7 +223,7 @@ class EmotionRecognitionEngine {
         }
 
         // 4. 大写（英文）
-    val upperCaseRatio = if (text.any { it.isLetter() }) {
+        val upperCaseRatio = if (text.any { it.isLetter() }) {
             text.count { it.isUpperCase() && it.isLetter() }.toFloat() / text.count { it.isLetter() }
         } else 0f
         if (upperCaseRatio > 0.5f && text.length > 5) {
@@ -234,7 +232,7 @@ class EmotionRecognitionEngine {
         }
 
         // 5. 重复字符（soooo, ！！！）
-    val repetitionPattern = Regex("(.)\\1{2,}")
+        val repetitionPattern = Regex("(.)\\1{2,}")
         repetitionPattern.findAll(text).forEach { match ->
             val emotion = if (match.value.first() == '!' || match.value.first() == '！') Emotion.EXCITED else Emotion.HAPPY
             emotionScores[emotion] = (emotionScores[emotion] ?: 0f) + 0.3f
@@ -242,7 +240,7 @@ class EmotionRecognitionEngine {
         }
 
         // 6. 强度词
-                var intensityMultiplier = 1.0f
+        var intensityMultiplier = 1.0f
         for ((intensifier, multiplier) in intensifiers) {
             if (textLower.contains(intensifier)) {
                 intensityMultiplier *= multiplier
@@ -251,7 +249,7 @@ class EmotionRecognitionEngine {
         }
 
         // 选择主要情感
-    val sorted = emotionScores.entries.sortedByDescending { it.value }
+        val sorted = emotionScores.entries.sortedByDescending { it.value }
         val primaryEmotion = sorted.firstOrNull()?.key ?: Emotion.NEUTRAL
         val secondaryEmotion = sorted.getOrNull(1)?.key
         val confidence = if (sorted.isNotEmpty()) {
@@ -261,14 +259,13 @@ class EmotionRecognitionEngine {
         val dimensions = computeDimensions(primaryEmotion, intensity)
 
         // 生成响应语气建议
-    val responseTone = suggestResponseTone(primaryEmotion, intensity)
+        val responseTone = suggestResponseTone(primaryEmotion, intensity)
 
         // 追踪
-                if (chatId != null) {
+        if (chatId != null) {
             val entry = EmotionTrackEntry(System.currentTimeMillis(), primaryEmotion, intensity.coerceIn(0f, 1f), messageId)
-            tracks.computeIfAbsent(chatId) { mutableListOf() }.add(entry)
+        tracks.computeIfAbsent(chatId) { mutableListOf() }.add(entry)
         }
-
         return EmotionAnalysis(
             primaryEmotion = primaryEmotion,
             secondaryEmotion = secondaryEmotion,
@@ -288,7 +285,6 @@ class EmotionRecognitionEngine {
         if (timeline.isEmpty()) {
             return EmotionTrack(chatId, emptyList(), Emotion.NEUTRAL, EmotionTrend.UNKNOWN, Emotion.NEUTRAL)
         }
-
         val emotionCounts = timeline.groupingBy { it.emotion }.eachCount()
         val dominantEmotion = emotionCounts.maxByOrNull { it.value }!!.key
         val averageDimensions = timeline.map { computeDimensions(it.emotion, it.intensity) }
@@ -301,7 +297,6 @@ class EmotionRecognitionEngine {
             }
         val averageEmotion = dimensionToEmotion(averageDimensions)
         val trend = computeTrend(timeline)
-
         return EmotionTrack(chatId, timeline, averageEmotion, trend, dominantEmotion)
     }
 
@@ -314,44 +309,42 @@ class EmotionRecognitionEngine {
         sb.append(" 用户当前情感: ${analysis.primaryEmotion}")
         if (analysis.secondaryEmotion != null) sb.append(" + ${analysis.secondaryEmotion}")
         sb.append(" (强度 ${(analysis.intensity * 100).toInt()}%, 置信度 ${(analysis.confidence * 100).toInt()}%)")
-
         val toneSnippet = analysis.suggestedResponseTone.toPromptSnippet()
         if (toneSnippet.isNotBlank()) sb.append("\n").append(toneSnippet)
 
         // 特殊共情指导
-                when (analysis.primaryEmotion) {
+        when (analysis.primaryEmotion) {
             Emotion.SAD -> sb.append("\n[共情指导] 用户情绪低落，先表达理解与陪伴，再提供帮助")
-            Emotion.ANGRY, Emotion.FRUSTRATED -> sb.append("\n[共情指导] 用户情绪激动，先认同感受，避免说教，提供解决方案")
-            Emotion.ANXIOUS -> sb.append("\n[共情指导] 用户焦虑，给予安抚与确定性信息，分步骤说明")
-            Emotion.CONFUSED -> sb.append("\n[共情指导] 用户困惑，耐心解释，多用类比，确认理解")
-            Emotion.HAPPY, Emotion.EXCITED -> sb.append("\n[共情指导] 用户情绪积极，可以匹配热情，适度庆祝")
-            Emotion.GRATEFUL -> sb.append("\n[共情指导] 用户表达感谢，谦逊回应")
-            Emotion.TIRED -> sb.append("\n[共情指导] 用户疲惫，回答简洁直接，避免冗长")
-            Emotion.LONELY -> sb.append("\n[共情指导] 用户孤独感，温暖陪伴，主动关心")
-            else -> {}
+        Emotion.ANGRY, Emotion.FRUSTRATED -> sb.append("\n[共情指导] 用户情绪激动，先认同感受，避免说教，提供解决方案")
+        Emotion.ANXIOUS -> sb.append("\n[共情指导] 用户焦虑，给予安抚与确定性信息，分步骤说明")
+        Emotion.CONFUSED -> sb.append("\n[共情指导] 用户困惑，耐心解释，多用类比，确认理解")
+        Emotion.HAPPY, Emotion.EXCITED -> sb.append("\n[共情指导] 用户情绪积极，可以匹配热情，适度庆祝")
+        Emotion.GRATEFUL -> sb.append("\n[共情指导] 用户表达感谢，谦逊回应")
+        Emotion.TIRED -> sb.append("\n[共情指导] 用户疲惫，回答简洁直接，避免冗长")
+        Emotion.LONELY -> sb.append("\n[共情指导] 用户孤独感，温暖陪伴，主动关心")
+        else -> {}
         }
-
         return sb.toString()
     }
 
     // ============ 内部方法 ============
-    private fun computeDimensions(emotion: Emotion, intensity: Float): EmotionDimension {
+        private fun computeDimensions(emotion: Emotion, intensity: Float): EmotionDimension {
         val base = when (emotion) {
             Emotion.HAPPY -> Triple(0.8f, 0.3f, 0.5f)
-            Emotion.EXCITED -> Triple(0.7f, 0.8f, 0.4f)
-            Emotion.GRATEFUL -> Triple(0.7f, 0.2f, 0.3f)
-            Emotion.CURIOUS -> Triple(0.3f, 0.4f, 0.3f)
-            Emotion.HOPEFUL -> Triple(0.5f, 0.3f, 0.4f)
-            Emotion.NEUTRAL -> Triple(0f, 0f, 0f)
-            Emotion.FOCUSED -> Triple(0.1f, 0.2f, 0.5f)
-            Emotion.CONFUSED -> Triple(-0.2f, 0.3f, -0.3f)
-            Emotion.SAD -> Triple(-0.7f, -0.3f, -0.5f)
-            Emotion.ANGRY -> Triple(-0.7f, 0.8f, 0.6f)
-            Emotion.FRUSTRATED -> Triple(-0.5f, 0.5f, -0.3f)
-            Emotion.ANXIOUS -> Triple(-0.6f, 0.6f, -0.6f)
-            Emotion.DISAPPOINTED -> Triple(-0.5f, -0.2f, -0.4f)
-            Emotion.TIRED -> Triple(-0.3f, -0.6f, -0.2f)
-            Emotion.LONELY -> Triple(-0.5f, -0.4f, -0.5f)
+        Emotion.EXCITED -> Triple(0.7f, 0.8f, 0.4f)
+        Emotion.GRATEFUL -> Triple(0.7f, 0.2f, 0.3f)
+        Emotion.CURIOUS -> Triple(0.3f, 0.4f, 0.3f)
+        Emotion.HOPEFUL -> Triple(0.5f, 0.3f, 0.4f)
+        Emotion.NEUTRAL -> Triple(0f, 0f, 0f)
+        Emotion.FOCUSED -> Triple(0.1f, 0.2f, 0.5f)
+        Emotion.CONFUSED -> Triple(-0.2f, 0.3f, -0.3f)
+        Emotion.SAD -> Triple(-0.7f, -0.3f, -0.5f)
+        Emotion.ANGRY -> Triple(-0.7f, 0.8f, 0.6f)
+        Emotion.FRUSTRATED -> Triple(-0.5f, 0.5f, -0.3f)
+        Emotion.ANXIOUS -> Triple(-0.6f, 0.6f, -0.6f)
+        Emotion.DISAPPOINTED -> Triple(-0.5f, -0.2f, -0.4f)
+        Emotion.TIRED -> Triple(-0.3f, -0.6f, -0.2f)
+        Emotion.LONELY -> Triple(-0.5f, -0.4f, -0.5f)
         }
         return EmotionDimension(
             pleasure = base.first * intensity,
@@ -359,8 +352,7 @@ class EmotionRecognitionEngine {
             dominance = base.third * intensity
         )
     }
-
-    private fun dimensionToEmotion(dim: EmotionDimension): Emotion {
+        private fun dimensionToEmotion(dim: EmotionDimension): Emotion {
         return when {
             dim.pleasure > 0.5f && dim.arousal > 0.5f -> Emotion.EXCITED
             dim.pleasure > 0.5f -> Emotion.HAPPY
@@ -371,65 +363,62 @@ class EmotionRecognitionEngine {
             else -> Emotion.NEUTRAL
         }
     }
-
-    private fun suggestResponseTone(emotion: Emotion, intensity: Float): ResponseTone {
+        private fun suggestResponseTone(emotion: Emotion, intensity: Float): ResponseTone {
         return when (emotion) {
             Emotion.HAPPY, Emotion.EXCITED -> ResponseTone(
                 warmth = 0.9f, formality = 0.3f, empathy = 0.6f,
                 encouragement = 0.7f, humor = 0.6f, directness = 0.5f
             )
-            Emotion.GRATEFUL -> ResponseTone(
+        Emotion.GRATEFUL -> ResponseTone(
                 warmth = 0.8f, formality = 0.4f, empathy = 0.6f,
                 encouragement = 0.4f, humor = 0.3f, directness = 0.6f
             )
-            Emotion.CURIOUS -> ResponseTone(
+        Emotion.CURIOUS -> ResponseTone(
                 warmth = 0.6f, formality = 0.5f, empathy = 0.4f,
                 encouragement = 0.7f, humor = 0.4f, directness = 0.7f
             )
-            Emotion.SAD -> ResponseTone(
+        Emotion.SAD -> ResponseTone(
                 warmth = 0.95f, formality = 0.3f, empathy = 0.9f,
                 encouragement = 0.7f, humor = 0.1f, directness = 0.4f
             )
-            Emotion.ANGRY, Emotion.FRUSTRATED -> ResponseTone(
+        Emotion.ANGRY, Emotion.FRUSTRATED -> ResponseTone(
                 warmth = 0.7f, formality = 0.5f, empathy = 0.85f,
                 encouragement = 0.5f, humor = 0.1f, directness = 0.8f
             )
-            Emotion.ANXIOUS -> ResponseTone(
+        Emotion.ANXIOUS -> ResponseTone(
                 warmth = 0.85f, formality = 0.4f, empathy = 0.9f,
                 encouragement = 0.6f, humor = 0.2f, directness = 0.7f
             )
-            Emotion.CONFUSED -> ResponseTone(
+        Emotion.CONFUSED -> ResponseTone(
                 warmth = 0.7f, formality = 0.4f, empathy = 0.7f,
                 encouragement = 0.7f, humor = 0.3f, directness = 0.6f
             )
-            Emotion.TIRED -> ResponseTone(
+        Emotion.TIRED -> ResponseTone(
                 warmth = 0.8f, formality = 0.3f, empathy = 0.7f,
                 encouragement = 0.5f, humor = 0.3f, directness = 0.9f
             )
-            Emotion.LONELY -> ResponseTone(
+        Emotion.LONELY -> ResponseTone(
                 warmth = 0.95f, formality = 0.3f, empathy = 0.9f,
                 encouragement = 0.6f, humor = 0.2f, directness = 0.5f
             )
-            else -> ResponseTone(
+        else -> ResponseTone(
                 warmth = 0.6f, formality = 0.5f, empathy = 0.5f,
                 encouragement = 0.5f, humor = 0.4f, directness = 0.6f
             )
         }
     }
-
-    private fun computeTrend(timeline: List<EmotionTrackEntry>): EmotionTrend {
+        private fun computeTrend(timeline: List<EmotionTrackEntry>): EmotionTrend {
         if (timeline.size < 2) return EmotionTrend.UNKNOWN
         val recent = timeline.takeLast(5)
         val pleasureValues = recent.map { computeDimensions(it.emotion, it.intensity).pleasure }
 
         // 简单线性趋势
-    val firstHalf = pleasureValues.take(pleasureValues.size / 2).average()
+        val firstHalf = pleasureValues.take(pleasureValues.size / 2).average()
         val secondHalf = pleasureValues.drop(pleasureValues.size / 2).average()
         val diff = secondHalf - firstHalf
 
         // 波动性
-    val variance = pleasureValues.map { (it - pleasureValues.average()).let { d -> d * d } }.average()
-
+        val variance = pleasureValues.map { (it - pleasureValues.average()).let { d -> d * d } }.average()
         return when {
             variance > 0.3 -> EmotionTrend.VOLATILE
             diff > 0.2 -> EmotionTrend.IMPROVING

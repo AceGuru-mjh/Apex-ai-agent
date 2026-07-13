@@ -84,20 +84,17 @@ class WorkflowScheduler(
         data class JobPaused(val jobId: String) : ScheduleEvent()
         data class JobResumed(val jobId: String) : ScheduleEvent()
     }
-
-    private val _events = MutableSharedFlow<ScheduleEvent>(extraBufferCapacity = 64)
+        private val _events = MutableSharedFlow<ScheduleEvent>(extraBufferCapacity = 64)
         val events: SharedFlow<ScheduleEvent> = _events.asSharedFlow()
-
-    private val jobs = ConcurrentHashMap<String, ScheduledJob>()
-    private val jobCoroutines = ConcurrentHashMap<String, Job>()
-    private val mutex = Mutex()
-
-    init {
+        private val jobs = ConcurrentHashMap<String, ScheduledJob>()
+        private val jobCoroutines = ConcurrentHashMap<String, Job>()
+        private val mutex = Mutex()
+        init {
         // 启动时从持久化加载
-                scope.launch {
+        scope.launch {
             persistor?.loadAll()?.forEach { job ->
                 if (job.enabled) startJobLoop(job)
-                jobs[job.id] = job
+        jobs[job.id] = job
             }
         }
     }
@@ -273,29 +270,28 @@ class WorkflowScheduler(
             while (true) {
                 val nextRun = current.nextRunAt ?: break
         val now = System.currentTimeMillis()
-                val waitMs = (nextRun - now).coerceAtLeast(0)
-
-                if (waitMs > 0) delay(waitMs)
+        val waitMs = (nextRun - now).coerceAtLeast(0)
+        if (waitMs > 0) delay(waitMs)
 
                 // 检查是否被取消或禁用
-    val latest = jobs[current.id] ?: break
+        val latest = jobs[current.id] ?: break
                 if (!latest.enabled) break
 
                 // 处理 misfire
-    val actualNow = System.currentTimeMillis()
-                if (actualNow - nextRun > MISFIRE_THRESHOLD_MS) {
+        val actualNow = System.currentTimeMillis()
+        if (actualNow - nextRun > MISFIRE_THRESHOLD_MS) {
                     val missedCount = ((actualNow - nextRun) / (current.scheduleConfig.intervalMs ?: 60_000L)).toInt()
-                    when (latest.misfirePolicy) {
+        when (latest.misfirePolicy) {
                         MisfirePolicy.SKIP -> {
                             _events.emit(ScheduleEvent.JobMisfired(current.id, missedCount))
                         }
-                        MisfirePolicy.MERGE -> {
+        MisfirePolicy.MERGE -> {
                             _events.emit(ScheduleEvent.JobMisfired(current.id, missedCount))
-                            executeJob(latest)
+        executeJob(latest)
                         }
-                        MisfirePolicy.FIRE_ONCE -> {
+        MisfirePolicy.FIRE_ONCE -> {
                             _events.emit(ScheduleEvent.JobMisfired(current.id, missedCount))
-                            executeJob(latest)
+        executeJob(latest)
                         }
                     }
                 } else {
@@ -303,14 +299,14 @@ class WorkflowScheduler(
                 }
 
                 // 计算下次运行时间
-                if (!current.scheduleConfig.repeat) break
+        if (!current.scheduleConfig.repeat) break
                 val newNextRun = computeNextRun(current.scheduleConfig, System.currentTimeMillis())
-                current = latest.copy(
+        current = latest.copy(
                     lastRunAt = actualNow,
                     nextRunAt = newNextRun,
                     runCount = latest.runCount + 1
                 )
-                jobs[current.id] = current
+        jobs[current.id] = current
                 persistor?.save(current)
             }
         }
@@ -326,19 +322,19 @@ class WorkflowScheduler(
         return try {
             val result = executor.execute(job.workflow, job.inputs)
         val updated = jobs[job.id]?.copy(lastResult = result)
-            if (updated != null) {
+        if (updated != null) {
                 jobs[job.id] = updated
                 persistor?.save(updated)
             }
-            if (result.success) {
+        if (result.success) {
                 _events.emit(ScheduleEvent.JobSucceeded(job.id, result.threadId, System.currentTimeMillis() - start))
             } else {
                 _events.emit(ScheduleEvent.JobFailed(job.id, result.error ?: "unknown error"))
             }
-            result
+        result
         } catch (e: Exception) {
             _events.emit(ScheduleEvent.JobFailed(job.id, e.message ?: e.toString()))
-            throw e
+        throw e
         }
     }
 
@@ -352,11 +348,11 @@ class WorkflowScheduler(
                 val interval = config.intervalMs ?: return null
                 fromTime + interval
             }
-            ScheduleTypeDef.SPECIFIC_TIME -> {
+        ScheduleTypeDef.SPECIFIC_TIME -> {
                 val time = config.specificTime ?: return null
                 computeNextSpecificTime(time, fromTime)
             }
-            ScheduleTypeDef.CRON -> {
+        ScheduleTypeDef.CRON -> {
                 val expr = config.cronExpression ?: return null
                 CronParser.nextRun(expr, fromTime, defaultTimeZone)
             }
@@ -378,14 +374,12 @@ class WorkflowScheduler(
         cal.set(Calendar.MINUTE, minute)
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MILLISECOND, 0)
-
         if (cal.timeInMillis <= fromTime) {
             cal.add(Calendar.DAY_OF_MONTH, 1)
         }
         return cal.timeInMillis
     }
-
-    companion object {
+        companion object {
         private const val MISFIRE_THRESHOLD_MS = 60_000L  // 超过 1 分钟视为 misfire
     }
 }
@@ -397,8 +391,8 @@ class WorkflowScheduler(
  */
 interface SchedulePersistor {
     suspend fun save(job: WorkflowScheduler.ScheduledJob)
-    suspend fun delete(jobId: String)
-    suspend fun loadAll(): List<WorkflowScheduler.ScheduledJob>
+        suspend fun delete(jobId: String)
+        suspend fun loadAll(): List<WorkflowScheduler.ScheduledJob>
 }
 
 /**
@@ -406,7 +400,7 @@ interface SchedulePersistor {
  */
 class InMemorySchedulePersistor : SchedulePersistor {
     private val storage = ConcurrentHashMap<String, WorkflowScheduler.ScheduledJob>()
-    override suspend fun save(job: WorkflowScheduler.ScheduledJob) { storage[job.id] = job }
-    override suspend fun delete(jobId: String) { storage.remove(jobId) }
-    override suspend fun loadAll(): List<WorkflowScheduler.ScheduledJob> = storage.values.toList()
+        override suspend fun save(job: WorkflowScheduler.ScheduledJob) { storage[job.id] = job }
+        override suspend fun delete(jobId: String) { storage.remove(jobId) }
+        override suspend fun loadAll(): List<WorkflowScheduler.ScheduledJob> = storage.values.toList()
 }

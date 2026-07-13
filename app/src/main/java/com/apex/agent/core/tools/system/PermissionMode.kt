@@ -61,7 +61,7 @@ enum class PermissionMode(
         level = 5,
         requiresRoot = true
     );
-            companion object {
+        companion object {
         fun fromId(id: String): PermissionMode =
             values().find { it.id == id } ?: STANDARD
 
@@ -69,11 +69,9 @@ enum class PermissionMode(
             values().find { it.level == level } ?: STANDARD
 
         fun sortedByLevel(): List<PermissionMode> = values().sortedBy { it.level }
-
         fun sortedByLevelDesc(): List<PermissionMode> = values().sortedByDescending { it.level }
     }
-
-    fun isHigherOrEqualThan(other: PermissionMode): Boolean = this.level >= other.level
+        fun isHigherOrEqualThan(other: PermissionMode): Boolean = this.level >= other.level
 
     fun isHigherThan(other: PermissionMode): Boolean = this.level > other.level
 }
@@ -124,7 +122,7 @@ enum class RootExecutionMode(
         displayName = "KernelSU模式",
         description = "强制使用 KernelSU 方式执行命令"
     );
-            companion object {
+        companion object {
         fun fromId(id: String): RootExecutionMode =
             values().find { it.id == id } ?: AUTO
 
@@ -135,8 +133,7 @@ enum class RootExecutionMode(
                 com.apex.agent.data.preferences.RootCommandExecutionMode.FORCE_EXEC -> FORCE_EXEC
             }
     }
-
-    fun toLegacyMode(): com.apex.agent.data.preferences.RootCommandExecutionMode =
+        fun toLegacyMode(): com.apex.agent.data.preferences.RootCommandExecutionMode =
         when (this) {
             AUTO -> com.apex.agent.data.preferences.RootCommandExecutionMode.AUTO
             FORCE_LIBSU -> com.apex.agent.data.preferences.RootCommandExecutionMode.FORCE_LIBSU
@@ -186,7 +183,7 @@ enum class RootScheme(
     LINEAGE_SU("LineageOS SU", "org.lineageos.su"),
     SUI("Sui (Shizuku)", "rikka.sui"),
     OTHER("其他Root方案");
-            companion object {
+        companion object {
         fun fromPackageName(packageName: String): RootScheme =
             values().find { it.packageName == packageName } ?: OTHER
     }
@@ -200,7 +197,7 @@ enum class SELinuxStatus(val displayName: String) {
     PERMISSIVE("宽容模式"),
     DISABLED("已禁用"),
     UNKNOWN("未知状态");
-            companion object {
+        companion object {
         fun fromString(status: String): SELinuxStatus =
             when (status?.lowercase()) {
                 "enforcing" -> ENFORCING

@@ -53,7 +53,7 @@ object NotificationUtils {
             val channel = NotificationChannel(config.id, config.name, config.importance).apply {
                 config.description?.let { description = it }
             }
-            val notificationManager =
+        val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
@@ -207,8 +207,8 @@ object NotificationUtils {
     fun openNotificationSettings(context: Context) {
         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
             putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-            putExtra(Settings.EXTRA_APP_UID, context.applicationInfo.uid)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        putExtra(Settings.EXTRA_APP_UID, context.applicationInfo.uid)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
     }

@@ -35,80 +35,68 @@ class DatasetLoader {
             LoggerFactory.getLogger(DatasetLoader::class.java).info("DatasetLoader initialized")
         }
     }
-
-    suspend fun loadJsonlFile(filePath: String): List<DatasetItem> {
+        suspend fun loadJsonlFile(filePath: String): List<DatasetItem> {
         return withContext(Dispatchers.IO) {
             val items = mutableListOf<DatasetItem>()
         val logger = LoggerFactory.getLogger(DatasetLoader::class.java)
-            val file = File(filePath)
-
-            if (!file.exists()) {
+        val file = File(filePath)
+        if (!file.exists()) {
                 logger.warn("loadJsonlFile: File not found: ${filePath}")
-                return@withContext items
+        return@withContext items
             }
-
-            file.forEachLine { line ->
+        file.forEachLine { line ->
                 if (line.isBlank()) return@forEachLine
                 try {
                     val json = JSONObject(line)
-                    items.add(parseDatasetItem(json))
+        items.add(parseDatasetItem(json))
                 } catch (e: Exception) {
                     logger.warn("loadJsonlFile: Failed to parse line: ${line}, error: ${e.message}")
                 }
             }
-
-            logger.info("loadJsonlFile: Successfully loaded ${items.size} items from ${filePath}")
-            items
+        logger.info("loadJsonlFile: Successfully loaded ${items.size} items from ${filePath}")
+        items
         }
     }
-
-    suspend fun loadFromAssets(context: Any, assetPath: String): List<DatasetItem> {
+        suspend fun loadFromAssets(context: Any, assetPath: String): List<DatasetItem> {
         return withContext(Dispatchers.IO) {
             val items = mutableListOf<DatasetItem>()
         val logger = LoggerFactory.getLogger(DatasetLoader::class.java)
-
-            val androidContext = context as? android.content.Context
+        val androidContext = context as? android.content.Context
             if (androidContext == null) {
                 logger.warn("loadFromAssets: context is not an Android Context")
-                return@withContext items
+        return@withContext items
             }
-
-            try {
+        try {
                 androidContext.assets.open(assetPath).use { inputStream ->
                     inputStream.bufferedReader().forEachLine { line ->
                         if (line.isBlank()) return@forEachLine
 
                         try {
                             val json = JSONObject(line)
-                            items.add(parseDatasetItem(json))
+        items.add(parseDatasetItem(json))
                         } catch (e: Exception) {
                             logger.warn("loadFromAssets: Failed to parse line: ${line}, error: ${e.message}")
                         }
                     }
-
-                    logger.info("loadFromAssets: Successfully loaded ${items.size} items from ${assetPath}")
+        logger.info("loadFromAssets: Successfully loaded ${items.size} items from ${assetPath}")
                 }
             } catch (e: Exception) {
                 logger.error("loadFromAssets: Failed to load assets from ${assetPath}", e)
             }
-
-            items
+        items
         }
     }
-
-    suspend fun validateDataset(items: List<DatasetItem>, context: Context): ValidationResult {
+        suspend fun validateDataset(items: List<DatasetItem>, context: Context): ValidationResult {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
-
         items.forEachIndexed { index, item ->
             if (item.prompt.isBlank()) {
                 errors.add(context.getString(R.string.error_dataset_empty_prompt, index))
             }
-            if (item.id.isBlank()) {
+        if (item.id.isBlank()) {
                 warnings.add(context.getString(R.string.error_dataset_no_id, index))
             }
         }
-
         return ValidationResult(
             isValid = errors.isEmpty(),
             errors = errors,
@@ -117,23 +105,20 @@ class DatasetLoader {
             totalCount = items.size
         )
     }
-
-    data class DatasetItem(
+        data class DatasetItem(
         val id: String,
         val prompt: String,
         val expectedOutput: String? = null,
         val metadata: Map<String, Any> = emptyMap()
     )
-
-    data class ValidationResult(
+        data class ValidationResult(
         val isValid: Boolean,
         val errors: List<String>,
         val warnings: List<String>,
         val validCount: Int,
         val totalCount: Int
     )
-
-    private fun parseDatasetItem(json: JSONObject): DatasetItem {
+        private fun parseDatasetItem(json: JSONObject): DatasetItem {
         val id = json.optString("id", "").ifBlank { UUID.randomUUID().toString() }
         val prompt = json.optString("prompt", "")
         val expectedOutput = if (json.has("expected_output") && !json.isNull("expected_output")) {
@@ -141,19 +126,17 @@ class DatasetLoader {
         } else {
             null
         }
-
         val metadata = mutableMapOf<String, Any>()
         val keys = json.keys()
         while (keys.hasNext()) {
             val key = keys.next()
-            if (key != "id" && key != "prompt" && key != "expected_output") {
+        if (key != "id" && key != "prompt" && key != "expected_output") {
                 val value = json.opt(key)
-                if (value != null && value != JSONObject.NULL) {
+        if (value != null && value != JSONObject.NULL) {
                     metadata[key] = value
                 }
             }
         }
-
         return DatasetItem(
             id = id,
             prompt = prompt,
@@ -166,10 +149,9 @@ class DatasetLoader {
 class BatchRunner {
 
     private val logger = LoggerFactory.getLogger(BatchRunner::class.java)
-    private val jobs = ConcurrentHashMap<String, Job>()
-    private val progressFlows = ConcurrentHashMap<String, MutableStateFlow<Progress>>()
-
-    companion object {
+        private val jobs = ConcurrentHashMap<String, Job>()
+        private val progressFlows = ConcurrentHashMap<String, MutableStateFlow<Progress>>()
+        companion object {
         @Volatile
         private var instance: BatchRunner? = null
         private lateinit var appContext: Context
@@ -178,19 +160,17 @@ class BatchRunner {
             if (instance == null) {
                 synchronized(this) {
                     instance = BatchRunner()
-                    appContext = context.applicationContext
+        appContext = context.applicationContext
                 }
             }
         }
-
         fun getInstance(): BatchRunner {
             return instance ?: throw IllegalStateException(
                 appContext.getString(R.string.error_batch_runner_not_initialized)
             )
         }
     }
-
-    suspend fun runBatch(
+        suspend fun runBatch(
         items: List<DatasetLoader.DatasetItem>,
         processor: suspend (DatasetLoader.DatasetItem) -> ProcessingResult,
         batchSize: Int = 4,
@@ -205,14 +185,12 @@ class BatchRunner {
         val results = mutableListOf<ProcessingResult>()
         val errors = mutableListOf<ErrorInfo>()
         val dispatcher = Dispatchers.Default.limitedParallelism(batchSize)
-
         val producerJob = launch(dispatcher) {
             items.forEach { item ->
                 channel.send(item)
             }
-            channel.close()
+        channel.close()
         }
-
         val consumerJobs = List(batchSize) {
             launch(dispatcher) {
                 for (item in channel) {
@@ -220,44 +198,36 @@ class BatchRunner {
                         val result = withTimeoutOrNull(timeoutMs) {
                             processor(item)
                         } ?: ProcessingResult(item.id, null, null, ProcessingResult.Status.TIMEOUT)
-                        
-                        if (result.status == ProcessingResult.Status.SUCCESS) {
+        if (result.status == ProcessingResult.Status.SUCCESS) {
                             results.add(result)
-                            progress.value = progress.value.copy(completed = progress.value.completed + 1, successes = progress.value.successes + 1)
+        progress.value = progress.value.copy(completed = progress.value.completed + 1, successes = progress.value.successes + 1)
                         } else {
                             errors.add(ErrorInfo(item.id, result.status.name, result.error ?: appContext.getString(R.string.error_unknown)))
-                            progress.value = progress.value.copy(completed = progress.value.completed + 1, failures = progress.value.failures + 1)
+        progress.value = progress.value.copy(completed = progress.value.completed + 1, failures = progress.value.failures + 1)
                         }
-                        
-                        onProgress?.invoke(progress.value)
+        onProgress?.invoke(progress.value)
                     } catch (e: Exception) {
                         errors.add(ErrorInfo(item.id, "EXCEPTION", e.message ?: appContext.getString(R.string.error_unknown_exception)))
-                        progress.value = progress.value.copy(completed = progress.value.completed + 1, failures = progress.value.failures + 1)
-                        onProgress?.invoke(progress.value)
+        progress.value = progress.value.copy(completed = progress.value.completed + 1, failures = progress.value.failures + 1)
+        onProgress?.invoke(progress.value)
                     }
                 }
             }
         }
-
         producerJob.join()
         consumerJobs.forEach { it.join() }
-
         progress.value = progress.value.copy(status = Progress.Status.COMPLETED)
         progressFlows.remove(batchId)
-
         return BatchResult(batchId, results, errors, items.size)
     }
-
-    fun getProgressFlow(batchId: String): Flow<Progress>? {
+        fun getProgressFlow(batchId: String): Flow<Progress>? {
         return progressFlows[batchId]?.asStateFlow()
     }
-
-    suspend fun cancelBatch(batchId: String) {
+        suspend fun cancelBatch(batchId: String) {
         jobs[batchId]?.cancelAndJoin()
         jobs.remove(batchId)
     }
-
-    data class Progress(
+        data class Progress(
         val completed: Int,
         val total: Int,
         val successes: Int,
@@ -266,8 +236,7 @@ class BatchRunner {
     ) {
         enum class Status { RUNNING, COMPLETED, CANCELLED, FAILED }
     }
-
-    data class ProcessingResult(
+        data class ProcessingResult(
         val itemId: String,
         val output: String? = null,
         val trajectory: TrajectoryData? = null,
@@ -276,21 +245,18 @@ class BatchRunner {
     ) {
         enum class Status { SUCCESS, FAILED, TIMEOUT, SKIPPED }
     }
-
-    data class BatchResult(
+        data class BatchResult(
         val batchId: String,
         val results: List<ProcessingResult>,
         val errors: List<ErrorInfo>,
         val totalItems: Int
     )
-
-    data class ErrorInfo(
+        data class ErrorInfo(
         val itemId: String,
         val errorType: String,
         val message: String
     )
-
-    private suspend fun <T> withTimeoutOrNull(timeMs: Long, block: suspend () -> T): T? {
+        private suspend fun <T> withTimeoutOrNull(timeMs: Long, block: suspend () -> T): T? {
         return try {
             block()
         } catch (e: Exception) {
@@ -302,9 +268,8 @@ class BatchRunner {
 class CheckpointManager {
 
     private val logger = LoggerFactory.getLogger(CheckpointManager::class.java)
-    private val checkpoints = ConcurrentHashMap<String, Checkpoint>()
-
-    companion object {
+        private val checkpoints = ConcurrentHashMap<String, Checkpoint>()
+        companion object {
         @Volatile
         private var instance: CheckpointManager? = null
         private lateinit var appContext: Context
@@ -313,19 +278,17 @@ class CheckpointManager {
             if (instance == null) {
                 synchronized(this) {
                     instance = CheckpointManager()
-                    appContext = context.applicationContext
+        appContext = context.applicationContext
                 }
             }
         }
-
         fun getInstance(): CheckpointManager {
             return instance ?: throw IllegalStateException(
                 appContext.getString(R.string.error_checkpoint_manager_not_initialized)
             )
         }
     }
-
-    suspend fun saveCheckpoint(batchId: String, progress: BatchRunner.Progress, processedItems: List<String>) {
+        suspend fun saveCheckpoint(batchId: String, progress: BatchRunner.Progress, processedItems: List<String>) {
         withContext(Dispatchers.IO) {
             val checkpoint = Checkpoint(
                 batchId = batchId,
@@ -337,57 +300,50 @@ class CheckpointManager {
                 processedItems = processedItems,
                 status = progress.status.name
             )
-
-            checkpoints[batchId] = checkpoint
+        checkpoints[batchId] = checkpoint
 
             val json = Json.encodeToString(checkpoint)
         val file = File(getCheckpointPath(batchId))
-            file.parentFile?.mkdirs()
-            FileWriter(file).use { it.write(json) }
-
-            logger.info("Checkpoint saved for batch ${batchId}: ${progress.completed}/${progress.total}")
+        file.parentFile?.mkdirs()
+        FileWriter(file).use { it.write(json) }
+        logger.info("Checkpoint saved for batch ${batchId}: ${progress.completed}/${progress.total}")
         }
     }
-
-    suspend fun loadCheckpoint(batchId: String): Checkpoint? {
+        suspend fun loadCheckpoint(batchId: String): Checkpoint? {
         return withContext(Dispatchers.IO) {
             val file = File(getCheckpointPath(batchId))
-            if (!file.exists()) {
+        if (!file.exists()) {
                 return@withContext null
             }
-
-            try {
+        try {
                 val json = FileReader(file).readText()
         val checkpoint = Json.decodeFromString<Checkpoint>(json)
-                checkpoints[batchId] = checkpoint
+        checkpoints[batchId] = checkpoint
                 checkpoint
             } catch (e: Exception) {
                 logger.warn("Failed to load checkpoint for batch ${batchId}", e)
-                null
+        null
             }
         }
     }
-
-    suspend fun deleteCheckpoint(batchId: String) {
+        suspend fun deleteCheckpoint(batchId: String) {
         withContext(Dispatchers.IO) {
             checkpoints.remove(batchId)
-            val file = File(getCheckpointPath(batchId))
-            file.delete()
+        val file = File(getCheckpointPath(batchId))
+        file.delete()
         }
     }
-
-    fun listCheckpoints(): List<CheckpointSummary> {
+        fun listCheckpoints(): List<CheckpointSummary> {
         val checkpointDir = File(getCheckpointDirectory())
         if (!checkpointDir.exists()) {
             return emptyList()
         }
-
         return checkpointDir.listFiles { _, name -> name.endsWith(".json") }
             ?.mapNotNull { file ->
                 try {
                     val json = FileReader(file).readText()
         val checkpoint = Json.decodeFromString<Checkpoint>(json)
-                    CheckpointSummary(
+        CheckpointSummary(
                         batchId = checkpoint.batchId,
                         progress = checkpoint.completed.toDouble() / checkpoint.total,
                         timestamp = checkpoint.timestamp,
@@ -398,12 +354,10 @@ class CheckpointManager {
                 }
             } ?: emptyList()
     }
-
-    private fun getCheckpointPath(batchId: String): String {
+        private fun getCheckpointPath(batchId: String): String {
         return "${getCheckpointDirectory()}/checkpoint_${batchId}.json"
     }
-
-    private fun getCheckpointDirectory(): String {
+        private fun getCheckpointDirectory(): String {
         return System.getProperty("java.io.tmpdir") + "/apex-agent/checkpoints"
     }
 
@@ -418,8 +372,7 @@ class CheckpointManager {
         val processedItems: List<String>,
         val status: String
     )
-
-    data class CheckpointSummary(
+        data class CheckpointSummary(
         val batchId: String,
         val progress: Double,
         val timestamp: Long,
@@ -430,8 +383,7 @@ class CheckpointManager {
 class ResumableRunner private constructor() {
 
     private val logger = LoggerFactory.getLogger(ResumableRunner::class.java)
-
-    companion object {
+        companion object {
         @Volatile
         private var instance: ResumableRunner? = null
         private lateinit var appContext: Context
@@ -440,19 +392,17 @@ class ResumableRunner private constructor() {
             if (instance == null) {
                 synchronized(this) {
                     instance = ResumableRunner()
-                    appContext = context.applicationContext
+        appContext = context.applicationContext
                 }
             }
         }
-
         fun getInstance(): ResumableRunner {
             return instance ?: throw IllegalStateException(
                 appContext.getString(R.string.error_resumable_runner_not_initialized)
             )
         }
     }
-
-    suspend fun runResumable(
+        suspend fun runResumable(
         batchId: String,
         items: List<DatasetLoader.DatasetItem>,
         processor: suspend (DatasetLoader.DatasetItem) -> BatchRunner.ProcessingResult,
@@ -461,20 +411,16 @@ class ResumableRunner private constructor() {
     ): BatchRunner.BatchResult {
         val checkpointManager = CheckpointManager.getInstance()
         val existingCheckpoint = checkpointManager.loadCheckpoint(batchId)
-
         val itemsToProcess = if (existingCheckpoint != null) {
             logger.info("Resuming batch ${batchId} from checkpoint: ${existingCheckpoint.completed}/${existingCheckpoint.total}")
-            items.filter { !existingCheckpoint.processedItems.contains(it.id) }
+        items.filter { !existingCheckpoint.processedItems.contains(it.id) }
         } else {
             items
         }
-
         val processedItems = existingCheckpoint?.processedItems?.toMutableList() ?: mutableListOf()
         val results = mutableListOf<BatchRunner.ProcessingResult>()
         val errors = mutableListOf<BatchRunner.ErrorInfo>()
-
         var lastCheckpointTime = System.currentTimeMillis()
-
         val progress = BatchRunner.Progress(
             completed = existingCheckpoint?.completed ?: 0,
             total = items.size,
@@ -482,37 +428,32 @@ class ResumableRunner private constructor() {
             failures = existingCheckpoint?.failures ?: 0,
             status = BatchRunner.Progress.Status.RUNNING
         )
-
         for (item in itemsToProcess) {
             try {
                 val result = processor(item)
-                processedItems.add(item.id)
-                
-                if (result.status == BatchRunner.ProcessingResult.Status.SUCCESS) {
+        processedItems.add(item.id)
+        if (result.status == BatchRunner.ProcessingResult.Status.SUCCESS) {
                     results.add(result)
-                    progress.successes++
+        progress.successes++
                 } else {
                     errors.add(BatchRunner.ErrorInfo(item.id, result.status.name, result.error ?: appContext.getString(R.string.error_unknown)))
-                    progress.failures++
+        progress.failures++
                 }
-                
-                progress.completed++
+        progress.completed++
 
                 val now = System.currentTimeMillis()
-                if (now - lastCheckpointTime >= checkpointInterval) {
+        if (now - lastCheckpointTime >= checkpointInterval) {
                     checkpointManager.saveCheckpoint(batchId, progress, processedItems)
-                    lastCheckpointTime = now
+        lastCheckpointTime = now
                 }
             } catch (e: Exception) {
                 errors.add(BatchRunner.ErrorInfo(item.id, "EXCEPTION", e.message ?: appContext.getString(R.string.error_unknown_exception)))
-                progress.completed++
+        progress.completed++
                 progress.failures++
             }
         }
-
         checkpointManager.saveCheckpoint(batchId, progress.copy(status = BatchRunner.Progress.Status.COMPLETED), processedItems)
         checkpointManager.deleteCheckpoint(batchId)
-
         return BatchRunner.BatchResult(batchId, results, errors, items.size)
     }
 }
@@ -524,12 +465,10 @@ class StatisticsAggregator {
             LoggerFactory.getLogger(StatisticsAggregator::class.java).info("StatisticsAggregator initialized")
         }
     }
-
-    fun aggregate(results: List<BatchRunner.ProcessingResult>): AggregatedStats {
+        fun aggregate(results: List<BatchRunner.ProcessingResult>): AggregatedStats {
         val toolUsage = mutableMapOf<String, Int>()
         val totalTokens = mutableListOf<Int>()
         val executionTimes = mutableListOf<Long>()
-
         results.forEach { result ->
             result.trajectory?.let { trajectory ->
                 trajectory.turns.forEach { turn ->
@@ -537,16 +476,14 @@ class StatisticsAggregator {
                         toolUsage[toolName] = (toolUsage[toolName] ?: 0) + 1
                     }
                 }
-                totalTokens.add(trajectory.getTokenCount())
+        totalTokens.add(trajectory.getTokenCount())
             }
         }
-
         val successRate = if (results.isNotEmpty()) {
             results.count { it.status == BatchRunner.ProcessingResult.Status.SUCCESS }.toDouble() / results.size
         } else {
             0.0
         }
-
         return AggregatedStats(
             totalItems = results.size,
             successRate = successRate,
@@ -558,8 +495,7 @@ class StatisticsAggregator {
             avgExecutionTime = if (executionTimes.isNotEmpty()) executionTimes.average() else 0.0
         )
     }
-
-    fun generateTrajectoryOutput(results: List<BatchRunner.ProcessingResult>): List<TrajectoryOutput> {
+        fun generateTrajectoryOutput(results: List<BatchRunner.ProcessingResult>): List<TrajectoryOutput> {
         return results.mapNotNull { result ->
             result.trajectory?.let { trajectory ->
                 TrajectoryOutput(
@@ -571,8 +507,7 @@ class StatisticsAggregator {
             }
         }
     }
-
-    data class AggregatedStats(
+        data class AggregatedStats(
         val totalItems: Int,
         val successRate: Double,
         val totalToolCalls: Int,
@@ -582,8 +517,7 @@ class StatisticsAggregator {
         val maxTokens: Int,
         val avgExecutionTime: Double
     )
-
-    data class TrajectoryOutput(
+        data class TrajectoryOutput(
         val itemId: String,
         val from: String,
         val value: String,

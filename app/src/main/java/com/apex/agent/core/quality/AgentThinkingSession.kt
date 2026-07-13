@@ -26,16 +26,14 @@ class AgentThinkingSession(
     companion object {
         private const val TAG = "AgentThinkingSession"
     }
-
-    data class ThinkingOutput(
+        data class ThinkingOutput(
         val finalAnswer: String,
         val thinkingChain: ThinkingChain,
         val confidence: Float,
         val validationReport: PassKReport? = null,
         val passedQualityGate: Boolean = true
     )
-
-    suspend fun thinkAndProduce(
+        suspend fun thinkAndProduce(
         agent: Agent,
         task: String,
         background: String = "",
@@ -49,33 +47,30 @@ class AgentThinkingSession(
 
         if (enableCoT && aiService != null) {
             val cot = chainOfThought(agent, task, background, instructions, chain)
-            finalAnswer = cot.answer
+        finalAnswer = cot.answer
             confidence = cot.confidence
         } else {
             finalAnswer = directResponse(agent, task, background, instructions)
-            confidence = 0.7f
+        confidence = 0.7f
         }
-
         chain.markComplete()
-
         var validationReport: PassKReport? = null
         var passedQuality = true
 
         if (enableQualityCheck && aiService != null) {
             validationReport = validateOutput(finalAnswer, task)
-            val gate = QualityGate.evaluate(validationReport)
-            passedQuality = gate.passed
+        val gate = QualityGate.evaluate(validationReport)
+        passedQuality = gate.passed
 
             if (!gate.passed && gate.suggestions.isNotEmpty()) {
                 val improved = reflectAndImprove(agent, task, finalAnswer, gate.suggestions)
-                if (improved != null) {
+        if (improved != null) {
                     finalAnswer = improved
                     validationReport = validateOutput(finalAnswer, task)
-                    passedQuality = QualityGate.evaluate(validationReport).passed
+        passedQuality = QualityGate.evaluate(validationReport).passed
                 }
             }
         }
-
         return ThinkingOutput(
             finalAnswer = finalAnswer,
             thinkingChain = chain,
@@ -84,8 +79,7 @@ class AgentThinkingSession(
             passedQualityGate = passedQuality
         )
     }
-
-    suspend fun validateOutput(output: String, task: String): PassKReport = coroutineScope {
+        suspend fun validateOutput(output: String, task: String): PassKReport = coroutineScope {
         val results = (1..3).map { iteration ->
             async(Dispatchers.Default) {
                 val score = callAI(
@@ -101,13 +95,11 @@ class AgentThinkingSession(
                 )
             }
         }.awaitAll()
-
         val passAtK = results.count { it.pass }.toFloat() / 3f
         val avgScore = results.map { it.score }.average().toFloat()
         PassKReport(3, passAtK, passAtK * passAtK, results, avgScore)
     }
-
-    suspend fun reflectAndImprove(
+        suspend fun reflectAndImprove(
         agent: Agent,
         task: String,
         original: String,
@@ -116,15 +108,14 @@ class AgentThinkingSession(
         if (suggestions.isEmpty()) return null
         val prompt = buildString {
             appendLine("Task: $task")
-            appendLine("Your previous response needed improvement.")
-            appendLine("\nIssues to fix:")
-            suggestions.forEach { appendLine("- $it") }
-            appendLine("\nPlease provide an improved, thorough response.")
+        appendLine("Your previous response needed improvement.")
+        appendLine("\nIssues to fix:")
+        suggestions.forEach { appendLine("- $it") }
+        appendLine("\nPlease provide an improved, thorough response.")
         }
         return callAI(prompt, "You are ${agent.name}. Improve your response quality.").ifBlank { null }
     }
-
-    private suspend fun chainOfThought(
+        private suspend fun chainOfThought(
         agent: Agent,
         task: String,
         background: String,
@@ -136,56 +127,49 @@ class AgentThinkingSession(
             "You are ${agent.name}. What do you observe about this task?"
         ).ifBlank { "Task requires ${agent.role} analysis." }
         chain.addNode(ObservationNode(content = obs))
-
         val inf = callAI(
             "Analyze: $obs\n\nWhat can you infer? Consider requirements, constraints, and approach.",
             "You are ${agent.name}. Reason step by step."
         ).ifBlank { "Systematic analysis needed for this task." }
         chain.addNode(InferenceNode(content = inf, confidence = 0.8f))
-
         val dec = callAI(
             "Based on your analysis: $inf\n\nDecide on the best approach and justify it.",
             "You are ${agent.name}. Make a reasoned decision."
         ).ifBlank { "Proceed with standard approach." }
         chain.addNode(DecisionNode(content = dec))
-
         val actionPrompt = buildString {
             appendLine("Decision: $dec")
-            appendLine("\nNow produce your comprehensive ${agent.role} output.")
-            if (instructions.isNotBlank()) appendLine("Instructions: $instructions")
+        appendLine("\nNow produce your comprehensive ${agent.role} output.")
+        if (instructions.isNotBlank()) appendLine("Instructions: $instructions")
         }
         val act = callAI(
             actionPrompt,
             "You are ${agent.name}. Produce a thorough, high-quality response."
         ).ifBlank { directResponse(agent, task, background, instructions) }
         chain.addNode(ActionNode(content = act))
-
         val sum = callAI(
             "Summarize your key conclusions from: $act",
             "You are ${agent.name}. Summarize concisely."
         ).ifBlank { "Completed ${agent.role} analysis for task." }
         chain.addNode(SummaryNode(content = sum))
-
         val confidence = chain.nodes.size.toFloat() / 5f
         CoResult(act, confidence.coerceIn(0.3f, 0.95f))
     }
-
-    private suspend fun directResponse(agent: Agent, task: String, background: String, instructions: String): String {
+        private suspend fun directResponse(agent: Agent, task: String, background: String, instructions: String): String {
         return callAI(
             buildString {
                 appendLine("Task: $task")
-                if (background.isNotBlank()) appendLine("Context: $background")
-                if (instructions.isNotBlank()) appendLine("Instructions: $instructions")
+        if (background.isNotBlank()) appendLine("Context: $background")
+        if (instructions.isNotBlank()) appendLine("Instructions: $instructions")
             },
             "You are ${agent.name}, a ${agent.role}. Provide a comprehensive response."
         )
     }
-
-    private suspend fun callAI(prompt: String, systemPrompt: String): String {
+        private suspend fun callAI(prompt: String, systemPrompt: String): String {
         if (aiService == null) return ""
         return try {
             val result = StringBuilder()
-            aiService.sendMessage(
+        aiService.sendMessage(
                 context = context,
                 chatHistory = listOf(
                     com.apex.core.chat.hooks.PromptTurn(
@@ -197,12 +181,11 @@ class AgentThinkingSession(
                 ),
                 stream = false
             ).collect { chunk -> result.append(chunk) }
-            result.toString().trim()
+        result.toString().trim()
         } catch (e: Exception) {
             AppLogger.w(TAG, "AI call failed: ${e.message}")
             ""
         }
     }
-
-    private data class CoResult(val answer: String, val confidence: Float)
+        private data class CoResult(val answer: String, val confidence: Float)
 }

@@ -38,15 +38,13 @@ class Terminal private constructor(private val context: Context) {
                 INSTANCE ?: Terminal(context.applicationContext).also { INSTANCE = it }
             }
         }
-
         private const val TAG = "Terminal"
     }
-
-    private val terminalManager = TerminalManager.getInstance(context)
-    private val scope = CoroutineScope(Dispatchers.Main)
+        private val terminalManager = TerminalManager.getInstance(context)
+        private val scope = CoroutineScope(Dispatchers.Main)
 
     // ，TerminalManager 暴露状态和事件，
-    val commandEvents: SharedFlow<CommandExecutionEvent> = terminalManager.commandExecutionEvents
+        val commandEvents: SharedFlow<CommandExecutionEvent> = terminalManager.commandExecutionEvents
                 val directoryEvents: SharedFlow<SessionDirectoryEvent> = terminalManager.directoryChangeEvents
     val terminalState: StateFlow<TerminalState> = terminalManager.terminalState
     val sessions = terminalManager.sessions
@@ -103,39 +101,35 @@ class Terminal private constructor(private val context: Context) {
         var completionOutput: String? = null
         
         // 生成命令ID
-    val commandId = java.util.UUID.randomUUID().toString()
+        val commandId = java.util.UUID.randomUUID().toString()
         val collectorReady = CompletableDeferred<Unit>()
         
         // 先开始订阅事件流，然后再发送命，
-    val job = scope.launch {
+        val job = scope.launch {
             commandEvents
                 .filter { it.sessionId == sessionId && it.commandId == commandId }
                 .onStart { collectorReady.complete(Unit) } // 发出信号，表示已准备好收，               .collect { event ->
-                if (event.isCompleted) {
+        if (event.isCompleted) {
                         completionOutput = event.outputChunk
                     } else {
                         output.append(event.outputChunk)
                     }
-                    if (event.isCompleted) {
+        if (event.isCompleted) {
                         deferred.complete(completionOutput?.takeIf { it.isNotEmpty() } ?: output.toString())
                     }
                 }
         }
 
         // 等待收集器准备就，
-                collectorReady.await()
+        collectorReady.await()
         
         // 直接向指定会话发送命令，不切换当前会的
-                terminalManager.sendCommandToSession(sessionId, command, commandId)
-
+        terminalManager.sendCommandToSession(sessionId, command, commandId)
         val result = deferred.await()
-        
         job.cancel()
-        
         return result
     }
-
-    suspend fun executeHiddenCommand(
+        suspend fun executeHiddenCommand(
         command: String,
         executorKey: String = "default",
         timeoutMs: Long = 120000L
@@ -155,8 +149,7 @@ class Terminal private constructor(private val context: Context) {
         return channelFlow {
             val commandId = UUID.randomUUID().toString()
         val collectorReady = CompletableDeferred<Unit>()
-
-            val collectorJob = launch {
+        val collectorJob = launch {
                 commandEvents
                     .filter { it.sessionId == sessionId && it.commandId == commandId }
                     .onStart { collectorReady.complete(Unit) }
@@ -170,9 +163,9 @@ class Terminal private constructor(private val context: Context) {
             }
 
             // 先确保事件收集器就绪，再发送命令，避免快命令输出在订阅前丢失败
-                collectorReady.await()
-            terminalManager.sendCommandToSession(sessionId, command, commandId)
-            collectorJob.join()
+        collectorReady.await()
+        terminalManager.sendCommandToSession(sessionId, command, commandId)
+        collectorJob.join()
         }
     }
     

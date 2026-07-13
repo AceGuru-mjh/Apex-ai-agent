@@ -20,8 +20,7 @@ class PersonalWakeListener(
     companion object {
         private const val TAG = "PersonalWakeListener"
     }
-
-    data class Config(
+        data class Config(
         val sampleRate: Int = 16000,
         val frameSize: Int = 512,
         val maxSegmentMs: Long = 1600L,
@@ -51,7 +50,7 @@ class PersonalWakeListener(
     private val debugIntervalMs: Long = 1500L
 
     @SuppressLint("MissingPermission")
-    suspend fun runLoop(config: Config = Config()) {
+        suspend fun runLoop(config: Config = Config()) {
         if (running) return
         running = true
 
@@ -60,7 +59,6 @@ class PersonalWakeListener(
             AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT
         )
-
         val audioRecord = AudioRecord(
             MediaRecorder.AudioSource.VOICE_COMMUNICATION,
             config.sampleRate,
@@ -68,7 +66,6 @@ class PersonalWakeListener(
             AudioFormat.ENCODING_PCM_16BIT,
             (minBufferSize.coerceAtLeast(config.frameSize) * 2)
         )
-
         val vad = OnnxSileroVad(
             context = context.applicationContext,
             sampleRate = config.sampleRate,
@@ -77,10 +74,8 @@ class PersonalWakeListener(
             speechDurationMs = 30,
             silenceDurationMs = 300,
         )
-
         val buffer = ShortArray(config.frameSize)
         val segment = ArrayList<Short>()
-
         var seenSpeech = false
         var speechMs = 0L
         var silenceMs = 0L
@@ -89,21 +84,19 @@ class PersonalWakeListener(
 
         try {
             audioRecord.startRecording()
-            AppLogger.d(TAG, "Started personal wake loop")
-
-            while (running) {
+        AppLogger.d(TAG, "Started personal wake loop")
+        while (running) {
                 if (!currentCoroutineContext().isActive) break
                 val read = audioRecord.read(buffer, 0, buffer.size)
-                if (read <= 0) continue
+        if (read <= 0) continue
 
                 SpeechPrerollStore.appendPcm(buffer, read)
-
-                val isSpeechFrame = read == config.frameSize && vad.isSpeech(buffer)
+        val isSpeechFrame = read == config.frameSize && vad.isSpeech(buffer)
         val chunkMs = (read * 1000L) / config.sampleRate
 
                 if (!isSpeechFrame && !seenSpeech) {
                     val frameRms = computeRms(buffer, read)
-                    noiseRmsEma =
+        noiseRmsEma =
                         if (noiseRmsEma <= 0f) {
                             frameRms
                         } else {
@@ -111,19 +104,17 @@ class PersonalWakeListener(
                             (1f - a) * noiseRmsEma + a * frameRms
                         }
                 }
-
-                if (isSpeechFrame) {
+        if (isSpeechFrame) {
                     seenSpeech = true
                     silenceMs = 0L
                     speechMs += chunkMs
                     for (i in 0 until read) {
                         segment.add(buffer[i])
                     }
-
-                    if (speechMs >= config.maxSegmentMs) {
+        if (speechMs >= config.maxSegmentMs) {
                         flushSegmentIfNeeded(config, segment, speechMs, noiseRmsEma)
-                        resetSegment(segment)
-                        seenSpeech = false
+        resetSegment(segment)
+        seenSpeech = false
                         speechMs = 0L
                         silenceMs = 0L
                     }
@@ -132,8 +123,8 @@ class PersonalWakeListener(
                         silenceMs += chunkMs
                         if (silenceMs >= config.endSilenceMs) {
                             flushSegmentIfNeeded(config, segment, speechMs, noiseRmsEma)
-                            resetSegment(segment)
-                            seenSpeech = false
+        resetSegment(segment)
+        seenSpeech = false
                             speechMs = 0L
                             silenceMs = 0L
                         }
@@ -142,27 +133,25 @@ class PersonalWakeListener(
             }
         } finally {
             AppLogger.d(TAG, "Stopping personal wake loop")
-            try {
+        try {
                 audioRecord.stop()
             } catch (_: Exception) {
             }
-            try {
+        try {
                 audioRecord.release()
             } catch (_: Exception) {
             }
-            try {
+        try {
                 vad.close()
             } catch (_: Exception) {
             }
-            running = false
+        running = false
         }
     }
-
-    fun stop() {
+        fun stop() {
         running = false
     }
-
-    private fun flushSegmentIfNeeded(
+        private fun flushSegmentIfNeeded(
         config: Config,
         segment: ArrayList<Short>,
         speechMs: Long,
@@ -174,55 +163,48 @@ class PersonalWakeListener(
         val templates = templatesProvider()
         if (templates.isEmpty()) {
             maybeDebug("drop: no templates")
-            return
+        return
         }
-
         val pcm = ShortArray(segment.size)
         for (i in pcm.indices) {
             pcm[i] = segment[i]
         }
-
         val rms = computeRms(pcm)
         val rmsGate = max(config.minRms, noiseRms + config.rmsNoiseMargin)
         if (rms < rmsGate) {
             maybeDebug(
                 "drop: rms too low (rms=${rms} < gate=${rmsGate} min=${config.minRms} noise=${noiseRms} margin=${config.rmsNoiseMargin}) speechMs=${speechMs} samples=${pcm.size}"
             )
-            return
+        return
         }
-
         val feat = PersonalWakeFeatureExtractor.extractFeatures(pcm, pcm.size)
         if (feat.isEmpty()) {
             maybeDebug("drop: empty features")
-            return
+        return
         }
-
         val cfg = PersonalWakeFeatureExtractor.Config()
         val featureDim = cfg.numMfcc * 3
         if (featureDim <= 0) {
             maybeDebug("drop: invalid featureDim=${featureDim}")
-            return
+        return
         }
         if (feat.size % featureDim != 0) {
             maybeDebug("drop: invalid feature size=${feat.size} (not divisible by featureDim=${featureDim})")
-            return
+        return
         }
-
         val validTemplates =
             templates.filter { t ->
                 t.isNotEmpty() && (t.size % featureDim == 0)
             }
         if (validTemplates.isEmpty()) {
             val sizes = templates.map { it.size }.distinct()
-            maybeDebug(
+        maybeDebug(
                 "drop: template size mismatch featureDim=${featureDim} templateSizes=${sizes} (need re-enroll)"
             )
-            return
+        return
         }
-
         val featSeq = reshapeAndNormalizePerFrame(feat, featureDim)
         val tmplSeqs = validTemplates.map { t -> reshapeAndNormalizePerFrame(t, featureDim) }
-
         val intraSims = ArrayList<Float>(3)
         if (tmplSeqs.size >= 2) {
             for (i in 0 until tmplSeqs.size) {
@@ -238,14 +220,13 @@ class PersonalWakeListener(
                 "warn: enrollment inconsistent intraMin=${intraMin} intraMean=${intraMean} intraStd=${intraStd} intra=${intraSims}"
             )
         }
-
         val meanLen = tmplSeqs.map { it.size }.average().toFloat().coerceAtLeast(1f)
         val ratio = featSeq.size.toFloat() / meanLen
         if (ratio < config.minDurationRatio || ratio > config.maxDurationRatio) {
             maybeDebug(
                 "drop: duration ratio out of range ratio=${ratio} featFrames=${featSeq.size} templateMeanFrames=${meanLen}"
             )
-            return
+        return
         }
         val dynThreshold =
             max(
@@ -255,23 +236,21 @@ class PersonalWakeListener(
                     (intraMin - config.dynamicThresholdMargin).coerceIn(0f, 1f)
                 )
             )
-
         var best = -1f
         var secondBest = -1f
         var hits = 0
         val sims = ArrayList<Float>(tmplSeqs.size)
         for (seq in tmplSeqs) {
             val sim = dtwSimilarity(featSeq, seq, config.dtwBand)
-            sims.add(sim)
-            if (sim > best) {
+        sims.add(sim)
+        if (sim > best) {
                 secondBest = best
                 best = sim
             } else if (sim > secondBest) {
                 secondBest = sim
             }
-            if (sim >= dynThreshold) hits++
+        if (sim >= dynThreshold) hits++
         }
-
         val requiredHits = min(config.requiredTemplateMatches, tmplSeqs.size)
         val bestSecondGap = if (secondBest >= 0f) best - secondBest else 0f
         val gapOk = tmplSeqs.size < 2 || hits >= 2 || bestSecondGap <= config.maxBestSecondGap
@@ -281,15 +260,14 @@ class PersonalWakeListener(
                 TAG,
                 "Personal wake triggered: best=${best} secondBest=${secondBest} gap=${bestSecondGap} hits=${hits}/${requiredHits} rms=${rms} speechMs=${speechMs} threshold=${dynThreshold} intraMin=${intraMin} intraMean=${intraMean} intraStd=${intraStd} intra=${intraSims} sims=${sims}"
             )
-            onTriggered(best)
+        onTriggered(best)
         } else {
             maybeDebug(
                 "drop: not enough matches best=${best} secondBest=${secondBest} gap=${bestSecondGap} gapOk=${gapOk} hits=${hits}/${requiredHits} rms=${rms} speechMs=${speechMs} threshold=${dynThreshold} intraMin=${intraMin} intraMean=${intraMean} intraStd=${intraStd} intra=${intraSims} sims=${sims}"
             )
         }
     }
-
-    private fun meanStd(x: List<Float>): Pair<Float, Float> {
+        private fun meanStd(x: List<Float>): Pair<Float, Float> {
         if (x.isEmpty()) return 1f to 0f
         var mean = 0f
         for (v in x) {
@@ -304,16 +282,13 @@ class PersonalWakeListener(
         val std = kotlin.math.sqrt(max(1e-10f, varSum / x.size))
         return mean to std
     }
-
-    private fun resetSegment(segment: ArrayList<Short>) {
+        private fun resetSegment(segment: ArrayList<Short>) {
         segment.clear()
     }
-
-    private fun computeRms(pcm: ShortArray): Float {
+        private fun computeRms(pcm: ShortArray): Float {
         return computeRms(pcm, pcm.size)
     }
-
-    private fun computeRms(pcm: ShortArray, len: Int): Float {
+        private fun computeRms(pcm: ShortArray, len: Int): Float {
         if (pcm.isEmpty() || len <= 0) return 0f
         var sum = 0.0
         val n = min(len, pcm.size)
@@ -324,8 +299,7 @@ class PersonalWakeListener(
         val mean = sum / n.toDouble()
         return kotlin.math.sqrt(mean).toFloat()
     }
-
-    private fun reshapeAndNormalizePerFrame(
+        private fun reshapeAndNormalizePerFrame(
         flat: FloatArray,
         featureDim: Int,
     ): Array<FloatArray> {
@@ -336,12 +310,11 @@ class PersonalWakeListener(
             for (i in 0 until featureDim) {
                 out[t][i] = flat[idx++]
             }
-            l2NormalizeInPlace(out[t])
+        l2NormalizeInPlace(out[t])
         }
         return out
     }
-
-    private fun dtwSimilarity(a: Array<FloatArray>, b: Array<FloatArray>, band: Int): Float {
+        private fun dtwSimilarity(a: Array<FloatArray>, b: Array<FloatArray>, band: Int): Float {
         if (a.isEmpty() || b.isEmpty()) return 0f
         val n = a.size
         val m = b.size
@@ -352,20 +325,18 @@ class PersonalWakeListener(
         for (i in 1..n) {
             val jStart = max(1, i - bandW)
         val jEnd = min(m, i + bandW)
-            for (j in jStart..jEnd) {
+        for (j in jStart..jEnd) {
                 val cost = cosineDistance(a[i - 1], b[j - 1])
         val bestPrev = min(dp[i - 1][j], min(dp[i][j - 1], dp[i - 1][j - 1]))
-                dp[i][j] = cost + bestPrev
+        dp[i][j] = cost + bestPrev
             }
         }
-
         val norm = max(1f, (n + m).toFloat())
         val avgCost = dp[n][m] / norm
         val sim = 1f - (avgCost / 2f)
         return sim.coerceIn(0f, 1f)
     }
-
-    private fun cosineDistance(a: FloatArray, b: FloatArray): Float {
+        private fun cosineDistance(a: FloatArray, b: FloatArray): Float {
         val n = min(a.size, b.size)
         var dot = 0f
         var na = 0f
@@ -381,8 +352,7 @@ class PersonalWakeListener(
         val cos = (dot / denom).coerceIn(-1f, 1f)
         return 1f - cos
     }
-
-    private fun l2NormalizeInPlace(x: FloatArray) {
+        private fun l2NormalizeInPlace(x: FloatArray) {
         var norm = 0f
         for (v in x) {
             norm += v * v
@@ -392,8 +362,7 @@ class PersonalWakeListener(
             x[i] /= norm
         }
     }
-
-    private fun maybeDebug(message: String) {
+        private fun maybeDebug(message: String) {
         val now = System.currentTimeMillis()
         if (now - lastDebugAtMs < debugIntervalMs) return
         lastDebugAtMs = now

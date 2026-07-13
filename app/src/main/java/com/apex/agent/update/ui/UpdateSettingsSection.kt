@@ -48,23 +48,20 @@ fun UpdateSettingsSection(
 ) {
     val context = LocalContext.current
         val scope = rememberCoroutineScope()
-    val manager = remember { HotUpdateManager.getInstance(context) }
+        val manager = remember { HotUpdateManager.getInstance(context) }
         val registry = remember { MirrorSourceRegistry.getInstance(context) }
-
-    val mirrors by registry.mirrorsFlow.collectAsState()
-    val state by manager.state.collectAsState()
-
-    var autoCheck by remember { mutableStateOf(true) }
-    var includePre by remember { mutableStateOf(false) }
-    var wifiOnly by remember { mutableStateOf(true) }
-    var repoOwner by remember { mutableStateOf(UpdateSettings.DEFAULT_REPO_OWNER) }
-    var repoName by remember { mutableStateOf(UpdateSettings.DEFAULT_REPO_NAME) }
-
-    var showAddMirror by remember { mutableStateOf(false) }
-    var testResults by remember { mutableStateOf<Map<String, MirrorTestResult>>(emptyMap()) }
+        val mirrors by registry.mirrorsFlow.collectAsState()
+        val state by manager.state.collectAsState()
+        var autoCheck by remember { mutableStateOf(true) }
+        var includePre by remember { mutableStateOf(false) }
+        var wifiOnly by remember { mutableStateOf(true) }
+        var repoOwner by remember { mutableStateOf(UpdateSettings.DEFAULT_REPO_OWNER) }
+        var repoName by remember { mutableStateOf(UpdateSettings.DEFAULT_REPO_NAME) }
+        var showAddMirror by remember { mutableStateOf(false) }
+        var testResults by remember { mutableStateOf<Map<String, MirrorTestResult>>(emptyMap()) }
 
     // 加载偏好
-                LaunchedEffect(Unit) {
+        LaunchedEffect(Unit) {
         registry.load()
         autoCheck = UpdateSettings.isAutoCheckEnabled(context)
         includePre = UpdateSettings.isIncludePrerelease(context)
@@ -72,8 +69,7 @@ fun UpdateSettingsSection(
         repoOwner = UpdateSettings.getRepoOwner(context)
         repoName = UpdateSettings.getRepoName(context)
     }
-
-    LazyColumn(
+        LazyColumn(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -84,22 +80,22 @@ fun UpdateSettingsSection(
                 Column(Modifier.fillMaxWidth().padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Bolt, null, tint = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(12.dp))
-                        Column(Modifier.weight(1f)) {
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
                             Text("立即检查更新", fontWeight = FontWeight.Medium)
-                            Text(
+        Text(
                                 "当前版本 ${manager.currentVersionName()}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Button(onClick = onCheckNow, enabled = state !is com.apex.agent.update.UpdateState.Checking) {
+        Button(onClick = onCheckNow, enabled = state !is com.apex.agent.update.UpdateState.Checking) {
                             Text("检查")
                         }
                     }
-                    if (state is com.apex.agent.update.UpdateState.UpdateAvailable) {
+        if (state is com.apex.agent.update.UpdateState.UpdateAvailable) {
                         Spacer(Modifier.height(8.dp))
-                        AssistChip(
+        AssistChip(
                             onClick = onShowUpdateDialog,
                             label = { Text("发现新版本 ${(state as com.apex.agent.update.UpdateState.UpdateAvailable).latestVersion}") },
                             leadingIcon = { Icon(Icons.Default.NewReleases, null, modifier = Modifier.size(16.dp)) }
@@ -108,7 +104,6 @@ fun UpdateSettingsSection(
                 }
             }
         }
-
         item {
             SwitchCard(
                 icon = Icons.Default.Refresh,
@@ -142,30 +137,29 @@ fun UpdateSettingsSection(
                 scope.launch { UpdateSettings.setDownloadWifiOnly(context, it) }
             }
         }
-
         item { SectionLabel("GitHub 仓库") }
         item {
             SettingCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("仓库地址", fontWeight = FontWeight.Medium)
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
                         value = repoOwner,
                         onValueChange = { repoOwner = it },
                         label = { Text("owner") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
                         value = repoName,
                         onValueChange = { repoName = it },
                         label = { Text("repo") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(Modifier.height(8.dp))
-                    Button(
+        Spacer(Modifier.height(8.dp))
+        Button(
                         onClick = {
                             scope.launch {
                                 UpdateSettings.setRepo(context, repoOwner.trim(), repoName.trim())
@@ -175,7 +169,6 @@ fun UpdateSettingsSection(
                 }
             }
         }
-
         item { SectionLabel("镜像源（按顺序回退）") }
         item {
             SettingCard {
@@ -184,17 +177,17 @@ fun UpdateSettingsSection(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Default.Speed, null, tint = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
+        Spacer(Modifier.width(8.dp))
+        Text(
                         "下载时按以下顺序尝试每个已启用的镜像，首个成功即用。",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f)
                     )
-                    FilledTonalButton(onClick = { showAddMirror = true }) {
+        FilledTonalButton(onClick = { showAddMirror = true }) {
                         Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("添加")
+        Spacer(Modifier.width(4.dp))
+        Text("添加")
                     }
                 }
             }
@@ -209,7 +202,7 @@ fun UpdateSettingsSection(
                 onTest = {
                     scope.launch {
                         val r = manager.testMirror(mirror)
-                        testResults = testResults + (mirror.id to r)
+        testResults = testResults + (mirror.id to r)
                     }
                 },
                 onDelete = if (mirror.builtin) null else {
@@ -218,8 +211,7 @@ fun UpdateSettingsSection(
             )
         }
     }
-
-    if (showAddMirror) {
+        if (showAddMirror) {
         AddMirrorDialog(
             onDismiss = { showAddMirror = false },
             onConfirm = { name, urlTemplate, description ->
@@ -233,7 +225,7 @@ fun UpdateSettingsSection(
                             description = description
                         )
                     )
-                    showAddMirror = false
+        showAddMirror = false
                 }
             }
         )
@@ -257,13 +249,13 @@ private fun MirrorCard(
                     tint = if (mirror.builtin) MaterialTheme.colorScheme.primary
                            else MaterialTheme.colorScheme.tertiary
                 )
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f)) {
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(mirror.name, fontWeight = FontWeight.SemiBold)
-                        if (mirror.builtin) {
+        if (mirror.builtin) {
                             Spacer(Modifier.width(6.dp))
-                            Surface(
+        Surface(
                                 color = MaterialTheme.colorScheme.secondaryContainer,
                                 shape = RoundedCornerShape(50)
                             ) {
@@ -276,30 +268,30 @@ private fun MirrorCard(
                             }
                         }
                     }
-                    if (mirror.description.isNotBlank()) {
+        if (mirror.description.isNotBlank()) {
                         Text(
                             mirror.description,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Text(
+        Text(
                         mirror.urlTemplate.ifBlank { "(直连)" },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Switch(checked = mirror.enabled, onCheckedChange = onToggle)
+        Switch(checked = mirror.enabled, onCheckedChange = onToggle)
             }
-            Spacer(Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Spacer(Modifier.height(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedButton(onClick = onTest) {
                     Icon(Icons.Default.Speed, null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("测试")
+        Spacer(Modifier.width(4.dp))
+        Text("测试")
                 }
-                Spacer(Modifier.width(8.dp))
-                testResult?.let { r ->
+        Spacer(Modifier.width(8.dp))
+        testResult?.let { r ->
                     if (r.success) {
                         Text(
                             "✓ ${r.latencyMs} ms",
@@ -316,8 +308,8 @@ private fun MirrorCard(
                         )
                     }
                 }
-                Spacer(Modifier.weight(1f))
-                if (onDelete != null) {
+        Spacer(Modifier.weight(1f))
+        if (onDelete != null) {
                     IconButton(onClick = onDelete) {
                         Icon(Icons.Default.Delete, "删除", tint = MaterialTheme.colorScheme.error)
                     }
@@ -333,12 +325,11 @@ private fun AddMirrorDialog(
     onConfirm: (name: String, urlTemplate: String, description: String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    var urlTemplate by remember { mutableStateOf("https://") }
-                var description by remember { mutableStateOf("") }
-    var nameError by remember { mutableStateOf(false) }
-    var urlError by remember { mutableStateOf(false) }
-
-    AlertDialog(
+        var urlTemplate by remember { mutableStateOf("https://") }
+        var description by remember { mutableStateOf("") }
+        var nameError by remember { mutableStateOf(false) }
+        var urlError by remember { mutableStateOf(false) }
+        AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("添加自定义镜像") },
         text = {
@@ -346,11 +337,11 @@ private fun AddMirrorDialog(
                 Text(
                     "URL 模板中使用 {url} 作为 GitHub 原始下载地址占位符。" +
                         "例如 https://ghproxy.com/{url}",
-                style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(12.dp))
-                OutlinedTextField(
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
                     value = name,
                     onValueChange = { name = it; nameError = false },
                     label = { Text("镜像名称") },
@@ -358,8 +349,8 @@ private fun AddMirrorDialog(
                     isError = nameError,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
                     value = urlTemplate,
                     onValueChange = { urlTemplate = it; urlError = false },
                     label = { Text("URL 模板") },
@@ -367,8 +358,8 @@ private fun AddMirrorDialog(
                     isError = urlError,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("说明（可选）") },
@@ -380,10 +371,10 @@ private fun AddMirrorDialog(
         confirmButton = {
             Button(onClick = {
                 if (name.isBlank()) { nameError = true; return@Button }
-                if (urlTemplate.isBlank() || (!urlTemplate.startsWith("http") && urlTemplate != "{url}")) {
+        if (urlTemplate.isBlank() || (!urlTemplate.startsWith("http") && urlTemplate != "{url}")) {
                     urlError = true; return@Button
                 }
-                onConfirm(name.trim(), urlTemplate.trim(), description.trim())
+        onConfirm(name.trim(), urlTemplate.trim(), description.trim())
             }) { Text("添加") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
@@ -420,16 +411,16 @@ private fun SwitchCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
                 Text(title, fontWeight = FontWeight.Medium)
-                Text(
+        Text(
                     subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
     }
 }

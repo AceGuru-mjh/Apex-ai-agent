@@ -19,7 +19,7 @@ class Xingbu @Inject constructor() : BaseSanxingRole() {
         defaultModel = "claude-3.5-sonnet",
         provider = "anthropic",
         endpoint = "https://api.anthropic.com/v1/messages",
-                temperature = 0.3,
+        temperature = 0.3,
         permissionTags = setOf(PERM_TOOLS, PERM_INTERNET, PERM_READ),
         systemPrompt = """
             你现在是「刑部・合规风控」，负责以下核心职责，

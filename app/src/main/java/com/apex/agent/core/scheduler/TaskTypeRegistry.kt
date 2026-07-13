@@ -61,14 +61,14 @@ class TaskTypeRegistry(private val context: Context) {
      */
     private fun registerBuiltInHandlers() {
         // 日报生成任务
-                registerHandler(object : TaskHandler {
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.DAILY_REPORT
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     // 生成日报内容
-    val report = generateDailyReport()
-                    ExecutionResult(true, report)
+        val report = generateDailyReport()
+        ExecutionResult(true, report)
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
@@ -76,13 +76,13 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 数据备份任务
-                registerHandler(object : TaskHandler {
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.BACKUP
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     val backupPath = performBackup()
-                    ExecutionResult(true, "备份完成: ${backupPath}")
+        ExecutionResult(true, "备份完成: ${backupPath}")
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
@@ -90,13 +90,13 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 系统审计任务
-                registerHandler(object : TaskHandler {
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.AUDIT
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     val auditReport = performAudit()
-                    ExecutionResult(true, auditReport)
+        ExecutionResult(true, auditReport)
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
@@ -104,13 +104,13 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 自动报告任务
-                registerHandler(object : TaskHandler {
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.AUTO_REPORT
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     val report = generateAutoReport()
-                    ExecutionResult(true, report)
+        ExecutionResult(true, report)
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
@@ -118,13 +118,13 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 健康检查任务
-                registerHandler(object : TaskHandler {
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.HEALTH_CHECK
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     val healthStatus = performHealthCheck()
-                    ExecutionResult(true, healthStatus)
+        ExecutionResult(true, healthStatus)
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
@@ -132,13 +132,13 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 通知提醒任务
-                registerHandler(object : TaskHandler {
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.NOTIFICATION
             
             override suspend fun execute(): ExecutionResult {
                 return try {
                     // 通知逻辑
-                ExecutionResult(true, "通知已发通")
+        ExecutionResult(true, "通知已发通")
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
                 }
@@ -146,14 +146,13 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 自定义任务
-                registerHandler(object : TaskHandler {
+        registerHandler(object : TaskHandler {
             override val taskType = ScheduledTask.TaskType.CUSTOM
             
             override suspend fun execute(): ExecutionResult {
                 return ExecutionResult(true, "自定义任务执行完成")
             }
         })
-        
         AppLogger.d(TAG, "已注内${handlers.size} 个内置任务处理器")
     }
     
@@ -164,10 +163,10 @@ class TaskTypeRegistry(private val context: Context) {
         return try {
             handlers[handler.taskType] = handler
             AppLogger.d(TAG, "已注册任务处理器: ${handler.taskType.name}")
-            true
+        true
         } catch (e: Exception) {
             AppLogger.e(TAG, "注册任务处理器失败 ${handler.taskType.name}", e)
-            false
+        false
         }
     }
     
@@ -184,10 +183,10 @@ class TaskTypeRegistry(private val context: Context) {
     fun getHandler(taskTypeName: String): TaskHandler? {
         return try {
             val taskType = ScheduledTask.TaskType.valueOf(taskTypeName)
-            handlers[taskType]
+        handlers[taskType]
         } catch (e: Exception) {
             AppLogger.e(TAG, "未找到任务处理器: ${taskTypeName}", e)
-            null
+        null
         }
     }
     
@@ -211,16 +210,16 @@ class TaskTypeRegistry(private val context: Context) {
     private suspend fun generateDailyReport(): String = withContext(Dispatchers.IO) {
         buildString {
             appendLine("📊 每日报告 - ${formatDate()}")
-            appendLine()
-            appendLine("## 今日概览")
-            appendLine("- 系统运行状态 正常")
-            appendLine("- 任务执行: 12 次")
-            appendLine("- AI 交互: 45 次")
-            appendLine()
-            appendLine("## 性能指标")
-            appendLine("- 响应时间: 平均 230ms")
-            appendLine("- 成功现 98.5%")
-            appendLine("- Token 消者 12,500")
+        appendLine()
+        appendLine("## 今日概览")
+        appendLine("- 系统运行状态 正常")
+        appendLine("- 任务执行: 12 次")
+        appendLine("- AI 交互: 45 次")
+        appendLine()
+        appendLine("## 性能指标")
+        appendLine("- 响应时间: 平均 230ms")
+        appendLine("- 成功现 98.5%")
+        appendLine("- Token 消者 12,500")
         }
     }
     
@@ -241,16 +240,16 @@ class TaskTypeRegistry(private val context: Context) {
     private suspend fun performAudit(): String = withContext(Dispatchers.IO) {
         buildString {
             appendLine("🔒 安全审计报告 - ${formatDate()}")
-            appendLine()
-            appendLine("## 权限检查")
-            appendLine("✓文件访问权限 - 正常")
-            appendLine("✓网络访问权限 - 正常")
-            appendLine("✓通知权限 - 已授权")
-            appendLine()
-            appendLine("## 安全检查")
-            appendLine("✓证书状态- 有效")
-            appendLine("✓API 密钥 - 已配置")
-            appendLine("✓加密存储 - 启用")
+        appendLine()
+        appendLine("## 权限检查")
+        appendLine("✓文件访问权限 - 正常")
+        appendLine("✓网络访问权限 - 正常")
+        appendLine("✓通知权限 - 已授权")
+        appendLine()
+        appendLine("## 安全检查")
+        appendLine("✓证书状态- 有效")
+        appendLine("✓API 密钥 - 已配置")
+        appendLine("✓加密存储 - 启用")
         }
     }
     
@@ -260,11 +259,11 @@ class TaskTypeRegistry(private val context: Context) {
     private suspend fun generateAutoReport(): String = withContext(Dispatchers.IO) {
         buildString {
             appendLine("📈 自动报告 - ${formatDate()}")
-            appendLine()
-            appendLine("## 使用统计")
-            appendLine("- 日活跃用成 1,234")
-            appendLine("- 周增长率: +12.5%")
-            appendLine("- 核心功能使用: 8,901 次")
+        appendLine()
+        appendLine("## 使用统计")
+        appendLine("- 日活跃用成 1,234")
+        appendLine("- 周增长率: +12.5%")
+        appendLine("- 核心功能使用: 8,901 次")
         }
     }
     
@@ -274,16 +273,16 @@ class TaskTypeRegistry(private val context: Context) {
     private suspend fun performHealthCheck(): String = withContext(Dispatchers.IO) {
         buildString {
             appendLine("🏥 系统健康检查- ${formatDate()}")
-            appendLine()
-            appendLine("## 服务状态")
-            appendLine("✓AI 服务 - 正常")
-            appendLine("✓存储服务 - 正常")
-            appendLine("✓网络连接 - 正常")
-            appendLine()
-            appendLine("## 资源使用")
-            appendLine("- CPU: 23%")
-            appendLine("- 内存: 45%")
-            appendLine("- 存储: 67%")
+        appendLine()
+        appendLine("## 服务状态")
+        appendLine("✓AI 服务 - 正常")
+        appendLine("✓存储服务 - 正常")
+        appendLine("✓网络连接 - 正常")
+        appendLine()
+        appendLine("## 资源使用")
+        appendLine("- CPU: 23%")
+        appendLine("- 内存: 45%")
+        appendLine("- 存储: 67%")
         }
     }
     

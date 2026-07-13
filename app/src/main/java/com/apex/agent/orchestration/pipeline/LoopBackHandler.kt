@@ -31,14 +31,13 @@ class LoopBackHandler(
                 "达到最大循环次数${maxLoops}"
             )
         }
-
         return when (failedStage.name) {
             PipelineStage.VALIDATE.name -> LoopBackDecision(
                 true,
                 PipelineStage.IMPLEMENT,
                 reason ?: "验证阶段失败，回退到实现阶段修失"
             )
-            else -> LoopBackDecision(
+        else -> LoopBackDecision(
                 false,
                 null,
                 reason ?: "阶段 ${failedStage.name} 失败且不支持回退"

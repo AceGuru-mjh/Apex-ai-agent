@@ -200,20 +200,17 @@ internal object UserscriptCapabilityRegistry {
             ),
             UserscriptCapability("none")
         )
-
-    private val capabilityByCanonical = capabilities.associateBy { it.canonicalGrant }
-
-    private val aliasToCanonical =
+        private val capabilityByCanonical = capabilities.associateBy { it.canonicalGrant }
+        private val aliasToCanonical =
         buildMap<String, String> {
             capabilities.forEach { capability ->
                 put(capability.canonicalGrant, capability.canonicalGrant)
-                capability.aliases.forEach { alias ->
+        capability.aliases.forEach { alias ->
                     put(alias, capability.canonicalGrant)
                 }
             }
         }
-
-    fun canonicalGrant(rawGrant: String): String? =
+        fun canonicalGrant(rawGrant: String): String? =
         aliasToCanonical[rawGrant.trim()]
 
     fun isGrantKnown(rawGrant: String): Boolean =
@@ -221,21 +218,19 @@ internal object UserscriptCapabilityRegistry {
 
     fun knownGrants(grants: List<String>): List<String> =
         grants.mapNotNull(::canonicalGrant).distinct()
-
-    fun unknownGrants(grants: List<String>): List<String> =
+        fun unknownGrants(grants: List<String>): List<String> =
         grants.map { it.trim() }.filter { it.isNotBlank() && !isGrantKnown(it) }.distinct()
-
-    fun blockedReasons(grants: List<String>): List<String> {
+        fun blockedReasons(grants: List<String>): List<String> {
         val canonicalGrants = knownGrants(grants)
         return buildList {
             val unknown = unknownGrants(grants)
-            if (unknown.isNotEmpty()) {
+        if (unknown.isNotEmpty()) {
                 add("Unknown grants: ${unknown.joinToString()}")
             }
-            if ("none" in canonicalGrants && canonicalGrants.size > 1) {
+        if ("none" in canonicalGrants && canonicalGrants.size > 1) {
                 add("@grant none cannot be combined with other grants")
             }
-            canonicalGrants
+        canonicalGrants
                 .mapNotNull { capabilityByCanonical[it]?.blockingReason?.invoke() }
                 .distinct()
                 .forEach(::add)

@@ -20,8 +20,7 @@ object SharedFileHandler {
     fun setSharedFiles(uris: List<Uri>) {
         _sharedFiles.value = uris
     }
-
-    fun setSharedLinks(urls: List<String>) {
+        fun setSharedLinks(urls: List<String>) {
         _sharedLinks.value = urls
     }
     
@@ -31,8 +30,7 @@ object SharedFileHandler {
     fun clearSharedFiles() {
         _sharedFiles.value = null
     }
-
-    fun clearSharedLinks() {
+        fun clearSharedLinks() {
         _sharedLinks.value = null
     }
 }

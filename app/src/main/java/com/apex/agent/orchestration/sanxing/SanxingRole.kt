@@ -32,7 +32,7 @@ abstract class BaseSanxingRole : SanxingRole {
     override val roleName: String get() = config.roleName
     override val systemPrompt: String get() = config.systemPrompt
     override val temperature: Float get() = config.temperature.toFloat()
-    override val permissions: Set<String> get() = config.permissionTags
+        override val permissions: Set<String> get() = config.permissionTags
 
     override fun getAgent(): Agent = Agent(
         id = roleId,
@@ -49,8 +49,7 @@ abstract class BaseSanxingRole : SanxingRole {
         permissions = config.toAgentPermissions(),
         apiEndpoints = listOf(config.endpoint)
     )
-
-    override suspend fun handleMessage(message: AgentMessage): Flow<Result<AgentMessage>> = flow {
+        override suspend fun handleMessage(message: AgentMessage): Flow<Result<AgentMessage>> = flow {
         emit(
             Result.Success(
                 AgentMessage(

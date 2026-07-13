@@ -22,15 +22,13 @@ class RetryPolicy @Inject constructor(
                 lastError = e
                 if (attempt < maxRetries - 1) {
                     delay(currentDelay)
-                    currentDelay = (currentDelay * backoffMultiplier).toLong().coerceAtLeast(1)
+        currentDelay = (currentDelay * backoffMultiplier).toLong().coerceAtLeast(1)
                 }
             }
         }
-
         throw lastError ?: IllegalStateException("RetryPolicy exhausted all ${maxRetries} attempts")
     }
-
-    companion object {
+        companion object {
         const val DEFAULT_MAX_RETRIES = 3
         const val DEFAULT_DELAY_MILLIS = 500L
         const val DEFAULT_BACKOFF_MULTIPLIER = 2.0

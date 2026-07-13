@@ -23,13 +23,13 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
         private const val TAG = "WorkspaceDocumentsProvider"
         
         // Authority需要与AndroidManifest中的声明一，
-                private const val AUTHORITY = "com.apex.documents.workspace"
+        private const val AUTHORITY = "com.apex.documents.workspace"
         
         // Root ID
-                private const val ROOT_ID = "workspace_root"
+        private const val ROOT_ID = "workspace_root"
         
         // 默认文档，
-    private val DEFAULT_ROOT_PROJECTION = arrayOf(
+        private val DEFAULT_ROOT_PROJECTION = arrayOf(
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_MIME_TYPES,
             DocumentsContract.Root.COLUMN_FLAGS,
@@ -39,7 +39,6 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
             DocumentsContract.Root.COLUMN_DOCUMENT_ID,
             DocumentsContract.Root.COLUMN_AVAILABLE_BYTES
         )
-        
         private val DEFAULT_DOCUMENT_PROJECTION = arrayOf(
             DocumentsContract.Document.COLUMN_DOCUMENT_ID,
             DocumentsContract.Document.COLUMN_MIME_TYPE,
@@ -49,28 +48,24 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
             DocumentsContract.Document.COLUMN_SIZE
         )
     }
-    
-    private lateinit var workspaceRoot: File
+        private lateinit var workspaceRoot: File
     
     override fun onCreate(): Boolean {
         return try {
             val context = context ?: return false
             workspaceRoot = File(context.filesDir, "workspace")
-            
-            if (!workspaceRoot.exists()) {
+        if (!workspaceRoot.exists()) {
                 workspaceRoot.mkdirs()
-                AppLogger.d(TAG, "Created workspace directory: ${workspaceRoot.absolutePath}")
+        AppLogger.d(TAG, "Created workspace directory: ${workspaceRoot.absolutePath}")
             }
-            
-            AppLogger.d(TAG, "WorkspaceDocumentsProvider initialized, root: ${workspaceRoot.absolutePath}")
-            true
+        AppLogger.d(TAG, "WorkspaceDocumentsProvider initialized, root: ${workspaceRoot.absolutePath}")
+        true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to initialize provider", e)
-            false
+        false
         }
     }
-    
-    override fun queryRoots(projection: Array<out String>): Cursor {
+        override fun queryRoots(projection: Array<out String>): Cursor {
         val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
         val row = result.newRow()
         row.add(DocumentsContract.Root.COLUMN_ROOT_ID, ROOT_ID)
@@ -85,65 +80,52 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
         row.add(DocumentsContract.Root.COLUMN_SUMMARY, "Access workspace files")
         row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, getDocIdForFile(workspaceRoot))
         row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, workspaceRoot.freeSpace)
-        
         return result
     }
-    
-    override fun queryDocument(documentId: String, projection: Array<out String>): Cursor {
+        override fun queryDocument(documentId: String, projection: Array<out String>): Cursor {
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
         includeFile(result, documentId)
         return result
     }
-    
-    override fun queryChildDocuments(
+        override fun queryChildDocuments(
         parentDocumentId: String,
         projection: Array<out String>?,
         sortOrder: String?
     ): Cursor {
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
         val parent = getFileForDocId(parentDocumentId)
-        
         if (!parent.isDirectory) {
             AppLogger.w(TAG, "queryChildDocuments called on non-directory: ${parentDocumentId}")
-            return result
+        return result
         }
-        
         val files = parent.listFiles() ?: emptyArray()
         for (file in files) {
             includeFile(result, file)
         }
-        
         return result
     }
-    
-    override fun openDocument(
+        override fun openDocument(
         documentId: String,
         mode: String,
         signal: CancellationSignal?
     ): ParcelFileDescriptor {
         val file = getFileForDocId(documentId)
-        
         if (!file.exists()) {
             throw FileNotFoundException("File not found: ${file.absolutePath}")
         }
-        
         val accessMode = ParcelFileDescriptor.parseMode(mode)
         return ParcelFileDescriptor.open(file, accessMode)
     }
-    
-    override fun createDocument(
+        override fun createDocument(
         parentDocumentId: String,
         mimeType: String,
         displayName: String
     ): String? {
         val parent = getFileForDocId(parentDocumentId)
-        
         if (!parent.isDirectory) {
             throw IllegalArgumentException("Parent is not a directory")
         }
-        
         val file = File(parent, displayName)
-        
         try {
             if (DocumentsContract.Document.MIME_TYPE_DIR == mimeType) {
                 if (!file.mkdir()) {
@@ -154,46 +136,37 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
                     throw IllegalStateException("Failed to create file")
                 }
             }
-            
-            return getDocIdForFile(file)
+        return getDocIdForFile(file)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to create document", e)
-            throw e
+        throw e
         }
     }
-    
-    override fun deleteDocument(documentId: String) {
+        override fun deleteDocument(documentId: String) {
         val file = getFileForDocId(documentId)
-        
         if (!file.exists()) {
             throw FileNotFoundException("File not found: ${file.absolutePath}")
         }
-        
         if (!file.delete()) {
             throw IllegalStateException("Failed to delete file")
         }
     }
-    
-    override fun renameDocument(documentId: String, displayName: String): String? {
+        override fun renameDocument(documentId: String, displayName: String): String? {
         val sourceFile = getFileForDocId(documentId)
         val destFile = File(sourceFile.parentFile, displayName)
-        
         if (!sourceFile.renameTo(destFile)) {
             throw IllegalStateException("Failed to rename file")
         }
-        
         return getDocIdForFile(destFile)
     }
-    
-    override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
+        override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
         val parent = getFileForDocId(parentDocumentId)
         val child = getFileForDocId(documentId)
-        
         return try {
             child.canonicalPath.startsWith(parent.canonicalPath)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error checking child document", e)
-            false
+        false
         }
     }
     
@@ -204,34 +177,30 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
         val file = getFileForDocId(documentId)
         includeFile(result, file)
     }
-    
-    private fun includeFile(result: MatrixCursor, file: File) {
+        private fun includeFile(result: MatrixCursor, file: File) {
         val docId = getDocIdForFile(file)
-        
         var flags = 0
         if (file.isDirectory) {
             // 目录支持创建子文件
-                if (file.canWrite()) {
+        if (file.canWrite()) {
                 flags = flags or DocumentsContract.Document.FLAG_DIR_SUPPORTS_CREATE
             }
         } else if (file.canWrite()) {
             // 文件支持写入和删限
-                flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_WRITE
+        flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_WRITE
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_DELETE
         }
         
         // 支持重命，
-                if (file.parentFile?.canWrite() == true) {
+        if (file.parentFile?.canWrite() == true) {
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_RENAME
         }
-        
         val displayName = file.name
         val mimeType = if (file.isDirectory) {
             DocumentsContract.Document.MIME_TYPE_DIR
         } else {
             getMimeType(file)
         }
-        
         val row = result.newRow()
         row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, docId)
         row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, mimeType)
@@ -266,14 +235,12 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
             workspaceRoot
         } else {
             // 移除开头的/，拼接到workspace根目当
-    val relativePath = documentId.trimStart('/')
-            File(workspaceRoot, relativePath)
+        val relativePath = documentId.trimStart('/')
+        File(workspaceRoot, relativePath)
         }
-        
         if (!file.exists()) {
             throw FileNotFoundException("File not found: ${file.absolutePath}")
         }
-        
         return file
     }
     
@@ -282,10 +249,9 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
      */
     private fun getMimeType(file: File): String {
         val extension = file.extension.lowercase()
-        
         return when {
             extension.isEmpty() -> "application/octet-stream"
-            else -> {
+        else -> {
                 MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
                     ?: "application/octet-stream"
             }

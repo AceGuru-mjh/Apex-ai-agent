@@ -18,14 +18,14 @@ class KanbanColumn(
     val order: Int = 0,
     val tasks: MutableList<KanbanTask> = mutableListOf(),
     // Worker 配置
-                var assignedWorker: String? = null,  // Worker ID
-                var requiredAgentRoles: List<AgentRole> = emptyList(),  // 要求的Agent 角色
-                var requiredCapabilities: List<String> = emptyList(),     // 要求的能务
+        var assignedWorker: String? = null,  // Worker ID
+        var requiredAgentRoles: List<AgentRole> = emptyList(),  // 要求的Agent 角色
+        var requiredCapabilities: List<String> = emptyList(),     // 要求的能务
     // 流转规则
-                var entryConditions: List<ColumnCondition> = emptyList(),  // 进入条件
-                var exitConditions: List<ColumnCondition> = emptyList(),   // 离开条件
+        var entryConditions: List<ColumnCondition> = emptyList(),  // 进入条件
+        var exitConditions: List<ColumnCondition> = emptyList(),   // 离开条件
     // 自动处理
-                var autoProcessEnabled: Boolean = false,
+        var autoProcessEnabled: Boolean = false,
     var autoAssignEnabled: Boolean = false,
     var createdAt: Long = System.currentTimeMillis()
 ) {
@@ -76,8 +76,7 @@ class KanbanColumn(
             it.equals(capability, ignoreCase = true)
         }
     }
-
-    companion object {
+        companion object {
         /**
          * 创建标准开发流程列
          */
@@ -152,7 +151,7 @@ sealed class ColumnCondition {
     ) : ColumnCondition() {
         override fun evaluate(task: KanbanTask): Boolean {
             val hasTag = task.tags.any { it.equals(tag, ignoreCase = true) }
-            return mustHave == hasTag
+        return mustHave == hasTag
         }
     }
 
@@ -176,7 +175,7 @@ sealed class ColumnCondition {
     ) : ColumnCondition() {
         override fun evaluate(task: KanbanTask): Boolean {
             val description = task.description.lowercase()
-            return if (matchAll) {
+        return if (matchAll) {
                 keywords.all { description.contains(it.lowercase()) }
             } else {
                 keywords.any { description.contains(it.lowercase()) }

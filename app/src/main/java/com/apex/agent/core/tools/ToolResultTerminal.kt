@@ -156,26 +156,23 @@ data class GrepResultData(
         val lineContent: String,
         val matchContext: String? = null
     )
-
-    private fun parsePreNumberedLineNumber(line: String): Int? {
+        private fun parsePreNumberedLineNumber(line: String): Int? {
         val trimmed = line.trimStart()
         val separatorIndex = trimmed.indexOf('|')
         if (separatorIndex <= 0) return null
         return trimmed.substring(0, separatorIndex).trim().toIntOrNull()
     }
-
-    private fun markPreNumberedContextLine(line: String): String {
+        private fun markPreNumberedContextLine(line: String): String {
         val separatorIndex = line.indexOf('|')
         if (separatorIndex < 0) return line
         if (separatorIndex + 1 < line.length && line[separatorIndex + 1] == '>') return line
         return buildString(line.length + 1) {
             append(line, 0, separatorIndex + 1)
-            append('>')
-            append(line.substring(separatorIndex + 1))
+        append('>')
+        append(line.substring(separatorIndex + 1))
         }
     }
-    
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("[${env}] Grep Search Result:")
         sb.appendLine("Search Path: ${searchPath}")
@@ -183,12 +180,11 @@ data class GrepResultData(
         sb.appendLine("Total Matches: ${totalMatches} (in ${matches.size} files)")
         sb.appendLine("Files Searched: ${filesSearched}")
         sb.appendLine()
-
         if (matches.isEmpty()) {
             sb.appendLine("No matches found")
         } else {
             // Set display limit - show up to 30 match groups
-    val maxDisplayMatches = 30
+        val maxDisplayMatches = 30
             var displayedMatches = 0
             var collapsedMatches = 0
 
@@ -196,24 +192,21 @@ data class GrepResultData(
                 val remainingSlots = maxDisplayMatches - displayedMatches
                 if (remainingSlots <= 0) {
                     // Count remaining collapsed matches
-                collapsedMatches += fileMatch.lineMatches.size
+        collapsedMatches += fileMatch.lineMatches.size
                     continue
                 }
-
-                sb.appendLine("File: ${fileMatch.filePath}")
-
-                val matchesToShow = fileMatch.lineMatches.take(remainingSlots)
+        sb.appendLine("File: ${fileMatch.filePath}")
+        val matchesToShow = fileMatch.lineMatches.take(remainingSlots)
         val matchesCollapsedInFile = fileMatch.lineMatches.size - matchesToShow.size
 
                 matchesToShow.forEach { lineMatch ->
                     // If context is available, show full context
-                if (lineMatch.matchContext != null && lineMatch.matchContext.isNotBlank()) {
+        if (lineMatch.matchContext != null && lineMatch.matchContext.isNotBlank()) {
                         val contextLines = lineMatch.matchContext.lines()
         val isPreNumberedContext =
                             contextLines.any { it.isNotBlank() } &&
                                 contextLines.all { it.isBlank() || parsePreNumberedLineNumber(it) != null }
-
-                        if (isPreNumberedContext) {
+        if (isPreNumberedContext) {
                             contextLines.forEach { contextLine ->
                                 val renderedLine =
                                     if (parsePreNumberedLineNumber(contextLine) == lineMatch.lineNumber) {
@@ -221,7 +214,7 @@ data class GrepResultData(
                                     } else {
                                         contextLine
                                     }
-                                sb.appendLine(renderedLine)
+        sb.appendLine(renderedLine)
                             }
                         } else {
                             val centerIndex = contextLines.size / 2
@@ -229,38 +222,33 @@ data class GrepResultData(
                             contextLines.forEachIndexed { idx, contextLine ->
                                 val actualLineNum = lineMatch.lineNumber - centerIndex + idx
         val lineNumStr = String.format("%6d", actualLineNum)
-
-                                if (idx == centerIndex) {
+        if (idx == centerIndex) {
                                     sb.appendLine("${lineNumStr}|>${contextLine}")
                                 } else {
                                     sb.appendLine("${lineNumStr}| ${contextLine}")
                                 }
                             }
                         }
-                        sb.appendLine() // Add blank line after each match block
+        sb.appendLine() // Add blank line after each match block
                     } else {
                         // No context, show only matching line
-    val lineNumStr = String.format("%6d", lineMatch.lineNumber)
-                        sb.appendLine("${lineNumStr}| ${lineMatch.lineContent}")
+        val lineNumStr = String.format("%6d", lineMatch.lineNumber)
+        sb.appendLine("${lineNumStr}| ${lineMatch.lineContent}")
                     }
-                    displayedMatches++
+        displayedMatches++
                 }
-
-                if (matchesCollapsedInFile > 0) {
+        if (matchesCollapsedInFile > 0) {
                     sb.appendLine("  ... (${matchesCollapsedInFile} more match groups collapsed in this file)")
-                    collapsedMatches += matchesCollapsedInFile
+        collapsedMatches += matchesCollapsedInFile
                 }
-
-                sb.appendLine()
+        sb.appendLine()
             }
-
-            if (collapsedMatches > 0) {
+        if (collapsedMatches > 0) {
                 sb.appendLine("=" .repeat(60))
-                sb.appendLine("To save space, ${collapsedMatches} match groups were collapsed")
-                sb.appendLine("Displayed ${displayedMatches} match groups, total ${totalMatches} matches")
+        sb.appendLine("To save space, ${collapsedMatches} match groups were collapsed")
+        sb.appendLine("Displayed ${displayedMatches} match groups, total ${totalMatches} matches")
             }
         }
-
         return sb.toString()
     }
 }

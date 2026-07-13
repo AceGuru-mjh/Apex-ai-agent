@@ -38,8 +38,7 @@ class WorkflowMonitor {
         val activeExecutions: List<ActiveExecution>,
         val performance: PerformanceMetrics
     )
-
-    data class ExecutionTotals(
+        data class ExecutionTotals(
         val totalExecutions: Long,
         val successCount: Long,
         val failureCount: Long,
@@ -48,8 +47,7 @@ class WorkflowMonitor {
         val successRate: Float,
         val failureRate: Float
     )
-
-    data class WorkflowStats(
+        data class WorkflowStats(
         val workflowId: String,
         val workflowName: String,
         val executionCount: Long,
@@ -60,8 +58,7 @@ class WorkflowMonitor {
         val minDurationMs: Long,
         val lastExecutionAt: Long?
     )
-
-    data class NodeTypeStats(
+        data class NodeTypeStats(
         val nodeType: String,
         val executionCount: Long,
         val successCount: Long,
@@ -69,16 +66,14 @@ class WorkflowMonitor {
         val avgDurationMs: Long,
         val retryCount: Long
     )
-
-    data class ActionTypeStats(
+        data class ActionTypeStats(
         val actionType: String,
         val executionCount: Long,
         val successCount: Long,
         val avgDurationMs: Long,
         val errorRate: Float
     )
-
-    data class ExecutionSummary(
+        data class ExecutionSummary(
         val threadId: String,
         val workflowId: String,
         val workflowName: String,
@@ -89,8 +84,7 @@ class WorkflowMonitor {
         val completedAt: Long,
         val error: String?
     )
-
-    data class ActiveExecution(
+        data class ActiveExecution(
         val threadId: String,
         val workflowId: String,
         val workflowName: String,
@@ -98,8 +92,7 @@ class WorkflowMonitor {
         val currentNodeId: String?,
         val progress: Float
     )
-
-    data class PerformanceMetrics(
+        data class PerformanceMetrics(
         val throughputPerMinute: Float,
         val avgLatencyMs: Long,
         val p50LatencyMs: Long,
@@ -110,30 +103,26 @@ class WorkflowMonitor {
     )
 
     // ============ 内部状态 ============
-    private val totalExecutions = AtomicLong(0)
-    private val totalSuccess = AtomicLong(0)
-    private val totalFailure = AtomicLong(0)
-    private val totalCancelled = AtomicLong(0)
-    private val activeCount = AtomicLong(0)
-    private val maxConcurrency = AtomicLong(0)
-
-    private val workflowStats = ConcurrentHashMap<String, WorkflowStatsInternal>()
-    private val nodeTypeStats = ConcurrentHashMap<String, NodeTypeStatsInternal>()
-    private val actionTypeStats = ConcurrentHashMap<String, ActionTypeStatsInternal>()
-    private val errorDistribution = ConcurrentHashMap<String, AtomicLong>()
-    private val recentExecutions = java.util.Collections.synchronizedList(mutableListOf<ExecutionSummary>())
-    private val activeExecutions = ConcurrentHashMap<String, ActiveExecutionInternal>()
-
-    private val latencyHistory = java.util.Collections.synchronizedList(mutableListOf<Long>())
-
-    private val _snapshot = MutableStateFlow<MonitorSnapshot?>(null)
+        private val totalExecutions = AtomicLong(0)
+        private val totalSuccess = AtomicLong(0)
+        private val totalFailure = AtomicLong(0)
+        private val totalCancelled = AtomicLong(0)
+        private val activeCount = AtomicLong(0)
+        private val maxConcurrency = AtomicLong(0)
+        private val workflowStats = ConcurrentHashMap<String, WorkflowStatsInternal>()
+        private val nodeTypeStats = ConcurrentHashMap<String, NodeTypeStatsInternal>()
+        private val actionTypeStats = ConcurrentHashMap<String, ActionTypeStatsInternal>()
+        private val errorDistribution = ConcurrentHashMap<String, AtomicLong>()
+        private val recentExecutions = java.util.Collections.synchronizedList(mutableListOf<ExecutionSummary>())
+        private val activeExecutions = ConcurrentHashMap<String, ActiveExecutionInternal>()
+        private val latencyHistory = java.util.Collections.synchronizedList(mutableListOf<Long>())
+        private val _snapshot = MutableStateFlow<MonitorSnapshot?>(null)
         val snapshot: StateFlow<MonitorSnapshot?> = _snapshot.asStateFlow()
-
-    private val maxRecentExecutions = 100
+        private val maxRecentExecutions = 100
     private val maxLatencyHistory = 10_000
 
     // ============ 内部数据结构 ============
-                private data class WorkflowStatsInternal(
+        private data class WorkflowStatsInternal(
         val workflowId: String,
         val workflowName: String,
         var executionCount: Long = 0,
@@ -144,8 +133,7 @@ class WorkflowMonitor {
         var minDurationMs: Long = Long.MAX_VALUE,
         var lastExecutionAt: Long? = null
     )
-
-    private data class NodeTypeStatsInternal(
+        private data class NodeTypeStatsInternal(
         val nodeType: String,
         var executionCount: Long = 0,
         var successCount: Long = 0,
@@ -153,15 +141,13 @@ class WorkflowMonitor {
         var totalDurationMs: Long = 0,
         var retryCount: Long = 0
     )
-
-    private data class ActionTypeStatsInternal(
+        private data class ActionTypeStatsInternal(
         val actionType: String,
         var executionCount: Long = 0,
         var successCount: Long = 0,
         var totalDurationMs: Long = 0
     )
-
-    private data class ActiveExecutionInternal(
+        private data class ActiveExecutionInternal(
         val threadId: String,
         val workflowId: String,
         val workflowName: String,
@@ -205,7 +191,7 @@ class WorkflowMonitor {
         activeExecutions.remove(threadId)
 
         // 更新工作流统计
-                workflowStats.compute(workflowId) { _, v ->
+        workflowStats.compute(workflowId) { _, v ->
             (v ?: WorkflowStatsInternal(workflowId, workflowName)).apply {
                 executionCount++
                 if (success) successCount++ else failureCount++
@@ -217,7 +203,7 @@ class WorkflowMonitor {
         }
 
         // 记录延迟
-                latencyHistory.add(durationMs)
+        latencyHistory.add(durationMs)
         if (latencyHistory.size > maxLatencyHistory) {
             synchronized(latencyHistory) {
                 while (latencyHistory.size > maxLatencyHistory) latencyHistory.removeAt(0)
@@ -225,7 +211,7 @@ class WorkflowMonitor {
         }
 
         // 记录最近执行
-                recentExecutions.add(ExecutionSummary(
+        recentExecutions.add(ExecutionSummary(
             threadId = threadId,
             workflowId = workflowId,
             workflowName = workflowName,
@@ -243,11 +229,10 @@ class WorkflowMonitor {
         }
 
         // 错误分布
-                if (!success && error != null) {
+        if (!success && error != null) {
             val errorType = classifyError(error)
-            errorDistribution.computeIfAbsent(errorType) { AtomicLong(0) }.incrementAndGet()
+        errorDistribution.computeIfAbsent(errorType) { AtomicLong(0) }.incrementAndGet()
         }
-
         refreshSnapshot()
     }
 
@@ -281,7 +266,6 @@ class WorkflowMonitor {
                 retryCount += retries
             }
         }
-
         if (actionType != null && nodeType == "EXECUTE") {
             actionTypeStats.compute(actionType) { _, v ->
                 (v ?: ActionTypeStatsInternal(actionType)).apply {
@@ -293,8 +277,7 @@ class WorkflowMonitor {
         }
 
         // 更新活跃执行的当前节点
-                activeExecutions[threadId]?.let { it.currentNodeId = nodeId }
-
+        activeExecutions[threadId]?.let { it.currentNodeId = nodeId }
         refreshSnapshot()
     }
 
@@ -358,13 +341,13 @@ class WorkflowMonitor {
         sb.appendLine("# TYPE node_executions_total counter")
         nodeTypeStats.forEach { (type, stats) ->
             sb.appendLine("node_executions_total{type=\"$type\",status=\"success\"} ${stats.successCount}")
-            sb.appendLine("node_executions_total{type=\"$type\",status=\"failure\"} ${stats.failureCount}")
+        sb.appendLine("node_executions_total{type=\"$type\",status=\"failure\"} ${stats.failureCount}")
         }
         return sb.toString()
     }
 
     // ============ 内部方法 ============
-    private fun refreshSnapshot() {
+        private fun refreshSnapshot() {
         val totals = ExecutionTotals(
             totalExecutions = totalExecutions.get(),
             successCount = totalSuccess.get(),
@@ -374,7 +357,6 @@ class WorkflowMonitor {
             successRate = if (totalExecutions.get() > 0) totalSuccess.get().toFloat() / totalExecutions.get() else 0f,
             failureRate = if (totalExecutions.get() > 0) totalFailure.get().toFloat() / totalExecutions.get() else 0f
         )
-
         val byWorkflow = workflowStats.mapValues { (_, v) ->
             WorkflowStats(
                 workflowId = v.workflowId,
@@ -388,7 +370,6 @@ class WorkflowMonitor {
                 lastExecutionAt = v.lastExecutionAt
             )
         }
-
         val byNodeType = nodeTypeStats.mapValues { (_, v) ->
             NodeTypeStats(
                 nodeType = v.nodeType,
@@ -399,7 +380,6 @@ class WorkflowMonitor {
                 retryCount = v.retryCount
             )
         }
-
         val byActionType = actionTypeStats.mapValues { (_, v) ->
             ActionTypeStats(
                 actionType = v.actionType,
@@ -409,10 +389,8 @@ class WorkflowMonitor {
                 errorRate = if (v.executionCount > 0) (v.executionCount - v.successCount).toFloat() / v.executionCount else 0f
             )
         }
-
         val errors = errorDistribution.mapValues { it.value.get() }
         val recent = recentExecutions.toList().reversed()
-
         val active = activeExecutions.values.map {
             ActiveExecution(
                 threadId = it.threadId,
@@ -423,7 +401,6 @@ class WorkflowMonitor {
                 progress = it.progress
             )
         }
-
         val sortedLatencies = latencyHistory.sorted()
         val performance = PerformanceMetrics(
             throughputPerMinute = computeThroughput(),
@@ -434,7 +411,6 @@ class WorkflowMonitor {
             concurrentExecutions = activeCount.toInt(),
             maxConcurrency = maxConcurrency.toInt()
         )
-
         _snapshot.value = MonitorSnapshot(
             totals = totals,
             byWorkflow = byWorkflow,
@@ -446,37 +422,33 @@ class WorkflowMonitor {
             performance = performance
         )
     }
-
-    private fun computeThroughput(): Float {
+        private fun computeThroughput(): Float {
         if (recentExecutions.isEmpty()) return 0f
         val now = System.currentTimeMillis()
         val oneMinuteAgo = now - 60_000L
         val count = recentExecutions.count { it.completedAt >= oneMinuteAgo }
         return count.toFloat()
     }
-
-    private fun percentile(sorted: List<Long>, p: Int): Long {
+        private fun percentile(sorted: List<Long>, p: Int): Long {
         if (sorted.isEmpty()) return 0
         val idx = (sorted.size * p / 100).coerceIn(0, sorted.size - 1)
         return sorted[idx]
     }
-
-    private fun classifyError(error: String): String {
+        private fun classifyError(error: String): String {
         val e = error.lowercase()
         return when {
             e.contains("timeout") -> "TIMEOUT"
-            e.contains("network") || e.contains("connection") -> "NETWORK"
-            e.contains("permission") || e.contains("auth") -> "PERMISSION"
-            e.contains("validation") || e.contains("invalid") -> "VALIDATION"
-            e.contains("rate limit") || e.contains("429") -> "RATE_LIMIT"
-            e.contains("not found") || e.contains("404") -> "NOT_FOUND"
-            e.contains("saga") -> "SAGA_FAILURE"
-            e.contains("human") || e.contains("rejected") -> "HUMAN_REJECTED"
-            else -> "UNKNOWN"
+        e.contains("network") || e.contains("connection") -> "NETWORK"
+        e.contains("permission") || e.contains("auth") -> "PERMISSION"
+        e.contains("validation") || e.contains("invalid") -> "VALIDATION"
+        e.contains("rate limit") || e.contains("429") -> "RATE_LIMIT"
+        e.contains("not found") || e.contains("404") -> "NOT_FOUND"
+        e.contains("saga") -> "SAGA_FAILURE"
+        e.contains("human") || e.contains("rejected") -> "HUMAN_REJECTED"
+        else -> "UNKNOWN"
         }
     }
-
-    companion object {
+        companion object {
         @Volatile
         private var instance: WorkflowMonitor? = null
 

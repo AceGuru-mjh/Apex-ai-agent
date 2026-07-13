@@ -52,36 +52,30 @@ open class StandardSystemOperationTools(private val context: Context) {
     companion object {
         private const val TAG = "SystemOperationTools"
         private const val APEX_PACKAGE = "com.apex"
-
         private const val AI_REPLY_CHANNEL_ID = "AI_REPLY_CHANNEL"
         private const val AI_REPLY_CHANNEL_NAME = "Chat Completion Reminder"
     }
-
-    private fun isApex-AgentInternalPath(path: String): Boolean {
+        private fun isApex-AgentInternalPath(path: String): Boolean {
         val normalizedPath = path.trim()
         return normalizedPath.startsWith("/data/data/$APEX_PACKAGE") ||
             AndroidUserPathUtils.isCurrentUserPackageDataPath(normalizedPath, APEX_PACKAGE)
     }
-
-    private fun stageApkForInstallIfNeeded(apkFile: File): File {
+        private fun stageApkForInstallIfNeeded(apkFile: File): File {
         val apkPath = apkFile.absolutePath
         if (!isApex-AgentInternalPath(apkPath)) {
             return apkFile
         }
-
         val cleanOnExitDir = LogistraPaths.cleanOnExitDir()
         if (!cleanOnExitDir.exists() && !cleanOnExitDir.mkdirs()) {
             throw IllegalStateException("Cannot create cleanOnExit dir: ${cleanOnExitDir.absolutePath}")
         }
-
         val stagedFileName = "install_${System.currentTimeMillis()}_${apkFile.name}"
         val stagedFile = File(cleanOnExitDir, stagedFileName)
         apkFile.copyTo(stagedFile, overwrite = true)
         AppLogger.d(TAG, "Staged internal apk for installer: $apkPath -> ${stagedFile.absolutePath}")
         return stagedFile
     }
-
-    private fun hasUsageStatsAccess(): Boolean {
+        private fun hasUsageStatsAccess(): Boolean {
         val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -92,17 +86,15 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             } else {
                 @Suppress("DEPRECATION")
-                appOpsManager.checkOpNoThrow(
+        appOpsManager.checkOpNoThrow(
                     AppOpsManager.OPSTR_GET_USAGE_STATS,
                     Process.myUid(),
                     context.packageName
                 )
             }
-
         return mode == AppOpsManager.MODE_ALLOWED
     }
-
-    open suspend fun toast(tool: AITool): ToolResult {
+        open suspend fun toast(tool: AITool): ToolResult {
         val message = tool.parameters.find { it.name == "message" }?.value
         if (message.isNullOrBlank()) {
             return ToolResult(
@@ -112,12 +104,11 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Must provide message parameter"
             )
         }
-
         return try {
             Handler(Looper.getMainLooper()).post {
                 Toast.makeText(context.applicationContext, message, Toast.LENGTH_SHORT).show()
             }
-            ToolResult(toolName = tool.name, success = true, result = StringResultData("OK"))
+        ToolResult(toolName = tool.name, success = true, result = StringResultData("OK"))
         } catch (e: Exception) {
             ToolResult(
                 toolName = tool.name,
@@ -127,8 +118,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
         }
     }
-
-    open suspend fun sendNotification(tool: AITool): ToolResult {
+        open suspend fun sendNotification(tool: AITool): ToolResult {
         val title = tool.parameters.find { it.name == "title" }?.value?.takeIf { it.isNotBlank() } ?: "Notification"
         val message = tool.parameters.find { it.name == "message" }?.value
         if (message.isNullOrBlank()) {
@@ -139,7 +129,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Must provide message parameter"
             )
         }
-
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val manager =
@@ -149,10 +138,9 @@ open class StandardSystemOperationTools(private val context: Context) {
                     AI_REPLY_CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_HIGH
                 )
-                manager.createNotificationChannel(channel)
+        manager.createNotificationChannel(channel)
             }
-
-            val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
         val pendingIntent = if (launchIntent != null) {
                 PendingIntent.getActivity(
                     context,
@@ -167,8 +155,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             } else {
                 null
             }
-
-            val builder =
+        val builder =
                 NotificationCompat.Builder(context, AI_REPLY_CHANNEL_ID)
                     .setSmallIcon(android.R.drawable.ic_dialog_info)
                     .setContentTitle(title)
@@ -178,17 +165,14 @@ open class StandardSystemOperationTools(private val context: Context) {
                     .setCategory(NotificationCompat.CATEGORY_STATUS)
                     .setAutoCancel(true)
                     .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-
-            if (pendingIntent != null) {
+        if (pendingIntent != null) {
                 builder.setContentIntent(pendingIntent)
             }
-
-            val notification = builder.build()
+        val notification = builder.build()
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val id = (System.currentTimeMillis() and 0x7FFFFFFF).toInt()
-            manager.notify(id, notification)
-
-            ToolResult(toolName = tool.name, success = true, result = StringResultData("OK"))
+        manager.notify(id, notification)
+        ToolResult(toolName = tool.name, success = true, result = StringResultData("OK"))
         } catch (e: SecurityException) {
             ToolResult(
                 toolName = tool.name,
@@ -211,7 +195,6 @@ open class StandardSystemOperationTools(private val context: Context) {
         val setting = tool.parameters.find { it.name == "setting" }?.value ?: ""
         val value = tool.parameters.find { it.name == "value" }?.value ?: ""
         val namespace = tool.parameters.find { it.name == "namespace" }?.value ?: "system"
-
         if (setting.isBlank() || value.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -220,7 +203,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Must provide setting and value parameters"
             )
         }
-
         val validNamespaces = listOf("system", "secure", "global")
         if (!validNamespaces.contains(namespace)) {
             return ToolResult(
@@ -230,17 +212,15 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Namespace must be one of: ${validNamespaces.joinToString(", ")}"
             )
         }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(context)) {
             // 自动打开系统设置页面引导用户授权
-                try {
+        try {
                 val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
                     data = Uri.parse("package:${context.packageName}")
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                context.startActivity(intent)
-                
-                return ToolResult(
+        context.startActivity(intent)
+        return ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),
@@ -248,7 +228,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "打开设置页面失败", e)
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),
@@ -256,18 +236,17 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
         }
-
         return try {
             when (namespace) {
                 "system" -> Settings.System.putString(context.contentResolver, setting, value)
                 "secure" -> Settings.Secure.putString(context.contentResolver, setting, value)
                 "global" -> Settings.Global.putString(context.contentResolver, setting, value)
             }
-            val resultData = SystemSettingData(namespace = namespace, setting = setting, value = value)
-            ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        val resultData = SystemSettingData(namespace = namespace, setting = setting, value = value)
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
             AppLogger.e(TAG, "修改系统设置时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -275,7 +254,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "修改系统设置时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -288,7 +267,6 @@ open class StandardSystemOperationTools(private val context: Context) {
     open suspend fun getSystemSetting(tool: AITool): ToolResult {
         val setting = tool.parameters.find { it.name == "setting" }?.value ?: ""
         val namespace = tool.parameters.find { it.name == "namespace" }?.value ?: "system"
-
         if (setting.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -297,7 +275,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Must provide setting parameter"
             )
         }
-
         val validNamespaces = listOf("system", "secure", "global")
         if (!validNamespaces.contains(namespace)) {
             return ToolResult(
@@ -307,18 +284,16 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Namespace must be one of: ${validNamespaces.joinToString(", ")}"
             )
         }
-
         return try {
             val value = when (namespace) {
                 "system" -> Settings.System.getString(context.contentResolver, setting)
                 "secure" -> Settings.Secure.getString(context.contentResolver, setting)
                 "global" -> Settings.Global.getString(context.contentResolver, setting)
-                else -> null
+        else -> null
             }
-
-            if (value != null) {
+        if (value != null) {
                 val resultData = SystemSettingData(namespace = namespace, setting = setting, value = value)
-                ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
             } else {
                 ToolResult(
                     toolName = tool.name,
@@ -329,7 +304,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             }
         } catch (e: SecurityException) {
             AppLogger.e(TAG, "获取系统设置时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -337,7 +312,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "获取系统设置时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -349,7 +324,6 @@ open class StandardSystemOperationTools(private val context: Context) {
     /** 安装应用程序 需要APK文件的路??*/
     open suspend fun installApp(tool: AITool): ToolResult {
         val apkPath = tool.parameters.find { it.name == "path" }?.value ?: ""
-
         if (apkPath.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -358,7 +332,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = context.getString(R.string.sys_op_must_provide_apk_path)
             )
         }
-
         val file = File(apkPath)
         if (!file.exists()) {
             return ToolResult(
@@ -368,7 +341,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "APK file does not exist: $apkPath"
             )
         }
-
         return try {
             val installFile = stageApkForInstallIfNeeded(file)
         val apkUri =
@@ -381,25 +353,23 @@ open class StandardSystemOperationTools(private val context: Context) {
                 } else {
                     Uri.fromFile(installFile)
                 }
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(apkUri, "application/vnd.android.package-archive")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(apkUri, "application/vnd.android.package-archive")
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            context.startActivity(intent)
-
-            val resultData = AppOperationData(
+        context.startActivity(intent)
+        val resultData = AppOperationData(
                 operationType = "install_request",
                 packageName = apkPath,
                 success = true,
                 details = context.getString(R.string.sys_op_install_request_sent)
             )
-            ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
             AppLogger.e(TAG, "请求安装应用时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -411,7 +381,6 @@ open class StandardSystemOperationTools(private val context: Context) {
     /** 卸载应用程序 需要提供包??*/
     open suspend fun uninstallApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
-
         if (packageName.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -420,7 +389,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Must provide package_name parameter"
             )
         }
-
         try {
             context.packageManager.getPackageInfo(packageName, 0)
         } catch (e: PackageManager.NameNotFoundException) {
@@ -431,23 +399,21 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "App not installed: $packageName"
             )
         }
-
         return try {
             val intent = Intent(Intent.ACTION_DELETE)
-            intent.data = Uri.parse("package:$packageName")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-
-            val resultData = AppOperationData(
+        intent.data = Uri.parse("package:$packageName")
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+        val resultData = AppOperationData(
                 operationType = "uninstall_request",
                 packageName = packageName,
                 success = true,
                 details = context.getString(R.string.sys_op_uninstall_request_sent)
             )
-            ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
             AppLogger.e(TAG, "请求卸载应用时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -464,9 +430,8 @@ open class StandardSystemOperationTools(private val context: Context) {
         return try {
             val pm = context.packageManager
         val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            val appDetails = mutableListOf<String>()
-
-            apps.forEach { appInfo ->
+        val appDetails = mutableListOf<String>()
+        apps.forEach { appInfo ->
                 val isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
                 if (includeSystemApps || !isSystemApp) {
                     val packageName = appInfo.packageName
@@ -479,22 +444,20 @@ open class StandardSystemOperationTools(private val context: Context) {
                                         "Failed to load application label for $packageName",
                                         e
                                 )
-                                packageName
+        packageName
                             }
-                    appDetails.add("$appName ($packageName)")
+        appDetails.add("$appName ($packageName)")
                 }
             }
-
-            val sortedAppDetails = appDetails.sorted()
+        val sortedAppDetails = appDetails.sorted()
         val resultData = AppListData(
                 includesSystemApps = includeSystemApps, 
                 packages = sortedAppDetails
             )
-            
-            ToolResult(toolName = tool.name, success = true, result = resultData)
+        ToolResult(toolName = tool.name, success = true, result = resultData)
         } catch (e: Exception) {
             AppLogger.e(TAG, "获取已安装应用列表时出错", e)
-            ToolResult(
+        ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),
@@ -507,7 +470,6 @@ open class StandardSystemOperationTools(private val context: Context) {
     open suspend fun startApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
         val activityName = tool.parameters.find { it.name == "activity" }?.value ?: ""
-
         if (packageName.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -516,28 +478,26 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Must provide package_name parameter"
             )
         }
-
         return try {
             val intent: Intent? = if (activityName.isBlank()) {
                 context.packageManager.getLaunchIntentForPackage(packageName)
             } else {
                 Intent(Intent.ACTION_MAIN).also {
                     it.addCategory(Intent.CATEGORY_LAUNCHER)
-                    it.component = ComponentName(packageName, activityName)
+        it.component = ComponentName(packageName, activityName)
                 }
             }
-
-            if (intent != null) {
+        if (intent != null) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-                val details = if (activityName.isNotBlank()) "Activity: $activityName" else ""
+        context.startActivity(intent)
+        val details = if (activityName.isNotBlank()) "Activity: $activityName" else ""
         val resultData = AppOperationData(
                     operationType = "start",
                     packageName = packageName,
                     success = true,
                     details = details
                 )
-                ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
             } else {
                 ToolResult(
                     toolName = tool.name,
@@ -548,7 +508,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "启动应用时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -560,7 +520,6 @@ open class StandardSystemOperationTools(private val context: Context) {
     /** 停止应用程序 */
     open suspend fun stopApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
-
         if (packageName.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -569,20 +528,19 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Must provide package_name parameter"
             )
         }
-
         return try {
             val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             activityManager.killBackgroundProcesses(packageName)
-            val resultData = AppOperationData(
+        val resultData = AppOperationData(
                 operationType = "stop",
                 packageName = packageName,
                 success = true,
                 details = context.getString(R.string.sys_op_stop_app_requested)
             )
-            ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
             AppLogger.e(TAG, "停止应用时出现安全异??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -590,7 +548,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "停止应用时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -614,38 +572,35 @@ open class StandardSystemOperationTools(private val context: Context) {
             .asSequence()
             .mapNotNull { ComponentName.unflattenFromString(it) }
             .any { it.packageName == myPackageName }
-
         if (!hasNotificationAccess) {
             try {
                 val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                context.startActivity(intent)
+        context.startActivity(intent)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "打开通知使用权设置页面失??, e)"
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
                 error = "Cannot read notifications. This app needs to be authorized as a Notification Listener Service."
             )
         }
-
         return try {
             val notifications = Apex-AgentNotificationStore.snapshot(
                 limit = limit,
                 includeOngoing = includeOngoing
             )
-            val resultData = NotificationData(
+        val resultData = NotificationData(
                 notifications = notifications,
                 timestamp = System.currentTimeMillis()
             )
-            ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
             AppLogger.e(TAG, "获取通知时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -664,7 +619,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "App usage time is only supported on Android 5.0 and above."
             )
         }
-
         val requestedPackageName =
             tool.parameters.find { it.name == "package_name" }?.value?.trim().orEmpty()
         val sinceHours = tool.parameters.find { it.name == "since_hours" }?.value?.toIntOrNull() ?: 24
@@ -680,7 +634,6 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "since_hours must be a positive integer."
             )
         }
-
         if (limit <= 0) {
             return ToolResult(
                 toolName = tool.name,
@@ -689,25 +642,22 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "limit must be a positive integer."
             )
         }
-
         if (!hasUsageStatsAccess()) {
             try {
                 val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                context.startActivity(intent)
+        context.startActivity(intent)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "打开使用情况访问设置页面失败", e)
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
                 error = "Cannot read app usage time. This app needs Usage Access permission. Settings page opened for you."
             )
         }
-
         return try {
             val endTime = System.currentTimeMillis()
         val startTime = endTime - sinceHours * 60L * 60L * 1000L
@@ -719,28 +669,25 @@ open class StandardSystemOperationTools(private val context: Context) {
                     startTime,
                     endTime
                 ) ?: emptyList()
-
-            val aggregatedStats =
+        val aggregatedStats =
                 rawStats
                     .groupBy { it.packageName.orEmpty() }
                     .mapNotNull { (packageName, stats) ->
                         if (packageName.isBlank()) {
                             return@mapNotNull null
                         }
-
-                        val totalForegroundTimeMs = stats.sumOf { it.totalTimeInForeground }
-                        if (totalForegroundTimeMs <= 0L) {
+        val totalForegroundTimeMs = stats.sumOf { it.totalTimeInForeground }
+        if (totalForegroundTimeMs <= 0L) {
                             return@mapNotNull null
                         }
-
-                        val lastTimeUsed = stats.maxOfOrNull { it.lastTimeUsed } ?: 0L
+        val lastTimeUsed = stats.maxOfOrNull { it.lastTimeUsed } ?: 0L
         val applicationInfo =
                             try {
                                 context.packageManager.getApplicationInfo(packageName, 0)
                             } catch (_: PackageManager.NameNotFoundException) {
                                 null
                             }
-                        val isSystemApp =
+        val isSystemApp =
                             applicationInfo?.let {
                                 (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0
                             } ?: false
@@ -748,12 +695,10 @@ open class StandardSystemOperationTools(private val context: Context) {
                         if (requestedPackageName.isBlank() && !includeSystemApps && isSystemApp) {
                             return@mapNotNull null
                         }
-
-                        if (requestedPackageName.isNotBlank() && requestedPackageName != packageName) {
+        if (requestedPackageName.isNotBlank() && requestedPackageName != packageName) {
                             return@mapNotNull null
                         }
-
-                        val appName =
+        val appName =
                             if (applicationInfo != null) {
                                 try {
                                     applicationInfo.loadLabel(context.packageManager).toString()
@@ -763,8 +708,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                             } else {
                                 packageName
                             }
-
-                        AppUsageTimeEntry(
+        AppUsageTimeEntry(
                             packageName = packageName,
                             appName = appName,
                             totalForegroundTimeMs = totalForegroundTimeMs,
@@ -773,11 +717,9 @@ open class StandardSystemOperationTools(private val context: Context) {
                         )
                     }
                     .sortedByDescending { it.totalForegroundTimeMs }
-
-            val limitedEntries =
+        val limitedEntries =
                 if (requestedPackageName.isBlank()) aggregatedStats.take(limit) else aggregatedStats.take(1)
-
-            val resultData =
+        val resultData =
                 AppUsageTimeResultData(
                     startTime = startTime,
                     endTime = endTime,
@@ -787,11 +729,10 @@ open class StandardSystemOperationTools(private val context: Context) {
                     totalEntries = limitedEntries.size,
                     entries = limitedEntries
                 )
-
-            ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
             AppLogger.e(TAG, "读取应用使用时长时出现权限异??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -799,7 +740,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "读取应用使用时长时出??, e)"
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -818,7 +759,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
         return try {
             // 检查位置权??
-    val hasFineLocationPermission =
+        val hasFineLocationPermission =
                     context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                             android.content.pm.PackageManager.PERMISSION_GRANTED
 
@@ -828,7 +769,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                     ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
             // 如果没有任何位置权限，返回错??
-                if (!hasFineLocationPermission && !hasCoarseLocationPermission) {
+        if (!hasFineLocationPermission && !hasCoarseLocationPermission) {
                 return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -838,10 +779,10 @@ open class StandardSystemOperationTools(private val context: Context) {
             }
 
             // 根据精度要求和权限情况决定使用哪种精??
-    val actualHighAccuracy = highAccuracy && hasFineLocationPermission
+        val actualHighAccuracy = highAccuracy && hasFineLocationPermission
 
             // 使用Dispatchers.Main确保在主线程上执行位置操??            @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val locationResult =
+        val locationResult =
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                         kotlinx.coroutines.suspendCancellableCoroutine<Location?> { continuation ->
                             val locationManager =
@@ -849,7 +790,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                             LocationManager
 
                             // 选择合适的位置提供??
-    val provider =
+        val provider =
                                     when {
                                         actualHighAccuracy &&
                                                 locationManager.isProviderEnabled(
@@ -863,14 +804,13 @@ open class StandardSystemOperationTools(private val context: Context) {
                                         ) -> LocationManager.PASSIVE_PROVIDER
                                         else -> null
                                     }
-
-                            if (provider == null) {
+        if (provider == null) {
                                 continuation.resume(null) { AppLogger.e(TAG, "位置请求取消", it) }
-                                return@suspendCancellableCoroutine
+        return@suspendCancellableCoroutine
                             }
 
                             // 尝试获取最后已知位??
-    val lastKnownLocation =
+        val lastKnownLocation =
                                     try {
                                         if (actualHighAccuracy && hasFineLocationPermission) {
                                             locationManager.getLastKnownLocation(
@@ -891,31 +831,30 @@ open class StandardSystemOperationTools(private val context: Context) {
                                         }
                                     } catch (e: SecurityException) {
                                         AppLogger.e(TAG, "获取最后已知位置失??, e)"
-                                        null
+        null
                                     }
 
                             // 如果有最后已知位置且足够新（10分钟内），直接返??
-                if (lastKnownLocation != null &&
+        if (lastKnownLocation != null &&
                                             System.currentTimeMillis() - lastKnownLocation.time <
                                                     10 * 60 * 1000
                             ) {
                                 continuation.resume(lastKnownLocation) { AppLogger.e(TAG, "位置请求取消", it) }
-                                return@suspendCancellableCoroutine
+        return@suspendCancellableCoroutine
                             }
 
                             // 否则请求位置更新
-    val locationListener =
+        val locationListener =
                                     object : android.location.LocationListener {
                                         override fun onLocationChanged(location: Location) {
                                             locationManager.removeUpdates(this)
-                                            continuation.resume(location) {
+        continuation.resume(location) {
                                                 AppLogger.e(TAG, "位置请求取消", it)
                                             }
                                         }
-
-                                        override fun onProviderDisabled(provider: String) {
+        override fun onProviderDisabled(provider: String) {
                                             // 如果提供者被禁用，尝试使用最后已知位??
-                if (!continuation.isCompleted) {
+        if (!continuation.isCompleted) {
                                                 if (lastKnownLocation != null) {
                                                     continuation.resume(lastKnownLocation) {
                                                         AppLogger.e(TAG, "位置请求取消", it)
@@ -927,39 +866,37 @@ open class StandardSystemOperationTools(private val context: Context) {
                                                 }
                                             }
                                         }
-
-                                        override fun onProviderEnabled(provider: String) {
+        override fun onProviderEnabled(provider: String) {
                                             // 不需要处??                                        }
 
                                         @Deprecated("Deprecated in Java")
-                                        override fun onStatusChanged(
+        override fun onStatusChanged(
                                                 provider: String,
                                                 status: Int,
                                                 extras: android.os.Bundle
                                         ) {
                                             // 不需要处??                                        }
                                     }
-
-                            try {
+        try {
                                 // 设置位置请求参数
-                locationManager.requestLocationUpdates(
+        locationManager.requestLocationUpdates(
                                         provider,
                                         0, // 最小时间间隔
                 0f, // 最小距离变化
-                locationListener
+        locationListener
                                 )
 
                                 // 设置超时
-                kotlinx.coroutines.GlobalScope.launch {
+        kotlinx.coroutines.GlobalScope.launch {
                                     delay(timeout * 1000L)
                                     // 在主线程上移除更新和恢复协程
-                kotlinx.coroutines.withContext(
+        kotlinx.coroutines.withContext(
                                             kotlinx.coroutines.Dispatchers.Main
                                     ) {
                                         if (!continuation.isCompleted) {
                                             locationManager.removeUpdates(locationListener)
                                             // 如果超时，尝试使用最后已知位置
-                continuation.resume(lastKnownLocation) {
+        continuation.resume(lastKnownLocation) {
                                                 AppLogger.e(TAG, "位置请求取消", it)
                                             }
                                         }
@@ -967,10 +904,10 @@ open class StandardSystemOperationTools(private val context: Context) {
                                 }
 
                                 // 如果协程被取消，移除位置更新
-                continuation.invokeOnCancellation {
+        continuation.invokeOnCancellation {
                                     try {
                                         // 确保在主线程上移除位置更新
-                kotlinx.coroutines.runBlocking(
+        kotlinx.coroutines.runBlocking(
                                                 kotlinx.coroutines.Dispatchers.Main
                                         ) { locationManager.removeUpdates(locationListener) }
                                     } catch (e: Exception) {
@@ -979,13 +916,13 @@ open class StandardSystemOperationTools(private val context: Context) {
                                 }
                             } catch (e: SecurityException) {
                                 continuation.resume(lastKnownLocation) { AppLogger.e(TAG, "位置请求取消", it) }
-                                AppLogger.e(TAG, "请求位置更新失败", e)
+        AppLogger.e(TAG, "请求位置更新失败", e)
                             }
                         }
                     }
 
             // 处理位置结果
-                if (locationResult == null) {
+        if (locationResult == null) {
                 return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -993,17 +930,15 @@ open class StandardSystemOperationTools(private val context: Context) {
                         error = context.getString(R.string.sys_op_cannot_get_location)
                 )
             }
-
-            val resultData =
+        val resultData =
                     if (includeAddress) {
                         // 获取地址信息
-    val addressInfo =
+        val addressInfo =
                                 getAddressFromLocation(
                                         locationResult.latitude,
                                         locationResult.longitude
                                 )
-
-                        LocationData(
+        LocationData(
                                 latitude = locationResult.latitude,
                                 longitude = locationResult.longitude,
                                 accuracy = locationResult.accuracy,
@@ -1025,11 +960,10 @@ open class StandardSystemOperationTools(private val context: Context) {
                                 rawData = locationResult.toString()
                         )
                     }
-
-            return ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        return ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
             AppLogger.e(TAG, "获取位置信息时出??, e)"
-            return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),
@@ -1049,9 +983,8 @@ open class StandardSystemOperationTools(private val context: Context) {
             val geocoder = Geocoder(context, Locale.getDefault())
 
             // 尝试获取地址
-    val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-
-            if (addresses != null && addresses.isNotEmpty()) {
+        val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+        if (addresses != null && addresses.isNotEmpty()) {
                 val address = addresses[0]
 
                 return AddressInfo(
@@ -1067,15 +1000,15 @@ open class StandardSystemOperationTools(private val context: Context) {
         }
 
         // 如果无法获取地址信息，返回空对象
-                return AddressInfo("", "", "", "", "")
+        return AddressInfo("", "", "", "", "")
     }
 
     /** 地址信息数据??*/
     data class AddressInfo(
             val address: String, // 完整地址
-    val city: String, // 城市
-    val province: String, // ????
-    val country: String, // 国家
-    val postalCode: String // 邮政编码
+        val city: String, // 城市
+        val province: String, // ????
+        val country: String, // 国家
+        val postalCode: String // 邮政编码
     )
 }

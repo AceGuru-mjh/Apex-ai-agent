@@ -24,7 +24,7 @@ object FileSystemUtils {
     private const val TAG = "FileSystemUtils"
 
     // 特殊文件类型扩展名列表（需要特殊处理提取文本的文件类型，
-    val SPECIAL_FILE_EXTENSIONS = listOf(
+        val SPECIAL_FILE_EXTENSIONS = listOf(
         "doc", "docx",      // Word documents
         "pdf",              // PDF documents
         "jpg", "jpeg",      // Image files
@@ -79,11 +79,11 @@ object FileSystemUtils {
                 if (currentLine >= startLine) {
                     partContent.append(it).append('\n')
                 }
-                currentLine++
+        currentLine++
             }
         }
         // Remove last newline if content is not empty
-                if (partContent.isNotEmpty()) {
+        if (partContent.isNotEmpty()) {
             partContent.setLength(partContent.length - 1)
         }
         return partContent.toString()
@@ -96,12 +96,11 @@ object FileSystemUtils {
                 fun addFileToZip(file: File, basePath: String) {
                     val entryName = if (basePath.isBlank()) file.name else "${basePath}/${file.name}"
         val entry = ZipEntry(entryName)
-                    zos.putNextEntry(entry)
-                    
-                    if (file.isFile) {
+        zos.putNextEntry(entry)
+        if (file.isFile) {
                         FileInputStream(file).use { fis ->
                             val buffer = ByteArray(1024)
-                            var length: Int
+        var length: Int
                             while (fis.read(buffer).also { length = it } > 0) {
                                 zos.write(buffer, 0, length)
                             }
@@ -111,16 +110,14 @@ object FileSystemUtils {
                             addFileToZip(it, entryName)
                         }
                     }
-                    
-                    zos.closeEntry()
+        zos.closeEntry()
                 }
-                
-                addFileToZip(source, "")
+        addFileToZip(source, "")
             }
-            return true
+        return true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error zipping files", e)
-            return false
+        return false
         }
     }
 
@@ -130,31 +127,29 @@ object FileSystemUtils {
             if (!destination.exists()) {
                 destination.mkdirs()
             }
-            
-            ZipInputStream(FileInputStream(source)).use { zis ->
+        ZipInputStream(FileInputStream(source)).use { zis ->
                 var entry: ZipEntry?
                 while (zis.nextEntry.also { entry = it } != null) {
                     val entryFile = File(destination, entry!!.name)
-                    
-                    if (entry!!.isDirectory) {
+        if (entry!!.isDirectory) {
                         entryFile.mkdirs()
                     } else {
                         entryFile.parentFile?.mkdirs()
-                        FileOutputStream(entryFile).use { fos ->
+        FileOutputStream(entryFile).use { fos ->
                             val buffer = ByteArray(1024)
-                            var length: Int
+        var length: Int
                             while (zis.read(buffer).also { length = it } > 0) {
                                 fos.write(buffer, 0, length)
                             }
                         }
                     }
-                    zis.closeEntry()
+        zis.closeEntry()
                 }
             }
-            return true
+        return true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error unzipping files", e)
-            return false
+        return false
         }
     }
 
@@ -172,18 +167,18 @@ object FileSystemUtils {
                 context.packageName + ".fileprovider",
                 file
             )
-            val intent = Intent(Intent.ACTION_VIEW).apply {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, getMimeType(file))
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            context.startActivity(intent)
-            return true
+        context.startActivity(intent)
+        return true
         } catch (e: ActivityNotFoundException) {
             AppLogger.e(TAG, "No app found to open file", e)
-            return false
+        return false
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error opening file", e)
-            return false
+        return false
         }
     }
 
@@ -195,16 +190,16 @@ object FileSystemUtils {
                 context.packageName + ".fileprovider",
                 file
             )
-            val intent = Intent(Intent.ACTION_SEND).apply {
+        val intent = Intent(Intent.ACTION_SEND).apply {
                 type = getMimeType(file)
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        putExtra(Intent.EXTRA_STREAM, uri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            context.startActivity(Intent.createChooser(intent, title))
-            return true
+        context.startActivity(Intent.createChooser(intent, title))
+        return true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error sharing file", e)
-            return false
+        return false
         }
     }
 
@@ -217,7 +212,6 @@ object FileSystemUtils {
                 deleteFile(it)
             }
         }
-        
         return file.delete()
     }
 
@@ -231,20 +225,19 @@ object FileSystemUtils {
                     parent.mkdirs()
                 }
             }
-            
-            FileInputStream(source).use { fis ->
+        FileInputStream(source).use { fis ->
                 FileOutputStream(destination).use { fos ->
                     val buffer = ByteArray(1024)
-                    var length: Int
+        var length: Int
                     while (fis.read(buffer).also { length = it } > 0) {
                         fos.write(buffer, 0, length)
                     }
                 }
             }
-            return true
+        return true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error copying file", e)
-            return false
+        return false
         }
     }
 

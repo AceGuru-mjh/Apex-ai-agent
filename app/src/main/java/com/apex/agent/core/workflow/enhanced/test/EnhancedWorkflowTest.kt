@@ -26,7 +26,6 @@ class EnhancedWorkflowTest {
     fun testExpressionEvaluator_basic() {
         val eval = ExpressionEvaluator()
         val ctx = mapOf("user" to mapOf("age" to 25, "name" to "Alice"))
-
         assertEquals(25.0, eval.evaluate("\${user.age}", ctx))
         assertEquals("Alice", eval.evaluate("\${user.name}", ctx))
         assertEquals(true, eval.evaluate("\${user.age} > 18", ctx))
@@ -37,7 +36,6 @@ class EnhancedWorkflowTest {
     fun testExpressionEvaluator_logicalOperators() {
         val eval = ExpressionEvaluator()
         val ctx = mapOf("age" to 25, "country" to "CN")
-
         assertEquals(true, eval.evaluate("\${age} > 18 && \${country} == 'CN'", ctx))
         assertEquals(false, eval.evaluate("\${age} > 30 || \${country} == 'US'", ctx))
         assertEquals(true, eval.evaluate("!false", ctx))
@@ -47,7 +45,6 @@ class EnhancedWorkflowTest {
     fun testExpressionEvaluator_ternary() {
         val eval = ExpressionEvaluator()
         val ctx = mapOf("status" to "success")
-
         assertEquals("完成", eval.evaluate("\${status} == 'success' ? '完成' : '失败'", ctx))
         assertEquals("失败", eval.evaluate("\${status} != 'success' ? '完成' : '失败'", ctx))
     }
@@ -56,7 +53,6 @@ class EnhancedWorkflowTest {
     fun testExpressionEvaluator_stringMethods() {
         val eval = ExpressionEvaluator()
         val ctx = mapOf("msg" to "Hello World")
-
         assertEquals(true, eval.evaluate("\${msg} contains 'World'", ctx))
         assertEquals(true, eval.evaluate("\${msg} startsWith 'Hello'", ctx))
         assertEquals(true, eval.evaluate("\${msg} endsWith 'World'", ctx))
@@ -118,7 +114,7 @@ class EnhancedWorkflowTest {
         cal.set(Calendar.MILLISECOND, 0)
 
         // 每分钟执行
-    val nextMin = CronParser.nextRun("* * * * *", cal.timeInMillis)
+        val nextMin = CronParser.nextRun("* * * * *", cal.timeInMillis)
         val expected = cal.apply { add(Calendar.MINUTE, 1); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
         assertEquals(expected, nextMin)
     }
@@ -139,7 +135,6 @@ class EnhancedWorkflowTest {
                 EnhancedConnection(exec.id, end.id)
             )
         )
-
         val result = WorkflowValidator().validate(wf)
         assertTrue("有效工作流应该通过校验", result.isValid)
         assertEquals(3, result.topologicalOrder.size)
@@ -152,7 +147,7 @@ class EnhancedWorkflowTest {
         val n3 = EnhancedNode(name = "N3", type = EnhancedNodeType.EXECUTE, config = EnhancedNodeConfig(actionType = "log"))
 
         // 创建环: n1 -> n2 -> n3 -> n1
-    val wf = EnhancedWorkflow(
+        val wf = EnhancedWorkflow(
             name = "cycle", nodes = listOf(n1, n2, n3),
             connections = listOf(
                 EnhancedConnection(n1.id, n2.id),
@@ -160,7 +155,6 @@ class EnhancedWorkflowTest {
                 EnhancedConnection(n3.id, n1.id)
             )
         )
-
         val result = WorkflowValidator().validate(wf)
         assertFalse("环工作流不应通过校验", result.isValid)
         assertTrue("应检测到环错误", result.errors.any { it.toString().contains("环") })
@@ -178,12 +172,10 @@ class EnhancedWorkflowTest {
     fun testWorkflowValidator_danglingEdge() {
         val trigger = EnhancedNode(name = "T", type = EnhancedNodeType.TRIGGER,
             config = EnhancedNodeConfig(triggerConfig = TriggerConfigDef(triggerType = TriggerTypeDef.MANUAL)))
-
         val wf = EnhancedWorkflow(
             name = "dangling", nodes = listOf(trigger),
             connections = listOf(EnhancedConnection(trigger.id, "non_existent_node"))
         )
-
         val result = WorkflowValidator().validate(wf)
         assertFalse("悬空边应导致校验失败", result.isValid)
     }
@@ -205,7 +197,6 @@ class EnhancedWorkflowTest {
             ]
         }
         """.trimIndent()
-
         val result = WorkflowMigrationAdapter().migrateFromJson(oldJson)
         assertTrue("迁移应成功", result.isSuccess)
         val wf = result.workflow!!
@@ -232,7 +223,6 @@ class EnhancedWorkflowTest {
             ]
         }
         """.trimIndent()
-
         val result = WorkflowMigrationAdapter().migrateFromJson(oldJson)
         assertTrue(result.isSuccess)
         val wf = result.workflow!!
@@ -250,17 +240,14 @@ class EnhancedWorkflowTest {
             config = EnhancedNodeConfig(triggerConfig = TriggerConfigDef(triggerType = TriggerTypeDef.MANUAL)))
         val exec = EnhancedNode(name = "E", type = EnhancedNodeType.EXECUTE,
             config = EnhancedNodeConfig(actionType = "log"))
-
         val wf = EnhancedWorkflow(
             name = "round-trip-test",
             nodes = listOf(trigger, exec),
             connections = listOf(EnhancedConnection(trigger.id, exec.id))
         )
-
         val serializer = WorkflowSerializer.getInstance()
         val json = serializer.toJson(wf)
         val result = serializer.fromJson(json)
-
         assertTrue(result.isSuccess)
         assertEquals(1, result.workflows.size)
         assertEquals("round-trip-test", result.workflows[0].name)
@@ -273,17 +260,14 @@ class EnhancedWorkflowTest {
             config = EnhancedNodeConfig(triggerConfig = TriggerConfigDef(triggerType = TriggerTypeDef.MANUAL)))
         val exec = EnhancedNode(name = "E", type = EnhancedNodeType.EXECUTE,
             config = EnhancedNodeConfig(actionType = "log"))
-
         val wf = EnhancedWorkflow(
             name = "compact-test",
             nodes = listOf(trigger, exec),
             connections = listOf(EnhancedConnection(trigger.id, exec.id))
         )
-
         val serializer = WorkflowSerializer.getInstance()
         val compact = serializer.toCompact(wf)
         val result = serializer.fromCompact(compact)
-
         assertTrue(result.isSuccess)
         assertEquals("compact-test", result.workflows[0].name)
     }
@@ -295,11 +279,11 @@ class EnhancedWorkflowTest {
         val json = serializer.toJson(wf)
 
         // 篡改 JSON（破坏校验和）
-    val tampered = json.replace("checksum-test", "tampered-test")
+        val tampered = json.replace("checksum-test", "tampered-test")
         val result = serializer.fromJson(tampered)
 
         // 校验和应该不匹配
-                assertFalse("篡改后应校验失败", result.isSuccess)
+        assertFalse("篡改后应校验失败", result.isSuccess)
     }
 
     // ============ 监控测试 ============
@@ -308,11 +292,9 @@ class EnhancedWorkflowTest {
     fun testMonitor_recordsExecution() {
         val monitor = WorkflowMonitor.getInstance()
         monitor.reset()
-
         monitor.onExecutionStarted("t1", "wf1", "测试工作流")
         monitor.onNodeCompleted("t1", "n1", "EXECUTE", "log", true, 100)
         monitor.onExecutionCompleted("t1", "wf1", "测试工作流", true, 500, 1, null)
-
         val snapshot = monitor.currentSnapshot()!!
         assertEquals(1, snapshot.totals.totalExecutions)
         assertEquals(1, snapshot.totals.successCount)
@@ -324,10 +306,8 @@ class EnhancedWorkflowTest {
     fun testMonitor_errorDistribution() {
         val monitor = WorkflowMonitor.getInstance()
         monitor.reset()
-
         monitor.onExecutionStarted("t1", "wf1", "测试")
         monitor.onExecutionCompleted("t1", "wf1", "测试", false, 100, 0, "connection timeout")
-
         val snapshot = monitor.currentSnapshot()!!
         assertEquals(1, snapshot.totals.failureCount)
         assertTrue("应记录超时错误", snapshot.errorDistribution.containsKey("TIMEOUT"))
@@ -337,10 +317,8 @@ class EnhancedWorkflowTest {
     fun testMonitor_prometheusExport() {
         val monitor = WorkflowMonitor.getInstance()
         monitor.reset()
-
         monitor.onExecutionStarted("t1", "wf1", "测试")
         monitor.onExecutionCompleted("t1", "wf1", "测试", true, 100, 1, null)
-
         val metrics = monitor.exportPrometheusMetrics()
         assertTrue(metrics.contains("workflow_executions_total"))
         assertTrue(metrics.contains("workflow_active_executions"))

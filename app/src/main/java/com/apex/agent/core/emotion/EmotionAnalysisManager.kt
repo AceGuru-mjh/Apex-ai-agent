@@ -19,9 +19,8 @@ class EmotionAnalysisManager private constructor(
     private val TAG = "EmotionAnalysisManager"
     
     // 缓存情感分析结果
-    private val emotionCache = ConcurrentHashMap<String, EmotionProfile>()
-    
-    companion object {
+        private val emotionCache = ConcurrentHashMap<String, EmotionProfile>()
+        companion object {
         @Volatile private var INSTANCE: EmotionAnalysisManager? = null
         
         fun getInstance(context: Context): EmotionAnalysisManager {
@@ -40,10 +39,10 @@ class EmotionAnalysisManager private constructor(
      */
     suspend fun analyzeUserEmotion(userId: String, messages: List<ChatMessage>): EmotionProfile = withContext(Dispatchers.IO) {
         // 先从缓存获取
-                emotionCache[userId]?.let { return@withContext it }
+        emotionCache[userId]?.let { return@withContext it }
         
         // 分析情感
-    val profile = emotionAnalyzer.analyzeEmotion(messages)
+        val profile = emotionAnalyzer.analyzeEmotion(messages)
         emotionCache[userId] = profile
         profile
     }
@@ -126,7 +125,6 @@ class EmotionAnalysisManager private constructor(
      */
     suspend fun getEmotionalAdvice(userId: String, messages: List<ChatMessage>): String = withContext(Dispatchers.IO) {
         val profile = analyzeUserEmotion(userId, messages)
-        
         when (profile.dominantEmotion) {
             "开忆-> "用户当前情绪积极，保持愉快的互动方方式
             "满意" -> "用户对服务满意，继续保持良好的服务质量，"
@@ -136,7 +134,7 @@ class EmotionAnalysisManager private constructor(
             "困惑" -> "用户感到困惑，需要提供详细的解释和指导，"
             "失望" -> "用户感到失望，需要提供替代方案和鼓励的"
             "惊讶" -> "用户感到惊讶，需要确认信息并提供更多细节点"
-            else -> "用户情绪中性，保持正常的互动方式，"
+        else -> "用户情绪中性，保持正常的互动方式，"
         }
     }
 }

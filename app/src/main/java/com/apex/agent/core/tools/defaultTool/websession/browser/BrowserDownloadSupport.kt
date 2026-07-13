@@ -46,7 +46,7 @@ internal enum class BrowserDownloadStatus(val wireName: String) {
     COMPLETED("completed"),
     FAILED("failed"),
     CANCELED("canceled");
-            companion object {
+        companion object {
         fun fromWireName(value: String): BrowserDownloadStatus =
             entries.firstOrNull { it.wireName == value } ?: FAILED
     }
@@ -73,15 +73,13 @@ internal data class BrowserDownloadSegmentRecord(
         } else {
             -1L
         }
-
-    fun toJson(): JSONObject =
+        fun toJson(): JSONObject =
         JSONObject()
             .put("index", index)
             .put("start", startInclusive)
             .put("end", endInclusive)
             .put("temp_path", tempPath)
-
-    companion object {
+        companion object {
         fun fromJson(json: JSONObject): BrowserDownloadSegmentRecord =
             BrowserDownloadSegmentRecord(
                 index = json.optInt("index"),
@@ -118,8 +116,7 @@ internal data class BrowserDownloadTaskRecord(
             headers = LinkedHashMap(headers),
             segments = segments.map { it.copy() }.toMutableList()
         )
-
-    fun activeOrPending(): Boolean =
+        fun activeOrPending(): Boolean =
         status == BrowserDownloadStatus.QUEUED ||
             status == BrowserDownloadStatus.CONNECTING ||
             status == BrowserDownloadStatus.DOWNLOADING
@@ -163,20 +160,19 @@ internal data class BrowserDownloadTaskRecord(
                     }
                 }
             )
-
-    companion object {
+        companion object {
         fun fromJson(json: JSONObject): BrowserDownloadTaskRecord {
             val headersJson = json.optJSONObject("headers") ?: JSONObject()
         val headers = LinkedHashMap<String, String>()
-            headersJson.keys().forEach { key ->
+        headersJson.keys().forEach { key ->
                 headers[key] = headersJson.optString(key)
             }
-            val segmentsJson = json.optJSONArray("segments") ?: JSONArray()
+        val segmentsJson = json.optJSONArray("segments") ?: JSONArray()
         val segments =
                 MutableList(segmentsJson.length()) { index ->
                     BrowserDownloadSegmentRecord.fromJson(segmentsJson.getJSONObject(index))
                 }
-            return BrowserDownloadTaskRecord(
+        return BrowserDownloadTaskRecord(
                 id = json.optString("id"),
                 sessionId = json.optString("session_id").ifBlank { null },
                 type = json.optString("type", DOWNLOAD_TYPE_HTTP),
@@ -224,12 +220,11 @@ internal class BrowserDownloadManager private constructor(
                 }
             }
     }
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val tasks = LinkedHashMap<String, BrowserDownloadTaskRecord>()
-    private val activeControls = ConcurrentHashMap<String, BrowserDownloadActiveControl>()
-    private val inlinePayloads = ConcurrentHashMap<String, BrowserDownloadInlinePayload>()
-    private val stateFile = File(appContext.filesDir, BROWSER_DOWNLOAD_STATE_FILE)
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        private val tasks = LinkedHashMap<String, BrowserDownloadTaskRecord>()
+        private val activeControls = ConcurrentHashMap<String, BrowserDownloadActiveControl>()
+        private val inlinePayloads = ConcurrentHashMap<String, BrowserDownloadInlinePayload>()
+        private val stateFile = File(appContext.filesDir, BROWSER_DOWNLOAD_STATE_FILE)
 
     @Volatile private var taskListener: ((BrowserDownloadTaskRecord, WebDownloadEvent) -> Unit)? = null
     @Volatile private var uiRefreshListener: (() -> Unit)? = null
@@ -242,23 +237,19 @@ internal class BrowserDownloadManager private constructor(
         loadState()
         normalizeRestoredTasks()
     }
-
-    fun setTaskListener(listener: ((BrowserDownloadTaskRecord, WebDownloadEvent) -> Unit)) {
+        fun setTaskListener(listener: ((BrowserDownloadTaskRecord, WebDownloadEvent) -> Unit)) {
         taskListener = listener
     }
-
-    fun setUiRefreshListener(listener: (() -> Unit)) {
+        fun setUiRefreshListener(listener: (() -> Unit)) {
         uiRefreshListener = listener
     }
-
-    fun snapshotTasks(): List<BrowserDownloadTaskRecord> =
+        fun snapshotTasks(): List<BrowserDownloadTaskRecord> =
         synchronized(tasks) {
             tasks.values
                 .map { it.snapshot() }
                 .sortedWith(compareByDescending<BrowserDownloadTaskRecord> { it.updatedAt }.thenByDescending { it.createdAt })
         }
-
-    fun latestSessionUpdateAt(sessionId: String): Long =
+        fun latestSessionUpdateAt(sessionId: String): Long =
         synchronized(tasks) {
             tasks.values
                 .asSequence()
@@ -266,8 +257,7 @@ internal class BrowserDownloadManager private constructor(
                 .maxOfOrNull { it.updatedAt }
                 ?: 0L
         }
-
-    fun latestEventAt(): Long = lastEventAt
+        fun latestEventAt(): Long = lastEventAt
 
     fun latestEventAfter(marker: Long): WebDownloadEvent? =
         if (lastEventAt > marker) {
@@ -275,8 +265,7 @@ internal class BrowserDownloadManager private constructor(
         } else {
             null
         }
-
-    fun startHttpDownload(
+        fun startHttpDownload(
         sessionId: String?,
         url: String,
         suggestedFileName: String,
@@ -314,8 +303,7 @@ internal class BrowserDownloadManager private constructor(
         startWorker(task.id)
         return task.snapshot()
     }
-
-    fun startInlineDownload(
+        fun startInlineDownload(
         sessionId: String?,
         type: String,
         suggestedFileName: String,
@@ -364,19 +352,17 @@ internal class BrowserDownloadManager private constructor(
         startWorker(task.id)
         return task.snapshot()
     }
-
-    fun performAction(taskId: String, action: BrowserDownloadAction) {
+        fun performAction(taskId: String, action: BrowserDownloadAction) {
         when (action) {
             BrowserDownloadAction.PAUSE -> pauseTask(taskId)
-            BrowserDownloadAction.RESUME -> resumeTask(taskId)
-            BrowserDownloadAction.CANCEL -> cancelTask(taskId)
-            BrowserDownloadAction.RETRY -> retryTask(taskId)
-            BrowserDownloadAction.DELETE_RECORD -> deleteTask(taskId, deleteFile = false)
-            BrowserDownloadAction.DELETE_WITH_FILE -> deleteTask(taskId, deleteFile = true)
+        BrowserDownloadAction.RESUME -> resumeTask(taskId)
+        BrowserDownloadAction.CANCEL -> cancelTask(taskId)
+        BrowserDownloadAction.RETRY -> retryTask(taskId)
+        BrowserDownloadAction.DELETE_RECORD -> deleteTask(taskId, deleteFile = false)
+        BrowserDownloadAction.DELETE_WITH_FILE -> deleteTask(taskId, deleteFile = true)
         }
     }
-
-    fun renderDownloads(marker: Long = 0L, includeAll: Boolean = false): String? {
+        fun renderDownloads(marker: Long = 0L, includeAll: Boolean = false): String? {
         val visibleTasks =
             snapshotTasks()
                 .filter { includeAll || it.updatedAt > marker || it.activeOrPending() }
@@ -386,34 +372,33 @@ internal class BrowserDownloadManager private constructor(
         return visibleTasks.joinToString("\n\n") { task ->
             buildString {
                 appendLine("- File: ${task.fileName}")
-                appendLine("- Status: ${task.status.wireName}")
-                appendLine("- Type: ${task.type}")
-                if (!task.sourceUrl.isNullOrBlank()) {
+        appendLine("- Status: ${task.status.wireName}")
+        appendLine("- Type: ${task.type}")
+        if (!task.sourceUrl.isNullOrBlank()) {
                     appendLine("- URL: ${task.sourceUrl}")
                 }
-                if (task.totalBytes > 0L) {
+        if (task.totalBytes > 0L) {
                     appendLine("- Progress: ${formatTaskProgress(task)}")
                 } else if (task.downloadedBytes > 0L) {
                     appendLine("- Downloaded: ${formatBytes(task.downloadedBytes)}")
                 }
-                if (task.speedBytesPerSecond > 0L) {
+        if (task.speedBytesPerSecond > 0L) {
                     appendLine("- Speed: ${formatBytes(task.speedBytesPerSecond)}/s")
                 }
-                appendLine("- Saved path: ${task.destinationPath}")
-                appendLine("- Resume supported: ${if (task.supportsResume) "yes" else "no"}")
-                if (!task.errorMessage.isNullOrBlank()) {
+        appendLine("- Saved path: ${task.destinationPath}")
+        appendLine("- Resume supported: ${if (task.supportsResume) "yes" else "no"}")
+        if (!task.errorMessage.isNullOrBlank()) {
                     append("- Error: ${task.errorMessage}")
                 }
             }.trim()
         }
     }
-
-    private fun pauseTask(taskId: String) {
+        private fun pauseTask(taskId: String) {
         val control = activeControls[taskId]
         if (control != null) {
             control.stopAction = BrowserDownloadAction.PAUSE
             control.job.cancel(CancellationException("pause requested"))
-            return
+        return
         }
         mutateTask(taskId, eventStatus = "paused") { task ->
             if (task.activeOrPending()) {
@@ -423,13 +408,12 @@ internal class BrowserDownloadManager private constructor(
             }
         }
     }
-
-    private fun cancelTask(taskId: String) {
+        private fun cancelTask(taskId: String) {
         val control = activeControls[taskId]
         if (control != null) {
             control.stopAction = BrowserDownloadAction.CANCEL
             control.job.cancel(CancellationException("cancel requested"))
-            return
+        return
         }
         mutateTask(taskId, eventStatus = "canceled") { task ->
             if (task.status != BrowserDownloadStatus.COMPLETED) {
@@ -439,8 +423,7 @@ internal class BrowserDownloadManager private constructor(
             }
         }
     }
-
-    private fun resumeTask(taskId: String) {
+        private fun resumeTask(taskId: String) {
         val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
         if (!task.supportsResumeAction()) {
             return
@@ -458,8 +441,7 @@ internal class BrowserDownloadManager private constructor(
         }
         startWorker(taskId)
     }
-
-    private fun retryTask(taskId: String) {
+        private fun retryTask(taskId: String) {
         val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
         if (!task.supportsRetry()) {
             return
@@ -477,8 +459,7 @@ internal class BrowserDownloadManager private constructor(
         }
         startWorker(taskId)
     }
-
-    private fun deleteTask(taskId: String, deleteFile: Boolean) {
+        private fun deleteTask(taskId: String, deleteFile: Boolean) {
         val control = activeControls[taskId]
         if (control != null) {
             control.stopAction =
@@ -487,19 +468,18 @@ internal class BrowserDownloadManager private constructor(
                 } else {
                     BrowserDownloadAction.DELETE_RECORD
                 }
-            scope.launch {
+        scope.launch {
                 runCatching {
                     control.job.cancel(CancellationException("delete requested"))
-                    control.job.join()
+        control.job.join()
                 }
-                deleteTaskArtifacts(taskId, deleteFile)
+        deleteTaskArtifacts(taskId, deleteFile)
             }
-            return
+        return
         }
         deleteTaskArtifacts(taskId, deleteFile)
     }
-
-    private fun startWorker(taskId: String) {
+        private fun startWorker(taskId: String) {
         if (activeControls.containsKey(taskId)) {
             return
         }
@@ -509,7 +489,7 @@ internal class BrowserDownloadManager private constructor(
                 try {
                     when (task.type) {
                         DOWNLOAD_TYPE_HTTP -> runHttpTask(taskId)
-                        else -> runInlineTask(taskId)
+        else -> runInlineTask(taskId)
                     }
                 } finally {
                     activeControls.remove(taskId)
@@ -517,16 +497,15 @@ internal class BrowserDownloadManager private constructor(
             }
         activeControls[taskId] = BrowserDownloadActiveControl(job = job)
     }
-
-    private suspend fun runInlineTask(taskId: String) {
+        private suspend fun runInlineTask(taskId: String) {
         val payload = inlinePayloads[taskId]?.bytes
         if (payload == null) {
             mutateTask(taskId, eventStatus = "failed") { task ->
                 task.status = BrowserDownloadStatus.FAILED
                 task.errorMessage = "Inline download payload is no longer available."
-                task.speedBytesPerSecond = 0L
+        task.speedBytesPerSecond = 0L
             }
-            return
+        return
         }
         updateTaskStatus(taskId, BrowserDownloadStatus.CONNECTING)
         updateTaskStatus(taskId, BrowserDownloadStatus.DOWNLOADING)
@@ -534,56 +513,53 @@ internal class BrowserDownloadManager private constructor(
             val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
         val segment = task.segments.firstOrNull()
                 ?: throw IllegalStateException("Inline download segment is missing.")
-            val partFile = File(segment.tempPath)
-            partFile.parentFile?.mkdirs()
-            FileOutputStream(partFile, false).use { output ->
+        val partFile = File(segment.tempPath)
+        partFile.parentFile?.mkdirs()
+        FileOutputStream(partFile, false).use { output ->
                 output.write(payload)
-                output.flush()
+        output.flush()
             }
-            currentCoroutineContext().ensureActive()
-            inlinePayloads.remove(taskId)
-            mutateTask(taskId, forcePersist = false, forceUi = false) { current ->
+        currentCoroutineContext().ensureActive()
+        inlinePayloads.remove(taskId)
+        mutateTask(taskId, forcePersist = false, forceUi = false) { current ->
                 current.downloadedBytes = payload.size.toLong()
-                current.totalBytes = payload.size.toLong()
+        current.totalBytes = payload.size.toLong()
             }
-            mergeCompletedTask(taskId)
+        mergeCompletedTask(taskId)
         } catch (cancelled: CancellationException) {
             handleTaskCancellation(taskId, cancelled)
         } catch (error: Throwable) {
             handleTaskError(taskId, error)
         }
     }
-
-    private suspend fun runHttpTask(taskId: String) {
+        private suspend fun runHttpTask(taskId: String) {
         updateTaskStatus(taskId, BrowserDownloadStatus.CONNECTING)
         val originalTask = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
         try {
             val probe = HttpMultiPartDownloader.probeDownload(originalTask.sourceUrl.orEmpty(), originalTask.headers)
-            currentCoroutineContext().ensureActive()
-            val supportsResume = probe.acceptRanges && probe.contentLength > 0L
+        currentCoroutineContext().ensureActive()
+        val supportsResume = probe.acceptRanges && probe.contentLength > 0L
             configureTaskSegments(taskId, probe.contentLength, supportsResume)
-            initializeDownloadedBytes(taskId)
-            updateTaskStatus(taskId, BrowserDownloadStatus.DOWNLOADING)
-
-            val speedLock = Any()
-            var bytesAtLastSample = currentDownloadedBytes(taskId)
-            var sampledAt = System.currentTimeMillis()
-            val onChunk: (Int) -> Unit = { chunkBytes ->
+        initializeDownloadedBytes(taskId)
+        updateTaskStatus(taskId, BrowserDownloadStatus.DOWNLOADING)
+        val speedLock = Any()
+        var bytesAtLastSample = currentDownloadedBytes(taskId)
+        var sampledAt = System.currentTimeMillis()
+        val onChunk: (Int) -> Unit = { chunkBytes ->
                 incrementDownloadedBytes(taskId, chunkBytes.toLong())
-                val now = System.currentTimeMillis()
-                synchronized(speedLock) {
+        val now = System.currentTimeMillis()
+        synchronized(speedLock) {
                     if (now - sampledAt >= 500L) {
                         val downloadedNow = currentDownloadedBytes(taskId)
         val delta = max(0L, downloadedNow - bytesAtLastSample)
-                        val speed = (delta * 1000L) / max(1L, now - sampledAt)
-                        updateTaskSpeed(taskId, speed)
-                        bytesAtLastSample = downloadedNow
+        val speed = (delta * 1000L) / max(1L, now - sampledAt)
+        updateTaskSpeed(taskId, speed)
+        bytesAtLastSample = downloadedNow
                         sampledAt = now
                     }
                 }
             }
-
-            val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
+        val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
             if (task.supportsResume && task.segments.size > 1) {
                 coroutineScope {
                     task.segments.map { segment ->
@@ -595,18 +571,16 @@ internal class BrowserDownloadManager private constructor(
             } else {
                 downloadSegment(taskId, task, task.segments.first(), onChunk)
             }
-
-            currentCoroutineContext().ensureActive()
-            updateTaskSpeed(taskId, 0L)
-            mergeCompletedTask(taskId)
+        currentCoroutineContext().ensureActive()
+        updateTaskSpeed(taskId, 0L)
+        mergeCompletedTask(taskId)
         } catch (cancelled: CancellationException) {
             handleTaskCancellation(taskId, cancelled)
         } catch (error: Throwable) {
             handleTaskError(taskId, error)
         }
     }
-
-    private suspend fun downloadSegment(
+        private suspend fun downloadSegment(
         taskId: String,
         task: BrowserDownloadTaskRecord,
         segment: BrowserDownloadSegmentRecord,
@@ -625,15 +599,12 @@ internal class BrowserDownloadManager private constructor(
             } else {
                 0L
             }
-
         if (expectedLength > 0L && existingBytes >= expectedLength) {
             return
         }
-
         if (!currentTask.supportsResume && segmentFile.exists()) {
             segmentFile.delete()
         }
-
         val startInclusive =
             if (currentTask.supportsResume) {
                 segment.startInclusive + existingBytes
@@ -643,7 +614,6 @@ internal class BrowserDownloadManager private constructor(
         val append = currentTask.supportsResume && existingBytes > 0L
         val endInclusive = segment.endInclusive.takeIf { it >= 0L }
         val coroutineContext = currentCoroutineContext()
-
         HttpMultiPartDownloader.downloadSegment(
             url = task.sourceUrl.orEmpty(),
             dest = segmentFile,
@@ -657,30 +627,28 @@ internal class BrowserDownloadManager private constructor(
             }
         )
     }
-
-    private fun configureTaskSegments(taskId: String, totalBytes: Long, supportsResume: Boolean) {
+        private fun configureTaskSegments(taskId: String, totalBytes: Long, supportsResume: Boolean) {
         mutateTask(taskId, forcePersist = true, forceUi = true) { task ->
             task.totalBytes = totalBytes
             task.supportsResume = supportsResume
             task.errorMessage = null
             task.completedAt = null
             val destination = File(task.destinationPath)
-            if (!supportsResume || totalBytes <= 0L) {
+        if (!supportsResume || totalBytes <= 0L) {
                 task.segments.clear()
-                task.segments +=
+        task.segments +=
                     BrowserDownloadSegmentRecord(
                         index = 0,
                         startInclusive = 0L,
                         endInclusive = -1L,
                         tempPath = buildSinglePartPath(destination).absolutePath
                     )
-                task.threadCount = 1
+        task.threadCount = 1
                 return@mutateTask
             }
-
-            val currentByIndex = task.segments.associateBy { it.index }
-            task.segments.clear()
-            HttpMultiPartDownloader.buildSegmentPlan(totalBytes, DEFAULT_BROWSER_DOWNLOAD_THREADS).forEach { plan ->
+        val currentByIndex = task.segments.associateBy { it.index }
+        task.segments.clear()
+        HttpMultiPartDownloader.buildSegmentPlan(totalBytes, DEFAULT_BROWSER_DOWNLOAD_THREADS).forEach { plan ->
                 task.segments +=
                     BrowserDownloadSegmentRecord(
                         index = plan.index,
@@ -691,71 +659,65 @@ internal class BrowserDownloadManager private constructor(
                                 ?: buildSegmentPartPath(destination, plan.index).absolutePath
                     )
             }
-            task.threadCount = task.segments.size
+        task.threadCount = task.segments.size
         }
     }
-
-    private fun initializeDownloadedBytes(taskId: String) {
+        private fun initializeDownloadedBytes(taskId: String) {
         mutateTask(taskId, forcePersist = false, forceUi = false) { task ->
             task.downloadedBytes = computeDownloadedBytes(task)
         }
     }
-
-    private fun currentDownloadedBytes(taskId: String): Long =
+        private fun currentDownloadedBytes(taskId: String): Long =
         synchronized(tasks) {
             tasks[taskId]?.downloadedBytes ?: 0L
         }
-
-    private fun incrementDownloadedBytes(taskId: String, delta: Long) {
+        private fun incrementDownloadedBytes(taskId: String, delta: Long) {
         mutateTask(taskId, forcePersist = false, forceUi = false) { task ->
             task.downloadedBytes += delta
         }
     }
-
-    private fun updateTaskSpeed(taskId: String, speedBytesPerSecond: Long) {
+        private fun updateTaskSpeed(taskId: String, speedBytesPerSecond: Long) {
         mutateTask(taskId, forcePersist = false, forceUi = true) { task ->
             task.speedBytesPerSecond = speedBytesPerSecond
         }
     }
-
-    private fun updateTaskStatus(taskId: String, status: BrowserDownloadStatus) {
+        private fun updateTaskStatus(taskId: String, status: BrowserDownloadStatus) {
         mutateTask(taskId, forcePersist = true, forceUi = true, eventStatus = status.wireName) { task ->
             task.status = status
             task.errorMessage = null
             task.speedBytesPerSecond = 0L
         }
     }
-
-    private fun mergeCompletedTask(taskId: String) {
+        private fun mergeCompletedTask(taskId: String) {
         val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
         val destinationFile = File(task.destinationPath)
         destinationFile.parentFile?.mkdirs()
         if (task.segments.size == 1) {
             val partFile = File(task.segments.first().tempPath)
-            if (!partFile.exists()) {
+        if (!partFile.exists()) {
                 throw IllegalStateException("Download part file is missing for ${task.fileName}")
             }
-            if (destinationFile.exists()) {
+        if (destinationFile.exists()) {
                 destinationFile.delete()
             }
-            if (!partFile.renameTo(destinationFile)) {
+        if (!partFile.renameTo(destinationFile)) {
                 partFile.copyTo(destinationFile, overwrite = true)
-                partFile.delete()
+        partFile.delete()
             }
         } else {
             FileOutputStream(destinationFile, false).use { output ->
                 task.segments.sortedBy { it.index }.forEach { segment ->
                     val partFile = File(segment.tempPath)
-                    if (!partFile.exists()) {
+        if (!partFile.exists()) {
                         throw IllegalStateException("Missing segment ${segment.index} for ${task.fileName}")
                     }
-                    partFile.inputStream().use { input ->
+        partFile.inputStream().use { input ->
                         input.copyTo(output)
                     }
                 }
-                output.flush()
+        output.flush()
             }
-            task.segments.forEach { segment ->
+        task.segments.forEach { segment ->
                 File(segment.tempPath).delete()
             }
         }
@@ -769,7 +731,7 @@ internal class BrowserDownloadManager private constructor(
         mutateTask(taskId, eventStatus = "completed") { current ->
             current.status = BrowserDownloadStatus.COMPLETED
             current.completedAt = System.currentTimeMillis()
-            current.errorMessage = null
+        current.errorMessage = null
             current.speedBytesPerSecond = 0L
             current.downloadedBytes =
                 if (current.totalBytes > 0L) {
@@ -779,8 +741,7 @@ internal class BrowserDownloadManager private constructor(
                 }
         }
     }
-
-    private fun failTask(taskId: String, error: Throwable) {
+        private fun failTask(taskId: String, error: Throwable) {
         AppLogger.w(DOWNLOAD_SUPPORT_TAG, "Browser download failed: ${error.message}")
         mutateTask(taskId, eventStatus = "failed") { task ->
             task.status = BrowserDownloadStatus.FAILED
@@ -788,24 +749,20 @@ internal class BrowserDownloadManager private constructor(
             task.speedBytesPerSecond = 0L
         }
     }
-
-    private suspend fun handleTaskError(taskId: String, error: Throwable) {
+        private suspend fun handleTaskError(taskId: String, error: Throwable) {
         if (error is CancellationException) {
             handleTaskCancellation(taskId, error)
-            return
+        return
         }
-
         if (activeControls[taskId]?.stopAction != null && !currentCoroutineContext().isActive) {
             val cancellation = CancellationException(error.message ?: "Download cancelled")
-            cancellation.initCause(error)
-            handleTaskCancellation(taskId, cancellation)
-            return
+        cancellation.initCause(error)
+        handleTaskCancellation(taskId, cancellation)
+        return
         }
-
         failTask(taskId, error)
     }
-
-    private fun handleTaskCancellation(taskId: String, error: CancellationException) {
+        private fun handleTaskCancellation(taskId: String, error: CancellationException) {
         when (activeControls[taskId]?.stopAction) {
             BrowserDownloadAction.PAUSE ->
                 mutateTask(taskId, eventStatus = "paused") { task ->
@@ -813,23 +770,20 @@ internal class BrowserDownloadManager private constructor(
                     task.errorMessage = null
                     task.speedBytesPerSecond = 0L
                 }
-
-            BrowserDownloadAction.CANCEL ->
+        BrowserDownloadAction.CANCEL ->
                 mutateTask(taskId, eventStatus = "canceled") { task ->
                     task.status = BrowserDownloadStatus.CANCELED
                     task.errorMessage = null
                     task.speedBytesPerSecond = 0L
                 }
-
-            BrowserDownloadAction.DELETE_RECORD,
+        BrowserDownloadAction.DELETE_RECORD,
             BrowserDownloadAction.DELETE_WITH_FILE -> Unit
             BrowserDownloadAction.RESUME,
             BrowserDownloadAction.RETRY -> Unit
             null -> failTask(taskId, error)
         }
     }
-
-    private fun deleteTaskArtifacts(taskId: String, deleteFile: Boolean) {
+        private fun deleteTaskArtifacts(taskId: String, deleteFile: Boolean) {
         val task = synchronized(tasks) { tasks[taskId]?.snapshot() } ?: return
         if (deleteFile) {
             clearTaskFiles(task, includeDestinationFile = true)
@@ -841,12 +795,10 @@ internal class BrowserDownloadManager private constructor(
         persistState(force = true)
         dispatchUiRefresh(force = true)
     }
-
-    private fun clearTemporaryArtifacts(task: BrowserDownloadTaskRecord) {
+        private fun clearTemporaryArtifacts(task: BrowserDownloadTaskRecord) {
         clearTaskFiles(task, includeDestinationFile = task.status != BrowserDownloadStatus.COMPLETED)
     }
-
-    private fun clearTaskFiles(task: BrowserDownloadTaskRecord, includeDestinationFile: Boolean) {
+        private fun clearTaskFiles(task: BrowserDownloadTaskRecord, includeDestinationFile: Boolean) {
         task.segments.forEach { segment ->
             runCatching { File(segment.tempPath).delete() }
         }
@@ -854,50 +806,47 @@ internal class BrowserDownloadManager private constructor(
             runCatching { File(task.destinationPath).delete() }
         }
     }
-
-    private fun computeDownloadedBytes(task: BrowserDownloadTaskRecord): Long =
+        private fun computeDownloadedBytes(task: BrowserDownloadTaskRecord): Long =
         task.segments.sumOf { segment ->
             val file = File(segment.tempPath)
-            if (!file.exists()) {
+        if (!file.exists()) {
                 0L
             } else {
                 val expected = segment.expectedLength()
-                if (expected > 0L) {
+        if (expected > 0L) {
                     file.length().coerceAtMost(expected)
                 } else {
                     file.length()
                 }
             }
         }
-
-    private fun resetSegmentsForRestart(task: BrowserDownloadTaskRecord) {
+        private fun resetSegmentsForRestart(task: BrowserDownloadTaskRecord) {
         val destination = File(task.destinationPath)
         if (task.type != DOWNLOAD_TYPE_HTTP) {
             task.segments.clear()
-            task.segments +=
+        task.segments +=
                 BrowserDownloadSegmentRecord(
                     index = 0,
                     startInclusive = 0L,
                     endInclusive = task.totalBytes - 1L,
                     tempPath = buildSinglePartPath(destination).absolutePath
                 )
-            task.threadCount = 1
+        task.threadCount = 1
             return
         }
         if (!task.supportsResume) {
             task.segments.clear()
-            task.segments +=
+        task.segments +=
                 BrowserDownloadSegmentRecord(
                     index = 0,
                     startInclusive = 0L,
                     endInclusive = -1L,
                     tempPath = buildSinglePartPath(destination).absolutePath
                 )
-            task.threadCount = 1
+        task.threadCount = 1
         }
     }
-
-    private fun mutateTask(
+        private fun mutateTask(
         taskId: String,
         forcePersist: Boolean = true,
         forceUi: Boolean = true,
@@ -908,8 +857,8 @@ internal class BrowserDownloadManager private constructor(
             synchronized(tasks) {
                 tasks[taskId]?.let { task ->
                     block(task)
-                    task.updatedAt = System.currentTimeMillis()
-                    task.snapshot()
+        task.updatedAt = System.currentTimeMillis()
+        task.snapshot()
                 }
             } ?: return null
         if (forcePersist) {
@@ -922,8 +871,7 @@ internal class BrowserDownloadManager private constructor(
         )
         return snapshot
     }
-
-    private fun notifyTaskChanged(
+        private fun notifyTaskChanged(
         task: BrowserDownloadTaskRecord,
         event: WebDownloadEvent?,
         forceUi: Boolean
@@ -931,7 +879,7 @@ internal class BrowserDownloadManager private constructor(
         if (event != null) {
             lastEvent = event
             lastEventAt = System.currentTimeMillis()
-            taskListener?.invoke(task.snapshot(), event)
+        taskListener?.invoke(task.snapshot(), event)
         }
         dispatchUiRefresh(
             force =
@@ -946,8 +894,7 @@ internal class BrowserDownloadManager private constructor(
                     task.status == BrowserDownloadStatus.FAILED
         )
     }
-
-    private fun dispatchUiRefresh(force: Boolean) {
+        private fun dispatchUiRefresh(force: Boolean) {
         val now = System.currentTimeMillis()
         if (!force && now - lastUiDispatchAt < 250L) {
             return
@@ -955,8 +902,7 @@ internal class BrowserDownloadManager private constructor(
         lastUiDispatchAt = now
         uiRefreshListener?.invoke()
     }
-
-    private fun buildTaskEvent(task: BrowserDownloadTaskRecord, status: String): WebDownloadEvent =
+        private fun buildTaskEvent(task: BrowserDownloadTaskRecord, status: String): WebDownloadEvent =
         WebDownloadEvent(
             status = status,
             type = task.type,
@@ -966,8 +912,7 @@ internal class BrowserDownloadManager private constructor(
             savedPath = task.destinationPath,
             error = task.errorMessage
         )
-
-    private fun persistState(force: Boolean) {
+        private fun persistState(force: Boolean) {
         val now = System.currentTimeMillis()
         if (!force && now - lastPersistAt < 500L) {
             return
@@ -987,30 +932,28 @@ internal class BrowserDownloadManager private constructor(
             AppLogger.w(DOWNLOAD_SUPPORT_TAG, "Failed to persist browser downloads: ${it.message}")
         }
     }
-
-    private fun loadState() {
+        private fun loadState() {
         if (!stateFile.exists()) {
             return
         }
         runCatching {
             val raw = stateFile.readText()
-            if (raw.isBlank()) {
+        if (raw.isBlank()) {
                 return@runCatching
             }
-            val array = JSONArray(raw)
-            synchronized(tasks) {
+        val array = JSONArray(raw)
+        synchronized(tasks) {
                 tasks.clear()
-                for (index in 0 until array.length()) {
+        for (index in 0 until array.length()) {
                     val task = BrowserDownloadTaskRecord.fromJson(array.getJSONObject(index))
-                    tasks[task.id] = task
+        tasks[task.id] = task
                 }
             }
         }.onFailure {
             AppLogger.w(DOWNLOAD_SUPPORT_TAG, "Failed to load browser downloads: ${it.message}")
         }
     }
-
-    private fun normalizeRestoredTasks() {
+        private fun normalizeRestoredTasks() {
         val now = System.currentTimeMillis()
         var changed = false
         synchronized(tasks) {
@@ -1018,18 +961,18 @@ internal class BrowserDownloadManager private constructor(
                 if (task.type != DOWNLOAD_TYPE_HTTP && task.status != BrowserDownloadStatus.COMPLETED) {
                     task.status = BrowserDownloadStatus.FAILED
                     task.errorMessage = "Inline download could not be resumed after app restart."
-                    task.updatedAt = now
+        task.updatedAt = now
                     task.speedBytesPerSecond = 0L
                     changed = true
                     return@forEach
                 }
-                if (task.activeOrPending()) {
+        if (task.activeOrPending()) {
                     task.status = BrowserDownloadStatus.PAUSED
                     task.errorMessage = null
                     task.speedBytesPerSecond = 0L
                     task.updatedAt = now
                     task.downloadedBytes = computeDownloadedBytes(task)
-                    changed = true
+        changed = true
                 }
             }
         }
@@ -1066,7 +1009,7 @@ internal fun StandardBrowserSessionTools.initializeBrowserDownloadSupport() {
             }
         }
     }
-    browserDownloadManager().setUiRefreshListener {
+        browserDownloadManager().setUiRefreshListener {
         StandardBrowserSessionTools.mainHandler.post {
             refreshSessionUiOnMain()
         }
@@ -1082,23 +1025,23 @@ internal fun StandardBrowserSessionTools.startBrowserManagedDownload(
 ) {
     val fileName = sanitizeFileName(android.webkit.URLUtil.guessFileName(url, contentDisposition, mimeType))
         val headers = linkedMapOf<String, String>()
-    if (userAgent.isNotBlank()) {
+        if (userAgent.isNotBlank()) {
         headers["User-Agent"] = userAgent
     }
-    android.webkit.CookieManager.getInstance().getCookie(url)?.takeIf { it.isNotBlank() }?.let {
+        android.webkit.CookieManager.getInstance().getCookie(url)?.takeIf { it.isNotBlank() }?.let {
         headers["Cookie"] = it
     }
-    session.currentUrl.takeIf { it.isNotBlank() }?.let {
+        session.currentUrl.takeIf { it.isNotBlank() }?.let {
         headers["Referer"] = it
     }
-    browserDownloadManager().startHttpDownload(
+        browserDownloadManager().startHttpDownload(
         sessionId = session.id,
         url = url,
         suggestedFileName = fileName,
         mimeType = mimeType,
         headers = headers
     )
-    showToast(context.getString(com.apex.agent.R.string.download_started, fileName))
+        showToast(context.getString(com.apex.agent.R.string.download_started, fileName))
 }
 
 internal fun StandardBrowserSessionTools.startInlineManagedDownload(
@@ -1111,8 +1054,8 @@ internal fun StandardBrowserSessionTools.startInlineManagedDownload(
 ) {
     val normalizedMimeType = mimeType.ifBlank { guessMimeTypeFromDataUrl(base64Data) }
         val resolvedFileName = resolveInlineDownloadFileName(fileName, normalizedMimeType)
-    val bytes = decodeInlineDownloadBytes(base64Data)
-    browserDownloadManager().startInlineDownload(
+        val bytes = decodeInlineDownloadBytes(base64Data)
+        browserDownloadManager().startInlineDownload(
         sessionId = session.id,
         type = type,
         suggestedFileName = resolvedFileName,
@@ -1120,13 +1063,13 @@ internal fun StandardBrowserSessionTools.startInlineManagedDownload(
         bytes = bytes,
         sourceUrl = sourceUrl
     )
-    showToast(context.getString(com.apex.agent.R.string.download_started, resolvedFileName))
+        showToast(context.getString(com.apex.agent.R.string.download_started, resolvedFileName))
 }
 
 internal fun StandardBrowserSessionTools.buildBrowserDownloadSummary(): BrowserDownloadSummary {
     val tasks = browserDownloadManager().snapshotTasks()
         val active = tasks.filter { it.activeOrPending() }
-    val failed = tasks.count { it.status == BrowserDownloadStatus.FAILED }
+        val failed = tasks.count { it.status == BrowserDownloadStatus.FAILED }
         val latestCompleted =
         tasks.filter { it.status == BrowserDownloadStatus.COMPLETED && it.completedAt != null }
             .maxByOrNull { it.completedAt ?: 0L }
@@ -1136,19 +1079,19 @@ internal fun StandardBrowserSessionTools.buildBrowserDownloadSummary(): BrowserD
             null
         } else {
             val progressTasks = active.filter { it.totalBytes > 0L }
-            if (progressTasks.isEmpty()) {
+        if (progressTasks.isEmpty()) {
                 null
             } else {
                 val downloaded = progressTasks.sumOf { it.downloadedBytes.toDouble() }
         val total = progressTasks.sumOf { it.totalBytes.toDouble() }
-                if (total > 0.0) {
+        if (total > 0.0) {
                     (downloaded / total).toFloat()
                 } else {
                     null
                 }
             }
         }
-    return BrowserDownloadSummary(
+        return BrowserDownloadSummary(
         activeCount = active.size,
         failedCount = failed,
         overallProgress = progress,
@@ -1183,7 +1126,7 @@ internal fun StandardBrowserSessionTools.buildBrowserDownloadUiState(): BrowserD
                 canOpenLocation = task.status == BrowserDownloadStatus.COMPLETED
             )
         }
-    return BrowserDownloadUiState(tasks = tasks)
+        return BrowserDownloadUiState(tasks = tasks)
 }
 
 internal fun StandardBrowserSessionTools.renderManagedDownloads(
@@ -1219,43 +1162,43 @@ internal fun StandardBrowserSessionTools.performBrowserDownloadDelete(
 internal fun StandardBrowserSessionTools.openDownloadedFile(taskId: String): Boolean {
     val task = browserDownloadManager().snapshotTasks().firstOrNull { it.id == taskId } ?: return false
         val file = File(task.destinationPath)
-    if (!file.exists()) {
+        if (!file.exists()) {
         return false
     }
-    val uri =
+        val uri =
         FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",
             file
         )
-    val mimeType =
+        val mimeType =
         task.mimeType
             ?: MimeTypeMap.getSingleton()
                 .getMimeTypeFromExtension(file.extension.lowercase(Locale.ROOT))
             ?: "application/octet-stream"
-    val intent =
+        val intent =
         Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, mimeType)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-    return launchBrowserExternalIntent(intent)
+        return launchBrowserExternalIntent(intent)
 }
 
 internal fun StandardBrowserSessionTools.openDownloadLocation(taskId: String? = null): Boolean {
     if (taskId != null && browserDownloadManager().snapshotTasks().none { task -> task.id == taskId }) {
         return false
     }
-    val intent =
+        val intent =
         Intent("android.intent.action.VIEW_DOWNLOADS").apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-    return launchBrowserExternalIntent(intent)
+        return launchBrowserExternalIntent(intent)
 }
 
 internal fun StandardBrowserSessionTools.launchBrowserExternalIntent(intent: Intent): Boolean {
     val currentActivity = ActivityLifecycleManager.getCurrentActivity()
-    return try {
+        return try {
         if (currentActivity != null && !currentActivity.isFinishing && !currentActivity.isDestroyed) {
             currentActivity.startActivity(Intent(intent))
         } else {
@@ -1278,11 +1221,11 @@ internal fun StandardBrowserSessionTools.launchBrowserExternalIntent(intent: Int
 private fun BrowserDownloadManager.resolveUniqueDestinationFile(suggestedFileName: String): File {
     val downloadsDir = publicDownloadsDirectory()
         val sanitized = suggestedFileName.trim().ifBlank { "download" }
-    val dotIndex = sanitized.lastIndexOf('.')
+        val dotIndex = sanitized.lastIndexOf('.')
         val base = if (dotIndex > 0) sanitized.substring(0, dotIndex) else sanitized
     val ext = if (dotIndex > 0) sanitized.substring(dotIndex) else ""
-    var candidate = File(downloadsDir, sanitized)
-    var index = 1
+        var candidate = File(downloadsDir, sanitized)
+        var index = 1
     while (
         candidate.exists() ||
             File(candidate.absolutePath + ".part").exists() ||
@@ -1291,7 +1234,7 @@ private fun BrowserDownloadManager.resolveUniqueDestinationFile(suggestedFileNam
         candidate = File(downloadsDir, "${base} (${index})${ext}")
         index += 1
     }
-    return candidate
+        return candidate
 }
 
 private fun publicDownloadsDirectory(): File =
@@ -1317,7 +1260,7 @@ private fun decodeInlineDownloadBytes(rawData: String): ByteArray {
             android.net.Uri.decode(payload).toByteArray(Charsets.UTF_8)
         }
     }
-    return android.util.Base64.decode(rawData.substringAfter(',', rawData), android.util.Base64.DEFAULT)
+        return android.util.Base64.decode(rawData.substringAfter(',', rawData), android.util.Base64.DEFAULT)
 }
 
 private fun BrowserDownloadTaskRecord.progressOrNull(): Float? =
@@ -1332,25 +1275,25 @@ private fun formatTaskProgress(task: BrowserDownloadTaskRecord): String {
         task.progressOrNull()?.let {
             "${(it * 100f).toInt()}%"
         } ?: "Unknown"
-    val sizeText =
+        val sizeText =
         if (task.totalBytes > 0L) {
             "${formatBytes(task.downloadedBytes)} / ${formatBytes(task.totalBytes)}"
         } else {
             formatBytes(task.downloadedBytes)
         }
-    return "${progressText} (${sizeText})"
+        return "${progressText} (${sizeText})"
 }
 
 internal fun formatBytes(bytes: Long): String {
     if (bytes < 1024L) {
         return "${bytes} B"
     }
-    val units = arrayOf("KB", "MB", "GB", "TB")
-    var value = bytes.toDouble()
-    var unitIndex = -1
+        val units = arrayOf("KB", "MB", "GB", "TB")
+        var value = bytes.toDouble()
+        var unitIndex = -1
     while (value >= 1024.0 && unitIndex + 1 < units.lastIndex) {
         value /= 1024.0
         unitIndex += 1
     }
-    return String.format(Locale.US, "%.1f %s", value, units[max(0, unitIndex)])
+        return String.format(Locale.US, "%.1f %s", value, units[max(0, unitIndex)])
 }

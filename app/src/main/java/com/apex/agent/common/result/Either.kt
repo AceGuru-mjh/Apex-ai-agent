@@ -100,8 +100,7 @@ sealed class Either<out L, out R> {
         is Left -> value
         is Right -> null
     }
-
-    companion object {
+        companion object {
         /**
          * 创建一个成功的 Either（Right 值）。
          *
@@ -127,7 +126,7 @@ sealed class Either<out L, out R> {
  */
 fun <T> Either<Throwable, T>.toResult(): Result<T> = when (this) {
     is Either.Left -> Result.Failure(value)
-    is Either.Right -> Result.Success(value)
+        is Either.Right -> Result.Success(value)
 }
 
 /**
@@ -137,5 +136,5 @@ fun <T> Either<Throwable, T>.toResult(): Result<T> = when (this) {
  */
 fun <T> Result<T>.toEither(): Either<Throwable, T> = when (this) {
     is Result.Success -> Either.Right(data)
-    is Result.Failure -> Either.Left(error)
+        is Result.Failure -> Either.Left(error)
 }

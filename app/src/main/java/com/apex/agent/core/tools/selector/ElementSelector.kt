@@ -104,7 +104,6 @@ data class ElementSelector(
      */
     fun getDescription(): String {
         val conditions = mutableListOf<String>()
-        
         resourceId?.let { conditions.add("resourceId=${it}") }
         className?.let { conditions.add("className=${it}") }
         contentDesc?.let { conditions.add("contentDesc=${it}") }
@@ -112,11 +111,9 @@ data class ElementSelector(
         bounds?.let { conditions.add("bounds=${it}") }
         clickable?.let { conditions.add("clickable=${it}") }
         visible?.let { conditions.add("visible=${it}") }
-        
         if (index > 0) {
             conditions.add("index=${index}")
         }
-        
         return conditions.joinToString(", ")
     }
     
@@ -126,7 +123,7 @@ data class ElementSelector(
      */
     fun isCompatibleWith(other: ElementSelector): Boolean {
         // 如果两个选择器都指定了相同的字段但值不同，则不兼容
-                if (resourceId != null && other.resourceId != null && resourceId != other.resourceId) {
+        if (resourceId != null && other.resourceId != null && resourceId != other.resourceId) {
             return false
         }
         if (className != null && other.className != null && className != other.className) {
@@ -141,7 +138,6 @@ data class ElementSelector(
         if (bounds != null && other.bounds != null && bounds != other.bounds) {
             return false
         }
-        
         return true
     }
     
@@ -155,7 +151,6 @@ data class ElementSelector(
         if (!isCompatibleWith(other)) {
             return null
         }
-        
         return ElementSelector(
             resourceId = resourceId ?: other.resourceId,
             className = className ?: other.className,

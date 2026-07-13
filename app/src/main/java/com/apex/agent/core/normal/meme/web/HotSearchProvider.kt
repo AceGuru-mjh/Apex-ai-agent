@@ -24,24 +24,22 @@ class HotSearchProvider {
     suspend fun getWeiboHotSearch(limit: Int = 20): List<HotSearchItem> {
         return withContext(Dispatchers.IO) {
             // 微博热搜公开页面
-    val url = "https://m.weibo.cn/api/container/getIndex?containerid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot"
-    val result = MemeHttpUtil.get(url)
-
-            if (!result.success) return@withContext emptyList()
-
-            val items = mutableListOf<HotSearchItem>()
+        val url = "https://m.weibo.cn/api/container/getIndex?containerid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot"
+        val result = MemeHttpUtil.get(url)
+        if (!result.success) return@withContext emptyList()
+        val items = mutableListOf<HotSearchItem>()
         val json = MemeJsonUtil.parseObject(result.body)
-            if (json != null) {
+        if (json != null) {
                 val cards = json.optJSONObject("data")?.optJSONArray("cards")
-                if (cards != null) {
+        if (cards != null) {
                     for (i in 0 until cards.length()) {
                         val card = cards.optJSONObject(i)
         val cardGroup = card?.optJSONArray("card_group")
-                        if (cardGroup != null) {
+        if (cardGroup != null) {
                             for (j in 0 until cardGroup.length()) {
                                 val item = cardGroup.optJSONObject(j)
         val title = item?.optString("desc", "") ?: ""
-                                val hot = item?.optString("desc_extr", "0")?.toLongOrNull() ?: 0L
+        val hot = item?.optString("desc_extr", "0")?.toLongOrNull() ?: 0L
                                 if (title.isNotBlank()) {
                                     items.add(HotSearchItem(
                                         rank = items.size + 1,
@@ -51,14 +49,14 @@ class HotSearchProvider {
                                         category = "weibo"
                                     ))
                                 }
-                                if (items.size >= limit) break
+        if (items.size >= limit) break
                             }
                         }
-                        if (items.size >= limit) break
+        if (items.size >= limit) break
                     }
                 }
             }
-            items
+        items
         }
     }
 
@@ -68,18 +66,17 @@ class HotSearchProvider {
     suspend fun getBaiduHotSearch(limit: Int = 20): List<HotSearchItem> {
         return withContext(Dispatchers.IO) {
             // 百度热搜页面
-    val url = "https://top.baidu.com/board?tab=realtime"
-    val result = MemeHttpUtil.get(url)
-
-            if (!result.success) return@withContext emptyList()
+        val url = "https://top.baidu.com/board?tab=realtime"
+        val result = MemeHttpUtil.get(url)
+        if (!result.success) return@withContext emptyList()
 
             // 解析 HTML 提取热搜词
-    val items = mutableListOf<HotSearchItem>()
+        val items = mutableListOf<HotSearchItem>()
             // 百度热搜的 HTML 结构: <div class="c-single-text-ellipsis">关键词</div>
-    val pattern = Regex("""<div[^>]*class="[^"]*c-single-text-ellipsis[^"]*"[^>]*>(.*?)</div>""")
-            pattern.findAll(result.body).take(limit).forEachIndexed { index, match ->
+        val pattern = Regex("""<div[^>]*class="[^"]*c-single-text-ellipsis[^"]*"[^>]*>(.*?)</div>""")
+        pattern.findAll(result.body).take(limit).forEachIndexed { index, match ->
                 val title = cleanHtml(match.groupValues[1])
-                if (title.isNotBlank() && title.length > 1) {
+        if (title.isNotBlank() && title.length > 1) {
                     items.add(HotSearchItem(
                         rank = index + 1,
                         title = title,
@@ -88,7 +85,7 @@ class HotSearchProvider {
                     ))
                 }
             }
-            items
+        items
         }
     }
 
@@ -98,20 +95,18 @@ class HotSearchProvider {
     suspend fun getZhihuHotList(limit: Int = 20): List<HotSearchItem> {
         return withContext(Dispatchers.IO) {
             val url = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=$limit"
-    val result = MemeHttpUtil.get(url, mapOf(
+        val result = MemeHttpUtil.get(url, mapOf(
                 "Referer" to "https://www.zhihu.com/hot"
             ))
-
-            if (!result.success) return@withContext emptyList()
-
-            val items = mutableListOf<HotSearchItem>()
+        if (!result.success) return@withContext emptyList()
+        val items = mutableListOf<HotSearchItem>()
         val json = MemeJsonUtil.parseObject(result.body)
-            val dataArray = json?.optJSONArray("data")
-            if (dataArray != null) {
+        val dataArray = json?.optJSONArray("data")
+        if (dataArray != null) {
                 for (i in 0 until dataArray.length()) {
                     val item = dataArray.optJSONObject(i)?.optJSONObject("target")
         val title = item?.optString("title", "") ?: ""
-                    val hot = item?.optString("answer_count", "0")?.toLongOrNull() ?: 0L
+        val hot = item?.optString("answer_count", "0")?.toLongOrNull() ?: 0L
                     if (title.isNotBlank()) {
                         items.add(HotSearchItem(
                             rank = i + 1,
@@ -121,10 +116,10 @@ class HotSearchProvider {
                             category = "zhihu"
                         ))
                     }
-                    if (items.size >= limit) break
+        if (items.size >= limit) break
                 }
             }
-            items
+        items
         }
     }
 
@@ -137,19 +132,19 @@ class HotSearchProvider {
         val zhihu = getZhihuHotList(limit)
 
         // 合并去重，按来源交替排序
-    val combined = mutableListOf<HotSearchItem>()
+        val combined = mutableListOf<HotSearchItem>()
         val maxIndex = maxOf(weibo.size, baidu.size, zhihu.size)
         for (i in 0 until maxIndex) {
             if (i < weibo.size) combined.add(weibo[i])
-            if (i < baidu.size) combined.add(baidu[i])
-            if (i < zhihu.size) combined.add(zhihu[i])
+        if (i < baidu.size) combined.add(baidu[i])
+        if (i < zhihu.size) combined.add(zhihu[i])
         }
 
         // 去重（相同标题只保留第一个）
-    val seen = mutableSetOf<String>()
+        val seen = mutableSetOf<String>()
         return combined.filter { item ->
             val key = item.title.lowercase()
-            if (seen.add(key)) true else false
+        if (seen.add(key)) true else false
         }.mapIndexed { index, item -> item.copy(rank = index + 1) }
     }
 
@@ -161,8 +156,8 @@ class HotSearchProvider {
         return hotSearch
             .filter { item ->
                 // 过滤：标题包含梗相关关键词
-    val title = item.title.lowercase()
-                title.contains("梗") ||
+        val title = item.title.lowercase()
+        title.contains("梗") ||
                 title.contains("神句") ||
                 title.contains("段子") ||
                 title.contains("笑死") ||
@@ -183,16 +178,14 @@ class HotSearchProvider {
                 )
             }
     }
-
-    data class TrendingMeme(
+        data class TrendingMeme(
         val title: String,
         val source: String,
         val hotScore: Long,
         val url: String?,
         val detectedAt: Long
     )
-
-    private fun cleanHtml(html: String): String {
+        private fun cleanHtml(html: String): String {
         return html
             .replace(Regex("<[^>]+>"), "")
             .replace("&amp;", "&")

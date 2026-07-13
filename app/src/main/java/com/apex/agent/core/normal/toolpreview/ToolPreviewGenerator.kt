@@ -34,11 +34,11 @@ data class ToolPreview(
 
 enum class PermissionLevel {
     NONE,           // 无需权限
-                STANDARD,       // 标准权限
-                ACCESSIBILITY,  // 无障碍服务
-                DEBUGGER,       // 调试权限
-                ADMIN,          // 管理员
-                ROOT            // Root
+        STANDARD,       // 标准权限
+        ACCESSIBILITY,  // 无障碍服务
+        DEBUGGER,       // 调试权限
+        ADMIN,          // 管理员
+        ROOT            // Root
 }
 
 enum class RiskLevel {
@@ -57,8 +57,8 @@ enum class RiskLevel {
  */
 sealed class ConfirmationResult {
     data class Approved(val scope: ApprovalScope = ApprovalScope.ONCE) : ConfirmationResult()
-    data class Rejected(val reason: String = "") : ConfirmationResult()
-    data object TimedOut : ConfirmationResult()
+        data class Rejected(val reason: String = "") : ConfirmationResult()
+        data object TimedOut : ConfirmationResult()
 }
 
 enum class ApprovalScope {
@@ -76,8 +76,7 @@ enum class ApprovalScope {
 class ToolPreviewGenerator {
 
     private val toolMetadata = ConcurrentHashMap<String, ToolMetadata>()
-
-    data class ToolMetadata(
+        data class ToolMetadata(
         val name: String,
         val displayName: String,
         val description: String,
@@ -134,7 +133,7 @@ class ToolPreviewGenerator {
             val displayValue = if (k.lowercase().containsAny("password", "secret", "token", "key")) {
                 "***"
             } else v?.toString() ?: "null"
-            sb.appendLine("  $k = $displayValue")
+        sb.appendLine("  $k = $displayValue")
         }
         sb.appendLine("预估耗时: ${formatDuration(preview.estimatedDurationMs)}")
         sb.appendLine("权限要求: ${preview.requiredPermission}")
@@ -151,37 +150,35 @@ class ToolPreviewGenerator {
     }
 
     // ============ 内部方法 ============
-    private fun estimateDuration(meta: ToolMetadata, args: Map<String, Any?>): Long {
+        private fun estimateDuration(meta: ToolMetadata, args: Map<String, Any?>): Long {
         var duration = meta.defaultDurationMs
         // 网络请求类工具耗时更长
-                if (meta.name.containsAny("http", "fetch", "request", "upload", "download")) {
+        if (meta.name.containsAny("http", "fetch", "request", "upload", "download")) {
             duration = (duration * 2).coerceAtLeast(10_000L)
         }
         // 大文件操作耗时更长
-                args["size"]?.toString()?.toLongOrNull()?.let { size ->
+        args["size"]?.toString()?.toLongOrNull()?.let { size ->
             if (size > 1_000_000) duration += size / 1000  // 1ms per KB
         }
         return duration
     }
-
-    private fun assessRisk(meta: ToolMetadata, args: Map<String, Any?>): RiskLevel {
+        private fun assessRisk(meta: ToolMetadata, args: Map<String, Any?>): RiskLevel {
         var risk = meta.defaultRiskLevel
         // 删除类操作提升风险
-                if (meta.name.containsAny("delete", "remove", "drop", "rm", "rmdir")) {
+        if (meta.name.containsAny("delete", "remove", "drop", "rm", "rmdir")) {
             risk = RiskLevel.CRITICAL
         }
         // 发送消息类提升风险
-                if (meta.name.containsAny("send", "post", "publish", "broadcast")) {
+        if (meta.name.containsAny("send", "post", "publish", "broadcast")) {
             risk = maxOf(risk.ordinal, RiskLevel.HIGH.ordinal).let { RiskLevel.values()[it] }
         }
         // 网络请求
-                if (meta.name.containsAny("http", "fetch", "request") && risk == RiskLevel.LOW) {
+        if (meta.name.containsAny("http", "fetch", "request") && risk == RiskLevel.LOW) {
             risk = RiskLevel.MEDIUM
         }
         return risk
     }
-
-    private fun inferRiskLevel(toolName: String, args: Map<String, Any?>): RiskLevel {
+        private fun inferRiskLevel(toolName: String, args: Map<String, Any?>): RiskLevel {
         return when {
             toolName.containsAny("delete", "remove", "drop", "rm") -> RiskLevel.CRITICAL
             toolName.containsAny("send", "post", "publish") -> RiskLevel.HIGH
@@ -189,11 +186,9 @@ class ToolPreviewGenerator {
             else -> RiskLevel.LOW
         }
     }
-
-    private fun String.containsAny(vararg keywords: String): Boolean =
+        private fun String.containsAny(vararg keywords: String): Boolean =
         keywords.any { this.contains(it, ignoreCase = true) }
-
-    private fun formatDuration(ms: Long): String = when {
+        private fun formatDuration(ms: Long): String = when {
         ms < 1000 -> "${ms}ms"
         ms < 60_000 -> "${ms / 1000.0}s"
         else -> "${ms / 60_000}min ${(ms % 60_000) / 1000}s"
@@ -211,8 +206,7 @@ class ToolConfirmationGateway(
 ) {
 
     private val pendingConfirmations = ConcurrentHashMap<String, PendingConfirmation>()
-
-    data class PendingConfirmation(
+        data class PendingConfirmation(
         val preview: ToolPreview,
         val deferred: CompletableDeferred<ConfirmationResult>,
         val createdAt: Long = System.currentTimeMillis()
@@ -223,18 +217,16 @@ class ToolConfirmationGateway(
      */
     suspend fun requestConfirmation(preview: ToolPreview): ConfirmationResult {
         // 低风险自动批准
-                if (autoApproveLowRisk && preview.riskLevel == RiskLevel.LOW) {
+        if (autoApproveLowRisk && preview.riskLevel == RiskLevel.LOW) {
             return ConfirmationResult.Approved(ApprovalScope.SESSION)
         }
-
         val deferred = CompletableDeferred<ConfirmationResult>()
         pendingConfirmations[preview.toolCallId] = PendingConfirmation(preview, deferred)
-
         return try {
             kotlinx.coroutines.withTimeout(timeoutMs) { deferred.await() }
         } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
             pendingConfirmations.remove(preview.toolCallId)
-            ConfirmationResult.TimedOut
+        ConfirmationResult.TimedOut
         }
     }
 

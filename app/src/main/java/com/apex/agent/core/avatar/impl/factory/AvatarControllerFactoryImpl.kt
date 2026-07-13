@@ -20,28 +20,26 @@ class AvatarControllerFactoryImpl : AvatarControllerFactory {
     override fun createController(model: AvatarModel): AvatarController? {
         return when (model.type) {
             AvatarType.WEBP -> (model as? WebPAvatarModel)?.let { WebPAvatarController(it) }
-            AvatarType.MP4 -> (model as? Mp4AvatarModel)?.let { Mp4AvatarController(it) }
-            AvatarType.MMD -> (model as? MmdAvatarModel)?.let { MmdAvatarController(it) }
-            AvatarType.GLTF -> (model as? GltfAvatarModel)?.let { GltfAvatarController(it) }
-            AvatarType.FBX -> (model as? FbxAvatarModel)?.let { FbxAvatarController(it) }
+        AvatarType.MP4 -> (model as? Mp4AvatarModel)?.let { Mp4AvatarController(it) }
+        AvatarType.MMD -> (model as? MmdAvatarModel)?.let { MmdAvatarController(it) }
+        AvatarType.GLTF -> (model as? GltfAvatarModel)?.let { GltfAvatarController(it) }
+        AvatarType.FBX -> (model as? FbxAvatarModel)?.let { FbxAvatarController(it) }
         }
     }
-
-    override fun canCreateController(model: AvatarModel): Boolean {
+        override fun canCreateController(model: AvatarModel): Boolean {
         return when (model.type) {
             // AvatarType.DRAGONBONES -> model is ISkeletalAvatarModel
-                AvatarType.WEBP -> model is WebPAvatarModel
+        AvatarType.WEBP -> model is WebPAvatarModel
             AvatarType.MP4 -> model is Mp4AvatarModel
             AvatarType.MMD -> model is MmdAvatarModel
             AvatarType.GLTF -> model is GltfAvatarModel
             AvatarType.FBX -> model is FbxAvatarModel
         }
     }
-
-    override val supportedTypes: List<String>
+        override val supportedTypes: List<String>
         get() = listOf(
             // AvatarType.DRAGONBONES.name,
-                AvatarType.WEBP.name,
+        AvatarType.WEBP.name,
             AvatarType.MP4.name,
             AvatarType.MMD.name,
             AvatarType.GLTF.name,

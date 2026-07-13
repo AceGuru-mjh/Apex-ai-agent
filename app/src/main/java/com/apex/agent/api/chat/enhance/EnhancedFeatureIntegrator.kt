@@ -22,16 +22,15 @@ object EnhancedFeatureIntegrator {
         userInput: String
     ): List<ModelParameter<*>> {
         // 获取动态参数
-    val dynamicParams = DynamicModelParamsAdapter.getDynamicModelParams(userInput)
+        val dynamicParams = DynamicModelParamsAdapter.getDynamicModelParams(userInput)
         val scenario = DynamicModelParamsAdapter.getScenarioDescription(userInput)
-        
         AppLogger.d(TAG, "应用动态参数场景=${scenario}, temp=${dynamicParams.temperature}")
         
         // 创建可修改的副本
-    val mutableParams = existingParams.toMutableList()
+        val mutableParams = existingParams.toMutableList()
         
         // 更新或添加temperature参数
-                updateOrAddParam(
+        updateOrAddParam(
             params = mutableParams,
             id = "dynamic_temperature",
             name = "温度 (动，",
@@ -46,7 +45,7 @@ object EnhancedFeatureIntegrator {
         )
         
         // 更新或添加top_p参数
-                updateOrAddParam(
+        updateOrAddParam(
             params = mutableParams,
             id = "dynamic_top_p",
             name = "Top P (动，",
@@ -61,7 +60,7 @@ object EnhancedFeatureIntegrator {
         )
         
         // 更新或添加frequency_penalty参数
-                updateOrAddParam(
+        updateOrAddParam(
             params = mutableParams,
             id = "dynamic_frequency_penalty",
             name = "频率惩罚 (动，",
@@ -76,7 +75,7 @@ object EnhancedFeatureIntegrator {
         )
         
         // 更新或添加presence_penalty参数
-                updateOrAddParam(
+        updateOrAddParam(
             params = mutableParams,
             id = "dynamic_presence_penalty",
             name = "存在惩罚 (动，",
@@ -89,7 +88,6 @@ object EnhancedFeatureIntegrator {
             minValue = 0.0,
             maxValue = 2.0
         )
-        
         return mutableParams.toList()
     }
 
@@ -110,33 +108,31 @@ object EnhancedFeatureIntegrator {
         maxValue: Any? = null
     ) {
         // 检查是否已存在该参数（通过apiName匹配置
-    val existingIndex = params.indexOfFirst { 
+        val existingIndex = params.indexOfFirst { 
             it.apiName == apiName || it.id == id
         }
-        
         if (existingIndex >= 0) {
             // 更新现有参数 - 注意：这里我们创建一个新的参数对象
-    val existing = params[existingIndex]
+        val existing = params[existingIndex]
             
             @Suppress("UNCHECKED_CAST")
-            val updatedParam = when (valueType) {
+        val updatedParam = when (valueType) {
                 ParameterValueType.FLOAT -> (existing as ModelParameter<Double>).copy(
                     name = name,
                     description = description,
                     currentValue = currentValue as Double,
                     isEnabled = true
                 )
-                else -> existing.copy(
+        else -> existing.copy(
                     name = name,
                     description = description,
                     isEnabled = true
                 )
             }
-            
-            params[existingIndex] = updatedParam
+        params[existingIndex] = updatedParam
         } else {
             // 添加新参数
-    val newParam = createParameter(
+        val newParam = createParameter(
                 id = id,
                 name = name,
                 apiName = apiName,
@@ -148,7 +144,7 @@ object EnhancedFeatureIntegrator {
                 minValue = minValue,
                 maxValue = maxValue
             )
-            params.add(newParam)
+        params.add(newParam)
         }
     }
 

@@ -8,18 +8,15 @@ import java.io.File
 
 class SkillVersionManager(private val context: Context) {
     private val skillDir = File(context.filesDir, "skills_v2")
-    private val gson = Gson()
-
-    init {
+        private val gson = Gson()
+        init {
         if (!skillDir.exists()) skillDir.mkdirs()
     }
-
-    suspend fun saveSkillVersion(skill: LogistraSkillSpecV2) {
+        suspend fun saveSkillVersion(skill: LogistraSkillSpecV2) {
         val skillFile = File(skillDir, "${skill.skillId}_${skill.metadata.version}.json")
         skillFile.writeText(skill.toJson())
     }
-
-    suspend fun getCandidateVersions(skillId: String): List<LogistraSkillSpecV2> {
+        suspend fun getCandidateVersions(skillId: String): List<LogistraSkillSpecV2> {
         return skillDir.listFiles { _, name -> name.startsWith(skillId) }
             ?.mapNotNull { file ->
                 LogistraSkillSpecV2.fromJson(file.readText())
@@ -43,11 +40,11 @@ class SkillVersionManager(private val context: Context) {
         val rand = Math.random()
         return when {
             rand < 0.7 && stable.isNotEmpty() -> stable.random()
-            rand < 0.9 && candidates.isNotEmpty() -> candidates.random()
-            exploration.isNotEmpty() -> exploration.random()
-            stable.isNotEmpty() -> stable.random()
-            candidates.isNotEmpty() -> candidates.random()
-            else -> versions.firstOrNull()
+        rand < 0.9 && candidates.isNotEmpty() -> candidates.random()
+        exploration.isNotEmpty() -> exploration.random()
+        stable.isNotEmpty() -> stable.random()
+        candidates.isNotEmpty() -> candidates.random()
+        else -> versions.firstOrNull()
         }
     }
 
@@ -59,19 +56,17 @@ class SkillVersionManager(private val context: Context) {
         if (allVersions.isEmpty()) return
 
         // 简单的优胜劣汰逻辑：如的Candidate 版本的平均评分超的Stable 版本 10%，则晋升
-    val stable = allVersions.find { it.status == LogistraSkillSpecV2.SkillStatus.STABLE }
+        val stable = allVersions.find { it.status == LogistraSkillSpecV2.SkillStatus.STABLE }
         val bestCandidate = allVersions
             .filter { it.status == LogistraSkillSpecV2.SkillStatus.CANDIDATE }
             .maxByOrNull { it.metadata.fitnessHistory.map { h -> h.score }.average() }
-
         if (stable != null && bestCandidate != null) {
             val stableScore = stable.metadata.fitnessHistory.map { it.score }.average()
         val candidateScore = bestCandidate.metadata.fitnessHistory.map { it.score }.average()
-
-            if (candidateScore > stableScore * 1.1) {
+        if (candidateScore > stableScore * 1.1) {
                 AppLogger.d("SkillVersionManager", "Promoting candidate ${bestCandidate.metadata.version} to STABLE for ${skillId}")
-                saveSkillVersion(stable.copy(status = LogistraSkillSpecV2.SkillStatus.DEPRECATED))
-                saveSkillVersion(bestCandidate.copy(status = LogistraSkillSpecV2.SkillStatus.STABLE))
+        saveSkillVersion(stable.copy(status = LogistraSkillSpecV2.SkillStatus.DEPRECATED))
+        saveSkillVersion(bestCandidate.copy(status = LogistraSkillSpecV2.SkillStatus.STABLE))
             }
         } else if (stable == null && bestCandidate != null) {
              saveSkillVersion(bestCandidate.copy(status = LogistraSkillSpecV2.SkillStatus.STABLE))

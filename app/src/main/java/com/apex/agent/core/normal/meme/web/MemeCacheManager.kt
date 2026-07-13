@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class MemeCacheManager(
     private val defaultTtlMs: Long = 60 * 60_000L,        // 1 小时
-    private val suggestTtlMs: Long = 5 * 60_000L,          // 5 分钟
-    private val hotSearchTtlMs: Long = 30 * 60_000L,       // 30 分钟
-    private val maxEntries: Int = 500
+        private val suggestTtlMs: Long = 5 * 60_000L,          // 5 分钟
+        private val hotSearchTtlMs: Long = 30 * 60_000L,       // 30 分钟
+        private val maxEntries: Int = 500
 ) {
 
     private data class CacheEntry(
@@ -26,8 +26,7 @@ class MemeCacheManager(
         val accessCount: Int = 0,
         var lastAccessedAt: Long = System.currentTimeMillis()
     )
-
-    private val cache = ConcurrentHashMap<String, CacheEntry>()
+        private val cache = ConcurrentHashMap<String, CacheEntry>()
 
     /**
      * 存入缓存（搜索结果）
@@ -46,10 +45,10 @@ class MemeCacheManager(
         val entry = cache[key] ?: return null
         if (isExpired(entry)) {
             cache.remove(key)
-            return null
+        return null
         }
         // 标记来自缓存
-                return (entry.value as MemeSearchResult).copy(fromCache = true)
+        return (entry.value as MemeSearchResult).copy(fromCache = true)
     }
 
     /**
@@ -68,7 +67,7 @@ class MemeCacheManager(
         val entry = cache[key] ?: return null
         if (isExpired(entry)) {
             cache.remove(key)
-            return null
+        return null
         }
         @Suppress("UNCHECKED_CAST")
         return entry.value as List<String>
@@ -90,7 +89,7 @@ class MemeCacheManager(
         val entry = cache[key] ?: return null
         if (isExpired(entry)) {
             cache.remove(key)
-            return null
+        return null
         }
         @Suppress("UNCHECKED_CAST")
         return entry.value as List<HotSearchItem>
@@ -112,7 +111,7 @@ class MemeCacheManager(
         val entry = cache[key] ?: return null
         if (isExpired(entry)) {
             cache.remove(key)
-            return null
+        return null
         }
         return entry.value as MemeWikiResult
     }
@@ -145,15 +144,14 @@ class MemeCacheManager(
             .mapValues { it.value.size }
         return CacheStats(total, expired, byType)
     }
-
-    data class CacheStats(
+        data class CacheStats(
         val totalEntries: Int,
         val expiredEntries: Int,
         val byType: Map<String, Int>
     )
 
     // ============ 内部方法 ============
-    private fun put(key: String, value: Any, ttlMs: Long) {
+        private fun put(key: String, value: Any, ttlMs: Long) {
         cache[key] = CacheEntry(
             key = key,
             value = value,
@@ -161,16 +159,14 @@ class MemeCacheManager(
             ttlMs = ttlMs
         )
     }
-
-    private fun isExpired(entry: CacheEntry): Boolean {
+        private fun isExpired(entry: CacheEntry): Boolean {
         return System.currentTimeMillis() - entry.createdAt > entry.ttlMs
     }
-
-    private fun evictIfNeeded() {
+        private fun evictIfNeeded() {
         if (cache.size <= maxEntries) return
 
         // LRU 淘汰：按最后访问时间排序，淘汰最久未访问的
-    val toRemove = cache.entries
+        val toRemove = cache.entries
             .sortedBy { it.value.lastAccessedAt }
             .take(cache.size - maxEntries)
             .map { it.key }

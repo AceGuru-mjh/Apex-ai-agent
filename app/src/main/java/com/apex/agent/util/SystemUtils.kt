@@ -125,7 +125,7 @@ object SystemUtils {
         val properties = mutableMapOf<String, String>()
         try {
             val props = System.getProperties()
-            for (key in props.stringPropertyNames()) {
+        for (key in props.stringPropertyNames()) {
                 properties[key] = props.getProperty(key)
             }
         } catch (e: SecurityException) {
@@ -142,7 +142,7 @@ object SystemUtils {
     fun isDebugMode(): Boolean {
         return try {
             val debugField = Build::class.java.getDeclaredField("DEBUG")
-            debugField.isAccessible = true
+        debugField.isAccessible = true
             debugField.getBoolean(null)
         } catch (e: Exception) {
             false
@@ -157,7 +157,7 @@ object SystemUtils {
     fun getProcessName(): String? {
         return try {
             val reader = BufferedReader(InputStreamReader(FileInputStream(File("/proc/self/cmdline"))))
-            try {
+        try {
                 reader.readLine()?.trim { it <= ' ' }
             } finally {
                 IOUtils.closeQuietly(reader)
@@ -196,21 +196,21 @@ object SystemUtils {
     fun restartApp(context: Context, delayMs: Long = 100) {
         try {
             val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            if (intent != null) {
+        if (intent != null) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                val pendingIntent = PendingIntent.getActivity(
+        val pendingIntent = PendingIntent.getActivity(
                     context,
                     0,
                     intent,
                     PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
                 )
-                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                 alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + delayMs, pendingIntent)
-                killProcess()
+        killProcess()
             }
         } catch (e: Exception) {
             // 重启失败时直接退出
-                killProcess()
+        killProcess()
         }
     }
 
@@ -229,7 +229,7 @@ object SystemUtils {
     fun getUserAgent(): String {
         return try {
             val userAgent = System.getProperty("http.agent")
-            if (userAgent.isNullOrEmpty()) {
+        if (userAgent.isNullOrEmpty()) {
                 "Mozilla/5.0 (Linux; Android ${getOsVersion()}; ${Build.MODEL} Build/${Build.ID}) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/100.0.4896.127 Mobile Safari/537.36"
             } else {
                 userAgent

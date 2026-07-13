@@ -39,7 +39,7 @@ data class AppOperationData(
             "uninstall" -> "Successfully uninstalled app: ${packageName} ${details}"
             "start" -> "Successfully started app: ${packageName} ${details}"
             "stop" -> "Successfully stopped app: ${packageName} ${details}"
-            else -> details
+        else -> details
         }
     }
 }
@@ -82,25 +82,21 @@ data class AppUsageTimeResultData(
         val header =
                 buildString {
                     append("App usage time")
-                    append(" (last ${sinceHours}h)")
-                    requestedPackageName?.takeIf { it.isNotBlank() }?.let {
+        append(" (last ${sinceHours}h)")
+        requestedPackageName?.takeIf { it.isNotBlank() }?.let {
                         append(" for ${it}")
                     }
                 }
-
         if (entries.isEmpty()) {
             return "${header}\nNo app usage found in the selected time window."
         }
-
         val lines =
                 entries.joinToString("\n") { entry ->
                     "- ${entry.appName} (${entry.packageName}): ${formatDuration(entry.totalForegroundTimeMs)}"
                 }
-
         return "${header}\n${lines}"
     }
-
-    private fun formatDuration(durationMs: Long): String {
+        private fun formatDuration(durationMs: Long): String {
         if (durationMs <= 0L) return "0s"
         val totalSeconds = durationMs / 1000
         val hours = totalSeconds / 3600
@@ -147,12 +143,10 @@ data class DeviceInfoResultData(
         sb.appendLine("Battery: ${batteryLevel}% ${if (batteryCharging) "(Charging)" else ""}")
         sb.appendLine("Network: ${networkType}")
         sb.appendLine("Processor: ${cpuInfo}")
-
         if (additionalInfo.isNotEmpty()) {
             sb.appendLine("\nOther Information:")
-            additionalInfo.forEach { (key, value) -> sb.appendLine("${key}: ${value}") }
+        additionalInfo.forEach { (key, value) -> sb.appendLine("${key}: ${value}") }
         }
-
         return sb.toString()
     }
 }
@@ -164,21 +158,17 @@ data class NotificationData(val notifications: List<Notification>, val timestamp
         ToolResultData() {
     @Serializable
     data class Notification(val packageName: String, val text: String, val timestamp: Long)
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("Device Notifications (${notifications.size} total):")
-
         notifications.forEachIndexed { index, notification ->
             sb.appendLine("${index + 1}. Package: ${notification.packageName}")
-            sb.appendLine("   Content: ${notification.text}")
-            sb.appendLine()
+        sb.appendLine("   Content: ${notification.text}")
+        sb.appendLine()
         }
-
         if (notifications.isEmpty()) {
             sb.appendLine("No notifications")
         }
-
         return sb.toString()
     }
 }
@@ -208,7 +198,6 @@ data class LocationData(
         sb.appendLine(
                 "Timestamp: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date(timestamp))}"
         )
-
         if (address.isNotEmpty()) {
             sb.appendLine("Address: ${address}")
         }
@@ -221,7 +210,6 @@ data class LocationData(
         if (country.isNotEmpty()) {
             sb.appendLine("Country: ${country}")
         }
-
         return sb.toString()
     }
 }

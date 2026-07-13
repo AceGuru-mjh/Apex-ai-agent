@@ -17,7 +17,6 @@ class CapabilityRegistry private constructor() {
         private var INSTANCE: CapabilityRegistry? = null
 
         private val coreNarrowWaistValidator = CoreNarrowWaistValidator()
-
         fun getInstance(): CapabilityRegistry {
             return INSTANCE
                 ?: synchronized(this) {
@@ -25,9 +24,8 @@ class CapabilityRegistry private constructor() {
                 }
         }
     }
-
-    private val registeredCapabilities = mutableMapOf<String, CapabilityDeclaration>()
-    private val capabilityListeners = mutableListOf<CapabilityChangeListener>()
+        private val registeredCapabilities = mutableMapOf<String, CapabilityDeclaration>()
+        private val capabilityListeners = mutableListOf<CapabilityChangeListener>()
 
     /**
      * Register a new capability with the registry
@@ -39,34 +37,29 @@ class CapabilityRegistry private constructor() {
         AppLogger.d(TAG, "Registering capability: ${capability.name} at level ${capability.level.level}")
 
         // Validate the capability
-    val validationResult = coreNarrowWaistValidator.validate(capability)
-
+        val validationResult = coreNarrowWaistValidator.validate(capability)
         return when (validationResult) {
             is CoreNarrowWaistValidator.ValidationResult.Accepted -> {
                 // Check if capability already exists
-                if (registeredCapabilities.containsKey(capability.name)) {
+        if (registeredCapabilities.containsKey(capability.name)) {
                     AppLogger.w(TAG, "Capability ${capability.name} already registered, updating")
                 }
-
-                registeredCapabilities[capability.name] = capability
+        registeredCapabilities[capability.name] = capability
                 notifyListeners(capability, ChangeType.REGISTERED)
-
-                AppLogger.d(TAG, "Successfully registered capability: ${capability.name}")
-                RegistrationResult.Success(capability)
+        AppLogger.d(TAG, "Successfully registered capability: ${capability.name}")
+        RegistrationResult.Success(capability)
             }
-
-            is CoreNarrowWaistValidator.ValidationResult.Rejected -> {
+        is CoreNarrowWaistValidator.ValidationResult.Rejected -> {
                 AppLogger.w(TAG, "Capability ${capability.name} rejected: ${validationResult.reason}")
-                RegistrationResult.Rejected(
+        RegistrationResult.Rejected(
                     reason = validationResult.reason,
                     suggestedLevel = validationResult.suggestedLevel,
                     alternativeApproaches = validationResult.alternativeApproaches
                 )
             }
-
-            is CoreNarrowWaistValidator.ValidationResult.NeedsReview -> {
+        is CoreNarrowWaistValidator.ValidationResult.NeedsReview -> {
                 AppLogger.i(TAG, "Capability ${capability.name} needs review: ${validationResult.reasons}")
-                RegistrationResult.NeedsReview(
+        RegistrationResult.NeedsReview(
                     capability = capability,
                     reviewReasons = validationResult.reasons
                 )
@@ -84,8 +77,8 @@ class CapabilityRegistry private constructor() {
         val capability = registeredCapabilities.remove(capabilityName)
         if (capability != null) {
             notifyListeners(capability, ChangeType.UNREGISTERED)
-            AppLogger.d(TAG, "Unregistered capability: ${capabilityName}")
-            return true
+        AppLogger.d(TAG, "Unregistered capability: ${capabilityName}")
+        return true
         }
         AppLogger.w(TAG, "Attempted to unregister non-existent capability: ${capabilityName}")
         return false
@@ -201,34 +194,30 @@ class CapabilityRegistry private constructor() {
         registeredCapabilities.clear()
         AppLogger.w(TAG, "Registry cleared for testing")
     }
-
-    private fun notifyListeners(capability: CapabilityDeclaration, changeType: ChangeType) {
+        private fun notifyListeners(capability: CapabilityDeclaration, changeType: ChangeType) {
         capabilityListeners.forEach { listener ->
             try {
                 when (changeType) {
                     ChangeType.REGISTERED -> listener.onCapabilityRegistered(capability)
-                    ChangeType.UNREGISTERED -> listener.onCapabilityUnregistered(capability)
-                    ChangeType.UPDATED -> listener.onCapabilityUpdated(capability)
+        ChangeType.UNREGISTERED -> listener.onCapabilityUnregistered(capability)
+        ChangeType.UPDATED -> listener.onCapabilityUpdated(capability)
                 }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error notifying listener", e)
             }
         }
     }
-
-    enum class ChangeType {
+        enum class ChangeType {
         REGISTERED,
         UNREGISTERED,
         UPDATED
     }
-
-    interface CapabilityChangeListener {
+        interface CapabilityChangeListener {
         fun onCapabilityRegistered(capability: CapabilityDeclaration)
         fun onCapabilityUnregistered(capability: CapabilityDeclaration)
         fun onCapabilityUpdated(capability: CapabilityDeclaration)
     }
-
-    data class RegistryStatistics(
+        data class RegistryStatistics(
         val totalCapabilities: Int,
         val levelDistribution: Map<FootprintLevel, Int>,
         val highestLevel: Int

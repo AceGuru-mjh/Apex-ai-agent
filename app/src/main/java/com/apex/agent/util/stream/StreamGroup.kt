@@ -27,12 +27,11 @@ class CompositeStreamProcessor<T, R>(
 ) : StreamProcessor<T, R> {
     override suspend fun process(stream: Stream<T>): R {
         // 先执行中间处理器
-                processors.forEach { it.process(stream) }
+        processors.forEach { it.process(stream) }
         // 最后执行最终处理器并返回结，
-                return finalProcessor.process(stream)
+        return finalProcessor.process(stream)
     }
-
-    companion object {
+        companion object {
         /** 构建复合处理器的工厂方法 */
         fun <T, R> compose(
                 vararg processors: StreamProcessor<T, *>,
@@ -63,7 +62,7 @@ class StreamGroup<TAG>(
         StreamLogger.d("StreamGroup", "开始收集组[${tag}]的元素）"
         stream.collect { value ->
             StreamLogger.v("StreamGroup", "组[${tag}]收集到元索${value}")
-            collector(value)
+        collector(value)
         }
         StreamLogger.d("StreamGroup", "完成组[${tag}]的收，"
     }
@@ -163,7 +162,6 @@ class StreamGroupBuilder<TAG> {
         requireNotNull(stream) {
             context?.getString(R.string.stream_group_stream_must_be_set) ?: "数据流必须设置"
         }
-
         return StreamGroup(
                 tag = requireNotNull(tag),
                 stream = requireNotNull(stream),
@@ -185,11 +183,9 @@ fun <TAG> Stream<String>.asNestedGroup(
         init: (StreamGroupBuilder<TAG>.() -> Unit)? = null
 ): StreamGroup<TAG> {
     val builder = StreamGroupBuilder<TAG>().tag(tag).stream(this)
-
-    processor?.let { builder.processor(it) }
-    init?.let { builder.apply(it) }
-
-    return builder.build(null)
+        processor?.let { builder.processor(it) }
+        init?.let { builder.apply(it) }
+        return builder.build(null)
 }
 
 /** 将Pair<TAG, Stream<String>>转换为StreamGroup的扩展函数/
@@ -203,15 +199,14 @@ class StreamInterceptor<T, R>(
     private var onEach: (T) ->  R
 ) {
     // 下游流，用于向外部提供数据
-    val interceptedStream: Stream<R> = stream { 
+        val interceptedStream: Stream<R> = stream { 
         // 收集上游流的数据并转，
-                sourceStream.collect { value ->
+        sourceStream.collect { value ->
             emit(onEach(value))
         }
         AppLogger.d("StreamInterceptor", "上游流收集完了）"
     }
-
-    fun setOnEach(onEach: (T) -> R) {
+        fun setOnEach(onEach: (T) -> R) {
         this.onEach = onEach
     }
 }

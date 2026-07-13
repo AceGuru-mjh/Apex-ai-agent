@@ -10,14 +10,13 @@ import androidx.preference.PreferenceManager
  */
 object SearchToggleManager {
     private const val TAG = "SearchToggleManager"
-    private const val PREF_SEARCH_ENABLED = "search_toggle_enabled"
+        private const val PREF_SEARCH_ENABLED = "search_toggle_enabled"
 
     // 状态监听器
-                interface OnStateChangeListener {
+        interface OnStateChangeListener {
         fun onStateChanged(enabled: Boolean)
     }
-
-    private var listeners = mutableListOf<OnStateChangeListener>()
+        private var listeners = mutableListOf<OnStateChangeListener>()
 
     /**
      * 获取搜索按钮状态

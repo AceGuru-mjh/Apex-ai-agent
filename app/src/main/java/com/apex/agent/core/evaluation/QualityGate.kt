@@ -7,9 +7,9 @@ import com.apex.util.AppLogger
  */
 enum class ConfidenceLevel {
     HIGH,       // 高置信度
-                MEDIUM,     // 中置信度
-                LOW,        // 低置信度
-                CRITICAL    // 临界/危险
+        MEDIUM,     // 中置信度
+        LOW,        // 低置信度
+        CRITICAL    // 临界/危险
 }
 
 /**
@@ -29,13 +29,13 @@ object QualityGate {
     private const val TAG = "QualityGate"
     
     // 质量阈值
-                private const val PASS_AT_1_THRESHOLD = 0.7f
+        private const val PASS_AT_1_THRESHOLD = 0.7f
     private const val HIGH_CONFIDENCE_THRESHOLD = 0.9f
     private const val MEDIUM_CONFIDENCE_THRESHOLD = 0.7f
     private const val LOW_CONFIDENCE_THRESHOLD = 0.5f
     
     // 评分阈值
-                private const val HIGH_SCORE_THRESHOLD = 0.85f
+        private const val HIGH_SCORE_THRESHOLD = 0.85f
     private const val MEDIUM_SCORE_THRESHOLD = 0.7f
     private const val LOW_SCORE_THRESHOLD = 0.5f
 
@@ -46,13 +46,10 @@ object QualityGate {
      */
     fun evaluate(report: PassKReport): QualityGateResult {
         AppLogger.d(TAG, "评估质量: pass@${report.k}=${report.passAtK}, 平均评分=${report.averageScore}")
-
         val confidenceLevel = getConfidenceLevel(report)
         val passed = shouldPass(report)
         val suggestions = generateSuggestions(report, confidenceLevel)
-
         AppLogger.i(TAG, "质量评估结果: ${if (passed) "通过" else "未通过"}, 置信应${confidenceLevel}")
-
         return QualityGateResult(
             passed = passed,
             confidenceLevel = confidenceLevel,
@@ -69,7 +66,6 @@ object QualityGate {
         val shouldRetry = report.passAtK < PASS_AT_1_THRESHOLD || report.averageScore < LOW_SCORE_THRESHOLD
         
         AppLogger.d(TAG, "判断是否重试: pass@${report.k}=${report.passAtK} < ${PASS_AT_1_THRESHOLD} || 平均评分=${report.averageScore} < ${LOW_SCORE_THRESHOLD} => ${shouldRetry}")
-        
         return shouldRetry
     }
 
@@ -83,7 +79,7 @@ object QualityGate {
         val averageScore = report.averageScore
         
         // 综合 pass@k 和平均评分判断置信度
-                return when {
+        return when {
             passAtK >= HIGH_CONFIDENCE_THRESHOLD && averageScore >= HIGH_SCORE_THRESHOLD -> ConfidenceLevel.HIGH
             passAtK >= MEDIUM_CONFIDENCE_THRESHOLD && averageScore >= MEDIUM_SCORE_THRESHOLD -> ConfidenceLevel.MEDIUM
             passAtK >= LOW_CONFIDENCE_THRESHOLD && averageScore >= LOW_SCORE_THRESHOLD -> ConfidenceLevel.LOW
@@ -96,7 +92,7 @@ object QualityGate {
      */
     private fun shouldPass(report: PassKReport): Boolean {
         // pass@1 >= 0.7 为通过
-                return report.passAtK >= PASS_AT_1_THRESHOLD
+        return report.passAtK >= PASS_AT_1_THRESHOLD
     }
 
     /**
@@ -104,36 +100,34 @@ object QualityGate {
      */
     private fun generateSuggestions(report: PassKReport, confidenceLevel: ConfidenceLevel): List<String> {
         val suggestions = mutableListOf<String>()
-
         when (confidenceLevel) {
             ConfidenceLevel.HIGH -> {
                 suggestions.add("输出质量优秀，可以继续使用当前方案")
             }
-            ConfidenceLevel.MEDIUM -> {
+        ConfidenceLevel.MEDIUM -> {
                 suggestions.add("输出质量良好，建议进一步优化细节")
-                if (report.averageScore < HIGH_SCORE_THRESHOLD) {
+        if (report.averageScore < HIGH_SCORE_THRESHOLD) {
                     suggestions.add("尝试提升输出的详细程度和准确态")
                 }
             }
-            ConfidenceLevel.LOW -> {
+        ConfidenceLevel.LOW -> {
                 suggestions.add("输出质量偏低，建议重新审视需求并改进实现")
-                if (report.passAtK < MEDIUM_CONFIDENCE_THRESHOLD) {
+        if (report.passAtK < MEDIUM_CONFIDENCE_THRESHOLD) {
                     suggestions.add("增加验证次数以提高结果稳定态")
                 }
             }
-            ConfidenceLevel.CRITICAL -> {
+        ConfidenceLevel.CRITICAL -> {
                 suggestions.add("输出质量不达标，强烈建议回退并重新实现")
-                suggestions.add("仔细检查需求理解是否正确")
-                suggestions.add("考虑分解任务为更小的子任务")
+        suggestions.add("仔细检查需求理解是否正确")
+        suggestions.add("考虑分解任务为更小的子任务")
             }
         }
 
         // 基于具体指标的通用建议
-                if (report.results.any { !it.pass }) {
+        if (report.results.any { !it.pass }) {
             val failedCount = report.results.count { !it.pass }
-            suggestions.add("有${failedCount}/${report.k} 次验证失败，分析失败原因并针对性修失")
+        suggestions.add("有${failedCount}/${report.k} 次验证失败，分析失败原因并针对性修失")
         }
-
         return suggestions
     }
 }

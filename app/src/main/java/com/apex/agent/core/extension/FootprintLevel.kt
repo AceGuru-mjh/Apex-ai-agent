@@ -103,12 +103,10 @@ enum class FootprintLevel(
         /** High impact - significant core changes */
         HIGH
     }
-
-    companion object {
+        companion object {
         fun fromLevel(level: Int): FootprintLevel? {
             return entries.find { it.level == level }
         }
-
         fun isValidLevel(level: Int): Boolean {
             return level in 1..6
         }
@@ -146,10 +144,10 @@ data class CapabilityDeclaration(
  */
 sealed class RegistrationResult {
     data class Success(val capability: CapabilityDeclaration) : RegistrationResult()
-    data class Rejected(
+        data class Rejected(
         val reason: String,
         val suggestedLevel: FootprintLevel?,
         val alternativeApproaches: List<String> = emptyList()
     ) : RegistrationResult()
-    data class NeedsReview(val capability: CapabilityDeclaration, val reviewReasons: List<String>) : RegistrationResult()
+        data class NeedsReview(val capability: CapabilityDeclaration, val reviewReasons: List<String>) : RegistrationResult()
 }

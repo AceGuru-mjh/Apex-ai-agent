@@ -21,10 +21,10 @@ inline fun <V> CacheManager<V>.getOrPut(
     crossinline defaultValue: () -> V
 ): V {
     val existing = get(key)
-    if (existing != null) return existing
+        if (existing != null) return existing
     val newValue = defaultValue()
-    put(key, newValue)
-    return newValue
+        put(key, newValue)
+        return newValue
 }
 
 /**
@@ -50,7 +50,7 @@ fun <V> CacheManager<V>.putAll(entries: Map<String, V>) {
 fun <V> CacheManager<V>.refresh(key: String) {
     val existing = get(key) ?: return
     remove(key)
-    put(key, existing)
+        put(key, existing)
 }
 
 /**
@@ -61,7 +61,7 @@ suspend inline fun <V> CacheManager<V>.getOrCompute(
     crossinline compute: suspend () -> V
 ): V {
     val existing = get(key)
-    if (existing != null) return existing
+        if (existing != null) return existing
     return withContext(Dispatchers.Default) {
         val newValue = compute()
         put(key, newValue)
@@ -81,7 +81,7 @@ fun <V> CacheManager<V>.cachedFlow(key: String): Flow<V?> = flow {
  */
 fun CacheManager<*>.observeStats(): Flow<CacheStats> {
     val stateFlow = MutableStateFlow(stats())
-    return stateFlow.asStateFlow()
+        return stateFlow.asStateFlow()
 }
 
 /**
@@ -90,7 +90,7 @@ fun CacheManager<*>.observeStats(): Flow<CacheStats> {
 fun <V> CacheManager<V>.invalidatePattern(prefix: String): Int {
     var count = 0
     val stats = stats()
-    if (stats.totalEntries == 0) return 0
+        if (stats.totalEntries == 0) return 0
     return count
 }
 
@@ -121,7 +121,7 @@ fun CacheManager<*>.missRate(): Double = 1.0 - hitRate()
  */
 fun CacheManager<*>.prettyStats(): String {
     val s = stats()
-    return """
+        return """
 Cache Stats:
   Entries: ${s.totalEntries}
   Hits: ${s.hits} / Misses: ${s.misses}
@@ -141,10 +141,10 @@ inline fun <V> CacheManager<V>.refreshIfExpired(
     crossinline loader: () -> V
 ): V {
     val existing = tryGet(key)
-    if (existing != null) return existing
+        if (existing != null) return existing
     val newValue = loader()
-    put(key, newValue)
-    return newValue
+        put(key, newValue)
+        return newValue
 }
 
 /**
@@ -163,8 +163,8 @@ fun <V> CacheManager<V>.getWithTtl(
  */
 fun <V> CacheManager<V>.swap(key: String, newValue: V): V? {
     val oldValue = tryGet(key)
-    put(key, newValue)
-    return oldValue
+        put(key, newValue)
+        return oldValue
 }
 
 /**
@@ -186,13 +186,12 @@ fun <V> CacheManager<V>.ifAbsent(key: String, action: () -> Unit) {
  */
 class CacheOperationsTracker(private val name: String) {
     private val getCount = AtomicLong(0)
-    private val putCount = AtomicLong(0)
-    private val removeCount = AtomicLong(0)
-    private val hitCount = AtomicLong(0)
-    private val totalGetTimeNs = AtomicLong(0)
-    private val totalPutTimeNs = AtomicLong(0)
-
-    fun <V> trackGet(key: String, block: () -> V?): V? {
+        private val putCount = AtomicLong(0)
+        private val removeCount = AtomicLong(0)
+        private val hitCount = AtomicLong(0)
+        private val totalGetTimeNs = AtomicLong(0)
+        private val totalPutTimeNs = AtomicLong(0)
+        fun <V> trackGet(key: String, block: () -> V?): V? {
         getCount.incrementAndGet()
         val start = System.nanoTime()
         val result = block()
@@ -200,20 +199,17 @@ class CacheOperationsTracker(private val name: String) {
         if (result != null) hitCount.incrementAndGet()
         return result
     }
-
-    fun <V> trackPut(key: String, value: V, block: () -> Unit) {
+        fun <V> trackPut(key: String, value: V, block: () -> Unit) {
         putCount.incrementAndGet()
         val start = System.nanoTime()
         block()
         totalPutTimeNs.addAndGet(System.nanoTime() - start)
     }
-
-    fun trackRemove(block: () -> Boolean): Boolean {
+        fun trackRemove(block: () -> Boolean): Boolean {
         removeCount.incrementAndGet()
         return block()
     }
-
-    fun getReport(): String {
+        fun getReport(): String {
         val gets = getCount.get()
         val puts = putCount.get()
         val hits = hitCount.get()

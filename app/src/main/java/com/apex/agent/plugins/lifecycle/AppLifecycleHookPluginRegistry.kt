@@ -51,8 +51,8 @@ interface AppLifecycleHookPlugin {
 
 object AppLifecycleHookPluginRegistry {
     private const val TAG = "AppLifecycleHooks"
-    private val plugins = CopyOnWriteArrayList<AppLifecycleHookPlugin>()
-    private val dispatchScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        private val plugins = CopyOnWriteArrayList<AppLifecycleHookPlugin>()
+        private val dispatchScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     @Synchronized
     fun register(plugin: AppLifecycleHookPlugin) {
@@ -64,8 +64,7 @@ object AppLifecycleHookPluginRegistry {
     fun unregister(pluginId: String) {
         plugins.removeAll { it.id == pluginId }
     }
-
-    suspend fun dispatch(
+        suspend fun dispatch(
         event: AppLifecycleEvent,
         params: AppLifecycleHookParams
     ) {
@@ -77,8 +76,7 @@ object AppLifecycleHookPluginRegistry {
             }
         }
     }
-
-    fun dispatchAsync(
+        fun dispatchAsync(
         event: AppLifecycleEvent,
         params: AppLifecycleHookParams
     ) {

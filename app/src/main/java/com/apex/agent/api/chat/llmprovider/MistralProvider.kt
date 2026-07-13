@@ -32,11 +32,9 @@ class MistralProvider(
 
     override fun parseXmlToolCalls(content: String): Pair<String, JSONArray?> {
         val matches = ChatMarkupRegex.toolCallPattern.findAll(content)
-
         if (!matches.any()) {
             return Pair(content, null)
         }
-
         val toolCalls = JSONArray()
         var textContent = content
         var callIndex = 0
@@ -45,32 +43,26 @@ class MistralProvider(
             val toolName = match.groupValues[2]
         val toolBody = match.groupValues[3]
             val params = JSONObject()
-
-            ChatMarkupRegex.toolParamPattern.findAll(toolBody).forEach { paramMatch ->
+        ChatMarkupRegex.toolParamPattern.findAll(toolBody).forEach { paramMatch ->
                 val paramName = paramMatch.groupValues[1]
         val paramValue = unescapeXml(paramMatch.groupValues[2].trim())
-                params.put(paramName, paramValue)
+        params.put(paramName, paramValue)
             }
-
-            val callId = generateMistralToolCallId(toolName, params, callIndex)
-
-            toolCalls.put(JSONObject().apply {
+        val callId = generateMistralToolCallId(toolName, params, callIndex)
+        toolCalls.put(JSONObject().apply {
                 put("id", callId)
-                put("type", "function")
-                put("function", JSONObject().apply {
+        put("type", "function")
+        put("function", JSONObject().apply {
                     put("name", toolName)
-                    put("arguments", params.toString())
+        put("arguments", params.toString())
                 })
             })
-
-            callIndex++
+        callIndex++
             textContent = textContent.replace(match.value, "")
         }
-
         return Pair(textContent.trim(), toolCalls)
     }
-
-    private fun generateMistralToolCallId(toolName: String, params: JSONObject, index: Int): String {
+        private fun generateMistralToolCallId(toolName: String, params: JSONObject, index: Int): String {
         val raw = "${toolName}:${'$'}{params.toString()}:${index}"
         val hash = raw.hashCode()
         val positive = if (hash == Int.MIN_VALUE) 0 else kotlin.math.abs(hash)
@@ -80,8 +72,7 @@ class MistralProvider(
         val padded = base.padStart(9, '0')
         return if (padded.length > 9) padded.takeLast(9) else padded
     }
-
-    private fun unescapeXml(text: String): String {
+        private fun unescapeXml(text: String): String {
         return text.replace("&lt;", "<")
             .replace("&gt;", ">")
             .replace("&quot;", "\"")

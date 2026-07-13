@@ -16,12 +16,12 @@ class ExternalDataSanitizer {
         private const val TAG = "ExternalDataSanitizer"
 
         // HTML 注释模式
-    private val HTML_COMMENT_PATTERN: Pattern = Pattern.compile(
+        private val HTML_COMMENT_PATTERN: Pattern = Pattern.compile(
             "<!--([\\s\\S]*)-->", Pattern.CASE_INSENSITIVE
         )
 
         // HTML 注释中的可疑内容
-    private val COMMENT_PAYLOAD_PATTERNS: List<Pattern> = listOf(
+        private val COMMENT_PAYLOAD_PATTERNS: List<Pattern> = listOf(
             Pattern.compile("<script[\\s\\S]*?>", Pattern.CASE_INSENSITIVE),
             Pattern.compile("javascript\\s*:", Pattern.CASE_INSENSITIVE),
             Pattern.compile("on\\w+\\s*=", Pattern.CASE_INSENSITIVE),
@@ -35,56 +35,56 @@ class ExternalDataSanitizer {
         )
 
         // Base64 编码内容检测（至少 20 字符的连结Base64 字符串）
-    private val BASE64_PATTERN: Pattern = Pattern.compile(
+        private val BASE64_PATTERN: Pattern = Pattern.compile(
             "(?:[A-Za-z0-9+/]{20,}={0,2})"
         )
 
         // Base64 data URI 模式
-    private val BASE64_DATA_URI_PATTERN: Pattern = Pattern.compile(
+        private val BASE64_DATA_URI_PATTERN: Pattern = Pattern.compile(
             "data:[^;]+;base64,([A-Za-z0-9+/]+=*)", Pattern.CASE_INSENSITIVE
         )
 
         // 脚本标签
-    private val SCRIPT_TAG_PATTERN: Pattern = Pattern.compile(
+        private val SCRIPT_TAG_PATTERN: Pattern = Pattern.compile(
             "<script[\\s\\S]*?>[\\s\\S]*?</script>", Pattern.CASE_INSENSITIVE
         )
 
         // 脚本开始标签（无闭合）
-    private val SCRIPT_OPEN_TAG_PATTERN: Pattern = Pattern.compile(
+        private val SCRIPT_OPEN_TAG_PATTERN: Pattern = Pattern.compile(
             "<script[^>]*>", Pattern.CASE_INSENSITIVE
         )
 
         // 事件处理器属态
-    private val EVENT_HANDLER_PATTERN: Pattern = Pattern.compile(
+        private val EVENT_HANDLER_PATTERN: Pattern = Pattern.compile(
             "\\bon\\w+\\s*=\\s*[\"'][^\"']*[\"']", Pattern.CASE_INSENSITIVE
         )
 
         // javascript: 协议
-    private val JAVASCRIPT_URI_PATTERN: Pattern = Pattern.compile(
+        private val JAVASCRIPT_URI_PATTERN: Pattern = Pattern.compile(
             "javascript\\s*:[^\\s\"'<>]*", Pattern.CASE_INSENSITIVE
         )
 
         // 外部脚本 src 引用
-    private val SCRIPT_SRC_PATTERN: Pattern = Pattern.compile(
+        private val SCRIPT_SRC_PATTERN: Pattern = Pattern.compile(
             """<script[^>]+src\s*=\s*["'][^"']+["'][^>]*>""", Pattern.CASE_INSENSITIVE
         )
 
         // 可疑文件扩展名引用
-    private val SUSPICIOUS_FILE_REF_PATTERN: Pattern = Pattern.compile(
+        private val SUSPICIOUS_FILE_REF_PATTERN: Pattern = Pattern.compile(
             """(?:href|src|action)\s*=\s*["'][^"']*\.(?:js|vbs|php|asp|jsp|cgi|sh|bat|ps1|exe|dll)["']""",
             Pattern.CASE_INSENSITIVE
         )
 
         // 条件注释（IE 条件注释，可隐藏恶意代码，
-    private val CONDITIONAL_COMMENT_PATTERN: Pattern = Pattern.compile(
+        private val CONDITIONAL_COMMENT_PATTERN: Pattern = Pattern.compile(
             "<!--\\[if\\s+[\\s\\S]*?\\]>", Pattern.CASE_INSENSITIVE
         )
 
         // 最将Base64 检测长应
-                private const val MIN_BASE64_LENGTH = 20
+        private const val MIN_BASE64_LENGTH = 20
 
         // Base64 解码后最小可审查长度
-                private const val MIN_DECODED_REVIEW_LENGTH = 4
+        private const val MIN_DECODED_REVIEW_LENGTH = 4
     }
 
     /**
@@ -103,40 +103,37 @@ class ExternalDataSanitizer {
                 riskLevel = RiskLevel.CLEAN
             )
         }
-
         val findings = mutableListOf<ExternalFinding>()
         var sanitized = input
 
         // 1. HTML 注释负载检测
-    val commentFindings = detectHtmlCommentPayloads(sanitized)
+        val commentFindings = detectHtmlCommentPayloads(sanitized)
         findings.addAll(commentFindings)
 
         // 2. 脚本引用移除
-    val scriptFindings = detectAndRemoveScriptReferences(sanitized)
+        val scriptFindings = detectAndRemoveScriptReferences(sanitized)
         findings.addAll(scriptFindings.findings)
         sanitized = scriptFindings.sanitizedText
 
         // 3. Base64 编码内容检测与解码审查
-    val base64Findings = detectBase64Content(sanitized)
+        val base64Findings = detectBase64Content(sanitized)
         findings.addAll(base64Findings)
 
         // 4. 事件处理器移限
-    val eventFindings = detectAndRemoveEventHandlers(sanitized)
+        val eventFindings = detectAndRemoveEventHandlers(sanitized)
         findings.addAll(eventFindings.findings)
         sanitized = eventFindings.sanitizedText
 
         // 5. 危险 URI 移除
-    val uriFindings = detectAndRemoveDangerousUris(sanitized)
+        val uriFindings = detectAndRemoveDangerousUris(sanitized)
         findings.addAll(uriFindings.findings)
         sanitized = uriFindings.sanitizedText
 
         val riskLevel = determineRiskLevel(findings)
         val isClean = findings.isEmpty()
-
         if (!isClean) {
             AppLogger.w(TAG, "外部数据消毒发现 ${findings.size} 个潜在威能 风险等级: ${riskLevel}")
         }
-
         return ExternalSanitizeResult(
             originalText = input,
             sanitizedText = sanitized,
@@ -152,7 +149,6 @@ class ExternalDataSanitizer {
     private fun detectHtmlCommentPayloads(input: String): List<ExternalFinding> {
         val findings = mutableListOf<ExternalFinding>()
         val commentMatcher = HTML_COMMENT_PATTERN.matcher(input)
-
         while (commentMatcher.find()) {
             val commentContent = commentMatcher.group(1) ?: continue
 
@@ -171,7 +167,7 @@ class ExternalDataSanitizer {
             }
 
             // 检测条件注重
-                if (CONDITIONAL_COMMENT_PATTERN.matcher(commentMatcher.group()).find()) {
+        if (CONDITIONAL_COMMENT_PATTERN.matcher(commentMatcher.group()).find()) {
                 findings.add(
                     ExternalFinding(
                         type = ExternalThreatType.HTML_COMMENT_PAYLOAD,
@@ -183,7 +179,6 @@ class ExternalDataSanitizer {
                 )
             }
         }
-
         return findings
     }
 
@@ -194,27 +189,26 @@ class ExternalDataSanitizer {
         val findings = mutableListOf<ExternalFinding>()
 
         // 检查data URI 中的 Base64
-    val dataUriMatcher = BASE64_DATA_URI_PATTERN.matcher(input)
+        val dataUriMatcher = BASE64_DATA_URI_PATTERN.matcher(input)
         while (dataUriMatcher.find()) {
             val base64Content = dataUriMatcher.group(1) ?: continue
         val decodedFinding = reviewDecodedBase64(base64Content, dataUriMatcher.start())
-            if (decodedFinding != null) {
+        if (decodedFinding != null) {
                 findings.add(decodedFinding)
             }
         }
 
         // 检查独立的 Base64 字符为
-    val base64Matcher = BASE64_PATTERN.matcher(input)
+        val base64Matcher = BASE64_PATTERN.matcher(input)
         while (base64Matcher.find()) {
             val base64Content = base64Matcher.group()
-            if (base64Content.length >= MIN_BASE64_LENGTH) {
+        if (base64Content.length >= MIN_BASE64_LENGTH) {
                 val decodedFinding = reviewDecodedBase64(base64Content, base64Matcher.start())
-                if (decodedFinding != null) {
+        if (decodedFinding != null) {
                     findings.add(decodedFinding)
                 }
             }
         }
-
         return findings
     }
 
@@ -227,11 +221,10 @@ class ExternalDataSanitizer {
         val decodedText = String(decoded, Charsets.UTF_8)
 
             // 检查解码后的内容是否包含可疑模式
-                if (decodedText.length >= MIN_DECODED_REVIEW_LENGTH && decodedText != base64Content) {
+        if (decodedText.length >= MIN_DECODED_REVIEW_LENGTH && decodedText != base64Content) {
                 val hasSuspiciousContent = COMMENT_PAYLOAD_PATTERNS.any { it.matcher(decodedText).find() }
                     || SCRIPT_OPEN_TAG_PATTERN.matcher(decodedText).find()
-
-                if (hasSuspiciousContent) {
+        if (hasSuspiciousContent) {
                     ExternalFinding(
                         type = ExternalThreatType.BASE64_ENCODED_CONTENT,
                         confidence = 0.9f,
@@ -254,7 +247,7 @@ class ExternalDataSanitizer {
         var sanitized = input
 
         // 移除完整 script 标签
-    val scriptMatcher = SCRIPT_TAG_PATTERN.matcher(sanitized)
+        val scriptMatcher = SCRIPT_TAG_PATTERN.matcher(sanitized)
         while (scriptMatcher.find()) {
             findings.add(
                 ExternalFinding(
@@ -269,7 +262,7 @@ class ExternalDataSanitizer {
         sanitized = SCRIPT_TAG_PATTERN.matcher(sanitized).replaceAll("")
 
         // 检测script src 引用
-    val srcMatcher = SCRIPT_SRC_PATTERN.matcher(input)
+        val srcMatcher = SCRIPT_SRC_PATTERN.matcher(input)
         while (srcMatcher.find()) {
             findings.add(
                 ExternalFinding(
@@ -284,7 +277,7 @@ class ExternalDataSanitizer {
         sanitized = SCRIPT_SRC_PATTERN.matcher(sanitized).replaceAll("")
 
         // 检测可疑文件引用
-    val fileRefMatcher = SUSPICIOUS_FILE_REF_PATTERN.matcher(sanitized)
+        val fileRefMatcher = SUSPICIOUS_FILE_REF_PATTERN.matcher(sanitized)
         while (fileRefMatcher.find()) {
             findings.add(
                 ExternalFinding(
@@ -297,7 +290,6 @@ class ExternalDataSanitizer {
             )
         }
         sanitized = SUSPICIOUS_FILE_REF_PATTERN.matcher(sanitized).replaceAll("")
-
         return SanitizeStepResult(sanitized, findings)
     }
 
@@ -307,7 +299,6 @@ class ExternalDataSanitizer {
     private fun detectAndRemoveEventHandlers(input: String): SanitizeStepResult {
         val findings = mutableListOf<ExternalFinding>()
         val matcher = EVENT_HANDLER_PATTERN.matcher(input)
-
         while (matcher.find()) {
             findings.add(
                 ExternalFinding(
@@ -319,7 +310,6 @@ class ExternalDataSanitizer {
                 )
             )
         }
-
         val sanitized = EVENT_HANDLER_PATTERN.matcher(input).replaceAll("")
         return SanitizeStepResult(sanitized, findings)
     }
@@ -341,12 +331,10 @@ class ExternalDataSanitizer {
                 )
             )
         }
-
         val sanitized = JAVASCRIPT_URI_PATTERN.matcher(input).replaceAll("")
         return SanitizeStepResult(sanitized, findings)
     }
-
-    private fun determineRiskLevel(findings: List<ExternalFinding>): RiskLevel {
+        private fun determineRiskLevel(findings: List<ExternalFinding>): RiskLevel {
         if (findings.isEmpty()) return RiskLevel.CLEAN
 
         val maxSeverity = findings.maxOf { it.confidence }

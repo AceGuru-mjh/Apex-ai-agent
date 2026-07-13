@@ -20,18 +20,17 @@ class ContentRecommender(private val context: Context, private val interestAnaly
         val interestProfile = interestAnalyzer.analyzeInterests(messages, userProfile)
         
         // 生成推荐内容
-    val recommendations = mutableListOf<ContentRecommendation>()
+        val recommendations = mutableListOf<ContentRecommendation>()
         
         // 基于主要兴趣生成推荐
-                interestProfile.primaryInterest?.let {
+        interestProfile.primaryInterest?.let {
             recommendations.addAll(generateRecommendationsForInterest(it))
         }
         
         // 基于其他兴趣生成推荐
-                for (interest in interestProfile.topInterests.drop(1)) {
+        for (interest in interestProfile.topInterests.drop(1)) {
             recommendations.addAll(generateRecommendationsForInterest(interest).take(2))
         }
-        
         AppLogger.d(TAG, "生成内容推荐: ${recommendations.size} 的）"
         recommendations.take(5) // 最多返回条推的    }
     
@@ -40,24 +39,23 @@ class ContentRecommender(private val context: Context, private val interestAnaly
     */
     private fun generateRecommendationsForInterest(interest: String): List<ContentRecommendation> {
         val recommendations = mutableListOf<ContentRecommendation>()
-        
         when (interest) {
             "技能-> {"
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "最新编程语言趋势",
                     content = "了解2024年最流行的编程语言和框架，包括Rust、Go、Python等的发展趋势的"
-                    interest = interest,
+        interest = interest,
                     type = "文章"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "技术面试准备指定"
-                    content = "掌握技术面试的核心技巧，包括算法、系统设计和行为问题的准备方法，",
+        content = "掌握技术面试的核心技巧，包括算法、系统设计和行为问题的准备方法，",
                     interest = interest,
                     type = "指南"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "开源项目推的"
-                    content = "发现值得贡献的优质开源项目，提升你的技术能力和简历，",
+        content = "发现值得贡献的优质开源项目，提升你的技术能力和简历，",
                     interest = interest,
                     type = "资源"
                 ))
@@ -65,17 +63,17 @@ class ContentRecommender(private val context: Context, private val interestAnaly
             "科技" -> {
                 recommendations.add(ContentRecommendation(
                     title = "AI最新发送，"
-                    content = "了解人工智能领域的最新突破，包括大语言模型、计算机视觉和自动驾驶技术，",
+        content = "了解人工智能领域的最新突破，包括大语言模型、计算机视觉和自动驾驶技术，",
                     interest = interest,
                     type = "资讯"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "科技前沿趋势",
                     content = "探索元宇宙、量子计算、脑机接口等未来科技的发展方向，",
                     interest = interest,
                     type = "分析"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "科技伦理探讨",
                     content = "讨论AI伦理、数据隐私和科技对社会的影响等重要议题，",
                     interest = interest,
@@ -86,19 +84,19 @@ class ContentRecommender(private val context: Context, private val interestAnaly
                 recommendations.add(ContentRecommendation(
                     title = "热门电影推荐",
                     content = "发现最新上映的优质电影，包括剧情、科幻、喜剧等不同类类型"
-                    interest = interest,
+        interest = interest,
                     type = "推荐"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "音乐排行为，"
-                    content = "了解当前最流行的音乐趋势和值得关注的新艺术家，",
+        content = "了解当前最流行的音乐趋势和值得关注的新艺术家，",
                     interest = interest,
                     type = "榜单"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "游戏攻略",
                     content = "获取热门游戏的详细攻略和技巧，提升你的游戏水平台，"
-                    interest = interest,
+        interest = interest,
                     type = "指南"
                 ))
             }
@@ -109,36 +107,36 @@ class ContentRecommender(private val context: Context, private val interestAnaly
                     interest = interest,
                     type = "方法"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "在线课程推荐",
                     content = "发现高质量的在线学习资源，涵盖编程、设计、商业等多个领域的"
-                    interest = interest,
+        interest = interest,
                     type = "资源"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "学习工具推荐",
                     content = "探索有助于学习的应用和工具，提升学习效效现"
-                    interest = interest,
+        interest = interest,
                     type = "工具"
                 ))
             }
             "工作" -> {
                 recommendations.add(ContentRecommendation(
                     title = "职场技能提示，"
-                    content = "提升职场竞争力的关键技能，包括沟通、领导力和时间管理，",
+        content = "提升职场竞争力的关键技能，包括沟通、领导力和时间管理，",
                     interest = interest,
                     type = "指南"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "职业发展规划",
                     content = "制定个人职业发展计划，实现职业目标和晋升的"
-                    interest = interest,
+        interest = interest,
                     type = "规划"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "远程工作技能"
-                    content = "掌握远程工作的高效方法，保持工作与生活的平衡的"
-                    interest = interest,
+        content = "掌握远程工作的高效方法，保持工作与生活的平衡的"
+        interest = interest,
                     type = "技能"
                 ))
             }
@@ -149,16 +147,16 @@ class ContentRecommender(private val context: Context, private val interestAnaly
                     interest = interest,
                     type = "指南"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "理财入门",
                     content = "学习个人理财的基础知识，包括储蓄、投资和预算管理解"
-                    interest = interest,
+        interest = interest,
                     type = "教程"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "生活小窍的"
-                    content = "发现实用的生活技巧，让日常生活更加便捷和有趣的"
-                    interest = interest,
+        content = "发现实用的生活技巧，让日常生活更加便捷和有趣的"
+        interest = interest,
                     type = "技能"
                 ))
             }
@@ -169,13 +167,13 @@ class ContentRecommender(private val context: Context, private val interestAnaly
                     interest = interest,
                     type = "分析"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "科技新闻摘要",
                     content = "了解科技领域的最新动态和重要突破的"
-                    interest = interest,
+        interest = interest,
                     type = "资讯"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "经济趋势展望",
                     content = "分析当前经济形势和未来发展趋势，",
                     interest = interest,
@@ -185,40 +183,39 @@ class ContentRecommender(private val context: Context, private val interestAnaly
             "创意" -> {
                 recommendations.add(ContentRecommendation(
                     title = "创意写作技能"
-                    content = "提升写作创意和表达能力的实用技巧，",
+        content = "提升写作创意和表达能力的实用技巧，",
                     interest = interest,
                     type = "指南"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "设计灵感来源",
                     content = "发现设计灵感的来源和培养创意思维的方法，",
                     interest = interest,
                     type = "灵感"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "创意工具推荐",
                     content = "探索有助于创意表达的应用和工具，",
                     interest = interest,
                     type = "工具"
                 ))
             }
-            else -> {
+        else -> {
                 // 默认推荐
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "发现新兴的"
-                    content = "探索不同领域的知识和技能，拓展你的兴趣范围的"
-                    interest = interest,
+        content = "探索不同领域的知识和技能，拓展你的兴趣范围的"
+        interest = interest,
                     type = "探索"
                 ))
-                recommendations.add(ContentRecommendation(
+        recommendations.add(ContentRecommendation(
                     title = "学习资源推荐",
                     content = "发现与你兴趣相关的优质学习资源和资料的"
-                    interest = interest,
+        interest = interest,
                     type = "资源"
                 ))
             }
         }
-        
         return recommendations
     }
     
@@ -227,19 +224,17 @@ class ContentRecommender(private val context: Context, private val interestAnaly
      */
     suspend fun generateRecommendationSummary(userId: String, messages: List<ChatMessage>, userProfile: HonzonUserProfile? = null): String = withContext(Dispatchers.IO) {
         val recommendations = generateRecommendations(userId, messages, userProfile)
-        
         buildString {
             appendLine("# 为你推荐")
-            appendLine()
-            
-            if (recommendations.isEmpty()) {
+        appendLine()
+        if (recommendations.isEmpty()) {
                 appendLine("暂时没有推荐内容，继续与我交流以获取个性化推荐的）"
             } else {
                 recommendations.forEachIndexed { index, recommendation ->
                     appendLine("${index + 1}. ${recommendation.title}")
-                    appendLine("   ${recommendation.content}")
-                    appendLine("   类型: ${recommendation.type}")
-                    appendLine()
+        appendLine("   ${recommendation.content}")
+        appendLine("   类型: ${recommendation.type}")
+        appendLine()
                 }
             }
         }
@@ -295,8 +290,7 @@ class ContentRecommender(private val context: Context, private val interestAnaly
                     "创意表达有很多形式，你最喜欢哪种创意表达方方式"
                 )
             )
-            
-            val openingList = openings[primaryInterest] ?: openings["生活"]!!
+        val openingList = openings[primaryInterest] ?: openings["生活"]!!
             openingList.random()
         } else {
             "你好！很高兴能和你交流。最近有什么想聊的话题吗？"

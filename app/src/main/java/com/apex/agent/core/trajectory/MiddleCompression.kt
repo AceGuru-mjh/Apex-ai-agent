@@ -31,7 +31,6 @@ class MiddleCompression(
                 summaryTurn = null
             )
         }
-
         val currentTokens = middleTurns.sumOf { it.tokenCount }
         if (currentTokens <= targetTokens) {
             return CompressionResult(
@@ -42,29 +41,28 @@ class MiddleCompression(
         }
 
         // 保留工具调用配对
-    val (preservedPairs, nonPairTurns) = toolPairPreserver.preservePairs(middleTurns)
+        val (preservedPairs, nonPairTurns) = toolPairPreserver.preservePairs(middleTurns)
         
         // 计算需要删除的 token
-    val tokensToRemove = currentTokens - targetTokens
+        val tokensToRemove = currentTokens - targetTokens
         val preservedTokens = preservedPairs.sumOf { it.totalTokens }
         val availableToRemove = tokensToRemove - preservedTokens
         
         // 压缩非配对轮次
-    val (compressedNonPairs, removedTokens) = compressNonPairs(nonPairTurns, availableToRemove)
+        val (compressedNonPairs, removedTokens) = compressNonPairs(nonPairTurns, availableToRemove)
         
         // 生成摘要
-    val allRemovedTurns = nonPairTurns.filter { it !in compressedNonPairs }
+        val allRemovedTurns = nonPairTurns.filter { it !in compressedNonPairs }
         val summaryTurn = summarizer.summarize(allRemovedTurns)
         
         // 重新组合：保留的工具对+ 压缩的非配对轮次 + 摘要
-    val finalTurns = buildList {
+        val finalTurns = buildList {
             addAll(preservedPairs.flatMap { listOf(it.toolCall, it.toolResult).filterNotNull() })
-            addAll(compressedNonPairs)
-            if (summaryTurn != null) {
+        addAll(compressedNonPairs)
+        if (summaryTurn != null) {
                 add(summaryTurn)
             }
         }
-
         return CompressionResult(
             compressedTurns = finalTurns,
             savedTokens = removedTokens + (summaryTurn?.tokenCount ?: 0),
@@ -82,21 +80,19 @@ class MiddleCompression(
         if (turns.isEmpty() || targetTokensToRemove <= 0) {
             return turns to 0
         }
-
         val totalTokens = turns.sumOf { it.tokenCount }
         if (totalTokens <= targetTokensToRemove) {
             return emptyList() to totalTokens
         }
 
         // 按优先级排序：优先保略assistant，然后是 user，最后是其他
-    val sortedTurns = turns.sortedByDescending { turn ->
+        val sortedTurns = turns.sortedByDescending { turn ->
             when (turn.kind) {
                 PromptTurnKind.ASSISTANT -> 3
                 PromptTurnKind.USER -> 2
                 else -> 1
             }
         }
-
         var remainingToRemove = targetTokensToRemove
         val keptTurns = mutableListOf<TrajectoryTurn>()
         var removedTokens = 0
@@ -104,17 +100,15 @@ class MiddleCompression(
         for (turn in sortedTurns) {
             if (remainingToRemove <= 0) {
                 keptTurns.add(turn)
-                continue
+        continue
             }
-
-            if (turn.tokenCount <= remainingToRemove) {
+        if (turn.tokenCount <= remainingToRemove) {
                 remainingToRemove -= turn.tokenCount
                 removedTokens += turn.tokenCount
             } else {
                 keptTurns.add(turn)
             }
         }
-
         return keptTurns to removedTokens
     }
 
@@ -161,18 +155,16 @@ class DefaultMiddleSummarizer : MiddleSummarizer {
         val turnCount = removedTurns.size
         val toolCallCount = removedTurns.count { it.isToolCall }
         val humanCount = removedTurns.count { it.isHuman }
-
         val summaryContent = buildString {
             append("[中间过程压缩摘要] ")
-            append("具${turnCount} 轮，")
-            append("${totalTokens} tokens，")
-            append("${toolCallCount} 次工具调用")
-            if (humanCount > 0) {
+        append("具${turnCount} 轮，")
+        append("${totalTokens} tokens，")
+        append("${toolCallCount} 次工具调用")
+        if (humanCount > 0) {
                 append("${humanCount} 次用户交于")
             }
-            append("。")
+        append("。")
         }
-
         return TrajectoryTurn(
             index = removedTurns.firstOrNull()?.index ?: 0,
             kind = PromptTurnKind.USER,
@@ -180,10 +172,9 @@ class DefaultMiddleSummarizer : MiddleSummarizer {
             tokenCount = estimateTokenCount(summaryContent)
         )
     }
-
-    private fun estimateTokenCount(text: String): Int {
+        private fun estimateTokenCount(text: String): Int {
         // 粗略估算：中文约 2 字符/token，英文约 4 字符/token
-    val chineseChars = text.count { it.codePointRangeContainsPoint(0x4E00.toInt(), it.codePoint) }
+        val chineseChars = text.count { it.codePointRangeContainsPoint(0x4E00.toInt(), it.codePoint) }
         val otherChars = text.length - chineseChars
         return (chineseChars / 2 + otherChars / 4).coerceAtLeast(10)
     }
@@ -208,7 +199,7 @@ class LLMSummarizer(
 
         // 同步版本返回默认摘要
         // 实际 LLM 摘要需要异步调用
-                return DefaultMiddleSummarizer().summarize(removedTurns)
+        return DefaultMiddleSummarizer().summarize(removedTurns)
     }
 
     /**
@@ -224,7 +215,6 @@ class LLMSummarizer(
                 toolName = turn.toolName
             )
         }
-
         val summary = llmSummarize(promptTurns)
         return TrajectoryTurn(
             index = removedTurns.firstOrNull()?.index ?: 0,
@@ -233,8 +223,7 @@ class LLMSummarizer(
             tokenCount = estimateTokenCount(summary)
         )
     }
-
-    private fun estimateTokenCount(text: String): Int {
+        private fun estimateTokenCount(text: String): Int {
         val chineseChars = text.count { it.codePointRangeContainsPoint(0x4E00.toInt(), it.codePoint) }
         val otherChars = text.length - chineseChars
         return (chineseChars / 2 + otherChars / 4).coerceAtLeast(10)

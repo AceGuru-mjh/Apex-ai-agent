@@ -11,8 +11,7 @@ class LocalModelClient @Inject constructor() : ModelClient {
     override suspend fun complete(prompt: String): String {
         return ""
     }
-
-    override suspend fun stream(prompt: String): Flow<String> {
+        override suspend fun stream(prompt: String): Flow<String> {
         return emptyFlow()
     }
 }

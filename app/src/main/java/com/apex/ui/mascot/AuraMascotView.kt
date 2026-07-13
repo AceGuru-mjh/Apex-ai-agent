@@ -76,7 +76,7 @@ fun AuraMascotView(
     val accent = accentColorFor(form)
 
     // 浮动动画:轻微上下浮动(呼吸感)
-    val infiniteTransition = rememberInfiniteTransition(label = "aura_float")
+        val infiniteTransition = rememberInfiniteTransition(label = "aura_float")
         val floatY by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = -6f,
@@ -87,7 +87,7 @@ fun AuraMascotView(
         label = "aura_float_y"
     )
     // 呼吸缩放
-    val breathScale by infiniteTransition.animateFloat(
+        val breathScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.04f,
         animationSpec = infiniteRepeatable(
@@ -96,13 +96,12 @@ fun AuraMascotView(
         ),
         label = "aura_breath"
     )
-
-    Box(
+        Box(
         modifier = modifier.size(sizePx),
         contentAlignment = Alignment.Center
     ) {
         // 形态切换变身光环爆发特效
-                if (transitionEnabled) {
+        if (transitionEnabled) {
             TransitionBurstEffect(
                 form = form,
                 accent = accent,
@@ -111,7 +110,7 @@ fun AuraMascotView(
         }
 
         // 主水母图像 + 变身过渡
-                AnimatedContent(
+        AnimatedContent(
             targetState = form,
             transitionSpec = {
                 if (transitionEnabled) {
@@ -155,31 +154,29 @@ private fun JellyfishFrame(
 ) {
     val context = LocalContext.current
         val animDrawableName = AuraMascot.getAnimationDrawableName(form)
-    val animResId = remember(animDrawableName) {
+        val animResId = remember(animDrawableName) {
         context.resources.getIdentifier(animDrawableName, "drawable", context.packageName)
     }
-    val staticDrawableName = AuraMascot.getDrawableName(form)
+        val staticDrawableName = AuraMascot.getDrawableName(form)
         val staticResId = remember(staticDrawableName) {
         context.resources.getIdentifier(staticDrawableName, "drawable", context.packageName)
     }
-
-    val graphicsModifier = modifier.graphicsLayer {
+        val graphicsModifier = modifier.graphicsLayer {
         translationY = floatY
         scaleX = breathScale
         scaleY = breathScale
     }
-
-    when {
+        when {
         animResId != 0 -> {
             // 帧动画版 — AndroidView 桥接 ImageView 播放 AnimationDrawable
-                AndroidView(
+        AndroidView(
                 factory = { ctx ->
                     android.widget.ImageView(ctx).apply {
                         scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
                         val drawable = androidx.core.content.ContextCompat.getDrawable(ctx, animResId)
-                            as? android.graphics.drawable.AnimationDrawable
+        as? android.graphics.drawable.AnimationDrawable
                         setImageDrawable(drawable)
-                        drawable?.start()
+        drawable?.start()
                     }
                 },
                 update = { imageView ->
@@ -225,42 +222,40 @@ private fun TransitionBurstEffect(
     modifier: Modifier = Modifier,
 ) {
     var burstScale by remember { mutableStateOf(0.3f) }
-    var burstAlpha by remember { mutableStateOf(0f) }
-
-    LaunchedEffect(form) {
+        var burstAlpha by remember { mutableStateOf(0f) }
+        LaunchedEffect(form) {
         // 触发爆发:从 0.3 缩放到 1.8,透明度从 0.9 衰减到 0
-                burstScale = 0.3f
+        burstScale = 0.3f
         burstAlpha = 0.9f
         val steps = 30
         for (i in 1..steps) {
             val t = i.toFloat() / steps
             burstScale = 0.3f + 1.5f * t
             burstAlpha = 0.9f * (1f - t)
-            kotlinx.coroutines.delay(16)
+        kotlinx.coroutines.delay(16)
         }
         burstAlpha = 0f
     }
-
-    if (burstAlpha > 0.01f) {
+        if (burstAlpha > 0.01f) {
         Box(
             modifier = modifier,
             contentAlignment = Alignment.Center
         ) {
             // 光环:accent 色圆形描边,缩放扩散
-                Box(
+        Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .scale(burstScale)
                     .alpha(burstAlpha)
                     .graphicsLayer {
                         // 用阴影模拟光环发光
-                shadowElevation = 20f
+        shadowElevation = 20f
                         shape = androidx.compose.ui.graphics.CircleShape
                         clip = false
                     }
             ) {
                 // 内部填充极淡 accent 色
-                Box(
+        Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .alpha(0.3f)
@@ -275,10 +270,10 @@ private fun TransitionBurstEffect(
  */
 private fun accentColorFor(form: AuraMascot.AuraForm): Color = when (AuraMascot.getAccent(form)) {
     AuraMascot.AuraAccent.CYAN -> Color(0xFF00E5FF)   // 电光青
-                AuraMascot.AuraAccent.PINK -> Color(0xFFFF6B9D)   // 珊瑚粉
-                AuraMascot.AuraAccent.AMBER -> Color(0xFFFBBF24)  // 琥珀金
-                AuraMascot.AuraAccent.MINT -> Color(0xFF4ADE80)   // 薄荷绿
-                AuraMascot.AuraAccent.ROSE -> Color(0xFFEF4444)   // 玫瑰红
-                AuraMascot.AuraAccent.VIOLET -> Color(0xFFA78BFA) // 紫罗兰
-                AuraMascot.AuraAccent.SKY -> Color(0xFF60A5FA)    // 天空蓝
+        AuraMascot.AuraAccent.PINK -> Color(0xFFFF6B9D)   // 珊瑚粉
+        AuraMascot.AuraAccent.AMBER -> Color(0xFFFBBF24)  // 琥珀金
+        AuraMascot.AuraAccent.MINT -> Color(0xFF4ADE80)   // 薄荷绿
+        AuraMascot.AuraAccent.ROSE -> Color(0xFFEF4444)   // 玫瑰红
+        AuraMascot.AuraAccent.VIOLET -> Color(0xFFA78BFA) // 紫罗兰
+        AuraMascot.AuraAccent.SKY -> Color(0xFF60A5FA)    // 天空蓝
 }

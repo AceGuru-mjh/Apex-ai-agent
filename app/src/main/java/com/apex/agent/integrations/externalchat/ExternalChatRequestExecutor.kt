@@ -23,8 +23,7 @@ class ExternalChatStreamingSession(
     private val cleanupAction: () -> Unit
 ) {
     private val cleanedUp = AtomicBoolean(false)
-
-    fun cleanup() {
+        fun cleanup() {
         if (cleanedUp.compareAndSet(false, true)) {
             cleanupAction()
         }
@@ -33,8 +32,7 @@ class ExternalChatStreamingSession(
 
 sealed class ExternalChatStreamingStartResult {
     data class Started(val session: ExternalChatStreamingSession) : ExternalChatStreamingStartResult()
-
-    data class Failed(val result: ExternalChatResult) : ExternalChatStreamingStartResult()
+        data class Failed(val result: ExternalChatResult) : ExternalChatStreamingStartResult()
 }
 
 class ExternalChatRequestExecutor(context: Context) {
@@ -48,7 +46,7 @@ class ExternalChatRequestExecutor(context: Context) {
                 is PreparationResult.Ready -> {
                     try {
                         val sendResult = preparation.chatTool.sendMessageToAI(preparation.sendTool)
-                        toExternalChatResult(
+        toExternalChatResult(
                             requestId = preparation.requestId,
                             sendResult = sendResult,
                             returnToolStatus = preparation.returnToolStatus
@@ -60,23 +58,22 @@ class ExternalChatRequestExecutor(context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to execute external chat request", e)
-            ExternalChatResult(
+        ExternalChatResult(
                 requestId = request.requestId?.trim()?.takeIf { it.isNotBlank() },
                 success = false,
                 error = e.message ?: "Unknown error"
             )
         }
     }
-
-    suspend fun startStreaming(request: ExternalChatRequest): ExternalChatStreamingStartResult {
+        suspend fun startStreaming(request: ExternalChatRequest): ExternalChatStreamingStartResult {
         return try {
             when (val preparation = prepareRequest(request)) {
                 is PreparationResult.Failed -> ExternalChatStreamingStartResult.Failed(preparation.result)
-                is PreparationResult.Ready -> {
+        is PreparationResult.Ready -> {
                     when (val startResult = preparation.chatTool.startMessageToAIStream(preparation.sendTool)) {
                         is MessageSendStreamStartResult.Failed -> {
                             preparation.cleanup()
-                            ExternalChatStreamingStartResult.Failed(
+        ExternalChatStreamingStartResult.Failed(
                                 toExternalChatResult(
                                     requestId = preparation.requestId,
                                     sendResult = startResult.result,
@@ -84,8 +81,7 @@ class ExternalChatRequestExecutor(context: Context) {
                                 )
                             )
                         }
-
-                        is MessageSendStreamStartResult.Started -> {
+        is MessageSendStreamStartResult.Started -> {
                             ExternalChatStreamingStartResult.Started(
                                 ExternalChatStreamingSession(
                                     requestId = preparation.resolvedRequestId,
@@ -103,7 +99,7 @@ class ExternalChatRequestExecutor(context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to start external chat streaming request", e)
-            ExternalChatStreamingStartResult.Failed(
+        ExternalChatStreamingStartResult.Failed(
                 ExternalChatResult(
                     requestId = request.requestId?.trim()?.takeIf { it.isNotBlank() },
                     success = false,
@@ -112,8 +108,7 @@ class ExternalChatRequestExecutor(context: Context) {
             )
         }
     }
-
-    private suspend fun prepareRequest(request: ExternalChatRequest): PreparationResult {
+        private suspend fun prepareRequest(request: ExternalChatRequest): PreparationResult {
         val requestId = request.requestId?.trim()?.takeIf { it.isNotBlank() }
         val resolvedRequestId = requestId ?: UUID.randomUUID().toString()
         val message = request.message?.trim()
@@ -126,24 +121,22 @@ class ExternalChatRequestExecutor(context: Context) {
                 )
             )
         }
-
         val chatTool = StandardChatManagerTool(appContext)
-
         if (request.showFloating) {
             val params = mutableListOf<ToolParameter>()
-            request.initialMode?.trim()?.takeIf { it.isNotBlank() }?.let {
+        request.initialMode?.trim()?.takeIf { it.isNotBlank() }?.let {
                 params += ToolParameter(name = "initial_mode", value = it)
             }
-            if (request.autoExitAfterMs > 0) {
+        if (request.autoExitAfterMs > 0) {
                 params += ToolParameter(name = "timeout_ms", value = request.autoExitAfterMs.toString())
             }
-            val startResult = chatTool.startChatService(
+        val startResult = chatTool.startChatService(
                 AITool(
                     name = "start_chat_service",
                     parameters = params
                 )
             )
-            if (!startResult.success) {
+        if (!startResult.success) {
                 return PreparationResult.Failed(
                     ExternalChatResult(
                         requestId = requestId,
@@ -154,7 +147,6 @@ class ExternalChatRequestExecutor(context: Context) {
                 )
             }
         }
-
         if (!request.createNewChat && request.chatId.isNullOrBlank() && !request.createIfNone) {
             val listResult = chatTool.listChats(AITool(name = "list_chats"))
         val currentChatId = (listResult.result as? ChatListResultData)?.currentChatId
@@ -168,20 +160,18 @@ class ExternalChatRequestExecutor(context: Context) {
                 )
             }
         }
-
         if (request.createNewChat) {
             val params = mutableListOf<ToolParameter>()
-            request.group?.trim()?.takeIf { it.isNotBlank() }?.let {
+        request.group?.trim()?.takeIf { it.isNotBlank() }?.let {
                 params += ToolParameter(name = "group", value = it)
             }
-            chatTool.createNewChat(
+        chatTool.createNewChat(
                 AITool(
                     name = "create_new_chat",
                     parameters = params
                 )
             )
         }
-
         val sendParams = mutableListOf(
             ToolParameter(name = "message", value = message)
         )
@@ -190,7 +180,6 @@ class ExternalChatRequestExecutor(context: Context) {
                 sendParams += ToolParameter(name = "chat_id", value = it)
             }
         }
-
         return PreparationResult.Ready(
             requestId = requestId,
             resolvedRequestId = resolvedRequestId,
@@ -212,8 +201,7 @@ class ExternalChatRequestExecutor(context: Context) {
             }
         )
     }
-
-    private suspend fun toExternalChatResult(
+        private suspend fun toExternalChatResult(
         requestId: String?,
         sendResult: ToolResult,
         returnToolStatus: Boolean
@@ -227,8 +215,7 @@ class ExternalChatRequestExecutor(context: Context) {
             error = sendResult.error?.takeIf { it.isNotBlank() }
         )
     }
-
-    private sealed class PreparationResult {
+        private sealed class PreparationResult {
         data class Ready(
             val requestId: String?,
             val resolvedRequestId: String,
@@ -242,11 +229,9 @@ class ExternalChatRequestExecutor(context: Context) {
                 cleanupAction()
             }
         }
-
         data class Failed(val result: ExternalChatResult) : PreparationResult()
     }
-
-    companion object {
+        companion object {
         private const val TAG = "ExternalChatExecutor"
     }
 }

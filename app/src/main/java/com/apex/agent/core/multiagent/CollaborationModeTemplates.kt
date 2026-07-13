@@ -12,12 +12,10 @@ object CollaborationModeTemplates {
             customerSupportTeamTemplate
         )
     }
-
-    fun getCollaborationTemplatesByCategory(category: CollaborationCategory): List<CollaborationTemplate> {
+        fun getCollaborationTemplatesByCategory(category: CollaborationCategory): List<CollaborationTemplate> {
         return getAllCollaborationTemplates().filter { it.category == category }
     }
-
-    fun searchCollaborationTemplates(query: String): List<CollaborationTemplate> {
+        fun searchCollaborationTemplates(query: String): List<CollaborationTemplate> {
         val lowerQuery = query.lowercase()
         return getAllCollaborationTemplates().filter { template ->
             template.name.lowercase().contains(lowerQuery) ||
@@ -25,8 +23,7 @@ object CollaborationModeTemplates {
                     template.tags.any { it.lowercase().contains(lowerQuery) }
         }
     }
-
-    val developmentTeamTemplate = CollaborationTemplate(
+        val developmentTeamTemplate = CollaborationTemplate(
         id = "collab_development_team",
         name = "软件开发团",
         description = "由多个专业角色组成的软件开发团队，包括前端、后端、测试和产品经理",
@@ -123,8 +120,7 @@ object CollaborationModeTemplates {
         6. 产品经理作为团队协调者，确保项目顺利进行
         """
     )
-
-    val researchAndAnalysisTeamTemplate = CollaborationTemplate(
+        val researchAndAnalysisTeamTemplate = CollaborationTemplate(
         id = "collab_research_team",
         name = "研究分析团队",
         description = "由研究员、数据分析师和信息专家组成的研究分析团队，擅长深入研究和数据分析",
@@ -200,8 +196,7 @@ object CollaborationModeTemplates {
         5. 研究员作为团队协调者，确保研究目标的实例
         """
     )
-
-    val productDevelopmentTeamTemplate = CollaborationTemplate(
+        val productDevelopmentTeamTemplate = CollaborationTemplate(
         id = "collab_product_team",
         name = "产品开发团",
         description = "由产品经理、UX设计师、UI设计师和开发人员组成的产品开发团",
@@ -298,8 +293,7 @@ object CollaborationModeTemplates {
         6. 产品策略师作为团队协调者，确保产品愿景的实例
         """
     )
-
-    val creativeDesignTeamTemplate = CollaborationTemplate(
+        val creativeDesignTeamTemplate = CollaborationTemplate(
         id = "collab_creative_team",
         name = "创意设计团队",
         description = "由创意总监、设计师和内容创作者组成的创意设计团队，擅长创意构思和视觉设计",
@@ -375,8 +369,7 @@ object CollaborationModeTemplates {
         5. 创意总监作为团队协调者，确保创意质量和一致，
         """
     )
-
-    val dataScienceTeamTemplate = CollaborationTemplate(
+        val dataScienceTeamTemplate = CollaborationTemplate(
         id = "collab_data_science_team",
         name = "数据科学团队",
         description = "由数据科学家、机器学习工程师和数据工程师组成的数据科学团队，擅长数据分析和AI模型开发送",
@@ -452,8 +445,7 @@ object CollaborationModeTemplates {
         5. 数据科学家作为团队协调者，确保项目目标的实例
         """
     )
-
-    val customerSupportTeamTemplate = CollaborationTemplate(
+        val customerSupportTeamTemplate = CollaborationTemplate(
         id = "collab_support_team",
         name = "客户支持团队",
         description = "由客户支持代表、技术支持专家和客户成功经理组成的客户支持团队，擅长解决客户问题和提供优质服务",
@@ -538,14 +530,13 @@ enum class CollaborationCategory {
     CREATIVE_DESIGN,
     DATA_SCIENCE,
     CUSTOMER_SUPPORT;
-
-    fun getDisplayName(): String {
+        fun getDisplayName(): String {
         return when (this) { SOFTWARE_DEVELOPMENT -> "软件开",
             RESEARCH_ANALYSIS -> "研究分析"
-            PRODUCT_DEVELOPMENT -> "产品开",
+        PRODUCT_DEVELOPMENT -> "产品开",
             CREATIVE_DESIGN -> "创意设计"
-            DATA_SCIENCE -> "数据科学"
-            CUSTOMER_SUPPORT -> "客户支持"
+        DATA_SCIENCE -> "数据科学"
+        CUSTOMER_SUPPORT -> "客户支持"
         }
     }
 }

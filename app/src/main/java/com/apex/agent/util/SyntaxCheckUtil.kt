@@ -36,7 +36,6 @@ object SyntaxCheckUtil {
             ERROR,
             WARNING
         }
-
         override fun toString(): String {
             return "Line ${line}:${column} - ${severity.name}: ${message}"
         }
@@ -60,14 +59,13 @@ object SyntaxCheckUtil {
             if (errors.isEmpty()) {
                 return "${filePath}: No syntax errors found"
             }
-
-            val sb = StringBuilder()
-            sb.appendLine("Syntax check for ${filePath} (${fileType}):")
-            sb.appendLine("Found ${errors.size} issue(s):")
-            errors.forEach { error ->
+        val sb = StringBuilder()
+        sb.appendLine("Syntax check for ${filePath} (${fileType}):")
+        sb.appendLine("Found ${errors.size} issue(s):")
+        errors.forEach { error ->
                 sb.appendLine("  ${error}")
             }
-            return sb.toString()
+        return sb.toString()
         }
     }
 
@@ -81,7 +79,6 @@ object SyntaxCheckUtil {
     fun checkSyntax(filePath: String, content: String): SyntaxCheckResult? {
         val file = File(filePath)
         val extension = file.extension.lowercase()
-
         return when (extension) {
             "js", "mjs", "cjs", "jsx" -> checkJavaScript(filePath, content)
             "html", "htm" -> checkHtml(filePath, content)
@@ -90,7 +87,7 @@ object SyntaxCheckUtil {
             "json" -> checkJson(filePath, content)
             "xml", "xsd", "xsl", "xslt", "svg", "plist" -> checkXml(filePath, content)
             "sql" -> checkSql(filePath, content)
-            else -> null
+        else -> null
         }
     }
 
@@ -113,12 +110,10 @@ object SyntaxCheckUtil {
     fun checkJavaScript(filePath: String, content: String): SyntaxCheckResult {
         val errors = mutableListOf<SyntaxError>()
         val lines = content.lines()
-
         checkBracketMatching(lines, errors)
         checkQuoteMatching(lines, errors)
         checkCommentMatching(lines, errors)
         checkCommonJsErrors(lines, errors)
-
         return SyntaxCheckResult(filePath, "JavaScript", errors)
     }
 
@@ -141,11 +136,9 @@ object SyntaxCheckUtil {
     fun checkHtml(filePath: String, content: String): SyntaxCheckResult {
         val errors = mutableListOf<SyntaxError>()
         val lines = content.lines()
-
         checkHtmlTagMatching(lines, errors)
         checkHtmlComments(lines, errors)
         checkHtmlAttributeQuotes(lines, errors)
-
         return SyntaxCheckResult(filePath, "HTML", errors)
     }
 
@@ -170,16 +163,13 @@ object SyntaxCheckUtil {
         val errors = mutableListOf<SyntaxError>()
         val lines = content.lines()
         val contentTrimmed = content.trim()
-
         if (contentTrimmed.isBlank()) {
             return SyntaxCheckResult(filePath, "CSS", errors)
         }
-
         checkCssBraceMatching(lines, errors)
         checkCssSelectorFormat(lines, errors)
         checkCssPropertyFormat(lines, errors)
         checkCommentMatching(lines, errors)
-
         return SyntaxCheckResult(filePath, "CSS", errors)
     }
 
@@ -198,13 +188,13 @@ object SyntaxCheckUtil {
                 val ch = line[i]
 
                 // 处理注释
-                if (!inString && i < line.length - 1) {
+        if (!inString && i < line.length - 1) {
                     if (line[i] == '/' && line[i + 1] == '*') {
                         inBlockComment = true
                         i += 2
                         continue
                     }
-                    if (inBlockComment && line[i] == '*' && line[i + 1] == '/') {
+        if (inBlockComment && line[i] == '*' && line[i + 1] == '/') {
                         inBlockComment = false
                         i += 2
                         continue
@@ -212,22 +202,21 @@ object SyntaxCheckUtil {
                 }
 
                 // 处理字符串
-                if (!inBlockComment && (ch == '"' || ch == '\'')) {
+        if (!inBlockComment && (ch == '"' || ch == '\'')) {
                     if (!inString) {
                         inString = true
                         stringChar = ch
                     } else if (ch == stringChar) {
                         // 检查是否转义
-                var escapeCount = 0
+        var escapeCount = 0
                         var j = i - 1
                         while (j >= 0 && line[j] == '\\') { escapeCount++; j-- }
-                        if (escapeCount % 2 == 0) {
+        if (escapeCount % 2 == 0) {
                             inString = false
                         }
                     }
                 }
-
-                if (!inString && !inBlockComment) {
+        if (!inString && !inBlockComment) {
                     if (ch == '{') {
                         stack.push(lineIndex + 1 to i + 1)
                     } else if (ch == '}') {
@@ -238,14 +227,12 @@ object SyntaxCheckUtil {
                         }
                     }
                 }
-                i++
+        i++
             }
         }
-
         stack.forEach { (line, col) ->
             errors.add(SyntaxError(line, col, "Unclosed brace '{'"))
         }
-
         if (inBlockComment) {
             errors.add(SyntaxError(lines.size, 1, "Unclosed multi-line comment"))
         }
@@ -260,7 +247,7 @@ object SyntaxCheckUtil {
 
         lines.forEachIndexed { lineIndex, line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty() || trimmed.startsWith("/*") || trimmed.startsWith("*")) return@forEachIndexed
+        if (trimmed.isEmpty() || trimmed.startsWith("/*") || trimmed.startsWith("*")) return@forEachIndexed
 
             if (trimmed.startsWith("}")) {
                 bracketDepth--
@@ -269,31 +256,30 @@ object SyntaxCheckUtil {
                     bracketDepth = 0
                 }
             }
-
-            if (!inBlock && trimmed.endsWith("{") && !trimmed.startsWith("/*")) {
+        if (!inBlock && trimmed.endsWith("{") && !trimmed.startsWith("/*")) {
                 val selector = trimmed.removeSuffix("{").trim()
                 // 检查选择器是否为空
-                if (selector.isEmpty()) {
+        if (selector.isEmpty()) {
                     errors.add(SyntaxError(lineIndex + 1, 1, "Empty selector", SyntaxError.Severity.WARNING))
                 }
                 // 检查是否以合法的选择器字符开头
-                if (selector.isNotEmpty()) {
+        if (selector.isNotEmpty()) {
                     val firstChar = selector.first()
-                    if (firstChar !in ".#*:[]@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+        if (firstChar !in ".#*:[]@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
                         errors.add(SyntaxError(lineIndex + 1, 1, "Invalid selector start character '$firstChar'"))
                     }
                 }
-                inBlock = true
+        inBlock = true
                 bracketDepth = 1
             }
 
             // 统计块内的花括号嵌套
-                if (inBlock) {
+        if (inBlock) {
                 for (ch in trimmed) {
                     if (ch == '{') bracketDepth++
                     if (ch == '}') bracketDepth--
                 }
-                if (bracketDepth <= 0) {
+        if (bracketDepth <= 0) {
                     inBlock = false
                     bracketDepth = 0
                 }
@@ -310,30 +296,28 @@ object SyntaxCheckUtil {
 
         lines.forEachIndexed { lineIndex, line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty() || trimmed.startsWith("/*")) return@forEachIndexed
+        if (trimmed.isEmpty() || trimmed.startsWith("/*")) return@forEachIndexed
 
             if (trimmed.startsWith("}")) {
                 bracketDepth--
                 if (bracketDepth <= 0) { inBlock = false; bracketDepth = 0 }
             }
-
-            if (trimmed.endsWith("{") && !trimmed.startsWith("/*")) {
+        if (trimmed.endsWith("{") && !trimmed.startsWith("/*")) {
                 inBlock = true
                 bracketDepth = 1
             }
-
-            if (inBlock) {
+        if (inBlock) {
                 for (ch in trimmed) {
                     if (ch == '{') bracketDepth++
                     if (ch == '}') bracketDepth--
                 }
-                if (bracketDepth <= 0) { inBlock = false; bracketDepth = 0 }
+        if (bracketDepth <= 0) { inBlock = false; bracketDepth = 0 }
 
                 // 检查属性行是否包含冒号
-                if (inBlock && trimmed.contains(":") && !trimmed.startsWith("/*") && !trimmed.endsWith("{")) {
+        if (inBlock && trimmed.contains(":") && !trimmed.startsWith("/*") && !trimmed.endsWith("{")) {
                     val colonIndex = trimmed.indexOf(':')
         val propertyName = trimmed.substring(0, colonIndex).trim()
-                    if (propertyName.isEmpty()) {
+        if (propertyName.isEmpty()) {
                         errors.add(SyntaxError(lineIndex + 1, 1, "Empty property name", SyntaxError.Severity.WARNING))
                     }
                 }
@@ -364,12 +348,10 @@ object SyntaxCheckUtil {
     fun checkPython(filePath: String, content: String): SyntaxCheckResult {
         val errors = mutableListOf<SyntaxError>()
         val lines = content.lines()
-
         checkPythonIndentation(lines, errors)
         checkPythonColon(lines, errors)
         checkBracketMatching(lines, errors)
         checkPythonTripleQuotes(lines, errors)
-
         return SyntaxCheckResult(filePath, "Python", errors)
     }
 
@@ -385,7 +367,7 @@ object SyntaxCheckUtil {
         lines.forEachIndexed { lineIndex, line ->
             if (line.isBlank()) return@forEachIndexed
             val trimmed = line.trimStart()
-            if (trimmed.isEmpty()) return@forEachIndexed
+        if (trimmed.isEmpty()) return@forEachIndexed
 
             val leadingWhitespace = line.length - trimmed.length
             if (leadingWhitespace > 0) {
@@ -396,7 +378,6 @@ object SyntaxCheckUtil {
                 }
             }
         }
-
         if (hasTabIndent && hasSpaceIndent) {
             errors.add(
                 SyntaxError(
@@ -414,15 +395,15 @@ object SyntaxCheckUtil {
     private fun checkPythonColon(lines: List<String>, errors: MutableList<SyntaxError>) {
         lines.forEachIndexed { lineIndex, line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEachIndexed
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEachIndexed
 
             // 检查块关键字开头的语句是否以冒号结尾
-    val keyword = pythonBlockKeywords.firstOrNull { trimmed.startsWith("$it ") || trimmed.startsWith("$it:") }
-            if (keyword != null) {
+        val keyword = pythonBlockKeywords.firstOrNull { trimmed.startsWith("$it ") || trimmed.startsWith("$it:") }
+        if (keyword != null) {
                 // 提取关键字后的部分
-    val afterKeyword = trimmed.removePrefix(keyword).trim()
+        val afterKeyword = trimmed.removePrefix(keyword).trim()
                 // 跳过条件表达式中的括号内容，检查最终是否以冒号结尾
-                if (!trimmed.endsWith(":")) {
+        if (!trimmed.endsWith(":")) {
                     errors.add(
                         SyntaxError(
                             lineIndex + 1,
@@ -450,8 +431,7 @@ object SyntaxCheckUtil {
         var colCount = 1
         while (i < content.length) {
             if (content[i] == '\n') { lineCount++; colCount = 1; i++; continue }
-
-            if (!inTripleSingle && !inTripleDouble && i + 2 < content.length) {
+        if (!inTripleSingle && !inTripleDouble && i + 2 < content.length) {
                 if (content.startsWith("'''", i)) {
                     inTripleSingle = true
                     tripleStartLine = lineCount
@@ -459,7 +439,7 @@ object SyntaxCheckUtil {
                     colCount += 3
                     continue
                 }
-                if (content.startsWith("\"\"\"", i)) {
+        if (content.startsWith("\"\"\"", i)) {
                     inTripleDouble = true
                     tripleStartLine = lineCount
                     i += 3
@@ -467,24 +447,21 @@ object SyntaxCheckUtil {
                     continue
                 }
             }
-
-            if (inTripleSingle && content.startsWith("'''", i)) {
+        if (inTripleSingle && content.startsWith("'''", i)) {
                 inTripleSingle = false
                 i += 3
                 colCount += 3
                 continue
             }
-            if (inTripleDouble && content.startsWith("\"\"\"", i)) {
+        if (inTripleDouble && content.startsWith("\"\"\"", i)) {
                 inTripleDouble = false
                 i += 3
                 colCount += 3
                 continue
             }
-
-            i++
+        i++
             colCount++
         }
-
         if (inTripleSingle) {
             errors.add(SyntaxError(tripleStartLine, 1, "Unclosed triple single-quoted string"))
         }
@@ -510,11 +487,9 @@ object SyntaxCheckUtil {
     fun checkJson(filePath: String, content: String): SyntaxCheckResult {
         val errors = mutableListOf<SyntaxError>()
         val trimmed = content.trim()
-
         if (trimmed.isEmpty()) {
             return SyntaxCheckResult(filePath, "JSON", errors)
         }
-
         try {
             if (trimmed.startsWith("[")) {
                 JSONArray(trimmed)
@@ -525,16 +500,15 @@ object SyntaxCheckUtil {
             }
         } catch (e: org.json.JSONException) {
             // 尝试从异常消息中提取行号和列号
-    val message = e.message ?: "Unknown JSON error"
+        val message = e.message ?: "Unknown JSON error"
         val lineMatch = Regex("""at line (\d+)""").find(message)
-            val colMatch = Regex("""column (\d+)""").find(message)
+        val colMatch = Regex("""column (\d+)""").find(message)
         val line = lineMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
             val col = colMatch?.groupValues?.get(1)?.toIntOrNull() ?: 1
             errors.add(SyntaxError(line, col, message))
         } catch (e: Exception) {
             errors.add(SyntaxError(1, 1, "JSON parse error: ${e.message}"))
         }
-
         return SyntaxCheckResult(filePath, "JSON", errors)
     }
 
@@ -558,12 +532,10 @@ object SyntaxCheckUtil {
     fun checkXml(filePath: String, content: String): SyntaxCheckResult {
         val errors = mutableListOf<SyntaxError>()
         val lines = content.lines()
-
         checkXmlDeclaration(lines, errors)
         checkXmlTagMatching(lines, errors)
         checkHtmlAttributeQuotes(lines, errors)
         checkXmlComments(lines, errors)
-
         return SyntaxCheckResult(filePath, "XML", errors)
     }
 
@@ -574,11 +546,11 @@ object SyntaxCheckUtil {
         if (lines.isEmpty()) return
         val firstLine = lines[0].trim()
         // 如果第一行看起来像 XML 声明但不是有效的声明
-                if (firstLine.startsWith("<?") && !firstLine.startsWith("<?xml")) {
+        if (firstLine.startsWith("<?") && !firstLine.startsWith("<?xml")) {
             errors.add(SyntaxError(1, 1, "XML declaration should be '<?xml ... ?>', found '${firstLine.substring(0, minOf(firstLine.length, 20))}'", SyntaxError.Severity.WARNING))
         }
         // 检查声明是否闭合
-                if (firstLine.startsWith("<?xml") && !firstLine.endsWith("?>")) {
+        if (firstLine.startsWith("<?xml") && !firstLine.endsWith("?>")) {
             errors.add(SyntaxError(1, 1, "XML declaration not properly closed"))
         }
     }
@@ -592,15 +564,13 @@ object SyntaxCheckUtil {
             "area", "base", "br", "col", "embed", "hr", "img", "input",
             "link", "meta", "param", "source", "track", "wbr"
         )
-
         val content = lines.joinToString("\n")
         val cleanedContent = removeXmlComments(content)
         val tagPattern = Regex("<(/)([a-zA-Z_][a-zA-Z0-9_.-]*)(\\s[^>]*?)?\\s*(/)?>")
-
         tagPattern.findAll(cleanedContent).forEach { match ->
             val isClosing = match.groupValues[1] == "/"
         val tagName = match.groupValues[2].lowercase()
-            val isSelfClosing = match.groupValues[4] == "/"
+        val isSelfClosing = match.groupValues[4] == "/"
         val position = match.range.first
             var line = 1
             var col = 1
@@ -611,15 +581,14 @@ object SyntaxCheckUtil {
                     col = position - currentPos + 1
                     break
                 }
-                currentPos += lineContent.length + 1
+        currentPos += lineContent.length + 1
             }
-
-            if (isClosing) {
+        if (isClosing) {
                 if (stack.isEmpty()) {
                     errors.add(SyntaxError(line, col, "Unexpected closing tag </$tagName>"))
                 } else {
                     val (openTag, _) = stack.peek()
-                    if (openTag == tagName) {
+        if (openTag == tagName) {
                         stack.pop()
                     } else {
                         errors.add(SyntaxError(line, col, "Mismatched tag: expected </$openTag>, found </$tagName>"))
@@ -627,12 +596,11 @@ object SyntaxCheckUtil {
                 }
             } else if (!isSelfClosing && tagName !in selfClosingTags) {
                 // 忽略 XML 声明的伪标签
-                if (!tagName.startsWith("?")) {
+        if (!tagName.startsWith("?")) {
                     stack.push(tagName to (line to col))
                 }
             }
         }
-
         stack.forEach { (tagName, position) ->
             errors.add(SyntaxError(position.first, position.second, "Unclosed tag <$tagName>"))
         }
@@ -647,14 +615,14 @@ object SyntaxCheckUtil {
         while (i < content.length) {
             if (content.startsWith("<!--", i)) {
                 val commentEnd = content.indexOf("-->", i + 4)
-                if (commentEnd != -1) {
+        if (commentEnd != -1) {
                     result.append(" ".repeat(commentEnd + 3 - i))
-                    i = commentEnd + 3
+        i = commentEnd + 3
                     continue
                 }
             }
-            result.append(content[i])
-            i++
+        result.append(content[i])
+        i++
         }
         return result.toString()
     }
@@ -673,7 +641,7 @@ object SyntaxCheckUtil {
         var i = 0
         while (i < content.length) {
             if (content[i] == '\n') { lineIdx++; colIdx = 1; i++; continue }
-            if (!inComment && content.startsWith("<!--", i)) {
+        if (!inComment && content.startsWith("<!--", i)) {
                 inComment = true
                 commentStartLine = lineIdx
                 commentStartCol = colIdx
@@ -681,16 +649,15 @@ object SyntaxCheckUtil {
                 colIdx += 4
                 continue
             }
-            if (inComment && content.startsWith("-->", i)) {
+        if (inComment && content.startsWith("-->", i)) {
                 inComment = false
                 i += 3
                 colIdx += 3
                 continue
             }
-            i++
+        i++
             colIdx++
         }
-
         if (inComment) {
             errors.add(SyntaxError(commentStartLine, commentStartCol, "Unclosed XML comment"))
         }
@@ -728,11 +695,9 @@ object SyntaxCheckUtil {
     fun checkSql(filePath: String, content: String): SyntaxCheckResult {
         val errors = mutableListOf<SyntaxError>()
         val lines = content.lines()
-
         checkSqlKeywordCase(lines, errors)
         checkSqlStringLiterals(lines, errors)
         checkSqlComments(lines, errors)
-
         return SyntaxCheckResult(filePath, "SQL", errors)
     }
 
@@ -745,13 +710,13 @@ object SyntaxCheckUtil {
 
         lines.forEachIndexed { lineIndex, line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty() || trimmed.startsWith("--") || trimmed.startsWith("/*")) return@forEachIndexed
+        if (trimmed.isEmpty() || trimmed.startsWith("--") || trimmed.startsWith("/*")) return@forEachIndexed
 
             // 检查每行中出现的 SQL 关键字
-    val words = trimmed.split(Regex("\\s+"))
-            for (word in words) {
+        val words = trimmed.split(Regex("\\s+"))
+        for (word in words) {
                 val cleanWord = word.replace(Regex("[^a-zA-Z]"), "")
-                if (cleanWord.length >= 3 && cleanWord.uppercase() in sqlKeywords) {
+        if (cleanWord.length >= 3 && cleanWord.uppercase() in sqlKeywords) {
                     if (cleanWord == cleanWord.uppercase()) upperCount++
                     if (cleanWord == cleanWord.lowercase()) lowerCount++
                 }
@@ -759,7 +724,7 @@ object SyntaxCheckUtil {
         }
 
         // 如果同时出现大写和小写关键字，给出警告
-                if (upperCount > 0 && lowerCount > 0) {
+        if (upperCount > 0 && lowerCount > 0) {
             errors.add(
                 SyntaxError(
                     1, 1,
@@ -787,27 +752,25 @@ object SyntaxCheckUtil {
         while (i < content.length) {
             val ch = content[i]
             if (ch == '\n') { lineIdx++; colIdx = 1; i++; inLineComment = false; continue }
-
-            if (!inString) {
+        if (!inString) {
                 // 检查注释
-                if (!inBlockComment && i + 1 < content.length && content[i] == '-' && content[i + 1] == '-') {
+        if (!inBlockComment && i + 1 < content.length && content[i] == '-' && content[i + 1] == '-') {
                     inLineComment = true
                 }
-                if (!inLineComment && i + 1 < content.length && content[i] == '/' && content[i + 1] == '*') {
+        if (!inLineComment && i + 1 < content.length && content[i] == '/' && content[i + 1] == '*') {
                     inBlockComment = true
                     i += 2
                     colIdx += 2
                     continue
                 }
-                if (inBlockComment && i + 1 < content.length && content[i] == '*' && content[i + 1] == '/') {
+        if (inBlockComment && i + 1 < content.length && content[i] == '*' && content[i + 1] == '/') {
                     inBlockComment = false
                     i += 2
                     colIdx += 2
                     continue
                 }
             }
-
-            if (!inLineComment && !inBlockComment) {
+        if (!inLineComment && !inBlockComment) {
                 if (ch == '\'' && (i == 0 || content[i - 1] != '\\')) {
                     if (!inString) {
                         inString = true
@@ -815,20 +778,18 @@ object SyntaxCheckUtil {
                         stringStartCol = colIdx
                     } else {
                         // 检查是否为连续两个单引号（SQL 转义）
-                if (i + 1 < content.length && content[i + 1] == '\'') {
+        if (i + 1 < content.length && content[i + 1] == '\'') {
                             i += 2
                             colIdx += 2
                             continue
                         }
-                        inString = false
+        inString = false
                     }
                 }
             }
-
-            i++
+        i++
             colIdx++
         }
-
         if (inString) {
             errors.add(SyntaxError(stringStartLine, stringStartCol, "Unclosed string literal", SyntaxError.Severity.WARNING))
         }
@@ -849,20 +810,19 @@ object SyntaxCheckUtil {
         var i = 0
         while (i < content.length) {
             if (content[i] == '\n') { lineIdx++; i++; continue }
-            if (!inBlockComment && i + 1 < content.length && content[i] == '/' && content[i + 1] == '*') {
+        if (!inBlockComment && i + 1 < content.length && content[i] == '/' && content[i + 1] == '*') {
                 inBlockComment = true
                 commentStartLine = lineIdx
                 i += 2
                 continue
             }
-            if (inBlockComment && i + 1 < content.length && content[i] == '*' && content[i + 1] == '/') {
+        if (inBlockComment && i + 1 < content.length && content[i] == '*' && content[i + 1] == '/') {
                 inBlockComment = false
                 i += 2
                 continue
             }
-            i++
+        i++
         }
-
         if (inBlockComment) {
             errors.add(SyntaxError(commentStartLine, 1, "Unclosed SQL block comment"))
         }
@@ -878,7 +838,6 @@ object SyntaxCheckUtil {
     private fun checkBracketMatching(lines: List<String>, errors: MutableList<SyntaxError>) {
         val stack = mutableListOf<Pair<Char, Pair<Int, Int>>>()
         val bracketPairs = mapOf('(' to ')', '[' to ']', '{' to '}')
-
         var inString = false
         var stringChar = ' '
         var inMultiLineComment = false
@@ -896,19 +855,17 @@ object SyntaxCheckUtil {
                         i += 2
                         continue
                     }
-                    if (inMultiLineComment && line[i] == '*' && line[i + 1] == '/') {
+        if (inMultiLineComment && line[i] == '*' && line[i + 1] == '/') {
                         inMultiLineComment = false
                         i += 2
                         continue
                     }
                 }
-
-                if (!inString && !inMultiLineComment && i < line.length - 1 && line[i] == '/' && line[i + 1] == '/') {
+        if (!inString && !inMultiLineComment && i < line.length - 1 && line[i] == '/' && line[i + 1] == '/') {
                     inSingleLineComment = true
                     break
                 }
-
-                if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) {
+        if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) {
                     var isEscaped = false
                     var escapeCount = 0
                     var j = i - 1
@@ -916,7 +873,7 @@ object SyntaxCheckUtil {
                         escapeCount++
                         j--
                     }
-                    isEscaped = escapeCount % 2 == 1
+        isEscaped = escapeCount % 2 == 1
 
                     if (!isEscaped) {
                         if (!inString) {
@@ -927,8 +884,7 @@ object SyntaxCheckUtil {
                         }
                     }
                 }
-
-                if (!inString && !inSingleLineComment && !inMultiLineComment) {
+        if (!inString && !inSingleLineComment && !inMultiLineComment) {
                     if (char in bracketPairs.keys) {
                         stack.add(char to (lineIndex + 1 to i + 1))
                     } else if (char in bracketPairs.values) {
@@ -942,7 +898,7 @@ object SyntaxCheckUtil {
                             )
                         } else {
                             val (openBracket, _) = stack.last()
-                            if (bracketPairs[openBracket] == char) {
+        if (bracketPairs[openBracket] == char) {
                                 stack.removeAt(stack.size - 1)
                             } else {
                                 errors.add(
@@ -956,15 +912,12 @@ object SyntaxCheckUtil {
                         }
                     }
                 }
-
-                i++
+        i++
             }
-
-            if (inString && stringChar != '`') {
+        if (inString && stringChar != '`') {
                 inString = false
             }
         }
-
         stack.forEach { (bracket, position) ->
             errors.add(
                 SyntaxError(
@@ -974,7 +927,6 @@ object SyntaxCheckUtil {
                 )
             )
         }
-
         if (inMultiLineComment) {
             errors.add(
                 SyntaxError(
@@ -984,7 +936,6 @@ object SyntaxCheckUtil {
                 )
             )
         }
-
         if (inString && stringChar == '`') {
             errors.add(
                 SyntaxError(
@@ -1017,26 +968,24 @@ object SyntaxCheckUtil {
                         i += 2
                         continue
                     }
-                    if (inMultiLineComment && line[i] == '*' && line[i + 1] == '/') {
+        if (inMultiLineComment && line[i] == '*' && line[i + 1] == '/') {
                         inMultiLineComment = false
                         i += 2
                         continue
                     }
                 }
-
-                if (!inString && !inMultiLineComment && i < line.length - 1 && line[i] == '/' && line[i + 1] == '/') {
+        if (!inString && !inMultiLineComment && i < line.length - 1 && line[i] == '/' && line[i + 1] == '/') {
                     inSingleLineComment = true
                     break
                 }
-
-                if (!inMultiLineComment && !inSingleLineComment && line[i] in listOf('"', '\'', '`')) {
+        if (!inMultiLineComment && !inSingleLineComment && line[i] in listOf('"', '\'', '`')) {
                     var escapeCount = 0
                     var j = i - 1
                     while (j >= 0 && line[j] == '\\') {
                         escapeCount++
                         j--
                     }
-                    val isEscaped = escapeCount % 2 == 1
+        val isEscaped = escapeCount % 2 == 1
 
                     if (!isEscaped) {
                         if (!inString) {
@@ -1049,11 +998,9 @@ object SyntaxCheckUtil {
                         }
                     }
                 }
-
-                i++
+        i++
             }
-
-            if (inString && stringChar != '`') {
+        if (inString && stringChar != '`') {
                 errors.add(
                     SyntaxError(
                         stringStartLine,
@@ -1062,10 +1009,9 @@ object SyntaxCheckUtil {
                         SyntaxError.Severity.WARNING
                     )
                 )
-                inString = false
+        inString = false
             }
         }
-
         if (inString && stringChar == '`') {
             errors.add(
                 SyntaxError(
@@ -1096,17 +1042,14 @@ object SyntaxCheckUtil {
                     i += 2
                     continue
                 }
-
-                if (inMultiLineComment && line[i] == '*' && line[i + 1] == '/') {
+        if (inMultiLineComment && line[i] == '*' && line[i + 1] == '/') {
                     inMultiLineComment = false
                     i += 2
                     continue
                 }
-
-                i++
+        i++
             }
         }
-
         if (inMultiLineComment) {
             errors.add(
                 SyntaxError(
@@ -1124,8 +1067,7 @@ object SyntaxCheckUtil {
     private fun checkCommonJsErrors(lines: List<String>, errors: MutableList<SyntaxError>) {
         lines.forEachIndexed { lineIndex, line ->
             val trimmed = line.trim()
-
-            if (trimmed.matches(Regex(".*;\\s*;"))) {
+        if (trimmed.matches(Regex(".*;\\s*;"))) {
                 errors.add(
                     SyntaxError(
                         lineIndex + 1,
@@ -1135,11 +1077,10 @@ object SyntaxCheckUtil {
                     )
                 )
             }
-
-            if (trimmed == "return" && lineIndex < lines.size - 1) {
+        if (trimmed == "return" && lineIndex < lines.size - 1) {
                 val nextLine = lines[lineIndex + 1].trim()
-                if (nextLine.isNotEmpty() && !nextLine.startsWith("//") && !nextLine.startsWith("/*")) {
-                errors.add(
+        if (nextLine.isNotEmpty() && !nextLine.startsWith("//") && !nextLine.startsWith("/*")) {
+        errors.add(
                         SyntaxError(
                             lineIndex + 1,
                             line.indexOf("return") + 1,
@@ -1161,16 +1102,13 @@ object SyntaxCheckUtil {
             "area", "base", "br", "col", "embed", "hr", "img", "input",
             "link", "meta", "param", "source", "track", "wbr"
         )
-
         val content = lines.joinToString("\n")
         val cleanedContent = removeHtmlCommentsAndScriptContent(content)
         val tagPattern = Regex("<(/)([a-zA-Z][a-zA-Z0-9]*)(\\s[^>]*)?>")
-
         tagPattern.findAll(cleanedContent).forEach { match ->
             val isClosing = match.groupValues[1] == "/"
         val tagName = match.groupValues[2].lowercase()
-
-            val position = match.range.first
+        val position = match.range.first
             var line = 1
             var col = 1
             var currentPos = 0
@@ -1180,15 +1118,14 @@ object SyntaxCheckUtil {
                     col = position - currentPos + 1
                     break
                 }
-                currentPos += lineContent.length + 1
+        currentPos += lineContent.length + 1
             }
-
-            if (isClosing) {
+        if (isClosing) {
                 if (stack.isEmpty()) {
                     errors.add(SyntaxError(line, col, "Unexpected closing tag </$tagName>"))
                 } else {
                     val (openTag, _) = stack.last()
-                    if (openTag == tagName) {
+        if (openTag == tagName) {
                         stack.removeAt(stack.size - 1)
                     } else {
                         errors.add(SyntaxError(line, col, "Mismatched tag: expected </$openTag>, found </$tagName>"))
@@ -1200,7 +1137,6 @@ object SyntaxCheckUtil {
                 }
             }
         }
-
         stack.forEach { (tagName, position) ->
             errors.add(SyntaxError(position.first, position.second, "Unclosed tag <$tagName>"))
         }
@@ -1217,44 +1153,40 @@ object SyntaxCheckUtil {
         while (i < content.length) {
             if (content.startsWith("<!--", i)) {
                 val commentEnd = content.indexOf("-->", i + 4)
-                if (commentEnd != -1) {
+        if (commentEnd != -1) {
                     result.append(" ".repeat(commentEnd + 3 - i))
-                    i = commentEnd + 3
+        i = commentEnd + 3
                     continue
                 }
             }
-
-            val scriptMatch = Regex("<script(\\s[^>]*)?>", RegexOption.IGNORE_CASE).matchAt(content, i)
-            if (scriptMatch != null) {
+        val scriptMatch = Regex("<script(\\s[^>]*)?>", RegexOption.IGNORE_CASE).matchAt(content, i)
+        if (scriptMatch != null) {
                 result.append(scriptMatch.value)
-                i += scriptMatch.value.length
+        i += scriptMatch.value.length
                 val scriptContentEnd = findScriptEnd(content, i)
-                result.append(" ".repeat(scriptContentEnd - i))
-                i = scriptContentEnd
+        result.append(" ".repeat(scriptContentEnd - i))
+        i = scriptContentEnd
                 if (content.startsWith("</script>", i, ignoreCase = true)) {
                     result.append(content.substring(i, i + 9))
-                    i += 9
+        i += 9
                 }
-                continue
+        continue
             }
-
-            val styleMatch = Regex("<style(\\s[^>]*)?>", RegexOption.IGNORE_CASE).matchAt(content, i)
-            if (styleMatch != null) {
+        val styleMatch = Regex("<style(\\s[^>]*)?>", RegexOption.IGNORE_CASE).matchAt(content, i)
+        if (styleMatch != null) {
                 result.append(styleMatch.value)
-                i += styleMatch.value.length
+        i += styleMatch.value.length
                 val styleEnd = content.indexOf("</style>", i, ignoreCase = true)
-                if (styleEnd != -1) {
+        if (styleEnd != -1) {
                     result.append(" ".repeat(styleEnd - i))
-                    result.append(content.substring(styleEnd, styleEnd + 8))
-                    i = styleEnd + 8
+        result.append(content.substring(styleEnd, styleEnd + 8))
+        i = styleEnd + 8
                     continue
                 }
             }
-
-            result.append(content[i])
-            i++
+        result.append(content[i])
+        i++
         }
-
         return result.toString()
     }
 
@@ -1278,33 +1210,30 @@ object SyntaxCheckUtil {
                     i += 2
                     continue
                 }
-                if (inMultiLineComment && content[i] == '*' && content[i + 1] == '/') {
+        if (inMultiLineComment && content[i] == '*' && content[i + 1] == '/') {
                     inMultiLineComment = false
                     i += 2
                     continue
                 }
             }
-
-            if (!inString && !inMultiLineComment && i < content.length - 1 && content[i] == '/' && content[i + 1] == '/') {
+        if (!inString && !inMultiLineComment && i < content.length - 1 && content[i] == '/' && content[i + 1] == '/') {
                 inSingleLineComment = true
                 i += 2
                 continue
             }
-
-            if (inSingleLineComment && char == '\n') {
+        if (inSingleLineComment && char == '\n') {
                 inSingleLineComment = false
                 i++
                 continue
             }
-
-            if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) {
+        if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) {
                 var escapeCount = 0
                 var j = i - 1
                 while (j >= 0 && content[j] == '\\') {
                     escapeCount++
                     j--
                 }
-                val isEscaped = escapeCount % 2 == 1
+        val isEscaped = escapeCount % 2 == 1
 
                 if (!isEscaped) {
                     if (!inString) {
@@ -1315,15 +1244,12 @@ object SyntaxCheckUtil {
                     }
                 }
             }
-
-            if (!inString && !inSingleLineComment && !inMultiLineComment &&
+        if (!inString && !inSingleLineComment && !inMultiLineComment &&
                 content.startsWith("</script>", i, ignoreCase = true)) {
                 return i
             }
-
-            i++
+        i++
         }
-
         return content.length
     }
 
@@ -1347,17 +1273,14 @@ object SyntaxCheckUtil {
                     col += 4
                     continue
                 }
-
-                if (inComment && line.substring(col).startsWith("-->")) {
+        if (inComment && line.substring(col).startsWith("-->")) {
                     inComment = false
                     col += 3
                     continue
                 }
-
-                col++
+        col++
             }
         }
-
         if (inComment) {
             errors.add(SyntaxError(commentStartLine, commentStartCol, "Unclosed HTML comment"))
         }
@@ -1368,7 +1291,6 @@ object SyntaxCheckUtil {
      */
     private fun checkHtmlAttributeQuotes(lines: List<String>, errors: MutableList<SyntaxError>) {
         val tagContentPattern = Regex("""<[^>]*>""")
-
         lines.forEachIndexed { lineIndex, line ->
             tagContentPattern.findAll(line).forEach { tagMatch ->
                 val tagContent = tagMatch.value
@@ -1384,9 +1306,8 @@ object SyntaxCheckUtil {
                         i++
                         continue
                     }
-
-                    val attrName = tagContent.substring(attrNameStart, i)
-                    i++
+        val attrName = tagContent.substring(attrNameStart, i)
+        i++
 
                     if (i < tagContent.length) {
                         val quoteChar = tagContent[i]
@@ -1400,13 +1321,13 @@ object SyntaxCheckUtil {
                                         i++
                                     }
                                 }
-                                if (i < tagContent.length) i++
+        if (i < tagContent.length) i++
                             }
-                            else -> {
+        else -> {
                                 val valueStart = i
                                 while (i < tagContent.length && !tagContent[i].isWhitespace() && tagContent[i] != '>') i++
                                 val attrValue = tagContent.substring(valueStart, i)
-                                errors.add(
+        errors.add(
                                     SyntaxError(
                                         lineIndex + 1,
                                         tagMatch.range.first + valueStart + 1,

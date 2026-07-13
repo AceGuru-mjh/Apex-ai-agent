@@ -45,11 +45,9 @@ abstract class SessionDatabase : RoomDatabase() {
                 INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
             }
         }
-
         fun isInitialized(): Boolean {
             return INSTANCE != null
         }
-
         private fun buildDatabase(context: Context): SessionDatabase {
             return Room.databaseBuilder(
                 context.applicationContext,
@@ -82,40 +80,40 @@ abstract class SessionDatabase : RoomDatabase() {
 interface SessionDao {
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSession(session: SessionEntity)
+        suspend fun insertSession(session: SessionEntity)
     
     @Update
     suspend fun updateSession(session: SessionEntity)
     
     @Query("SELECT * FROM sessions WHERE id = :sessionId")
-    suspend fun getSessionById(sessionId: String): SessionEntity?
+        suspend fun getSessionById(sessionId: String): SessionEntity?
     
     @Query("SELECT * FROM sessions WHERE id = :sessionId")
-    fun getSessionByIdFlow(sessionId: String): Flow<SessionEntity?>
+        fun getSessionByIdFlow(sessionId: String): Flow<SessionEntity?>
     
     @Query("SELECT * FROM sessions ORDER BY updatedAt DESC")
-    fun getAllSessions(): Flow<List<SessionEntity>>
+        fun getAllSessions(): Flow<List<SessionEntity>>
     
     @Query("SELECT * FROM sessions WHERE isActive = 1 ORDER BY updatedAt DESC")
-    fun getActiveSessions(): Flow<List<SessionEntity>>
+        fun getActiveSessions(): Flow<List<SessionEntity>>
     
     @Query("SELECT * FROM sessions WHERE parentSessionId = :parentId ORDER BY createdAt ASC")
-    suspend fun getChildSessions(parentId: String): List<SessionEntity>
+        suspend fun getChildSessions(parentId: String): List<SessionEntity>
     
     @Query("SELECT * FROM sessions WHERE parentSessionId IS NULL ORDER BY updatedAt DESC")
-    fun getRootSessions(): Flow<List<SessionEntity>>
+        fun getRootSessions(): Flow<List<SessionEntity>>
     
     @Query("UPDATE sessions SET isActive = 0, updatedAt = :timestamp WHERE id = :sessionId")
-    suspend fun deactivateSession(sessionId: String, timestamp: Long = System.currentTimeMillis())
+        suspend fun deactivateSession(sessionId: String, timestamp: Long = System.currentTimeMillis())
     
     @Query("UPDATE sessions SET summary = :summary, updatedAt = :timestamp WHERE id = :sessionId")
-    suspend fun updateSessionSummary(sessionId: String, summary: String, timestamp: Long = System.currentTimeMillis())
+        suspend fun updateSessionSummary(sessionId: String, summary: String, timestamp: Long = System.currentTimeMillis())
     
     @Query("DELETE FROM sessions WHERE id = :sessionId")
-    suspend fun deleteSession(sessionId: String)
+        suspend fun deleteSession(sessionId: String)
     
     @Query("SELECT COUNT(*) FROM sessions")
-    suspend fun getSessionCount(): Int
+        suspend fun getSessionCount(): Int
 }
 
 /**
@@ -125,40 +123,40 @@ interface SessionDao {
 interface MessageDao {
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMessage(message: MessageEntity)
+        suspend fun insertMessage(message: MessageEntity)
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMessages(messages: List<MessageEntity>)
+        suspend fun insertMessages(messages: List<MessageEntity>)
     
     @Update
     suspend fun updateMessage(message: MessageEntity)
     
     @Query("SELECT * FROM messages WHERE id = :messageId")
-    suspend fun getMessageById(messageId: String): MessageEntity?
+        suspend fun getMessageById(messageId: String): MessageEntity?
     
     @Query("SELECT * FROM messages WHERE sessionId = :sessionId ORDER BY createdAt ASC")
-    fun getMessagesBySessionId(sessionId: String): Flow<List<MessageEntity>>
+        fun getMessagesBySessionId(sessionId: String): Flow<List<MessageEntity>>
     
     @Query("SELECT * FROM messages WHERE sessionId = :sessionId ORDER BY createdAt ASC")
-    suspend fun getMessagesBySessionIdSync(sessionId: String): List<MessageEntity>
+        suspend fun getMessagesBySessionIdSync(sessionId: String): List<MessageEntity>
     
     @Query("SELECT * FROM messages WHERE sessionId = :sessionId ORDER BY createdAt DESC LIMIT :limit")
-    suspend fun getRecentMessages(sessionId: String, limit: Int = 50): List<MessageEntity>
+        suspend fun getRecentMessages(sessionId: String, limit: Int = 50): List<MessageEntity>
     
     @Query("SELECT * FROM messages WHERE parentMessageId = :parentId ORDER BY createdAt ASC")
-    suspend fun getChildMessages(parentId: String): List<MessageEntity>
+        suspend fun getChildMessages(parentId: String): List<MessageEntity>
     
     @Query("UPDATE messages SET isCompressed = 1 WHERE id = :messageId")
-    suspend fun markMessageCompressed(messageId: String)
+        suspend fun markMessageCompressed(messageId: String)
     
     @Query("DELETE FROM messages WHERE sessionId = :sessionId")
-    suspend fun deleteMessagesBySessionId(sessionId: String)
+        suspend fun deleteMessagesBySessionId(sessionId: String)
     
     @Query("DELETE FROM messages WHERE id = :messageId")
-    suspend fun deleteMessage(messageId: String)
+        suspend fun deleteMessage(messageId: String)
     
     @Query("SELECT COUNT(*) FROM messages WHERE sessionId = :sessionId")
-    suspend fun getMessageCount(sessionId: String): Int
+        suspend fun getMessageCount(sessionId: String): Int
     
     @Query("""
         SELECT m.* FROM messages m
@@ -167,7 +165,7 @@ interface MessageDao {
         OR s.id = :ancestorSessionId
         ORDER BY m.createdAt ASC
     """)
-    suspend fun getMessagesInChain(ancestorSessionId: String): List<MessageEntity>
+        suspend fun getMessagesInChain(ancestorSessionId: String): List<MessageEntity>
 }
 
 /**
@@ -177,32 +175,32 @@ interface MessageDao {
 interface BatchRunDao {
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBatchRun(batchRun: BatchRunEntity)
+        suspend fun insertBatchRun(batchRun: BatchRunEntity)
     
     @Update
     suspend fun updateBatchRun(batchRun: BatchRunEntity)
     
     @Query("SELECT * FROM batch_runs WHERE id = :id")
-    suspend fun getBatchRunById(id: String): BatchRunEntity?
+        suspend fun getBatchRunById(id: String): BatchRunEntity?
     
     @Query("SELECT * FROM batch_runs WHERE batchRunId = :batchRunId ORDER BY createdAt DESC")
-    fun getBatchRunsByBatchId(batchRunId: String): Flow<List<BatchRunEntity>>
+        fun getBatchRunsByBatchId(batchRunId: String): Flow<List<BatchRunEntity>>
     
     @Query("SELECT * FROM batch_runs ORDER BY createdAt DESC")
-    fun getAllBatchRuns(): Flow<List<BatchRunEntity>>
+        fun getAllBatchRuns(): Flow<List<BatchRunEntity>>
     
     @Query("SELECT * FROM batch_runs WHERE status = :status ORDER BY createdAt DESC")
-    fun getBatchRunsByStatus(status: String): Flow<List<BatchRunEntity>>
+        fun getBatchRunsByStatus(status: String): Flow<List<BatchRunEntity>>
     
     @Query("UPDATE batch_runs SET status = :status, startedAt = :startedAt WHERE id = :id")
-    suspend fun updateBatchRunStatus(id: String, status: String, startedAt: Long? = null)
+        suspend fun updateBatchRunStatus(id: String, status: String, startedAt: Long? = null)
     
     @Query("""
         UPDATE batch_runs 
         SET status = :status, completedAt = :completedAt, result = :result 
         WHERE id = :id
     """)
-    suspend fun completeBatchRun(
+        suspend fun completeBatchRun(
         id: String, 
         status: String, 
         completedAt: Long, 
@@ -210,7 +208,7 @@ interface BatchRunDao {
     )
     
     @Query("DELETE FROM batch_runs WHERE id = :id")
-    suspend fun deleteBatchRun(id: String)
+        suspend fun deleteBatchRun(id: String)
 }
 
 /**
@@ -220,23 +218,23 @@ interface BatchRunDao {
 interface RLTrajectoryDao {
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTrajectory(trajectory: RLTrajectoryEntity)
+        suspend fun insertTrajectory(trajectory: RLTrajectoryEntity)
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTrajectories(trajectories: List<RLTrajectoryEntity>)
+        suspend fun insertTrajectories(trajectories: List<RLTrajectoryEntity>)
     
     @Query("SELECT * FROM rl_trajectories WHERE batchRunId = :batchRunId ORDER BY stepIndex ASC")
-    fun getTrajectoriesByBatchRunId(batchRunId: String): Flow<List<RLTrajectoryEntity>>
+        fun getTrajectoriesByBatchRunId(batchRunId: String): Flow<List<RLTrajectoryEntity>>
     
     @Query("SELECT * FROM rl_trajectories WHERE batchRunId = :batchRunId ORDER BY stepIndex ASC")
-    suspend fun getTrajectoriesByBatchRunIdSync(batchRunId: String): List<RLTrajectoryEntity>
+        suspend fun getTrajectoriesByBatchRunIdSync(batchRunId: String): List<RLTrajectoryEntity>
 
     @Query("SELECT * FROM rl_trajectories ORDER BY createdAt DESC")
-    suspend fun getAllTrajectories(): List<RLTrajectoryEntity>
+        suspend fun getAllTrajectories(): List<RLTrajectoryEntity>
 
     @Query("DELETE FROM rl_trajectories WHERE batchRunId = :batchRunId")
-    suspend fun deleteTrajectoriesByBatchRunId(batchRunId: String)
+        suspend fun deleteTrajectoriesByBatchRunId(batchRunId: String)
     
     @Query("SELECT COUNT(*) FROM rl_trajectories WHERE batchRunId = :batchRunId")
-    suspend fun getTrajectoryCount(batchRunId: String): Int
+        suspend fun getTrajectoryCount(batchRunId: String): Int
 }

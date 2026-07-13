@@ -20,11 +20,11 @@ import java.util.concurrent.atomic.AtomicLong
  */
 sealed class TaskExecutionState {
     object Pending : TaskExecutionState()
-    data class Running(val agentId: String, val startedAt: Long) : TaskExecutionState()
-    data class Progress(val agentId: String, val progress: Float, val message: String? = null) : TaskExecutionState()
-    data class Cancelled(val reason: String?) : TaskExecutionState()
-    data class Failed(val error: String, val errorStack: String? = null) : TaskExecutionState()
-    data class Completed(val result: SubTaskResult) : TaskExecutionState()
+        data class Running(val agentId: String, val startedAt: Long) : TaskExecutionState()
+        data class Progress(val agentId: String, val progress: Float, val message: String? = null) : TaskExecutionState()
+        data class Cancelled(val reason: String?) : TaskExecutionState()
+        data class Failed(val error: String, val errorStack: String? = null) : TaskExecutionState()
+        data class Completed(val result: SubTaskResult) : TaskExecutionState()
 }
 
 /**
@@ -80,8 +80,8 @@ class AgentTaskExecutor(
 ) {
 
     private val _taskStates = ConcurrentHashMap<String, MutableStateFlow<TaskExecutionState>>()
-    private val runningJobs = ConcurrentHashMap<String, Job>()
-    private val taskCounter = AtomicLong(0)
+        private val runningJobs = ConcurrentHashMap<String, Job>()
+        private val taskCounter = AtomicLong(0)
 
     /**
      * 提交任务执行。
@@ -101,7 +101,6 @@ class AgentTaskExecutor(
         val taskId = task.taskId.ifBlank {
             "exec_${taskCounter.incrementAndGet()}_${System.currentTimeMillis()}"
         }
-
         val initialState = TaskExecutionState.Pending
         val stateFlow = MutableStateFlow(initialState)
         _taskStates[taskId] = stateFlow
@@ -109,22 +108,22 @@ class AgentTaskExecutor(
         val job = scope.launch {
             try {
                 // 等待 Agent 就绪
-    val agentReady = lifecycleManager?.let { mgr ->
+        val agentReady = lifecycleManager?.let { mgr ->
                     mgr.getState(agent.agentId) == null || mgr.getState(agent.agentId) == AgentLifecycleState.ACTIVE
                 } ?: true
 
                 if (!agentReady) {
                     val state = TaskExecutionState.Failed("Agent ${agent.agentId} is not active")
-                    updateState(taskId, state, onStateUpdate)
-                    return@launch
+        updateState(taskId, state, onStateUpdate)
+        return@launch
                 }
 
                 // 进入运行状态
-    val runningState = TaskExecutionState.Running(agent.agentId, System.currentTimeMillis())
-                updateState(taskId, runningState, onStateUpdate)
+        val runningState = TaskExecutionState.Running(agent.agentId, System.currentTimeMillis())
+        updateState(taskId, runningState, onStateUpdate)
 
                 // 执行（带重试）
-    val result = executeWithRetry(agent, task, config, taskId, onStateUpdate)
+        val result = executeWithRetry(agent, task, config, taskId, onStateUpdate)
         val finalState = if (result.success) {
                     TaskExecutionState.Completed(result)
                 } else {
@@ -133,24 +132,23 @@ class AgentTaskExecutor(
                         errorStack = result.errorStack
                     )
                 }
-                updateState(taskId, finalState, onStateUpdate)
+        updateState(taskId, finalState, onStateUpdate)
 
             } catch (e: CancellationException) {
                 val state = TaskExecutionState.Cancelled("Task was cancelled")
-                updateState(taskId, state, onStateUpdate)
-                lifecycleManager?.notifyTaskCancelled(agent.agentId, taskId, "Cancelled by user")
+        updateState(taskId, state, onStateUpdate)
+        lifecycleManager?.notifyTaskCancelled(agent.agentId, taskId, "Cancelled by user")
             } catch (e: Exception) {
                 val state = TaskExecutionState.Failed(
                     error = e.message ?: "Unknown execution error",
                     errorStack = e.stackTraceToString()
                 )
-                updateState(taskId, state, onStateUpdate)
+        updateState(taskId, state, onStateUpdate)
             } finally {
                 runningJobs.remove(taskId)
-                _taskStates.remove(taskId)
+        _taskStates.remove(taskId)
             }
         }
-
         runningJobs[taskId] = job
         return TaskHandle(taskId = taskId, job = job, stateFlow = stateFlow.asStateFlow())
     }
@@ -162,7 +160,7 @@ class AgentTaskExecutor(
         val job = runningJobs[taskId] ?: return false
         return try {
             job.cancel(CancellationException(reason ?: "Cancelled"))
-            true
+        true
         } catch (_: Exception) {
             false
         }
@@ -208,7 +206,7 @@ class AgentTaskExecutor(
     }
 
     // ===== 内部方法 =====
-                private suspend fun executeWithRetry(
+        private suspend fun executeWithRetry(
         agent: SubAgent,
         task: SubTask,
         config: TaskExecutionConfig,
@@ -221,11 +219,10 @@ class AgentTaskExecutor(
         val totalAttempts = config.maxRetries + 1
         for (attempt in 1..totalAttempts) {
             // 检查是否已取消
-                kotlinx.coroutines.coroutineScope {
+        kotlinx.coroutines.coroutineScope {
                 ensureNotCancelled(taskId)
             }
-
-            val result = try {
+        val result = try {
                 if (config.timeoutMs > 0) {
                     withTimeoutOrNull(config.timeoutMs) {
                         agent.execute(task)
@@ -249,31 +246,29 @@ class AgentTaskExecutor(
                     errorStack = e.stackTraceToString()
                 )
             }
-
-            lastResult = result
+        lastResult = result
 
             // 成功则返回
-                if (result.success) {
+        if (result.success) {
                 return result
             }
 
             // 最后一次尝试不再等待
-                if (attempt < totalAttempts) {
+        if (attempt < totalAttempts) {
                 // 通知重试
-                if (config.enableProgress) {
+        if (config.enableProgress) {
                     val progressState = TaskExecutionState.Progress(
                         agentId = agent.agentId,
                         progress = attempt.toFloat() / totalAttempts,
                         message = "Retry $attempt/$config.maxRetries after ${currentDelay}ms"
                     )
-                    updateState(taskId, progressState, onStateUpdate)
-                    lifecycleManager?.notifyProgress(agent.agentId, taskId, progressState.progress, progressState.message)
+        updateState(taskId, progressState, onStateUpdate)
+        lifecycleManager?.notifyProgress(agent.agentId, taskId, progressState.progress, progressState.message)
                 }
-                delay(currentDelay)
-                currentDelay = (currentDelay * config.backoffMultiplier).toLong()
+        delay(currentDelay)
+        currentDelay = (currentDelay * config.backoffMultiplier).toLong()
             }
         }
-
         return lastResult ?: SubTaskResult(
             taskId = task.taskId,
             success = false,
@@ -281,15 +276,13 @@ class AgentTaskExecutor(
             errorMessage = "Task failed after $totalAttempts attempts"
         )
     }
-
-    private fun ensureNotCancelled(taskId: String) {
+        private fun ensureNotCancelled(taskId: String) {
         val job = runningJobs[taskId]
         if (job != null && job.isCancelled) {
             throw CancellationException("Task $taskId was cancelled")
         }
     }
-
-    private fun updateState(
+        private fun updateState(
         taskId: String,
         state: TaskExecutionState,
         onStateUpdate: (TaskExecutionState) -> Unit
@@ -332,7 +325,7 @@ data class TaskHandle(
     fun cancel(reason: String? = null): Boolean {
         return try {
             job.cancel(CancellationException(reason ?: "Cancelled"))
-            true
+        true
         } catch (_: Exception) {
             false
         }

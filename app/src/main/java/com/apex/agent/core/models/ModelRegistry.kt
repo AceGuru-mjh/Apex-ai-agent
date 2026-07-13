@@ -9,8 +9,7 @@ import java.io.File
 object ModelRegistry {
 
     private const val TAG = "ModelRegistry"
-
-    enum class QuantizationFormat(
+        enum class QuantizationFormat(
         val displayName: String,
         val bits: Int,
         val suffix: String
@@ -34,8 +33,7 @@ object ModelRegistry {
         F16("F16 (Half)", 16, "f16"),
         F32("F32 (Float)", 32, "f32")
     }
-
-    data class LocalModelInfo(
+        data class LocalModelInfo(
         val id: String,
         val name: String,
         val path: String,
@@ -47,35 +45,30 @@ object ModelRegistry {
     ) {
         val displaySize: String
             get() = formatFileSize(sizeBytes)
-
         val displayQuantization: String
             get() = quantization?.displayName ?: "Unknown"
-
         companion object {
             fun formatFileSize(sizeBytes: Long): String {
                 return when {
                     sizeBytes < 1024 -> "${sizeBytes} B"
-                    sizeBytes < 1024 * 1024 -> String.format("%.2f KB", sizeBytes / 1024.0)
-                    sizeBytes < 1024 * 1024 * 1024 -> String.format("%.2f MB", sizeBytes / (1024.0 * 1024.0))
-                    else -> String.format("%.2f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0))
+        sizeBytes < 1024 * 1024 -> String.format("%.2f KB", sizeBytes / 1024.0)
+        sizeBytes < 1024 * 1024 * 1024 -> String.format("%.2f MB", sizeBytes / (1024.0 * 1024.0))
+        else -> String.format("%.2f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0))
                 }
             }
         }
     }
-
-    private val llamaModelsDir: File
+        private val llamaModelsDir: File
         get() = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             "Apex/models/llama"
         )
-
-    private val mnnModelsDir: File
+        private val mnnModelsDir: File
         get() = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             "Apex/models/mnn"
         )
-
-    fun detectQuantization(fileName: String): QuantizationFormat? {
+        fun detectQuantization(fileName: String): QuantizationFormat? {
         val lowerName = fileName.lowercase()
         return QuantizationFormat.entries.find { format ->
             lowerName.contains(format.suffix) ||
@@ -83,19 +76,16 @@ object ModelRegistry {
             lowerName.contains("-${format.bits}")
         }
     }
-
-    fun getLlamaModels(): List<LocalModelInfo> {
+        fun getLlamaModels(): List<LocalModelInfo> {
         val models = mutableListOf<LocalModelInfo>()
-
         if (!llamaModelsDir.exists()) {
             AppLogger.w(TAG, "Llama模型目录不存在 ${llamaModelsDir.absolutePath}")
-            return models
+        return models
         }
-
         llamaModelsDir.listFiles { file -> file.isFile && file.name.lowercase().endsWith(".gguf") }
             ?.forEach { file ->
                 val quantization = detectQuantization(file.name)
-                models.add(
+        models.add(
                     LocalModelInfo(
                         id = file.name,
                         name = file.nameWithoutExtension,
@@ -108,23 +98,19 @@ object ModelRegistry {
                     )
                 )
             }
-
         AppLogger.d(TAG, "找到 ${models.size} 个Llama模型")
         return models.sortedByDescending { it.sizeBytes }
     }
-
-    fun getMNNModels(): List<LocalModelInfo> {
+        fun getMNNModels(): List<LocalModelInfo> {
         val models = mutableListOf<LocalModelInfo>()
-
         if (!mnnModelsDir.exists()) {
             AppLogger.w(TAG, "MNN模型目录不存在 ${mnnModelsDir.absolutePath}")
-            return models
+        return models
         }
-
         mnnModelsDir.listFiles { file -> file.isDirectory }
             ?.forEach { folder ->
                 val mnnFile = File(folder, "llm.mnn")
-                if (mnnFile.exists()) {
+        if (mnnFile.exists()) {
                     val totalSize = folder.listFiles()?.sumOf { it.length() } ?: 0L
                     models.add(
                         LocalModelInfo(
@@ -140,59 +126,53 @@ object ModelRegistry {
                     )
                 }
             }
-
         AppLogger.d(TAG, "找到 ${models.size} 个MNN模型")
         return models.sortedByDescending { it.sizeBytes }
     }
-
-    fun getAllLocalModels(): List<LocalModelInfo> {
+        fun getAllLocalModels(): List<LocalModelInfo> {
         return (getLlamaModels() + getMNNModels()).sortedByDescending { it.sizeBytes }
     }
-
-    fun getModelOptions(): List<ModelOption> {
+        fun getModelOptions(): List<ModelOption> {
         return getAllLocalModels().map { model ->
             val sizeStr = model.displaySize
         val quantStr = if (model.quantization != null) " [${model.quantization.displayName}]" else ""
-            val typeStr = when {
+        val typeStr = when {
                 model.isLlama -> " (llama.cpp)"
-                model.isMNN -> " (MNN)"
-                else -> ""
+        model.isMNN -> " (MNN)"
+        else -> ""
             }
-            ModelOption(
+        ModelOption(
                 id = model.id,
                 name = "${model.name}${quantStr} - ${sizeStr}${typeStr}"
             )
         }
     }
-
-    fun suggestQuantizationForDevice(deviceRAM: Long, taskComplexity: TaskComplexity): QuantizationFormat {
+        fun suggestQuantizationForDevice(deviceRAM: Long, taskComplexity: TaskComplexity): QuantizationFormat {
         val ramGB = deviceRAM / (1024.0 * 1024.0 * 1024.0)
-
         return when {
             ramGB < 4 -> when (taskComplexity) {
                 TaskComplexity.SIMPLE -> QuantizationFormat.Q2_K
                 TaskComplexity.MODERATE -> QuantizationFormat.Q3_K_M
                 TaskComplexity.COMPLEX -> QuantizationFormat.Q4_K_M
             }
-            ramGB < 8 -> when (taskComplexity) {
+        ramGB < 8 -> when (taskComplexity) {
                 TaskComplexity.SIMPLE -> QuantizationFormat.Q3_K_M
                 TaskComplexity.MODERATE -> QuantizationFormat.Q4_K_M
                 TaskComplexity.COMPLEX -> QuantizationFormat.Q5_K_M
             }
-            ramGB < 16 -> when (taskComplexity) {
+        ramGB < 16 -> when (taskComplexity) {
                 TaskComplexity.SIMPLE -> QuantizationFormat.Q4_K_M
                 TaskComplexity.MODERATE -> QuantizationFormat.Q5_K_M
                 TaskComplexity.COMPLEX -> QuantizationFormat.Q6_K
             }
-            else -> when (taskComplexity) {
+        else -> when (taskComplexity) {
                 TaskComplexity.SIMPLE -> QuantizationFormat.Q5_K_M
                 TaskComplexity.MODERATE -> QuantizationFormat.Q6_K
                 TaskComplexity.COMPLEX -> QuantizationFormat.Q8_0
             }
         }
     }
-
-    enum class TaskComplexity {
+        enum class TaskComplexity {
         SIMPLE,
         MODERATE,
         COMPLEX

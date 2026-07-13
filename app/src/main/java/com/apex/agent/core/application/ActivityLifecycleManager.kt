@@ -28,11 +28,11 @@ import java.lang.ref.WeakReference
 object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
 
     private const val TAG = "ActivityLifecycleManager"
-    private var currentActivity: WeakReference<Activity>? = null
+        private var currentActivity: WeakReference<Activity>? = null
     private lateinit var apiPreferences: ApiPreferences
     private lateinit var appContext: android.content.Context
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    private var activityCount = 0
+        private var activityCount = 0
     private var startedActivityCount = 0
     private var isAppInForeground = false
 
@@ -68,25 +68,24 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
         scope.launch {
             try {
                 val keepScreenOnEnabled = apiPreferences.keepScreenOnFlow.first()
-                if (!keepScreenOnEnabled) {
+        if (!keepScreenOnEnabled) {
                     // The feature is disabled by the user, so we do nothing.
-                return@launch
+        return@launch
                 }
-
-                val activity = getCurrentActivity()
-                if (activity == null) {
+        val activity = getCurrentActivity()
+        if (activity == null) {
                     AppLogger.w(TAG, "Cannot apply screen on flag: current activity is null.")
-                    return@launch
+        return@launch
                 }
 
                 // Window operations must be done on the UI thread.activity.runOnUiThread {
-    val window = activity.window
+        val window = activity.window
                     if (enable) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                        AppLogger.d(TAG, "FLAG_KEEP_SCREEN_ON added.")
+        AppLogger.d(TAG, "FLAG_KEEP_SCREEN_ON added.")
                     } else {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                        AppLogger.d(TAG, "FLAG_KEEP_SCREEN_ON cleared.")
+        AppLogger.d(TAG, "FLAG_KEEP_SCREEN_ON cleared.")
                     }
                 }
             } catch (e: Exception) {
@@ -94,8 +93,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
             }
         }
     }
-
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle) {
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle) {
         activityCount++
         AppLogger.d(TAG, "Activity created: ${activity.javaClass.simpleName}, count=${activityCount}")
         AppLifecycleHookPluginRegistry.dispatchAsync(
@@ -110,8 +108,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
                 )
         )
     }
-
-    override fun onActivityStarted(activity: Activity) {
+        override fun onActivityStarted(activity: Activity) {
         startedActivityCount += 1
         AppLifecycleHookPluginRegistry.dispatchAsync(
             event = AppLifecycleEvent.ACTIVITY_START,
@@ -130,20 +127,18 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
                 context = appContext,
                 reason = "application_foreground"
             )
-            AppLifecycleHookPluginRegistry.dispatchAsync(
+        AppLifecycleHookPluginRegistry.dispatchAsync(
                 event = AppLifecycleEvent.APPLICATION_FOREGROUND,
                 params = AppLifecycleHookParams(context = appContext)
             )
         }
     }
-
-    override fun onActivityResumed(activity: Activity) {
+        override fun onActivityResumed(activity: Activity) {
         // When an activity is resumed, it becomes the current foreground activity.
-                currentActivity = WeakReference(activity)
-
+        currentActivity = WeakReference(activity)
         try {
             val now = System.currentTimeMillis()
-            if (now - lastMicEnsureAtMs >= 2500L) {
+        if (now - lastMicEnsureAtMs >= 2500L) {
                 lastMicEnsureAtMs = now
                 AIForegroundService.ensureMicrophoneForeground(activity.applicationContext)
             }
@@ -161,10 +156,9 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
                 )
         )
     }
-
-    override fun onActivityPaused(activity: Activity) {
+        override fun onActivityPaused(activity: Activity) {
         // If the paused activity is the one we are currently tracking, clear it.
-                if (currentActivity?.get() == activity) {
+        if (currentActivity?.get() == activity) {
             currentActivity?.clear()
         }
         AppLifecycleHookPluginRegistry.dispatchAsync(
@@ -179,8 +173,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
                 )
         )
     }
-
-    override fun onActivityStopped(activity: Activity) {
+        override fun onActivityStopped(activity: Activity) {
         startedActivityCount = (startedActivityCount - 1).coerceAtLeast(0)
         AppLifecycleHookPluginRegistry.dispatchAsync(
             event = AppLifecycleEvent.ACTIVITY_STOP,
@@ -201,17 +194,14 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
             )
         }
     }
-
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
         // Not used, but required by the interface.
     }
-
-    override fun onActivityDestroyed(activity: Activity) {
+        override fun onActivityDestroyed(activity: Activity) {
         // If the destroyed activity is the one we are tracking, ensure it is cleared.
-                if (currentActivity?.get() == activity) {
+        if (currentActivity?.get() == activity) {
             currentActivity?.clear()
         }
-        
         activityCount--
         AppLogger.d(TAG, "Activity destroyed: ${activity.javaClass.simpleName}, count=${activityCount}")
         AppLifecycleHookPluginRegistry.dispatchAsync(
@@ -227,17 +217,17 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
         )
         
         // 当最后一，Activity 被销毁时（包括从最近任务列表滑动关闭），清理虚拟屏幕和 Shower 连接
-                if (activityCount <= 0) {
+        if (activityCount <= 0) {
             AppLogger.d(TAG, "最后一，Activity 被销毁，清理虚拟屏幕资源")
-            try {
+        try {
                 VirtualDisplayOverlay.hideAll()
-                AppLogger.d(TAG, "已关闭VirtualDisplayOverlay")
+        AppLogger.d(TAG, "已关闭VirtualDisplayOverlay")
             } catch (e: Exception) {
                 AppLogger.e(TAG, "清理 VirtualDisplayOverlay 失败", e)
             }
-            try {
+        try {
                 ShowerController.shutdown()
-                AppLogger.d(TAG, "已关闭ShowerController")
+        AppLogger.d(TAG, "已关闭ShowerController")
             } catch (e: Exception) {
                 AppLogger.e(TAG, "清理 ShowerController 失败", e)
             }

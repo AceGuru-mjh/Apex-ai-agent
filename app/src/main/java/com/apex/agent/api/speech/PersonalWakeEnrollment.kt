@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 object PersonalWakeEnrollment {
 
     @SuppressLint("MissingPermission")
-    suspend fun recordOneTemplate(
+        suspend fun recordOneTemplate(
         context: Context,
         maxRecordMs: Long = 6000L,
         minSpeechMs: Long = 250L,
@@ -25,7 +25,6 @@ object PersonalWakeEnrollment {
             AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT
         )
-
         val audioRecord = AudioRecord(
             MediaRecorder.AudioSource.VOICE_COMMUNICATION,
             sampleRate,
@@ -33,7 +32,6 @@ object PersonalWakeEnrollment {
             AudioFormat.ENCODING_PCM_16BIT,
             (minBufferSize.coerceAtLeast(frameSize) * 2)
         )
-
         val vad = OnnxSileroVad(
             context = context.applicationContext,
             sampleRate = sampleRate,
@@ -42,24 +40,21 @@ object PersonalWakeEnrollment {
             speechDurationMs = 60,
             silenceDurationMs = 300,
         )
-
         try {
             val buffer = ShortArray(frameSize)
         val speech = ArrayList<Short>()
-
-            var seenSpeech = false
+        var seenSpeech = false
             var silenceMsAfterSpeech = 0L
             var speechMs = 0L
 
             val startedAt = System.currentTimeMillis()
-            audioRecord.startRecording()
-
-            while (true) {
+        audioRecord.startRecording()
+        while (true) {
                 val now = System.currentTimeMillis()
-                if (now - startedAt > maxRecordMs) break
+        if (now - startedAt > maxRecordMs) break
 
                 val read = audioRecord.read(buffer, 0, buffer.size)
-                if (read <= 0) continue
+        if (read <= 0) continue
 
                 val isSpeech = if (read == frameSize) vad.isSpeech(buffer) else false
 
@@ -77,25 +72,24 @@ object PersonalWakeEnrollment {
                     }
                 }
             }
-
-            if (!seenSpeech) return@withContext null
+        if (!seenSpeech) return@withContext null
             if (speechMs < minSpeechMs) return@withContext null
 
             val pcm = ShortArray(speech.size)
-            for (i in pcm.indices) {
+        for (i in pcm.indices) {
                 pcm[i] = speech[i]
             }
-            PersonalWakeFeatureExtractor.extractFeatures(pcm, pcm.size)
+        PersonalWakeFeatureExtractor.extractFeatures(pcm, pcm.size)
         } finally {
             try {
                 audioRecord.stop()
             } catch (_: Exception) {
             }
-            try {
+        try {
                 audioRecord.release()
             } catch (_: Exception) {
             }
-            try {
+        try {
                 vad.close()
             } catch (_: Exception) {
             }

@@ -20,7 +20,7 @@ data class LobeHubSkillSpec(
     val license: String = "MIT",
     val tags: List<String> = emptyList(),
     val agent: List<String> = emptyList(),  // Supported agents: open-claw, claude-code, codex, cursor
-    val capabilities: LobeHubCapabilities = LobeHubCapabilities(),
+        val capabilities: LobeHubCapabilities = LobeHubCapabilities(),
     val install: LobeHubInstallConfig = LobeHubInstallConfig(),
     val inputs: List<LobeHubInput> = emptyList()
 )
@@ -36,9 +36,9 @@ data class LobeHubCapabilities(
 @Serializable
 data class LobeHubInstallConfig(
     val method: String = "npx",  // npx, npm, git, direct
-    val command: String = "",
+        val command: String = "",
     val agent: String = "",       // Target agent for installation
-    val requireAuth: Boolean = false,
+        val requireAuth: Boolean = false,
     val apiKeys: List<String> = emptyList()
 )
 
@@ -104,7 +104,7 @@ data class LobeHubSkillDetail(
 data class LobeHubSearchFilters(
     val query: String = "",
     val agent: String? = null,      // open-claw, claude-code, codex, cursor
-    val category: String? = null,
+        val category: String? = null,
     val sort: LobeHubSortOption = LobeHubSortOption.POPULAR,
     val page: Int = 1,
     val pageSize: Int = 20

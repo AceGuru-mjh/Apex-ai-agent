@@ -33,7 +33,7 @@ class MultiPlatformDelivery(private val context: Context) {
         }
         
         // Intent Actions
-                const val ACTION_NOTIFICATION = "com.apex.agent.SCHEDULED_NOTIFICATION"
+        const val ACTION_NOTIFICATION = "com.apex.agent.SCHEDULED_NOTIFICATION"
         const val EXTRA_NOTIFICATION_TITLE = "notification_title"
         const val EXTRA_NOTIFICATION_CONTENT = "notification_content"
         const val EXTRA_NOTIFICATION_TASK_ID = "task_id"
@@ -71,7 +71,6 @@ class MultiPlatformDelivery(private val context: Context) {
         val results = platforms.map { platform ->
             deliverToPlatform(platform, taskName, content, metadata)
         }
-        
         BatchDeliveryResult(
             total = platforms.size,
             successCount = results.count { it.success },
@@ -92,15 +91,15 @@ class MultiPlatformDelivery(private val context: Context) {
         return try {
             when (platform) {
                 ScheduledTask.DeliveryPlatform.IN_APP -> deliverInApp(taskName, content, metadata)
-                ScheduledTask.DeliveryPlatform.TELEGRAM -> deliverTelegram(taskName, content, metadata)
-                ScheduledTask.DeliveryPlatform.DISCORD -> deliverDiscord(taskName, content, metadata)
-                ScheduledTask.DeliveryPlatform.EMAIL -> deliverEmail(taskName, content, metadata)
-                ScheduledTask.DeliveryPlatform.WECHAT -> deliverWechat(taskName, content, metadata)
-                ScheduledTask.DeliveryPlatform.PUSH -> deliverPush(taskName, content, metadata)
+        ScheduledTask.DeliveryPlatform.TELEGRAM -> deliverTelegram(taskName, content, metadata)
+        ScheduledTask.DeliveryPlatform.DISCORD -> deliverDiscord(taskName, content, metadata)
+        ScheduledTask.DeliveryPlatform.EMAIL -> deliverEmail(taskName, content, metadata)
+        ScheduledTask.DeliveryPlatform.WECHAT -> deliverWechat(taskName, content, metadata)
+        ScheduledTask.DeliveryPlatform.PUSH -> deliverPush(taskName, content, metadata)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "投递到 ${platform.displayName} 失败", e)
-            DeliveryResult(platform, false, error = e.message)
+        DeliveryResult(platform, false, error = e.message)
         }
     }
     
@@ -114,14 +113,12 @@ class MultiPlatformDelivery(private val context: Context) {
     ): DeliveryResult {
         val intent = Intent(ACTION_NOTIFICATION).apply {
             putExtra(EXTRA_NOTIFICATION_TITLE, taskName)
-            putExtra(EXTRA_NOTIFICATION_CONTENT, content)
-            putExtra(EXTRA_NOTIFICATION_TASK_ID, metadata["taskId"])
-            setPackage(context.packageName)
+        putExtra(EXTRA_NOTIFICATION_CONTENT, content)
+        putExtra(EXTRA_NOTIFICATION_TASK_ID, metadata["taskId"])
+        setPackage(context.packageName)
         }
-        
         context.sendBroadcast(intent)
         AppLogger.d(TAG, "已发送应用内通知: ${taskName}")
-        
         return DeliveryResult(ScheduledTask.DeliveryPlatform.IN_APP, true, "通知已发通")
     }
     
@@ -134,47 +131,43 @@ class MultiPlatformDelivery(private val context: Context) {
         metadata: Map<String, String>
     ): DeliveryResult = withContext(Dispatchers.IO) {
         // 获取 Telegram 配置
-    val botToken = getConfig("telegram_bot_token")
+        val botToken = getConfig("telegram_bot_token")
         val chatId = getConfig("telegram_chat_id")
-        
         if (botToken.isNullOrEmpty() || chatId.isNullOrEmpty()) {
             AppLogger.w(TAG, "Telegram 未配置(bot_token 成chat_id 未设置）")
-            return@withContext DeliveryResult(
+        return@withContext DeliveryResult(
                 ScheduledTask.DeliveryPlatform.TELEGRAM,
                 false,
                 error = "Telegram 未配置"
             )
         }
-        
         try {
             // 构建消息
-    val message = buildString {
+        val message = buildString {
                 append("📅 *${taskName}*\n\n")
-                append(content)
-                append("\n\n")
-                metadata.forEach { (key, value) ->
+        append(content)
+        append("\n\n")
+        metadata.forEach { (key, value) ->
                     append("—${key}: `${value}`\n")
                 }
             }
             
             // 发通HTTP 请求分Telegram Bot API
-    val url = "https://api.telegram.org/bot${botToken}/sendMessage"
-    val params = mapOf(
+        val url = "https://api.telegram.org/bot${botToken}/sendMessage"
+        val params = mapOf(
                 "chat_id" to chatId,
                 "text" to message,
                 "parse_mode" to "Markdown"
             )
-            
-            val response = makeHttpPost(url, params)
-            
-            if (response.contains("\"ok\":true")) {
+        val response = makeHttpPost(url, params)
+        if (response.contains("\"ok\":true")) {
                 DeliveryResult(ScheduledTask.DeliveryPlatform.TELEGRAM, true, "消息已发通")
             } else {
                 DeliveryResult(ScheduledTask.DeliveryPlatform.TELEGRAM, false, error = response)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Telegram 投递失败", e)
-            DeliveryResult(ScheduledTask.DeliveryPlatform.TELEGRAM, false, error = e.message)
+        DeliveryResult(ScheduledTask.DeliveryPlatform.TELEGRAM, false, error = e.message)
         }
     }
     
@@ -187,40 +180,36 @@ class MultiPlatformDelivery(private val context: Context) {
         metadata: Map<String, String>
     ): DeliveryResult = withContext(Dispatchers.IO) {
         val webhookUrl = getConfig("discord_webhook_url")
-        
         if (webhookUrl.isNullOrEmpty()) {
             AppLogger.w(TAG, "Discord 未配置(webhook_url 未设置）")
-            return@withContext DeliveryResult(
+        return@withContext DeliveryResult(
                 ScheduledTask.DeliveryPlatform.DISCORD,
                 false,
                 error = "Discord 未配置"
             )
         }
-        
         try {
             val payload = buildString {
                 append("""{"embeds":[{"title":"${taskName}","description":"${content}","color":3447003}""")
-                if (metadata.isNotEmpty()) {
+        if (metadata.isNotEmpty()) {
                     append(",""fields":[")"
-                    metadata.entries.forEachIndexed { index, (key, value) ->
+        metadata.entries.forEachIndexed { index, (key, value) ->
                         append("""{"name":"${key}","value":"${value}","inline":true}""")
-                        if (index < metadata.size - 1) append(",")
+        if (index < metadata.size - 1) append(",")
                     }
-                    append("]")
+        append("]")
                 }
-                append("}]}")
+        append("}]}")
             }
-            
-            val response = makeHttpPost(webhookUrl, payload, isJson = true)
-            
-            if (response.isEmpty() || response.contains("\"id\":")) {
+        val response = makeHttpPost(webhookUrl, payload, isJson = true)
+        if (response.isEmpty() || response.contains("\"id\":")) {
                 DeliveryResult(ScheduledTask.DeliveryPlatform.DISCORD, true, "消息已发通")
             } else {
                 DeliveryResult(ScheduledTask.DeliveryPlatform.DISCORD, false, error = response)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Discord 投递失败", e)
-            DeliveryResult(ScheduledTask.DeliveryPlatform.DISCORD, false, error = e.message)
+        DeliveryResult(ScheduledTask.DeliveryPlatform.DISCORD, false, error = e.message)
         }
     }
     
@@ -238,27 +227,25 @@ class MultiPlatformDelivery(private val context: Context) {
         val emailTo = getConfig("email_to")
         val emailUser = getConfig("email_user")
         val emailPassword = getConfig("email_password")
-        
         if (smtpHost.isNullOrEmpty() || emailFrom.isNullOrEmpty() || emailTo.isNullOrEmpty()) {
             AppLogger.w(TAG, "Email 未配置")
-            return@withContext DeliveryResult(
+        return@withContext DeliveryResult(
                 ScheduledTask.DeliveryPlatform.EMAIL,
                 false,
                 error = "Email 未配置"
             )
         }
-        
         try {
             // 注意: 这里需要实际的邮件发送实现
             // 简化版本仅记录日志
-                AppLogger.d(TAG, "Email 投通 件${emailFrom} 分${emailTo}, 主题: ${taskName}")
+        AppLogger.d(TAG, "Email 投通 件${emailFrom} 分${emailTo}, 主题: ${taskName}")
             
             // 实际实现需要使用JavaMail 或其他邮件库
             // 这里预留接口
-                DeliveryResult(ScheduledTask.DeliveryPlatform.EMAIL, true, "邮件已发通")
+        DeliveryResult(ScheduledTask.DeliveryPlatform.EMAIL, true, "邮件已发通")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Email 投递失败", e)
-            DeliveryResult(ScheduledTask.DeliveryPlatform.EMAIL, false, error = e.message)
+        DeliveryResult(ScheduledTask.DeliveryPlatform.EMAIL, false, error = e.message)
         }
     }
     
@@ -271,31 +258,27 @@ class MultiPlatformDelivery(private val context: Context) {
         metadata: Map<String, String>
     ): DeliveryResult = withContext(Dispatchers.IO) {
         val webhookUrl = getConfig("wechat_webhook_url")
-        
         if (webhookUrl.isNullOrEmpty()) {
             AppLogger.w(TAG, "微信未配置(webhook_url 未设置）")
-            return@withContext DeliveryResult(
+        return@withContext DeliveryResult(
                 ScheduledTask.DeliveryPlatform.WECHAT,
                 false,
                 error = "微信未配置"
             )
         }
-        
         try {
             val payload = buildString {
                 append("""{"msgtype":"text","text":{"content":"[${taskName}] ${content}"}}""")
             }
-            
-            val response = makeHttpPost(webhookUrl, payload, isJson = true)
-            
-            if (response.isEmpty() || response.contains("\"errcode\":0")) {
+        val response = makeHttpPost(webhookUrl, payload, isJson = true)
+        if (response.isEmpty() || response.contains("\"errcode\":0")) {
                 DeliveryResult(ScheduledTask.DeliveryPlatform.WECHAT, true, "消息已发通")
             } else {
                 DeliveryResult(ScheduledTask.DeliveryPlatform.WECHAT, false, error = response)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "微信投递失败", e)
-            DeliveryResult(ScheduledTask.DeliveryPlatform.WECHAT, false, error = e.message)
+        DeliveryResult(ScheduledTask.DeliveryPlatform.WECHAT, false, error = e.message)
         }
     }
     
@@ -308,11 +291,11 @@ class MultiPlatformDelivery(private val context: Context) {
         metadata: Map<String, String>
     ): DeliveryResult {
         // 使用系统的通知能力
-    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
-            as android.app.NotificationManager
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
+        as android.app.NotificationManager
         
         // 创建通知渠道 (Android 8.0+)
-    val channelId = "scheduled_tasks"
+        val channelId = "scheduled_tasks"
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val channel = android.app.NotificationChannel(
                 channelId,
@@ -321,9 +304,8 @@ class MultiPlatformDelivery(private val context: Context) {
             ).apply {
                 description = "定时任务执行结果通知"
             }
-            notificationManager.createNotificationChannel(channel)
+        notificationManager.createNotificationChannel(channel)
         }
-        
         val notification = android.app.Notification.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(taskName)
@@ -331,11 +313,8 @@ class MultiPlatformDelivery(private val context: Context) {
             .setPriority(android.app.Notification.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .build()
-        
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
-        
         AppLogger.d(TAG, "系统推送已发通 ${taskName}")
-        
         return DeliveryResult(ScheduledTask.DeliveryPlatform.PUSH, true, "推送已发通")
     }
     
@@ -344,7 +323,7 @@ class MultiPlatformDelivery(private val context: Context) {
      */
     private fun getConfig(key: String): String? {
         // 件SharedPreferences 或其他配置源获取
-    val prefs = context.getSharedPreferences("scheduler_config", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences("scheduler_config", Context.MODE_PRIVATE)
         return prefs.getString(key, null)
     }
     
@@ -366,15 +345,15 @@ class MultiPlatformDelivery(private val context: Context) {
             ScheduledTask.DeliveryPlatform.TELEGRAM -> 
                 !getConfig("telegram_bot_token").isNullOrEmpty() && 
                 !getConfig("telegram_chat_id").isNullOrEmpty()
-            ScheduledTask.DeliveryPlatform.DISCORD ->
+        ScheduledTask.DeliveryPlatform.DISCORD ->
                 !getConfig("discord_webhook_url").isNullOrEmpty()
-            ScheduledTask.DeliveryPlatform.EMAIL ->
+        ScheduledTask.DeliveryPlatform.EMAIL ->
                 !getConfig("email_smtp_host").isNullOrEmpty() &&
                 !getConfig("email_from").isNullOrEmpty() &&
                 !getConfig("email_to").isNullOrEmpty()
-            ScheduledTask.DeliveryPlatform.WECHAT ->
+        ScheduledTask.DeliveryPlatform.WECHAT ->
                 !getConfig("wechat_webhook_url").isNullOrEmpty()
-            ScheduledTask.DeliveryPlatform.PUSH -> true
+        ScheduledTask.DeliveryPlatform.PUSH -> true
         }
     }
     
@@ -390,17 +369,14 @@ class MultiPlatformDelivery(private val context: Context) {
      */
     private fun makeHttpPost(url: String, params: Map<String, String>): String {
         // 使用 Java 内置的HttpURLConnection
-    val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+        val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        
         val postData = params.entries.joinToString("&") { 
             "${java.net.URLEncoder.encode(it.key, "UTF-8")}=${java.net.URLEncoder.encode(it.value, "UTF-8")}"
         }
-        
         connection.outputStream.use { it.write(postData.toByteArray()) }
-        
         return connection.inputStream.bufferedReader().readText()
     }
     
@@ -412,9 +388,7 @@ class MultiPlatformDelivery(private val context: Context) {
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.setRequestProperty("Content-Type", if (isJson) "application/json" else "text/plain")
-        
         connection.outputStream.use { it.write(jsonPayload.toByteArray()) }
-        
         return try {
             connection.inputStream.bufferedReader().readText()
         } catch (e: Exception) {

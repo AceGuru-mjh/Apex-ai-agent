@@ -11,8 +11,7 @@ import java.io.File
 class CodeEngineeringEngine(private val context: Context) {
 
     private val TAG = "CodeEngineeringEngine"
-
-    enum class CodeTaskType {
+        enum class CodeTaskType {
         ANALYSIS,
         GENERATION,
         REFACTORING,
@@ -22,8 +21,7 @@ class CodeEngineeringEngine(private val context: Context) {
         DOCUMENTATION,
         TEST_GENERATION
     }
-
-    enum class CodeLanguage {
+        enum class CodeLanguage {
         KOTLIN,
         JAVA,
         SWIFT,
@@ -39,8 +37,7 @@ class CodeEngineeringEngine(private val context: Context) {
         PHP,
         UNKNOWN
     }
-
-    data class CodeProject(
+        data class CodeProject(
         val id: String,
         val rootPath: String,
         val name: String,
@@ -50,14 +47,12 @@ class CodeEngineeringEngine(private val context: Context) {
         val buildSystem: BuildSystem,
         val lastAnalyzed: Long = 0
     )
-
-    data class ProjectStructure(
+        data class ProjectStructure(
         val files: List<CodeFile>,
         val directories: Map<String, List<String>>,
         val entryPoints: List<String>
     )
-
-    data class CodeFile(
+        data class CodeFile(
         val path: String,
         val name: String,
         val language: CodeLanguage,
@@ -66,8 +61,7 @@ class CodeEngineeringEngine(private val context: Context) {
         val complexityScore: Float = 0f,
         val issues: List<CodeIssue> = emptyList()
     )
-
-    data class CodeIssue(
+        data class CodeIssue(
         val id: String,
         val type: IssueType,
         val severity: Severity,
@@ -76,8 +70,7 @@ class CodeEngineeringEngine(private val context: Context) {
         val suggestion: String,
         val confidence: Float
     )
-
-    enum class IssueType {
+        enum class IssueType {
         SYNTAX_ERROR,
         LOGIC_ERROR,
         PERFORMANCE_ISSUE,
@@ -89,24 +82,21 @@ class CodeEngineeringEngine(private val context: Context) {
         DEPRECATED_USAGE,
         INCONSISTENT_STYLE
     }
-
-    enum class Severity {
+        enum class Severity {
         CRITICAL,
         HIGH,
         MEDIUM,
         LOW,
         INFO
     }
-
-    data class Dependency(
+        data class Dependency(
         val name: String,
         val version: String,
         val scope: String,
         val isOutdated: Boolean = false,
         val hasSecurityIssue: Boolean = false
     )
-
-    enum class BuildSystem {
+        enum class BuildSystem {
         GRADLE,
         MAVEN,
         NPM,
@@ -116,8 +106,7 @@ class CodeEngineeringEngine(private val context: Context) {
         PYTHON_SETUP,
         UNKNOWN
     }
-
-    data class RefactoringSuggestion(
+        data class RefactoringSuggestion(
         val id: String,
         val type: RefactoringType,
         val file: String,
@@ -129,8 +118,7 @@ class CodeEngineeringEngine(private val context: Context) {
         val benefits: List<String>,
         val riskLevel: RiskLevel
     )
-
-    enum class RefactoringType {
+        enum class RefactoringType {
         EXTRACT_METHOD,
         EXTRACT_VARIABLE,
         INLINE_METHOD,
@@ -146,49 +134,40 @@ class CodeEngineeringEngine(private val context: Context) {
         CONSOLIDATE_CONDITIONAL,
         REPLACE_MAGIC_NUMBER_WITH_SYMBOLIC_CONSTANT
     }
-
-    enum class RiskLevel {
+        enum class RiskLevel {
         LOW,
         MEDIUM,
         HIGH,
         EXTREME
     }
-
-    private val projectsDir: File
+        private val projectsDir: File
         get() = File(context.filesDir, "code_projects").also {
             if (!it.exists()) it.mkdirs()
         }
-
-    private val cacheDir: File
+        private val cacheDir: File
         get() = File(context.cacheDir, "code_analysis").also {
             if (!it.exists()) it.mkdirs()
         }
-
-    suspend fun analyzeProject(rootPath: String): CodeProject? = withContext(Dispatchers.IO) {
+        suspend fun analyzeProject(rootPath: String): CodeProject? = withContext(Dispatchers.IO) {
         AppLogger.d(TAG, "开始分析项目 ${rootPath}")
-
         val rootFile = File(rootPath)
         if (!rootFile.exists() || !rootFile.isDirectory) {
             AppLogger.e(TAG, "项目目录不存在 ${rootPath}")
-            return@withContext null
+        return@withContext null
         }
-
         val projectId = rootFile.name + "_" + System.currentTimeMillis().toString()
         val language = detectLanguage(rootFile)
         val buildSystem = detectBuildSystem(rootFile)
         val codeFiles = mutableListOf<CodeFile>()
         val directories = mutableMapOf<String, MutableList<String>>()
         val entryPoints = mutableListOf<String>()
-
         scanDirectory(rootFile, "", codeFiles, directories, entryPoints)
-
         val dependencies = analyzeDependencies(rootFile, buildSystem)
         val structure = ProjectStructure(
             files = codeFiles,
             directories = directories,
             entryPoints = entryPoints
         )
-
         val project = CodeProject(
             id = projectId,
             rootPath = rootPath,
@@ -199,16 +178,12 @@ class CodeEngineeringEngine(private val context: Context) {
             buildSystem = buildSystem,
             lastAnalyzed = System.currentTimeMillis()
         )
-
         saveProject(project)
         AppLogger.d(TAG, "项目分析完成: ${project.name}, ${codeFiles.size} 个文件")
-
         project
     }
-
-    private fun detectLanguage(rootDir: File): CodeLanguage {
+        private fun detectLanguage(rootDir: File): CodeLanguage {
         val extensions = mutableMapOf<CodeLanguage, Int>()
-
         rootDir.walkTopDown()
             .filter { it.isFile }
             .forEach { file ->
@@ -225,11 +200,9 @@ class CodeEngineeringEngine(private val context: Context) {
                     "cpp", "cc", "cxx" -> extensions[CodeLanguage.CPP] = extensions.getOrDefault(CodeLanguage.CPP, 0) + 1
                 }
             }
-
         return extensions.maxByOrNull { it.value }?.key ?: CodeLanguage.UNKNOWN
     }
-
-    private fun detectBuildSystem(rootDir: File): BuildSystem {
+        private fun detectBuildSystem(rootDir: File): BuildSystem {
         return when {
             File(rootDir, "build.gradle.kts").exists() ||
             File(rootDir, "build.gradle").exists() -> BuildSystem.GRADLE
@@ -250,8 +223,7 @@ class CodeEngineeringEngine(private val context: Context) {
             else -> BuildSystem.UNKNOWN
         }
     }
-
-    private fun scanDirectory(
+        private fun scanDirectory(
         dir: File,
         relativePath: String,
         codeFiles: MutableList<CodeFile>,
@@ -263,12 +235,10 @@ class CodeEngineeringEngine(private val context: Context) {
         files.forEach { file ->
             if (file.isFile) {
                 dirFiles.add(file.name)
-
-                if (isCodeFile(file)) {
+        if (isCodeFile(file)) {
                     val issues = analyzeFile(file)
         val complexity = calculateComplexity(file)
-
-                    codeFiles.add(
+        codeFiles.add(
                         CodeFile(
                             path = if (relativePath.isNotEmpty()) "${relativePath}/${file.name}" else file.name,
                             name = file.name,
@@ -279,8 +249,7 @@ class CodeEngineeringEngine(private val context: Context) {
                             issues = issues
                         )
                     )
-
-                    if (isEntryPoint(file)) {
+        if (isEntryPoint(file)) {
                         entryPoints.add(if (relativePath.isNotEmpty()) "${relativePath}/${file.name}" else file.name)
                     }
                 }
@@ -294,20 +263,17 @@ class CodeEngineeringEngine(private val context: Context) {
                 )
             }
         }
-
         if (dirFiles.isNotEmpty()) {
             directories[relativePath] = dirFiles
         }
     }
-
-    private fun isCodeFile(file: File): Boolean {
+        private fun isCodeFile(file: File): Boolean {
         return file.extension.lowercase() in listOf(
             "kt", "kts", "java", "py", "js", "ts", "swift", "go", "rs",
             "c", "cpp", "cc", "cxx", "cs", "rb", "php"
         )
     }
-
-    private fun isEntryPoint(file: File): Boolean {
+        private fun isEntryPoint(file: File): Boolean {
         val name = file.name.lowercase()
         return when {
             name.contains("main") -> true
@@ -317,8 +283,7 @@ class CodeEngineeringEngine(private val context: Context) {
             else -> false
         }
     }
-
-    private fun getLanguageFromExtension(extension: String): CodeLanguage {
+        private fun getLanguageFromExtension(extension: String): CodeLanguage {
         return when (extension.lowercase()) {
             "kt", "kts" -> CodeLanguage.KOTLIN
             "java" -> CodeLanguage.JAVA
@@ -336,15 +301,12 @@ class CodeEngineeringEngine(private val context: Context) {
             else -> CodeLanguage.UNKNOWN
         }
     }
-
-    private fun analyzeFile(file: File): List<CodeIssue> {
+        private fun analyzeFile(file: File): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
-
         try {
             val content = file.readText()
         val lines = content.lines()
-
-            if (content.length > 50000) {
+        if (content.length > 50000) {
                 issues.add(
                     CodeIssue(
                         id = "FILE_SIZE_${file.name}",
@@ -357,8 +319,7 @@ class CodeEngineeringEngine(private val context: Context) {
                     )
                 )
             }
-
-            lines.forEachIndexed { index, line ->
+        lines.forEachIndexed { index, line ->
                 val lineNum = index + 1
 
                 if (line.length > 120) {
@@ -374,9 +335,8 @@ class CodeEngineeringEngine(private val context: Context) {
                         )
                     )
                 }
-
-                val magicNumbers = line.findMagicNumbers()
-                if (magicNumbers.isNotEmpty()) {
+        val magicNumbers = line.findMagicNumbers()
+        if (magicNumbers.isNotEmpty()) {
                     issues.add(
                         CodeIssue(
                             id = "MAGIC_NUMBER_${file.name}_${lineNum}",
@@ -389,8 +349,7 @@ class CodeEngineeringEngine(private val context: Context) {
                         )
                     )
                 }
-
-                if (line.contains("TODO") || line.contains("FIXME") || line.contains("XXX")) {
+        if (line.contains("TODO") || line.contains("FIXME") || line.contains("XXX")) {
                     issues.add(
                         CodeIssue(
                             id = "TODO_${file.name}_${lineNum}",
@@ -408,26 +367,22 @@ class CodeEngineeringEngine(private val context: Context) {
         } catch (e: Exception) {
             AppLogger.w(TAG, "分析文件出错: ${file.name}", e)
         }
-
         return issues
     }
-
-    private fun String.findMagicNumbers(): List<String> {
+        private fun String.findMagicNumbers(): List<String> {
         val regex = Regex("""\b(0x[0-9a-fA-F]+|\d+\.?\d*[eE][+-]?\d+|\d+\.\d+|\d+)\b""")
         val matches = regex.findAll(this).map { it.value }.toList()
-
         return matches.filter { num ->
             num.toDoubleOrNull()?.let { d ->
                 d != 0.0 && d != 1.0 && d != -1.0
             } == true
         }
     }
-
-    private fun calculateComplexity(file: File): Float {
+        private fun calculateComplexity(file: File): Float {
         return try {
             val content = file.readText()
         val lines = content.lines()
-            val conditionals = lines.count { line ->
+        val conditionals = lines.count { line ->
                 line.contains("if") || line.contains("for") ||
                 line.contains("while") || line.contains("case") ||
                 line.contains("catch")
@@ -438,22 +393,20 @@ class CodeEngineeringEngine(private val context: Context) {
             0f
         }
     }
-
-    private fun analyzeDependencies(rootDir: File, buildSystem: BuildSystem): List<Dependency> {
+        private fun analyzeDependencies(rootDir: File, buildSystem: BuildSystem): List<Dependency> {
         val dependencies = mutableListOf<Dependency>()
-
         try {
             when (buildSystem) {
                 BuildSystem.GRADLE -> {
                     val buildFile = File(rootDir, "build.gradle.kts")
-                    if (buildFile.exists()) {
+        if (buildFile.exists()) {
                         val content = buildFile.readText()
         val depRegex = Regex("""implementation\s*\(\s*"([^"]+)"\s*\)""")
-                        depRegex.findAll(content).forEach { match ->
+        depRegex.findAll(content).forEach { match ->
                             val depString = match.groupValues[1]
                             if (depString.contains(":")) {
                                 val parts = depString.split(":")
-                                if (parts.size >= 2) {
+        if (parts.size >= 2) {
                                     dependencies.add(
                                         Dependency(
                                             name = parts[0] + ":" + parts[1],
@@ -466,15 +419,14 @@ class CodeEngineeringEngine(private val context: Context) {
                         }
                     }
                 }
-
-                BuildSystem.NPM -> {
+        BuildSystem.NPM -> {
                     val pkgFile = File(rootDir, "package.json")
-                    if (pkgFile.exists()) {
+        if (pkgFile.exists()) {
                         val content = pkgFile.readText()
-                        try {
+        try {
                             val json = JSONObject(content)
         val depsObj = json.optJSONObject("dependencies")
-                            depsObj?.keys()?.forEach { key ->
+        depsObj?.keys()?.forEach { key ->
                                 dependencies.add(
                                     Dependency(
                                         name = key,
@@ -488,56 +440,47 @@ class CodeEngineeringEngine(private val context: Context) {
                         }
                     }
                 }
-
-                else -> {}
+        else -> {}
             }
         } catch (e: Exception) {
             AppLogger.w(TAG, "分析依赖出错", e)
         }
-
         return dependencies
     }
-
-    private suspend fun saveProject(project: CodeProject) = withContext(Dispatchers.IO) {
+        private suspend fun saveProject(project: CodeProject) = withContext(Dispatchers.IO) {
         try {
             val projectFile = File(projectsDir, "${project.id}.json")
         val json = JSONObject().apply {
                 put("id", project.id)
-                put("rootPath", project.rootPath)
-                put("name", project.name)
-                put("language", project.language.name)
-                put("buildSystem", project.buildSystem.name)
-                put("lastAnalyzed", project.lastAnalyzed)
+        put("rootPath", project.rootPath)
+        put("name", project.name)
+        put("language", project.language.name)
+        put("buildSystem", project.buildSystem.name)
+        put("lastAnalyzed", project.lastAnalyzed)
             }
-            projectFile.writeText(json.toString(2))
-            AppLogger.d(TAG, "项目信息已保字 ${project.id}")
+        projectFile.writeText(json.toString(2))
+        AppLogger.d(TAG, "项目信息已保字 ${project.id}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "保存项目信息失败", e)
         }
     }
-
-    suspend fun generateRefactoringSuggestions(projectId: String): List<RefactoringSuggestion> =
+        suspend fun generateRefactoringSuggestions(projectId: String): List<RefactoringSuggestion> =
         withContext(Dispatchers.IO) {
             AppLogger.d(TAG, "生成重构建议: ${projectId}")
-
-            val suggestions = mutableListOf<RefactoringSuggestion>()
+        val suggestions = mutableListOf<RefactoringSuggestion>()
         val projectFile = File(projectsDir, "${projectId}.json")
-            if (!projectFile.exists()) {
+        if (!projectFile.exists()) {
                 AppLogger.e(TAG, "项目不存在 ${projectId}")
-                return@withContext suggestions
+        return@withContext suggestions
             }
-
-            val projectJson = JSONObject(projectFile.readText())
+        val projectJson = JSONObject(projectFile.readText())
         val rootPath = projectJson.getString("rootPath")
-            val rootDir = File(rootPath)
-
-            scanDirectoryForRefactoring(rootDir, "", suggestions)
-
-            AppLogger.d(TAG, "生成 ${suggestions.size} 条重构建计")
-            suggestions
+        val rootDir = File(rootPath)
+        scanDirectoryForRefactoring(rootDir, "", suggestions)
+        AppLogger.d(TAG, "生成 ${suggestions.size} 条重构建计")
+        suggestions
         }
-
-    private fun scanDirectoryForRefactoring(
+        private fun scanDirectoryForRefactoring(
         dir: File,
         relativePath: String,
         suggestions: MutableList<RefactoringSuggestion>
@@ -555,8 +498,7 @@ class CodeEngineeringEngine(private val context: Context) {
             }
         }
     }
-
-    private fun analyzeFileForRefactoring(
+        private fun analyzeFileForRefactoring(
         file: File,
         filePath: String,
         suggestions: MutableList<RefactoringSuggestion>
@@ -564,11 +506,10 @@ class CodeEngineeringEngine(private val context: Context) {
         try {
             val content = file.readText()
         val lines = content.lines()
-
-            lines.forEachIndexed { index, line ->
+        lines.forEachIndexed { index, line ->
                 val lineNum = index + 1
         val magicNumbers = line.findMagicNumbers()
-                if (magicNumbers.isNotEmpty()) {
+        if (magicNumbers.isNotEmpty()) {
                     magicNumbers.forEach { num ->
                         suggestions.add(
                             RefactoringSuggestion(
@@ -591,43 +532,37 @@ class CodeEngineeringEngine(private val context: Context) {
             AppLogger.w(TAG, "分析文件重构建议出错: ${file.name}", e)
         }
     }
-
-    suspend fun generateReport(projectId: String): String = withContext(Dispatchers.IO) {
+        suspend fun generateReport(projectId: String): String = withContext(Dispatchers.IO) {
         val projectFile = File(projectsDir, "${projectId}.json")
         if (!projectFile.exists()) {
             return@withContext "项目不存在 ${projectId}"
         }
-
         val projectJson = JSONObject(projectFile.readText())
-
         buildString {
             appendLine("=== 代码工程分析报告 ===")
-            appendLine()
-            appendLine("【项目信息。")
-            appendLine("名称: ${projectJson.getString("name")}")
-            appendLine("路径: ${projectJson.getString("rootPath")}")
-            appendLine("语言: ${projectJson.getString("language")}")
-            appendLine("构建系统: ${projectJson.getString("buildSystem")}")
-            appendLine("最后分果 ${projectJson.getLong("lastAnalyzed")}")
-            appendLine()
-            appendLine("【建议操作。")
-            appendLine("1. 运行详细代码分析")
-            appendLine("2. 查看重构建议")
-            appendLine("3. 执行安全审计")
+        appendLine()
+        appendLine("【项目信息。")
+        appendLine("名称: ${projectJson.getString("name")}")
+        appendLine("路径: ${projectJson.getString("rootPath")}")
+        appendLine("语言: ${projectJson.getString("language")}")
+        appendLine("构建系统: ${projectJson.getString("buildSystem")}")
+        appendLine("最后分果 ${projectJson.getLong("lastAnalyzed")}")
+        appendLine()
+        appendLine("【建议操作。")
+        appendLine("1. 运行详细代码分析")
+        appendLine("2. 查看重构建议")
+        appendLine("3. 执行安全审计")
         }
     }
-
-    suspend fun cleanupOldProjects(daysToKeep: Int = 60) = withContext(Dispatchers.IO) {
+        suspend fun cleanupOldProjects(daysToKeep: Int = 60) = withContext(Dispatchers.IO) {
         val cutoffTime = System.currentTimeMillis() - (daysToKeep * 24 * 60 * 60 * 1000L)
-
         projectsDir.listFiles()?.forEach { file ->
             try {
                 val json = JSONObject(file.readText())
         val analyzed = json.getLong("lastAnalyzed")
-
-                if (analyzed < cutoffTime) {
+        if (analyzed < cutoffTime) {
                     file.delete()
-                    AppLogger.d(TAG, "清理旧项目 ${file.name}")
+        AppLogger.d(TAG, "清理旧项目 ${file.name}")
                 }
             } catch (e: Exception) {
                 AppLogger.w(TAG, "跳过清理文件: ${file.name}", e)

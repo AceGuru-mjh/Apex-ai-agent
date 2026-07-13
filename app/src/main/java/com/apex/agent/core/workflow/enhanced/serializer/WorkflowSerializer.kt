@@ -31,8 +31,7 @@ class WorkflowSerializer {
         encodeDefaults = true
         prettyPrint = false
     }
-
-    private val prettyJson = Json {
+        private val prettyJson = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
         prettyPrint = true
@@ -60,7 +59,7 @@ class WorkflowSerializer {
             checksum = computeChecksum(workflow)
         )
         return if (pretty) prettyJson.encodeToString(WorkflowPackage.serializer(), pkg)
-               else json.encodeToString(WorkflowPackage.serializer(), pkg)
+        else json.encodeToString(WorkflowPackage.serializer(), pkg)
     }
 
     /**
@@ -73,7 +72,7 @@ class WorkflowSerializer {
             checksum = computeChecksum(workflows)
         )
         return if (pretty) prettyJson.encodeToString(WorkflowPackage.serializer(), pkg)
-               else json.encodeToString(WorkflowPackage.serializer(), pkg)
+        else json.encodeToString(WorkflowPackage.serializer(), pkg)
     }
 
     /**
@@ -84,7 +83,7 @@ class WorkflowSerializer {
             val pkg = json.decodeFromString(WorkflowPackage.serializer(), jsonStr)
 
             // 校验版本
-                if (pkg.schemaVersion != CURRENT_SCHEMA_VERSION) {
+        if (pkg.schemaVersion != CURRENT_SCHEMA_VERSION) {
                 return ImportResult(
                     workflows = emptyList(),
                     warnings = listOf("Schema 版本不匹配: ${pkg.schemaVersion} vs $CURRENT_SCHEMA_VERSION，尝试兼容"),
@@ -93,8 +92,8 @@ class WorkflowSerializer {
             }
 
             // 校验和校验
-    val actualChecksum = computeChecksum(pkg.workflows)
-            if (pkg.checksum.isNotEmpty() && actualChecksum != pkg.checksum) {
+        val actualChecksum = computeChecksum(pkg.workflows)
+        if (pkg.checksum.isNotEmpty() && actualChecksum != pkg.checksum) {
                 return ImportResult(
                     workflows = emptyList(),
                     warnings = emptyList(),
@@ -103,13 +102,12 @@ class WorkflowSerializer {
             }
 
             // 校验每个工作流
-    val warnings = mutableListOf<String>()
-            pkg.workflows.forEach { wf ->
+        val warnings = mutableListOf<String>()
+        pkg.workflows.forEach { wf ->
                 val r = wf.validate()
-                warnings.addAll(r.warnings)
+        warnings.addAll(r.warnings)
             }
-
-            ImportResult(
+        ImportResult(
                 workflows = pkg.workflows,
                 warnings = warnings,
                 errors = emptyList()
@@ -137,7 +135,7 @@ class WorkflowSerializer {
      */
     fun fromYaml(yamlStr: String): ImportResult {
         // 简化：先转 JSON 再解析
-    val jsonObj = yamlToJson(yamlStr)
+        val jsonObj = yamlToJson(yamlStr)
         val jsonStr = json.encodeToString(JsonElement.serializer(), jsonObj)
         return fromJson(jsonStr)
     }
@@ -196,7 +194,7 @@ class WorkflowSerializer {
                     )
                 }
             )
-            ImportResult(listOf(workflow), emptyList(), emptyList())
+        ImportResult(listOf(workflow), emptyList(), emptyList())
         } catch (e: Exception) {
             ImportResult(emptyList(), emptyList(), listOf("紧凑格式解析失败: ${e.message}"))
         }
@@ -240,24 +238,21 @@ class WorkflowSerializer {
     )
 
     // ============ 辅助方法 ============
-                data class ImportResult(
+        data class ImportResult(
         val workflows: List<EnhancedWorkflow>,
         val warnings: List<String>,
         val errors: List<String>
     ) {
         val isSuccess: Boolean get() = errors.isEmpty()
     }
-
-    private fun computeChecksum(workflows: List<EnhancedWorkflow>): String {
+        private fun computeChecksum(workflows: List<EnhancedWorkflow>): String {
         val jsonStr = json.encodeToString(kotlinx.serialization.builtins.ListSerializer(EnhancedWorkflow.serializer()), workflows)
         val md = java.security.MessageDigest.getInstance("SHA-256")
         val bytes = md.digest(jsonStr.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }.take(16)
     }
-
-    private fun computeChecksum(workflow: EnhancedWorkflow): String = computeChecksum(listOf(workflow))
-
-    private fun jsonToYaml(element: JsonElement, indent: Int): String {
+        private fun computeChecksum(workflow: EnhancedWorkflow): String = computeChecksum(listOf(workflow))
+        private fun jsonToYaml(element: JsonElement, indent: Int): String {
         val sb = StringBuilder()
         val pad = "  ".repeat(indent)
         when (element) {
@@ -266,34 +261,32 @@ class WorkflowSerializer {
                     when (v) {
                         is JsonObject, is kotlinx.serialization.json.JsonArray -> {
                             sb.appendLine("$pad$k:")
-                            sb.append(jsonToYaml(v, indent + 1))
+        sb.append(jsonToYaml(v, indent + 1))
                         }
-                        else -> sb.appendLine("$pad$k: ${v.toString().trim('"')}")
+        else -> sb.appendLine("$pad$k: ${v.toString().trim('"')}")
                     }
                 }
             }
-            is kotlinx.serialization.json.JsonArray -> {
+        is kotlinx.serialization.json.JsonArray -> {
                 element.forEach { item ->
                     sb.appendLine("$pad-")
-                    sb.append(jsonToYaml(item, indent + 1))
+        sb.append(jsonToYaml(item, indent + 1))
                 }
             }
-            is JsonPrimitive -> {
+        is JsonPrimitive -> {
                 sb.appendLine("$pad${element.content}")
             }
-            else -> {}
+        else -> {}
         }
         return sb.toString()
     }
-
-    private fun yamlToJson(yaml: String): JsonElement {
+        private fun yamlToJson(yaml: String): JsonElement {
         // 极简 YAML 解析（仅支持键值对和缩进）
-    val lines = yaml.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+        val lines = yaml.lines().filter { it.isNotBlank() && !it.startsWith("#") }
         val root = buildJsonObject {  }
         return root
     }
-
-    companion object {
+        companion object {
         const val CURRENT_SCHEMA_VERSION = "2.0.0"
 
         @Volatile

@@ -18,9 +18,8 @@ class SkillMatcher(
 ) {
 
     private val subtaskListType = Types.newParameterizedType(List::class.java, Map::class.java)
-    private val subtaskAdapter = moshi.adapter<List<Map<String, Any>>>(subtaskListType)
-
-    fun getBestMatchingSkill(mainTask: MainTask): Flow<MatchedSkill?> {
+        private val subtaskAdapter = moshi.adapter<List<Map<String, Any>>>(subtaskListType)
+        fun getBestMatchingSkill(mainTask: MainTask): Flow<MatchedSkill?> {
         return skillDao.getBestSkillsForType(mainTask.taskType)
             .map { skills ->
                 skills.firstOrNull()?.let { skill ->
@@ -28,8 +27,7 @@ class SkillMatcher(
                 }
             }
     }
-
-    fun getMatchingSkills(mainTask: MainTask, limit: Int = 5): Flow<List<MatchedSkill>> {
+        fun getMatchingSkills(mainTask: MainTask, limit: Int = 5): Flow<List<MatchedSkill>> {
         return skillDao.getBestSkillsForType(mainTask.taskType)
             .map { skills ->
                 skills.take(limit).mapNotNull { skill ->
@@ -37,28 +35,22 @@ class SkillMatcher(
                 }
             }
     }
-
-    fun getSkillsByType(taskType: String): Flow<List<SkillTemplate>> {
+        fun getSkillsByType(taskType: String): Flow<List<SkillTemplate>> {
         return skillDao.getSkillsByType(taskType)
     }
-
-    fun getTopSkills(limit: Int = 10): Flow<List<SkillTemplate>> {
+        fun getTopSkills(limit: Int = 10): Flow<List<SkillTemplate>> {
         return skillDao.getTopSkills(limit)
     }
-
-    fun getHighQualitySkills(minRate: Float = 0.8f): Flow<List<SkillTemplate>> {
+        fun getHighQualitySkills(minRate: Float = 0.8f): Flow<List<SkillTemplate>> {
         return skillDao.getHighQualitySkills(minRate)
     }
-
-    fun getRecentSkills(limit: Int = 20): Flow<List<SkillTemplate>> {
+        fun getRecentSkills(limit: Int = 20): Flow<List<SkillTemplate>> {
         return skillDao.getRecentSkills(limit)
     }
-
-    fun getAllTaskTypes(): Flow<List<String>> {
+        fun getAllTaskTypes(): Flow<List<String>> {
         return skillDao.getAllTaskTypes()
     }
-
-    private fun createMatchedSkill(skill: SkillTemplate): MatchedSkill? {
+        private fun createMatchedSkill(skill: SkillTemplate): MatchedSkill? {
         return try {
             val subtaskList = deserializeSubtasks(skill.subtaskStructure)
         val suggestedSubtasks = subtaskList.mapIndexed { index, map ->
@@ -72,8 +64,7 @@ class SkillMatcher(
                     estimatedTime = (map["estimatedTime"] as? Number)?.toLong() ?: 0
                 )
             }
-
-            MatchedSkill(
+        MatchedSkill(
                 skill = skill,
                 suggestedSubtasks = suggestedSubtasks,
                 matchScore = calculateMatchScore(skill)
@@ -82,8 +73,7 @@ class SkillMatcher(
             null
         }
     }
-
-    private fun deserializeSubtasks(json: String): List<Map<String, Any>> {
+        private fun deserializeSubtasks(json: String): List<Map<String, Any>> {
         return try {
             if (json.isBlank() || json == "[]") {
                 emptyList()
@@ -94,8 +84,7 @@ class SkillMatcher(
             emptyList()
         }
     }
-
-    private fun calculateMatchScore(skill: SkillTemplate): Double {
+        private fun calculateMatchScore(skill: SkillTemplate): Double {
         val successWeight = 0.6
         val usageWeight = 0.3
         val recencyWeight = 0.1
@@ -108,8 +97,7 @@ class SkillMatcher(
             (usageScore * usageWeight) +
             (recencyScore * recencyWeight)
     }
-
-    fun getMatchConfidence(matchedSkill: MatchedSkill): MatchConfidence {
+        fun getMatchConfidence(matchedSkill: MatchedSkill): MatchConfidence {
         return when {
             matchedSkill.matchScore >= 0.8 -> MatchConfidence.HIGH
             matchedSkill.matchScore >= 0.5 -> MatchConfidence.MEDIUM
@@ -117,8 +105,7 @@ class SkillMatcher(
             else -> MatchConfidence.VERY_LOW
         }
     }
-
-    fun shouldUseTemplate(matchedSkill: MatchedSkill?, minConfidence: MatchConfidence = MatchConfidence.MEDIUM): Boolean {
+        fun shouldUseTemplate(matchedSkill: MatchedSkill?, minConfidence: MatchConfidence = MatchConfidence.MEDIUM): Boolean {
         if (matchedSkill == null) return false
 
         val confidence = getMatchConfidence(matchedSkill)

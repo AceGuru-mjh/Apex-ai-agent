@@ -82,14 +82,11 @@ class KanbanViewModel(
         val blocked: Int,
         val averageExecutionMinutes: Int
     )
-
-    private val _uiState = MutableStateFlow(buildUiState())
+        private val _uiState = MutableStateFlow(buildUiState())
         val uiState: StateFlow<KanbanUiState> = _uiState.asStateFlow()
-
-    private val _selectedTask = MutableStateFlow<KanbanTask?>(null)
+        private val _selectedTask = MutableStateFlow<KanbanTask?>(null)
         val selectedTask: StateFlow<KanbanTask?> = _selectedTask.asStateFlow()
-
-    private val _boardEvent = MutableStateFlow<BoardEvent?>(null)
+        private val _boardEvent = MutableStateFlow<BoardEvent?>(null)
         val boardEvent: StateFlow<BoardEvent?> = _boardEvent.asStateFlow()
 
     /**
@@ -123,7 +120,6 @@ class KanbanViewModel(
             columnId = columnId,
             priority = priority
         )
-
         board.getColumn(columnId)?.tasks?.add(task)
         refreshState()
         emitEvent(BoardEvent.TaskAdded(task))
@@ -138,8 +134,8 @@ class KanbanViewModel(
         val success = board.moveTask(taskId, targetColumnId)
         if (success) {
             refreshState()
-            val task = board.getTask(taskId)
-            task?.let { emitEvent(BoardEvent.TaskMoved(it, targetColumnId)) }
+        val task = board.getTask(taskId)
+        task?.let { emitEvent(BoardEvent.TaskMoved(it, targetColumnId)) }
         }
         return success
     }
@@ -151,8 +147,8 @@ class KanbanViewModel(
         val task = board.getTask(taskId)
         if (task != null) {
             task.startExecution()
-            refreshState()
-            emitEvent(BoardEvent.TaskStarted(task))
+        refreshState()
+        emitEvent(BoardEvent.TaskStarted(task))
         }
     }
 
@@ -163,8 +159,8 @@ class KanbanViewModel(
         val task = board.getTask(taskId)
         if (task != null) {
             task.complete(result)
-            refreshState()
-            emitEvent(BoardEvent.TaskCompleted(task))
+        refreshState()
+        emitEvent(BoardEvent.TaskCompleted(task))
         }
     }
 
@@ -175,15 +171,15 @@ class KanbanViewModel(
         val task = board.getTask(taskId)
         if (task != null) {
             val result = dispatcher.dispatchTask(task)
-            refreshState()
-            when (result) {
+        refreshState()
+        when (result) {
                 is TaskDispatcher.DispatchResult.Success -> {
                     emitEvent(BoardEvent.TaskDispatched(task, result.worker.name, result.agentAssigned))
                 }
-                is TaskDispatcher.DispatchResult.Failure -> {
+        is TaskDispatcher.DispatchResult.Failure -> {
                     emitEvent(BoardEvent.DispatchFailed(task, result.reason))
                 }
-                is TaskDispatcher.DispatchResult.Blocked -> {
+        is TaskDispatcher.DispatchResult.Blocked -> {
                     emitEvent(BoardEvent.TaskBlocked(task, result.blockedBy))
                 }
             }
@@ -200,10 +196,10 @@ class KanbanViewModel(
             is TaskDispatcher.DispatchResult.Success -> {
                 emitEvent(BoardEvent.TaskDispatched(result.task, result.worker.name, result.agentAssigned))
             }
-            is TaskDispatcher.DispatchResult.Failure -> {
+        is TaskDispatcher.DispatchResult.Failure -> {
                 emitEvent(BoardEvent.DispatchFailed(result.task, result.reason))
             }
-            is TaskDispatcher.DispatchResult.Blocked -> {
+        is TaskDispatcher.DispatchResult.Blocked -> {
                 emitEvent(BoardEvent.TaskBlocked(result.task, result.blockedBy))
             }
         }
@@ -223,10 +219,10 @@ class KanbanViewModel(
         val steps = mutableListOf<FlowStep>()
         board.columns.sortedBy { it.order }.forEach { column ->
             steps.add(FlowStep.ColumnStart(column.id, column.name, column.order))
-            column.tasks.forEach { task ->
+        column.tasks.forEach { task ->
                 steps.add(FlowStep.TaskInColumn(task.id, task.title, task.status, column.id))
             }
-            steps.add(FlowStep.ColumnEnd(column.id))
+        steps.add(FlowStep.ColumnEnd(column.id))
         }
         return steps
     }
@@ -237,13 +233,11 @@ class KanbanViewModel(
     fun getTaskTimeline(taskId: String): List<TimelineEvent> {
         val task = board.getTask(taskId) ?: return emptyList()
         val events = mutableListOf<TimelineEvent>()
-
         events.add(TimelineEvent(
             timestamp = task.createdAt,
             type = TimelineEvent.Type.CREATED,
             message = "任务已创建"
         ))
-
         task.collaborationHistory.forEach { event ->
             val type = when (event.type) {
                 CollaborationEvent.Type.ASSIGNED -> TimelineEvent.Type.ASSIGNED
@@ -254,13 +248,11 @@ class KanbanViewModel(
                 CollaborationEvent.Type.UNBLOCKED -> TimelineEvent.Type.UNBLOCKED
                 else -> TimelineEvent.Type.UPDATED
             }
-            events.add(TimelineEvent(event.timestamp, type, event.message))
+        events.add(TimelineEvent(event.timestamp, type, event.message))
         }
-
         return events.sortedBy { it.timestamp }
     }
-
-    private fun buildUiState(): KanbanUiState {
+        private fun buildUiState(): KanbanUiState {
         val columns = board.columns.map { column ->
             ColumnUiState(
                 id = column.id,
@@ -272,7 +264,6 @@ class KanbanViewModel(
                 hasWorker = column.assignedWorker != null || column.requiredAgentRoles.isNotEmpty()
             )
         }
-
         val allTasks = board.getAllTasks()
         val taskStats = TaskStatistics(
             total = allTasks.size,
@@ -286,7 +277,6 @@ class KanbanViewModel(
                 allTasks.filter { it.actualMinutes > 0 }.map { it.actualMinutes }.average().toInt()
             } else 0
         )
-
         return KanbanUiState(
             boardId = board.id,
             boardName = board.name,
@@ -298,8 +288,7 @@ class KanbanViewModel(
             lastUpdated = System.currentTimeMillis()
         )
     }
-
-    private fun buildTaskUiState(task: KanbanTask): TaskUiState {
+        private fun buildTaskUiState(task: KanbanTask): TaskUiState {
         return TaskUiState(
             id = task.id,
             title = task.title,
@@ -311,7 +300,7 @@ class KanbanViewModel(
                 2 -> "高"
                 3 -> "为"
                 4 -> "作"
-                else -> "未知"
+        else -> "未知"
             },
             assignedWorker = task.assignedWorkerId,
             assignedAgent = task.assignedAgentName,
@@ -324,12 +313,10 @@ class KanbanViewModel(
             executionMinutes = if (task.startedAt != null) task.getExecutionMinutes() else null
         )
     }
-
-    private fun emitEvent(event: BoardEvent) {
+        private fun emitEvent(event: BoardEvent) {
         _boardEvent.value = event
     }
-
-    fun clearEvent() {
+        fun clearEvent() {
         _boardEvent.value = null
     }
 

@@ -78,8 +78,7 @@ class OutputBlockStream(
 
     /** 水母形态事件流(驱动水母切换) */
     val formEvents: SharedFlow<com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm> = _formEvents.asSharedFlow()
-
-    private val mutex = Mutex()
+        private val mutex = Mutex()
 
     /** 块更新事件类型 */
     sealed class BlockUpdate {
@@ -112,76 +111,70 @@ class OutputBlockStream(
     private suspend fun completeBlock(block: OutputBlock) {
         val completed = when (block) {
             is OutputBlock.TextBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis(), isStreaming = false)
-            is OutputBlock.ReasoningBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis(), isStreaming = false)
-            is OutputBlock.CommandBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis(), isStreaming = false)
-            is OutputBlock.CommandOutputBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis(), isStreaming = false)
-            is OutputBlock.FileEditBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.ToolCallBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.MemoryBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.TaskBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.ProgressBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.ErrorBlock -> block
+        is OutputBlock.ReasoningBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis(), isStreaming = false)
+        is OutputBlock.CommandBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis(), isStreaming = false)
+        is OutputBlock.CommandOutputBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis(), isStreaming = false)
+        is OutputBlock.FileEditBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.ToolCallBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.MemoryBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.TaskBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.ProgressBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.ErrorBlock -> block
             is OutputBlock.SuccessBlock -> block
             is OutputBlock.BerserkBlock.MultiPathReasoningBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.BerserkBlock.AdversarialBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.BerserkBlock.SelfCorrectionBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.BerserkBlock.TreeOfThoughtsBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.BerserkBlock.SkillChainBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.BerserkBlock.RacingBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
-            is OutputBlock.BerserkBlock.EvolutionBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.BerserkBlock.AdversarialBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.BerserkBlock.SelfCorrectionBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.BerserkBlock.TreeOfThoughtsBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.BerserkBlock.SkillChainBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.BerserkBlock.RacingBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
+        is OutputBlock.BerserkBlock.EvolutionBlock -> block.copy(status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis())
         }
         blockMap[block.id] = completed
         _updates.emit(BlockUpdate.Completed(block.id, completed))
     }
 
     // ===== 文本块 =====
-    suspend fun emitText(role: OutputBlock.TextBlock.TextRole, content: String): String {
+        suspend fun emitText(role: OutputBlock.TextBlock.TextRole, content: String): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.TextBlock(id = id, role = role, content = content, status = OutputBlock.BlockStatus.COMPLETED, isStreaming = false, completedAt = System.currentTimeMillis()))
         return id
     }
-
-    suspend fun startStreamingText(role: OutputBlock.TextBlock.TextRole = OutputBlock.TextBlock.TextRole.ASSISTANT): String {
+        suspend fun startStreamingText(role: OutputBlock.TextBlock.TextRole = OutputBlock.TextBlock.TextRole.ASSISTANT): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.TextBlock(id = id, role = role, content = "", isStreaming = true))
         return id
     }
-
-    suspend fun appendTextDelta(blockId: String, delta: String) {
+        suspend fun appendTextDelta(blockId: String, delta: String) {
         val block = blockMap[blockId] as? OutputBlock.TextBlock ?: return
         updateBlock(block.copy(content = block.content + delta))
     }
-
-    suspend fun completeText(blockId: String) {
+        suspend fun completeText(blockId: String) {
         val block = blockMap[blockId] as? OutputBlock.TextBlock ?: return
         completeBlock(block)
     }
 
     // ===== 推理块 =====
-    suspend fun startReasoning(): String {
+        suspend fun startReasoning(): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ReasoningBlock(id = id))
         return id
     }
-
-    suspend fun appendReasoning(blockId: String, delta: String) {
+        suspend fun appendReasoning(blockId: String, delta: String) {
         val block = blockMap[blockId] as? OutputBlock.ReasoningBlock ?: return
         updateBlock(block.copy(thoughts = block.thoughts + delta))
     }
-
-    suspend fun completeReasoning(blockId: String, confidence: Float, alternatives: List<String> = emptyList()) {
+        suspend fun completeReasoning(blockId: String, confidence: Float, alternatives: List<String> = emptyList()) {
         val block = blockMap[blockId] as? OutputBlock.ReasoningBlock ?: return
         completeBlock(block.copy(confidence = confidence, alternativePaths = alternatives))
     }
 
     // ===== 命令块 =====
-    suspend fun startCommand(command: String, workingDir: String = ""): String {
+        suspend fun startCommand(command: String, workingDir: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.CommandBlock(id = id, command = command, workingDir = workingDir))
         return id
     }
-
-    suspend fun appendCommandOutput(blockId: String, output: String, stream: OutputBlock.CommandOutputBlock.StreamType = OutputBlock.CommandOutputBlock.StreamType.STDOUT) {
+        suspend fun appendCommandOutput(blockId: String, output: String, stream: OutputBlock.CommandOutputBlock.StreamType = OutputBlock.CommandOutputBlock.StreamType.STDOUT) {
         val block = blockMap[blockId] as? OutputBlock.CommandBlock ?: return
         if (stream == OutputBlock.CommandOutputBlock.StreamType.STDOUT) {
             updateBlock(block.copy(stdout = block.stdout + output))
@@ -189,14 +182,13 @@ class OutputBlockStream(
             updateBlock(block.copy(stderr = block.stderr + output))
         }
     }
-
-    suspend fun completeCommand(blockId: String, exitCode: Int, durationMs: Long = 0L) {
+        suspend fun completeCommand(blockId: String, exitCode: Int, durationMs: Long = 0L) {
         val block = blockMap[blockId] as? OutputBlock.CommandBlock ?: return
         completeBlock(block.copy(exitCode = exitCode, durationMs = durationMs))
     }
 
     // ===== 文件编辑块 =====
-    suspend fun emitFileEdit(
+        suspend fun emitFileEdit(
         filePath: String,
         operation: OutputBlock.FileEditBlock.FileOperation,
         diff: String = "",
@@ -216,73 +208,67 @@ class OutputBlockStream(
     }
 
     // ===== 工具调用块 =====
-    suspend fun startToolCall(toolName: String, category: OutputBlock.ToolCallBlock.ToolCategory, arguments: String = ""): String {
+        suspend fun startToolCall(toolName: String, category: OutputBlock.ToolCallBlock.ToolCategory, arguments: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ToolCallBlock(id = id, toolName = toolName, toolCategory = category, arguments = arguments, icon = category.icon))
         return id
     }
-
-    suspend fun completeToolCall(blockId: String, result: String) {
+        suspend fun completeToolCall(blockId: String, result: String) {
         val block = blockMap[blockId] as? OutputBlock.ToolCallBlock ?: return
         completeBlock(block.copy(result = result))
     }
 
     // ===== 记忆块 =====
-    suspend fun emitMemory(operation: OutputBlock.MemoryBlock.MemoryOperation, type: OutputBlock.MemoryBlock.MemoryType, key: String = "", value: String = "", resultCount: Int = 0): String {
+        suspend fun emitMemory(operation: OutputBlock.MemoryBlock.MemoryOperation, type: OutputBlock.MemoryBlock.MemoryType, key: String = "", value: String = "", resultCount: Int = 0): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.MemoryBlock(id = id, operation = operation, memoryType = type, key = key, value = value, resultCount = resultCount, status = OutputBlock.BlockStatus.COMPLETED, completedAt = System.currentTimeMillis()))
         return id
     }
 
     // ===== 任务块 =====
-    suspend fun startTask(title: String, description: String = "", steps: List<String> = emptyList()): String {
+        suspend fun startTask(title: String, description: String = "", steps: List<String> = emptyList()): String {
         val id = UUID.randomUUID().toString()
         val taskSteps = steps.mapIndexed { i, title -> OutputBlock.TaskBlock.TaskStep(id = "${id}_step_$i", title = title) }
         addBlock(OutputBlock.TaskBlock(id = id, title = title, description = description, steps = taskSteps))
         return id
     }
-
-    suspend fun advanceTaskStep(blockId: String) {
+        suspend fun advanceTaskStep(blockId: String) {
         val block = blockMap[blockId] as? OutputBlock.TaskBlock ?: return
         val newSteps = block.steps.mapIndexed { i, step ->
             if (i < block.currentStepIndex) step.copy(status = OutputBlock.BlockStatus.COMPLETED)
-            else if (i == block.currentStepIndex) step.copy(status = OutputBlock.BlockStatus.COMPLETED)
-            else step
+        else if (i == block.currentStepIndex) step.copy(status = OutputBlock.BlockStatus.COMPLETED)
+        else step
         }
         updateBlock(block.copy(steps = newSteps, currentStepIndex = block.currentStepIndex + 1))
     }
-
-    suspend fun completeTask(blockId: String) {
+        suspend fun completeTask(blockId: String) {
         val block = blockMap[blockId] as? OutputBlock.TaskBlock ?: return
         val newSteps = block.steps.map { it.copy(status = OutputBlock.BlockStatus.COMPLETED) }
         completeBlock(block.copy(steps = newSteps, currentStepIndex = block.steps.size))
     }
 
     // ===== 进度块 =====
-    suspend fun startProgress(label: String, total: Int, unit: String = ""): String {
+        suspend fun startProgress(label: String, total: Int, unit: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ProgressBlock(id = id, label = label, total = total, unit = unit))
         return id
     }
-
-    suspend fun updateProgress(blockId: String, current: Int) {
+        suspend fun updateProgress(blockId: String, current: Int) {
         val block = blockMap[blockId] as? OutputBlock.ProgressBlock ?: return
         updateBlock(block.copy(current = current))
     }
-
-    suspend fun completeProgress(blockId: String) {
+        suspend fun completeProgress(blockId: String) {
         val block = blockMap[blockId] as? OutputBlock.ProgressBlock ?: return
         completeBlock(block)
     }
 
     // ===== 错误/成功块 =====
-    suspend fun emitError(type: OutputBlock.ErrorBlock.ErrorType, message: String, stackTrace: String = "", suggestion: String = ""): String {
+        suspend fun emitError(type: OutputBlock.ErrorBlock.ErrorType, message: String, stackTrace: String = "", suggestion: String = ""): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.ErrorBlock(id = id, errorType = type, message = message, stackTrace = stackTrace, recoverySuggestion = suggestion))
         return id
     }
-
-    suspend fun emitSuccess(summary: String, metrics: Map<String, String> = emptyMap()): String {
+        suspend fun emitSuccess(summary: String, metrics: Map<String, String> = emptyMap()): String {
         val id = UUID.randomUUID().toString()
         addBlock(OutputBlock.SuccessBlock(id = id, summary = summary, metrics = metrics))
         return id
@@ -297,17 +283,15 @@ class OutputBlockStream(
         addBlock(OutputBlock.BerserkBlock.MultiPathReasoningBlock(id = id, paths = reasoningPaths, strategy = strategy))
         return id
     }
-
-    suspend fun updateReasoningPath(blockId: String, pathIndex: Int, reasoning: String, confidence: Float) {
+        suspend fun updateReasoningPath(blockId: String, pathIndex: Int, reasoning: String, confidence: Float) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.MultiPathReasoningBlock ?: return
         val newPaths = block.paths.mapIndexed { i, path ->
             if (i == pathIndex) path.copy(reasoning = reasoning, confidence = confidence, status = OutputBlock.BlockStatus.RUNNING)
-            else path
+        else path
         }
         updateBlock(block.copy(paths = newPaths))
     }
-
-    suspend fun completeMultiPathReasoning(blockId: String, selectedPathIndex: Int) {
+        suspend fun completeMultiPathReasoning(blockId: String, selectedPathIndex: Int) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.MultiPathReasoningBlock ?: return
         val newPaths = block.paths.mapIndexed { i, path ->
             path.copy(status = if (i == selectedPathIndex) OutputBlock.BlockStatus.COMPLETED else OutputBlock.BlockStatus.SKIPPED)
@@ -321,8 +305,7 @@ class OutputBlockStream(
         addBlock(OutputBlock.BerserkBlock.AdversarialBlock(id = id))
         return id
     }
-
-    suspend fun appendAdversarialArg(blockId: String, side: OutputBlock.BerserkBlock.AdversarialBlock.Side, arg: String) {
+        suspend fun appendAdversarialArg(blockId: String, side: OutputBlock.BerserkBlock.AdversarialBlock.Side, arg: String) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.AdversarialBlock ?: return
         val newArgs = when (side) {
             OutputBlock.BerserkBlock.AdversarialBlock.Side.ATTACKER -> block.attackerArgs + arg
@@ -332,8 +315,7 @@ class OutputBlockStream(
         val updated = if (side == OutputBlock.BerserkBlock.AdversarialBlock.Side.ATTACKER) block.copy(attackerArgs = newArgs) else block.copy(defenderArgs = newArgs)
         updateBlock(updated)
     }
-
-    suspend fun completeAdversarial(blockId: String, verdict: String, winner: OutputBlock.BerserkBlock.AdversarialBlock.Side, rounds: Int) {
+        suspend fun completeAdversarial(blockId: String, verdict: String, winner: OutputBlock.BerserkBlock.AdversarialBlock.Side, rounds: Int) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.AdversarialBlock ?: return
         completeBlock(block.copy(verdict = verdict, winner = winner, rounds = rounds))
     }
@@ -344,16 +326,14 @@ class OutputBlockStream(
         addBlock(OutputBlock.BerserkBlock.SelfCorrectionBlock(id = id, detectedIssue = issue))
         return id
     }
-
-    suspend fun addCorrectionAttempt(blockId: String, approach: String, result: String = "", success: Boolean = false) {
+        suspend fun addCorrectionAttempt(blockId: String, approach: String, result: String = "", success: Boolean = false) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.SelfCorrectionBlock ?: return
         val attempt = OutputBlock.BerserkBlock.SelfCorrectionBlock.CorrectionAttempt(
             id = UUID.randomUUID().toString(), approach = approach, result = result, success = success
         )
         updateBlock(block.copy(correctionAttempts = block.correctionAttempts + attempt))
     }
-
-    suspend fun completeSelfCorrection(blockId: String, finalResult: String) {
+        suspend fun completeSelfCorrection(blockId: String, finalResult: String) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.SelfCorrectionBlock ?: return
         completeBlock(block.copy(finalResult = finalResult))
     }
@@ -364,13 +344,11 @@ class OutputBlockStream(
         addBlock(OutputBlock.BerserkBlock.TreeOfThoughtsBlock(id = id, rootThought = rootThought))
         return id
     }
-
-    suspend fun updateTreeBranches(blockId: String, branches: List<OutputBlock.BerserkBlock.TreeOfThoughtsBlock.ThoughtBranch>) {
+        suspend fun updateTreeBranches(blockId: String, branches: List<OutputBlock.BerserkBlock.TreeOfThoughtsBlock.ThoughtBranch>) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.TreeOfThoughtsBlock ?: return
         updateBlock(block.copy(branches = branches))
     }
-
-    suspend fun completeTreeOfThoughts(blockId: String, bestPath: List<String>) {
+        suspend fun completeTreeOfThoughts(blockId: String, bestPath: List<String>) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.TreeOfThoughtsBlock ?: return
         completeBlock(block.copy(bestPath = bestPath))
     }
@@ -384,14 +362,13 @@ class OutputBlockStream(
         addBlock(OutputBlock.BerserkBlock.SkillChainBlock(id = id, skills = executions))
         return id
     }
-
-    suspend fun advanceSkillChain(blockId: String) {
+        suspend fun advanceSkillChain(blockId: String) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.SkillChainBlock ?: return
         val newSkills = block.skills.mapIndexed { i, skill ->
             when {
                 i < block.currentSkillIndex -> skill.copy(status = OutputBlock.BlockStatus.COMPLETED)
-                i == block.currentSkillIndex -> skill.copy(status = OutputBlock.BlockStatus.COMPLETED)
-                else -> skill
+        i == block.currentSkillIndex -> skill.copy(status = OutputBlock.BlockStatus.COMPLETED)
+        else -> skill
             }
         }
         val nextIndex = block.currentSkillIndex + 1
@@ -400,8 +377,7 @@ class OutputBlockStream(
         } else newSkills
         updateBlock(block.copy(skills = updatedSkills, currentSkillIndex = nextIndex))
     }
-
-    suspend fun completeSkillChain(blockId: String) {
+        suspend fun completeSkillChain(blockId: String) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.SkillChainBlock ?: return
         val newSkills = block.skills.map { it.copy(status = OutputBlock.BlockStatus.COMPLETED) }
         completeBlock(block.copy(skills = newSkills, currentSkillIndex = block.skills.size))
@@ -416,21 +392,19 @@ class OutputBlockStream(
         addBlock(OutputBlock.BerserkBlock.RacingBlock(id = id, racers = racerList))
         return id
     }
-
-    suspend fun updateRacerProgress(blockId: String, racerIndex: Int, progress: Float) {
+        suspend fun updateRacerProgress(blockId: String, racerIndex: Int, progress: Float) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.RacingBlock ?: return
         val newRacers = block.racers.mapIndexed { i, racer ->
             if (i == racerIndex) racer.copy(progress = progress) else racer
         }
         updateBlock(block.copy(racers = newRacers))
     }
-
-    suspend fun completeRacing(blockId: String, winnerIndex: Int, result: String) {
+        suspend fun completeRacing(blockId: String, winnerIndex: Int, result: String) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.RacingBlock ?: return
         val winnerId = block.racers.getOrNull(winnerIndex)?.id ?: ""
         val newRacers = block.racers.mapIndexed { i, racer ->
             if (i == winnerIndex) racer.copy(status = OutputBlock.BlockStatus.COMPLETED, progress = 1f, result = result)
-            else racer.copy(status = OutputBlock.BlockStatus.SKIPPED)
+        else racer.copy(status = OutputBlock.BlockStatus.SKIPPED)
         }
         completeBlock(block.copy(racers = newRacers, winnerId = winnerId))
     }
@@ -441,22 +415,19 @@ class OutputBlockStream(
         addBlock(OutputBlock.BerserkBlock.EvolutionBlock(id = id, mutationRate = mutationRate))
         return id
     }
-
-    suspend fun updateEvolutionGeneration(blockId: String, generation: Int, population: List<OutputBlock.BerserkBlock.EvolutionBlock.Individual>, bestFitness: Float) {
+        suspend fun updateEvolutionGeneration(blockId: String, generation: Int, population: List<OutputBlock.BerserkBlock.EvolutionBlock.Individual>, bestFitness: Float) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.EvolutionBlock ?: return
         updateBlock(block.copy(generation = generation, population = population, bestFitness = bestFitness))
     }
-
-    suspend fun completeEvolution(blockId: String, bestIndividual: OutputBlock.BerserkBlock.EvolutionBlock.Individual) {
+        suspend fun completeEvolution(blockId: String, bestIndividual: OutputBlock.BerserkBlock.EvolutionBlock.Individual) {
         val block = blockMap[blockId] as? OutputBlock.BerserkBlock.EvolutionBlock ?: return
         completeBlock(block.copy(population = listOf(bestIndividual), bestFitness = bestIndividual.fitness))
     }
 
     // ===== 清理 =====
-    fun clear() {
+        fun clear() {
         blockMap.clear()
         blockOrder.value = emptyList()
     }
-
-    fun getBlock(id: String): OutputBlock? = blockMap[id]
+        fun getBlock(id: String): OutputBlock? = blockMap[id]
 }

@@ -28,8 +28,7 @@ class VirtualDisplayManager private constructor(private val context: Context) {
             }
         }
     }
-
-    private var virtualDisplay: VirtualDisplay? = null
+        private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
     private var displayId: Int? = null
 
@@ -39,8 +38,7 @@ class VirtualDisplayManager private constructor(private val context: Context) {
         }
         return createVirtualDisplay()
     }
-
-    fun getDisplayId(): Int? = displayId
+        fun getDisplayId(): Int? = displayId
 
     fun release() {
         try {
@@ -82,14 +80,13 @@ class VirtualDisplayManager private constructor(private val context: Context) {
                 height,
                 Bitmap.Config.ARGB_8888
             )
-            bitmap.copyPixelsFromBuffer(buffer)
-
-            val cropped = Bitmap.createBitmap(bitmap, 0, 0, width, height)
-            bitmap.recycle()
-            cropped
+        bitmap.copyPixelsFromBuffer(buffer)
+        val cropped = Bitmap.createBitmap(bitmap, 0, 0, width, height)
+        bitmap.recycle()
+        cropped
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error capturing virtual display frame", e)
-            null
+        null
         } finally {
             try {
                 image?.close()
@@ -110,31 +107,29 @@ class VirtualDisplayManager private constructor(private val context: Context) {
                     return false
                 }
             }
-            true
+        true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error writing virtual display frame to file", e)
-            false
+        false
         } finally {
             bitmap.recycle()
         }
     }
-
-    private fun createVirtualDisplay(): Int? {
+        private fun createVirtualDisplay(): Int? {
         return try {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
             val metrics = DisplayMetrics()
             @Suppress("DEPRECATION")
-            windowManager.defaultDisplay.getRealMetrics(metrics)
-
-            val statusBarHeight = getStatusBarHeight()
+        windowManager.defaultDisplay.getRealMetrics(metrics)
+        val statusBarHeight = getStatusBarHeight()
         val width = metrics.widthPixels
             val height = (metrics.heightPixels - statusBarHeight).coerceAtLeast(1)
         val densityDpi = metrics.densityDpi
 
             val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
-            imageReader = reader
+        imageReader = reader
             val surface: Surface = reader.surface
 
             val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC or
@@ -148,21 +143,20 @@ class VirtualDisplayManager private constructor(private val context: Context) {
                 surface,
                 flags
             )
-            virtualDisplay = vd
+        virtualDisplay = vd
 
             val display = vd.display
         val id = display?.displayId
             displayId = id
 
             AppLogger.d(TAG, "Created virtual display id=${id}, size=${width}x${height}, density=${densityDpi}")
-            id
+        id
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to create virtual display", e)
-            null
+        null
         }
     }
-
-    private fun getStatusBarHeight(): Int {
+        private fun getStatusBarHeight(): Int {
         val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
         return if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId) else 0
     }

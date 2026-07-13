@@ -43,8 +43,7 @@ class AgentSystemConfigManager(private val context: Context) {
         private val KEY_LR = floatPreferencesKey("learning_rate")
         private val KEY_LOG_LEVEL = stringPreferencesKey("log_level")
     }
-
-    val configFlow: Flow<AgentSystemConfig> = context.agentSystemDataStore.data.map {
+        val configFlow: Flow<AgentSystemConfig> = context.agentSystemDataStore.data.map {
         AgentSystemConfig(
             enableKnowledgeGraph = it[KEY_ENABLE_KG] ?: true,
             enableFederatedLearning = it[KEY_ENABLE_FL] ?: true,
@@ -56,8 +55,7 @@ class AgentSystemConfigManager(private val context: Context) {
             logLevel = try { LogLevel.valueOf(it[KEY_LOG_LEVEL] ?: "INFO") } catch (e: Exception) { LogLevel.INFO }
         )
     }
-
-    suspend fun updateConfig(config: AgentSystemConfig) {
+        suspend fun updateConfig(config: AgentSystemConfig) {
         context.agentSystemDataStore.edit {
             it[KEY_ENABLE_KG] = config.enableKnowledgeGraph
             it[KEY_ENABLE_FL] = config.enableFederatedLearning

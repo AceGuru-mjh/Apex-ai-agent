@@ -37,16 +37,15 @@ data class HttpResponseData(
         sb.appendLine("Size: ${size} bytes")
 
         // 添加Cookie信息
-                if (cookies.isNotEmpty()) {
+        if (cookies.isNotEmpty()) {
             sb.appendLine("Cookies: ${cookies.size}")
-            cookies.entries.take(5).forEach { (name, value) ->
+        cookies.entries.take(5).forEach { (name, value) ->
                 sb.appendLine("  ${name}: ${value.take(30)}${if (value.length > 30) "..." else ""}")
             }
-            if (cookies.size > 5) {
+        if (cookies.size > 5) {
                 sb.appendLine("  ... and ${cookies.size - 5} more cookies")
             }
         }
-
         sb.appendLine()
         sb.appendLine("Content Summary:")
         sb.append(content)
@@ -76,50 +75,44 @@ data class VisitWebResultData(
 
     @Serializable
     data class LinkData(val url: String, val text: String)
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         visitKey?.let { sb.appendLine("Visit key: ${it}\n") }
-
         if (links.isNotEmpty()) {
             sb.appendLine("Results:")
-            links.take(MAX_INLINE_LINKS).forEachIndexed { index, link ->
+        links.take(MAX_INLINE_LINKS).forEachIndexed { index, link ->
                 sb.appendLine("[${index + 1}] ${link.text}")
             }
-            val omittedCount = links.size - MAX_INLINE_LINKS
+        val omittedCount = links.size - MAX_INLINE_LINKS
             if (omittedCount > 0) {
                 sb.appendLine("... (${omittedCount} more links omitted from inline preview)")
             }
-            sb.appendLine()
+        sb.appendLine()
         }
-
         if (imageLinks.isNotEmpty()) {
             sb.appendLine("Images:")
-            imageLinks.take(MAX_INLINE_IMAGES).forEachIndexed { index, link ->
+        imageLinks.take(MAX_INLINE_IMAGES).forEachIndexed { index, link ->
                 val name = link.substringAfterLast('/').substringBefore('?').ifBlank { "image" }
-                sb.appendLine("[${index + 1}] ${name}")
+        sb.appendLine("[${index + 1}] ${name}")
             }
-            val omittedCount = imageLinks.size - MAX_INLINE_IMAGES
+        val omittedCount = imageLinks.size - MAX_INLINE_IMAGES
             if (omittedCount > 0) {
                 sb.appendLine("... (${omittedCount} more images omitted from inline preview)")
             }
-            sb.appendLine()
+        sb.appendLine()
         }
-
         contentSavedTo?.let {
             sb.appendLine("Full content saved to file: ${it}")
-            originalContentLength?.let { totalChars ->
+        originalContentLength?.let { totalChars ->
                 sb.appendLine("Original content length: ${totalChars} chars")
             }
-            if (contentTruncated) {
+        if (contentTruncated) {
                 sb.appendLine("Use read_file_part or grep_code to inspect the saved file.")
             }
-            sb.appendLine()
+        sb.appendLine()
         }
-
         sb.appendLine(if (contentTruncated) "Content Preview:" else "Content:")
         sb.append(content)
-
         return sb.toString()
     }
 }
@@ -180,48 +173,41 @@ data class FFmpegResultData(
             val sampleRate: String? = null,
             val channels: Int? = null
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("FFmpeg Execution Result:")
         sb.appendLine("Command: ${command}")
         sb.appendLine("Return Code: ${returnCode}")
         sb.appendLine("Execution Time: ${duration}ms")
-
         outputFile?.let { sb.appendLine("Output File: ${it}") }
-
         mediaInfo?.let { info ->
             sb.appendLine("\nMedia Information:")
-            sb.appendLine("Format: ${info.format}")
-            sb.appendLine("Duration: ${info.duration}")
-            sb.appendLine("Bitrate: ${info.bitrate}")
-
-            if (info.videoStreams.isNotEmpty()) {
+        sb.appendLine("Format: ${info.format}")
+        sb.appendLine("Duration: ${info.duration}")
+        sb.appendLine("Bitrate: ${info.bitrate}")
+        if (info.videoStreams.isNotEmpty()) {
                 sb.appendLine("\nVideo Streams:")
-                info.videoStreams.forEach { stream ->
+        info.videoStreams.forEach { stream ->
                     sb.appendLine("  Index: ${stream.index}")
-                    sb.appendLine("  Codec: ${stream.codecName}")
-                    stream.resolution?.let { sb.appendLine("  Resolution: ${it}") }
-                    stream.frameRate?.let { sb.appendLine("  Frame Rate: ${it}") }
-                    sb.appendLine()
+        sb.appendLine("  Codec: ${stream.codecName}")
+        stream.resolution?.let { sb.appendLine("  Resolution: ${it}") }
+        stream.frameRate?.let { sb.appendLine("  Frame Rate: ${it}") }
+        sb.appendLine()
                 }
             }
-
-            if (info.audioStreams.isNotEmpty()) {
+        if (info.audioStreams.isNotEmpty()) {
                 sb.appendLine("\nAudio Streams:")
-                info.audioStreams.forEach { stream ->
+        info.audioStreams.forEach { stream ->
                     sb.appendLine("  Index: ${stream.index}")
-                    sb.appendLine("  Codec: ${stream.codecName}")
-                    stream.sampleRate?.let { sb.appendLine("  Sample Rate: ${it}") }
-                    stream.channels?.let { sb.appendLine("  Channels: ${it}") }
-                    sb.appendLine()
+        sb.appendLine("  Codec: ${stream.codecName}")
+        stream.sampleRate?.let { sb.appendLine("  Sample Rate: ${it}") }
+        stream.channels?.let { sb.appendLine("  Channels: ${it}") }
+        sb.appendLine()
                 }
             }
         }
-
         sb.appendLine("\nOutput Log:")
         sb.append(output)
-
         return sb.toString()
     }
 }

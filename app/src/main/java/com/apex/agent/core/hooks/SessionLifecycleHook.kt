@@ -26,8 +26,7 @@ data class SessionContext(
         put("tokenUsage", tokenUsage)
         put("environmentState", JSONObject(environmentState))
     }
-
-    companion object {
+        companion object {
         fun fromJson(json: JSONObject): SessionContext = SessionContext(
             sessionId = json.getString("sessionId"),
             startTime = json.getLong("startTime"),
@@ -66,16 +65,15 @@ interface SessionLifecycleHook {
 object HookRegistry {
 
     private const val TAG = "HookRegistry"
-
-    private val hooks = CopyOnWriteArrayList<SessionLifecycleHook>()
-    private val mutex = Mutex()
+        private val hooks = CopyOnWriteArrayList<SessionLifecycleHook>()
+        private val mutex = Mutex()
 
     /** 注册一个会话生命周期钩字*/
     suspend fun register(hook: SessionLifecycleHook) {
         mutex.withLock {
             if (hooks.none { it::class == hook::class }) {
                 hooks.add(hook)
-                AppLogger.d(TAG, "Registered hook: ${hook::class.simpleName}")
+        AppLogger.d(TAG, "Registered hook: ${hook::class.simpleName}")
             } else {
                 AppLogger.w(TAG, "Hook already registered: ${hook::class.simpleName}")
             }
@@ -86,7 +84,7 @@ object HookRegistry {
     suspend fun unregister(hook: SessionLifecycleHook) {
         mutex.withLock {
             hooks.remove(hook)
-            AppLogger.d(TAG, "Unregistered hook: ${hook::class.simpleName}")
+        AppLogger.d(TAG, "Unregistered hook: ${hook::class.simpleName}")
         }
     }
 
@@ -109,7 +107,7 @@ object HookRegistry {
         hooks.forEach { hook ->
             try {
                 val data = hook.onPreCompact(context, sessionContext)
-                collected.putAll(data)
+        collected.putAll(data)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error in onPreCompact hook: ${hook::class.simpleName}", e)
             }
@@ -145,7 +143,7 @@ object HookRegistry {
     suspend fun clearAll() {
         mutex.withLock {
             hooks.clear()
-            AppLogger.d(TAG, "All hooks cleared")
+        AppLogger.d(TAG, "All hooks cleared")
         }
     }
 }

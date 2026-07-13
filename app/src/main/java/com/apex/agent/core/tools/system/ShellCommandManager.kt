@@ -17,8 +17,8 @@ import java.util.*
 class ShellCommandManager(private val context: Context) {
     
     private val PREFS_NAME = "shell_executor_prefs"
-    private val KEY_COMMAND_HISTORY = "command_history"
-    private val MAX_HISTORY_SIZE = 100
+        private val KEY_COMMAND_HISTORY = "command_history"
+        private val MAX_HISTORY_SIZE = 100
     
     private val prefs: SharedPreferences by lazy {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -159,7 +159,7 @@ class ShellCommandManager(private val context: Context) {
         return try {
             // 在实际实现中，使用JSON解析库如Gson或Moshi来解析历史记，
            // 此处为简化，返回空列，
-                emptyList()
+        emptyList()
         } catch (e: Exception) {
             emptyList()
         }
@@ -172,7 +172,6 @@ class ShellCommandManager(private val context: Context) {
         val result = withContext(Dispatchers.IO) {
             AndroidShellExecutor.executeShellCommand(command)
         }
-        
         val record = CommandRecord(
             command = command,
             result = result,
@@ -180,8 +179,7 @@ class ShellCommandManager(private val context: Context) {
         )
         
         // 保存到历史记，
-                saveCommandToHistory(record)
-        
+        saveCommandToHistory(record)
         return record
     }
     
@@ -192,13 +190,13 @@ class ShellCommandManager(private val context: Context) {
         val history = getCommandHistory().toMutableList()
         
         // 如果已存在相同命令，移除旧记，
-                history.removeAll { it.command == record.command }
+        history.removeAll { it.command == record.command }
         
         // 添加新记录到列表头部
-                history.add(0, record)
+        history.add(0, record)
         
         // 限制历史记录大小
-    val trimmedHistory = history.take(MAX_HISTORY_SIZE)
+        val trimmedHistory = history.take(MAX_HISTORY_SIZE)
         
         // 保存到SharedPreferences
         // 在实际实现中，使用JSON序列化库将历史记录转换为JSON字符，
@@ -229,7 +227,6 @@ class ShellCommandManager(private val context: Context) {
     */
     fun getSuggestedCommands(prefix: String): List<String> {
         if (prefix.isBlank()) return emptyList()
-        
         val history = getCommandHistory()
         return history
             .map { it.command }

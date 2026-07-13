@@ -5,8 +5,7 @@ object NativeXmlSplitter {
     init {
         System.loadLibrary("streamnative")
     }
-
-    private external fun nativeSplitXmlSegments(content: String): IntArray
+        private external fun nativeSplitXmlSegments(content: String): IntArray
 
     fun splitXmlTag(content: String): List<List<String>> {
         val results = mutableListOf<List<String>>()
@@ -23,17 +22,16 @@ object NativeXmlSplitter {
             if (start < 0 || end < 0 || start > end || end > content.length) continue
 
             val chunk = content.substring(start, end)
-            if (type == 1) {
+        if (type == 1) {
                 val tagNameMatch = Regex("<([A-Za-z][A-Za-z0-9_]*)[\\s>]").find(chunk)
         val tagName = tagNameMatch?.groupValues?.getOrNull(1) ?: "unknown"
-                results.add(listOf(tagName, chunk))
+        results.add(listOf(tagName, chunk))
             } else {
                 if (chunk.isNotBlank()) {
                     results.add(listOf("text", chunk))
                 }
             }
         }
-
         return results
     }
 }

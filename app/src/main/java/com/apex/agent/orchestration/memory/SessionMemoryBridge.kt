@@ -32,10 +32,9 @@ class SessionMemoryBridge(
                 confidence = 1.0f
             )
         )
-
         for (agent in session.agents) {
             val agentNodeId = "agent_${agent.agentId}"
-            kg.addNode(
+        kg.addNode(
                 KnowledgeNode(
                     id = agentNodeId,
                     type = NodeType.AGENT,
@@ -49,7 +48,7 @@ class SessionMemoryBridge(
                     confidence = 1.0f
                 )
             )
-            kg.addEdge(
+        kg.addEdge(
                 KnowledgeEdge(
                     id = "edge_${sessionId}_${agent.agentId}_participated",
                     sourceId = agentNodeId,
@@ -58,10 +57,9 @@ class SessionMemoryBridge(
                 )
             )
         }
-
         for (decision in session.decisions.filter { it.status == DecisionStatus.AGREED }) {
             val decisionNodeId = "decision_${decision.id}"
-            kg.addNode(
+        kg.addNode(
                 KnowledgeNode(
                     id = decisionNodeId,
                     type = NodeType.FACT,
@@ -75,7 +73,7 @@ class SessionMemoryBridge(
                     confidence = 0.9f
                 )
             )
-            kg.addEdge(
+        kg.addEdge(
                 KnowledgeEdge(
                     id = "edge_dec_${decision.id}_session",
                     sourceId = decisionNodeId,
@@ -84,10 +82,9 @@ class SessionMemoryBridge(
                 )
             )
         }
-
         for (context in session.sharedContext.filter { it.isActive && it.category == ContextCategory.INSIGHT }) {
             val insightNodeId = "insight_${sessionId}_${context.key}"
-            kg.addNode(
+        kg.addNode(
                 KnowledgeNode(
                     id = insightNodeId,
                     type = NodeType.CONCEPT,
@@ -101,7 +98,7 @@ class SessionMemoryBridge(
                     confidence = context.confidence
                 )
             )
-            kg.addEdge(
+        kg.addEdge(
                 KnowledgeEdge(
                     id = "edge_insight_${context.key}_session",
                     sourceId = insightNodeId,
@@ -110,10 +107,9 @@ class SessionMemoryBridge(
                 )
             )
         }
-
         for (artifact in session.artifacts) {
             val artifactNodeId = "artifact_${artifact.id}"
-            kg.addNode(
+        kg.addNode(
                 KnowledgeNode(
                     id = artifactNodeId,
                     type = NodeType.TASK,
@@ -128,7 +124,7 @@ class SessionMemoryBridge(
                     confidence = 1.0f
                 )
             )
-            kg.addEdge(
+        kg.addEdge(
                 KnowledgeEdge(
                     id = "edge_artifact_${artifact.id}_session",
                     sourceId = artifactNodeId,
@@ -138,30 +134,27 @@ class SessionMemoryBridge(
             )
         }
     }
-
-    fun loadContextForNewSession(sessionId: String, agentId: String, agentRole: String): String {
+        fun loadContextForNewSession(sessionId: String, agentId: String, agentRole: String): String {
         val kg = knowledgeGraph ?: return ""
         val agentNodeId = "agent_$agentId"
         val agentNode = kg.getNode(agentNodeId) ?: return ""
         val neighbors = kg.getNeighbors(agentNodeId, maxDepth = 2)
         val relevantSessions = neighbors.map { it.first }.filter { it.type == NodeType.SESSION }
         if (relevantSessions.isEmpty()) return ""
-
         val sb = StringBuilder()
         sb.appendLine("Previous session context for $agentRole:")
         for (session in relevantSessions.take(3)) {
             sb.appendLine("- Previous task: ${session.content.take(100)}")
-            val sessionEdges = kg.getNeighbors(session.id, maxDepth = 1)
+        val sessionEdges = kg.getNeighbors(session.id, maxDepth = 1)
         val decisions = sessionEdges.map { it.first }.filter { it.type == NodeType.FACT }
-            if (decisions.isNotEmpty()) {
+        if (decisions.isNotEmpty()) {
                 sb.appendLine("  Relevant decisions:")
-                decisions.take(3).forEach { sb.appendLine("  * ${it.content.take(80)}") }
+        decisions.take(3).forEach { sb.appendLine("  * ${it.content.take(80)}") }
             }
         }
         return sb.toString()
     }
-
-    fun findRelevantKnowledge(query: String, limit: Int = 5): String {
+        fun findRelevantKnowledge(query: String, limit: Int = 5): String {
         val kg = knowledgeGraph ?: return ""
         val results = kg.semanticSearch(query, limit)
         if (results.isEmpty()) return ""

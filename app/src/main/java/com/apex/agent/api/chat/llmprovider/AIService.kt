@@ -19,7 +19,7 @@ interface AIService {
     val outputTokenCount: Int
 
     /** 获取供应，模型标识符，格式，DEEPSEEK:deepseek-chat" */"
-    val providerModel: String
+        val providerModel: String
 
     /** 重置token计数据/
     fun resetTokenCounts()
@@ -56,7 +56,7 @@ interface AIService {
             stream: Boolean = true,
             availableTools: List<ToolPrompt>? = null,
             preserveThinkInHistory: Boolean = false, // 新增参数，控制是否保留历史中的思考过满
-                onTokensUpdated: suspend (input: Int, cachedInput: Int, output: Int) -> Unit = { _, _, _ -> },
+        onTokensUpdated: suspend (input: Int, cachedInput: Int, output: Int) -> Unit = { _, _, _ -> },
             onNonFatalError: suspend (error: String) -> Unit = {},
             enableRetry: Boolean = true
     ): Stream<String>

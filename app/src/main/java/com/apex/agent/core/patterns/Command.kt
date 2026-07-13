@@ -10,7 +10,7 @@ import java.util.Stack
 /** 命令执行结果 */
 sealed class CommandResult<out T> {
     data class Success<T>(val data: T) : CommandResult<T>()
-    data class Failure(val error: String, val cause: Throwable? = null) : CommandResult<Nothing>()
+        data class Failure(val error: String, val cause: Throwable? = null) : CommandResult<Nothing>()
 }
 
 /**
@@ -43,7 +43,7 @@ data class CommandEntry<T>(
 class CommandHistory(private val maxSize: Int = 50) {
 
     private val undoStack = Stack<CommandEntry<*>>()
-    private val redoStack = Stack<CommandEntry<*>>()
+        private val redoStack = Stack<CommandEntry<*>>()
         val undoCount: Int get() = undoStack.size
     val redoCount: Int get() = redoStack.size
 
@@ -90,32 +90,28 @@ class CommandHistory(private val maxSize: Int = 50) {
  */
 class CommandInvoker {
     val history = CommandHistory()
-
-    suspend fun <T> execute(command: AgentCommand<T>): CommandResult<T> {
+        suspend fun <T> execute(command: AgentCommand<T>): CommandResult<T> {
         val result = command.execute()
         history.push(CommandEntry(command, result = result))
         return result
     }
-
-    suspend fun undo(): CommandResult<*>? {
+        suspend fun undo(): CommandResult<*>? {
         val entry = history.popUndo() ?: return null
         if (!entry.command.isReversible) {
             history.pushRedo(entry)
-            return CommandResult.Failure("Command ${entry.command.name} is not reversible")
+        return CommandResult.Failure("Command ${entry.command.name} is not reversible")
         }
         val result = entry.command.undo()
         history.pushRedo(entry.copy(result = result))
         return result
     }
-
-    suspend fun redo(): CommandResult<*>? {
+        suspend fun redo(): CommandResult<*>? {
         val entry = history.popRedo() ?: return null
         val result = entry.command.execute()
         history.push(entry.copy(result = result))
         return result
     }
-
-    fun getHistory(): List<CommandEntry<*>> = history.getHistory()
+        fun getHistory(): List<CommandEntry<*>> = history.getHistory()
 }
 
 /** 发送消息命令 */
@@ -124,7 +120,7 @@ class SendMessageCommand(
     private val sessionId: String
 ) : AgentCommand<String> {
     override val name = "SendMessage"
-    override val isReversible = false
+        override val isReversible = false
 
     override suspend fun execute(): CommandResult<String> {
         return if (content.isNotBlank()) {
@@ -133,8 +129,7 @@ class SendMessageCommand(
             CommandResult.Failure("Message content cannot be empty")
         }
     }
-
-    override suspend fun undo(): CommandResult<String> {
+        override suspend fun undo(): CommandResult<String> {
         return CommandResult.Failure("Cannot undo message sending")
     }
 }
@@ -145,13 +140,12 @@ class ExecuteToolCommand(
     private val params: Map<String, String>
 ) : AgentCommand<String> {
     override val name = "ExecuteTool:$toolName"
-    override val isReversible = true
+        override val isReversible = true
 
     override suspend fun execute(): CommandResult<String> {
         return CommandResult.Success("Executed $toolName with ${params.size} params")
     }
-
-    override suspend fun undo(): CommandResult<String> {
+        override suspend fun undo(): CommandResult<String> {
         return CommandResult.Success("Undone execution of $toolName")
     }
 }
@@ -163,13 +157,12 @@ class ModifyConfigCommand(
     private val newValue: String
 ) : AgentCommand<String> {
     override val name = "ModifyConfig"
-    override val isReversible = true
+        override val isReversible = true
 
     override suspend fun execute(): CommandResult<String> {
         return CommandResult.Success("Config $key changed from $oldValue to $newValue")
     }
-
-    override suspend fun undo(): CommandResult<String> {
+        override suspend fun undo(): CommandResult<String> {
         return CommandResult.Success("Config $key restored to $oldValue")
     }
 }

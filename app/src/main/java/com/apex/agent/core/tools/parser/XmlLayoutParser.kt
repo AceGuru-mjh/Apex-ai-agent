@@ -67,37 +67,35 @@ class XmlLayoutParser {
             val factory = XmlPullParserFactory.newInstance().apply {
                 isNamespaceAware = false
             }
-            val parser = factory.newPullParser().apply {
+        val parser = factory.newPullParser().apply {
                 setInput(StringReader(xml))
             }
-            
-            val nodeStack = mutableListOf<UINode>()
-            var rootNode: UINode? = null
+        val nodeStack = mutableListOf<UINode>()
+        var rootNode: UINode? = null
             
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 when (parser.eventType) {
                     XmlPullParser.START_TAG -> {
                         if (parser.name == "node") {
                             val newNode = createNode(parser)
-                            if (rootNode == null) {
+        if (rootNode == null) {
                                 rootNode = newNode
                                 nodeStack.add(newNode)
                             } else {
                                 nodeStack.lastOrNull()?.children?.add(newNode)
-                                nodeStack.add(newNode)
+        nodeStack.add(newNode)
                             }
                         }
                     }
-                    XmlPullParser.END_TAG -> {
+        XmlPullParser.END_TAG -> {
                         if (parser.name == "node") {
                             nodeStack.removeLastOrNull()
                         }
                     }
                 }
-                parser.next()
+        parser.next()
             }
-            
-            return rootNode?.toSimplifiedNode() ?: SimplifiedUINode(
+        return rootNode?.toSimplifiedNode() ?: SimplifiedUINode(
                 className = null,
                 text = null,
                 contentDesc = null,
@@ -109,7 +107,7 @@ class XmlLayoutParser {
             
         } catch (e: Exception) {
             AppLogger.e(TAG, "解析XML布局失败", e)
-            return SimplifiedUINode(
+        return SimplifiedUINode(
                 className = null,
                 text = null,
                 contentDesc = null,
@@ -130,16 +128,14 @@ class XmlLayoutParser {
      */
     fun findNodes(xml: String, predicate: (XmlPullParser) -> Boolean): List<NodeInfo> {
         val matchedNodes = mutableListOf<NodeInfo>()
-        
         try {
             val factory = XmlPullParserFactory.newInstance().apply {
                 isNamespaceAware = false
             }
-            val parser = factory.newPullParser().apply {
+        val parser = factory.newPullParser().apply {
                 setInput(StringReader(xml))
             }
-            
-            while (parser.eventType != XmlPullParser.END_DOCUMENT) {
+        while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 if (parser.eventType == XmlPullParser.START_TAG && parser.name == "node") {
                     if (predicate(parser)) {
                         matchedNodes.add(
@@ -153,13 +149,12 @@ class XmlLayoutParser {
                         )
                     }
                 }
-                parser.next()
+        parser.next()
             }
             
         } catch (e: Exception) {
             AppLogger.e(TAG, "查找节点失败", e)
         }
-        
         return matchedNodes
     }
     
@@ -174,36 +169,34 @@ class XmlLayoutParser {
             val factory = XmlPullParserFactory.newInstance().apply {
                 isNamespaceAware = false
             }
-            val parser = factory.newPullParser().apply {
+        val parser = factory.newPullParser().apply {
                 setInput(StringReader(xml))
             }
-            
-            var packageName: String? = null
+        var packageName: String? = null
             var activityName: String? = null
             
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 if (parser.eventType == XmlPullParser.START_TAG) {
                     // 尝试从hierarchy标签获取包名
-                if (parser.name == "hierarchy") {
+        if (parser.name == "hierarchy") {
                         packageName = parser.getAttributeValue(null, "rotation")?.let { 
                             // rotation属性通常不包含包名，需要从其他位置获取
-                null 
+        null 
                         }
                     }
                     
                     // 从第一个node标签获取包名
-                if (parser.name == "node" && packageName == null) {
+        if (parser.name == "node" && packageName == null) {
                         packageName = parser.getAttributeValue(null, "package")
                     }
                 }
-                parser.next()
+        parser.next()
             }
-            
-            return Pair(packageName, activityName)
+        return Pair(packageName, activityName)
             
         } catch (e: Exception) {
             AppLogger.e(TAG, "提取窗口信息失败", e)
-            return Pair(null, null)
+        return Pair(null, null)
         }
     }
     
@@ -215,23 +208,20 @@ class XmlLayoutParser {
      */
     fun parseBounds(boundsString: String): android.graphics.Rect {
         val rect = android.graphics.Rect()
-        
         try {
             // 解析 "[left,top][right,bottom]" 格式
-    val cleaned = boundsString.replace("[", "").replace("]", ",")
+        val cleaned = boundsString.replace("[", "").replace("]", ",")
         val parts = cleaned.split(",")
-            
-            if (parts.size >= 4) {
+        if (parts.size >= 4) {
                 rect.left = parts[0].trim().toInt()
-                rect.top = parts[1].trim().toInt()
-                rect.right = parts[2].trim().toInt()
-                rect.bottom = parts[3].trim().toInt()
+        rect.top = parts[1].trim().toInt()
+        rect.right = parts[2].trim().toInt()
+        rect.bottom = parts[3].trim().toInt()
             }
             
         } catch (e: Exception) {
             AppLogger.e(TAG, "解析边界坐标失败: ${boundsString}", e)
         }
-        
         return rect
     }
     
@@ -243,11 +233,9 @@ class XmlLayoutParser {
      */
     fun getBoundsCenter(boundsString: String): Pair<Int, Int>? {
         val rect = parseBounds(boundsString)
-        
         if (rect.isEmpty) {
             return null
         }
-        
         return Pair(rect.centerX(), rect.centerY())
     }
     
@@ -261,11 +249,9 @@ class XmlLayoutParser {
      */
     fun isBoundsInScreen(boundsString: String, screenWidth: Int, screenHeight: Int): Boolean {
         val rect = parseBounds(boundsString)
-        
         if (rect.isEmpty) {
             return false
         }
-        
         return rect.left >= 0 && rect.top >= 0 &&
                rect.right <= screenWidth && rect.bottom <= screenHeight
     }
@@ -280,13 +266,12 @@ class XmlLayoutParser {
      */
     private fun createNode(parser: XmlPullParser): UINode {
         // 解析关键属态
-    val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
+        val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
         val text = parser.getAttributeValue(null, "text")?.replace("&#10;", "\n")
         val contentDesc = parser.getAttributeValue(null, "content-desc")
         val resourceId = parser.getAttributeValue(null, "resource-id")
         val bounds = parser.getAttributeValue(null, "bounds")
         val isClickable = parser.getAttributeValue(null, "clickable") == "true"
-        
         return UINode(
             className = className,
             text = text,

@@ -28,47 +28,42 @@ data class SimplifiedUINode(
 ) {
     fun toTreeString(indent: String = ""): String {
         if (!shouldKeepNode()) return ""
-
         val sb = StringBuilder()
 
         // Node identifier
-                sb.append(indent)
+        sb.append(indent)
         if (isClickable) sb.append("，) else sb.append("，)
 
         // Class name
-                className?.let { sb.append("[${it}] ") }
+        className?.let { sb.append("[${it}] ") }
 
         // Text content (maximum 30 characters)
-                text?.takeIf { it.isNotBlank() }?.let {
+        text?.takeIf { it.isNotBlank() }?.let {
             val displayText = if (it.length > 30) "${it.take(27)}..." else it
             sb.append("T: \"${displayText}\" ")
         }
 
         // Content description
-                contentDesc?.takeIf { it.isNotBlank() }?.let { sb.append("D: \"${it}\" ") }
+        contentDesc?.takeIf { it.isNotBlank() }?.let { sb.append("D: \"${it}\" ") }
 
         // Resource ID
-                resourceId?.takeIf { it.isNotBlank() }?.let { sb.append("ID: ${it} ") }
+        resourceId?.takeIf { it.isNotBlank() }?.let { sb.append("ID: ${it} ") }
 
         // Bounds
-                bounds?.let { sb.append("，的${it}") }
-
+        bounds?.let { sb.append("，的${it}") }
         sb.append("\n")
 
         // Process children recursively
-                children.forEach { sb.append(it.toTreeString("${indent}  ")) }
-
+        children.forEach { sb.append(it.toTreeString("${indent}  ")) }
         return sb.toString()
     }
-
-    private fun shouldKeepNode(): Boolean {
+        private fun shouldKeepNode(): Boolean {
         // Keep conditions: key element types or has content or clickable or has children that
         // should be kept
-    val isKeyElement =
+        val isKeyElement =
                 className in
                         setOf("Button", "TextView", "EditText", "ScrollView", "Switch", "ImageView")
         val hasContent = !text.isNullOrBlank() || !contentDesc.isNullOrBlank()
-
         return isKeyElement || hasContent || isClickable || children.any { it.shouldKeepNode() }
     }
 }
@@ -125,7 +120,7 @@ data class CombinedOperationResultData(
 data class ComputerPageInfoNode(
     val interactionId: Int?,
     val type: String, // e.g., "container", "button", "link", "text", "input"
-    val description: String,
+        val description: String,
     val children: List<ComputerPageInfoNode>
 ) {
     fun toTreeString(level: Int = 0): String {
@@ -133,7 +128,6 @@ data class ComputerPageInfoNode(
         val idPrefix = interactionId?.let { "(${it}) " } ?: ""
         val typePrefix = if (type != "container" && type != "text") "，的${type}: " else ""
         val selfStr = "${indent}${idPrefix}${typePrefix}'${description.trim()}'"
-
         val childrenStr = if (children.isNotEmpty()) {
             "\n" + children.joinToString("\n") { it.toTreeString(level + 1) }
         } else {
@@ -160,21 +154,20 @@ data class ComputerDesktopActionResultData(
         val url: String,
         val isActive: Boolean
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("Computer Desktop Action: '${action}'")
         target?.let { sb.appendLine("Target: ${it}") }
         sb.appendLine("Result: ${resultSummary}")
         tabs?.let {
             sb.appendLine("\nOpen Tabs (${it.size}):")
-            it.forEach { tab ->
+        it.forEach { tab ->
                 sb.appendLine("- [${if (tab.isActive) "*" else " "}] ${tab.title} (${tab.url})")
             }
         }
         pageContent?.let {
             sb.appendLine("\n--- Page Content (Interactable Elements marked with ，---")
-            sb.append(it.toTreeString())
+        sb.append(it.toTreeString())
         }
         return sb.toString()
     }

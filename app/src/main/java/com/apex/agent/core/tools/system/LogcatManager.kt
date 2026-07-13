@@ -16,8 +16,8 @@ class LogcatManager(private val context: Context) {
     private val TAG = "LogcatManager"
 
     // 日志格式解析
-    private val logPattern = "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+([VDIWEAF])/(.*): (.*)".toRegex()
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+        private val logPattern = "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+([VDIWEAF])/(.*): (.*)".toRegex()
+        private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
 
 
     /**
@@ -32,7 +32,7 @@ class LogcatManager(private val context: Context) {
             logFile.readLines().mapNotNull { parseLogLine(it) }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to load initial logs", e)
-            emptyList()
+        emptyList()
         }
     }
 
@@ -58,15 +58,14 @@ class LogcatManager(private val context: Context) {
                 "W" -> LogLevel.WARNING
                 "E" -> LogLevel.ERROR
                 "A" -> LogLevel.FATAL // Assert as Fatal
-                else -> LogLevel.UNKNOWN
+        else -> LogLevel.UNKNOWN
             }
-            val timestamp = try {
+        val timestamp = try {
                 dateFormat.parse(timestampStr)?.time ?: System.currentTimeMillis()
             } catch (e: Exception) {
                 System.currentTimeMillis()
             }
-
-            return LogRecord(
+        return LogRecord(
                 timestamp = timestamp,
                 level = level,
                 tag = tag.trim(),
@@ -75,7 +74,7 @@ class LogcatManager(private val context: Context) {
         }
 
         // 非首行或异常格式（如堆栈跟踪），仍然显示出来
-                return if (line.isNotBlank()) {
+        return if (line.isNotBlank()) {
             LogRecord(
                 message = line,
                 level = LogLevel.UNKNOWN,

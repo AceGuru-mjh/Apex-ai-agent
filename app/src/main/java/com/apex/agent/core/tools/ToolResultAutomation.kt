@@ -33,33 +33,28 @@ data class AutomationConfigSearchResult(
         val fileName: String,
         val matchType: String  // "packageName" or "appName"
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("Automation Configuration Search Result:")
-
         if (!searchPackageName.isNullOrBlank()) {
             sb.appendLine("Search Package Name: ${searchPackageName}")
         }
         if (!searchAppName.isNullOrBlank()) {
             sb.appendLine("Search App Name: ${searchAppName}")
         }
-
         sb.appendLine("Found ${totalFound} matching configurations:")
-
         if (foundConfigs.isEmpty()) {
             sb.appendLine("No matching automation configurations found")
         } else {
             foundConfigs.forEach { config ->
                 sb.appendLine()
-                sb.appendLine("App Name: ${config.appName}")
-                sb.appendLine("Package Name: ${config.packageName}")
-                sb.appendLine("Description: ${config.description}")
-                sb.appendLine("Type: ${if (config.isBuiltIn) "Built-in" else "User Imported"}")
-                sb.appendLine("Match Type: ${if (config.matchType == "packageName") "Package Name" else "App Name"}")
+        sb.appendLine("App Name: ${config.appName}")
+        sb.appendLine("Package Name: ${config.packageName}")
+        sb.appendLine("Description: ${config.description}")
+        sb.appendLine("Type: ${if (config.isBuiltIn) "Built-in" else "User Imported"}")
+        sb.appendLine("Match Type: ${if (config.matchType == "packageName") "Package Name" else "App Name"}")
             }
         }
-
         return sb.toString()
     }
 }
@@ -83,29 +78,26 @@ data class AutomationPlanParametersResult(
         val isRequired: Boolean,
         val defaultValue: String?
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("Automation Plan Parameters Information:")
         sb.appendLine("Function Name: ${functionName}")
         targetPackageName?.let { sb.appendLine("Target App: ${it}") }
         sb.appendLine("Plan Description: ${planDescription}")
         sb.appendLine()
-
         if (requiredParameters.isEmpty()) {
             sb.appendLine("This function does not require additional parameters and can be executed directly.")
         } else {
             sb.appendLine("Required Parameters (${requiredParameters.size} total):")
-            requiredParameters.forEach { param ->
+        requiredParameters.forEach { param ->
                 sb.appendLine()
-                sb.appendLine("Parameter Name: ${param.key}")
-                sb.appendLine("Description: ${param.description}")
-                sb.appendLine("Type: ${param.type}")
-                sb.appendLine("Required: ${if (param.isRequired) "Yes" else "No"}")
-                param.defaultValue?.let { sb.appendLine("Default Value: ${it}") }
+        sb.appendLine("Parameter Name: ${param.key}")
+        sb.appendLine("Description: ${param.description}")
+        sb.appendLine("Type: ${param.type}")
+        sb.appendLine("Required: ${if (param.isRequired) "Yes" else "No"}")
+        param.defaultValue?.let { sb.appendLine("Default Value: ${it}") }
             }
         }
-
         return sb.toString()
     }
 }
@@ -131,8 +123,7 @@ data class AutomationExecutionResult(
         val packageName: String,
         val activityName: String
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("Automation Execution Result:")
         sb.appendLine("Function Name: ${functionName}")
@@ -140,25 +131,21 @@ data class AutomationExecutionResult(
         sb.appendLine("Execution Status: ${if (executionSuccess) "Success" else "Failure"}")
         sb.appendLine("Execution Steps: ${executionSteps}")
         sb.appendLine("Result Message: ${executionMessage}")
-
         if (!executionError.isNullOrBlank()) {
             sb.appendLine("Error Message: ${executionError}")
         }
-
         if (providedParameters.isNotEmpty()) {
             sb.appendLine("\nUsed Parameters:")
-            providedParameters.forEach { (key, value) ->
+        providedParameters.forEach { (key, value) ->
                 sb.appendLine("  ${key}: ${value}")
             }
         }
-
         finalState?.let { state ->
             sb.appendLine("\nFinal State:")
-            sb.appendLine("  Node ID: ${state.nodeId}")
-            sb.appendLine("  Package Name: ${state.packageName}")
-            sb.appendLine("  Activity: ${state.activityName}")
+        sb.appendLine("  Node ID: ${state.nodeId}")
+        sb.appendLine("  Package Name: ${state.packageName}")
+        sb.appendLine("  Activity: ${state.activityName}")
         }
-
         return sb.toString()
     }
 }
@@ -178,25 +165,22 @@ data class AutomationFunctionListResult(
         val description: String,
         val targetNodeName: String
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("Available Automation Functions:")
         packageName?.let { sb.appendLine("Package Name: ${it}") }
         sb.appendLine("Function Count: ${totalCount}")
         sb.appendLine()
-
         if (functions.isEmpty()) {
             sb.appendLine("No automation functions available")
         } else {
             functions.forEach { func ->
                 sb.appendLine("Function Name: ${func.name}")
-                sb.appendLine("Description: ${func.description}")
-                sb.appendLine("Target Page: ${func.targetNodeName}")
-                sb.appendLine()
+        sb.appendLine("Description: ${func.description}")
+        sb.appendLine("Target Page: ${func.targetNodeName}")
+        sb.appendLine()
             }
         }
-
         return sb.toString()
     }
 }

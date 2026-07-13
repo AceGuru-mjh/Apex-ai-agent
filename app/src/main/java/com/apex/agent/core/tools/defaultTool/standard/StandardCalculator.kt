@@ -17,9 +17,8 @@ class StandardCalculator {
         fun calculateExpression(expression: String): CalculationResultData {
             val result = CalcImpl.evalExpression(expression)
         val formattedResult = CalcImpl.formatResult(result)
-            val variables = getVariablesMap()
-
-            return CalculationResultData(
+        val variables = getVariablesMap()
+        return CalculationResultData(
                     expression = expression,
                     result = result,
                     formattedResult = formattedResult,
@@ -30,17 +29,15 @@ class StandardCalculator {
         /** 获取所有变量作为Map */
         private fun getVariablesMap(): Map<String, Double> {
             // 假设这些是CalcImpl内部常用的变重
-    val commonVars = listOf("ans", "pi", "e")
+        val commonVars = listOf("ans", "pi", "e")
         val result = mutableMapOf<String, Double>()
-
-            for (varName in commonVars) {
+        for (varName in commonVars) {
                 val value = getVariable(varName)
-                if (value != null) {
+        if (value != null) {
                     result[varName] = value
                 }
             }
-
-            return result
+        return result
         }
 
         /** 获取变量，/
@@ -66,7 +63,7 @@ class StandardCalculator {
         /** 格式化日期并返回结构化数据/
         fun formatDateStructured(date: Date, format: String): DateResultData {
             val formattedDate = CalcImpl.formatDate(date, format)
-            return DateResultData(
+        return DateResultData(
                     date = date.toString(),
                     format = format,
                     formattedDate = formattedDate

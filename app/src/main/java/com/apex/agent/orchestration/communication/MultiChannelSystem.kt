@@ -16,22 +16,19 @@ class MultiChannelSystem @Inject constructor(
     companion object {
         private const val MAX_MESSAGES = 100
     }
-
-    private val adapters = mutableMapOf<CommunicationChannel, ChannelAdapter>()
-    private val _messages = MutableStateFlow<List<Message>>(emptyList())
+        private val adapters = mutableMapOf<CommunicationChannel, ChannelAdapter>()
+        private val _messages = MutableStateFlow<List<Message>>(emptyList())
         val messages: StateFlow<List<Message>> = _messages
 
     fun registerAdapter(adapter: ChannelAdapter) {
         adapters[adapter.channel] = adapter
         adapter.initialize()
     }
-
-    fun unregisterAdapter(channel: CommunicationChannel) {
+        fun unregisterAdapter(channel: CommunicationChannel) {
         adapters[channel]?.shutdown()
         adapters.remove(channel)
     }
-
-    suspend fun sendMessage(
+        suspend fun sendMessage(
         content: String,
         channel: CommunicationChannel = CommunicationChannel.TEXT,
         receiverId: String = "user",
@@ -46,8 +43,7 @@ class MultiChannelSystem @Inject constructor(
         )
         return sendAgentMessage(agentMessage, channel)
     }
-
-    suspend fun sendAgentMessage(
+        suspend fun sendAgentMessage(
         agentMessage: AgentMessage,
         channel: CommunicationChannel = CommunicationChannel.TEXT
     ): Boolean {
@@ -59,13 +55,12 @@ class MultiChannelSystem @Inject constructor(
                 if (result.data) {
                     addMessage(Message(channel = channel, agentMessage = agentMessage))
                 }
-                result.data
+        result.data
             }
-            is Result.Failure -> false
+        is Result.Failure -> false
         }
     }
-
-    suspend fun broadcastMessage(
+        suspend fun broadcastMessage(
         content: String,
         receiverId: String = "user",
         senderId: String = "assistant"
@@ -76,8 +71,7 @@ class MultiChannelSystem @Inject constructor(
                 sendMessage(content, adapter.channel, receiverId, senderId)
             }
     }
-
-    private fun addMessage(message: Message) {
+        private fun addMessage(message: Message) {
         val current = _messages.value.toMutableList()
         current.add(message)
         if (current.size > MAX_MESSAGES) {
@@ -85,8 +79,7 @@ class MultiChannelSystem @Inject constructor(
         }
         _messages.value = current
     }
-
-    fun getAvailableChannels(): List<CommunicationChannel> {
+        fun getAvailableChannels(): List<CommunicationChannel> {
         return adapters.values.filter { it.isAvailable() }.map { it.channel }
     }
 }

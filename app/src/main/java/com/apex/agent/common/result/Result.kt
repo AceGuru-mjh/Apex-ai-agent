@@ -131,8 +131,7 @@ sealed class Result<out T> {
         is Success -> data
         is Failure -> throw error
     }
-
-    companion object {
+        companion object {
         /**
          * 创建一个成功的 Result。
          *

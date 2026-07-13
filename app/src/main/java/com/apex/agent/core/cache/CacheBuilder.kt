@@ -29,12 +29,12 @@ class CacheBuilder<V> {
     private var diskDefaultTtl: Long = -1L
 
     private var distributedUrl: String = ""
-    private var distributedMaxRetries: Int = 3
+        private var distributedMaxRetries: Int = 3
     private var distributedRetryDelayMs: Long = 100L
     private var distributedLocalBackup: Boolean = true
 
     private var policy: CachePolicy = CachePolicy.LruPolicy(500)
-    private var promotionThreshold: Long = 10L
+        private var promotionThreshold: Long = 10L
     private var demotionThreshold: Long = 3L
     private var writeBackIntervalMs: Long = 5000L
 

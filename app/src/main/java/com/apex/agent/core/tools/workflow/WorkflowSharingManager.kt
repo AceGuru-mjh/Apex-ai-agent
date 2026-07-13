@@ -29,31 +29,24 @@ class WorkflowSharingManager(private val context: Context) {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-
-    private val shareDir = File(context.filesDir, "workflow_shares").apply {
+        private val shareDir = File(context.filesDir, "workflow_shares").apply {
         if (!exists()) mkdirs()
     }
-
-    private val appScheme = "Apex"
-    private val appHost = "workflow"
-
-    suspend fun createShare(workflow: Workflow, expiresInDays: Int? = null): WorkflowShare = withContext(Dispatchers.IO) {
+        private val appScheme = "Apex"
+        private val appHost = "workflow"
+        suspend fun createShare(workflow: Workflow, expiresInDays: Int? = null): WorkflowShare = withContext(Dispatchers.IO) {
         val shareCode = generateShareCode()
         val expiresAt = expiresInDays?.let { System.currentTimeMillis() + it * 24 * 60 * 60 * 1000L }
-
         val share = WorkflowShare(
             workflowId = workflow.id,
             shareCode = shareCode,
             expiresAt = expiresAt
         )
-
         val workflowJson = json.encodeToString(workflow)
         saveShareData(share, workflowJson)
-
         share
     }
-
-    suspend fun getShareByCode(shareCode: String): WorkflowShare? = withContext(Dispatchers.IO) {
+        suspend fun getShareByCode(shareCode: String): WorkflowShare? = withContext(Dispatchers.IO) {
         val shareFile = File(shareDir, "${shareCode}.json")
         if (!shareFile.exists()) return@withContext null
 
@@ -63,46 +56,40 @@ class WorkflowSharingManager(private val context: Context) {
 
             if (share.expiresAt != null && System.currentTimeMillis() > share.expiresAt) {
                 shareFile.delete()
+        return@withContext null
+            }
+        if (share.maxUses != null && share.useCount >= share.maxUses) {
                 return@withContext null
             }
-
-            if (share.maxUses != null && share.useCount >= share.maxUses) {
-                return@withContext null
-            }
-
-            share
+        share
         } catch (e: Exception) {
             null
         }
     }
-
-    suspend fun importFromShare(shareCode: String): WorkflowImportResult = withContext(Dispatchers.IO) {
+        suspend fun importFromShare(shareCode: String): WorkflowImportResult = withContext(Dispatchers.IO) {
         try {
             val share = getShareByCode(shareCode)
-            if (share == null) {
+        if (share == null) {
                 return@withContext WorkflowImportResult(
                     success = false,
                     error = "Share not found or expired"
                 )
             }
-
-            val shareData = loadShareData(shareCode)
-            if (shareData == null) {
+        val shareData = loadShareData(shareCode)
+        if (shareData == null) {
                 return@withContext WorkflowImportResult(
                     success = false,
                     error = "Failed to load share data"
                 )
             }
-
-            val (_, workflowJson) = shareData
+        val (_, workflowJson) = shareData
             val workflow = json.decodeFromString<Workflow>(workflowJson)
         val newWorkflow = workflow.copy(
                 id = java.util.UUID.randomUUID().toString(),
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis()
             )
-
-            return@withContext WorkflowImportResult(
+        return@withContext WorkflowImportResult(
                 success = true,
                 workflow = newWorkflow
             )
@@ -113,12 +100,10 @@ class WorkflowSharingManager(private val context: Context) {
             )
         }
     }
-
-    suspend fun exportToJson(workflow: Workflow): String = withContext(Dispatchers.IO) {
+        suspend fun exportToJson(workflow: Workflow): String = withContext(Dispatchers.IO) {
         json.encodeToString(workflow)
     }
-
-    suspend fun importFromJson(jsonString: String): WorkflowImportResult = withContext(Dispatchers.IO) {
+        suspend fun importFromJson(jsonString: String): WorkflowImportResult = withContext(Dispatchers.IO) {
         try {
             val workflow = json.decodeFromString<Workflow>(jsonString)
         val newWorkflow = workflow.copy(
@@ -126,8 +111,7 @@ class WorkflowSharingManager(private val context: Context) {
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis()
             )
-
-            WorkflowImportResult(
+        WorkflowImportResult(
                 success = true,
                 workflow = newWorkflow
             )
@@ -138,17 +122,14 @@ class WorkflowSharingManager(private val context: Context) {
             )
         }
     }
-
-    suspend fun generateQRCode(shareCode: String, size: Int = 512): Bitmap = withContext(Dispatchers.IO) {
+        suspend fun generateQRCode(shareCode: String, size: Int = 512): Bitmap = withContext(Dispatchers.IO) {
         val shareUrl = "${appScheme}://${appHost}/share/${shareCode}"
         generateQRCodeBitmap(shareUrl, size, size)
     }
-
-    suspend fun generateShareUrl(share: WorkflowShare): String = withContext(Dispatchers.IO) {
+        suspend fun generateShareUrl(share: WorkflowShare): String = withContext(Dispatchers.IO) {
         "${appScheme}://${appHost}/share/${share.shareCode}"
     }
-
-    suspend fun createTemplate(
+        suspend fun createTemplate(
         workflow: Workflow,
         metadata: ShareMetadata
     ): WorkflowTemplate = withContext(Dispatchers.IO) {
@@ -165,35 +146,29 @@ class WorkflowSharingManager(private val context: Context) {
             updatedAt = System.currentTimeMillis()
         )
     }
-
-    private fun generateQRCodeBitmap(content: String, width: Int, height: Int): Bitmap {
+        private fun generateQRCodeBitmap(content: String, width: Int, height: Int): Bitmap {
         val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java).apply {
             put(EncodeHintType.CHARACTER_SET, "UTF-8")
-            put(EncodeHintType.MARGIN, 2)
-            put(EncodeHintType.ERROR_CORRECTION, com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.M)
+        put(EncodeHintType.MARGIN, 2)
+        put(EncodeHintType.ERROR_CORRECTION, com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.M)
         }
-
         val writer = QRCodeWriter()
         val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, width, height, hints)
-
         val pixels = IntArray(width * height)
         for (y in 0 until height) {
             for (x in 0 until width) {
                 pixels[y * width + x] = if (bitMatrix[x, y]) Color.BLACK else Color.WHITE
             }
         }
-
         return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
             setPixels(pixels, 0, width, 0, 0, width, height)
         }
     }
-
-    private fun generateShareCode(): String {
+        private fun generateShareCode(): String {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         return (1..12).map { chars.random() }.joinToString("")
     }
-
-    private fun saveShareData(share: WorkflowShare, workflowJson: String) {
+        private fun saveShareData(share: WorkflowShare, workflowJson: String) {
         val shareFile = File(shareDir, "${share.shareCode}.json")
         val shareJson = json.encodeToString(share)
         val combined = mapOf(
@@ -204,8 +179,7 @@ class WorkflowSharingManager(private val context: Context) {
             fos.write(json.encodeToString(combined).toByteArray(Charsets.UTF_8))
         }
     }
-
-    private fun loadShareData(shareCode: String): Pair<WorkflowShare, String>? {
+        private fun loadShareData(shareCode: String): Pair<WorkflowShare, String>? {
         val shareFile = File(shareDir, "${shareCode}.json")
         if (!shareFile.exists()) return null
 
@@ -213,19 +187,19 @@ class WorkflowSharingManager(private val context: Context) {
             FileInputStream(shareFile).use { fis ->
                 val content = fis.readBytes().toString(Charsets.UTF_8)
                 @Suppress("UNCHECKED_CAST")
-                val combined = json.decodeFromString<Map<String, Map<String, Any>>>(content)
+        val combined = json.decodeFromString<Map<String, Map<String, Any>>>(content)
         val shareJson = json.encodeToString(combined["share"])
-                val workflowJson = json.encodeToString(combined["workflow"])
+        val workflowJson = json.encodeToString(combined["workflow"])
         val share = json.decodeFromString<WorkflowShare>(shareJson)
-                Pair(share, workflowJson)
+        Pair(share, workflowJson)
             }
         } catch (e: Exception) {
             try {
                 FileInputStream(shareFile).use { fis ->
                     val content = fis.readBytes().toString(Charsets.UTF_8)
         val share = json.decodeFromString<WorkflowShare>(content)
-                    val workflowJson = "{}"
-                    Pair(share, workflowJson)
+        val workflowJson = "{}"
+        Pair(share, workflowJson)
                 }
             } catch (e2: Exception) {
                 null
@@ -255,16 +229,14 @@ suspend fun importWorkflowFromFile(file: File): Result<Workflow> = withContext(D
         if (!file.exists()) {
             return@withContext Result.failure(Exception("File not found"))
         }
-
         val json = Json {
             ignoreUnknownKeys = true
             encodeDefaults = true
         }
-
         FileInputStream(file).use { fis ->
             val content = fis.readBytes().toString(Charsets.UTF_8)
         val workflow = json.decodeFromString<Workflow>(content)
-            Result.success(workflow)
+        Result.success(workflow)
         }
     } catch (e: Exception) {
         Result.failure(e)

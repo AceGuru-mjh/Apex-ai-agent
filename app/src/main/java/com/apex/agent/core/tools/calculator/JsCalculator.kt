@@ -18,7 +18,7 @@ class JsCalculator {
             try {
                 val parser = ExpressionParser(expression)
         val expressionTree = parser.parse()
-                return expressionTree.evaluate()
+        return expressionTree.evaluate()
             } catch (e: Exception) {
                 throw IllegalArgumentException("Error evaluating expression: ${e.message}", e)
             }
@@ -42,7 +42,7 @@ class JsCalculator {
         */
         fun calc(expression: String): String {
             val result = evaluate(expression)
-            return formatResult(result)
+        return formatResult(result)
         }
 
         /**
@@ -79,7 +79,7 @@ class JsCalculator {
          */
         fun formatDate(date: Date, format: String): String {
             val formatter = java.text.SimpleDateFormat(format, java.util.Locale.getDefault())
-            return formatter.format(date)
+        return formatter.format(date)
         }
 
         /** 获取支持的单位转换类型/

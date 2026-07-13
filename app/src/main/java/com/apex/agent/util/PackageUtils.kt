@@ -26,7 +26,7 @@ object PackageUtils {
     fun getAppVersionName(context: Context): String? {
         return try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName
+        packageInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
@@ -41,11 +41,11 @@ object PackageUtils {
     fun getAppVersionCode(context: Context): Long? {
         return try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
                 @Suppress("DEPRECATION")
-                packageInfo.versionCode.toLong()
+        packageInfo.versionCode.toLong()
             }
         } catch (e: PackageManager.NameNotFoundException) {
             null
@@ -62,7 +62,7 @@ object PackageUtils {
         return try {
             val packageManager = context.packageManager
         val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
-            packageManager.getApplicationLabel(applicationInfo).toString()
+        packageManager.getApplicationLabel(applicationInfo).toString()
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
@@ -88,7 +88,7 @@ object PackageUtils {
         return try {
             val packageManager = context.packageManager
         val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
-            applicationInfo.loadIcon(packageManager)
+        applicationInfo.loadIcon(packageManager)
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
@@ -104,7 +104,7 @@ object PackageUtils {
     fun isAppInstalled(context: Context, packageName: String): Boolean {
         return try {
             context.packageManager.getPackageInfo(packageName, 0)
-            true
+        true
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
@@ -121,7 +121,7 @@ object PackageUtils {
         return try {
             val pkg = packageName ?: context.packageName
         val packageInfo = context.packageManager.getPackageInfo(pkg, 0)
-            packageInfo.firstInstallTime
+        packageInfo.firstInstallTime
         } catch (e: PackageManager.NameNotFoundException) {
             -1L
         }
@@ -138,7 +138,7 @@ object PackageUtils {
         return try {
             val pkg = packageName ?: context.packageName
         val packageInfo = context.packageManager.getPackageInfo(pkg, 0)
-            packageInfo.lastUpdateTime
+        packageInfo.lastUpdateTime
         } catch (e: PackageManager.NameNotFoundException) {
             -1L
         }
@@ -165,7 +165,7 @@ object PackageUtils {
     fun isSystemApp(context: Context, packageName: String): Boolean {
         return try {
             val applicationInfo = context.packageManager.getApplicationInfo(packageName, 0)
-            applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
+        applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
@@ -181,7 +181,7 @@ object PackageUtils {
     fun getAppPermissions(context: Context, packageName: String): Array<String> {
         return try {
             val packageInfo = context.packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-            packageInfo.requestedPermissions ?: emptyArray()
+        packageInfo.requestedPermissions ?: emptyArray()
         } catch (e: PackageManager.NameNotFoundException) {
             emptyArray()
         }
@@ -198,12 +198,12 @@ object PackageUtils {
         return try {
             val pkg = packageName ?: context.packageName
         val packageInfo = context.packageManager.getPackageInfo(pkg, PackageManager.GET_SIGNATURES)
-            val signatures = packageInfo.signatures
+        val signatures = packageInfo.signatures
             if (signatures != null && signatures.isNotEmpty()) {
                 val cert = signatures[0].toByteArray()
         val md = MessageDigest.getInstance("SHA-1")
-                val digest = md.digest(cert)
-                CryptoUtils.byteArrayToHex(digest)
+        val digest = md.digest(cert)
+        CryptoUtils.byteArrayToHex(digest)
             } else {
                 null
             }
@@ -221,9 +221,9 @@ object PackageUtils {
     fun openApp(context: Context, packageName: String) {
         try {
             val intent = context.packageManager.getLaunchIntentForPackage(packageName)
-            if (intent != null) {
+        if (intent != null) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
+        context.startActivity(intent)
             }
         } catch (e: Exception) {
             // 静默处理启动失败
@@ -240,9 +240,9 @@ object PackageUtils {
         try {
             val intent = Intent(Intent.ACTION_DELETE).apply {
                 data = Uri.parse("package:$packageName")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            context.startActivity(intent)
+        context.startActivity(intent)
         } catch (e: Exception) {
             // 静默处理卸载失败
         }
@@ -259,7 +259,7 @@ object PackageUtils {
         return try {
             val pkg = packageName ?: context.packageName
         val applicationInfo = context.packageManager.getApplicationInfo(pkg, 0)
-            applicationInfo.targetSdkVersion
+        applicationInfo.targetSdkVersion
         } catch (e: PackageManager.NameNotFoundException) {
             -1
         }
@@ -277,7 +277,7 @@ object PackageUtils {
             val pkg = packageName ?: context.packageName
         val applicationInfo = context.packageManager.getApplicationInfo(pkg, 0)
             @Suppress("DEPRECATION")
-            applicationInfo.minSdkVersion
+        applicationInfo.minSdkVersion
         } catch (e: PackageManager.NameNotFoundException) {
             -1
         }

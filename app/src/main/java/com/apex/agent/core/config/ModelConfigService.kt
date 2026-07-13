@@ -20,10 +20,9 @@ import kotlinx.coroutines.sync.withLock
 class ModelConfigService private constructor(private val context: Context) {
 
     // 单例模式
-                companion object {
+        companion object {
         private var instance: ModelConfigService? = null
         private val mutex = Mutex()
-
         fun getInstance(context: Context): ModelConfigService {
             return instance ?: synchronized(this) {
                 instance ?: ModelConfigService(context.applicationContext).also {
@@ -35,33 +34,33 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 依赖的管理器
-    private val modelConfigManager by lazy { ModelConfigManager(context) }
-    private val functionalConfigManager by lazy { FunctionalConfigManager(context) }
+        private val modelConfigManager by lazy { ModelConfigManager(context) }
+        private val functionalConfigManager by lazy { FunctionalConfigManager(context) }
 
     // 当前活跃的配置ID
-    private val _activeConfigId = MutableStateFlow(ModelConfigManager.DEFAULT_CONFIG_ID)
+        private val _activeConfigId = MutableStateFlow(ModelConfigManager.DEFAULT_CONFIG_ID)
         val activeConfigId: StateFlow<String> = _activeConfigId.asStateFlow()
 
     // 当前活跃的配置
-    private val _activeConfig = MutableStateFlow<ModelConfigData?>(null)
+        private val _activeConfig = MutableStateFlow<ModelConfigData?>(null)
         val activeConfig: StateFlow<ModelConfigData?> = _activeConfig.asStateFlow()
 
     // 配置列表
-    private val _configList = MutableStateFlow<List<String>>(emptyList())
+        private val _configList = MutableStateFlow<List<String>>(emptyList())
         val configList: StateFlow<List<String>> = _configList.asStateFlow()
 
     // 配置缓存，使用ConcurrentHashMap提高并发性能
-    private val configCache = ConcurrentHashMap<String, ModelConfigData>()
+        private val configCache = ConcurrentHashMap<String, ModelConfigData>()
 
     // 缓存操作互斥错
-    private val cacheMutex = Mutex()
+        private val cacheMutex = Mutex()
 
     // 配置变更通知
-    private val _configChangeEvent = MutableSharedFlow<ConfigChangeEvent>()
+        private val _configChangeEvent = MutableSharedFlow<ConfigChangeEvent>()
         val configChangeEvent = _configChangeEvent.asSharedFlow()
 
     // 配置变更事件类型
-                sealed class ConfigChangeEvent {
+        sealed class ConfigChangeEvent {
         data class ActiveConfigChanged(val configId: String) : ConfigChangeEvent()
         data class ConfigAdded(val configId: String) : ConfigChangeEvent()
         data class ConfigDeleted(val configId: String) : ConfigChangeEvent()
@@ -69,7 +68,7 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 配置模板数据类
-                data class ModelConfigTemplate(
+        data class ModelConfigTemplate(
         val name: String,
         val providerType: com.apex.data.model.ApiProviderType,
         val modelName: String,
@@ -77,9 +76,9 @@ class ModelConfigService private constructor(private val context: Context) {
     )
 
     // 预定义的配置模板 - 支持所有主流API和本地部署模型
-    val CONFIG_TEMPLATES = listOf(
+        val CONFIG_TEMPLATES = listOf(
         // ========== OpenAI 系列 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "OpenAI GPT-4o",
             providerType = com.apex.data.model.ApiProviderType.OPENAI,
             modelName = "gpt-4o",
@@ -111,7 +110,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== Anthropic Claude 系列 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "Claude 3.5 Sonnet",
             providerType = com.apex.data.model.ApiProviderType.ANTHROPIC,
             modelName = "claude-3-5-sonnet-20240620",
@@ -143,7 +142,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== Google Gemini 系列 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "Gemini 2.0 Flash",
             providerType = com.apex.data.model.ApiProviderType.GOOGLE,
             modelName = "gemini-2.0-flash",
@@ -169,7 +168,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== DeepSeek 系列 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "DeepSeek V4",
             providerType = com.apex.data.model.ApiProviderType.DEEPSEEK,
             modelName = "deepseek-v4",
@@ -231,7 +230,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== Mistral AI 系列 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "Mistral Large 2",
             providerType = com.apex.data.model.ApiProviderType.MISTRAL,
             modelName = "mistral-large-2",
@@ -257,7 +256,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== 国内厂商 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "阿里于Qwen 2.5",
             providerType = com.apex.data.model.ApiProviderType.ALIYUN,
             modelName = "qwen-turbo",
@@ -307,7 +306,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== Coding 专用模型 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "Code Llama 70B",
             providerType = com.apex.data.model.ApiProviderType.CODECLLAMA,
             modelName = "codellama-70b-instruct",
@@ -339,7 +338,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== 国际厂商 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "Groq Llama 3.1 70B",
             providerType = com.apex.data.model.ApiProviderType.GROQ,
             modelName = "llama-3.1-70b-versatile",
@@ -401,7 +400,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== AWS Bedrock ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "AWS Bedrock Claude 3.5",
             providerType = com.apex.data.model.ApiProviderType.AWS_BEDROCK,
             modelName = "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -415,7 +414,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== Azure OpenAI ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "Azure OpenAI GPT-4o",
             providerType = com.apex.data.model.ApiProviderType.AZURE_OPENAI,
             modelName = "gpt-4o",
@@ -429,7 +428,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== 本地部署 - Ollama ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "Ollama Llama 3.1 8B",
             providerType = com.apex.data.model.ApiProviderType.OLLAMA,
             modelName = "llama3.1:8b",
@@ -479,7 +478,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== 本地部署 - LM Studio ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "LM Studio Llama 3.1 8B",
             providerType = com.apex.data.model.ApiProviderType.LMSTUDIO,
             modelName = "lmstudio-community/Llama-3.1-8B-Instruct-GGUF",
@@ -499,7 +498,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== 本地部署 - LocalAI ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "LocalAI Llama 3.1 8B",
             providerType = com.apex.data.model.ApiProviderType.LOCALAI,
             modelName = "llama3.1",
@@ -513,7 +512,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== 本地部署 - vLLM ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "vLLM Llama 3.1 8B",
             providerType = com.apex.data.model.ApiProviderType.VLLM,
             modelName = "meta-llama/Llama-3.1-8B-Instruct",
@@ -527,7 +526,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== OpenRouter 聚合 ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "OpenRouter Claude 3.5 Sonnet",
             providerType = com.apex.data.model.ApiProviderType.OPENROUTER,
             modelName = "anthropic/claude-3.5-sonnet",
@@ -553,7 +552,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== NVIDIA NIM ==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "NVIDIA Llama 3.1 70B",
             providerType = com.apex.data.model.ApiProviderType.NVIDIA,
             modelName = "meta/llama3.1-70b-instruct",
@@ -567,7 +566,7 @@ class ModelConfigService private constructor(private val context: Context) {
         ),
 
         // ========== SiliconFlow (硅基流动，==========
-                ModelConfigTemplate(
+        ModelConfigTemplate(
             name = "SiliconFlow Qwen 2.5",
             providerType = com.apex.data.model.ApiProviderType.SILICONFLOW,
             modelName = "Qwen/Qwen2.5-7B-Instruct",
@@ -582,40 +581,40 @@ class ModelConfigService private constructor(private val context: Context) {
     )
 
     // 初始化
-    private fun initialize() {
+        private fun initialize() {
         CoroutineScope(Dispatchers.IO).launch {
             // 初始化配置管理器
-                modelConfigManager.initializeIfNeeded()
-            functionalConfigManager.initializeIfNeeded()
+        modelConfigManager.initializeIfNeeded()
+        functionalConfigManager.initializeIfNeeded()
 
             // 加载配置列表
-                modelConfigManager.configListFlow.collectLatest {
+        modelConfigManager.configListFlow.collectLatest {
                 _configList.value = it
             }
 
             // 加载当前活跃配置
-                loadActiveConfig()
+        loadActiveConfig()
         }
     }
 
     // 从缓存或加载配置
-                private suspend fun getConfigFromCacheOrLoad(configId: String): ModelConfigData {
+        private suspend fun getConfigFromCacheOrLoad(configId: String): ModelConfigData {
         // 先从缓存中获取
-                configCache[configId]?.let { return it }
+        configCache[configId]?.let { return it }
 
         // 从ModelConfigManager加载
-    val config = modelConfigManager.getModelConfig(configId)
+        val config = modelConfigManager.getModelConfig(configId)
 
         // 更新缓存
-                configCache[configId] = config
+        configCache[configId] = config
         return config
     }
 
     // 加载当前活跃配置
-                private suspend fun loadActiveConfig() {
+        private suspend fun loadActiveConfig() {
         mutex.withLock {
             // 获取对话功能当前绑定的模型配置
-    val chatConfigId = functionalConfigManager.getConfigIdForFunction(com.apex.data.model.FunctionType.CHAT)
+        val chatConfigId = functionalConfigManager.getConfigIdForFunction(com.apex.data.model.FunctionType.CHAT)
         val availableConfigIds = _configList.value
 
             val configId = availableConfigIds.firstOrNull { it == chatConfigId }
@@ -625,66 +624,65 @@ class ModelConfigService private constructor(private val context: Context) {
             _activeConfigId.value = configId
 
             // 加载配置详情
-                modelConfigManager.getModelConfigFlow(configId).collectLatest {
+        modelConfigManager.getModelConfigFlow(configId).collectLatest {
                 _activeConfig.value = it
                 // 更新缓存
-                configCache[configId] = it
+        configCache[configId] = it
             }
         }
     }
 
     // 设置活跃配置
-    suspend fun setActiveConfig(configId: String) {
+        suspend fun setActiveConfig(configId: String) {
         mutex.withLock {
             _activeConfigId.value = configId
             // 同时更新功能配置，确保所有功能使用相同的配置
-                functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.CHAT, configId)
-            functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.TOOL_CALL, configId)
-            functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.IMAGE_GENERATION, configId)
-            functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.TEXT_TO_SPEECH, configId)
-            functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.SPEECH_TO_TEXT, configId)
+        functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.CHAT, configId)
+        functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.TOOL_CALL, configId)
+        functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.IMAGE_GENERATION, configId)
+        functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.TEXT_TO_SPEECH, configId)
+        functionalConfigManager.setConfigIdForFunction(com.apex.data.model.FunctionType.SPEECH_TO_TEXT, configId)
             // 发布配置变更通知
-                _configChangeEvent.emit(ConfigChangeEvent.ActiveConfigChanged(configId))
+        _configChangeEvent.emit(ConfigChangeEvent.ActiveConfigChanged(configId))
         }
     }
 
     // 获取当前活跃配置
-    suspend fun getCurrentConfig(): ModelConfigData? {
+        suspend fun getCurrentConfig(): ModelConfigData? {
         return _activeConfig.value ?: run {
             loadActiveConfig()
-            _activeConfig.value
+        _activeConfig.value
         }
     }
 
     // 刷新配置
-    suspend fun refreshConfig() {
+        suspend fun refreshConfig() {
         loadActiveConfig()
     }
 
     // 创建新配置
-    suspend fun createConfig(name: String): String {
+        suspend fun createConfig(name: String): String {
         val configId = modelConfigManager.createConfig(name)
         // 发布配置变更通知
-                _configChangeEvent.emit(ConfigChangeEvent.ConfigAdded(configId))
+        _configChangeEvent.emit(ConfigChangeEvent.ConfigAdded(configId))
         // 自动切换到新创建的配置
-                setActiveConfig(configId)
+        setActiveConfig(configId)
         return configId
     }
 
     // 删除配置
-    suspend fun deleteConfig(configId: String) {
+        suspend fun deleteConfig(configId: String) {
         if (configId == ModelConfigManager.DEFAULT_CONFIG_ID) {
             return // 不允许删除默认配置
         }
-
         modelConfigManager.deleteConfig(configId)
         // 从缓存中删除
-                configCache.remove(configId)
+        configCache.remove(configId)
         // 发布配置变更通知
-                _configChangeEvent.emit(ConfigChangeEvent.ConfigDeleted(configId))
+        _configChangeEvent.emit(ConfigChangeEvent.ConfigDeleted(configId))
 
         // 如果删除的是当前活跃配置，切换到其他配置
-                if (_activeConfigId.value == configId) {
+        if (_activeConfigId.value == configId) {
             val availableConfigIds = _configList.value
         val newConfigId = availableConfigIds.firstOrNull() ?: ModelConfigManager.DEFAULT_CONFIG_ID
             setActiveConfig(newConfigId)
@@ -692,24 +690,24 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 重命名配置
-    suspend fun renameConfig(configId: String, newName: String) {
+        suspend fun renameConfig(configId: String, newName: String) {
         modelConfigManager.updateConfigBase(configId, newName)
         // 更新缓存
-                configCache[configId]?.let {
+        configCache[configId]?.let {
             val updatedConfig = it.copy(name = newName)
-            configCache[configId] = updatedConfig
+        configCache[configId] = updatedConfig
         }
         // 发布配置变更通知
-                _configChangeEvent.emit(ConfigChangeEvent.ConfigUpdated(configId))
+        _configChangeEvent.emit(ConfigChangeEvent.ConfigUpdated(configId))
     }
 
     // 根据模板创建配置
-    suspend fun createConfigFromTemplate(template: ModelConfigTemplate, customName: String? = null): String {
+        suspend fun createConfigFromTemplate(template: ModelConfigTemplate, customName: String? = null): String {
         val configName = customName ?: template.name
         val configId = modelConfigManager.createConfig(configName)
 
         // 根据模板设置配置
-                modelConfigManager.updateModelConfig(
+        modelConfigManager.updateModelConfig(
             configId = configId,
             apiKey = "",
             apiEndpoint = template.apiEndpoint,
@@ -718,18 +716,17 @@ class ModelConfigService private constructor(private val context: Context) {
         )
 
         // 发布配置变更通知
-                _configChangeEvent.emit(ConfigChangeEvent.ConfigAdded(configId))
+        _configChangeEvent.emit(ConfigChangeEvent.ConfigAdded(configId))
         // 自动切换到新创建的配置
-                setActiveConfig(configId)
+        setActiveConfig(configId)
         return configId
     }
 
     // 获取所有配置模权
-    fun getConfigTemplates(): List<ModelConfigTemplate> {
+        fun getConfigTemplates(): List<ModelConfigTemplate> {
         return CONFIG_TEMPLATES
     }
-
-    suspend fun getConfigById(configId: String): ModelConfigData? {
+        suspend fun getConfigById(configId: String): ModelConfigData? {
         return try {
             getConfigFromCacheOrLoad(configId)
         } catch (e: Exception) {
@@ -738,37 +735,37 @@ class ModelConfigService private constructor(private val context: Context) {
     }
 
     // 获取所有配置摘要
-    suspend fun getAllConfigSummaries() = modelConfigManager.getAllConfigSummaries()
+        suspend fun getAllConfigSummaries() = modelConfigManager.getAllConfigSummaries()
 
     // 导出所有配置
-    suspend fun exportAllConfigs() = modelConfigManager.exportAllConfigs()
+        suspend fun exportAllConfigs() = modelConfigManager.exportAllConfigs()
 
     // 导入配置
-    suspend fun importConfigs(jsonContent: String): Triple<Int, Int, Int> {
+        suspend fun importConfigs(jsonContent: String): Triple<Int, Int, Int> {
         val result = modelConfigManager.importConfigs(jsonContent)
         // 导入后清除缓存，确保下次加载最新配置
-                configCache.clear()
+        configCache.clear()
         return result
     }
 
     // 预加载所有配置到缓存
-    suspend fun preloadConfigs() {
+        suspend fun preloadConfigs() {
         modelConfigManager.preloadConfigs()
         // 从ModelConfigManager的缓存同步到当前服务的缓字
-    val configList = _configList.value
+        val configList = _configList.value
         for (configId in configList) {
             getConfigFromCacheOrLoad(configId)
         }
     }
 
     // 清除配置缓存
-    fun clearConfigCache() {
+        fun clearConfigCache() {
         configCache.clear()
         modelConfigManager.clearConfigCache()
     }
 
     // 获取配置缓存状态
-    fun getCacheSize(): Int {
+        fun getCacheSize(): Int {
         return configCache.size
     }
 
@@ -777,29 +774,29 @@ class ModelConfigService private constructor(private val context: Context) {
      */
     fun validateConfig(config: ModelConfigData): Pair<Boolean, String> {
         // 验证配置名称
-                if (config.name.isBlank()) {
+        if (config.name.isBlank()) {
             return Pair(false, "配置名称不能为空")
         }
 
         // 验证API提供商类型
-                if (config.apiProviderType == com.apex.data.model.ApiProviderType.OTHER) {
+        if (config.apiProviderType == com.apex.data.model.ApiProviderType.OTHER) {
             // 对于自定义提供商，需要验证API端点
-                if (config.apiEndpoint.isBlank()) {
+        if (config.apiEndpoint.isBlank()) {
                 return Pair(false, "自定义API提供商需要设置API端点")
             }
             // 验证API端点格式
-                if (!config.apiEndpoint.startsWith("http://") && !config.apiEndpoint.startsWith("https://")) {
-                return Pair(false, "API端点格式无效，需要以http://或https://开失")
+        if (!config.apiEndpoint.startsWith("http://") && !config.apiEndpoint.startsWith("https://")) {
+        return Pair(false, "API端点格式无效，需要以http://或https://开失")
             }
         }
 
         // 验证模型名称
-                if (config.modelName.isBlank()) {
+        if (config.modelName.isBlank()) {
             return Pair(false, "模型名称不能为空")
         }
 
         // 验证API密钥（某些提供商需要）
-    val providersRequiringKey = listOf(
+        val providersRequiringKey = listOf(
             com.apex.data.model.ApiProviderType.OPENAI,
             com.apex.data.model.ApiProviderType.ANTHROPIC,
             com.apex.data.model.ApiProviderType.GOOGLE,
@@ -815,11 +812,9 @@ class ModelConfigService private constructor(private val context: Context) {
             com.apex.data.model.ApiProviderType.CEREBRAS,
             com.apex.data.model.ApiProviderType.NVIDIA
         )
-
         if (providersRequiringKey.contains(config.apiProviderType) && config.apiKey.isBlank()) {
             return Pair(false, "该API提供商需要设置API密钥")
         }
-
         return Pair(true, "配置有效")
     }
 }

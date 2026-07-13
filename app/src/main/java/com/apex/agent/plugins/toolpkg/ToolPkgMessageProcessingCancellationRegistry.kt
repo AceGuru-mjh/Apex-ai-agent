@@ -6,9 +6,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 object ToolPkgMessageProcessingCancellationRegistry {
     private const val TAG = "ToolPkgMsgCancelRegistry"
-
-    private val controllers = ConcurrentHashMap<String, MessageProcessingController>()
-    private val pendingCancels = ConcurrentHashMap.newKeySet<String>()
+        private val controllers = ConcurrentHashMap<String, MessageProcessingController>()
+        private val pendingCancels = ConcurrentHashMap.newKeySet<String>()
 
     @JvmStatic
     fun register(executionId: String, controller: MessageProcessingController): Boolean {
@@ -16,16 +15,15 @@ object ToolPkgMessageProcessingCancellationRegistry {
         if (key.isBlank()) {
             return false
         }
-
         controllers[key] = controller
         if (pendingCancels.remove(key)) {
             controllers.remove(key, controller)
-            runCatching {
+        runCatching {
                 controller.cancel()
             }.onFailure { error ->
                 AppLogger.e(TAG, "Failed to cancel pending execution on register: ${key}", error)
             }
-            return false
+        return false
         }
         return true
     }
@@ -47,13 +45,11 @@ object ToolPkgMessageProcessingCancellationRegistry {
         if (key.isBlank()) {
             return false
         }
-
         val controller = controllers.remove(key)
         if (controller == null) {
             pendingCancels.add(key)
-            return false
+        return false
         }
-
         runCatching {
             controller.cancel()
         }.onFailure { error ->

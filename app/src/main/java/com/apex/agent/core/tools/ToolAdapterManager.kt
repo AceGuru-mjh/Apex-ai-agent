@@ -11,15 +11,14 @@ import com.apex.core.tools.adapters.QuickSearchToolAdapter
 object ToolAdapterManager {
 
     // 工具执行历史
-    private val executionHistory = mutableListOf<ToolExecutionRecord>()
-    private val MAX_HISTORY_SIZE = 100
+        private val executionHistory = mutableListOf<ToolExecutionRecord>()
+        private val MAX_HISTORY_SIZE = 100
     
     // 工具使用统计
-    private val usageStats = mutableMapOf<String, ToolUsageStat>()
-
-    init {
+        private val usageStats = mutableMapOf<String, ToolUsageStat>()
+        init {
         // 初始化时注册默认工具适配置
-                registerDefaultAdapters()
+        registerDefaultAdapters()
     }
 
     /**
@@ -36,11 +35,11 @@ object ToolAdapterManager {
     */
     private fun registerDefaultAdapters() {
         // 注册数据库工具适配置
-                ToolRegistry.register(DatabaseToolAdapter())
+        ToolRegistry.register(DatabaseToolAdapter())
         // 注册外部API工具适配置
-                ToolRegistry.register(ExternalApiToolAdapter())
+        ToolRegistry.register(ExternalApiToolAdapter())
         // 注册快捷搜索工具适配置
-                ToolRegistry.register(QuickSearchToolAdapter())
+        ToolRegistry.register(QuickSearchToolAdapter())
     }
 
     /**
@@ -58,23 +57,21 @@ object ToolAdapterManager {
         val tool = ToolRegistry.getTool(toolName)
         if (tool == null) {
             recordExecution(toolName, parameters, false, startTime, "工具不存，"
-            return StringResultData("错误：工具不存在，toolName")
+        return StringResultData("错误：工具不存在，toolName")
         }
-
         if (!tool.isAvailable()) {
             recordExecution(toolName, parameters, false, startTime, "工具不可的）"
-            return StringResultData("错误：工具不可用了toolName")
+        return StringResultData("错误：工具不可用了toolName")
         }
-
         return try {
             val result = tool.execute(parameters)
-            recordExecution(toolName, parameters, true, startTime)
-            updateUsageStats(toolName, true)
-            result
+        recordExecution(toolName, parameters, true, startTime)
+        updateUsageStats(toolName, true)
+        result
         } catch (e: Exception) {
             recordExecution(toolName, parameters, false, startTime, e.message ?: "未知错误")
-            updateUsageStats(toolName, false)
-            StringResultData("工具执行失败，{e.message}")
+        updateUsageStats(toolName, false)
+        StringResultData("工具执行失败，{e.message}")
         }
     }
 
@@ -100,7 +97,6 @@ object ToolAdapterManager {
         if (tool == null) {
             return null
         }
-
         val stat = usageStats[toolName]
         
         return mapOf(
@@ -158,8 +154,7 @@ object ToolAdapterManager {
         // 目前缓存主要在各个工具适配器内定
        // 这里可以添加清除各个工具缓存的逻辑
     }
-
-    private fun recordExecution(
+        private fun recordExecution(
         toolName: String,
         parameters: Map<String, Any>,
         success: Boolean,
@@ -177,16 +172,14 @@ object ToolAdapterManager {
             durationMs = duration,
             timestamp = startTime
         )
-        
         executionHistory.add(record)
         
         // 限制历史记录大小
-                if (executionHistory.size > MAX_HISTORY_SIZE) {
+        if (executionHistory.size > MAX_HISTORY_SIZE) {
             executionHistory.removeAt(0)
         }
     }
-
-    private fun updateUsageStats(toolName: String, success: Boolean) {
+        private fun updateUsageStats(toolName: String, success: Boolean) {
         val stat = usageStats.getOrPut(toolName) {
             ToolUsageStat(
                 toolName = toolName,
@@ -195,7 +188,6 @@ object ToolAdapterManager {
                 totalDurationMs = 0
             )
         }
-        
         stat.totalCount++
         if (success) {
             stat.successCount++
@@ -225,7 +217,6 @@ object ToolAdapterManager {
     ) {
         val successRate: Double
             get() = if (totalCount == 0) 0.0 else successCount.toDouble() / totalCount.toDouble()
-        
         val avgDurationMs: Double
             get() = if (totalCount == 0) 0.0 else totalDurationMs.toDouble() / totalCount.toDouble()
     }

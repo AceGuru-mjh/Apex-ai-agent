@@ -40,11 +40,11 @@ private fun buildRuntimeExposeScript(): String {
             var root = typeof globalThis !== 'undefined'
                 ? globalThis
                 : (typeof window !== 'undefined' ? window : this);
-            var key = name == null ? '' : String(name).trim();
-            if (!key || value === undefined) {
+        var key = name == null ? '' : String(name).trim();
+        if (!key || value === undefined) {
                 return;
             }
-            root[key] = value;
+        root[key] = value;
         }
     """.trimIndent()
 }
@@ -58,11 +58,11 @@ private fun buildRuntimeConstantsScript(
             var expose = typeof __ApexExpose === 'function'
                 ? __ApexExpose
                 : globalThis.__ApexExpose;
-            if (typeof expose !== 'function') {
+        if (typeof expose !== 'function') {
                 throw new Error('__ApexExpose is unavailable');
             }
-            expose('Apex_DOWNLOAD_DIR', ${JSONObject.quote(ApexDownloadDir)});
-            expose('Apex_CLEAN_ON_EXIT_DIR', ${JSONObject.quote(ApexCleanOnExitDir)});
+        expose('Apex_DOWNLOAD_DIR', ${JSONObject.quote(ApexDownloadDir)});
+        expose('Apex_CLEAN_ON_EXIT_DIR', ${JSONObject.quote(ApexCleanOnExitDir)});
         })();
     """.trimIndent()
 }
@@ -73,102 +73,93 @@ private fun buildRuntimeCallRegistryScript(): String {
             var root = typeof globalThis !== 'undefined'
                 ? globalThis
                 : (typeof window !== 'undefined' ? window : this);
-            var windowRef = typeof window !== 'undefined' ? window : root;
-            var expose = typeof __ApexExpose === 'function'
+        var windowRef = typeof window !== 'undefined' ? window : root;
+        var expose = typeof __ApexExpose === 'function'
                 ? __ApexExpose
                 : globalThis.__ApexExpose;
-
-            function asString(value) {
+        function asString(value) {
                 return value == null ? '' : String(value);
             }
-
-            function normalizeCallId(value) {
+        function normalizeCallId(value) {
                 return asString(value).trim();
             }
-
-            function ensureCallRegistry() {
+        function ensureCallRegistry() {
                 if (!windowRef.__ApexCallRegistry || typeof windowRef.__ApexCallRegistry !== 'object') {
                     windowRef.__ApexCallRegistry = {};
                 }
-                return windowRef.__ApexCallRegistry;
+        return windowRef.__ApexCallRegistry;
             }
-
-            function getCallState(callId) {
+        function getCallState(callId) {
                 var resolvedCallId = normalizeCallId(callId);
-            if (!resolvedCallId) {
+        if (!resolvedCallId) {
                     return null;
                 }
-                var registry = ensureCallRegistry();
-            var state = registry[resolvedCallId];
-                return state && typeof state === 'object' ? state : null;
+        var registry = ensureCallRegistry();
+        var state = registry[resolvedCallId];
+        return state && typeof state === 'object' ? state : null;
             }
-
-            function clearCallTimers(callState) {
+        function clearCallTimers(callState) {
                 if (!callState || typeof callState !== 'object') {
                     return;
                 }
-                try {
+        try {
                     if (callState.safetyTimeout) {
                         clearTimeout(callState.safetyTimeout);
                     }
-                    if (callState.safetyTimeoutFinal) {
+        if (callState.safetyTimeoutFinal) {
                         clearTimeout(callState.safetyTimeoutFinal);
                     }
                 } catch (_error) {
                 }
-                callState.safetyTimeout = null;
-                callState.safetyTimeoutFinal = null;
+        callState.safetyTimeout = null;
+        callState.safetyTimeoutFinal = null;
             }
-
-            function registerCallSession(callId, params) {
+        function registerCallSession(callId, params) {
                 var resolvedCallId = normalizeCallId(callId);
-            if (!resolvedCallId) {
+        if (!resolvedCallId) {
                     throw new Error('callId is required');
                 }
-                var registry = ensureCallRegistry();
-            var state = registry[resolvedCallId];
-                var callState = state && typeof state === 'object' ? state : {};
-            callState.callId = resolvedCallId;
-                callState.params = params && typeof params === 'object' ? params : {};
-            callState.completed = false;
-                callState.safetyTimeout = null;
-                callState.safetyTimeoutFinal = null;
-                callState.lastExecStage = '';
-                callState.lastExecFunction = '';
-                callState.lastModulePath = '';
-                callState.lastRequireRequest = '';
-                callState.lastRequireFrom = '';
-                callState.lastRequireResolved = '';
-                callState.currentModule = null;
-                callState.currentModuleExports = null;
-                registry[resolvedCallId] = callState;
-                return callState;
+        var registry = ensureCallRegistry();
+        var state = registry[resolvedCallId];
+        var callState = state && typeof state === 'object' ? state : {};
+        callState.callId = resolvedCallId;
+        callState.params = params && typeof params === 'object' ? params : {};
+        callState.completed = false;
+        callState.safetyTimeout = null;
+        callState.safetyTimeoutFinal = null;
+        callState.lastExecStage = '';
+        callState.lastExecFunction = '';
+        callState.lastModulePath = '';
+        callState.lastRequireRequest = '';
+        callState.lastRequireFrom = '';
+        callState.lastRequireResolved = '';
+        callState.currentModule = null;
+        callState.currentModuleExports = null;
+        registry[resolvedCallId] = callState;
+        return callState;
             }
-
-            function cleanupCallSession(callId) {
+        function cleanupCallSession(callId) {
                 var resolvedCallId = normalizeCallId(callId);
-            if (!resolvedCallId) {
+        if (!resolvedCallId) {
                     return;
                 }
-                var registry = ensureCallRegistry();
-            var callState = registry[resolvedCallId];
-                clearCallTimers(callState);
-            delete registry[resolvedCallId];
+        var registry = ensureCallRegistry();
+        var callState = registry[resolvedCallId];
+        clearCallTimers(callState);
+        delete registry[resolvedCallId];
             }
-
-            function cancelCallSession(callId) {
+        function cancelCallSession(callId) {
                 var callState = getCallState(callId);
-            if (!callState || callState.completed) {
+        if (!callState || callState.completed) {
                     return false;
                 }
-                callState.completed = true;
-                clearCallTimers(callState);
-            return true;
+        callState.completed = true;
+        clearCallTimers(callState);
+        return true;
             }
-
-            function buildRuntimeContext(callId) {
+        function buildRuntimeContext(callId) {
                 var callState = getCallState(callId);
-            var mapping = [
+        var mapping = [
                     ['lastExecStage', 'stage'],
                     ['lastExecFunction', 'function'],
                     ['lastModulePath', 'module'],
@@ -176,24 +167,23 @@ private fun buildRuntimeCallRegistryScript(): String {
                     ['lastRequireFrom', 'from'],
                     ['lastRequireResolved', 'resolved']
                 ];
-                var parts = [];
-                for (var i = 0; i < mapping.length; i += 1) {
+        var parts = [];
+        for (var i = 0; i < mapping.length; i += 1) {
                     var key = mapping[i][0];
-                    var label = mapping[i][1];
-                    var value = callState ? callState[key] : undefined;
-                    if (value != null && asString(value).trim().length > 0) {
+        var label = mapping[i][1];
+        var value = callState ? callState[key] : undefined;
+        if (value != null && asString(value).trim().length > 0) {
                         parts.push(label + '=' + asString(value));
                     }
                 }
-                return parts.join(', ');
+        return parts.join(', ');
             }
-
-            expose('__ApexGetCallState', getCallState);
-            expose('__ApexRegisterCallSession', registerCallSession);
-            expose('__ApexCleanupCallSession', cleanupCallSession);
-            expose('__ApexCancelCallSession', cancelCallSession);
-            expose('__ApexBuildRuntimeContext', buildRuntimeContext);
-            windowRef.__ApexGetActiveModuleExports = function() {
+        expose('__ApexGetCallState', getCallState);
+        expose('__ApexRegisterCallSession', registerCallSession);
+        expose('__ApexCleanupCallSession', cleanupCallSession);
+        expose('__ApexCancelCallSession', cancelCallSession);
+        expose('__ApexBuildRuntimeContext', buildRuntimeContext);
+        windowRef.__ApexGetActiveModuleExports = function() {
                 if (
                     windowRef.__ApexActiveModule &&
                     typeof windowRef.__ApexActiveModule === 'object' &&
@@ -201,8 +191,8 @@ private fun buildRuntimeCallRegistryScript(): String {
                 ) {
                     return windowRef.__ApexActiveModule.exports;
                 }
-                var exportsRef = windowRef.__ApexActiveModuleExports;
-                return exportsRef && typeof exportsRef === 'object' ? exportsRef : exportsRef || null;
+        var exportsRef = windowRef.__ApexActiveModuleExports;
+        return exportsRef && typeof exportsRef === 'object' ? exportsRef : exportsRef || null;
             };
         })();
     """.trimIndent()
@@ -214,13 +204,11 @@ private fun buildRuntimeErrorScript(): String {
             var root = typeof globalThis !== 'undefined'
                 ? globalThis
                 : (typeof window !== 'undefined' ? window : this);
-            var windowRef = typeof window !== 'undefined' ? window : root;
-
-            function asString(value) {
+        var windowRef = typeof window !== 'undefined' ? window : root;
+        function asString(value) {
                 return value == null ? '' : String(value);
             }
-
-            function callNativeOptional(methodName) {
+        function callNativeOptional(methodName) {
                 if (
                     typeof NativeInterface === 'undefined' ||
                     !NativeInterface ||
@@ -228,26 +216,25 @@ private fun buildRuntimeErrorScript(): String {
                 ) {
                     return undefined;
                 }
-                var args = Array.prototype.slice.call(arguments, 1);
-            try {
+        var args = Array.prototype.slice.call(arguments, 1);
+        try {
                     return NativeInterface[methodName].apply(NativeInterface, args);
                 } catch (_error) {
                     return undefined;
                 }
             }
-
-            function formatErrorDetails(error) {
+        function formatErrorDetails(error) {
                 var name = asString(error && error.name ? error.name : 'Error');
-            var message = asString(error && error.message ? error.message : error);
-            var stack = asString(error && error.stack ? error.stack : 'No stack trace');
-            var lineNumber = 0;
-                var fileName = '';
-                var stackMatch = stack.match(/at\s+.*?\s+\((.+):(\d+):(\d+)\)/);
-            if (stackMatch) {
+        var message = asString(error && error.message ? error.message : error);
+        var stack = asString(error && error.stack ? error.stack : 'No stack trace');
+        var lineNumber = 0;
+        var fileName = '';
+        var stackMatch = stack.match(/at\s+.*?\s+\((.+):(\d+):(\d+)\)/);
+        if (stackMatch) {
                     fileName = asString(stackMatch[1]);
-            lineNumber = Number(stackMatch[2]) || 0;
+        lineNumber = Number(stackMatch[2]) || 0;
                 }
-                return {
+        return {
                     formatted: name + ': ' + message + '\nStack: ' + stack,
                     details: {
                         name: name,
@@ -258,11 +245,10 @@ private fun buildRuntimeErrorScript(): String {
                     }
                 };
             }
-
-            function reportDetailedErrorForCall(callId, error, context) {
+        function reportDetailedErrorForCall(callId, error, context) {
                 var details = formatErrorDetails(error);
-            var resolvedCallId = asString(callId).trim();
-            if (resolvedCallId) {
+        var resolvedCallId = asString(callId).trim();
+        if (resolvedCallId) {
                     callNativeOptional(
                         'reportErrorForCall',
                         resolvedCallId,
@@ -280,14 +266,13 @@ private fun buildRuntimeErrorScript(): String {
                         asString(details.details.stack || '')
                     );
                 }
-                return {
+        return {
                     formatted: 'Context: ' + asString(context || 'unknown') + '\n' + details.formatted,
                     details: details.details
                 };
             }
-
-            windowRef.__ApexReportDetailedErrorForCall = reportDetailedErrorForCall;
-            windowRef.reportDetailedError = function(error, context) {
+        windowRef.__ApexReportDetailedErrorForCall = reportDetailedErrorForCall;
+        windowRef.reportDetailedError = function(error, context) {
                 return reportDetailedErrorForCall('', error, context);
             };
         })();
@@ -300,16 +285,14 @@ private fun buildRuntimeToolCallScript(): String {
             var root = typeof globalThis !== 'undefined'
                 ? globalThis
                 : (typeof window !== 'undefined' ? window : this);
-            var windowRef = typeof window !== 'undefined' ? window : root;
-            var expose = typeof __ApexExpose === 'function'
+        var windowRef = typeof window !== 'undefined' ? window : root;
+        var expose = typeof __ApexExpose === 'function'
                 ? __ApexExpose
                 : globalThis.__ApexExpose;
-
-            function asString(value) {
+        function asString(value) {
                 return value == null ? '' : String(value);
             }
-
-            function callNative(methodName) {
+        function callNative(methodName) {
                 if (
                     typeof NativeInterface === 'undefined' ||
                     !NativeInterface ||
@@ -317,23 +300,21 @@ private fun buildRuntimeToolCallScript(): String {
                 ) {
                     throw new Error('NativeInterface.' + methodName + ' is unavailable');
                 }
-                var args = Array.prototype.slice.call(arguments, 1);
-            return NativeInterface[methodName].apply(NativeInterface, args);
+        var args = Array.prototype.slice.call(arguments, 1);
+        return NativeInterface[methodName].apply(NativeInterface, args);
             }
-
-            function clonePlainObject(value) {
+        function clonePlainObject(value) {
                 if (!value || typeof value !== 'object' || Array.isArray(value)) {
                     return {};
                 }
-                var copy = {};
-            var keys = Object.keys(value);
-            for (var i = 0; i < keys.length; i += 1) {
+        var copy = {};
+        var keys = Object.keys(value);
+        for (var i = 0; i < keys.length; i += 1) {
                     copy[keys[i]] = value[keys[i]];
                 }
-                return copy;
+        return copy;
             }
-
-            function parseToolCallArguments(rawArgs) {
+        function parseToolCallArguments(rawArgs) {
                 if (rawArgs.length === 1 && typeof rawArgs[0] === 'object') {
                     return {
                         type: asString(rawArgs[0].type || 'default'),
@@ -341,98 +322,93 @@ private fun buildRuntimeToolCallScript(): String {
                         params: clonePlainObject(rawArgs[0].params)
                     };
                 }
-                if (rawArgs.length === 1 && typeof rawArgs[0] === 'string') {
+        if (rawArgs.length === 1 && typeof rawArgs[0] === 'string') {
                     return { type: 'default', name: asString(rawArgs[0]), params: {} };
                 }
-                if (rawArgs.length === 2 && typeof rawArgs[1] === 'object') {
+        if (rawArgs.length === 2 && typeof rawArgs[1] === 'object') {
                     return {
                         type: 'default',
                         name: asString(rawArgs[0]),
                         params: clonePlainObject(rawArgs[1])
                     };
                 }
-                return {
+        return {
                     type: asString(rawArgs[0] || 'default'),
                     name: asString(rawArgs[1] || ''),
                     params: clonePlainObject(rawArgs[2])
                 };
             }
-
-            function stringifyToolResultDetail(detail) {
+        function stringifyToolResultDetail(detail) {
                 if (detail == null) {
                     return '';
                 }
-                if (typeof detail === 'string') {
+        if (typeof detail === 'string') {
                     return detail.trim();
                 }
-                try {
+        try {
                     return JSON.stringify(detail);
                 } catch (_error) {
                     return asString(detail).trim();
                 }
             }
-
-            function buildToolError(result, fallbackMessage) {
+        function buildToolError(result, fallbackMessage) {
                 var message = asString((result && result.error) || fallbackMessage || 'Unknown error');
-            if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
+        if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
                     var detailText = stringifyToolResultDetail(result.data);
-            if (detailText) {
+        if (detailText) {
                         message += '\n\nTool output:\n' + detailText;
                     }
                 }
-                var error = new Error(message);
-            if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
+        var error = new Error(message);
+        if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
                     error.data = result.data;
                 }
-                return error;
+        return error;
             }
-
-            function parseToolResult(result, isError) {
+        function parseToolResult(result, isError) {
                 if (isError) {
                     if (result && typeof result === 'object' && result.success === false) {
                         throw buildToolError(result, 'Unknown error');
                     }
-                    throw new Error(typeof result === 'string' ? result : JSON.stringify(result));
+        throw new Error(typeof result === 'string' ? result : JSON.stringify(result));
                 }
-                if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'success')) {
+        if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'success')) {
                     if (result.success) {
                         return result.data;
                     }
-                    throw buildToolError(result, 'Unknown error');
+        throw buildToolError(result, 'Unknown error');
                 }
-                if (typeof result === 'string' && result.length > 1) {
+        if (typeof result === 'string' && result.length > 1) {
                     var first = result.charAt(0);
-            if (first === '{' || first === '[') {
+        if (first === '{' || first === '[') {
                         try {
                             var parsed = JSON.parse(result);
-            return parseToolResult(parsed, false);
+        return parseToolResult(parsed, false);
                         } catch (_error) {
                             return result;
                         }
                     }
                 }
-                return result;
+        return result;
             }
-
-            function nextToolCallbackId() {
+        function nextToolCallbackId() {
                 return '__Apex_tool_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
             }
-
-            function toolCall() {
+        function toolCall() {
                 var rawArgs = arguments;
-                return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
                     try {
                         var parsed = parseToolCallArguments(rawArgs);
-            var callbackId = nextToolCallbackId();
-            windowRef[callbackId] = function(result, isError) {
+        var callbackId = nextToolCallbackId();
+        windowRef[callbackId] = function(result, isError) {
                             delete windowRef[callbackId];
-                            try {
+        try {
                                 resolve(parseToolResult(result, !!isError));
                             } catch (error) {
                                 reject(error);
                             }
                         };
-            callNative(
+        callNative(
                             'callToolAsync',
                             callbackId,
                             parsed.type || 'default',
@@ -444,8 +420,7 @@ private fun buildRuntimeToolCallScript(): String {
                     }
                 });
             }
-
-            expose('toolCall', toolCall);
+        expose('toolCall', toolCall);
         })();
     """.trimIndent()
 }

@@ -52,15 +52,13 @@ sealed class AgentEvent {
     ) : AgentEvent() {
         override val type = AgentEventType.REGISTRATION
     }
-
-    data class Unregistered(
+        data class Unregistered(
         override val sourceAgentId: String,
         override val timestamp: Long = System.currentTimeMillis()
     ) : AgentEvent() {
         override val type = AgentEventType.REGISTRATION
     }
-
-    data class LifecycleStateChanged(
+        data class LifecycleStateChanged(
         override val sourceAgentId: String,
         val from: AgentLifecycleState,
         val to: AgentLifecycleState,
@@ -68,8 +66,7 @@ sealed class AgentEvent {
     ) : AgentEvent() {
         override val type = AgentEventType.LIFECYCLE
     }
-
-    data class TaskStarted(
+        data class TaskStarted(
         override val sourceAgentId: String,
         val taskId: String,
         val taskType: String,
@@ -77,8 +74,7 @@ sealed class AgentEvent {
     ) : AgentEvent() {
         override val type = AgentEventType.TASK
     }
-
-    data class TaskProgress(
+        data class TaskProgress(
         override val sourceAgentId: String,
         val taskId: String,
         val progress: Float,
@@ -87,8 +83,7 @@ sealed class AgentEvent {
     ) : AgentEvent() {
         override val type = AgentEventType.TASK
     }
-
-    data class TaskCompleted(
+        data class TaskCompleted(
         override val sourceAgentId: String,
         val taskId: String,
         val success: Boolean,
@@ -97,8 +92,7 @@ sealed class AgentEvent {
     ) : AgentEvent() {
         override val type = AgentEventType.TASK
     }
-
-    data class HealthChanged(
+        data class HealthChanged(
         override val sourceAgentId: String,
         val healthy: Boolean,
         val message: String? = null,
@@ -106,8 +100,7 @@ sealed class AgentEvent {
     ) : AgentEvent() {
         override val type = AgentEventType.HEALTH
     }
-
-    data class AgentMessageSent(
+        data class AgentMessageSent(
         override val sourceAgentId: String,
         val toAgentId: String,
         val messageType: String,
@@ -117,8 +110,7 @@ sealed class AgentEvent {
     ) : AgentEvent() {
         override val type = AgentEventType.MESSAGE
     }
-
-    data class ErrorOccurred(
+        data class ErrorOccurred(
         override val sourceAgentId: String?,
         val error: Throwable,
         val context: String? = null,
@@ -158,8 +150,7 @@ class EventSubscription(
             onCancel()
         }
     }
-
-    val isActive: Boolean get() = !cancelled
+        val isActive: Boolean get() = !cancelled
 }
 
 /**
@@ -203,7 +194,7 @@ class AgentEventBus(
         replay = 0,
         extraBufferCapacity = 512
     )
-    val events: SharedFlow<AgentEvent> = _events.asSharedFlow()
+        val events: SharedFlow<AgentEvent> = _events.asSharedFlow()
 
     /** 事件历史（用于回放）。 */
     private val eventHistory: ConcurrentLinkedQueue<AgentEvent> = ConcurrentLinkedQueue()
@@ -218,7 +209,7 @@ class AgentEventBus(
         if (enableHistory) {
             eventHistory.add(event)
             // 保持历史不超过上限
-                while (eventHistory.size > historySize) {
+        while (eventHistory.size > historySize) {
                 eventHistory.poll()
             }
         }
@@ -250,7 +241,7 @@ class AgentEventBus(
         subscriptionCount.incrementAndGet()
         return EventSubscription {
             job.cancel()
-            subscriptionCount.decrementAndGet()
+        subscriptionCount.decrementAndGet()
         }
     }
 
@@ -284,7 +275,7 @@ class AgentEventBus(
      * ```
      */
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : AgentEvent> subscribeTyped(
+        inline fun <reified T : AgentEvent> subscribeTyped(
         crossinline handler: suspend (T) -> Unit
     ): EventSubscription {
         return subscribe(emptySet()) { event ->

@@ -47,8 +47,7 @@ object FunctionalPrompts {
         4. 内容还原：摘要既要说明“过程如何推进”，也要写清“实际产出讨论内容是什么”，必要时引用结果文本、结论、代码片段或参数，确保在没有原始对话的情况下依然能完全还原信息本身
         5. 目标：生成的摘要必须是自包含的。即使AI完全忘记了之前的对话，仅凭这份摘要也能够准确理解历史背景、当前状态、具体进度和下一步行务
         6. 时序重点：请先聚焦于最新一段对话（约占输入的最后0%），明确最新指令、问题和进展，再回顾更早的内容。若新消息与旧内容冲突或更新，应以最新对话为准，并解释差式    """
-
-    const val SUMMARY_PROMPT_EN = """
+        const val SUMMARY_PROMPT_EN = """
         You are an AI assistant responsible for generating a conversation summary. Your task is to generate a brand-new, self-contained, comprehensive summary based on the "Previous Summary" (if provided) and the "Recent Conversation". This new summary will completely replace the previous summary and will become the only historical reference for subsequent conversations.
 
         **You MUST follow the fixed output format below strictly. Do NOT change the structure.**
@@ -85,21 +84,18 @@ object FunctionalPrompts {
         **Content requirements:**
         1. Style: professional, clear, objective.2. Length: do not limit length. Decide an appropriate length based on complexity and importance. Prefer being detailed to avoid missing key information.3. Completeness: prioritize completeness and accuracy. Provide evidence/quotes when needed.4. Reconstruction: the summary must describe both “how the process progressed—and “what the actual outputs/discussion were—Quote resulting text, conclusions, code snippets, or parameters when needed.5. Goal: the summary must be self-contained so that even if the AI forgets the original conversation, it can fully reconstruct context, current status, progress, and next actions.6. Recency: focus first on the most recent part of the conversation (about the last 30% of input), then review earlier content. If new messages conflict with old content, use the latest messages and explain the differences.
     """
-
-    fun summaryPrompt(useEnglish: Boolean): String {
+        fun summaryPrompt(useEnglish: Boolean): String {
         return if (useEnglish) SUMMARY_PROMPT_EN else SUMMARY_PROMPT
     }
-
-    fun buildSummarySystemPrompt(previousSummary: String?, useEnglish: Boolean): String {
+        fun buildSummarySystemPrompt(previousSummary: String?, useEnglish: Boolean): String {
         var prompt = summaryPrompt(useEnglish).trimIndent()
         if (!previousSummary.isNullOrBlank()) {
             prompt +=
                 if (useEnglish) {
                     """
-
-                    Previous Summary (to inherit context):
+        Previous Summary (to inherit context):
                     ${previousSummary.trim()}
-                    Please merge the key information from the previous summary with the new conversation and generate a brand-new, more complete summary.
+        Please merge the key information from the previous summary with the new conversation and generate a brand-new, more complete summary.
                     """.trimIndent()
                 } else {
                     """
@@ -126,10 +122,9 @@ object FunctionalPrompts {
         Example:
         If 'Original File Content' is: `line 1\nline 2`
         And 'Intended Changes' is: `// ... existing code ...\nnew line 3`
-                Your final output must be: `line 1\nline 2\nnew line 3`
+        Your final output must be: `line 1\nline 2\nnew line 3`
     """
-
-    const val FILE_BINDING_MERGE_PROMPT_CN = """
+        const val FILE_BINDING_MERGE_PROMPT_CN = """
          你是一位资深程序员。你的任务是将“原始文件内容（Original File Content）”与“预期修改（Intended Changes）”合并，生成该文件最终的完整内容。
          “预期修改（Intended Changes）”区块中使用了一个特殊占位符：`// ... existing code ...`。你**必须**用“原始文件内容（Original File Content）”的完整、逐字内容替换该占位符。
          **关键规则，*
@@ -139,32 +134,27 @@ object FunctionalPrompts {
          “预期修改”为：`// ... existing code ...\nnew line 3`
                 那么你的最终输出必须是：`line 1\nline 2\nnew line 3`
     """
-
-    fun fileBindingMergePrompt(useEnglish: Boolean): String {
+        fun fileBindingMergePrompt(useEnglish: Boolean): String {
         return if (useEnglish) FILE_BINDING_MERGE_PROMPT else FILE_BINDING_MERGE_PROMPT_CN
     }
-
-    fun memoryAutoCategorizeUserMessage(useEnglish: Boolean): String {
+        fun memoryAutoCategorizeUserMessage(useEnglish: Boolean): String {
         return if (useEnglish) "Please categorize the memories above." else "请为以上记忆分类"
     }
-
-    fun knowledgeGraphExistingMemoriesPrefix(useEnglish: Boolean): String {
+        fun knowledgeGraphExistingMemoriesPrefix(useEnglish: Boolean): String {
         return if (useEnglish) {
             "To avoid duplicates, please refer to these potentially relevant existing memories. If an extracted entity is semantically the same as an existing memory, use the `alias_for` field:\n"
         } else {
             "为避免重复，请参考以下记忆库中可能相关的已有记忆。在提取实体时，如果发现与下列记忆语义相同的实体，请使用`alias_for`字段进行标注：\n"
         }
     }
-
-    fun knowledgeGraphNoExistingMemoriesMessage(useEnglish: Boolean): String {
+        fun knowledgeGraphNoExistingMemoriesMessage(useEnglish: Boolean): String {
         return if (useEnglish) {
             "The memory library is empty or no relevant memories were found. You may extract entities freely."
         } else {
             "记忆库目前为空或没有找到相关记忆，请自由提取实体。"
         }
     }
-
-    fun knowledgeGraphExistingFoldersPrompt(existingFolders: List<String>, useEnglish: Boolean): String {
+        fun knowledgeGraphExistingFoldersPrompt(existingFolders: List<String>, useEnglish: Boolean): String {
         if (existingFolders.isEmpty()) {
             return if (useEnglish) {
                 "No folder categories exist yet. Please create a suitable category based on the content."
@@ -172,7 +162,6 @@ object FunctionalPrompts {
                 "当前还没有文件夹分类，请根据内容创建一个合适的分类。"
             }
         }
-
         val joined = existingFolders.joinToString(", ")
         return if (useEnglish) {
             "Existing folder categories (prefer reusing them):\n${joined}"
@@ -180,16 +169,14 @@ object FunctionalPrompts {
             "当前已存在的文件夹分类如下，请优先使用或参考它们来决定新知识的分类：\n${joined}"
         }
     }
-
-    fun knowledgeGraphDuplicateTitleInstruction(title: String, count: Int, useEnglish: Boolean): String {
+        fun knowledgeGraphDuplicateTitleInstruction(title: String, count: Int, useEnglish: Boolean): String {
         return if (useEnglish) {
             "Found ${count} memories with the exact same title: \"${title}\". You should strongly prefer `merge` in this analysis and avoid creating another parallel `new` memory for the same fact."
         } else {
             "发现 ${count} 个标题完全相同的记忆: \"${title}\"。本次分析应强烈优先使用 `merge`，不要再为同一事实创建平行 `new` 记忆。"
         }
     }
-
-    fun knowledgeGraphSimilarTitleInstruction(titles: List<String>, useEnglish: Boolean): String {
+        fun knowledgeGraphSimilarTitleInstruction(titles: List<String>, useEnglish: Boolean): String {
         val preview = titles.joinToString(" | ")
         return if (useEnglish) {
             "Found a similar-title memory cluster: [${preview}]. These are likely paraphrases of the same fact. Prefer `merge` or `update`; avoid creating additional `new` memories."
@@ -197,59 +184,49 @@ object FunctionalPrompts {
             "发现一组相似标题记忆[${preview}]。它们很可能是同一事实的不同表述。请优先 `merge` 成`update`，避免继续创建新的重复记忆。"
         }
     }
-
-    fun knowledgeGraphDuplicateHeader(useEnglish: Boolean): String {
+        fun knowledgeGraphDuplicateHeader(useEnglish: Boolean): String {
         return if (useEnglish) "[IMPORTANT: deduplicate memories]\n" else "【重要指令：清理重复记忆】\n"
     }
-
-    const val SUMMARY_MARKER_CN = "==========对话摘要=========="
-    const val SUMMARY_MARKER_EN = "==========Conversation Summary=========="
-    const val SUMMARY_SECTION_CORE_TASK_CN = "【核心任务状态。"
-    const val SUMMARY_SECTION_INTERACTION_CN = "【互动情节与设定。"
-    const val SUMMARY_SECTION_PROGRESS_CN = "【对话历程与概要。"
-    const val SUMMARY_SECTION_KEY_INFO_CN = "【关键信息与上下文。"
-    const val SUMMARY_SECTION_CORE_TASK_EN = "[Core Task Status]"
-    const val SUMMARY_SECTION_INTERACTION_EN = "[Interaction & Scenario]"
-    const val SUMMARY_SECTION_PROGRESS_EN = "[Conversation Progress & Overview]"
-    const val SUMMARY_SECTION_KEY_INFO_EN = "[Key Information & Context]"
-
-    fun summaryUserMessage(useEnglish: Boolean): String {
+        const val SUMMARY_MARKER_CN = "==========对话摘要=========="
+        const val SUMMARY_MARKER_EN = "==========Conversation Summary=========="
+        const val SUMMARY_SECTION_CORE_TASK_CN = "【核心任务状态。"
+        const val SUMMARY_SECTION_INTERACTION_CN = "【互动情节与设定。"
+        const val SUMMARY_SECTION_PROGRESS_CN = "【对话历程与概要。"
+        const val SUMMARY_SECTION_KEY_INFO_CN = "【关键信息与上下文。"
+        const val SUMMARY_SECTION_CORE_TASK_EN = "[Core Task Status]"
+        const val SUMMARY_SECTION_INTERACTION_EN = "[Interaction & Scenario]"
+        const val SUMMARY_SECTION_PROGRESS_EN = "[Conversation Progress & Overview]"
+        const val SUMMARY_SECTION_KEY_INFO_EN = "[Key Information & Context]"
+        fun summaryUserMessage(useEnglish: Boolean): String {
         return if (useEnglish) "Please summarize the conversation as instructed." else "请按照要求总结对话内容"
     }
-
-    fun waifuEmotionRule(emotionListText: String): String {
+        fun waifuEmotionRule(emotionListText: String): String {
         return "**表达情绪规则：你必须在每个句末判断句中包含的情绪或增强语气，并使用emotion>${emotionListText}。例如：<emotion>happy</emotion>。emotion>miss_you</emotion>等。如果没有这些情绪则不插入。*"
     }
-
-    fun waifuNoCustomEmojiRule(): String {
+        fun waifuNoCustomEmojiRule(): String {
         return "**当前没有可用的自定义表情，请不要使用<emotion>标签。*"
     }
-
-    fun waifuCustomPromptRule(customPrompt: String): String {
+        fun waifuCustomPromptRule(customPrompt: String): String {
         return customPrompt.trim()
     }
-
-    fun waifuSelfieRule(waifuSelfiePrompt: String): String {
+        fun waifuSelfieRule(waifuSelfiePrompt: String): String {
         return buildString {
             append("**绘图（自拍）**: 当你需要自拍时，你会调用绘图功能。")
-            append("\n*   **基础关键试*：`${waifuSelfiePrompt}`。")
-            append("\n*   **自定义内定*：你会根据主人的要求，在基础关键词后添加表情、动作、穿着、背景等描述。")
-            append("\n*   **合影**: 如果需要主人出镜，你会根据指令明确包含`2 girl`， girl 代表2个女孩主人也是女孩，主人为黑色长发可爱女生）等关键词。")
+        append("\n*   **基础关键试*：`${waifuSelfiePrompt}`。")
+        append("\n*   **自定义内定*：你会根据主人的要求，在基础关键词后添加表情、动作、穿着、背景等描述。")
+        append("\n*   **合影**: 如果需要主人出镜，你会根据指令明确包含`2 girl`， girl 代表2个女孩主人也是女孩，主人为黑色长发可爱女生）等关键词。")
         }
     }
-
-    fun avatarMoodRulesText(
+        fun avatarMoodRulesText(
         customMoodDefinitions: List<Any> = emptyList(),
         useEnglish: Boolean = false
     ): String {
         return ""
     }
-
-    fun translationSystemPrompt(): String {
+        fun translationSystemPrompt(): String {
         return "你是一个专业的翻译助手，能够准确翻译各种语言，并保持原文的语气和风格。"
     }
-
-    fun translationUserPrompt(targetLanguage: String, text: String): String {
+        fun translationUserPrompt(targetLanguage: String, text: String): String {
         return """
 请将以下文本翻译成的${targetLanguage}，保持原文的语气和风格：
 
@@ -257,16 +234,14 @@ ${text}
 
 只返回翻译结果，不要添加任何解释或额外内容。       """.trim()
     }
-
-    fun packageDescriptionSystemPrompt(useEnglish: Boolean): String {
+        fun packageDescriptionSystemPrompt(useEnglish: Boolean): String {
         return if (useEnglish) {
             "You are a professional technical writer who excels at crafting concise and clear descriptions for software toolkits."
         } else {
             "你是一个专业的技术文档撰写助手，擅长为软件工具包编写简洁清晰的功能描述。"
         }
     }
-
-    fun packageDescriptionUserPrompt(
+        fun packageDescriptionUserPrompt(
         pluginName: String,
         toolList: String,
         useEnglish: Boolean
@@ -299,8 +274,7 @@ ${toolList}
             """.trim()
         }
     }
-
-    fun personaCardGenerationSystemPrompt(useEnglish: Boolean): String {
+        fun personaCardGenerationSystemPrompt(useEnglish: Boolean): String {
         return if (!useEnglish) {
             """
             你是\"角色卡生成助手\"。请严格按照以下流程进行角色卡生成：
@@ -332,7 +306,7 @@ ${toolList}
             """.trimIndent()
         } else {
             """
-            You are a \"Character Card Generation Assistant\". Please strictly follow the following process for character card generation:
+        You are a \"Character Card Generation Assistant\". Please strictly follow the following process for character card generation:
 
             [Generation Process]
             1) Character Name: Ask and confirm the character name
@@ -402,8 +376,7 @@ ${toolList}
 
         Analyze the inputs, choose the best action to achieve the `Task Goal`, and formulate your response in the specified JSON format. Use element `bounds` to calculate coordinates for UI actions.
     """
-
-    const val UI_CONTROLLER_PROMPT_CN = """
+        const val UI_CONTROLLER_PROMPT_CN = """
          你是一位UI自动化AI。你的任务是分析 UI 状态与任务目标，然后决定下一步的单个动作。你必须返回一个JSON对象，包含你的简要说明与要执行的命令。
          **输出格式，*
          - 只能输出一个原始JSON对象：`{"explanation": "你为什么要这么做（一句话，, "command": {"type": "action_type", "arg": ...}}"。        - JSON 之外不允许有任何文本，不允许 Markdown。
@@ -427,8 +400,7 @@ ${toolList}
         2. `Task Goal`：本步的具体目标
          3. `Execution History`：你之前的动作与结果日志，用于避免重复犯错。
          请分析输入，选择最合适的单步动作，并按规范JSON格式输出。可使用元素的`bounds`计算点击坐标。   """
-
-    fun uiControllerPrompt(useEnglish: Boolean): String {
+        fun uiControllerPrompt(useEnglish: Boolean): String {
         return if (useEnglish) UI_CONTROLLER_PROMPT else UI_CONTROLLER_PROMPT_CN
     }
 
@@ -444,30 +416,29 @@ ${toolList}
 <answer>{action}</answer>
 
 其中， {think} 是对你为什么选择这个操作的简短推理说明；- {action} 是本次执行的具体操作指令，必须严格遵循下方定义的指令格式。
-操作指令及其作用如下， do(action="Launch", app="xxx")  
-    Launch是启动目标app的操作，这比通过主屏幕导航更快。此操作完成后，您将自动收到结果状态的截图。 do(action="Tap", element=[x,y])  
-    Tap是点击操作，点击屏幕上的特定点。可用此操作点击按钮、选择项目、从主屏幕打开应用程序，或与任何可点击的用户界面元素进行交互。坐标系统从左上解0,0) 开始到右下角（999,999)结束。此操作完成后，您将自动收到结果状态的截图。 do(action="Tap", element=[x,y], message="重要操作")  
-    基本功能同Tap，点击涉及财产、支付、隐私等敏感按钮时触发。 do(action="Type", text="xxx")  
-    Type是输入操作，在当前聚焦的输入框中输入文本。使用此操作前，请确保输入框已被聚焦（先点击它）。输入的文本将像使用键盘输入一样输入。重要提示：手机可能正在使用 ADB 键盘，该键盘不会像普通键盘那样占用屏幕空间。要确认键盘已激活，请查看屏幕底部是否显示ADB Keyboard {ON}' 类似的文本，或者检查输入框是否处于激活高亮状态。不要仅仅依赖视觉上的键盘显示。自动清除文本：当你使用输入操作时，输入框中现有的任何文本（包括占位符文本和实际输入）都会在输入新文本前自动清除。你无需在输入前手动清除文本——直接使用输入操作输入所需文本即可。操作完成后，你将自动收到结果状态的截图。 do(action="Type_Name", text="xxx")  
-    Type_Name是输入人名的操作，基本功能同Type。 do(action="Interact")  
-    Interact是当有多个满足条件的选项时而触发的交互操作，询问用户如何选择。 do(action="Swipe", start=[x1,y1], end=[x2,y2])  
-    Swipe是滑动操作，通过从起始坐标拖动到结束坐标来执行滑动手势。可用于滚动内容、在屏幕之间导航、下拉通知栏以及项目栏或进行基于手势的导航。坐标系统从左上解0,0) 开始到右下角（999,999)结束。滑动持续时间会自动调整以实现自然的移动。此操作完成后，您将自动收到结果状态的截图。 do(action="Note", message="True")  
+操作指令及其作用如下， do(action="Launch", app="xxx")
+        Launch是启动目标app的操作，这比通过主屏幕导航更快。此操作完成后，您将自动收到结果状态的截图。 do(action="Tap", element=[x,y])
+        Tap是点击操作，点击屏幕上的特定点。可用此操作点击按钮、选择项目、从主屏幕打开应用程序，或与任何可点击的用户界面元素进行交互。坐标系统从左上解0,0) 开始到右下角（999,999)结束。此操作完成后，您将自动收到结果状态的截图。 do(action="Tap", element=[x,y], message="重要操作")  
+    基本功能同Tap，点击涉及财产、支付、隐私等敏感按钮时触发。 do(action="Type", text="xxx")
+        Type是输入操作，在当前聚焦的输入框中输入文本。使用此操作前，请确保输入框已被聚焦（先点击它）。输入的文本将像使用键盘输入一样输入。重要提示：手机可能正在使用 ADB 键盘，该键盘不会像普通键盘那样占用屏幕空间。要确认键盘已激活，请查看屏幕底部是否显示ADB Keyboard {ON}' 类似的文本，或者检查输入框是否处于激活高亮状态。不要仅仅依赖视觉上的键盘显示。自动清除文本：当你使用输入操作时，输入框中现有的任何文本（包括占位符文本和实际输入）都会在输入新文本前自动清除。你无需在输入前手动清除文本——直接使用输入操作输入所需文本即可。操作完成后，你将自动收到结果状态的截图。 do(action="Type_Name", text="xxx")
+        Type_Name是输入人名的操作，基本功能同Type。 do(action="Interact")
+        Interact是当有多个满足条件的选项时而触发的交互操作，询问用户如何选择。 do(action="Swipe", start=[x1,y1], end=[x2,y2])
+        Swipe是滑动操作，通过从起始坐标拖动到结束坐标来执行滑动手势。可用于滚动内容、在屏幕之间导航、下拉通知栏以及项目栏或进行基于手势的导航。坐标系统从左上解0,0) 开始到右下角（999,999)结束。滑动持续时间会自动调整以实现自然的移动。此操作完成后，您将自动收到结果状态的截图。 do(action="Note", message="True")  
     记录当前页面内容以便后续总结。 do(action="Call_API", instruction="xxx")  
-    总结或评论当前页面或已记录的内容。 do(action="Long Press", element=[x,y])  
-    Long Pres是长按操作，在屏幕上的特定点长按指定时间。可用于触发上下文菜单、选择文本或激活长按交互。坐标系统从左上解0,0) 开始到右下角（999,999)结束。此操作完成后，您将自动收到结果状态的屏幕截图。 do(action="Double Tap", element=[x,y])  
-    Double Tap在屏幕上的特定点快速连续点按两次。使用此操作可以激活双击交互，如缩放、选择文本或打开项目。坐标系统从左上解0,0) 开始到右下角（999,999)结束。此操作完成后，您将自动收到结果状态的截图。 do(action="Take_over", message="xxx")  
-    Take_over是接管操作，表示在登录和验证阶段需要用户协助。 do(action="Back")  
-    导航返回到上一个屏幕或关闭当前对话框。相当于按下 Android 的返回按钮。使用此操作可以从更深的屏幕返回、关闭弹出窗口或退出当前上下文。此操作完成后，您将自动收到结果状态的截图。 do(action="Home") 
-    Home是回到系统桌面的操作，相当于按下 Android 主屏幕按钮。使用此操作可退出当前应用并返回启动器，或从已知状态启动新任务。此操作完成后，您将自动收到结果状态的截图。 do(action="Wait", duration="x seconds")  
-    等待页面加载，x为需要等待多少秒。 finish(message="xxx")  
-    finish是结束任务的操作，表示准确完整完成任务，message是终止信息。
+    总结或评论当前页面或已记录的内容。 do(action="Long Press", element=[x,y])
+        Long Pres是长按操作，在屏幕上的特定点长按指定时间。可用于触发上下文菜单、选择文本或激活长按交互。坐标系统从左上解0,0) 开始到右下角（999,999)结束。此操作完成后，您将自动收到结果状态的屏幕截图。 do(action="Double Tap", element=[x,y])
+        Double Tap在屏幕上的特定点快速连续点按两次。使用此操作可以激活双击交互，如缩放、选择文本或打开项目。坐标系统从左上解0,0) 开始到右下角（999,999)结束。此操作完成后，您将自动收到结果状态的截图。 do(action="Take_over", message="xxx")
+        Take_over是接管操作，表示在登录和验证阶段需要用户协助。 do(action="Back")  
+    导航返回到上一个屏幕或关闭当前对话框。相当于按下 Android 的返回按钮。使用此操作可以从更深的屏幕返回、关闭弹出窗口或退出当前上下文。此操作完成后，您将自动收到结果状态的截图。 do(action="Home")
+        Home是回到系统桌面的操作，相当于按下 Android 主屏幕按钮。使用此操作可退出当前应用并返回启动器，或从已知状态启动新任务。此操作完成后，您将自动收到结果状态的截图。 do(action="Wait", duration="x seconds")  
+    等待页面加载，x为需要等待多少秒。 finish(message="xxx")
+        finish是结束任务的操作，表示准确完整完成任务，message是终止信息。
 
 必须遵循的规则：
 1. 在执行任何操作前，先检查当前app是否是目标app，如果不是，先执行Launch。. 如果进入到了无关页面，先执行 Back。如果执行Back后页面没有变化，请点击页面左上角的返回键进行返回，或者右上角的X号关闭。. 如果页面未加载出内容，最多连结Wait 三次，否则执行Back重新进入。. 如果页面显示网络问题，需要重新加载，请点击重新加载。. 如果当前页面找不到目标联系人、商品、店铺等信息，可以尝试Swipe 滑动查找。. 遇到价格区间、时间区间等筛选条件，如果没有完全符合的，可以放宽要求。. 在做小红书总结类任务时一定要筛选图文笔记。. 购物车全选后再点击全选可以把状态设为全不选，在做购物车任务时，如果购物车里已经有商品被选中时，你需要点击全选后再点击取消全选，再去找需要购买或者删除的商品。. 在做外卖任务时，如果相应店铺购物车里已经有其他商品你需要先把购物车清空再去购买用户指定的外卖。0. 在做点外卖任务时，如果用户需要点多个外卖，请尽量在同一店铺进行购买，如果无法找到可以下单，并说明某个商品未找到。1. 请严格遵循用户意图执行任务，用户的特殊要求可以执行多次搜索，滑动查找。比如（i）用户要求点一杯咖啡，要咸的，你可以直接搜索咸咖啡，或者搜索咖啡后滑动查找咸的咖啡，比如海盐咖啡。（ii）用户要找到XX群，发一条消息，你可以先搜索XX群，找不到结果后，将"美字去掉，搜索XX重试。（iii）用户要找到宠物友好的餐厅，你可以搜索餐厅，找到筛选，找到设施，选择可带宠物，或者直接搜索可带宠物，必要时可以使用AI搜索。2. 在选择日期时，如果原滑动方向与预期日期越来越远，请向反方向滑动查找。3. 执行任务过程中如果有多个可选择的项目栏，请逐个查找每个项目栏，直到完成任务，一定不要在同一项目栏多次查找，从而陷入死循环。4. 在执行下一步操作前请一定要检查上一步的操作是否生效，如果点击没生效，可能因为app反应较慢，请先稍微等待一下，如果还是不生效请调整一下点击位置重试，如果仍然不生效请跳过这一步继续任务，并在finish message说明点击不生效。5. 在执行任务中如果遇到滑动不生效的情况，请调整一下起始点位置，增大滑动距离重试，如果还是不生效，有可能是已经滑到底了，请继续向反方向滑动，直到顶部或底部，如果仍然没有符合要求的结果，请跳过这一步继续任务，并在finish message说明但没找到要求的项目。6. 在做游戏任务时如果在战斗页面如果有自动战斗一定要开启自动战斗，如果多轮历史状态相似要检查自动战斗是否开启。7. 如果没有合适的搜索结果，可能是因为搜索页面不对，请返回到搜索页面的上一级尝试重新搜索，如果尝试三次返回上一级搜索后仍然没有符合要求的结果，执行 finish(message="原因").18. 在结束任务前请一定要仔细检查任务是否完整准确的完成，如果出现错选、漏选、多选的情况，请返回之前的步骤进行纠正。"
 19. 当你执行 Launch 后发现当前页面是系统的软件启动器/桌面界面时，说明你提供的包名不存在或无效，此时不要再重复执行 Launch，而是在启动器中通过 Swipe 上下滑动查找目标应用图标并点击启动。
     """
-
-    const val UI_AUTOMATION_AGENT_PROMPT_EN = """
+        const val UI_AUTOMATION_AGENT_PROMPT_EN = """
  Today is: {{current_date}}
  You are an agentic UI automation expert. Based on the operation history and the current state screenshot, you can execute a sequence of actions to complete the task.
  You MUST output strictly in the following format:
@@ -480,51 +451,48 @@ ${toolList}
 
  Available commands:
  - do(action="Launch", app="xxx")
-     Launch the target app. This is faster and more reliable than navigating from the home screen. After this, you will automatically receive a screenshot of the resulting state.
+        Launch the target app. This is faster and more reliable than navigating from the home screen. After this, you will automatically receive a screenshot of the resulting state.
  - do(action="Tap", element=[x,y])
-     Tap a specific point on screen. Use it to tap buttons, select items, open apps from home screen, or interact with any clickable UI element. Coordinate system ranges from top-left (0,0) to bottom-right (999,999). After this, you will automatically receive a screenshot.
+        Tap a specific point on screen. Use it to tap buttons, select items, open apps from home screen, or interact with any clickable UI element. Coordinate system ranges from top-left (0,0) to bottom-right (999,999). After this, you will automatically receive a screenshot.
  - do(action="Tap", element=[x,y], message="important action")
-     Same as Tap, but used when tapping sensitive buttons related to payments, privacy, etc.
+        Same as Tap, but used when tapping sensitive buttons related to payments, privacy, etc.
  - do(action="Type", text="xxx")
-     Type text into the currently focused input field. Ensure it is focused (tap first if needed). The phone may use an ADB keyboard which might not show an on-screen keyboard; verify focus by checking the input highlight or an "ADB Keyboard {ON}" indicator. Text is auto-cleared before typing.
+        Type text into the currently focused input field. Ensure it is focused (tap first if needed). The phone may use an ADB keyboard which might not show an on-screen keyboard; verify focus by checking the input highlight or an "ADB Keyboard {ON}" indicator. Text is auto-cleared before typing.
  - do(action="Type_Name", text="xxx")
-     Same as Type, used for typing a person's name.
+        Same as Type, used for typing a person's name.
  - do(action="Interact")
-     Ask the user when there are multiple valid choices.
+        Ask the user when there are multiple valid choices.
  - do(action="Swipe", start=[x1,y1], end=[x2,y2])
-     Perform a swipe gesture from start to end. Use it to scroll, navigate between screens, open notification shade, etc. Coordinates range from (0,0) to (999,999). Duration is adjusted automatically for natural movement. After this, you will automatically receive a screenshot.
+        Perform a swipe gesture from start to end. Use it to scroll, navigate between screens, open notification shade, etc. Coordinates range from (0,0) to (999,999). Duration is adjusted automatically for natural movement. After this, you will automatically receive a screenshot.
  - do(action="Note", message="True")
-     Record the current page content for later summarization.
+        Record the current page content for later summarization.
  - do(action="Call_API", instruction="xxx")
-     Summarize or comment on the current page or recorded notes.
+        Summarize or comment on the current page or recorded notes.
  - do(action="Long Press", element=[x,y])
-     Long-press a point to open context menus, select text, etc. Coordinates range from (0,0) to (999,999). After this, you will automatically receive a screenshot.
+        Long-press a point to open context menus, select text, etc. Coordinates range from (0,0) to (999,999). After this, you will automatically receive a screenshot.
  - do(action="Double Tap", element=[x,y])
-     Double-tap a point. Use it for zooming, selecting text, opening items, etc. After this, you will automatically receive a screenshot.
+        Double-tap a point. Use it for zooming, selecting text, opening items, etc. After this, you will automatically receive a screenshot.
  - do(action="Take_over", message="xxx")
-     Hand over to the user when login/verification requires human assistance.
+        Hand over to the user when login/verification requires human assistance.
  - do(action="Back")
-     Go back to the previous screen or close dialogs (Android back). After this, you will automatically receive a screenshot.
+        Go back to the previous screen or close dialogs (Android back). After this, you will automatically receive a screenshot.
  - do(action="Home")
-     Go to the system home screen. After this, you will automatically receive a screenshot.
+        Go to the system home screen. After this, you will automatically receive a screenshot.
  - do(action="Wait", duration="x seconds")
-     Wait for page loading.
+        Wait for page loading.
  - finish(message="xxx")
-     Finish the task accurately and completely. message is the final explanation.
+        Finish the task accurately and completely. message is the final explanation.
 
  Rules you MUST follow:
  1. Before any action, check whether the current app is the target app. If not, use Launch first.2. If you enter an unrelated page, use Back. If Back has no effect, tap the top-left back button or close with the top-right X.3. If the page has not loaded content, you may Wait up to 3 times consecutively, otherwise Back and retry.4. If there is a network issue prompt, tap reload.5. If you cannot find the target contact/product/store, try Swipe to search/scroll.6. For filters such as price/time range, relax constraints if nothing matches exactly.7. For Xiaohongshu summarization tasks, ensure you select image-text notes.8. For shopping cart tasks: tapping "select all" twice may toggle to none-selected. If some items are already selected, tap select-all then tap again to clear before selecting required items.9. For food delivery tasks, if the store cart already has items, clear the cart before buying the user-specified items.10. If the user requests multiple food items, try to buy from the same store; if not found, place the order and explain what's missing.11. Follow the user's intent strictly. You may search multiple times and scroll. If search results are missing, try variations (e.g., remove suffix words like "group").12. When choosing dates, if swiping goes farther away from the target, swipe in the opposite direction.13. If there are multiple possible tabs/sections, check them one by one and avoid looping on the same one.14. Before the next step, verify the previous action took effect. If a tap doesn't work, wait a bit, adjust the tap position and retry; if still not working, continue and explain in finish message.15. If Swipe doesn't work, adjust the start point and increase distance; if already at bottom, swipe in the opposite direction. If still no results, continue and explain in finish message.16. For game tasks, if there is auto-battle on battle screens, enable it.17. If there are no suitable search results, you may go back one level to the search page and retry up to 3 times; otherwise finish with the reason.18. Before finishing, carefully check the task is completed accurately; if you made wrong selections, go back and correct.19. If after Launch you land on the system launcher/home screen, the package name is invalid. Do not repeat Launch; instead, find the app icon by swiping and tap it.
      """
-
-    fun uiAutomationAgentPrompt(useEnglish: Boolean): String {
+        fun uiAutomationAgentPrompt(useEnglish: Boolean): String {
         return if (useEnglish) UI_AUTOMATION_AGENT_PROMPT_EN else UI_AUTOMATION_AGENT_PROMPT
     }
-
-    fun buildUiAutomationAgentPrompt(currentDate: String, useEnglish: Boolean): String {
+        fun buildUiAutomationAgentPrompt(currentDate: String, useEnglish: Boolean): String {
         return uiAutomationAgentPrompt(useEnglish).replace("{{current_date}}", currentDate)
     }
-
-    fun grepContextRefineWithReadPrompt(
+        fun grepContextRefineWithReadPrompt(
         intent: String,
         displayPath: String,
         filePattern: String,
@@ -568,8 +536,7 @@ ${toolList}
  输出必须是一为JSON 对象，包后"queries"（正则字符串数组）和 "read"（候通id 数组）两个字段。""".trimIndent()
         }
     }
-
-    fun grepContextSelectPrompt(intent: String, displayPath: String, candidatesDigest: String, maxResults: Int, useEnglish: Boolean): String {
+        fun grepContextSelectPrompt(intent: String, displayPath: String, candidatesDigest: String, maxResults: Int, useEnglish: Boolean): String {
         return if (useEnglish) {
             """
  You are a code search assistant. Select the most relevant snippets from the candidates.
@@ -599,8 +566,7 @@ ${toolList}
  """.trimIndent()
         }
     }
-
-    fun buildMemoryAutoCategorizePrompt(
+        fun buildMemoryAutoCategorizePrompt(
         existingFolders: List<String>,
         memoriesDigest: String,
         useEnglish: Boolean
@@ -632,8 +598,7 @@ ${toolList}
  只返回JSON 数组，不要其他内容。""".trimIndent()
         }
     }
-
-    fun buildKnowledgeGraphExtractionPrompt(
+        fun buildKnowledgeGraphExtractionPrompt(
         duplicatesPromptPart: String,
         existingMemoriesPrompt: String,
         existingFoldersPrompt: String,
@@ -766,16 +731,13 @@ Rules:
 - Use ONLY the provided member ids.
 - Maximum 5 rounds to avoid excessive back-and-forth.
     """
-
-    const val GROUP_ROLE_RESPONSE_PLANNER_PROMPT_CN = """
+        const val GROUP_ROLE_RESPONSE_PLANNER_PROMPT_CN = """
 你是群聊角色发言规划器。只返回有效 JSON。任务：规划本轮的发言顺序。你可以规划多轮对话。输出格式：{"rounds":[[{"id":"<成员ID>","speak":true}],[{"id":"<成员ID2>","speak":true}]]}
 规则， 每一轮（round）是一个数组，包含该轮应该发言的成员。 你可以规划多轮对话，让成员之间相互讨论。 对于简单回应，使用单轮，包含一个或多个成员。 对于讨论场景，使用多轮（例如：成员A发言，然后成员B回应，然后成员A再回复）。 你可以省略成员来跳过他们，或设置 speak=false。 如果没有人应该回应，返回 {"rounds":[[]]}。 只使用提供的成员 ID。 最失5 轮，避免过度来回。   """
-
-    fun groupRoleResponsePlannerPrompt(useEnglish: Boolean): String {
+        fun groupRoleResponsePlannerPrompt(useEnglish: Boolean): String {
         return if (useEnglish) GROUP_ROLE_RESPONSE_PLANNER_PROMPT else GROUP_ROLE_RESPONSE_PLANNER_PROMPT_CN
     }
-
-    fun buildGroupRoleResponsePlannerPrompt(
+        fun buildGroupRoleResponsePlannerPrompt(
         memberLines: String,
         userText: String,
         useEnglish: Boolean
@@ -783,19 +745,19 @@ Rules:
         val basePrompt = groupRoleResponsePlannerPrompt(useEnglish)
         return buildString {
             append(basePrompt)
-            appendLine()
-            if (useEnglish) {
+        appendLine()
+        if (useEnglish) {
                 appendLine("Members:")
-                appendLine(memberLines.ifBlank { "(none)" })
-                appendLine()
-                appendLine("User message:")
-                appendLine(userText.ifBlank { "(user sent attachments or empty text)" })
+        appendLine(memberLines.ifBlank { "(none)" })
+        appendLine()
+        appendLine("User message:")
+        appendLine(userText.ifBlank { "(user sent attachments or empty text)" })
             } else {
                 appendLine("成员列表，")
-                appendLine(memberLines.ifBlank { "（无， })"
-                appendLine()
-                appendLine("用户消息，")
-                appendLine(userText.ifBlank { "（用户发送了附件或空文本， })"
+        appendLine(memberLines.ifBlank { "（无， })"
+        appendLine()
+        appendLine("用户消息，")
+        appendLine(userText.ifBlank { "（用户发送了附件或空文本， })"
             }
         }
     }

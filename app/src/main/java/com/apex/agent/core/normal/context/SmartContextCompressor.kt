@@ -72,7 +72,6 @@ class SmartContextCompressor(
         if (history.isEmpty()) {
             return CompressionResult(emptyList(), 0, 0, 1.0f, emptyMap())
         }
-
         val originalTokens = history.sumOf { it.tokenCount }
         if (originalTokens <= maxTokens) {
             return CompressionResult(
@@ -83,13 +82,11 @@ class SmartContextCompressor(
                 tiers = history.associate { it.id to CompressionTier.FULL }
             )
         }
-
         val tiers = mutableMapOf<String, CompressionTier>()
         val total = history.size
 
         // 分层策略
-    val result = mutableListOf<ConversationMessage>()
-
+        val result = mutableListOf<ConversationMessage>()
         history.forEachIndexed { index, msg ->
             val fromEnd = total - index
         val tier = when {
@@ -98,39 +95,38 @@ class SmartContextCompressor(
                 fromEnd <= factsThreshold -> CompressionTier.FACTS_ONLY
                 else -> {
                     // 远段：按重要性决定
-                if (msg.importance > 0.7f) CompressionTier.FACTS_ONLY
+        if (msg.importance > 0.7f) CompressionTier.FACTS_ONLY
                     else CompressionTier.DISCARD
                 }
             }
-            tiers[msg.id] = tier
+        tiers[msg.id] = tier
 
             when (tier) {
                 CompressionTier.FULL -> result.add(msg)
-                CompressionTier.SUMMARY -> {
+        CompressionTier.SUMMARY -> {
                     val summary = msg.summary ?: generateSummary(msg)
-                    result.add(msg.copy(
+        result.add(msg.copy(
                         content = "[摘要] $summary",
                         tokenCount = estimateTokens(summary) + 10
                     ))
                 }
-                CompressionTier.FACTS_ONLY -> {
+        CompressionTier.FACTS_ONLY -> {
                     val facts = msg.extractedFacts.ifEmpty { extractFacts(msg.content) }
-                    if (facts.isNotEmpty()) {
+        if (facts.isNotEmpty()) {
                         val factsText = facts.joinToString("; ")
-                        result.add(msg.copy(
+        result.add(msg.copy(
                             content = "[关键事实] $factsText",
                             tokenCount = estimateTokens(factsText) + 15
                         ))
                     }
                 }
-                CompressionTier.DISCARD -> { /* 跳过 */ }
+        CompressionTier.DISCARD -> { /* 跳过 */ }
             }
         }
-
         val compressedTokens = result.sumOf { it.tokenCount }
 
         // 如果仍超限，递归压缩
-                return if (compressedTokens > maxTokens && recentKeepCount > 2) {
+        return if (compressedTokens > maxTokens && recentKeepCount > 2) {
             SmartContextCompressor(
                 maxTokens = maxTokens,
                 recentKeepCount = recentKeepCount - 2,
@@ -163,23 +159,23 @@ class SmartContextCompressor(
         var score = 0.5f
 
         // 包含数字/日期 → 重要
-                if (Regex("\\d{4}|\\d+").containsMatchIn(message.content)) score += 0.15f
+        if (Regex("\\d{4}|\\d+").containsMatchIn(message.content)) score += 0.15f
 
         // 包含决策性词汇 → 重要
-    val decisionWords = listOf("决定", "同意", "拒绝", "选择", "decided", "agreed", "chose", "will")
+        val decisionWords = listOf("决定", "同意", "拒绝", "选择", "decided", "agreed", "chose", "will")
         if (decisionWords.any { message.content.contains(it, ignoreCase = true) }) score += 0.2f
 
         // 包含人名/专有名词 → 重要
-                if (Regex("[A-Z][a-z]+|[\\u4e00-\\u9fa5]{2,3}(说|表示|认为)").containsMatchIn(message.content)) score += 0.1f
+        if (Regex("[A-Z][a-z]+|[\\u4e00-\\u9fa5]{2,3}(说|表示|认为)").containsMatchIn(message.content)) score += 0.1f
 
         // 用户消息比 assistant 更重要
-                if (message.role == ConversationMessage.Role.USER) score += 0.1f
+        if (message.role == ConversationMessage.Role.USER) score += 0.1f
 
         // 包含代码 → 重要
-                if (message.content.contains("```") || message.content.contains("<code>")) score += 0.15f
+        if (message.content.contains("```") || message.content.contains("<code>")) score += 0.15f
 
         // 长消息可能包含更多信息
-                if (message.tokenCount > 200) score += 0.1f
+        if (message.tokenCount > 200) score += 0.1f
 
         return score.coerceIn(0.0f, 1.0f)
     }
@@ -190,7 +186,7 @@ class SmartContextCompressor(
     private fun generateSummary(message: ConversationMessage): String {
         val content = message.content
         // 简化：取前 100 字 + 后 50 字
-                return when {
+        return when {
             content.length <= 150 -> content
             else -> content.take(100) + "..." + content.takeLast(50)
         }
@@ -203,13 +199,13 @@ class SmartContextCompressor(
         val facts = mutableListOf<String>()
 
         // 提取数字/日期
-                Regex("(\\d{4}年|\\d+月\\d+日|\\d+个|\\d+次|\\d+%|\\d+\\.\\d+)").findAll(content)
+        Regex("(\\d{4}年|\\d+月\\d+日|\\d+个|\\d+次|\\d+%|\\d+\\.\\d+)").findAll(content)
             .map { it.value }
             .take(3)
             .forEach { facts.add("数据:$it") }
 
         // 提取人名（简化：大写英文或中文姓名）
-                Regex("([A-Z][a-z]+ [A-Z][a-z]+|[\\u4e00-\\u9fa5]{2,3})(说|表示|认为|提出|建议)".let {
+        Regex("([A-Z][a-z]+ [A-Z][a-z]+|[\\u4e00-\\u9fa5]{2,3})(说|表示|认为|提出|建议)".let {
             it
         }).findAll(content)
             .map { it.groupValues[1] }
@@ -218,21 +214,19 @@ class SmartContextCompressor(
             .forEach { facts.add("人物:$it") }
 
         // 提取决策
-    val decisionPatterns = mapOf(
+        val decisionPatterns = mapOf(
             "决定" to "决定", "同意" to "同意", "拒绝" to "拒绝", "选择" to "选择",
             "decided" to "decided", "agreed" to "agreed"
         )
         for ((pattern, label) in decisionPatterns) {
             if (content.contains(pattern, ignoreCase = true)) {
                 facts.add("决策:$label")
-                break
+        break
             }
         }
-
         return facts.take(5)
     }
-
-    companion object {
+        companion object {
         /**
          * 估算 token 数（简化：1 字 ≈ 1.5 token，1 英文单词 ≈ 1.3 token）
          */

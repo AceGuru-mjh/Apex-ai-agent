@@ -34,13 +34,12 @@ fun MultiAgentScreen(
     modifier: Modifier = Modifier,
 ) {
     val agents by state.agents.collectAsState()
-    val tasks by state.tasks.collectAsState()
-    val messages by state.messages.collectAsState()
-    val topology by state.topology.collectAsState()
-    val stats by state.stats.collectAsState()
-    val currentMode by state.collaborationMode.collectAsState()
-
-    Column(
+        val tasks by state.tasks.collectAsState()
+        val messages by state.messages.collectAsState()
+        val topology by state.topology.collectAsState()
+        val stats by state.stats.collectAsState()
+        val currentMode by state.collaborationMode.collectAsState()
+        Column(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFF0A0E1A))
@@ -67,8 +66,8 @@ fun MultiAgentScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             AgentListPanel(agents = agents, modifier = Modifier.weight(1f), onRemove = { state.removeAgent(it) })
-            TopologyPanel(topology = topology, modifier = Modifier.weight(1.2f))
-            TaskMessagePanel(
+        TopologyPanel(topology = topology, modifier = Modifier.weight(1.2f))
+        TaskMessagePanel(
                 tasks = tasks, messages = messages, modifier = Modifier.weight(1f),
                 onCreateTask = { t, d -> state.createTask(t, d) },
             )
@@ -96,12 +95,12 @@ private fun TopBar(
         )
         Column(modifier = Modifier.weight(1f)) {
             Text("多 Agent 协作", color = Color(0xFF00E5FF), fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text("${stats.activeAgents}/${stats.totalAgents} 活跃 · ${stats.completedTasks}/${stats.totalTasks} 任务 · ${stats.totalMessages} 消息", color = Color(0xFF94A3B8), fontSize = 12.sp)
+        Text("${stats.activeAgents}/${stats.totalAgents} 活跃 · ${stats.completedTasks}/${stats.totalTasks} 任务 · ${stats.totalMessages} 消息", color = Color(0xFF94A3B8), fontSize = 12.sp)
         }
         var modeMenuExpanded by remember { mutableStateOf(false) }
         Box {
             OutlinedButton(onClick = { modeMenuExpanded = true }) { Text(mode.displayName, color = Color(0xFF00E5FF), fontSize = 12.sp) }
-            DropdownMenu(expanded = modeMenuExpanded, onDismissRequest = { modeMenuExpanded = false }) {
+        DropdownMenu(expanded = modeMenuExpanded, onDismissRequest = { modeMenuExpanded = false }) {
                 CollaborationMode.values().forEach { m ->
                     DropdownMenuItem(text = { Text(m.displayName) }, onClick = { onModeChange(m); modeMenuExpanded = false })
                 }
@@ -113,7 +112,7 @@ private fun TopBar(
         var presetMenuExpanded by remember { mutableStateOf(false) }
         Box {
             OutlinedButton(onClick = { presetMenuExpanded = true }) { Text("预设", color = Color(0xFFFF6B9D), fontSize = 12.sp) }
-            DropdownMenu(expanded = presetMenuExpanded, onDismissRequest = { presetMenuExpanded = false }) {
+        DropdownMenu(expanded = presetMenuExpanded, onDismissRequest = { presetMenuExpanded = false }) {
                 MultiAgentPresets.Preset.values().forEach { preset ->
                     DropdownMenuItem(text = { Text("${preset.icon} ${preset.displayName}") }, onClick = { onLoadPreset(preset); presetMenuExpanded = false })
                 }
@@ -144,7 +143,7 @@ private fun AgentCard(agent: AgentCardData, onRemove: () -> Unit) {
         AgentRoleType.PLANNER -> Color(0xFFA78BFA)
         AgentRoleType.SYSTEM -> Color(0xFF94A3B8)
     }
-    val statusColor = when (agent.status) {
+        val statusColor = when (agent.status) {
         AgentStatus.IDLE -> Color(0xFF64748B)
         AgentStatus.THINKING -> Color(0xFF60A5FA)
         AgentStatus.EXECUTING -> Color(0xFF00E5FF)
@@ -152,12 +151,12 @@ private fun AgentCard(agent: AgentCardData, onRemove: () -> Unit) {
         AgentStatus.COMPLETED -> Color(0xFF4ADE80)
         AgentStatus.ERROR -> Color(0xFFEF4444)
     }
-    Row(modifier = Modifier.fillMaxWidth().background(Color(0xFF1A2332), RoundedCornerShape(6.dp)).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxWidth().background(Color(0xFF1A2332), RoundedCornerShape(6.dp)).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(roleColor))
         Spacer(Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(agent.name, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-            Text("${agent.role.displayName} · ${agent.status.displayName}", color = Color(0xFF94A3B8), fontSize = 10.sp)
+        Text("${agent.role.displayName} · ${agent.status.displayName}", color = Color(0xFF94A3B8), fontSize = 10.sp)
         }
         Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
         Spacer(Modifier.width(8.dp))
@@ -176,13 +175,13 @@ private fun TopologyPanel(topology: CollaborationTopology, modifier: Modifier = 
                 topology.edges.forEach { edge ->
                     val from = topology.nodes.find { it.agentId == edge.fromId }
         val to = topology.nodes.find { it.agentId == edge.toId }
-                    if (from != null && to != null) {
+        if (from != null && to != null) {
                         drawLine(color = Color(edge.color), start = androidx.compose.ui.geometry.Offset(from.x * w, from.y * h), end = androidx.compose.ui.geometry.Offset(to.x * w, to.y * h), strokeWidth = 2f)
                     }
                 }
-                topology.nodes.forEach { node ->
+        topology.nodes.forEach { node ->
                     drawCircle(color = Color(node.color), radius = 16f, center = androidx.compose.ui.geometry.Offset(node.x * w, node.y * h))
-                    drawCircle(color = Color(node.color).copy(alpha = 0.3f), radius = 24f, center = androidx.compose.ui.geometry.Offset(node.x * w, node.y * h), style = Stroke(width = 2f))
+        drawCircle(color = Color(node.color).copy(alpha = 0.3f), radius = 24f, center = androidx.compose.ui.geometry.Offset(node.x * w, node.y * h), style = Stroke(width = 2f))
                 }
             }
         }
@@ -192,12 +191,12 @@ private fun TopologyPanel(topology: CollaborationTopology, modifier: Modifier = 
 @Composable
 private fun TaskMessagePanel(tasks: List<CollaborationTaskCard>, messages: List<AgentMessageCard>, modifier: Modifier = Modifier, onCreateTask: (String, String) -> Unit) {
     var newTaskTitle by remember { mutableStateOf("") }
-    Column(modifier = modifier.fillMaxHeight().background(Color(0xFF111827), RoundedCornerShape(8.dp)).border(1.dp, Color(0xFF1A2332), RoundedCornerShape(8.dp)).padding(8.dp)) {
+        Column(modifier = modifier.fillMaxHeight().background(Color(0xFF111827), RoundedCornerShape(8.dp)).border(1.dp, Color(0xFF1A2332), RoundedCornerShape(8.dp)).padding(8.dp)) {
         Text("任务", color = Color(0xFF94A3B8), fontSize = 12.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(4.dp))
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             OutlinedTextField(value = newTaskTitle, onValueChange = { newTaskTitle = it }, placeholder = { Text("新任务...", fontSize = 11.sp) }, modifier = Modifier.weight(1f), textStyle = LocalTextStyle.current.copy(fontSize = 11.sp, color = Color.White))
-            Button(onClick = { if (newTaskTitle.isNotBlank()) { onCreateTask(newTaskTitle, ""); newTaskTitle = "" } }, contentPadding = PaddingValues(6.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF))) { Text("+", color = Color.Black) }
+        Button(onClick = { if (newTaskTitle.isNotBlank()) { onCreateTask(newTaskTitle, ""); newTaskTitle = "" } }, contentPadding = PaddingValues(6.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF))) { Text("+", color = Color.Black) }
         }
         Spacer(Modifier.height(6.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(0.4f)) { items(tasks) { task -> TaskRow(task) } }
@@ -219,7 +218,7 @@ private fun TaskRow(task: CollaborationTaskCard) {
         TaskStatus.FAILED -> Color(0xFFEF4444)
         TaskStatus.CANCELLED -> Color(0xFF64748B)
     }
-    Row(modifier = Modifier.fillMaxWidth().background(Color(0xFF1A2332), RoundedCornerShape(4.dp)).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxWidth().background(Color(0xFF1A2332), RoundedCornerShape(4.dp)).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
         Spacer(Modifier.width(6.dp))
         Text(task.title, color = Color.White, fontSize = 11.sp, modifier = Modifier.weight(1f))
@@ -239,13 +238,13 @@ private fun MessageRow(msg: AgentMessageCard) {
         AgentMessageType.ERROR -> Color(0xFFEF4444)
         AgentMessageType.SYSTEM -> Color(0xFF94A3B8)
     }
-    Column(modifier = Modifier.fillMaxWidth().background(Color(0xFF1A2332), RoundedCornerShape(4.dp)).padding(6.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().background(Color(0xFF1A2332), RoundedCornerShape(4.dp)).padding(6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(msg.fromAgentName, color = typeColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-            Text(" → ", color = Color(0xFF64748B), fontSize = 10.sp)
-            Text(msg.toAgentName ?: "广播", color = Color(0xFF94A3B8), fontSize = 10.sp)
-            Spacer(Modifier.weight(1f))
-            Text(msg.type.displayName, color = typeColor, fontSize = 8.sp)
+        Text(" → ", color = Color(0xFF64748B), fontSize = 10.sp)
+        Text(msg.toAgentName ?: "广播", color = Color(0xFF94A3B8), fontSize = 10.sp)
+        Spacer(Modifier.weight(1f))
+        Text(msg.type.displayName, color = typeColor, fontSize = 8.sp)
         }
         Text(msg.content, color = Color(0xFFE2E8F0), fontSize = 11.sp)
     }

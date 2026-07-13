@@ -18,11 +18,10 @@ internal data class UserscriptImportResult(
 
 internal object UserscriptImportCoordinator {
     private const val EXTRA_REQUEST_ID = "userscript_import_request_id"
-    private const val REQUEST_TIMEOUT_MS = 60_000L
+        private const val REQUEST_TIMEOUT_MS = 60_000L
 
     private val pendingRequests = ConcurrentHashMap<String, CompletableDeferred<UserscriptImportResult?>>()
-
-    suspend fun requestImport(context: Context): UserscriptImportResult? {
+        suspend fun requestImport(context: Context): UserscriptImportResult? {
         val requestId = UUID.randomUUID().toString()
         val deferred = CompletableDeferred<UserscriptImportResult?>()
         pendingRequests[requestId] = deferred
@@ -33,17 +32,15 @@ internal object UserscriptImportCoordinator {
             }
         if (!launched) {
             pendingRequests.remove(requestId)
-            return null
+        return null
         }
-
         return withTimeoutOrNull(REQUEST_TIMEOUT_MS) {
             deferred.await()
         }.also {
             pendingRequests.remove(requestId)
         }
     }
-
-    private fun launchPickerActivity(
+        private fun launchPickerActivity(
         context: Context,
         requestId: String
     ): Boolean {
@@ -51,28 +48,25 @@ internal object UserscriptImportCoordinator {
             val intent =
                 Intent(context, UserscriptImportPickerActivity::class.java).apply {
                     putExtra(EXTRA_REQUEST_ID, requestId)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-            val activity = ActivityLifecycleManager.getCurrentActivity()
-            if (activity != null && !activity.isFinishing && !activity.isDestroyed) {
+        val activity = ActivityLifecycleManager.getCurrentActivity()
+        if (activity != null && !activity.isFinishing && !activity.isDestroyed) {
                 activity.startActivity(intent.apply { removeFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
             } else {
                 context.startActivity(intent)
             }
-            true
+        true
         }.getOrDefault(false)
     }
-
-    internal fun complete(
+        internal fun complete(
         requestId: String,
         result: UserscriptImportResult?
     ) {
         pendingRequests.remove(requestId)?.complete(result)
     }
-
-    internal fun cancel(requestId: String) {
+        internal fun cancel(requestId: String) {
         pendingRequests.remove(requestId)?.complete(null)
     }
-
-    internal fun requestIdExtra(): String = EXTRA_REQUEST_ID
+        internal fun requestIdExtra(): String = EXTRA_REQUEST_ID
 }

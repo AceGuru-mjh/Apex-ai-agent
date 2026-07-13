@@ -20,7 +20,7 @@ object ApexAIIntegration {
     private lateinit var appContext: Context
 
     // 使用可空类型替代 lateinit，避免未初始化访问风限
-                private var _modelProvider: EnhancedModelProvider? = null
+        private var _modelProvider: EnhancedModelProvider? = null
     private var _emotionAnalyzer: EnhancedEmotionAnalyzer? = null
     private var _graphReasoning: EnhancedGraphReasoning? = null
     private var _streamingManager: StreamingDataManager? = null
@@ -33,19 +33,18 @@ object ApexAIIntegration {
     private var _swarmEngine: SwarmIntelligenceEngine? = null
 
     // 公开访问器，提供安全访问
-    val modelProvider: EnhancedModelProvider get() = _modelProvider ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val emotionAnalyzer: EnhancedEmotionAnalyzer get() = _emotionAnalyzer ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val graphReasoning: EnhancedGraphReasoning get() = _graphReasoning ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val streamingManager: StreamingDataManager get() = _streamingManager ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val codeEngine: CodeEngineeringEngine get() = _codeEngine ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val collaborationFramework: AgentCollaborationFramework get() = _collaborationFramework ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val learningPlanner: ReinforcementLearningPlanner get() = _learningPlanner ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val arvrManager: ARVRInteractionManager get() = _arvrManager ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val decentralizedNetwork: DecentralizedAINetwork get() = _decentralizedNetwork ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val evolutionEngine: LogistraAgentEvolutionEngineV2 get() = _evolutionEngine ?: throw IllegalStateException("ApexAIIntegration not initialized")
-    val swarmEngine: SwarmIntelligenceEngine get() = _swarmEngine ?: throw IllegalStateException("ApexAIIntegration not initialized")
-
-    fun initialize(context: Context) {
+        val modelProvider: EnhancedModelProvider get() = _modelProvider ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val emotionAnalyzer: EnhancedEmotionAnalyzer get() = _emotionAnalyzer ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val graphReasoning: EnhancedGraphReasoning get() = _graphReasoning ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val streamingManager: StreamingDataManager get() = _streamingManager ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val codeEngine: CodeEngineeringEngine get() = _codeEngine ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val collaborationFramework: AgentCollaborationFramework get() = _collaborationFramework ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val learningPlanner: ReinforcementLearningPlanner get() = _learningPlanner ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val arvrManager: ARVRInteractionManager get() = _arvrManager ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val decentralizedNetwork: DecentralizedAINetwork get() = _decentralizedNetwork ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val evolutionEngine: LogistraAgentEvolutionEngineV2 get() = _evolutionEngine ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        val swarmEngine: SwarmIntelligenceEngine get() = _swarmEngine ?: throw IllegalStateException("ApexAIIntegration not initialized")
+        fun initialize(context: Context) {
         if (initialized) return
 
         appContext = context.applicationContext
@@ -64,11 +63,9 @@ object ApexAIIntegration {
             context = appContext,
             aiService = com.apex.agent.api.chat.EnhancedAIService.getInstance(appContext)
         )
-
         initialized = true
     }
-    
-    fun isInitialized(): Boolean = initialized
+        fun isInitialized(): Boolean = initialized
     
     fun cleanup() {
         _modelProvider = null
@@ -84,8 +81,7 @@ object ApexAIIntegration {
         _swarmEngine = null
         initialized = false
     }
-
-    fun getStatus(): Map<String, Any> {
+        fun getStatus(): Map<String, Any> {
         return mapOf(
             "initialized" to initialized,
             "modules" to listOf(
@@ -103,8 +99,7 @@ object ApexAIIntegration {
             )
         )
     }
-
-    fun generateSystemReport(): String {
+        fun generateSystemReport(): String {
         val modelStatus = "本地模型系统已就结"
         val emotionStatus = "情感智能系统已就结"
         val graphStatus = "知识图谱系统已就结"
@@ -116,23 +111,22 @@ object ApexAIIntegration {
         val decentralizedStatus = "去中心化AI网络已就结"
         val evolutionStatus = "自进化引操v2.0 已就结"
         val swarmStatus = "群体智能引擎已就结"
-
         return buildString {
             appendLine("=== Apex AI 增强系统 - 完整报告")
-            appendLine("=".repeat(50))
-            appendLine(modelStatus)
-            appendLine(emotionStatus)
-            appendLine(graphStatus)
-            appendLine(streamingStatus)
-            appendLine(codeStatus)
-            appendLine(collaborationStatus)
-            appendLine(planningStatus)
-            appendLine(arvrStatus)
-            appendLine(decentralizedStatus)
-            appendLine(evolutionStatus)
-            appendLine(swarmStatus)
-            appendLine("=".repeat(50))
-            appendLine("所有11 大核心模块全部就绪！")
+        appendLine("=".repeat(50))
+        appendLine(modelStatus)
+        appendLine(emotionStatus)
+        appendLine(graphStatus)
+        appendLine(streamingStatus)
+        appendLine(codeStatus)
+        appendLine(collaborationStatus)
+        appendLine(planningStatus)
+        appendLine(arvrStatus)
+        appendLine(decentralizedStatus)
+        appendLine(evolutionStatus)
+        appendLine(swarmStatus)
+        appendLine("=".repeat(50))
+        appendLine("所有11 大核心模块全部就绪！")
         }
     }
 }

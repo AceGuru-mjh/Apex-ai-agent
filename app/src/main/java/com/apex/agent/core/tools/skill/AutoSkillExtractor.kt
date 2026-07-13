@@ -28,8 +28,7 @@ data class SkillCandidate(
         put("tools", JSONArray(tools))
         put("createdAt", createdAt)
     }
-
-    companion object {
+        companion object {
         fun fromJson(json: JSONObject): SkillCandidate = SkillCandidate(
             pattern = json.getJSONArray("pattern").let { arr ->
                 (0 until arr.length()).map { arr.getString(it) }
@@ -78,8 +77,7 @@ class AutoSkillExtractor private constructor(private val context: Context) {
             }
         }
     }
-
-    private val candidatesFile: File by lazy {
+        private val candidatesFile: File by lazy {
         File(context.filesDir, "skill_candidates.json")
     }
 
@@ -94,12 +92,10 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         toolCallHistory: List<SessionToolCallRecord>
     ): List<SkillCandidate> = withContext(Dispatchers.IO) {
         AppLogger.d(TAG, "Extracting skills from session: ${sessionId}, tool calls: ${toolCallHistory.size}")
-
         if (toolCallHistory.size < MIN_PATTERN_LENGTH * MIN_FREQUENCY) {
             AppLogger.d(TAG, "Not enough tool calls for pattern extraction")
-            return@withContext emptyList()
+        return@withContext emptyList()
         }
-
         val toolNames = toolCallHistory.map { it.toolName }
         val patterns = extractPatterns(toolNames)
         val candidates = patterns
@@ -110,7 +106,7 @@ class AutoSkillExtractor private constructor(private val context: Context) {
                     frequency = pattern.frequency,
                     toolCallHistory = toolCallHistory
                 )
-                SkillCandidate(
+        SkillCandidate(
                     pattern = pattern.sequence,
                     frequency = pattern.frequency,
                     confidence = confidence,
@@ -121,7 +117,6 @@ class AutoSkillExtractor private constructor(private val context: Context) {
             }
             .filter { it.confidence >= CONFIDENCE_THRESHOLD }
             .sortedByDescending { it.confidence }
-
         AppLogger.i(TAG, "Extracted ${candidates.size} skill candidates with confidence >= ${CONFIDENCE_THRESHOLD}")
         candidates
     }
@@ -133,21 +128,21 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         val patternCounts = mutableMapOf<List<String>, Int>()
 
         // 提取不同长度的n-gram 模式
-                for (n in MIN_PATTERN_LENGTH..MAX_PATTERN_LENGTH.coerceAtMost(toolNames.size)) {
+        for (n in MIN_PATTERN_LENGTH..MAX_PATTERN_LENGTH.coerceAtMost(toolNames.size)) {
             for (i in 0..toolNames.size - n) {
                 val ngram = toolNames.subList(i, i + n)
-                patternCounts[ngram] = (patternCounts[ngram] ?: 0) + 1
+        patternCounts[ngram] = (patternCounts[ngram] ?: 0) + 1
             }
         }
 
         // 过滤出重复出现的模式，并去除子模式
-    val frequentPatterns = patternCounts
+        val frequentPatterns = patternCounts
             .filter { it.value >= MIN_FREQUENCY }
             .map { PatternMatch(it.key, it.value) }
             .sortedByDescending { it.sequence.size }
 
         // 去除被更长模式包含的子模式
-                return removeSubPatterns(frequentPatterns)
+        return removeSubPatterns(frequentPatterns)
     }
 
     /**
@@ -155,16 +150,14 @@ class AutoSkillExtractor private constructor(private val context: Context) {
      */
     private fun removeSubPatterns(patterns: List<PatternMatch>): List<PatternMatch> {
         val result = mutableListOf<PatternMatch>()
-
         for (pattern in patterns) {
             val isSubPattern = result.any { longer ->
                 containsSubsequence(longer.sequence, pattern.sequence)
             }
-            if (!isSubPattern) {
+        if (!isSubPattern) {
                 result.add(pattern)
             }
         }
-
         return result
     }
 
@@ -192,16 +185,16 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         toolCallHistory: List<SessionToolCallRecord>
     ): Float {
         // 频率分数：出现次数越多，分数越高（归一化到 0-1，
-    val frequencyScore = (frequency.toFloat() / MIN_FREQUENCY).coerceAtMost(1.0f)
+        val frequencyScore = (frequency.toFloat() / MIN_FREQUENCY).coerceAtMost(1.0f)
 
         // 一致性分数：模式在历史中完整出现的比例
-    val consistencyScore = calculateConsistency(pattern, toolCallHistory)
+        val consistencyScore = calculateConsistency(pattern, toolCallHistory)
 
         // 通用性分数：模式不依赖特定数据的程度
-    val generalityScore = calculateGenerality(pattern, toolCallHistory)
+        val generalityScore = calculateGenerality(pattern, toolCallHistory)
 
         // 综合置信度：加权平均
-    val confidence = frequencyScore * 0.4f + consistencyScore * 0.35f + generalityScore * 0.25f
+        val confidence = frequencyScore * 0.4f + consistencyScore * 0.35f + generalityScore * 0.25f
 
         return confidence.coerceIn(0f, 1f)
     }
@@ -221,7 +214,7 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         }
 
         // 一致态= 实际出现次数 / 理论最大出现次数
-    val maxPossible = (toolNames.size / pattern.size).coerceAtLeast(1)
+        val maxPossible = (toolNames.size / pattern.size).coerceAtLeast(1)
         return (occurrences.toFloat() / maxPossible).coerceAtMost(1.0f)
     }
 
@@ -231,21 +224,20 @@ class AutoSkillExtractor private constructor(private val context: Context) {
      */
     private fun calculateGenerality(pattern: List<String>, toolCallHistory: List<SessionToolCallRecord>): Float {
         // 工具多样性：模式中包含的不同工具数量
-    val uniqueTools = pattern.distinct().size
+        val uniqueTools = pattern.distinct().size
         val diversityScore = (uniqueTools.toFloat() / pattern.size).coerceAtMost(1.0f)
 
         // 参数独立性：检查工具调用参数是否变化（简化版，
-    val patternOccurrences = findPatternOccurrences(pattern, toolCallHistory)
+        val patternOccurrences = findPatternOccurrences(pattern, toolCallHistory)
         val parameterVariation = if (patternOccurrences.size > 1) {
             // 如果同一模式出现多次，检查参数是否有变化
-    val hasVariation = patternOccurrences.any { occ ->
+        val hasVariation = patternOccurrences.any { occ ->
                 occ.any { it.parameters.isNotEmpty() }
             }
-            if (hasVariation) 0.8f else 0.5f
+        if (hasVariation) 0.8f else 0.5f
         } else {
             0.5f
         }
-
         return (diversityScore * 0.6f + parameterVariation * 0.4f).coerceIn(0f, 1f)
     }
 
@@ -258,13 +250,11 @@ class AutoSkillExtractor private constructor(private val context: Context) {
     ): List<List<ToolCallRecord>> {
         val occurrences = mutableListOf<List<ToolCallRecord>>()
         val toolNames = toolCallHistory.map { it.toolName }
-
         for (i in 0..toolNames.size - pattern.size) {
             if (toolNames.subList(i, i + pattern.size) == pattern) {
                 occurrences.add(toolCallHistory.subList(i, i + pattern.size))
             }
         }
-
         return occurrences
     }
 
@@ -274,9 +264,9 @@ class AutoSkillExtractor private constructor(private val context: Context) {
     suspend fun saveCandidates(candidates: List<SkillCandidate>) = withContext(Dispatchers.IO) {
         try {
             val jsonArray = JSONArray()
-            candidates.forEach { jsonArray.put(it.toJson()) }
-            candidatesFile.writeText(jsonArray.toString(2))
-            AppLogger.i(TAG, "Saved ${candidates.size} skill candidates to file")
+        candidates.forEach { jsonArray.put(it.toJson()) }
+        candidatesFile.writeText(jsonArray.toString(2))
+        AppLogger.i(TAG, "Saved ${candidates.size} skill candidates to file")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to save skill candidates", e)
         }
@@ -290,17 +280,16 @@ class AutoSkillExtractor private constructor(private val context: Context) {
             if (!candidatesFile.exists()) {
                 return@withContext emptyList()
             }
-
-            val json = candidatesFile.readText()
+        val json = candidatesFile.readText()
         val jsonArray = JSONArray(json)
-            val candidates = (0 until jsonArray.length()).map {
+        val candidates = (0 until jsonArray.length()).map {
                 SkillCandidate.fromJson(jsonArray.getJSONObject(it))
             }
-            AppLogger.d(TAG, "Loaded ${candidates.size} skill candidates from file")
-            candidates
+        AppLogger.d(TAG, "Loaded ${candidates.size} skill candidates from file")
+        candidates
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to load skill candidates", e)
-            emptyList()
+        emptyList()
         }
     }
 
@@ -320,7 +309,7 @@ class AutoSkillExtractor private constructor(private val context: Context) {
         val existing = loadCandidates().toMutableList()
         if (index in existing.indices) {
             existing.removeAt(index)
-            saveCandidates(existing)
+        saveCandidates(existing)
         }
     }
 
@@ -332,13 +321,12 @@ class AutoSkillExtractor private constructor(private val context: Context) {
             if (candidatesFile.exists()) {
                 candidatesFile.delete()
             }
-            AppLogger.i(TAG, "Cleared all skill candidates")
+        AppLogger.i(TAG, "Cleared all skill candidates")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to clear skill candidates", e)
         }
     }
-
-    private data class PatternMatch(
+        private data class PatternMatch(
         val sequence: List<String>,
         val frequency: Int
     )

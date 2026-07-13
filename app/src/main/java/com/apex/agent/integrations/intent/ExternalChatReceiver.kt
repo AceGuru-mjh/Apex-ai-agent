@@ -15,33 +15,27 @@ class ExternalChatReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "ExternalChatReceiver"
-
         const val ACTION_EXTERNAL_CHAT = "com.apex.EXTERNAL_CHAT"
         const val ACTION_EXTERNAL_CHAT_RESULT = "com.apex.EXTERNAL_CHAT_RESULT"
-
         const val EXTRA_REQUEST_ID = "request_id"
         const val EXTRA_MESSAGE = "message"
         const val EXTRA_GROUP = "group"
         const val EXTRA_CREATE_NEW_CHAT = "create_new_chat"
         const val EXTRA_CHAT_ID = "chat_id"
         const val EXTRA_CREATE_IF_NONE = "create_if_none"
-
         const val EXTRA_SHOW_FLOATING = "show_floating"
         const val EXTRA_RETURN_TOOL_STATUS = "return_tool_status"
         const val EXTRA_INITIAL_MODE = "initial_mode"
         const val EXTRA_AUTO_EXIT_AFTER_MS = "auto_exit_after_ms"
         const val EXTRA_STOP_AFTER = "stop_after"
-
         const val EXTRA_REPLY_ACTION = "reply_action"
         const val EXTRA_REPLY_PACKAGE = "reply_package"
-
         const val EXTRA_RESULT_SUCCESS = "success"
         const val EXTRA_RESULT_CHAT_ID = "chat_id"
         const val EXTRA_RESULT_AI_RESPONSE = "ai_response"
         const val EXTRA_RESULT_ERROR = "error"
     }
-
-    override fun onReceive(context: Context, intent: Intent) {
+        override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_EXTERNAL_CHAT) return
 
         val pending = goAsync()
@@ -65,8 +59,7 @@ class ExternalChatReceiver : BroadcastReceiver() {
                         stopAfter = intent.getBooleanExtra(EXTRA_STOP_AFTER, false)
                     )
                 )
-
-                sendResultBroadcast(
+        sendResultBroadcast(
                     context = context,
                     action = replyAction,
                     packageName = replyPackage,
@@ -74,10 +67,10 @@ class ExternalChatReceiver : BroadcastReceiver() {
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to handle external chat", e)
-                val replyAction = intent.getStringExtra(EXTRA_REPLY_ACTION)?.takeIf { it.isNotBlank() }
+        val replyAction = intent.getStringExtra(EXTRA_REPLY_ACTION)?.takeIf { it.isNotBlank() }
                     ?: ACTION_EXTERNAL_CHAT_RESULT
                 val replyPackage = intent.getStringExtra(EXTRA_REPLY_PACKAGE)?.takeIf { it.isNotBlank() }
-                sendResultBroadcast(
+        sendResultBroadcast(
                     context = context,
                     action = replyAction,
                     packageName = replyPackage,
@@ -92,8 +85,7 @@ class ExternalChatReceiver : BroadcastReceiver() {
             }
         }
     }
-
-    private fun sendResultBroadcast(
+        private fun sendResultBroadcast(
         context: Context,
         action: String,
         packageName: String?,

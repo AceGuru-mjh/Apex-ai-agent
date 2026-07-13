@@ -14,11 +14,9 @@ data class ToolProgressEvent(
 
 object ToolProgressBus {
     const val SUMMARY_PROGRESS_TOOL_NAME: String = "__SUMMARY__"
-
-    private val _progress = MutableStateFlow<ToolProgressEvent?>(null)
+        private val _progress = MutableStateFlow<ToolProgressEvent?>(null)
         val progress: StateFlow<ToolProgressEvent?> = _progress.asStateFlow()
-
-    private fun priorityForTool(toolName: String): Int {
+        private fun priorityForTool(toolName: String): Int {
         return when (toolName) {
             SUMMARY_PROGRESS_TOOL_NAME -> 1000
             "grep_context" -> 100
@@ -27,12 +25,10 @@ object ToolProgressBus {
             else -> 0
         }
     }
-
-    fun update(toolName: String, progress: Float, message: String = "") {
+        fun update(toolName: String, progress: Float, message: String = "") {
         update(toolName = toolName, progress = progress, message = message, priority = priorityForTool(toolName))
     }
-
-    fun update(toolName: String, progress: Float, message: String = "", priority: Int, level: Int = 0) {
+        fun update(toolName: String, progress: Float, message: String = "", priority: Int, level: Int = 0) {
         val next = ToolProgressEvent(
             toolName = toolName,
             progress = progress,
@@ -40,7 +36,6 @@ object ToolProgressBus {
             priority = priority,
             level = level
         )
-
         val current = _progress.value
         val shouldReplace =
             current == null ||
@@ -48,13 +43,11 @@ object ToolProgressBus {
                 current.progress >= 1f ||
                 next.priority > current.priority ||
                 (next.priority == current.priority && next.level >= current.level)
-
         if (shouldReplace) {
             _progress.value = next
         }
     }
-
-    fun clear() {
+        fun clear() {
         _progress.value = null
     }
 }

@@ -7,18 +7,14 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 object XmlRenderPluginRegistry {
     private val plugins = CopyOnWriteArrayList<XmlRenderPlugin>()
-
-    fun register(plugin: XmlRenderPlugin) {
+        fun register(plugin: XmlRenderPlugin) {
         plugins.add(plugin)
     }
-
-    fun unregister(plugin: XmlRenderPlugin) {
+        fun unregister(plugin: XmlRenderPlugin) {
         plugins.remove(plugin)
     }
-
-    fun getPlugins(): List<XmlRenderPlugin> = plugins.toList()
-
-    fun findHandler(tag: String): XmlRenderPlugin? = plugins.firstOrNull { it.canHandle(tag) }
+        fun getPlugins(): List<XmlRenderPlugin> = plugins.toList()
+        fun findHandler(tag: String): XmlRenderPlugin? = plugins.firstOrNull { it.canHandle(tag) }
 
     /**
      * 通知所有注册的插件状态已变更。
@@ -26,10 +22,9 @@ object XmlRenderPluginRegistry {
      */
     fun notifyChanged() {
         // 触发插件列表的重新扫描
-                plugins.forEach { _ -> /* no-op per plugin */ }
+        plugins.forEach { _ -> /* no-op per plugin */ }
     }
-
-    fun clear() {
+        fun clear() {
         plugins.clear()
     }
 }

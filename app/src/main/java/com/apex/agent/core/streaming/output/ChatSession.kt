@@ -66,10 +66,9 @@ class ChatSession(
     /** 是否正在执行 */
     private val _isBusy = MutableStateFlow(false)
         val isBusy: StateFlow<Boolean> = _isBusy.asStateFlow()
-
-    init {
+        init {
         // 订阅块的水母形态事件,更新当前形态
-                scope.launch {
+        scope.launch {
             stream.formEvents.collectLatest { form ->
                 _currentForm.value = form
             }
@@ -91,18 +90,16 @@ class ChatSession(
     /** 用户发送消息 */
     suspend fun sendUserMessage(text: String) {
         // 1. 加入用户消息块
-                stream.emitText(OutputBlock.TextBlock.TextRole.USER, text)
-
+        stream.emitText(OutputBlock.TextBlock.TextRole.USER, text)
         if (_isBusy.value) return
         _isBusy.value = true
 
         // 2. Agent 执行(实际接入真实 Agent 逻辑)
-                if (_isBerserkMode.value) {
+        if (_isBerserkMode.value) {
             executeBerserkAgent(text)
         } else {
             executeNormalAgent(text)
         }
-
         _isBusy.value = false
         _currentForm.value = AuraMascot.AuraForm.IDLE
     }
@@ -110,13 +107,13 @@ class ChatSession(
     /** 普通模式 Agent 执行(模拟,实际接入真实 Agent) */
     private suspend fun executeNormalAgent(userText: String) {
         // 思考
-    val reasoningId = stream.startReasoning()
+        val reasoningId = stream.startReasoning()
         stream.appendReasoning(reasoningId, "用户想要: $userText\n我先分析需求,然后制定计划...")
         delay(500)
         stream.completeReasoning(reasoningId, confidence = 0.92f)
 
         // 任务分解
-    val taskId = stream.startTask(
+        val taskId = stream.startTask(
             title = "处理用户请求",
             steps = listOf("分析需求", "执行操作", "验证结果")
         )
@@ -124,14 +121,14 @@ class ChatSession(
         stream.advanceTaskStep(taskId)
 
         // 执行命令(示例)
-    val cmdId = stream.startCommand("ls -la src/", workingDir = "/project")
+        val cmdId = stream.startCommand("ls -la src/", workingDir = "/project")
         delay(800)
         stream.appendCommandOutput(cmdId, "Main.kt\nUtils.kt\nREADME.md\n")
         stream.completeCommand(cmdId, exitCode = 0, durationMs = 800)
         stream.advanceTaskStep(taskId)
 
         // 工具调用(记忆)
-                stream.emitMemory(
+        stream.emitMemory(
             operation = OutputBlock.MemoryBlock.MemoryOperation.WRITE,
             type = OutputBlock.MemoryBlock.MemoryType.SHORT_TERM,
             key = "last_task",
@@ -139,27 +136,27 @@ class ChatSession(
         )
 
         // 验证
-                delay(300)
+        delay(300)
         stream.advanceTaskStep(taskId)
         stream.completeTask(taskId)
 
         // 回复
-    val textId = stream.startStreamingText()
+        val textId = stream.startStreamingText()
         val reply = "我已经分析了 src 目录,发现 3 个文件。"
         for (chunk in reply.split("")) {
             stream.appendTextDelta(textId, chunk)
-            delay(30)
+        delay(30)
         }
         stream.completeText(textId)
 
         // 成功
-                stream.emitSuccess("任务完成", mapOf("耗时" to "1.9s", "文件数" to "3"))
+        stream.emitSuccess("任务完成", mapOf("耗时" to "1.9s", "文件数" to "3"))
     }
 
     /** 狂暴模式 Agent 执行(模拟,用复杂块) */
     private suspend fun executeBerserkAgent(userText: String) {
         // 多路径推理
-    val multiPathId = stream.startMultiPathReasoning(
+        val multiPathId = stream.startMultiPathReasoning(
             paths = listOf("方案A: 直接执行", "方案B: 先分析再执行", "方案C: 并行竞速"),
             strategy = OutputBlock.BerserkBlock.MultiPathReasoningBlock.SelectionStrategy.BEST_OF_ALL
         )
@@ -172,17 +169,17 @@ class ChatSession(
         stream.completeMultiPathReasoning(multiPathId, selectedPathIndex = 1)
 
         // 技能链
-    val skillChainId = stream.startSkillChain(listOf(
+        val skillChainId = stream.startSkillChain(listOf(
             "ReAct" to "🧬", "TreeOfThoughts" to "🌳", "SelfCorrection" to "🔄", "Racing" to "🏁"
         ))
         for (i in 0..3) {
             delay(400)
-            stream.advanceSkillChain(skillChainId)
+        stream.advanceSkillChain(skillChainId)
         }
         stream.completeSkillChain(skillChainId)
 
         // 对抗评估
-    val advId = stream.startAdversarial()
+        val advId = stream.startAdversarial()
         stream.appendAdversarialArg(advId, OutputBlock.BerserkBlock.AdversarialBlock.Side.ATTACKER, "方案B 在边界条件下可能失败")
         delay(300)
         stream.appendAdversarialArg(advId, OutputBlock.BerserkBlock.AdversarialBlock.Side.DEFENDER, "已加边界检查,可处理")
@@ -192,13 +189,13 @@ class ChatSession(
         stream.completeAdversarial(advId, verdict = "防守方方案可行,性能可接受", winner = OutputBlock.BerserkBlock.AdversarialBlock.Side.DEFENDER, rounds = 2)
 
         // 命令执行
-    val cmdId = stream.startCommand("ls -la src/")
+        val cmdId = stream.startCommand("ls -la src/")
         delay(500)
         stream.appendCommandOutput(cmdId, "Main.kt\nUtils.kt\n")
         stream.completeCommand(cmdId, exitCode = 0)
 
         // 成功(带指标)
-                stream.emitSuccess(
+        stream.emitSuccess(
             summary = "狂暴模式任务完成 · 多路径推理 + 对抗评估 + 技能链",
             metrics = mapOf("耗时" to "3.2s", "节省 token" to "73%", "路径数" to "3", "对抗轮数" to "2")
         )

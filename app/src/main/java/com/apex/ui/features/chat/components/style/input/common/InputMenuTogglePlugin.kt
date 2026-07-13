@@ -10,6 +10,5 @@ interface InputMenuTogglePlugin {
     fun getDefinitions(): List<InputMenuToggleDefinition>
 
     fun onToggle(params: InputMenuToggleHookParams) {}
-
-    fun onInputChanged(params: InputMenuToggleHookParams) {}
+        fun onInputChanged(params: InputMenuToggleHookParams) {}
 }

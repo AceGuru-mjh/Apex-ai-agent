@@ -27,7 +27,7 @@ package com.apex.agent.core.config
  */
 class ConfigDslContext {
     internal val keys = mutableListOf<ConfigKey>()
-    private var groupPrefix: String = ""
+        private var groupPrefix: String = ""
 
     /**
      * 定义一个配置组，组内所有键共享该前缀
@@ -57,8 +57,7 @@ class ConfigDslContext {
  */
 class ConfigGroupContext(internal val prefix: String) {
     internal val keys = mutableListOf<ConfigKey>()
-
-    fun key(path: String, default: String? = null, block: ConfigKeyDslContext.() -> Unit = {}) {
+        fun key(path: String, default: String? = null, block: ConfigKeyDslContext.() -> Unit = {}) {
         val fullPath = "$prefix.$path"
         val dslContext = ConfigKeyDslContext(fullPath, default)
         dslContext.block()
@@ -74,7 +73,7 @@ class ConfigKeyDslContext(
     private val default: String?
 ) {
     var description: String = ""
-    var type: ConfigType = ConfigType.STRING
+        var type: ConfigType = ConfigType.STRING
     var required: Boolean = false
     var secret: Boolean = false
     var validator: ((String) -> Boolean)? = null
@@ -100,8 +99,8 @@ class ConfigKeyDslContext(
  */
 fun config(block: ConfigDslContext.() -> Unit): List<ConfigKey> {
     val context = ConfigDslContext()
-    context.block()
-    return context.keys.toList()
+        context.block()
+        return context.keys.toList()
 }
 
 /**
@@ -112,7 +111,7 @@ fun config(block: ConfigDslContext.() -> Unit): List<ConfigKey> {
  */
 fun ConfigManager.dsl(block: ConfigDslContext.() -> Unit) {
     val keys = config(block)
-    for (key in keys) {
+        for (key in keys) {
         registerKey(key)
     }
 }

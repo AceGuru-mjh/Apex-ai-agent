@@ -34,7 +34,6 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 INSTANCE ?: SkillUsageTracker(context.applicationContext).also { INSTANCE = it }
             }
         }
-
         private val KEY_USAGE_DATA = stringPreferencesKey("usage_data")
         private val KEY_TOOL_CALLS = stringPreferencesKey("tool_calls")
         private val KEY_EXECUTION_TIMES = stringPreferencesKey("execution_times")
@@ -42,8 +41,7 @@ class SkillUsageTracker private constructor(private val context: Context) {
         private val KEY_LAST_RESET = longPreferencesKey("last_reset")
         private val KEY_DAILY_STATS = stringPreferencesKey("daily_stats")
     }
-
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+        private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
     @Serializable
     data class SkillUsageData(
@@ -84,20 +82,18 @@ class SkillUsageTracker private constructor(private val context: Context) {
         val lastSuccess: Long = 0,
         val lastFailure: Long = 0
     )
-
-    data class ExecutionTimeRecord(
+        data class ExecutionTimeRecord(
         val skillName: String,
         val date: String,
         val executionTimeMs: Long,
         val timestamp: Long
     )
-
-    private var cachedUsageData: MutableMap<String, SkillUsageData> = mutableMapOf()
-    private var cachedToolCalls: MutableMap<String, ToolCallRecord> = mutableMapOf()
-    private var cachedExecutionTimes: MutableList<ExecutionTimeRecord> = mutableListOf()
-    private var cachedSuccessFailures: MutableMap<String, SuccessFailureRecord> = mutableMapOf()
-    private var cachedDailyStats: MutableMap<String, DailyStats> = mutableMapOf()
-    private var isInitialized = false
+        private var cachedUsageData: MutableMap<String, SkillUsageData> = mutableMapOf()
+        private var cachedToolCalls: MutableMap<String, ToolCallRecord> = mutableMapOf()
+        private var cachedExecutionTimes: MutableList<ExecutionTimeRecord> = mutableListOf()
+        private var cachedSuccessFailures: MutableMap<String, SuccessFailureRecord> = mutableMapOf()
+        private var cachedDailyStats: MutableMap<String, DailyStats> = mutableMapOf()
+        private var isInitialized = false
 
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
         val usageDataFlow: Flow<Map<String, SkillUsageData>> = context.skillUsageDataStore.data.map { preferences ->
@@ -108,8 +104,7 @@ class SkillUsageTracker private constructor(private val context: Context) {
             emptyMap()
         }
     }
-
-    val toolCallsFlow: Flow<Map<String, ToolCallRecord>> = context.skillUsageDataStore.data.map { preferences ->
+        val toolCallsFlow: Flow<Map<String, ToolCallRecord>> = context.skillUsageDataStore.data.map { preferences ->
         val dataJson = preferences[KEY_TOOL_CALLS] ?: "{}"
         try {
             json.decodeFromString<Map<String, ToolCallRecord>>(dataJson)
@@ -117,8 +112,7 @@ class SkillUsageTracker private constructor(private val context: Context) {
             emptyMap()
         }
     }
-
-    val dailyStatsFlow: Flow<Map<String, DailyStats>> = context.skillUsageDataStore.data.map { preferences ->
+        val dailyStatsFlow: Flow<Map<String, DailyStats>> = context.skillUsageDataStore.data.map { preferences ->
         val dataJson = preferences[KEY_DAILY_STATS] ?: "{}"
         try {
             json.decodeFromString<Map<String, DailyStats>>(dataJson)
@@ -126,68 +120,58 @@ class SkillUsageTracker private constructor(private val context: Context) {
             emptyMap()
         }
     }
-
-    suspend fun initialize() {
+        suspend fun initialize() {
         if (isInitialized) return
         loadFromDataStore()
         isInitialized = true
     }
-
-    private suspend fun loadFromDataStore() {
+        private suspend fun loadFromDataStore() {
         context.skillUsageDataStore.data.first().let { preferences ->
             val usageJson = preferences[KEY_USAGE_DATA] ?: "{}"
         val toolCallsJson = preferences[KEY_TOOL_CALLS] ?: "{}"
-            val execTimesJson = preferences[KEY_EXECUTION_TIMES] ?: "[]"
+        val execTimesJson = preferences[KEY_EXECUTION_TIMES] ?: "[]"
         val successFailJson = preferences[KEY_SUCCESS_FAILURES] ?: "{}"
-            val dailyStatsJson = preferences[KEY_DAILY_STATS] ?: "{}"
-
-            cachedUsageData = try {
+        val dailyStatsJson = preferences[KEY_DAILY_STATS] ?: "{}"
+        cachedUsageData = try {
                 json.decodeFromString<MutableMap<String, SkillUsageData>>(usageJson)
             } catch (e: Exception) {
                 mutableMapOf()
             }
-
-            cachedToolCalls = try {
+        cachedToolCalls = try {
                 json.decodeFromString<MutableMap<String, ToolCallRecord>>(toolCallsJson)
             } catch (e: Exception) {
                 mutableMapOf()
             }
-
-            cachedExecutionTimes = try {
+        cachedExecutionTimes = try {
                 json.decodeFromString<MutableList<ExecutionTimeRecord>>(execTimesJson)
             } catch (e: Exception) {
                 mutableListOf()
             }
-
-            cachedSuccessFailures = try {
+        cachedSuccessFailures = try {
                 json.decodeFromString<MutableMap<String, SuccessFailureRecord>>(successFailJson)
             } catch (e: Exception) {
                 mutableMapOf()
             }
-
-            cachedDailyStats = try {
+        cachedDailyStats = try {
                 json.decodeFromString<MutableMap<String, DailyStats>>(dailyStatsJson)
             } catch (e: Exception) {
                 mutableMapOf()
             }
         }
     }
-
-    private suspend fun saveToDataStore() {
+        private suspend fun saveToDataStore() {
         context.skillUsageDataStore.edit { preferences ->
             preferences[KEY_USAGE_DATA] = json.encodeToString(cachedUsageData)
-            preferences[KEY_TOOL_CALLS] = json.encodeToString(cachedToolCalls)
-            preferences[KEY_EXECUTION_TIMES] = json.encodeToString(cachedExecutionTimes)
-            preferences[KEY_SUCCESS_FAILURES] = json.encodeToString(cachedSuccessFailures)
-            preferences[KEY_DAILY_STATS] = json.encodeToString(cachedDailyStats)
-            preferences[KEY_LAST_RESET] = System.currentTimeMillis()
+        preferences[KEY_TOOL_CALLS] = json.encodeToString(cachedToolCalls)
+        preferences[KEY_EXECUTION_TIMES] = json.encodeToString(cachedExecutionTimes)
+        preferences[KEY_SUCCESS_FAILURES] = json.encodeToString(cachedSuccessFailures)
+        preferences[KEY_DAILY_STATS] = json.encodeToString(cachedDailyStats)
+        preferences[KEY_LAST_RESET] = System.currentTimeMillis()
         }
     }
-
-    fun trackSkillInvoked(skillName: String) {
+        fun trackSkillInvoked(skillName: String) {
         val now = System.currentTimeMillis()
         val today = LocalDate.now().format(dateFormatter)
-
         cachedUsageData.getOrPut(skillName) {
             SkillUsageData(skillName = skillName)
         }.let { data ->
@@ -197,7 +181,6 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 lastUsedDate = today
             )
         }
-
         cachedDailyStats.getOrPut(today) {
             DailyStats(date = today)
         }.let { stats ->
@@ -208,15 +191,12 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 }
             )
         }
-
         AppLogger.d(TAG, "Tracked skill invocation: ${skillName}")
     }
-
-    fun trackToolCall(skillName: String, toolName: String, executionTimeMs: Long = 0) {
+        fun trackToolCall(skillName: String, toolName: String, executionTimeMs: Long = 0) {
         val now = System.currentTimeMillis()
         val today = LocalDate.now().format(dateFormatter)
         val key = "${skillName}:${toolName}"
-
         cachedToolCalls.getOrPut(key) {
             ToolCallRecord(skillName = skillName, toolName = toolName)
         }.let { record ->
@@ -226,13 +206,11 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 lastCalled = now
             )
         }
-
         cachedUsageData[skillName]?.let { data ->
             cachedUsageData[skillName] = data.copy(
                 totalToolCalls = data.totalToolCalls + 1
             )
         }
-
         cachedDailyStats.getOrPut(today) {
             DailyStats(date = today)
         }.let { stats ->
@@ -243,20 +221,16 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 }
             )
         }
-
         AppLogger.d(TAG, "Tracked tool call: ${skillName} -> ${toolName}")
     }
-
-    fun trackExecutionTime(skillName: String, executionTimeMs: Long) {
+        fun trackExecutionTime(skillName: String, executionTimeMs: Long) {
         val now = System.currentTimeMillis()
         val today = LocalDate.now().format(dateFormatter)
-
         cachedUsageData[skillName]?.let { data ->
             cachedUsageData[skillName] = data.copy(
                 totalExecutionTimeMs = data.totalExecutionTimeMs + executionTimeMs
             )
         }
-
         cachedExecutionTimes.add(
             ExecutionTimeRecord(
                 skillName = skillName,
@@ -265,11 +239,9 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 timestamp = now
             )
         )
-
         if (cachedExecutionTimes.size > 10000) {
             cachedExecutionTimes = cachedExecutionTimes.takeLast(5000).toMutableList()
         }
-
         cachedDailyStats.getOrPut(today) {
             DailyStats(date = today)
         }.let { stats ->
@@ -277,13 +249,10 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 totalExecutionTimeMs = stats.totalExecutionTimeMs + executionTimeMs
             )
         }
-
         AppLogger.d(TAG, "Tracked execution time: ${skillName} = ${executionTimeMs}ms")
     }
-
-    fun trackSuccess(skillName: String) {
+        fun trackSuccess(skillName: String) {
         val now = System.currentTimeMillis()
-
         cachedSuccessFailures.getOrPut(skillName) {
             SuccessFailureRecord(skillName = skillName)
         }.let { record ->
@@ -292,19 +261,15 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 lastSuccess = now
             )
         }
-
         cachedUsageData[skillName]?.let { data ->
             cachedUsageData[skillName] = data.copy(
                 successCount = data.successCount + 1
             )
         }
-
         AppLogger.d(TAG, "Tracked success: ${skillName}")
     }
-
-    fun trackFailure(skillName: String) {
+        fun trackFailure(skillName: String) {
         val now = System.currentTimeMillis()
-
         cachedSuccessFailures.getOrPut(skillName) {
             SuccessFailureRecord(skillName = skillName)
         }.let { record ->
@@ -313,67 +278,52 @@ class SkillUsageTracker private constructor(private val context: Context) {
                 lastFailure = now
             )
         }
-
         cachedUsageData[skillName]?.let { data ->
             cachedUsageData[skillName] = data.copy(
                 failureCount = data.failureCount + 1
             )
         }
-
         AppLogger.d(TAG, "Tracked failure: ${skillName}")
     }
-
-    suspend fun persist() {
+        suspend fun persist() {
         saveToDataStore()
     }
-
-    fun getUsageData(): Map<String, SkillUsageData> = cachedUsageData.toMap()
-
-    fun getToolCalls(): Map<String, ToolCallRecord> = cachedToolCalls.toMap()
-
-    fun getExecutionTimes(): List<ExecutionTimeRecord> = cachedExecutionTimes.toList()
-
-    fun getSuccessFailures(): Map<String, SuccessFailureRecord> = cachedSuccessFailures.toMap()
-
-    fun getDailyStats(): Map<String, DailyStats> = cachedDailyStats.toMap()
-
-    fun getSkillUsageData(skillName: String): SkillUsageData? = cachedUsageData[skillName]
+        fun getUsageData(): Map<String, SkillUsageData> = cachedUsageData.toMap()
+        fun getToolCalls(): Map<String, ToolCallRecord> = cachedToolCalls.toMap()
+        fun getExecutionTimes(): List<ExecutionTimeRecord> = cachedExecutionTimes.toList()
+        fun getSuccessFailures(): Map<String, SuccessFailureRecord> = cachedSuccessFailures.toMap()
+        fun getDailyStats(): Map<String, DailyStats> = cachedDailyStats.toMap()
+        fun getSkillUsageData(skillName: String): SkillUsageData? = cachedUsageData[skillName]
 
     fun getToolCallsForSkill(skillName: String): List<ToolCallRecord> {
         return cachedToolCalls.values.filter { it.skillName == skillName }
     }
-
-    fun getExecutionTimesForSkill(skillName: String): List<ExecutionTimeRecord> {
+        fun getExecutionTimesForSkill(skillName: String): List<ExecutionTimeRecord> {
         return cachedExecutionTimes.filter { it.skillName == skillName }
     }
-
-    fun getSuccessRate(skillName: String): Double {
+        fun getSuccessRate(skillName: String): Double {
         val record = cachedSuccessFailures[skillName] ?: return 0.0
         val total = record.successCount + record.failureCount
         return if (total > 0) record.successCount.toDouble() / total else 0.0
     }
-
-    fun getAverageExecutionTime(skillName: String): Long {
+        fun getAverageExecutionTime(skillName: String): Long {
         val times = cachedExecutionTimes.filter { it.skillName == skillName }
         if (times.isEmpty()) return 0
         return times.map { it.executionTimeMs }.average().toLong()
     }
-
-    fun getTopUsedSkills(limit: Int = 10): List<Pair<String, Long>> {
+        fun getTopUsedSkills(limit: Int = 10): List<Pair<String, Long>> {
         return cachedUsageData
             .map { it.key to it.value.totalInvocations }
             .sortedByDescending { it.second }
             .take(limit)
     }
-
-    fun getTopUsedTools(limit: Int = 10): List<Pair<String, Long>> {
+        fun getTopUsedTools(limit: Int = 10): List<Pair<String, Long>> {
         return cachedToolCalls
             .map { it.key to it.value.count }
             .sortedByDescending { it.second }
             .take(limit)
     }
-
-    fun getDailyStatsForPeriod(startDate: LocalDate, endDate: LocalDate): List<DailyStats> {
+        fun getDailyStatsForPeriod(startDate: LocalDate, endDate: LocalDate): List<DailyStats> {
         return cachedDailyStats
             .filterKeys { dateStr ->
                 try {
@@ -386,20 +336,17 @@ class SkillUsageTracker private constructor(private val context: Context) {
             .values
             .sortedBy { it.date }
     }
-
-    fun getSkillUsageForPeriod(skillName: String, startDate: LocalDate, endDate: LocalDate): Long {
+        fun getSkillUsageForPeriod(skillName: String, startDate: LocalDate, endDate: LocalDate): Long {
         val dateSet = generateSequence(startDate) { it.plusDays(1) }
             .takeWhile { !it.isAfter(endDate) }
             .map { it.format(dateFormatter) }
             .toSet()
-
         return cachedDailyStats
             .filter { it.key in dateSet }
             .mapNotNull { it.value.skillCounts[skillName] }
             .sum()
     }
-
-    suspend fun resetStats() {
+        suspend fun resetStats() {
         cachedUsageData.clear()
         cachedToolCalls.clear()
         cachedExecutionTimes.clear()
@@ -408,22 +355,18 @@ class SkillUsageTracker private constructor(private val context: Context) {
         saveToDataStore()
         AppLogger.i(TAG, "All usage stats have been reset")
     }
-
-    suspend fun resetStatsForSkill(skillName: String) {
+        suspend fun resetStatsForSkill(skillName: String) {
         cachedUsageData.remove(skillName)
         cachedSuccessFailures.remove(skillName)
         cachedExecutionTimes.removeAll { it.skillName == skillName }
         cachedToolCalls.keys.removeAll { it.startsWith("${skillName}:") }
-
         cachedDailyStats.values.forEach { stats ->
             stats.skillCounts.remove(skillName)
         }
-
         saveToDataStore()
         AppLogger.i(TAG, "Usage stats for skill '${skillName}' have been reset")
     }
-
-    class UsageStats(
+        class UsageStats(
         val totalInvocations: Long,
         val totalToolCalls: Long,
         val totalExecutionTimeMs: Long,
@@ -432,8 +375,7 @@ class SkillUsageTracker private constructor(private val context: Context) {
         val topSkills: List<Pair<String, Long>>,
         val topTools: List<Pair<String, Long>>
     )
-
-    fun getOverallStats(): UsageStats {
+        fun getOverallStats(): UsageStats {
         val totalInvocations = cachedUsageData.values.sumOf { it.totalInvocations }
         val totalToolCalls = cachedUsageData.values.sumOf { it.totalToolCalls }
         val totalExecutionTimeMs = cachedUsageData.values.sumOf { it.totalExecutionTimeMs }

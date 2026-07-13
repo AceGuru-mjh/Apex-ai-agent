@@ -15,20 +15,16 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object TextSegmenter {
     private const val TAG = "TextSegmenter"
-    private const val PREWARM_TEXT = "搜索记忆 分词预热"
-
-    private val segmenter by lazy { JiebaSegmenter() }
-
-    private val initLock = Any()
+        private const val PREWARM_TEXT = "搜索记忆 分词预热"
+        private val segmenter by lazy { JiebaSegmenter() }
+        private val initLock = Any()
 
     @Volatile
     private var baseInitialized = false
 
     private val loadedUserDictPaths = ConcurrentHashMap.newKeySet<String>()
-
-    private val segmentCache = ConcurrentHashMap<String, List<String>>()
-
-    private const val MAX_CACHE_SIZE = 1000
+        private val segmentCache = ConcurrentHashMap<String, List<String>>()
+        private const val MAX_CACHE_SIZE = 1000
 
     private val stopWords = setOf(
         "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
@@ -54,10 +50,8 @@ object TextSegmenter {
         "把", "被", "让", "给", "对", "从", "向", "在", "到", "于", "比", "跟",
         "同", "与", "为", "以"
     )
-
-    private val sentenceDelimiter = Regex("[。！？.!?\\n]+")
-
-    private var totalSegmentCalls: Long = 0
+        private val sentenceDelimiter = Regex("[。！？.!?\\n]+")
+        private var totalSegmentCalls: Long = 0
     private var cacheHits: Long = 0
 
     /**
@@ -80,21 +74,19 @@ object TextSegmenter {
      * @param customDictPath 自定义词典路径（可选）
      */
     @Suppress("UNUSED_PARAMETER")
-    fun initialize(context: Context, customDictPath: String? = null) {
+        fun initialize(context: Context, customDictPath: String? = null) {
         if (baseInitialized && customDictPath.isNullOrBlank()) return
 
         val startTime = System.currentTimeMillis()
         try {
             synchronized(initLock) {
                 val dictionary = WordDictionary.getInstance()
-
-                customDictPath
+        customDictPath
                     ?.takeIf { it.isNotBlank() }
                     ?.let { loadCustomDictionaryIfNeeded(dictionary, it) }
-
-                if (!baseInitialized) {
+        if (!baseInitialized) {
                     segmenter.process(PREWARM_TEXT, JiebaSegmenter.SegMode.SEARCH)
-                    baseInitialized = true
+        baseInitialized = true
                     AppLogger.d(
                         TAG,
                         "分词器预热完成，耗时 ${System.currentTimeMillis() - startTime}ms"
@@ -134,29 +126,25 @@ object TextSegmenter {
     fun segment(text: String, useCached: Boolean = true): List<String> {
         totalSegmentCalls++
         if (text.isBlank()) return emptyList()
-
         if (useCached && segmentCache.containsKey(text)) {
             cacheHits++
             return segmentCache[text] ?: emptyList()
         }
-
         try {
             val result = segmenter.process(text, JiebaSegmenter.SegMode.SEARCH)
                 .map { it.word }
                 .filter { it.length > 1 }
-
-            if (useCached) {
+        if (useCached) {
                 if (segmentCache.size > MAX_CACHE_SIZE) {
                     val keysToRemove = segmentCache.keys.take(MAX_CACHE_SIZE / 2)
-                    keysToRemove.forEach { segmentCache.remove(it) }
+        keysToRemove.forEach { segmentCache.remove(it) }
                 }
-                segmentCache[text] = result
+        segmentCache[text] = result
             }
-
-            return result
+        return result
         } catch (e: Exception) {
             AppLogger.e(TAG, "分词失败: ${e.message}")
-            return text.split(Regex("\\s+|,|，|\\.|。"))
+        return text.split(Regex("\\s+|,|，|\\.|。"))
                 .filter { it.length > 1 }
         }
     }
@@ -178,7 +166,7 @@ object TextSegmenter {
                 .filter { it.isNotBlank() }
         } catch (e: Exception) {
             AppLogger.e(TAG, "词语分割失败: ${e.message}")
-            text.split(Regex("\\s+|,|，|\\.|。|！|？|；"))
+        text.split(Regex("\\s+|,|，|\\.|。|！|？|；"))
                 .filter { it.isNotBlank() }
         }
     }
@@ -217,18 +205,17 @@ object TextSegmenter {
                 .filter { it.length > 1 && it !in stopWords }
 
             // 统计词频
-    val freqMap = mutableMapOf<String, Int>()
-            words.forEach { word ->
+        val freqMap = mutableMapOf<String, Int>()
+        words.forEach { word ->
                 freqMap[word] = (freqMap[word] ?: 0) + 1
             }
-
-            freqMap.entries
+        freqMap.entries
                 .sortedByDescending { it.value }
                 .take(topN)
                 .map { it.key }
         } catch (e: Exception) {
             AppLogger.e(TAG, "关键词提取失败: ${e.message}")
-            emptyList()
+        emptyList()
         }
     }
 
@@ -285,15 +272,14 @@ object TextSegmenter {
         val keywordLower = keyword.lowercase()
 
         // 先尝试直接包含检查
-                if (textLower.contains(keywordLower)) return true
+        if (textLower.contains(keywordLower)) return true
 
         // 再尝试对关键词分词后逐词检查
-                return try {
+        return try {
             val keywordWords = segmenter.process(keyword, JiebaSegmenter.SegMode.SEARCH)
                 .map { it.word.lowercase() }
                 .filter { it.length > 1 }
-
-            keywordWords.any { word -> textLower.contains(word) }
+        keywordWords.any { word -> textLower.contains(word) }
         } catch (e: Exception) {
             textLower.contains(keywordLower)
         }
@@ -340,25 +326,20 @@ object TextSegmenter {
         val hasDirectMatch = keywords.any { keyword ->
             textLower.contains(keyword.lowercase())
         }
-
         if (!hasDirectMatch) {
             return 0.0
         }
-
         val exactMatches = keywords.count { keyword ->
             textLower.contains(keyword.lowercase())
         }
-
         if (exactMatches >= keywords.size / 2 || exactMatches >= 3) {
             val quickScore = (exactMatches * 2.0) / (keywords.size * 3.0)
-            return quickScore.coerceIn(0.0, 1.0)
+        return quickScore.coerceIn(0.0, 1.0)
         }
-
         val textSegments = segment(textLower)
         val segmentMatches = keywords.count { keyword ->
             textSegments.any { segment -> segment.contains(keyword.lowercase()) }
         }
-
         val totalScore = (exactMatches * 2.0 + segmentMatches) / (keywords.size * 3.0)
         return totalScore.coerceIn(0.0, 1.0)
     }

@@ -16,12 +16,10 @@ open class DebuggerSystemOperationTools(context: Context) :
     AccessibilitySystemOperationTools(context) {
 
     private val TAG = "DebuggerSystemTools"
-
-    override suspend fun modifySystemSetting(tool: AITool): ToolResult {
+        override suspend fun modifySystemSetting(tool: AITool): ToolResult {
         val setting = tool.parameters.find { it.name == "setting" }?.value ?: ""
         val value = tool.parameters.find { it.name == "value" }?.value ?: ""
         val namespace = tool.parameters.find { it.name == "namespace" }?.value ?: "system"
-
         if (setting.isBlank() || value.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -30,7 +28,6 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Must provide setting and value parameters"
             )
         }
-
         val validNamespaces = listOf("system", "secure", "global")
         if (!validNamespaces.contains(namespace)) {
             return ToolResult(
@@ -40,16 +37,13 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Namespace must be one of: ${validNamespaces.joinToString(", ")}"
             )
         }
-
         return try {
             val command = "settings put ${namespace} ${setting} ${value}"
         val result = AndroidShellExecutor.executeShellCommand(command)
-
-            if (result.success) {
+        if (result.success) {
                 val resultData =
                     SystemSettingData(namespace = namespace, setting = setting, value = value)
-
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = resultData,
@@ -65,7 +59,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error modifying system setting", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -73,11 +67,9 @@ open class DebuggerSystemOperationTools(context: Context) :
             )
         }
     }
-
-    override suspend fun getSystemSetting(tool: AITool): ToolResult {
+        override suspend fun getSystemSetting(tool: AITool): ToolResult {
         val setting = tool.parameters.find { it.name == "setting" }?.value ?: ""
         val namespace = tool.parameters.find { it.name == "namespace" }?.value ?: "system"
-
         if (setting.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -86,7 +78,6 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Must provide setting parameter"
             )
         }
-
         val validNamespaces = listOf("system", "secure", "global")
         if (!validNamespaces.contains(namespace)) {
             return ToolResult(
@@ -96,20 +87,17 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Namespace must be one of: ${validNamespaces.joinToString(", ")}"
             )
         }
-
         return try {
             val command = "settings get ${namespace} ${setting}"
         val result = AndroidShellExecutor.executeShellCommand(command)
-
-            if (result.success) {
+        if (result.success) {
                 val resultData =
                     SystemSettingData(
                         namespace = namespace,
                         setting = setting,
                         value = result.stdout.trim()
                     )
-
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = resultData,
@@ -125,7 +113,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error getting system setting", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -133,10 +121,8 @@ open class DebuggerSystemOperationTools(context: Context) :
             )
         }
     }
-
-    override suspend fun installApp(tool: AITool): ToolResult {
+        override suspend fun installApp(tool: AITool): ToolResult {
         val apkPath = tool.parameters.find { it.name == "path" }?.value ?: ""
-
         if (apkPath.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -145,15 +131,13 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Must provide apk_path parameter"
             )
         }
-
         if (DebuggerFileSystemTools.isApex-AgentInternalPath(apkPath)) {
             AppLogger.d(
                 TAG,
                 "installApp detected logistra internal path, delegating to AccessibilitySystemOperationTools"
             )
-            return super.installApp(tool)
+        return super.installApp(tool)
         }
-
         val existsResult =
             AndroidShellExecutor.executeShellCommand(
                 "test -f ${apkPath} && echo 'exists' || echo 'not exists'"
@@ -166,20 +150,17 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "APK file does not exist: ${apkPath}"
             )
         }
-
         return try {
             val command = "pm install -r ${apkPath}"
         val result = AndroidShellExecutor.executeShellCommand(command)
-
-            if (result.success && result.stdout.contains("Success")) {
+        if (result.success && result.stdout.contains("Success")) {
                 val resultData =
                     AppOperationData(
                         operationType = "install",
                         packageName = apkPath,
                         success = true
                     )
-
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = resultData,
@@ -195,7 +176,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error installing app", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -203,8 +184,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             )
         }
     }
-
-    override suspend fun uninstallApp(tool: AITool): ToolResult {
+        override suspend fun uninstallApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
         val keepData = tool.parameters.find { it.name == "keep_data" }?.value?.toBoolean() ?: false
 
@@ -216,10 +196,8 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Must provide package_name parameter"
             )
         }
-
         val checkCommand = "pm list packages | grep -c \"${packageName}\""
         val checkResult = AndroidShellExecutor.executeShellCommand(checkCommand)
-
         if (checkResult.stdout.trim() == "0") {
             return ToolResult(
                 toolName = tool.name,
@@ -228,7 +206,6 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "App not installed: ${packageName}"
             )
         }
-
         return try {
             val command =
                 if (keepData) {
@@ -236,10 +213,8 @@ open class DebuggerSystemOperationTools(context: Context) :
                 } else {
                     "pm uninstall ${packageName}"
                 }
-
-            val result = AndroidShellExecutor.executeShellCommand(command)
-
-            if (result.success && result.stdout.contains("Success")) {
+        val result = AndroidShellExecutor.executeShellCommand(command)
+        if (result.success && result.stdout.contains("Success")) {
                 val details = if (keepData) "(keep data)" else ""
         val resultData =
                     AppOperationData(
@@ -248,8 +223,7 @@ open class DebuggerSystemOperationTools(context: Context) :
                         success = true,
                         details = details
                     )
-
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = resultData,
@@ -265,7 +239,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error uninstalling app", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -273,11 +247,9 @@ open class DebuggerSystemOperationTools(context: Context) :
             )
         }
     }
-
-    override suspend fun startApp(tool: AITool): ToolResult {
+        override suspend fun startApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
         val activity = tool.parameters.find { it.name == "activity" }?.value ?: ""
-
         if (packageName.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -286,33 +258,31 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Must provide package_name parameter"
             )
         }
-
         return try {
             val command: String
             if (activity.isBlank()) {
                 // 使用 am start 命令而不？monkey，避免修改系统设置（如屏幕旋转）
                 // 先获取应用户Activity，然后使，n 参数启动
-    val resolveCmd = "cmd package resolve-activity --brief ${packageName} 2>/dev/null | tail -n 1"
+        val resolveCmd = "cmd package resolve-activity --brief ${packageName} 2>/dev/null | tail -n 1"
         val resolveResult = AndroidShellExecutor.executeShellCommand(resolveCmd)
-                
-                if (resolveResult.success && resolveResult.stdout.isNotBlank()) {
+        if (resolveResult.success && resolveResult.stdout.isNotBlank()) {
                     val output = resolveResult.stdout.trim()
                     // resolve-activity 返回格式可能是：package/activity 或只？activity
                     // 也可能返回多行，最后一行是组件，
-    val lines = output.lines().filter { it.isNotBlank() && !it.startsWith("name=") }
+        val lines = output.lines().filter { it.isNotBlank() && !it.startsWith("name=") }
         val mainActivity = lines.lastOrNull()?.trim() ?: output.trim()
                     
                     // 如果返回的是完整组件名（package/activity），直接使用
-                command = if (mainActivity.contains('/')) {
+        command = if (mainActivity.contains('/')) {
                         "am start -n ${mainActivity}"
                     } else {
                         // 如果只返回了 Activity 名，拼接包名
                         "am start -n ${packageName}/${mainActivity}"
                     }
-                    AppLogger.d(TAG, "Resolved main Activity: ${mainActivity}, using command: ${command}")
+        AppLogger.d(TAG, "Resolved main Activity: ${mainActivity}, using command: ${command}")
                 } else {
                     // 如果无法解析 Activity，返回错，
-                return ToolResult(
+        return ToolResult(
                         toolName = tool.name,
                         success = false,
                         result = StringResultData(""),
@@ -322,10 +292,8 @@ open class DebuggerSystemOperationTools(context: Context) :
             } else {
                 command = "am start -n ${packageName}/${activity}"
             }
-
-            val result = AndroidShellExecutor.executeShellCommand(command)
-
-            if (result.success) {
+        val result = AndroidShellExecutor.executeShellCommand(command)
+        if (result.success) {
                 val details = if (activity.isNotBlank()) "Activity: ${activity}" else ""
         val resultData =
                     AppOperationData(
@@ -334,8 +302,7 @@ open class DebuggerSystemOperationTools(context: Context) :
                         success = true,
                         details = details
                     )
-
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = resultData,
@@ -351,7 +318,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error starting app", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -359,10 +326,8 @@ open class DebuggerSystemOperationTools(context: Context) :
             )
         }
     }
-
-    override suspend fun stopApp(tool: AITool): ToolResult {
+        override suspend fun stopApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
-
         if (packageName.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -371,20 +336,17 @@ open class DebuggerSystemOperationTools(context: Context) :
                 error = "Must provide package_name parameter"
             )
         }
-
         return try {
             val command = "am force-stop ${packageName}"
         val result = AndroidShellExecutor.executeShellCommand(command)
-
-            if (result.success) {
+        if (result.success) {
                 val resultData =
                     AppOperationData(
                         operationType = "stop",
                         packageName = packageName,
                         success = true
                     )
-
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = resultData,
@@ -400,7 +362,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error stopping app", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -408,8 +370,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             )
         }
     }
-
-    override suspend fun getNotifications(tool: AITool): ToolResult {
+        override suspend fun getNotifications(tool: AITool): ToolResult {
         val limit = tool.parameters.find { it.name == "limit" }?.value?.toIntOrNull() ?: 10
         val includeOngoing =
             tool.parameters.find { it.name == "include_ongoing" }?.value?.toBoolean() ?: false
@@ -421,17 +382,13 @@ open class DebuggerSystemOperationTools(context: Context) :
                 } else {
                     "dumpsys notification --noredact | grep -v 'ongoing' | grep -E 'pkg=|text=' | head -${limit * 2}"
                 }
-
-            val result = AndroidShellExecutor.executeShellCommand(command)
-
-            if (result.success) {
+        val result = AndroidShellExecutor.executeShellCommand(command)
+        if (result.success) {
                 val lines = result.stdout.split("\n")
         val notifications = mutableListOf<NotificationData.Notification>()
-
-                var currentPackage = ""
-                var currentText = ""
-
-                for (line in lines) {
+        var currentPackage = ""
+        var currentText = ""
+        for (line in lines) {
                     when {
                         line.contains("pkg=") -> {
                             if (currentPackage.isNotEmpty() && currentText.isNotEmpty()) {
@@ -442,20 +399,18 @@ open class DebuggerSystemOperationTools(context: Context) :
                                         timestamp = System.currentTimeMillis()
                                     )
                                 )
-                                currentText = ""
+        currentText = ""
                             }
-                            
-                            val pkgMatch = Regex("pkg=(\\S+)").find(line)
-                            currentPackage = pkgMatch?.groupValues?.getOrNull(1) ?: ""
+        val pkgMatch = Regex("pkg=(\\S+)").find(line)
+        currentPackage = pkgMatch?.groupValues?.getOrNull(1) ?: ""
                         }
-                        line.contains("text=") -> {
+        line.contains("text=") -> {
                             val textMatch = Regex("text=(.+)").find(line)
-                            currentText = textMatch?.groupValues?.getOrNull(1) ?: ""
+        currentText = textMatch?.groupValues?.getOrNull(1) ?: ""
                         }
                     }
                 }
-                
-                if (currentPackage.isNotEmpty() && currentText.isNotEmpty()) {
+        if (currentPackage.isNotEmpty() && currentText.isNotEmpty()) {
                     notifications.add(
                         NotificationData.Notification(
                             packageName = currentPackage,
@@ -464,14 +419,12 @@ open class DebuggerSystemOperationTools(context: Context) :
                         )
                     )
                 }
-
-                val resultData =
+        val resultData =
                     NotificationData(
                         notifications = notifications,
                         timestamp = System.currentTimeMillis()
                     )
-
-                return ToolResult(
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = resultData,
@@ -487,7 +440,7 @@ open class DebuggerSystemOperationTools(context: Context) :
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error getting notifications", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),

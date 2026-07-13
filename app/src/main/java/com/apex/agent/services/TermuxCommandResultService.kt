@@ -18,7 +18,7 @@ class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
         const val EXTRA_EXECUTION_ID = "execution_id"
 
         // 用于在服务内注册回调的Map
-    private val callbackMap = mutableMapOf<Int, ((CommandResult) -> Unit)>()
+        private val callbackMap = mutableMapOf<Int, ((CommandResult) -> Unit)>()
         
         /**
          * 注册命令执行回调
@@ -36,32 +36,30 @@ class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
          */
         fun removeCallback(executionId: Int) {
             callbackMap.remove(executionId)
-            AppLogger.d(TAG, "已移除回调，ID: ${executionId}, 当前回调用${callbackMap.size}")
+        AppLogger.d(TAG, "已移除回调，ID: ${executionId}, 当前回调用${callbackMap.size}")
         }
     }
-    
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
-    override fun onHandleIntent(intent: Intent) {
+        private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        override fun onHandleIntent(intent: Intent) {
         if (intent == null) return
         
         // 获取执行ID
-    val executionId = intent.getIntExtra(EXTRA_EXECUTION_ID, -1)
+        val executionId = intent.getIntExtra(EXTRA_EXECUTION_ID, -1)
         // AppLogger.d(TAG, "收到命令结果，执行ID: ${executionId}")
-                if (executionId == -1) {
+        if (executionId == -1) {
             AppLogger.e(TAG, "无效的执行ID")
-            return
+        return
         }
         
         // 获取结果Bundle
-    val resultBundle = intent.getBundleExtra("result")
+        val resultBundle = intent.getBundleExtra("result")
         if (resultBundle == null) {
             AppLogger.e(TAG, "结果Bundle为空")
-            return
+        return
         }
         
         // 解析结果
-    val stdout = resultBundle.getString("stdout", "")
+        val stdout = resultBundle.getString("stdout", "")
         val stderr = resultBundle.getString("stderr", "")
         val exitCode = resultBundle.getInt("exitCode", -1)
         val errmsg = resultBundle.getString("errmsg", "")
@@ -69,7 +67,7 @@ class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
         // AppLogger.d(TAG, "命令执行结果: stdout长度=${stdout.length}, stderr长度=${stderr.length}, exitCode=${exitCode}")
         
         // 构建结果对象
-    val result = CommandResult(
+        val result = CommandResult(
             success = exitCode == 0,
             stdout = stdout,
             stderr = stderr,
@@ -77,12 +75,12 @@ class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
         )
         
         // 调用回调
-    val callback = callbackMap[executionId]
+        val callback = callbackMap[executionId]
         if (callback != null) {
             serviceScope.launch {
                 callback(result)
                 // 执行完成后移除回失
-                removeCallback(executionId)
+        removeCallback(executionId)
             }
         } else {
             // AppLogger.w(TAG, "未找到ID，的${executionId} 的回复）"

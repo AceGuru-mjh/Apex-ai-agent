@@ -101,9 +101,8 @@ class InMemoryTracer(
 ) : WorkflowTracer {
 
     private val spansByThread = ConcurrentHashMap<String, ConcurrentLinkedQueue<SpanRecord>>()
-    private val activeSpans = ConcurrentHashMap<String, ActiveSpan>()
-
-    override fun startSpan(
+        private val activeSpans = ConcurrentHashMap<String, ActiveSpan>()
+        override fun startSpan(
         name: String,
         threadId: String,
         nodeId: String?,
@@ -126,24 +125,19 @@ class InMemoryTracer(
         activeSpans[spanId] = span
         return span
     }
-
-    override fun snapshot(threadId: String): List<SpanRecord> {
+        override fun snapshot(threadId: String): List<SpanRecord> {
         val queue = spansByThread[threadId] ?: return emptyList()
         return queue.toList().sortedBy { it.startTimeMs }
     }
-
-    override fun activeThreads(): Set<String> = spansByThread.keys.toSet()
-
-    override fun clear(threadId: String) {
+        override fun activeThreads(): Set<String> = spansByThread.keys.toSet()
+        override fun clear(threadId: String) {
         spansByThread.remove(threadId)
     }
-
-    override fun clearAll() {
+        override fun clearAll() {
         spansByThread.clear()
         activeSpans.clear()
     }
-
-    private fun commitSpan(span: ActiveSpan, status: SpanStatus) {
+        private fun commitSpan(span: ActiveSpan, status: SpanStatus) {
         if (!span.endedRef.compareAndSet(false, true)) return
         val now = System.currentTimeMillis()
         val record = SpanRecord(
@@ -163,11 +157,10 @@ class InMemoryTracer(
         val queue = spansByThread.computeIfAbsent(span.threadId) { ConcurrentLinkedQueue() }
         queue.add(record)
         // 限制大小，FIFO 淘汰
-                while (queue.size > maxSpansPerThread) queue.poll()
+        while (queue.size > maxSpansPerThread) queue.poll()
         activeSpans.remove(span.spanId)
     }
-
-    private inner class ActiveSpan(
+        private inner class ActiveSpan(
         override val spanId: String,
         override val parentId: String?,
         override val name: String,
@@ -184,31 +177,26 @@ class InMemoryTracer(
             attributesRef[key] = value
             return this
         }
-
         override fun addEvent(name: String, attributes: Map<String, Any>): Span {
             eventsRef.add(SpanEvent(name, System.currentTimeMillis(), attributes))
-            return this
+        return this
         }
-
         override fun recordException(t: Throwable): Span {
             attributesRef["exception"] = t
             attributesRef["exception.message"] = t.message ?: ""
-            attributesRef["exception.type"] = t::class.qualifiedName ?: ""
-            statusRef.set(SpanStatus.ERROR)
-            return this
+        attributesRef["exception.type"] = t::class.qualifiedName ?: ""
+        statusRef.set(SpanStatus.ERROR)
+        return this
         }
-
         override fun end(status: SpanStatus) {
             val finalStatus = if (statusRef.get() == SpanStatus.ERROR) SpanStatus.ERROR else status
             commitSpan(this, finalStatus)
         }
-
         override fun close() {
             if (!endedRef.get()) end(SpanStatus.ERROR)
         }
     }
-
-    companion object {
+        companion object {
         private val spanCounter = AtomicLong(0)
     }
 }
@@ -226,11 +214,10 @@ object NoopTracer : WorkflowTracer {
     ): Span = NoopSpan
 
     override fun snapshot(threadId: String): List<SpanRecord> = emptyList()
-    override fun activeThreads(): Set<String> = emptySet()
-    override fun clear(threadId: String) {}
-    override fun clearAll() {}
-
-    private object NoopSpan : Span {
+        override fun activeThreads(): Set<String> = emptySet()
+        override fun clear(threadId: String) {}
+        override fun clearAll() {}
+        private object NoopSpan : Span {
         override val spanId: String = "noop"
         override val parentId: String? = null
         override val name: String = "noop"
@@ -251,8 +238,7 @@ object NoopTracer : WorkflowTracer {
 object TracerHolder {
     @Volatile
     private var instance: WorkflowTracer = InMemoryTracer()
-
-    fun get(): WorkflowTracer = instance
+        fun get(): WorkflowTracer = instance
 
     fun set(tracer: WorkflowTracer) {
         instance = tracer

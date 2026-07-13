@@ -59,10 +59,10 @@ class UpdateDownloadService : Service() {
         fun start(context: Context) {
             if (isRunning) {
                 AppLogger.d(TAG, "服务已在运行，跳过 start")
-                return
+        return
             }
-            val intent = Intent(context, UpdateDownloadService::class.java)
-            try {
+        val intent = Intent(context, UpdateDownloadService::class.java)
+        try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context.startForegroundService(intent)
                 } else {
@@ -70,62 +70,58 @@ class UpdateDownloadService : Service() {
                 }
             } catch (t: Throwable) {
                 // Android 12+ 后台启动前台服务受限；但热更新下载由用户点击触发，属于前台
-                AppLogger.e(TAG, "启动 UpdateDownloadService 失败", t)
+        AppLogger.e(TAG, "启动 UpdateDownloadService 失败", t)
             }
         }
 
         /** 停止服务。 */
         fun stop(context: Context) {
             val intent = Intent(context, UpdateDownloadService::class.java)
-            context.stopService(intent)
+        context.stopService(intent)
         }
     }
-
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var progressJob: Job? = null
+        private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        private var progressJob: Job? = null
     private var downloadJob: Job? = null
     private val notifier by lazy { UpdateNotifier.getInstance(this) }
-
-    override fun onBind(intent: Intent?): IBinder? = null
+        override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         isRunning = true
         AppLogger.d(TAG, "UpdateDownloadService onCreate")
         // 立即启动前台通知，避免 Android 12+ 的 ForegroundServiceDidNotStartInTimeException
-                startForegroundCompat()
+        startForegroundCompat()
     }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         AppLogger.d(TAG, "UpdateDownloadService onStartCommand")
         // 确保前台通知已启动（若被系统重启则需再次确认）
-                startForegroundCompat()
-
+        startForegroundCompat()
         val manager = HotUpdateManager.getInstance(this)
         val state = manager.state.value
 
         // 重入保护：若下载已在进行中，不要重复启动
-                if (state is UpdateState.Downloading) {
+        if (state is UpdateState.Downloading) {
             AppLogger.d(TAG, "下载进行中，跳过重复启动")
-            return START_NOT_STICKY
+        return START_NOT_STICKY
         }
 
         // 若已完成或失败，服务无需再启动下载
-                if (state is UpdateState.Downloaded || state is UpdateState.Failed) {
+        if (state is UpdateState.Downloaded || state is UpdateState.Failed) {
             AppLogger.d(TAG, "下载已结束（$state），停止服务")
-            stopSelfAndCleanup()
-            return START_NOT_STICKY
+        stopSelfAndCleanup()
+        return START_NOT_STICKY
         }
 
         // 若无可用更新，停止服务
-                if (state !is UpdateState.UpdateAvailable || state.release == null || state.asset == null) {
+        if (state !is UpdateState.UpdateAvailable || state.release == null || state.asset == null) {
             AppLogger.w(TAG, "无可用更新，停止服务")
-            stopSelfAndCleanup()
-            return START_NOT_STICKY
+        stopSelfAndCleanup()
+        return START_NOT_STICKY
         }
 
         // 订阅进度更新通知（取消旧的订阅避免泄漏）
-                progressJob?.cancel()
+        progressJob?.cancel()
         progressJob = serviceScope.launch {
             manager.state.collectLatest { s ->
                 when (s) {
@@ -137,44 +133,42 @@ class UpdateDownloadService : Service() {
                             mirrorName = null
                         )
                     }
-                    is UpdateState.Downloaded -> {
+        is UpdateState.Downloaded -> {
                         // 已在 HotUpdateManager 中触发通知，这里仅停止服务
-                stopSelfAndCleanup()
+        stopSelfAndCleanup()
                     }
-                    is UpdateState.Failed -> {
+        is UpdateState.Failed -> {
                         // 已在 HotUpdateManager 中触发通知，这里仅停止服务
-                stopSelfAndCleanup()
+        stopSelfAndCleanup()
                     }
-                    UpdateState.Idle -> {
+        UpdateState.Idle -> {
                         // 用户取消或重置，停止服务
-                stopSelfAndCleanup()
+        stopSelfAndCleanup()
                     }
-                    else -> { /* Checking / UpdateAvailable: 维持前台 */ }
+        else -> { /* Checking / UpdateAvailable: 维持前台 */ }
                 }
             }
         }
 
         // 启动下载（HotUpdateManager.startDownload 内部会在自己的 scope 里 launch，
         // 这里仅做触发；downloadJob 用于追踪触发动作本身）
-                if (downloadJob == null || downloadJob?.isActive != true) {
+        if (downloadJob == null || downloadJob?.isActive != true) {
             downloadJob = serviceScope.launch {
                 try {
                     manager.startDownload()
                 } catch (t: Throwable) {
                     AppLogger.e(TAG, "下载异常", t)
-                    stopSelfAndCleanup()
+        stopSelfAndCleanup()
                 }
             }
         }
-
         return START_NOT_STICKY
     }
-
-    override fun onDestroy() {
+        override fun onDestroy() {
         super.onDestroy()
         AppLogger.d(TAG, "UpdateDownloadService onDestroy")
         // 若下载仍在进行中，显式取消，确保 Service 生命周期与下载一致
-    val manager = HotUpdateManager.getInstance(this)
+        val manager = HotUpdateManager.getInstance(this)
         val s = manager.state.value
         if (s is UpdateState.Downloading) {
             manager.cancelDownload()
@@ -196,15 +190,13 @@ class UpdateDownloadService : Service() {
             types = types
         )
     }
-
-    private fun stopSelfAndCleanup() {
+        private fun stopSelfAndCleanup() {
         try {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } catch (_: Throwable) {}
         stopSelf()
     }
-
-    private fun buildInitialNotification(): android.app.Notification {
+        private fun buildInitialNotification(): android.app.Notification {
         val builder = NotificationCompat.Builder(this, UpdateNotifier.CHANNEL_PROGRESS)
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setContentTitle("正在下载 Apex 更新")

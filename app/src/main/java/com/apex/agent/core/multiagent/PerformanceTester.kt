@@ -13,8 +13,7 @@ class PerformanceTester {
     companion object {
         private const val TAG = "PerformanceTester"
     }
-
-    data class PerformanceResult(
+        data class PerformanceResult(
         val totalRequests: Int,
         val successfulRequests: Int,
         val failedRequests: Int,
@@ -22,15 +21,13 @@ class PerformanceTester {
         val throughput: Double,
         val errorRate: Double
     )
-
-    fun testConcurrentAllocation(threadCount: Int, requestCount: Int): PerformanceResult {
+        fun testConcurrentAllocation(threadCount: Int, requestCount: Int): PerformanceResult {
         val allocator = IntelligentTaskAllocator()
         val quantifier = TaskComplexityQuantifier()
         
         // 初始化Agent
-    val agents = SanxingAgentSystem.createStandardAgents()
+        val agents = SanxingAgentSystem.createStandardAgents()
         allocator.initializeAgentProfiles(agents)
-
         val executor = Executors.newFixedThreadPool(threadCount)
         val latch = CountDownLatch(requestCount)
         val successful = AtomicInteger(0)
@@ -48,28 +45,23 @@ class PerformanceTester {
             "部署应用到服务器",
             "编写测试用例"
         )
-
         val startTime = System.currentTimeMillis()
-
         for (i in 0 until requestCount) {
             executor.submit {
                 try {
                     val taskDescription = tasks[i % tasks.size]
         val taskFeature = quantifier.quantifyTask(taskDescription)
-                    val request = IntelligentTaskAllocator.AllocationRequest(
+        val request = IntelligentTaskAllocator.AllocationRequest(
                         taskId = "test_task_${i}",
                         taskDescription = taskDescription,
                         taskFeature = taskFeature,
                         requiredSkills = taskFeature.requiredSkills
                     )
-
-                    val requestStartTime = System.currentTimeMillis()
+        val requestStartTime = System.currentTimeMillis()
         val result = allocator.allocateTask(request)
-                    val requestEndTime = System.currentTimeMillis()
-
-                    totalTime.addAndGet(requestEndTime - requestStartTime)
-
-                    if (result != null && result.optimalAgent != null) {
+        val requestEndTime = System.currentTimeMillis()
+        totalTime.addAndGet(requestEndTime - requestStartTime)
+        if (result != null && result.optimalAgent != null) {
                         successful.incrementAndGet()
                     } else {
                         failed.incrementAndGet()
@@ -81,14 +73,12 @@ class PerformanceTester {
                 }
             }
         }
-
         try {
             latch.await(60, TimeUnit.SECONDS)
         } catch (e: InterruptedException) {
             AppLogger.e(TAG, "Performance test interrupted", e)
-            Thread.currentThread().interrupt()
+        Thread.currentThread().interrupt()
         }
-
         val endTime = System.currentTimeMillis()
         val totalDuration = endTime - startTime
         val avgResponseTime = if (successful.get() > 0) totalTime.get() / successful.get() else 0
@@ -97,7 +87,6 @@ class PerformanceTester {
 
         executor.shutdown()
         executor.awaitTermination(10, TimeUnit.SECONDS)
-
         return PerformanceResult(
             totalRequests = requestCount,
             successfulRequests = successful.get(),
@@ -107,25 +96,20 @@ class PerformanceTester {
             errorRate = errorRate
         )
     }
-
-    fun testScalability(maxThreads: Int, requestCount: Int) {
+        fun testScalability(maxThreads: Int, requestCount: Int) {
         println("===== 可扩展性测===-")
         println("线程数\t成功数\t失败数\t平均响应时间(ms)\t吞吐？req/s)\t错误。"
         println("-".repeat(80))
-
         for (threads in 1..maxThreads step 2) {
             val result = testConcurrentAllocation(threads, requestCount)
-            println("${threads}\t${result.successfulRequests}\t${result.failedRequests}\t${result.averageResponseTime}\t${String.format("%.2f", result.throughput)}\t${String.format("%.2f%%", result.errorRate * 100)}")
+        println("${threads}\t${result.successfulRequests}\t${result.failedRequests}\t${result.averageResponseTime}\t${String.format("%.2f", result.throughput)}\t${String.format("%.2f%%", result.errorRate * 100)}")
         }
     }
-
-    fun testLatencyDistribution(requestCount: Int) {
+        fun testLatencyDistribution(requestCount: Int) {
         val allocator = IntelligentTaskAllocator()
         val quantifier = TaskComplexityQuantifier()
-        
         val agents = SanxingAgentSystem.createStandardAgents()
         allocator.initializeAgentProfiles(agents)
-
         val latencies = mutableListOf<Long>()
         val tasks = listOf(
             "开发一个Android应用",
@@ -133,23 +117,20 @@ class PerformanceTester {
             "进行用户测试",
             "数据分析与可视化"
         )
-
         for (i in 0 until requestCount) {
             val taskDescription = tasks[i % tasks.size]
         val taskFeature = quantifier.quantifyTask(taskDescription)
-            val request = IntelligentTaskAllocator.AllocationRequest(
+        val request = IntelligentTaskAllocator.AllocationRequest(
                 taskId = "test_task_${i}",
                 taskDescription = taskDescription,
                 taskFeature = taskFeature,
                 requiredSkills = taskFeature.requiredSkills
             )
-
-            val startTime = System.currentTimeMillis()
-            allocator.allocateTask(request)
-            val endTime = System.currentTimeMillis()
-            latencies.add(endTime - startTime)
+        val startTime = System.currentTimeMillis()
+        allocator.allocateTask(request)
+        val endTime = System.currentTimeMillis()
+        latencies.add(endTime - startTime)
         }
-
         latencies.sort()
         val p50 = latencies[(requestCount * 0.5).toInt()]
         val p90 = latencies[(requestCount * 0.9).toInt()]
@@ -164,14 +145,11 @@ class PerformanceTester {
         println("最大延${latencies.maxOrNull()}ms")
         println("最小延${latencies.minOrNull()}ms")
     }
-
-    fun testCachingPerformance(requestCount: Int) {
+        fun testCachingPerformance(requestCount: Int) {
         val allocator = IntelligentTaskAllocator()
         val quantifier = TaskComplexityQuantifier()
-        
         val agents = SanxingAgentSystem.createStandardAgents()
         allocator.initializeAgentProfiles(agents)
-
         val taskDescription = "开发一个Android应用"
         val taskFeature = quantifier.quantifyTask(taskDescription)
         val request = IntelligentTaskAllocator.AllocationRequest(
@@ -182,13 +160,13 @@ class PerformanceTester {
         )
 
         // 第一次请求（无缓存）
-    val startTime1 = System.currentTimeMillis()
+        val startTime1 = System.currentTimeMillis()
         allocator.allocateTask(request)
         val endTime1 = System.currentTimeMillis()
         val timeWithoutCache = endTime1 - startTime1
 
         // 第二次请求（有缓存）
-    val startTime2 = System.currentTimeMillis()
+        val startTime2 = System.currentTimeMillis()
         allocator.allocateTask(request)
         val endTime2 = System.currentTimeMillis()
         val timeWithCache = endTime2 - startTime2

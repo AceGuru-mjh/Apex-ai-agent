@@ -30,8 +30,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
             adminComponentName = componentName
         }
     }
-
-    private val devicePolicyManager =
+        private val devicePolicyManager =
             context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
 
     override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.ADMIN
@@ -39,48 +38,43 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
     override fun isAvailable(): Boolean {
         return adminComponentName != null && isDeviceAdminActive()
     }
-
-    override fun hasPermission(): ShellExecutor.PermissionStatus {
+        override fun hasPermission(): ShellExecutor.PermissionStatus {
         if (adminComponentName == null) {
             return ShellExecutor.PermissionStatus.denied("Device admin component name not set")
         }
-
         return if (isDeviceAdminActive()) {
             ShellExecutor.PermissionStatus.granted()
         } else {
             ShellExecutor.PermissionStatus.denied("Device admin is not active for this app")
         }
     }
-
-    override fun initialize() {
+        override fun initialize() {
         // 设备管理员初始化由系统控制，此处无需额外操作
     }
-
-    override fun requestPermission(onResult: (Boolean) -> Unit) {
+        override fun requestPermission(onResult: (Boolean) -> Unit) {
         if (isAvailable()) {
             onResult(true)
-            return
+        return
         }
-
         if (adminComponentName == null) {
             AppLogger.e(TAG, "Admin component name not set")
-            onResult(false)
-            return
+        onResult(false)
+        return
         }
 
         // 引导用户激活设备管理员
-                try {
+        try {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
-            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, context.getString(R.string.admin_shell_requires_permission))
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
+        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, context.getString(R.string.admin_shell_requires_permission))
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
 
             // 由于无法知道用户是否激活了管理员，返回false，让调用者自行处理后续检，
-                onResult(false)
+        onResult(false)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error opening device admin settings", e)
-            onResult(false)
+        onResult(false)
         }
     }
 
@@ -90,38 +84,36 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
             adminComponentName?.let { devicePolicyManager.isAdminActive(it) } ?: false
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error checking device admin status", e)
-            false
+        false
         }
     }
-
-    override suspend fun executeCommand(
+        override suspend fun executeCommand(
         command: String,
         identity: ShellIdentity
     ): ShellExecutor.CommandResult =
             withContext(Dispatchers.IO) {
                 val permStatus = hasPermission()
-                if (!permStatus.granted) {
+        if (!permStatus.granted) {
                     return@withContext ShellExecutor.CommandResult(false, "", permStatus.reason, -1)
                 }
-
-                AppLogger.d(TAG, "Executing command via device admin: ${command}")
+        AppLogger.d(TAG, "Executing command via device admin: ${command}")
 
                 // 设备管理员API不能直接执行shell命令，但可以执行一些系统操作
                // 这里实现将根据实际可用的管理员API而定
-                try {
+        try {
                     when {
                         command.startsWith("lockscreen") -> {
                             devicePolicyManager.lockNow()
-                            return@withContext ShellExecutor.CommandResult(
+        return@withContext ShellExecutor.CommandResult(
                                     true,
                                     "Screen locked",
                                     "",
                                     0
                             )
                         }
-                        command.startsWith("wipe") -> {
+        command.startsWith("wipe") -> {
                             devicePolicyManager.wipeData(0)
-                            return@withContext ShellExecutor.CommandResult(
+        return@withContext ShellExecutor.CommandResult(
                                     true,
                                     "Device wipe initiated",
                                     "",
@@ -129,7 +121,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
                             )
                         }
                         // 可以添加更多设备管理员API支持的操作
-                else -> {
+        else -> {
                             return@withContext ShellExecutor.CommandResult(
                                     false,
                                     "",
@@ -140,7 +132,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
                     }
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Error executing admin command", e)
-                    return@withContext ShellExecutor.CommandResult(
+        return@withContext ShellExecutor.CommandResult(
                             false,
                             "",
                             "Error: ${e.message}",
@@ -148,8 +140,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
                     )
                 }
             }
-
-    override suspend fun startProcess(command: String): ShellProcess {
+        override suspend fun startProcess(command: String): ShellProcess {
         return AdminShellProcess(command, this)
     }
 }
@@ -167,14 +158,13 @@ private class AdminShellProcess(
     
     init {
         // 异步执行命令
-                CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             result = executor.executeCommand(command, ShellIdentity.DEFAULT)
-            exitCode = result?.exitCode ?: -1
+        exitCode = result?.exitCode ?: -1
             completed = true
         }
     }
-    
-    override val stdout: Flow<String> = callbackFlow {
+        override val stdout: Flow<String> = callbackFlow {
         while (!completed) {
             kotlinx.coroutines.delay(10)
         }
@@ -186,8 +176,7 @@ private class AdminShellProcess(
         close()
         awaitClose { }
     }
-
-    override val stderr: Flow<String> = callbackFlow {
+        override val stderr: Flow<String> = callbackFlow {
         while (!completed) {
             kotlinx.coroutines.delay(10)
         }
@@ -199,15 +188,13 @@ private class AdminShellProcess(
         close()
         awaitClose { }
     }
-
-    override val isAlive: Boolean
+        override val isAlive: Boolean
         get() = !completed
 
     override fun destroy() {
         completed = true
     }
-
-    override suspend fun waitFor(): Int = withContext(Dispatchers.IO) {
+        override suspend fun waitFor(): Int = withContext(Dispatchers.IO) {
         while (!completed) {
             kotlinx.coroutines.delay(10)
         }

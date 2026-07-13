@@ -17,15 +17,12 @@ class UiStateDelegate {
         val isWaitingForUser: Boolean = false,
         val errorMessage: String? = null
     )
-
-    private val _state = MutableStateFlow(UiState())
+        private val _state = MutableStateFlow(UiState())
         val state: StateFlow<UiState> = _state.asStateFlow()
-
-    fun updateState(update: (UiState) -> UiState) {
+        fun updateState(update: (UiState) -> UiState) {
         _state.value = update(_state.value)
     }
-
-    fun getCurrentState(): UiState = _state.value
+        fun getCurrentState(): UiState = _state.value
 
     fun reset() {
         _state.value = UiState()

@@ -37,31 +37,28 @@ class LobeHubSkillParser {
      */
     fun parseSkillMd(content: String): LobeHubSkillSpec {
         val spec = LobeHubSkillSpec()
-        
         if (content.isBlank()) {
             return spec
         }
-
         val lines = content.lines()
         
         // Check for frontmatter
-                if (lines.isNotEmpty() && lines[0].trim() == FRONTMATTER_DELIMITER) {
+        if (lines.isNotEmpty() && lines[0].trim() == FRONTMATTER_DELIMITER) {
             val endIndex = lines.drop(1).indexOfFirst { it.trim() == FRONTMATTER_DELIMITER }
-            if (endIndex >= 0) {
+        if (endIndex >= 0) {
                 val frontmatter = lines.subList(1, endIndex + 1)
-                parseFrontmatter(frontmatter, spec)
+        parseFrontmatter(frontmatter, spec)
                 
                 // Parse body content
-    val bodyStart = endIndex + 2
+        val bodyStart = endIndex + 2
                 if (bodyStart < lines.size) {
                     parseBody(lines.subList(bodyStart, lines.size), spec)
                 }
             }
         } else {
             // No frontmatter, try to parse from body
-                parseBody(lines, spec)
+        parseBody(lines, spec)
         }
-
         return spec
     }
 
@@ -73,17 +70,16 @@ class LobeHubSkillParser {
             val content = file.readText()
         val spec = parseSkillMd(content)
             // Use filename as identifier if not set
-                if (spec.identifier.isBlank()) {
+        if (spec.identifier.isBlank()) {
                 spec.copy(identifier = file.nameWithoutExtension)
             }
-            spec
+        spec
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to parse skill file: ${file.absolutePath}", e)
-            LobeHubSkillSpec()
+        LobeHubSkillSpec()
         }
     }
-
-    private fun parseFrontmatter(lines: List<String>, spec: LobeHubSkillSpec) {
+        private fun parseFrontmatter(lines: List<String>, spec: LobeHubSkillSpec) {
         var identifier = ""
         var name = ""
         var description = ""
@@ -100,64 +96,61 @@ class LobeHubSkillParser {
         
         var currentBlock = ""
         var blockContent = StringBuilder()
-
         for (line in lines) {
             val trimmed = line.trim()
-            
-            when {
+        when {
                 trimmed == "capabilities:" -> {
                     inCapabilities = true
                     inInstall = false
                     inInputs = false
                     currentBlock = "capabilities"
-                    blockContent = StringBuilder()
+        blockContent = StringBuilder()
                 }
-                trimmed == "install:" -> {
+        trimmed == "install:" -> {
                     inCapabilities = false
                     inInstall = true
                     inInputs = false
                     currentBlock = "install"
-                    blockContent = StringBuilder()
+        blockContent = StringBuilder()
                 }
-                trimmed.startsWith("inputs:") -> {
+        trimmed.startsWith("inputs:") -> {
                     inCapabilities = false
                     inInstall = false
                     inInputs = true
                     currentBlock = "inputs"
-                    blockContent = StringBuilder()
+        blockContent = StringBuilder()
                 }
-                trimmed.startsWith("tags:") -> {
+        trimmed.startsWith("tags:") -> {
                     tags = parseListField(trimmed)
                 }
-                trimmed.startsWith("agent:") -> {
+        trimmed.startsWith("agent:") -> {
                     agent = parseListField(trimmed)
                 }
-                trimmed.startsWith("extends:") -> {
+        trimmed.startsWith("extends:") -> {
                     extends = parseListField(trimmed)
                 }
-                trimmed.startsWith("identifier:") || trimmed.startsWith("name:") -> {
+        trimmed.startsWith("identifier:") || trimmed.startsWith("name:") -> {
                     val key = if (trimmed.startsWith("identifier:")) "identifier" else "name"
         val value = trimmed.substringAfter(":").trim().unquote()
-                    if (key == "identifier") identifier = value else name = value
+        if (key == "identifier") identifier = value else name = value
                 }
-                trimmed.startsWith("description:") -> {
+        trimmed.startsWith("description:") -> {
                     description = trimmed.substringAfter(":").trim().unquote()
                 }
-                trimmed.startsWith("version:") -> {
+        trimmed.startsWith("version:") -> {
                     version = trimmed.substringAfter(":").trim().unquote()
                 }
-                trimmed.startsWith("author:") -> {
+        trimmed.startsWith("author:") -> {
                     author = trimmed.substringAfter(":").trim().unquote()
                 }
-                trimmed.startsWith("homepage:") -> {
+        trimmed.startsWith("homepage:") -> {
                     homepage = trimmed.substringAfter(":").trim().unquote()
                 }
-                trimmed.startsWith("license:") -> {
+        trimmed.startsWith("license:") -> {
                     license = trimmed.substringAfter(":").trim().unquote()
                 }
             }
         }
-
         spec.copy(
             identifier = identifier.ifBlank { name },
             name = name,
@@ -171,73 +164,67 @@ class LobeHubSkillParser {
             capabilities = LobeHubCapabilities(extends = extends)
         )
     }
-
-    private fun parseBody(lines: List<String>, spec: LobeHubSkillSpec) {
+        private fun parseBody(lines: List<String>, spec: LobeHubSkillSpec) {
         // Extract title (first # heading)
-    val title = lines.find { it.startsWith("# ") }?.substringAfter("# ") ?: ""
+        val title = lines.find { it.startsWith("# ") }?.substringAfter("# ") ?: ""
         
         // Extract sections
-                var currentSection = ""
+        var currentSection = ""
         var sectionContent = StringBuilder()
         val sections = mutableMapOf<String, String>()
-        
         for (line in lines) {
             when {
                 line.startsWith("## ") -> {
                     if (currentSection.isNotEmpty() && sectionContent.isNotEmpty()) {
                         sections[currentSection] = sectionContent.toString().trim()
                     }
-                    currentSection = line.substringAfter("## ").trim().lowercase()
-                    sectionContent = StringBuilder()
+        currentSection = line.substringAfter("## ").trim().lowercase()
+        sectionContent = StringBuilder()
                 }
-                line.startsWith("# ") -> {
+        line.startsWith("# ") -> {
                     // Skip main title
                 }
-                else -> {
+        else -> {
                     sectionContent.appendLine(line)
                 }
             }
         }
-        
         if (currentSection.isNotEmpty() && sectionContent.isNotEmpty()) {
             sections[currentSection] = sectionContent.toString().trim()
         }
 
         // Update spec with parsed sections
-    val description = sections["description"] ?: sections["概述"] ?: ""
+        val description = sections["description"] ?: sections["概述"] ?: ""
         val usage = sections["usage"] ?: sections["使用方法"] ?: sections["使用者輸具] ?: ""
         val inputs = sections["inputs"] ?: sections["輸入"] ?: ""
 
         // If no description in frontmatter, use body
-                if (spec.description.isBlank() && description.isNotBlank()) {
+        if (spec.description.isBlank() && description.isNotBlank()) {
             spec.description = description
         }
     }
-
-    private fun parseListField(line: String): List<String> {
+        private fun parseListField(line: String): List<String> {
         val value = line.substringAfter(":").trim()
         if (value.isBlank()) return emptyList()
-        
         return when {
             value.startsWith("[") && value.endsWith("]") -> {
                 // JSON array format: [item1, item2]
-                value.trim('[', ']')
+        value.trim('[', ']')
                     .split(",")
                     .map { it.trim().unquote() }
                     .filter { it.isNotBlank() }
             }
-            value.contains(",") -> {
+        value.contains(",") -> {
                 // Comma-separated: item1, item2
-                value.split(",").map { it.trim().unquote() }.filter { it.isNotBlank() }
+        value.split(",").map { it.trim().unquote() }.filter { it.isNotBlank() }
             }
-            else -> {
+        else -> {
                 // Single item
-                listOf(value.unquote())
+        listOf(value.unquote())
             }
         }
     }
-
-    private fun String.unquote(): String {
+        private fun String.unquote(): String {
         var value = this
         if ((value.startsWith('"') && value.endsWith('"')) || 
             (value.startsWith('\'') && value.endsWith('\''))) {
@@ -275,7 +262,6 @@ class LobeHubSkillParser {
      */
     fun generateSkillMd(spec: LobeHubSkillSpec): String {
         val sb = StringBuilder()
-        
         sb.appendLine("---")
         sb.appendLine("identifier: ${spec.identifier}")
         sb.appendLine("name: ${spec.name}")
@@ -302,18 +288,16 @@ class LobeHubSkillParser {
         sb.appendLine()
         sb.appendLine(spec.description)
         sb.appendLine()
-        
         if (spec.inputs.isNotEmpty()) {
             sb.appendLine("## Inputs")
-            sb.appendLine()
-            sb.appendLine("| Parameter | Description | Type | Required |")
-            sb.appendLine("|-----------|-------------|------|----------|")
-            for (input in spec.inputs) {
+        sb.appendLine()
+        sb.appendLine("| Parameter | Description | Type | Required |")
+        sb.appendLine("|-----------|-------------|------|----------|")
+        for (input in spec.inputs) {
                 sb.appendLine("| ${input.name} | ${input.description} | ${input.type} | ${if (input.required) "Yes" else "No"} |")
             }
-            sb.appendLine()
+        sb.appendLine()
         }
-        
         sb.appendLine("## Usage")
         sb.appendLine()
         sb.appendLine("Install using LobeHub Market CLI:")
@@ -321,7 +305,6 @@ class LobeHubSkillParser {
         sb.appendLine("```bash")
         sb.appendLine("npx -y @lobehub/market-cli skills install ${spec.identifier}")
         sb.appendLine("```")
-        
         return sb.toString()
     }
 }

@@ -41,8 +41,7 @@ class ConversationBridgeTools(private val context: Context) {
             }
         }
     }
-    
-    private val sessionDatabase: SessionDatabase by lazy {
+        private val sessionDatabase: SessionDatabase by lazy {
         SessionDatabase.getInstance(context)
     }
     
@@ -51,8 +50,7 @@ class ConversationBridgeTools(private val context: Context) {
     
     /** 待批准权限队分*/
     private val pendingPermissions = mutableListOf<MCPCPermission>()
-
-    private val rbacManager: RbacManager? by lazy {
+        private val rbacManager: RbacManager? by lazy {
         try { RbacManager.getInstance(context) } catch (e: Exception) { null }
     }
     
@@ -68,8 +66,7 @@ class ConversationBridgeTools(private val context: Context) {
             try {
                 val sessionsFlow = sessionDatabase.sessionDao().getAllSessions()
         val sessions = sessionsFlow.first()
-                
-                val conversations = sessions
+        val conversations = sessions
                     .drop(offset)
                     .take(limit)
                     .map { session ->
@@ -82,15 +79,14 @@ class ConversationBridgeTools(private val context: Context) {
                             messageCount = sessionDatabase.messageDao().getMessageCount(session.id)
                         )
                     }
-                
-                ConversationListResult(
+        ConversationListResult(
                     success = true,
                     conversations = conversations,
                     total = sessions.size
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "列出对话失败: ${e.message}", e)
-                ConversationListResult(
+        ConversationListResult(
                     success = false,
                     error = "Failed to list conversations: ${e.message}"
                 )
@@ -113,17 +109,14 @@ class ConversationBridgeTools(private val context: Context) {
                         error = "conversation_id is required"
                     )
                 }
-                
-                val session = sessionDatabase.sessionDao().getSessionById(conversationId)
-                
-                if (session == null) {
+        val session = sessionDatabase.sessionDao().getSessionById(conversationId)
+        if (session == null) {
                     return@withContext ConversationResult(
                         success = false,
                         error = "Conversation not found"
                     )
                 }
-                
-                ConversationResult(
+        ConversationResult(
                     success = true,
                     conversation = ConversationDetail(
                         id = session.id,
@@ -139,7 +132,7 @@ class ConversationBridgeTools(private val context: Context) {
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "获取对话失败: ${e.message}", e)
-                ConversationResult(
+        ConversationResult(
                     success = false,
                     error = "Failed to get conversation: ${e.message}"
                 )
@@ -164,12 +157,11 @@ class ConversationBridgeTools(private val context: Context) {
                         error = "conversation_id is required"
                     )
                 }
-                
-                val messages = if (beforeId != null) {
+        val messages = if (beforeId != null) {
                     // 获取指定消息之前的消息
-    val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
+        val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
         val beforeIndex = allMessages.indexOfFirst { it.id == beforeId }
-                    if (beforeIndex > 0) {
+        if (beforeIndex > 0) {
                         allMessages.subList(0, minOf(beforeIndex, limit))
                     } else {
                         allMessages.take(limit)
@@ -177,8 +169,7 @@ class ConversationBridgeTools(private val context: Context) {
                 } else {
                     sessionDatabase.messageDao().getRecentMessages(conversationId, limit).reversed()
                 }
-                
-                val messageList = messages.map { message ->
+        val messageList = messages.map { message ->
                     MessageInfo(
                         id = message.id,
                         role = message.role,
@@ -188,15 +179,14 @@ class ConversationBridgeTools(private val context: Context) {
                         toolCalls = message.toolCalls?.let { parseToolCalls(it) }
                     )
                 }
-                
-                MessagesReadResult(
+        MessagesReadResult(
                     success = true,
                     messages = messageList,
                     total = sessionDatabase.messageDao().getMessageCount(conversationId)
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "读取消息失败: ${e.message}", e)
-                MessagesReadResult(
+        MessagesReadResult(
                     success = false,
                     error = "Failed to read messages: ${e.message}"
                 )
@@ -223,48 +213,44 @@ class ConversationBridgeTools(private val context: Context) {
                 }
                 
                 // 检查对话是否存在
-    val session = sessionDatabase.sessionDao().getSessionById(conversationId)
-                if (session == null) {
+        val session = sessionDatabase.sessionDao().getSessionById(conversationId)
+        if (session == null) {
                     return@withContext MessageSendResult(
                         success = false,
                         error = "Conversation not found"
                     )
                 }
-                
-                val messageId = UUID.randomUUID().toString()
+        val messageId = UUID.randomUUID().toString()
         val timestamp = System.currentTimeMillis()
-                
-                val message = MessageEntity(
+        val message = MessageEntity(
                     id = messageId,
                     sessionId = conversationId,
                     role = role,
                     content = content,
                     createdAt = timestamp
                 )
-                
-                sessionDatabase.messageDao().insertMessage(message)
+        sessionDatabase.messageDao().insertMessage(message)
                 
                 // 更新会话时间
-                sessionDatabase.sessionDao().updateSession(
+        sessionDatabase.sessionDao().updateSession(
                     session.copy(updatedAt = timestamp)
                 )
                 
                 // 添加事件
-                addEvent(MCPCEvent(
+        addEvent(MCPCEvent(
                     type = "message_created",
                     conversationId = conversationId,
                     messageId = messageId,
                     timestamp = timestamp
                 ))
-                
-                MessageSendResult(
+        MessageSendResult(
                     success = true,
                     messageId = messageId,
                     createdAt = timestamp
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "发送消息失败 ${e.message}", e)
-                MessageSendResult(
+        MessageSendResult(
                     success = false,
                     error = "Failed to send message: ${e.message}"
                 )
@@ -288,17 +274,16 @@ class ConversationBridgeTools(private val context: Context) {
                     } else {
                         eventQueue.toList()
                     }
-                    eventQueue.removeAll(filtered.toSet())
-                    filtered
+        eventQueue.removeAll(filtered.toSet())
+        filtered
                 }
-                
-                EventsResult(
+        EventsResult(
                     success = true,
                     events = events
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "轮询事件失败: ${e.message}", e)
-                EventsResult(
+        EventsResult(
                     success = false,
                     error = "Failed to poll events: ${e.message}"
                 )
@@ -322,13 +307,12 @@ class ConversationBridgeTools(private val context: Context) {
                     val events = synchronized(eventQueue) {
                         if (eventQueue.isNotEmpty()) {
                             val result = eventQueue.toList()
-                            eventQueue.clear()
-                            return@synchronized result
+        eventQueue.clear()
+        return@synchronized result
                         }
-                        null
+        null
                     }
-                    
-                    if (events != null) {
+        if (events != null) {
                         return@withContext EventsResult(
                             success = true,
                             events = events
@@ -336,17 +320,17 @@ class ConversationBridgeTools(private val context: Context) {
                     }
                     
                     // 短暂等待后重试
-                kotlinx.coroutines.delay(100)
+        kotlinx.coroutines.delay(100)
                 }
                 
                 // 超时，返回空列表
-                EventsResult(
+        EventsResult(
                     success = true,
                     events = emptyList()
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "等待事件失败: ${e.message}", e)
-                EventsResult(
+        EventsResult(
                     success = false,
                     error = "Failed to wait for events: ${e.message}"
                 )
@@ -370,7 +354,7 @@ class ConversationBridgeTools(private val context: Context) {
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "列出权限失败: ${e.message}", e)
-                PermissionsListResult(
+        PermissionsListResult(
                     success = false,
                     error = "Failed to list permissions: ${e.message}"
                 )
@@ -394,17 +378,15 @@ class ConversationBridgeTools(private val context: Context) {
                         error = "permission_id is required"
                     )
                 }
-                
-                val permission = synchronized(pendingPermissions) {
+        val permission = synchronized(pendingPermissions) {
         val index = pendingPermissions.indexOfFirst { it.id == permissionId }
-                    if (index >= 0) {
+        if (index >= 0) {
                         pendingPermissions.removeAt(index)
                     } else {
                         null
                     }
                 }
-                
-                if (permission == null) {
+        if (permission == null) {
                     return@withContext PermissionRespondResult(
                         success = false,
                         error = "Permission not found"
@@ -412,13 +394,13 @@ class ConversationBridgeTools(private val context: Context) {
                 }
                 
                 // 批准时持久化分RBAC
-                if (approve) {
+        if (approve) {
                     rbacManager?.let { rbac ->
                         try {
                             val rbacPermName = "mcp:${permission.type}"
         val existingPerm = rbac.getRepository()
                                 .getPermissionByName(rbacPermName)
-                            if (existingPerm == null) {
+        if (existingPerm == null) {
                                 rbac.getRepository().insertPermission(
                                     com.apex.agent.database.entity.Permission(
                                         name = rbacPermName,
@@ -434,21 +416,20 @@ class ConversationBridgeTools(private val context: Context) {
                 }
 
                 // 添加事件
-                addEvent(MCPCEvent(
+        addEvent(MCPCEvent(
                     type = if (approve) "permission_approved" else "permission_denied",
                     conversationId = permission.conversationId,
                     timestamp = System.currentTimeMillis(),
                     data = mapOf("permission_id" to permissionId)
                 ))
-                
-                PermissionRespondResult(
+        PermissionRespondResult(
                     success = true,
                     permissionId = permissionId,
                     approved = approve
                 )
             } catch (e: Exception) {
                 AppLogger.e(TAG, "响应权限失败: ${e.message}", e)
-                PermissionRespondResult(
+        PermissionRespondResult(
                     success = false,
                     error = "Failed to respond to permission: ${e.message}"
                 )
@@ -463,7 +444,7 @@ class ConversationBridgeTools(private val context: Context) {
         synchronized(eventQueue) {
             eventQueue.add(event)
             // 限制队列大小
-                if (eventQueue.size > 1000) {
+        if (eventQueue.size > 1000) {
                 eventQueue.removeAt(0)
             }
         }
@@ -484,7 +465,7 @@ class ConversationBridgeTools(private val context: Context) {
     private fun parseMetadata(metadata: String): Map<String, Any>? {
         return try {
             val json = JSONObject(metadata)
-            json.toMap()
+        json.toMap()
         } catch (e: Exception) {
             null
         }
@@ -510,11 +491,11 @@ class ConversationBridgeTools(private val context: Context) {
         val keys = keys()
         while (keys.hasNext()) {
             val key = keys.next()
-            map[key] = when (val value = get(key)) {
+        map[key] = when (val value = get(key)) {
                 is JSONObject -> value.toMap()
-                is JSONArray -> value.toMapList()
-                JSONObject.NULL -> ""
-                else -> value
+        is JSONArray -> value.toMapList()
+        JSONObject.NULL -> ""
+        else -> value
             }
         }
         return map

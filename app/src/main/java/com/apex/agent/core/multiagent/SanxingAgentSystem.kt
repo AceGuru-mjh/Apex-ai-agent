@@ -80,22 +80,18 @@ object SanxingAgentSystem {
             defaultModel = "gpt-4o-mini"
         )
     }
-
-    fun getAvailableProviders(): List<com.apex.data.model.ApiProviderType> {
+        fun getAvailableProviders(): List<com.apex.data.model.ApiProviderType> {
         return com.apex.data.model.ApiProviderType.values().toList()
     }
-
-    fun getAvailableConfigs(): List<com.apex.core.config.ModelConfigService.ModelConfigTemplate> {
+        fun getAvailableConfigs(): List<com.apex.core.config.ModelConfigService.ModelConfigTemplate> {
         return com.apex.core.config.ModelConfigService.CONFIG_TEMPLATES
     }
-
-    fun createStandardAgents(): List<SanxingAgent> {
+        fun createStandardAgents(): List<SanxingAgent> {
         return AgentRole.values().map { role ->
             createAgent(role)
         }
     }
-
-    fun createAgent(role: AgentRole): SanxingAgent {
+        fun createAgent(role: AgentRole): SanxingAgent {
         val agent = Agent(
             id = "sanxing_${role.name.lowercase()}",
             name = role.displayName,
@@ -110,7 +106,6 @@ object SanxingAgentSystem {
             ),
             permissions = getDefaultPermissions(role)
         )
-
         return SanxingAgent(
             agent = agent,
             role = role,
@@ -123,8 +118,7 @@ object SanxingAgentSystem {
             )
         )
     }
-
-    fun createAgentWithGlobalConfig(role: AgentRole, useGlobalConfig: Boolean = true, configId: String? = null): SanxingAgent {
+        fun createAgentWithGlobalConfig(role: AgentRole, useGlobalConfig: Boolean = true, configId: String? = null): SanxingAgent {
         val agent = Agent(
             id = "sanxing_${role.name.lowercase()}",
             name = role.displayName,
@@ -141,7 +135,6 @@ object SanxingAgentSystem {
             useGlobalConfig = useGlobalConfig,
             configId = configId
         )
-
         return SanxingAgent(
             agent = agent,
             role = role,
@@ -154,8 +147,7 @@ object SanxingAgentSystem {
             )
         )
     }
-
-    private fun generateSystemPrompt(role: AgentRole): String {
+        private fun generateSystemPrompt(role: AgentRole): String {
         return when (role) {
             AgentRole.ZHONGSHU_DECISION -> """
                 你现在是「中书省决策中枢」，负责以下核心职责，
@@ -170,8 +162,7 @@ object SanxingAgentSystem {
                 - 分工要合理均衡，考虑各节点能务
                 - 汇总要全面准确，结论明确
             """.trimIndent()
-
-            AgentRole.MENXIA_AUDIT -> """
+        AgentRole.MENXIA_AUDIT -> """
                 你现在是「门下省审核封驳」，负责以下核心职责，
                 1. 方案合规性审核：审核中书省方案的合法性和合规态
                 2. 执行结果验收：验收尚书省提交的各节点执行结果
@@ -183,8 +174,7 @@ object SanxingAgentSystem {
                 - 驳回要有理有据，指明具体问题
                 - 风险识别要提前预警，防患于未然
             """.trimIndent()
-
-            AgentRole.SHANGSHU_EXECUTION -> """
+        AgentRole.SHANGSHU_EXECUTION -> """
                 你现在是「尚书省执行总管」，负责以下核心职责，
                 1. 任务调度：接收中书省任务，协调各执行节点
                 2. 进度管控：监控任务执行进度，确保按时完成
@@ -196,8 +186,7 @@ object SanxingAgentSystem {
                 - 进度要实时跟踪，及时发现问题
                 - 异常处理要迅速果断，减少影响
             """.trimIndent()
-
-            AgentRole.LIBU_HR -> """
+        AgentRole.LIBU_HR -> """
                 你现在是「吏部人事绩效」，负责以下核心职责，
                 1. Agent 状态监控：监控各执行节点的工作状态
                 2. 进度考核：考核各节点任务完成情内
@@ -208,8 +197,7 @@ object SanxingAgentSystem {
                 - 考核要客观公正，奖惩分明
                 - 协调要高效沟通，减少信息误差
             """.trimIndent()
-
-            AgentRole.HUBU_DATA -> """
+        AgentRole.HUBU_DATA -> """
                 你现在是「户部数据处理」，负责以下核心职责，
                 1. 数据采集：从各种来源收集所需数据
                 2. 清洗分析：数据清洗和质量检查
@@ -221,8 +209,7 @@ object SanxingAgentSystem {
                 - 分析要深入透彻，挖掘数据价值
                 - 呈现要直观清晰，便于理解
             """.trimIndent()
-
-            AgentRole.LIBU_CONTENT -> """
+        AgentRole.LIBU_CONTENT -> """
                 你现在是「礼部内容创作」，负责以下核心职责，
                 1. 文案撰写：各类文案的撰写和编输
                 2. 内容润色：优化现有内容，提升质量
@@ -235,8 +222,7 @@ object SanxingAgentSystem {
                 - 品牌调性要统一，符合传播要求
                 - 格式规范要严格，专业度要高
             """.trimIndent()
-
-            AgentRole.BINGBU_STRATEGY -> """
+        AgentRole.BINGBU_STRATEGY -> """
                 你现在是「兵部策略攻坚」，负责以下核心职责，
                 1. 竞品分析：分析竞争对手和市场格局
                 2. 策略制定：制定市场策略和竞争策略
@@ -249,8 +235,7 @@ object SanxingAgentSystem {
                 - 策略要切实可行，具有操作态
                 - 预案要充分准备，有备无患
             """.trimIndent()
-
-            AgentRole.XINGBU_COMPLIANCE -> """
+        AgentRole.XINGBU_COMPLIANCE -> """
                 你现在是「刑部合规风控」，负责以下核心职责，
                 1. 法务审核：审核各类决策和方案的合法态
                 2. 合规校验：确保操作符合法规政等
@@ -262,8 +247,7 @@ object SanxingAgentSystem {
                 - 风险识别要全面，不留死角
                 - 纠错要及时准确，防止风险扩散
             """.trimIndent()
-
-            AgentRole.GONGBU_TECH -> """
+        AgentRole.GONGBU_TECH -> """
                 你现在是「工部技术落地」，负责以下核心职责，
                 1. 代码开发：编写高质量的程序代码
                 2. 架构设计：设计系统架构和技术方案
@@ -275,8 +259,7 @@ object SanxingAgentSystem {
                 - 设计要合理平衡，考虑长远发展
                 - 原型要快速验证，持续迭代优化
             """.trimIndent()
-
-            AgentRole.YUSHITAI_SUPERVISION -> """
+        AgentRole.YUSHITAI_SUPERVISION -> """
                 你现在是「御史台监察审计」，负责以下核心职责，
                 1. 全流程审计：审计整个任务的执行过程
                 2. API 用量统计：统计各节点 API 调用情况
@@ -290,8 +273,7 @@ object SanxingAgentSystem {
             """.trimIndent()
         }
     }
-
-    private fun getDefaultTemperature(role: AgentRole): Double {
+        private fun getDefaultTemperature(role: AgentRole): Double {
         return when (role) {
             AgentRole.ZHONGSHU_DECISION -> 0.4
             AgentRole.MENXIA_AUDIT -> 0.3
@@ -305,23 +287,21 @@ object SanxingAgentSystem {
             AgentRole.YUSHITAI_SUPERVISION -> 0.2
         }
     }
-
-    private fun getDefaultEndpoint(role: AgentRole): String {
+        private fun getDefaultEndpoint(role: AgentRole): String {
         return when (role) {
             AgentRole.ZHONGSHU_DECISION -> "https://api.openai.com/v1/chat/completions"
-            AgentRole.MENXIA_AUDIT -> "https://api.anthropic.com/v1/messages"
-            AgentRole.SHANGSHU_EXECUTION -> "https://api.openai.com/v1/chat/completions"
-            AgentRole.LIBU_HR -> "https://api.openai.com/v1/chat/completions"
-            AgentRole.HUBU_DATA -> "https://api.openai.com/v1/chat/completions"
-            AgentRole.LIBU_CONTENT -> "https://api.openai.com/v1/chat/completions"
-            AgentRole.BINGBU_STRATEGY -> "https://api.deepseek.com/v1/chat/completions"
-            AgentRole.XINGBU_COMPLIANCE -> "https://api.anthropic.com/v1/messages"
-            AgentRole.GONGBU_TECH -> "https://api.openai.com/v1/chat/completions"
-            AgentRole.YUSHITAI_SUPERVISION -> "https://api.openai.com/v1/chat/completions"
+        AgentRole.MENXIA_AUDIT -> "https://api.anthropic.com/v1/messages"
+        AgentRole.SHANGSHU_EXECUTION -> "https://api.openai.com/v1/chat/completions"
+        AgentRole.LIBU_HR -> "https://api.openai.com/v1/chat/completions"
+        AgentRole.HUBU_DATA -> "https://api.openai.com/v1/chat/completions"
+        AgentRole.LIBU_CONTENT -> "https://api.openai.com/v1/chat/completions"
+        AgentRole.BINGBU_STRATEGY -> "https://api.deepseek.com/v1/chat/completions"
+        AgentRole.XINGBU_COMPLIANCE -> "https://api.anthropic.com/v1/messages"
+        AgentRole.GONGBU_TECH -> "https://api.openai.com/v1/chat/completions"
+        AgentRole.YUSHITAI_SUPERVISION -> "https://api.openai.com/v1/chat/completions"
         }
     }
-
-    private fun getDefaultPermissions(role: AgentRole): AgentPermissions {
+        private fun getDefaultPermissions(role: AgentRole): AgentPermissions {
         return when (role) {
             AgentRole.ZHONGSHU_DECISION -> AgentPermissions(
                 canUseTools = true,
@@ -330,63 +310,63 @@ object SanxingAgentSystem {
                 canWriteFiles = true,
                 canCallOtherAgents = true
             )
-            AgentRole.MENXIA_AUDIT -> AgentPermissions(
+        AgentRole.MENXIA_AUDIT -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = false,
                 canCallOtherAgents = true
             )
-            AgentRole.SHANGSHU_EXECUTION -> AgentPermissions(
+        AgentRole.SHANGSHU_EXECUTION -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = true,
                 canCallOtherAgents = true
             )
-            AgentRole.LIBU_HR -> AgentPermissions(
+        AgentRole.LIBU_HR -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = true,
                 canCallOtherAgents = true
             )
-            AgentRole.HUBU_DATA -> AgentPermissions(
+        AgentRole.HUBU_DATA -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = true,
                 canCallOtherAgents = false
             )
-            AgentRole.LIBU_CONTENT -> AgentPermissions(
+        AgentRole.LIBU_CONTENT -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = true,
                 canCallOtherAgents = false
             )
-            AgentRole.BINGBU_STRATEGY -> AgentPermissions(
+        AgentRole.BINGBU_STRATEGY -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = true,
                 canCallOtherAgents = false
             )
-            AgentRole.XINGBU_COMPLIANCE -> AgentPermissions(
+        AgentRole.XINGBU_COMPLIANCE -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = false,
                 canCallOtherAgents = false
             )
-            AgentRole.GONGBU_TECH -> AgentPermissions(
+        AgentRole.GONGBU_TECH -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = true,
                 canReadFiles = true,
                 canWriteFiles = true,
                 canCallOtherAgents = false
             )
-            AgentRole.YUSHITAI_SUPERVISION -> AgentPermissions(
+        AgentRole.YUSHITAI_SUPERVISION -> AgentPermissions(
                 canUseTools = true,
                 canAccessInternet = false,
                 canReadFiles = true,
@@ -395,8 +375,7 @@ object SanxingAgentSystem {
             )
         }
     }
-
-    fun getThreeProvinceAgents(): List<SanxingAgent> {
+        fun getThreeProvinceAgents(): List<SanxingAgent> {
         return listOf(
             createAgent(AgentRole.ZHONGSHU_DECISION),
             createAgent(AgentRole.MENXIA_AUDIT),
@@ -414,7 +393,7 @@ data class SanxingAgent(
 
 data class ApiEndpointConfig(
     var endpoint: String = "https://api.openai.com/v1/chat/completions",
-                var apiKey: String = "",
+        var apiKey: String = "",
     var timeout: Int = 60,
     var retryCount: Int = 3,
     var rateLimit: Int = 100

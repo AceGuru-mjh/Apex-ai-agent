@@ -19,42 +19,36 @@ import kotlin.time.Duration
 
 object StreamLogger {
     private const val TAG = "StreamFramework"
-    private var enabled = true
+        private var enabled = true
     private var verboseEnabled = false
 
     fun setEnabled(enabled: Boolean) {
         this.enabled = enabled
     }
-
-    fun setVerboseEnabled(enabled: Boolean) {
+        fun setVerboseEnabled(enabled: Boolean) {
         this.verboseEnabled = enabled
     }
-
-    fun d(component: String, message: String) {
+        fun d(component: String, message: String) {
         if (enabled) {
             AppLogger.d(TAG, "[${component}] ${message}")
         }
     }
-
-    fun i(component: String, message: String) {
+        fun i(component: String, message: String) {
         if (enabled) {
             AppLogger.i(TAG, "[${component}] ${message}")
         }
     }
-
-    fun v(component: String, message: String) {
+        fun v(component: String, message: String) {
         if (enabled && verboseEnabled) {
             AppLogger.v(TAG, "[${component}] ${message}")
         }
     }
-
-    fun w(component: String, message: String) {
+        fun w(component: String, message: String) {
         if (enabled) {
             AppLogger.w(TAG, "[${component}] ${message}")
         }
     }
-
-    fun e(component: String, message: String, throwable: Throwable? = null) {
+        fun e(component: String, message: String, throwable: Throwable? = null) {
         if (enabled) {
             if (throwable != null) {
                 AppLogger.e(TAG, "[${component}] ${message}", throwable)
@@ -76,15 +70,15 @@ interface Stream<T> {
     val isLocked: Boolean
     val bufferedCount: Int
     suspend fun lock()
-    suspend fun unlock()
-    fun clearBuffer()
-    suspend fun collect(collector: StreamCollector<T>)
-    suspend fun collect(onEach: suspend (T) -> Unit) {
+        suspend fun unlock()
+        fun clearBuffer()
+        suspend fun collect(collector: StreamCollector<T>)
+        suspend fun collect(onEach: suspend (T) -> Unit) {
         collect(
             object : StreamCollector<T> {
                 override suspend fun emit(value: T) {
                     StreamLogger.v("Stream", "收集到元索${value}")
-                    onEach(value)
+        onEach(value)
                 }
             }
         )
@@ -106,24 +100,22 @@ data class StreamStats(
 
 interface StreamLockListener {
     suspend fun onLock()
-    suspend fun onUnlock(bufferedSize: Int)
-    suspend fun onBufferOverflow(policy: OverflowPolicy, droppedValue: Any)
+        suspend fun onUnlock(bufferedSize: Int)
+        suspend fun onBufferOverflow(policy: OverflowPolicy, droppedValue: Any)
 }
 
 abstract class AbstractStream<T> : Stream<T> {
     private val mutex = Mutex()
-    private val isLockedFlag = AtomicBoolean(false)
-    private val isClosedFlag = AtomicBoolean(false)
-    private val buffer = ConcurrentLinkedQueue<T>()
-    private val listeners = ConcurrentLinkedQueue<StreamLockListener>()
-    
-    private val emittedCount = AtomicInteger(0)
-    private val droppedCount = AtomicInteger(0)
-    private val lockedCount = AtomicInteger(0)
-    private val unlockedCount = AtomicInteger(0)
-
-    override val isLocked: Boolean get() = isLockedFlag.get()
-    override val bufferedCount: Int get() = buffer.size
+        private val isLockedFlag = AtomicBoolean(false)
+        private val isClosedFlag = AtomicBoolean(false)
+        private val buffer = ConcurrentLinkedQueue<T>()
+        private val listeners = ConcurrentLinkedQueue<StreamLockListener>()
+        private val emittedCount = AtomicInteger(0)
+        private val droppedCount = AtomicInteger(0)
+        private val lockedCount = AtomicInteger(0)
+        private val unlockedCount = AtomicInteger(0)
+        override val isLocked: Boolean get() = isLockedFlag.get()
+        override val bufferedCount: Int get() = buffer.size
     
     protected val stats: StreamStats
         get() = StreamStats(
@@ -133,16 +125,13 @@ abstract class AbstractStream<T> : Stream<T> {
             lockedCount = lockedCount.get().toLong(),
             unlockedCount = unlockedCount.get().toLong()
         )
-    
-    fun addLockListener(listener: StreamLockListener) {
+        fun addLockListener(listener: StreamLockListener) {
         listeners.add(listener)
     }
-    
-    fun removeLockListener(listener: StreamLockListener) {
+        fun removeLockListener(listener: StreamLockListener) {
         listeners.remove(listener)
     }
-    
-    protected suspend fun notifyLock() {
+        protected suspend fun notifyLock() {
         for (listener in listeners) {
             try {
                 listener.onLock()
@@ -151,8 +140,7 @@ abstract class AbstractStream<T> : Stream<T> {
             }
         }
     }
-    
-    protected suspend fun notifyUnlock(bufferedSize: Int) {
+        protected suspend fun notifyUnlock(bufferedSize: Int) {
         for (listener in listeners) {
             try {
                 listener.onUnlock(bufferedSize)
@@ -161,8 +149,7 @@ abstract class AbstractStream<T> : Stream<T> {
             }
         }
     }
-    
-    protected suspend fun notifyBufferOverflow(policy: OverflowPolicy, droppedValue: Any) {
+        protected suspend fun notifyBufferOverflow(policy: OverflowPolicy, droppedValue: Any) {
         for (listener in listeners) {
             try {
                 listener.onBufferOverflow(policy, droppedValue)
@@ -171,33 +158,30 @@ abstract class AbstractStream<T> : Stream<T> {
             }
         }
     }
-    
-    override suspend fun lock() {
+        override suspend fun lock() {
         mutex.withLock {
             if (!isLockedFlag.get() && !isClosedFlag.get()) {
                 isLockedFlag.set(true)
-                lockedCount.incrementAndGet()
-                StreamLogger.d("Stream", "流已锁定")
-                notifyLock()
+        lockedCount.incrementAndGet()
+        StreamLogger.d("Stream", "流已锁定")
+        notifyLock()
             }
         }
     }
-    
-    suspend fun lock(timeout: Duration): Boolean {
+        suspend fun lock(timeout: Duration): Boolean {
         return withTimeoutOrNull(timeout.inWholeMilliseconds) {
             lock()
-            true
+        true
         } ?: false
     }
-    
-    fun tryLock(): Boolean {
+        fun tryLock(): Boolean {
         if (mutex.tryLock()) {
             try {
                 if (!isLockedFlag.get() && !isClosedFlag.get()) {
                     isLockedFlag.set(true)
-                    lockedCount.incrementAndGet()
-                    StreamLogger.d("Stream", "流已锁定(try)")
-                    return true
+        lockedCount.incrementAndGet()
+        StreamLogger.d("Stream", "流已锁定(try)")
+        return true
                 }
             } finally {
                 mutex.unlock()
@@ -205,87 +189,77 @@ abstract class AbstractStream<T> : Stream<T> {
         }
         return false
     }
-    
-    override suspend fun unlock() {
+        override suspend fun unlock() {
         mutex.withLock {
             if (isLockedFlag.compareAndSet(true, false)) {
                 val bufferSize = buffer.size
                 unlockedCount.incrementAndGet()
-                StreamLogger.d("Stream", "流已解锁，发送缓存数据的{bufferSize项}，")
-                notifyUnlock(bufferSize)
-                
-                val tempList = ArrayList<T>(buffer)
-                buffer.clear()
-                
-                for (item in tempList) {
+        StreamLogger.d("Stream", "流已解锁，发送缓存数据的{bufferSize项}，")
+        notifyUnlock(bufferSize)
+        val tempList = ArrayList<T>(buffer)
+        buffer.clear()
+        for (item in tempList) {
                     try {
                         emitBufferedItem(item)
                     } catch (e: Exception) {
                         StreamLogger.w("Stream", "处理缓存项时发生异常: ${e.message}")
-                        throw e
+        throw e
                     }
                 }
             }
         }
     }
-    
-    suspend fun unlock(timeout: Duration): Boolean {
+        suspend fun unlock(timeout: Duration): Boolean {
         return withTimeoutOrNull(timeout.inWholeMilliseconds) {
             unlock()
-            true
+        true
         } ?: false
     }
-    
-    override fun clearBuffer() {
+        override fun clearBuffer() {
         val size = buffer.size
         buffer.clear()
         StreamLogger.d("Stream", "已清空缓冲区 (的{size项}，")
     }
-    
-    protected suspend fun tryBuffer(value: T, policy: OverflowPolicy = OverflowPolicy.SUSPEND): Boolean {
+        protected suspend fun tryBuffer(value: T, policy: OverflowPolicy = OverflowPolicy.SUSPEND): Boolean {
         if (isLockedFlag.get() && !isClosedFlag.get()) {
             when (policy) {
                 OverflowPolicy.SUSPEND -> {
                     buffer.offer(value)
-                    StreamLogger.v("Stream", "锁定中，值已缓存")
-                    return true
+        StreamLogger.v("Stream", "锁定中，值已缓存")
+        return true
                 }
-                OverflowPolicy.DROP_OLDEST -> {
+        OverflowPolicy.DROP_OLDEST -> {
                     buffer.poll()
-                    buffer.offer(value)
-                    droppedCount.incrementAndGet()
-                    StreamLogger.v("Stream", "锁定中，DROP_OLDEST策略")
-                    notifyBufferOverflow(policy, value)
-                    return true
+        buffer.offer(value)
+        droppedCount.incrementAndGet()
+        StreamLogger.v("Stream", "锁定中，DROP_OLDEST策略")
+        notifyBufferOverflow(policy, value)
+        return true
                 }
-                OverflowPolicy.DROP_NEWEST -> {
+        OverflowPolicy.DROP_NEWEST -> {
                     buffer.offer(value)
-                    buffer.poll()
-                    droppedCount.incrementAndGet()
-                    StreamLogger.v("Stream", "锁定中，DROP_NEWEST策略")
-                    notifyBufferOverflow(policy, value)
-                    return true
+        buffer.poll()
+        droppedCount.incrementAndGet()
+        StreamLogger.v("Stream", "锁定中，DROP_NEWEST策略")
+        notifyBufferOverflow(policy, value)
+        return true
                 }
-                OverflowPolicy.THROW -> {
+        OverflowPolicy.THROW -> {
                     notifyBufferOverflow(policy, value)
-                    throw BufferOverflowException("Buffer overflow with THROW policy")
+        throw BufferOverflowException("Buffer overflow with THROW policy")
                 }
             }
         }
         return false
     }
-    
-    protected fun incrementEmitted() {
+        protected fun incrementEmitted() {
         emittedCount.incrementAndGet()
     }
-    
-    protected abstract suspend fun emitBufferedItem(item: T)
-    
-    protected fun markClosed() {
+        protected abstract suspend fun emitBufferedItem(item: T)
+        protected fun markClosed() {
         isClosedFlag.set(true)
     }
-    
-    protected fun isClosed(): Boolean = isClosedFlag.get()
+        protected fun isClosed(): Boolean = isClosedFlag.get()
 }
 
 class BufferOverflowException(message: String) : Exception(message)
@@ -302,16 +276,15 @@ class FlowAsStream<T>(
         try {
             flow.collect { value ->
                 incrementEmitted()
-                if (!isClosed() && !tryBuffer(value, bufferPolicy)) {
+        if (!isClosed() && !tryBuffer(value, bufferPolicy)) {
                     collector.emit(value)
                 }
             }
         } finally {
             markClosed()
-            
-            if (isLocked) {
+        if (isLocked) {
                 StreamLogger.i("FlowAsStream", "流关闭时处于锁定状态，尝试解锁处理缓冲数据")
-                try {
+        try {
                     unlock()
                 } catch (e: Exception) {
                     StreamLogger.w("FlowAsStream", "流关闭时解锁失败: ${e.message}")
@@ -319,8 +292,7 @@ class FlowAsStream<T>(
             }
         }
     }
-    
-    override suspend fun emitBufferedItem(item: T) {
+        override suspend fun emitBufferedItem(item: T) {
         activeCollector?.emit(item)
     }
 }
@@ -340,80 +312,72 @@ class FlowAsStreamWithBackpressure<T>(
 ) : AbstractStream<T>() {
     private var activeCollector: StreamCollector<T>? = null
     private val backpressureBuffer = ArrayDeque<T>()
-    private val processedCount = AtomicInteger(0)
-    private val needsMore = AtomicBoolean(true)
-
-    override suspend fun collect(collector: StreamCollector<T>) {
+        private val processedCount = AtomicInteger(0)
+        private val needsMore = AtomicBoolean(true)
+        override suspend fun collect(collector: StreamCollector<T>) {
         activeCollector = collector
         
         try {
             flow.collect { value ->
                 incrementEmitted()
-                if (isLocked) {
+        if (isLocked) {
                     if (backpressureBuffer.size >= bufferSize) {
                         when (overflow) {
                             BufferOverflow.SUSPEND -> {
                                 while (backpressureBuffer.isNotEmpty() && isLocked) {
                                     kotlinx.coroutines.delay(10)
                                 }
-                                if (!isLocked) {
+        if (!isLocked) {
                                     collector.emit(value)
-                                    return@collect
+        return@collect
                                 }
                             }
-                            BufferOverflow.DROP_OLDEST -> {
+        BufferOverflow.DROP_OLDEST -> {
                                 backpressureBuffer.removeFirst()
-                                backpressureBuffer.addLast(value)
-                                droppedCount.incrementAndGet()
-                                return@collect
+        backpressureBuffer.addLast(value)
+        droppedCount.incrementAndGet()
+        return@collect
                             }
-                            BufferOverflow.DROP_NEWEST -> {
+        BufferOverflow.DROP_NEWEST -> {
                                 backpressureBuffer.removeLast()
-                                backpressureBuffer.addLast(value)
-                                droppedCount.incrementAndGet()
-                                return@collect
+        backpressureBuffer.addLast(value)
+        droppedCount.incrementAndGet()
+        return@collect
                             }
-                            BufferOverflow.ONBufferOverflow -> {
+        BufferOverflow.ONBufferOverflow -> {
                                 throw BufferOverflowException("Buffer overflow")
                             }
                         }
                     }
-                    backpressureBuffer.addLast(value)
+        backpressureBuffer.addLast(value)
                 } else {
                     collector.emit(value)
-                    processedCount.incrementAndGet()
+        processedCount.incrementAndGet()
                 }
             }
         } finally {
             markClosed()
-            
-            while (backpressureBuffer.isNotEmpty() && !isLocked) {
+        while (backpressureBuffer.isNotEmpty() && !isLocked) {
                 collector.emit(backpressureBuffer.removeFirst())
-                processedCount.incrementAndGet()
+        processedCount.incrementAndGet()
             }
-            
-            if (isLocked && backpressureBuffer.isEmpty()) {
+        if (isLocked && backpressureBuffer.isEmpty()) {
                 unlock()
             }
         }
     }
-    
-    override suspend fun emitBufferedItem(item: T) {
+        override suspend fun emitBufferedItem(item: T) {
         activeCollector?.emit(item)
         processedCount.incrementAndGet()
     }
-    
-    fun requestMore() {
+        fun requestMore() {
         needsMore.set(true)
     }
-    
-    fun pauseEmission() {
+        fun pauseEmission() {
         needsMore.set(false)
     }
-    
-    fun getProcessedCount(): Int = processedCount.get()
-    
-    fun getPendingCount(): Int = backpressureBuffer.size
+        fun getProcessedCount(): Int = processedCount.get()
+        fun getPendingCount(): Int = backpressureBuffer.size
 }
 
 class BatchStreamCollector<T>(
@@ -422,33 +386,30 @@ class BatchStreamCollector<T>(
     private val flushTimeout: Duration = Duration.parse("100ms")
 ) : StreamCollector<T> {
     private val batch = ArrayList<T>(batchSize)
-    private var lastFlushTime = System.currentTimeMillis()
-    private val lock = Any()
-    
-    override suspend fun emit(value: T) {
+        private var lastFlushTime = System.currentTimeMillis()
+        private val lock = Any()
+        override suspend fun emit(value: T) {
         synchronized(lock) {
             batch.add(value)
-            val shouldFlush = batch.size >= batchSize || 
+        val shouldFlush = batch.size >= batchSize || 
                 (System.currentTimeMillis() - lastFlushTime) >= flushTimeout.inWholeMilliseconds
             
             if (shouldFlush && batch.isNotEmpty()) {
                 val toEmit = ArrayList(batch)
-                batch.clear()
-                lastFlushTime = System.currentTimeMillis()
-                
-                for (item in toEmit) {
+        batch.clear()
+        lastFlushTime = System.currentTimeMillis()
+        for (item in toEmit) {
                     upstream.emit(item)
                 }
             }
         }
     }
-    
-    suspend fun flush() {
+        suspend fun flush() {
         synchronized(lock) {
             if (batch.isNotEmpty()) {
                 val toEmit = ArrayList(batch)
-                batch.clear()
-                for (item in toEmit) {
+        batch.clear()
+        for (item in toEmit) {
                     upstream.emit(item)
                 }
             }
@@ -461,16 +422,14 @@ class ConditionalLockStream<T>(
     private val shouldLock: suspend (T) -> Boolean = { true }
 ) : Stream<T> by upstream {
     private var pendingValues = ArrayDeque<T>()
-    private val conditionMutex = Mutex()
-    
-    override val isLocked: Boolean get() = upstream.isLocked
+        private val conditionMutex = Mutex()
+        override val isLocked: Boolean get() = upstream.isLocked
     override val bufferedCount: Int get() = upstream.bufferedCount + pendingValues.size
     
     override suspend fun lock() {
         upstream.lock()
     }
-    
-    override suspend fun unlock() {
+        override suspend fun unlock() {
         for (value in pendingValues) {
             try {
                 if (shouldLock(value)) {
@@ -482,13 +441,11 @@ class ConditionalLockStream<T>(
         }
         upstream.unlock()
     }
-    
-    override fun clearBuffer() {
+        override fun clearBuffer() {
         pendingValues.clear()
         upstream.clearBuffer()
     }
-    
-    override suspend fun collect(collector: StreamCollector<T>) {
+        override suspend fun collect(collector: StreamCollector<T>) {
         upstream.collect(object : StreamCollector<T> {
             override suspend fun emit(value: T) {
                 if (isLocked) {
@@ -517,10 +474,10 @@ fun <T> Stream<T>.asFlow(): Flow<T> = StreamAsFlow(this)
 
 fun <T> Stream<T>.launchIn(scope: CoroutineScope, onEach: suspend (T) -> Unit = {}): Job {
     StreamLogger.d("Stream.launchIn", "在协程作用域中启动Stream收集")
-    return scope.launch {
+        return scope.launch {
         collect { value ->
             StreamLogger.v("Stream.launchIn", "收集到元索${value}")
-            onEach(value)
+        onEach(value)
         }
     }
 }
@@ -536,11 +493,10 @@ fun <T> Stream<T>.withBatchCollection(
         override suspend fun lock() = this@withBatchCollection.lock()
         override suspend fun unlock() = this@withBatchCollection.unlock()
         override fun clearBuffer() = this@withBatchCollection.clearBuffer()
-        
         override suspend fun collect(collector: StreamCollector<T>) {
             val batchCollector = BatchStreamCollector(collector, batchSize, flushTimeout)
-            this@withBatchCollection.collect(batchCollector)
-            batchCollector.flush()
+        this@withBatchCollection.collect(batchCollector)
+        batchCollector.flush()
         }
     }
 }
@@ -558,15 +514,12 @@ fun <T> Stream<T>.withTimeoutLock(timeout: Duration): Stream<T> {
                 throw LockTimeoutException("Failed to acquire lock within ${timeout}")
             }
         }
-        
         override suspend fun unlock() {
             if (!unlock(timeout)) {
                 throw LockTimeoutException("Failed to release lock within ${timeout}")
             }
         }
-        
         override fun clearBuffer() = this@withTimeoutLock.clearBuffer()
-        
         override suspend fun collect(collector: StreamCollector<T>) {
             this@withTimeoutLock.collect(collector)
         }
@@ -580,13 +533,12 @@ abstract class AbstractBufferedStream<T>(
     private val overflowPolicy: OverflowPolicy = OverflowPolicy.SUSPEND
 ) : AbstractStream<T>() {
     private val buffer: ArrayDeque<T> = ArrayDeque(initialCapacity)
-    private val capacity: Int
+        private val capacity: Int
     
     init {
         this.capacity = if (initialCapacity <= 0) Int.MAX_VALUE else initialCapacity
     }
-    
-    override val bufferedCount: Int get() = buffer.size
+        override val bufferedCount: Int get() = buffer.size
     
     protected fun isBufferFull(): Boolean = buffer.size >= capacity
     
@@ -601,40 +553,36 @@ abstract class AbstractBufferedStream<T>(
                     while (isBufferFull() && !isClosed()) {
                         kotlinx.coroutines.delay(10)
                     }
-                    if (!isClosed()) {
+        if (!isClosed()) {
                         buffer.addLast(value)
-                        true
+        true
                     } else {
                         false
                     }
                 }
-                OverflowPolicy.DROP_OLDEST -> {
+        OverflowPolicy.DROP_OLDEST -> {
                     buffer.removeFirst()
-                    buffer.addLast(value)
-                    true
+        buffer.addLast(value)
+        true
                 }
-                OverflowPolicy.DROP_NEWEST -> {
+        OverflowPolicy.DROP_NEWEST -> {
                     buffer.removeLast()
-                    buffer.addLast(value)
-                    true
+        buffer.addLast(value)
+        true
                 }
-                OverflowPolicy.THROW -> {
+        OverflowPolicy.THROW -> {
                     throw BufferOverflowException("Buffer overflow in AbstractBufferedStream")
                 }
             }
         } else {
             buffer.addLast(value)
-            return true
+        return true
         }
     }
-    
-    protected fun pollFromBuffer(): T? = buffer.pollFirst()
-    
-    protected fun peekBuffer(): T? = buffer.peekFirst()
-    
-    protected fun getBufferContent(): List<T> = buffer.toList()
-    
-    override fun clearBuffer() {
+        protected fun pollFromBuffer(): T? = buffer.pollFirst()
+        protected fun peekBuffer(): T? = buffer.peekFirst()
+        protected fun getBufferContent(): List<T> = buffer.toList()
+        override fun clearBuffer() {
         buffer.clear()
     }
 }
@@ -642,7 +590,7 @@ abstract class AbstractBufferedStream<T>(
 interface StreamProcessor<T> {
     suspend fun process(value: T): T
     suspend fun onStart() {}
-    suspend fun onEnd() {}
+        suspend fun onEnd() {}
 }
 
 fun <T, R> Stream<T>.transform(transformer: StreamProcessor<T>): Stream<R> where R : T {
@@ -653,15 +601,14 @@ fun <T, R> Stream<T>.transform(transformer: StreamProcessor<T>): Stream<R> where
         override suspend fun lock() = this@transform.lock()
         override suspend fun unlock() = this@transform.unlock()
         override fun clearBuffer() = this@transform.clearBuffer()
-        
         override suspend fun collect(collector: StreamCollector<R>) {
             transformer.onStart()
-            try {
+        try {
                 this@transform.collect(object : StreamCollector<T> {
                     override suspend fun emit(value: T) {
                         val transformed = transformer.process(value)
                         @Suppress("UNCHECKED_CAST")
-                        collector.emit(transformed as R)
+        collector.emit(transformed as R)
                     }
                 })
             } finally {
@@ -681,10 +628,8 @@ fun <T> Stream<T>.observeLockState(
         override suspend fun onUnlock(bufferedSize: Int) = onUnlock(bufferedSize)
         override suspend fun onBufferOverflow(policy: OverflowPolicy, droppedValue: Any) = onOverflow(policy, droppedValue)
     }
-    
-    addLockListener(listener)
-    
-    return object : Stream<T> by this {}
+        addLockListener(listener)
+        return object : Stream<T> by this {}
 }
 
 fun <T> Stream<T>.withBufferCapacity(
@@ -707,12 +652,10 @@ fun <T> Stream<T>.withBufferCapacity(
                     }
                 }
             })
-            
-            while (peekBuffer() != null && !isLocked) {
+        while (peekBuffer() != null && !isLocked) {
                 pollFromBuffer()?.let { collector.emit(it) }
             }
         }
-        
         override suspend fun emitBufferedItem(item: T) {
             upstreamCollector?.emit(item)
         }

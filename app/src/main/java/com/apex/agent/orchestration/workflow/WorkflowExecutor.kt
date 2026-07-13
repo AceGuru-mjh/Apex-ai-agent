@@ -27,15 +27,13 @@ class WorkflowExecutor @Inject constructor() {
 
         while (currentNodeId != null) {
             val nodeEntity = workflow.getNode(currentNodeId)
-            if (nodeEntity == null) {
+        if (nodeEntity == null) {
                 emit(Result.Failure(IllegalStateException("Node not found: ${currentNodeId}")))
-                break
+        break
             }
-
-            val node = createExecutableNode(nodeEntity)
+        val node = createExecutableNode(nodeEntity)
         val results = node.execute(context)
-
-            var nextId: String? = null
+        var nextId: String? = null
             var success = true
             results.collect { result ->
                 when (result) {
@@ -50,45 +48,39 @@ class WorkflowExecutor @Inject constructor() {
                                 output = result.data.output
                             )
                         )
-                        emit(result)
+        emit(result)
                     }
-                    is Result.Failure -> {
+        is Result.Failure -> {
                         success = false
                         emit(result)
                     }
                 }
             }
-
-            if (!success) break
+        if (!success) break
             currentNodeId = nextId ?: resolveNextNodeId(workflow, nodeEntity.id)
         }
     }
-
-    private fun createExecutableNode(entity: WorkflowNodeEntity): WorkflowNode {
+        private fun createExecutableNode(entity: WorkflowNodeEntity): WorkflowNode {
         return when (entity.type) {
             NodeType.START -> StartNode(entity.id, entity.title, entity.description)
-            NodeType.AGENT -> AgentNode(entity.id, entity.title, entity.description, entity.agentId)
-            NodeType.CONDITION -> ConditionNode(entity.id, entity.title, entity.description, entity.config["expression"] as? String)
-            NodeType.PARALLEL -> ParallelNode(entity.id, entity.title, entity.description)
-            NodeType.JOIN -> JoinNode(entity.id, entity.title, entity.description)
-            NodeType.DELAY -> DelayNode(entity.id, entity.title, entity.description, (entity.config["duration"] as? Number)?.toLong() ?: 1000L)
-            NodeType.LOOP -> LoopNode(entity.id, entity.title, entity.description, entity.config)
-            NodeType.END -> EndNode(entity.id, entity.title, entity.description)
-            NodeType.CUSTOM -> CustomNode(entity.id, entity.title, entity.description, entity.config)
+        NodeType.AGENT -> AgentNode(entity.id, entity.title, entity.description, entity.agentId)
+        NodeType.CONDITION -> ConditionNode(entity.id, entity.title, entity.description, entity.config["expression"] as? String)
+        NodeType.PARALLEL -> ParallelNode(entity.id, entity.title, entity.description)
+        NodeType.JOIN -> JoinNode(entity.id, entity.title, entity.description)
+        NodeType.DELAY -> DelayNode(entity.id, entity.title, entity.description, (entity.config["duration"] as? Number)?.toLong() ?: 1000L)
+        NodeType.LOOP -> LoopNode(entity.id, entity.title, entity.description, entity.config)
+        NodeType.END -> EndNode(entity.id, entity.title, entity.description)
+        NodeType.CUSTOM -> CustomNode(entity.id, entity.title, entity.description, entity.config)
         }
     }
-
-    private fun resolveNextNodeId(workflow: Workflow, currentNodeId: String): String? {
+        private fun resolveNextNodeId(workflow: Workflow, currentNodeId: String): String? {
         return workflow.getNextNodes(currentNodeId).firstOrNull()?.id
     }
-
-    private val workflowStore = ConcurrentHashMap<String, Workflow>()
-
-    fun registerWorkflow(workflow: Workflow) {
+        private val workflowStore = ConcurrentHashMap<String, Workflow>()
+        fun registerWorkflow(workflow: Workflow) {
         workflowStore[workflow.id] = workflow
     }
-
-    fun unregisterWorkflow(workflowId: String) {
+        fun unregisterWorkflow(workflowId: String) {
         workflowStore.remove(workflowId)
     }
 
@@ -99,7 +91,7 @@ class WorkflowExecutor @Inject constructor() {
         val workflow = workflowStore[workflowId]
         if (workflow == null) {
             emit(Result.Failure(IllegalArgumentException("Workflow not found: $workflowId")))
-            return@flow
+        return@flow
         }
         emitAll(execute(workflow))
     }

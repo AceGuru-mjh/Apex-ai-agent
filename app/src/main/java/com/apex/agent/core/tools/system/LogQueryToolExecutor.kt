@@ -18,16 +18,16 @@ object LogQueryToolExecutor {
             val logQueryManager = SmartLogQueryManager(context)
             
             // 解析参数
-    val keyword = tool.parameters.find { it.name == "keyword" }?.value
+        val keyword = tool.parameters.find { it.name == "keyword" }?.value
         val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
-            val levelStr = tool.parameters.find { it.name == "level" }?.value
+        val levelStr = tool.parameters.find { it.name == "level" }?.value
         val tag = tool.parameters.find { it.name == "tag" }?.value
             val maxResults = tool.parameters.find { it.name == "max_results" }?.value?.toIntOrNull() ?: 100
         val taskId = tool.parameters.find { it.name == "task_id" }?.value
             val agentId = tool.parameters.find { it.name == "agent_id" }?.value
             
             // 映射日志类型
-    val logType = when (logTypeStr.lowercase()) {
+        val logType = when (logTypeStr.lowercase()) {
                 "system", "logcat" -> SmartLogQueryManager.LogType.SYSTEM_LOGCAT
                 "app", "applogger" -> SmartLogQueryManager.LogType.APP_LOGGER
                 "gepa" -> SmartLogQueryManager.LogType.GEPA_LOGS
@@ -40,7 +40,7 @@ object LogQueryToolExecutor {
             }
             
             // 映射日志级别
-    val level = when (levelStr?.uppercase()) {
+        val level = when (levelStr?.uppercase()) {
                 "VERBOSE" -> SmartLogQueryManager.LogLevel.VERBOSE
                 "DEBUG" -> SmartLogQueryManager.LogLevel.DEBUG
                 "INFO" -> SmartLogQueryManager.LogLevel.INFO
@@ -51,7 +51,7 @@ object LogQueryToolExecutor {
             }
             
             // 构建过滤的
-    val filter = SmartLogQueryManager.LogFilter(
+        val filter = SmartLogQueryManager.LogFilter(
                 logType = logType,
                 level = level,
                 tag = tag,
@@ -62,42 +62,36 @@ object LogQueryToolExecutor {
             )
             
             // 执行查询
-    val result = logQueryManager.queryLogs(filter)
-            
-            if (result.success) {
+        val result = logQueryManager.queryLogs(filter)
+        if (result.success) {
                 // 格式化输的
-    val output = buildString {
+        val output = buildString {
                     appendLine("=== 日志查询结果 ===")
-                    appendLine("日志类型: ${result.logType}")
-                    appendLine("总条件${result.totalCount}")
-                    appendLine("返回条数: ${result.filteredCount}")
-                    appendLine("查询耗时: ${result.queryTime}ms")
-                    if (result.message.isNotEmpty()) {
+        appendLine("日志类型: ${result.logType}")
+        appendLine("总条件${result.totalCount}")
+        appendLine("返回条数: ${result.filteredCount}")
+        appendLine("查询耗时: ${result.queryTime}ms")
+        if (result.message.isNotEmpty()) {
                         appendLine("消息: ${result.message}")
                     }
-                    appendLine()
-                    appendLine("--- 日志内容 ---")
-                    
-                    result.entries.forEach { entry ->
+        appendLine()
+        appendLine("--- 日志内容 ---")
+        result.entries.forEach { entry ->
                         val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", java.util.Locale.getDefault())
                             .format(java.util.Date(entry.timestamp))
-                        val levelChar = entry.level.name[0]
+        val levelChar = entry.level.name[0]
         val tagStr = entry.tag ?: "Unknown"
-                        
-                        appendLine("[${timestamp}] ${levelChar}/${tagStr}: ${entry.message}")
-                        
-                        if (entry.metadata.isNotEmpty()) {
+        appendLine("[${timestamp}] ${levelChar}/${tagStr}: ${entry.message}")
+        if (entry.metadata.isNotEmpty()) {
                             entry.metadata.forEach { (key, value) ->
                                 appendLine("  ${key}: ${value}")
                             }
                         }
-                        appendLine()
+        appendLine()
                     }
-                    
-                    appendLine("==================")
+        appendLine("==================")
                 }
-                
-                ToolResult(
+        ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = StringResultData(output)
@@ -128,9 +122,9 @@ object LogQueryToolExecutor {
         return try {
             val logQueryManager = SmartLogQueryManager(context)
         val outputPath = tool.parameters.find { it.name == "output_path" }?.value ?: "/sdcard/Download/logistra/exported_logs.txt"
-            val keyword = tool.parameters.find { it.name == "keyword" }?.value
+        val keyword = tool.parameters.find { it.name == "keyword" }?.value
         val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
-            val maxResults = tool.parameters.find { it.name == "max_results" }?.value?.toIntOrNull() ?: 1000
+        val maxResults = tool.parameters.find { it.name == "max_results" }?.value?.toIntOrNull() ?: 1000
         val logType = when (logTypeStr.lowercase()) {
                 "system", "logcat" -> SmartLogQueryManager.LogType.SYSTEM_LOGCAT
                 "app", "applogger" -> SmartLogQueryManager.LogType.APP_LOGGER
@@ -142,21 +136,17 @@ object LogQueryToolExecutor {
                 "terminal" -> SmartLogQueryManager.LogType.TERMINAL_AGENT_LOGS
                 else -> SmartLogQueryManager.LogType.AUTO_DETECT
             }
-            
-            val filter = SmartLogQueryManager.LogFilter(
+        val filter = SmartLogQueryManager.LogFilter(
                 logType = logType,
                 keyword = keyword,
                 maxResults = maxResults
             )
-            
-            val outputFile = java.io.File(outputPath)
+        val outputFile = java.io.File(outputPath)
             
             // 确保目录存在
-                outputFile.parentFile?.mkdirs()
-            
-            val success = logQueryManager.exportLogsToFile(filter, outputFile)
-            
-            if (success) {
+        outputFile.parentFile?.mkdirs()
+        val success = logQueryManager.exportLogsToFile(filter, outputFile)
+        if (success) {
                 ToolResult(
                     toolName = tool.name,
                     success = true,
@@ -188,40 +178,34 @@ object LogQueryToolExecutor {
         return try {
             val logQueryManager = SmartLogQueryManager(context)
         val stats = logQueryManager.getLogStatistics()
-            
-            val output = buildString {
+        val output = buildString {
                 appendLine("=== 日志统计信息 ===")
-                appendLine()
-                
-                if (stats.containsKey("app_logger_file_size")) {
+        appendLine()
+        if (stats.containsKey("app_logger_file_size")) {
                     appendLine("AppLogger 日志:")
-                    appendLine("  文件大小: ${formatFileSize(stats["app_logger_file_size"] as Long)}")
-                    appendLine("  行数: ${stats["app_logger_lines"]}")
-                    appendLine()
+        appendLine("  文件大小: ${formatFileSize(stats["app_logger_file_size"] as Long)}")
+        appendLine("  行数: ${stats["app_logger_lines"]}")
+        appendLine()
                 }
-                
-                if (stats.containsKey("gepa_log_count")) {
+        if (stats.containsKey("gepa_log_count")) {
                     appendLine("GEPA 日志:")
-                    appendLine("  条目标${stats["gepa_log_count"]}")
-                    appendLine()
+        appendLine("  条目标${stats["gepa_log_count"]}")
+        appendLine()
                 }
-                
-                if (stats.containsKey("build_logs")) {
+        if (stats.containsKey("build_logs")) {
                     appendLine("构建日志:")
                     @Suppress("UNCHECKED_CAST")
-                    val buildLogs = stats["build_logs"] as List<Map<String, Any>>
+        val buildLogs = stats["build_logs"] as List<Map<String, Any>>
                     buildLogs.forEach { logInfo ->
                         appendLine("  ${logInfo["file"]}:")
-                        appendLine("    大小: ${formatFileSize(logInfo["size"] as Long)}")
-                        appendLine("    行数: ${logInfo["lines"]}")
+        appendLine("    大小: ${formatFileSize(logInfo["size"] as Long)}")
+        appendLine("    行数: ${logInfo["lines"]}")
                     }
-                    appendLine()
+        appendLine()
                 }
-                
-                appendLine("==================")
+        appendLine("==================")
             }
-            
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = StringResultData(output)
@@ -243,9 +227,9 @@ object LogQueryToolExecutor {
     private fun formatFileSize(size: Long): String {
         return when {
             size < 1024 -> "${size} B"
-            size < 1024 * 1024 -> "${size / 1024} KB"
-            size < 1024 * 1024 * 1024 -> "${size / (1024 * 1024)} MB"
-            else -> "${size / (1024 * 1024 * 1024)} GB"
+        size < 1024 * 1024 -> "${size / 1024} KB"
+        size < 1024 * 1024 * 1024 -> "${size / (1024 * 1024)} MB"
+        else -> "${size / (1024 * 1024 * 1024)} GB"
         }
     }
 }

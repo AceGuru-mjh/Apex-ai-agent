@@ -21,13 +21,11 @@ data class SemanticEvaluationResult(
 
 class SemanticEvaluator(private val context: Context) {
     private val aiService by lazy { EnhancedAIService.getInstance(context) }
-    private val gson = Gson()
-
-    companion object {
+        private val gson = Gson()
+        companion object {
         private const val TAG = "SemanticEvaluator"
     }
-
-    suspend fun evaluateExecution(
+        suspend fun evaluateExecution(
         taskGoal: String,
         executionLogs: List<String>,
         finalOutput: String
@@ -59,26 +57,23 @@ class SemanticEvaluator(private val context: Context) {
               "detected_patterns": [String]
             }
         """.trimIndent()
-
         return try {
             val fullResponse = StringBuilder()
-            aiService.sendMessage(
+        aiService.sendMessage(
                 message = prompt,
                 functionType = FunctionType.CHAT,
                 stream = false,
                 maxTokens = 1000,
                 tokenUsageThreshold = 0.9f
             ).collect { fullResponse.append(it) }
-
-            val jsonOutput = extractJson(fullResponse.toString())
-            parseResult(jsonOutput)
+        val jsonOutput = extractJson(fullResponse.toString())
+        parseResult(jsonOutput)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Semantic evaluation failed", e)
-            fallbackResult()
+        fallbackResult()
         }
     }
-
-    private fun extractJson(text: String): String {
+        private fun extractJson(text: String): String {
         val start = text.indexOf("{")
         val end = text.lastIndexOf("}")
         return if (start != -1 && end != -1) {
@@ -87,11 +82,10 @@ class SemanticEvaluator(private val context: Context) {
             text
         }
     }
-
-    private fun parseResult(json: String): SemanticEvaluationResult {
+        private fun parseResult(json: String): SemanticEvaluationResult {
         return try {
             val map = gson.fromJson(json, Map::class.java)
-            SemanticEvaluationResult(
+        SemanticEvaluationResult(
                 score = (map["score"] as? Number)?.toFloat() ?: 0f,
                 success = map["success"] as? Boolean ?: false,
                 failureReason = map["failure_reason"] as? String,
@@ -102,8 +96,7 @@ class SemanticEvaluator(private val context: Context) {
             fallbackResult()
         }
     }
-
-    private fun fallbackResult() = SemanticEvaluationResult(
+        private fun fallbackResult() = SemanticEvaluationResult(
         score = 0f,
         success = false,
         failureReason = "Evaluation failed to parse",

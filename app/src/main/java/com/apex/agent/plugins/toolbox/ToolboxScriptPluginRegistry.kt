@@ -36,8 +36,7 @@ object ToolboxScriptPluginRegistry {
     fun unregister(pluginId: String) {
         plugins.removeAll { it.id == pluginId }
     }
-
-    suspend fun createDefinitions(
+        suspend fun createDefinitions(
         params: ToolboxScriptHookParams
     ): List<ToolboxScriptDefinition> {
         return plugins

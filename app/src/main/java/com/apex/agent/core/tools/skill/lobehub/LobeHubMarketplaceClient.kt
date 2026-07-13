@@ -31,14 +31,13 @@ class LobeHubMarketplaceClient private constructor() {
         private const val TAG = "LobeHubMarketplace"
         
         // LobeHub API endpoints
-                private const val BASE_URL = "https://lobehub.com"
+        private const val BASE_URL = "https://lobehub.com"
         private const val SKILLS_API = "${BASE_URL}/api/skills"
         private const val SKILL_DETAIL_API = "${BASE_URL}/api/skills"
         private const val SKILL_MD_BASE = "${BASE_URL}/skills"
         
         // Fallback marketplace
-                private const val MARKET_CLI_NPX = "npx -y @lobehub/market-cli skills"
-        
+        private const val MARKET_CLI_NPX = "npx -y @lobehub/market-cli skills"
         private const val CONNECT_TIMEOUT = 15_000
         private const val READ_TIMEOUT = 30_000
         private const val BUFFER_SIZE = 64 * 1024
@@ -51,8 +50,7 @@ class LobeHubMarketplaceClient private constructor() {
             }
         }
     }
-
-    private val gson = Gson()
+        private val gson = Gson()
 
     /**
      * Test connection to LobeHub marketplace
@@ -60,16 +58,16 @@ class LobeHubMarketplaceClient private constructor() {
     suspend fun testConnection(): Boolean = withContext(Dispatchers.IO) {
         try {
             val connection = openConnection("${BASE_URL}/health")
-            connection.requestMethod = "GET"
-            connection.connectTimeout = CONNECT_TIMEOUT
+        connection.requestMethod = "GET"
+        connection.connectTimeout = CONNECT_TIMEOUT
             connection.readTimeout = READ_TIMEOUT
 
             val responseCode = connection.responseCode
             connection.disconnect()
-            responseCode == HttpURLConnection.HTTP_OK
+        responseCode == HttpURLConnection.HTTP_OK
         } catch (e: Exception) {
             AppLogger.e(TAG, "Connection test failed", e)
-            false
+        false
         }
     }
 
@@ -80,24 +78,21 @@ class LobeHubMarketplaceClient private constructor() {
         withContext(Dispatchers.IO) {
             try {
                 val url = buildSearchUrl(filters)
-                AppLogger.d(TAG, "Searching skills: ${url}")
-                
-                val connection = openConnection(url)
-                connection.requestMethod = "GET"
-                connection.setRequestProperty("Accept", "application/json")
-                connection.connect()
-
-                if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+        AppLogger.d(TAG, "Searching skills: ${url}")
+        val connection = openConnection(url)
+        connection.requestMethod = "GET"
+        connection.setRequestProperty("Accept", "application/json")
+        connection.connect()
+        if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                     return@withContext Result.failure(Exception("HTTP ${connection.responseCode}"))
                 }
-
-                val response = connection.inputStream.bufferedReader().use { it.readText() }
+        val response = connection.inputStream.bufferedReader().use { it.readText() }
         val skills = parseSearchResponse(response, filters)
-                Result.success(skills)
+        Result.success(skills)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to search skills", e)
                 // Return fallback with curated popular skills
-                Result.success(getCuratedSkills())
+        Result.success(getCuratedSkills())
             }
         }
 
@@ -109,20 +104,18 @@ class LobeHubMarketplaceClient private constructor() {
             try {
                 val url = "${SKILL_DETAIL_API}/${URLEncoder.encode(skillId, "UTF-8")}"
         val connection = openConnection(url)
-                connection.requestMethod = "GET"
-                connection.setRequestProperty("Accept", "application/json")
-                connection.connect()
-
-                if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+        connection.requestMethod = "GET"
+        connection.setRequestProperty("Accept", "application/json")
+        connection.connect()
+        if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                     return@withContext Result.failure(Exception("HTTP ${connection.responseCode}"))
                 }
-
-                val response = connection.inputStream.bufferedReader().use { it.readText() }
+        val response = connection.inputStream.bufferedReader().use { it.readText() }
         val detail = parseSkillDetail(response, skillId)
-                Result.success(detail)
+        Result.success(detail)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to get skill detail for ${skillId}", e)
-                Result.failure(e)
+        Result.failure(e)
             }
         }
 
@@ -133,18 +126,16 @@ class LobeHubMarketplaceClient private constructor() {
         try {
             val url = "${SKILL_MD_BASE}/${URLEncoder.encode(skillId, "UTF-8")}"
         val connection = openConnection(url)
-            connection.requestMethod = "GET"
-            connection.connect()
-
-            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+        connection.requestMethod = "GET"
+        connection.connect()
+        if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 return@withContext Result.failure(Exception("HTTP ${connection.responseCode}"))
             }
-
-            val response = connection.inputStream.bufferedReader().use { it.readText() }
-            Result.success(response)
+        val response = connection.inputStream.bufferedReader().use { it.readText() }
+        Result.success(response)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to get SKILL.md for ${skillId}", e)
-            Result.failure(e)
+        Result.failure(e)
         }
     }
 
@@ -165,31 +156,30 @@ class LobeHubMarketplaceClient private constructor() {
     ): Result<File> = withContext(Dispatchers.IO) {
         try {
             // First get the skill detail to find download URL
-    val detailResult = getSkillDetail(skillId)
-            if (detailResult.isFailure) {
+        val detailResult = getSkillDetail(skillId)
+        if (detailResult.isFailure) {
                 return@withContext Result.failure(detailResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Get SKILL.md content
-    val mdResult = getSkillMd(skillId)
-            if (mdResult.isFailure) {
+        val mdResult = getSkillMd(skillId)
+        if (mdResult.isFailure) {
                 return@withContext Result.failure(mdResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Create output directory
-    val skillDir = File(outputDir, skillId)
-            if (!skillDir.exists()) {
+        val skillDir = File(outputDir, skillId)
+        if (!skillDir.exists()) {
                 skillDir.mkdirs()
             }
 
             // Write SKILL.md
-    val skillFile = File(skillDir, "SKILL.md")
-            skillFile.writeText(mdResult.getOrNull() ?: "")
-
-            Result.success(skillDir)
+        val skillFile = File(skillDir, "SKILL.md")
+        skillFile.writeText(mdResult.getOrNull() ?: "")
+        Result.success(skillDir)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to download skill ${skillId}", e)
-            Result.failure(e)
+        Result.failure(e)
         }
     }
 
@@ -201,20 +191,18 @@ class LobeHubMarketplaceClient private constructor() {
             try {
                 val url = "${SKILLS_API}/featured?limit=20"
         val connection = openConnection(url)
-                connection.requestMethod = "GET"
-                connection.setRequestProperty("Accept", "application/json")
-                connection.connect()
-
-                if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+        connection.requestMethod = "GET"
+        connection.setRequestProperty("Accept", "application/json")
+        connection.connect()
+        if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                     return@withContext Result.success(getCuratedSkills())
                 }
-
-                val response = connection.inputStream.bufferedReader().use { it.readText() }
+        val response = connection.inputStream.bufferedReader().use { it.readText() }
         val skills = parseSearchResponse(response, LobeHubSearchFilters())
-                Result.success(skills)
+        Result.success(skills)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to get featured skills", e)
-                Result.success(getCuratedSkills())
+        Result.success(getCuratedSkills())
             }
         }
 
@@ -233,10 +221,8 @@ class LobeHubMarketplaceClient private constructor() {
         withContext(Dispatchers.IO) {
             searchSkills(LobeHubSearchFilters(sort = LobeHubSortOption.POPULAR, pageSize = limit))
         }
-
-    private fun buildSearchUrl(filters: LobeHubSearchFilters): String {
+        private fun buildSearchUrl(filters: LobeHubSearchFilters): String {
         val params = mutableListOf<String>()
-        
         if (filters.query.isNotBlank()) {
             params.add("q=${URLEncoder.encode(filters.query, "UTF-8")}")
         }
@@ -249,11 +235,9 @@ class LobeHubMarketplaceClient private constructor() {
         params.add("sort=${filters.sort.name.lowercase()}")
         params.add("page=${filters.page}")
         params.add("size=${filters.pageSize}")
-        
         return "${SKILLS_API}?${params.joinToString("&")}"
     }
-
-    private fun openConnection(url: String): HttpURLConnection {
+        private fun openConnection(url: String): HttpURLConnection {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.connectTimeout = CONNECT_TIMEOUT
         connection.readTimeout = READ_TIMEOUT
@@ -262,27 +246,23 @@ class LobeHubMarketplaceClient private constructor() {
         connection.setRequestProperty("Accept", "application/json, text/markdown")
         return connection
     }
-
-    private fun parseSearchResponse(json: String, filters: LobeHubSearchFilters): List<LobeHubSkillListing> {
+        private fun parseSearchResponse(json: String, filters: LobeHubSearchFilters): List<LobeHubSkillListing> {
         val skills = mutableListOf<LobeHubSkillListing>()
         try {
             val root = gson.fromJson(json, JsonObject::class.java)
         val items = root.getAsJsonArray("skills") ?: root.getAsJsonArray("data") ?: JsonArray()
-
-            for (i in 0 until items.size()) {
+        for (i in 0 until items.size()) {
                 val item = items[i].asJsonObject
                 skills.add(parseSkillListing(item))
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to parse search response", e)
             // Return fallback curated list
-                return getCuratedSkills()
+        return getCuratedSkills()
         }
-        
         return if (skills.isEmpty()) getCuratedSkills() else skills
     }
-
-    private fun parseSkillListing(json: JsonObject): LobeHubSkillListing {
+        private fun parseSkillListing(json: JsonObject): LobeHubSkillListing {
         return LobeHubSkillListing(
             id = json.get("id")?.asString ?: json.get("name")?.asString ?: "",
             name = json.get("name")?.asString ?: "",
@@ -300,8 +280,7 @@ class LobeHubMarketplaceClient private constructor() {
             homepage = json.get("homepage")?.asString ?: ""
         )
     }
-
-    private fun parseSkillDetail(json: String, skillId: String): LobeHubSkillDetail {
+        private fun parseSkillDetail(json: String, skillId: String): LobeHubSkillDetail {
         val obj = gson.fromJson(json, JsonObject::class.java)
         return LobeHubSkillDetail(
             id = obj.get("id")?.asString ?: skillId,
@@ -337,7 +316,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("open-claw", "claude-code", "codex", "cursor"),
                 updatedAt = "2026-01-15",
                 skillMdUrl = "https://lobehub.com/skills/lobehub-skills-search-engine",
-                homepage = "https://lobehub.com/skills"
+        homepage = "https://lobehub.com/skills"
             ),
             LobeHubSkillListing(
                 id = "temmo1004-smart-short-video",
@@ -351,7 +330,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("open-claw"),
                 updatedAt = "2026-05-15",
                 skillMdUrl = "https://lobehub.com/skills/temmo1004-smart-short-video",
-                homepage = "https://lobehub.com/skills/temmo1004-smart-short-video"
+        homepage = "https://lobehub.com/skills/temmo1004-smart-short-video"
             ),
             LobeHubSkillListing(
                 id = "frekyr17-png-openclaw-workspace-trading-coach",
@@ -365,7 +344,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("open-claw"),
                 updatedAt = "2026-04-20",
                 skillMdUrl = "https://lobehub.com/skills/frekyr17-png-openclaw-workspace-trading-coach",
-                homepage = "https://lobehub.com/skills/frekyr17-png-openclaw-workspace-trading-coach"
+        homepage = "https://lobehub.com/skills/frekyr17-png-openclaw-workspace-trading-coach"
             ),
             LobeHubSkillListing(
                 id = "aehyok-blog-xhs-images",
@@ -379,7 +358,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("open-claw"),
                 updatedAt = "2026-03-10",
                 skillMdUrl = "https://lobehub.com/skills/aehyok-blog-xhs-images",
-                homepage = "https://lobehub.com/skills/aehyok-blog-xhs-images"
+        homepage = "https://lobehub.com/skills/aehyok-blog-xhs-images"
             ),
             LobeHubSkillListing(
                 id = "superpowers-ai-code-review",
@@ -393,7 +372,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("claude-code", "open-claw", "codex"),
                 updatedAt = "2026-06-01",
                 skillMdUrl = "https://lobehub.com/skills/superpowers-ai-code-review",
-                homepage = "https://lobehub.com/skills/superpowers-ai-code-review"
+        homepage = "https://lobehub.com/skills/superpowers-ai-code-review"
             ),
             LobeHubSkillListing(
                 id = "browser-automation",
@@ -407,7 +386,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("open-claw", "claude-code"),
                 updatedAt = "2026-05-28",
                 skillMdUrl = "https://lobehub.com/skills/browser-automation",
-                homepage = "https://lobehub.com/skills/browser-automation"
+        homepage = "https://lobehub.com/skills/browser-automation"
             ),
             LobeHubSkillListing(
                 id = "database-assistant",
@@ -421,7 +400,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("claude-code", "open-claw"),
                 updatedAt = "2026-06-05",
                 skillMdUrl = "https://lobehub.com/skills/database-assistant",
-                homepage = "https://lobehub.com/skills/database-assistant"
+        homepage = "https://lobehub.com/skills/database-assistant"
             ),
             LobeHubSkillListing(
                 id = "performance-optimizer",
@@ -435,7 +414,7 @@ class LobeHubMarketplaceClient private constructor() {
                 agent = listOf("claude-code", "open-claw"),
                 updatedAt = "2026-04-15",
                 skillMdUrl = "https://lobehub.com/skills/performance-optimizer",
-                homepage = "https://lobehub.com/skills/performance-optimizer"
+        homepage = "https://lobehub.com/skills/performance-optimizer"
             )
         )
     }

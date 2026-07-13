@@ -19,22 +19,19 @@ class CrossAgentQualityEnhancer(
     companion object {
         private const val TAG = "CrossAgentQualityEnhancer"
     }
-
-    data class AgentOutput(
+        data class AgentOutput(
         val agent: Agent,
         val output: String,
         val confidence: Float = 0.0f
     )
-
-    data class ReviewResult(
+        data class ReviewResult(
         val agentOutput: AgentOutput,
         val score: Float,
         val issues: List<String>,
         val suggestions: List<String>,
         val passed: Boolean
     )
-
-    suspend fun reviewAgentOutput(
+        suspend fun reviewAgentOutput(
         reviewer: Agent,
         agentOutput: AgentOutput,
         taskContext: String
@@ -42,12 +39,11 @@ class CrossAgentQualityEnhancer(
         val session = AgentThinkingSession(context, aiService)
         val reviewPrompt = buildString {
             appendLine("Review the following agent output for quality, correctness, and completeness.")
-            appendLine("Task/Context: $taskContext")
-            appendLine("Agent: ${agentOutput.agent.name} (${agentOutput.agent.role})")
-            appendLine("Agent's output: ${agentOutput.output}")
-            appendLine("\nProvide structured feedback with scores.")
+        appendLine("Task/Context: $taskContext")
+        appendLine("Agent: ${agentOutput.agent.name} (${agentOutput.agent.role})")
+        appendLine("Agent's output: ${agentOutput.output}")
+        appendLine("\nProvide structured feedback with scores.")
         }
-
         val review = aiService?.let {
         val result = session.thinkAndProduce(
                 agent = reviewer,
@@ -56,9 +52,8 @@ class CrossAgentQualityEnhancer(
                 instructions = "Evaluate: correctness, completeness, clarity, relevance. Score 0-1.",
                 enableValidation = false
             )
-            result.finalAnswer
+        result.finalAnswer
         } ?: ""
-
         val score = extractScore(review, 0.7f)
         val issues = extractIssues(review)
         val suggestions = extractSuggestions(review)
@@ -66,8 +61,7 @@ class CrossAgentQualityEnhancer(
 
         ReviewResult(agentOutput, score, issues, suggestions, passed)
     }
-
-    suspend fun crossReviewAll(
+        suspend fun crossReviewAll(
         agents: List<Agent>,
         outputs: Map<String, String>,
         taskContext: String
@@ -76,14 +70,14 @@ class CrossAgentQualityEnhancer(
         agents.map { reviewer ->
             async {
                 val reviewed = mutableListOf<ReviewResult>()
-                outputs.forEach { (agentId, output) ->
+        outputs.forEach { (agentId, output) ->
                     if (agentId != reviewer.id) {
                         val agent = agents.find { it.id == agentId } ?: return@forEach
         val reviewPrompt = buildString {
                             appendLine("Context: $taskContext")
-                            appendLine("Review ${agent.name}'s output: $output")
+        appendLine("Review ${agent.name}'s output: $output")
                         }
-                        val review = aiService?.let {
+        val review = aiService?.let {
                             session.thinkAndProduce(
                                 agent = reviewer,
                                 task = "Cross-review ${agent.name}'s work",
@@ -92,9 +86,8 @@ class CrossAgentQualityEnhancer(
                                 enableQualityCheck = false
                             ).finalAnswer
                         } ?: ""
-
-                        val score = extractScore(review, 0.7f)
-                        reviewed.add(ReviewResult(
+        val score = extractScore(review, 0.7f)
+        reviewed.add(ReviewResult(
                             AgentOutput(agent, output),
                             score, extractIssues(review),
                             extractSuggestions(review),
@@ -102,12 +95,11 @@ class CrossAgentQualityEnhancer(
                         ))
                     }
                 }
-                reviewed
+        reviewed
             }
         }.awaitAll().flatten()
     }
-
-    suspend fun reachConsensus(
+        suspend fun reachConsensus(
         agents: List<Agent>,
         outputs: Map<String, String>,
         taskContext: String,
@@ -117,22 +109,19 @@ class CrossAgentQualityEnhancer(
         val avgScore = reviews.map { it.score }.average().toFloat()
         val passCount = reviews.count { it.passed }
         val agreementRatio = passCount.toFloat() / reviews.size.coerceAtLeast(1)
-
         val commonIssues = reviews.flatMap { it.issues }
             .groupBy { it }
             .filter { it.value.size >= 2 }
             .keys.toList()
-
         val topSuggestions = reviews.flatMap { it.suggestions }
             .groupBy { it }
             .maxByOrNull { it.value.size }
             ?.key?.let { listOf(it) } ?: emptyList()
-
         val consensus = if (agreementRatio >= minAgreementRatio) {
         val topOutput = outputs.maxByOrNull { (id, _) ->
                 reviews.filter { it.agentOutput.agent.id == id }.sumOf { it.score.toDouble() }
             }
-            ConsensusResult(
+        ConsensusResult(
                 consensusReached = true,
                 selectedOutput = topOutput?.value ?: outputs.values.firstOrNull() ?: "",
                 averageScore = avgScore,
@@ -144,12 +133,12 @@ class CrossAgentQualityEnhancer(
             val session = AgentThinkingSession(context, aiService)
         val mediatorPrompt = buildString {
                 appendLine("Task: $taskContext")
-                appendLine("\nAgent outputs and their peer reviews show disagreement.")
-                appendLine("Average quality score: $avgScore")
-                appendLine("Common issues identified: ${commonIssues.take(3).joinToString("; ")}")
-                appendLine("\nSynthesize a consensus solution.")
+        appendLine("\nAgent outputs and their peer reviews show disagreement.")
+        appendLine("Average quality score: $avgScore")
+        appendLine("Common issues identified: ${commonIssues.take(3).joinToString("; ")}")
+        appendLine("\nSynthesize a consensus solution.")
             }
-            val mediated = aiService?.let {
+        val mediated = aiService?.let {
                 session.thinkAndProduce(
                     agent = agents.first(),
                     task = "Resolve disagreements and synthesize consensus",
@@ -158,8 +147,7 @@ class CrossAgentQualityEnhancer(
                     enableQualityCheck = true
                 ).finalAnswer
             } ?: outputs.values.firstOrNull() ?: ""
-
-            ConsensusResult(
+        ConsensusResult(
                 consensusReached = false,
                 selectedOutput = mediated,
                 averageScore = avgScore,
@@ -168,11 +156,9 @@ class CrossAgentQualityEnhancer(
                 suggestions = topSuggestions
             )
         }
-
         consensus
     }
-
-    data class ConsensusResult(
+        data class ConsensusResult(
         val consensusReached: Boolean,
         val selectedOutput: String,
         val averageScore: Float,
@@ -180,23 +166,20 @@ class CrossAgentQualityEnhancer(
         val commonIssues: List<String>,
         val suggestions: List<String>
     )
-
-    private fun extractScore(text: String, default: Float): Float {
+        private fun extractScore(text: String, default: Float): Float {
         val scores = Regex("""\b(\d\.?\d*)\b""").findAll(text)
             .map { it.groupValues[1].toFloatOrNull() }
             .filterNotNull()
             .toList()
         return scores.average().toFloat().takeIf { it.isFinite() } ?: default
     }
-
-    private fun extractIssues(text: String): List<String> {
+        private fun extractIssues(text: String): List<String> {
         return text.lines()
             .filter { it.contains("issue", ignoreCase = true) || it.contains("problem", ignoreCase = true) || it.contains("missing", ignoreCase = true) }
             .map { it.trim().removePrefix("- ").removePrefix("* ") }
             .take(5)
     }
-
-    private fun extractSuggestions(text: String): List<String> {
+        private fun extractSuggestions(text: String): List<String> {
         return text.lines()
             .filter { it.contains("suggest", ignoreCase = true) || it.contains("improve", ignoreCase = true) || it.contains("recommend", ignoreCase = true) }
             .map { it.trim().removePrefix("- ").removePrefix("* ") }

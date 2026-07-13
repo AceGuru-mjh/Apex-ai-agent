@@ -36,8 +36,7 @@ enum class ConnectionConditionDef {
     FALSE,
     /** 无条件走（用于并行汇合后） */
     ALWAYS;
-
-    companion object {
+        companion object {
         fun fromString(value: String?): ConnectionConditionDef {
             if (value == null) return ON_SUCCESS
             return when (value.lowercase()) {

@@ -47,13 +47,12 @@ object MessageProcessingPluginRegistry {
     fun unregister(pluginId: String) {
         plugins.removeAll { it.id == pluginId }
     }
-
-    suspend fun createExecutionIfMatched(
+        suspend fun createExecutionIfMatched(
         params: MessageProcessingHookParams
     ): MessageProcessingExecution? {
         for (plugin in plugins) {
             val execution = plugin.createExecutionIfMatched(params)
-            if (execution != null) {
+        if (execution != null) {
                 return execution
             }
         }

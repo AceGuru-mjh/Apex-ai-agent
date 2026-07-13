@@ -27,31 +27,23 @@ import kotlinx.coroutines.launch
 class GepaIntegration(application: Application) : AndroidViewModel(application) {
 
     private val database = SkillDatabase.getDatabase(application)
-    private val skillDao = database.skillDao()
-    private val config = GepaConfig.getInstance(application)
-
-    private val skillMatcher = SkillMatcher(skillDao)
-    private val skillExtractor = SkillExtractor(skillDao)
-
-    private val subAgents: List<SubAgent> = listOf(
+        private val skillDao = database.skillDao()
+        private val config = GepaConfig.getInstance(application)
+        private val skillMatcher = SkillMatcher(skillDao)
+        private val skillExtractor = SkillExtractor(skillDao)
+        private val subAgents: List<SubAgent> = listOf(
         FileAgent(),
         GeneralAgent()
     )
-
-    private val taskScheduler = TaskScheduler(subAgents)
-
-    private val _gepaState = MutableStateFlow<GepaState>(GepaState.Idle)
+        private val taskScheduler = TaskScheduler(subAgents)
+        private val _gepaState = MutableStateFlow<GepaState>(GepaState.Idle)
         val gepaState: StateFlow<GepaState> = _gepaState.asStateFlow()
-
-    private val _currentMatchedSkill = MutableStateFlow<MatchedSkill?>(null)
+        private val _currentMatchedSkill = MutableStateFlow<MatchedSkill?>(null)
         val currentMatchedSkill: StateFlow<MatchedSkill?> = _currentMatchedSkill.asStateFlow()
-
-    private val _executionResult = MutableStateFlow<ExecutionResult?>(null)
+        private val _executionResult = MutableStateFlow<ExecutionResult?>(null)
         val executionResult: StateFlow<ExecutionResult?> = _executionResult.asStateFlow()
-
-    private val complexityQuantifier = TaskComplexityQuantifier()
-
-    fun processTask(taskDescription: String) {
+        private val complexityQuantifier = TaskComplexityQuantifier()
+        fun processTask(taskDescription: String) {
         viewModelScope.launch {
             _gepaState.value = GepaState.Analyzing
 
@@ -65,12 +57,10 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
                     "riskLevel" to taskFeature.riskLevel
                 )
             )
-
-            _gepaState.value = GepaState.Matching
+        _gepaState.value = GepaState.Matching
 
             val matchedSkill = skillMatcher.getBestMatchingSkill(mainTask).first()
-
-            if (matchedSkill != null && skillMatcher.shouldUseTemplate(
+        if (matchedSkill != null && skillMatcher.shouldUseTemplate(
                     matchedSkill,
                     config.getMatchConfidenceForMinRate()
                 )
@@ -83,8 +73,7 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-
-    fun executeWithMatchedSkill() {
+        fun executeWithMatchedSkill() {
         viewModelScope.launch {
             val matchedSkill = _currentMatchedSkill.value ?: return@launch
 
@@ -95,20 +84,16 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
                 taskType = matchedSkill.skill.taskType,
                 description = matchedSkill.skill.taskDescription
             )
-
-            val strategy = object : com.apex.agent.SubtaskDecompositionStrategy {
+        val strategy = object : com.apex.agent.SubtaskDecompositionStrategy {
                 override fun decompose(mainTask: MainTask): List<SubTask> {
                     return matchedSkill.suggestedSubtasks
                 }
             }
-
-            val result = taskScheduler.executeComplexTask(mainTask, strategy)
-
-            handleExecutionResult(mainTask, matchedSkill.suggestedSubtasks, result)
+        val result = taskScheduler.executeComplexTask(mainTask, strategy)
+        handleExecutionResult(mainTask, matchedSkill.suggestedSubtasks, result)
         }
     }
-
-    fun executeWithDefaultStrategy(taskDescription: String) {
+        fun executeWithDefaultStrategy(taskDescription: String) {
         viewModelScope.launch {
             _gepaState.value = GepaState.Executing
 
@@ -122,16 +107,13 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
                     "riskLevel" to taskFeature.riskLevel
                 )
             )
-
-            val defaultStrategy = DefaultSubtaskDecompositionStrategy()
+        val defaultStrategy = DefaultSubtaskDecompositionStrategy()
         val result = taskScheduler.executeComplexTask(mainTask, defaultStrategy)
-
-            val subtasks = defaultStrategy.decompose(mainTask)
-            handleExecutionResult(mainTask, subtasks, result)
+        val subtasks = defaultStrategy.decompose(mainTask)
+        handleExecutionResult(mainTask, subtasks, result)
         }
     }
-
-    private suspend fun handleExecutionResult(
+        private suspend fun handleExecutionResult(
         mainTask: MainTask,
         subtasks: List<SubTask>,
         result: TaskResult
@@ -142,10 +124,9 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
             subtaskCount = result.subtaskResults.size,
             successCount = result.subtaskResults.count { it.success }
         )
-
         if (config.autoExtractOnSuccess && result.success) {
             val extractionResult = skillExtractor.extractAndMergeSkill(mainTask, subtasks, result)
-            _gepaState.value = if (extractionResult.success) {
+        _gepaState.value = if (extractionResult.success) {
                 GepaState.ExtractionComplete(extractionResult.skillId)
             } else {
                 GepaState.Error("Failed to extract skill: ${extractionResult.message}")
@@ -154,18 +135,13 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
             _gepaState.value = GepaState.Completed(result.success)
         }
     }
-
-    fun getTopSkills(limit: Int = 10) = skillMatcher.getTopSkills(limit)
-
-    fun getHighQualitySkills(minRate: Float = 0.8f) = skillMatcher.getHighQualitySkills(minRate)
-
-    fun getAllTaskTypes() = skillMatcher.getAllTaskTypes()
-
-    fun getSkillStats() = viewModelScope.launch {
+        fun getTopSkills(limit: Int = 10) = skillMatcher.getTopSkills(limit)
+        fun getHighQualitySkills(minRate: Float = 0.8f) = skillMatcher.getHighQualitySkills(minRate)
+        fun getAllTaskTypes() = skillMatcher.getAllTaskTypes()
+        fun getSkillStats() = viewModelScope.launch {
         val totalSkills = skillDao.getTotalSkillCount().first()
         val avgSuccessRate = skillDao.getAverageSuccessRate().first() ?: 0f
         val taskTypes = skillDao.getAllTaskTypes().first()
-
         _executionResult.value = ExecutionResult(
             success = true,
             totalTime = 0,
@@ -173,21 +149,18 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
             successCount = taskTypes.size
         )
     }
-
-    fun cleanupLowQualitySkills() {
+        fun cleanupLowQualitySkills() {
         viewModelScope.launch {
             skillExtractor.cleanupLowQualitySkills(0.3f)
         }
     }
-
-    fun reset() {
+        fun reset() {
         _gepaState.value = GepaState.Idle
         _currentMatchedSkill.value = null
         _executionResult.value = null
         taskScheduler.resetState()
     }
-
-    fun isEnabled(): Boolean = config.isEnabled
+        fun isEnabled(): Boolean = config.isEnabled
 
     fun setEnabled(enabled: Boolean) {
         config.isEnabled = enabled
@@ -196,14 +169,14 @@ class GepaIntegration(application: Application) : AndroidViewModel(application) 
 
 sealed class GepaState {
     object Idle : GepaState()
-    object Analyzing : GepaState()
-    object Matching : GepaState()
-    object UsingDefaultStrategy : GepaState()
-    data class ReadyToExecute(val matchedSkill: MatchedSkill) : GepaState()
-    object Executing : GepaState()
-    data class ExtractionComplete(val skillId: Int) : GepaState()
-    data class Completed(val success: Boolean) : GepaState()
-    data class Error(val message: String) : GepaState()
+        object Analyzing : GepaState()
+        object Matching : GepaState()
+        object UsingDefaultStrategy : GepaState()
+        data class ReadyToExecute(val matchedSkill: MatchedSkill) : GepaState()
+        object Executing : GepaState()
+        data class ExtractionComplete(val skillId: Int) : GepaState()
+        data class Completed(val success: Boolean) : GepaState()
+        data class Error(val message: String) : GepaState()
 }
 
 data class ExecutionResult(

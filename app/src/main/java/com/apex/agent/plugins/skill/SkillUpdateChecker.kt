@@ -26,35 +26,28 @@ class SkillUpdateChecker private constructor(private val context: Context) {
             }
         }
     }
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val marketplace = SkillPluginMarketplace.getInstance(context)
-    private val pluginManager = SkillPluginManager.getInstance(context)
-
-    private val _availableUpdates = MutableStateFlow<List<SkillPluginUpdate>>(emptyList())
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        private val marketplace = SkillPluginMarketplace.getInstance(context)
+        private val pluginManager = SkillPluginManager.getInstance(context)
+        private val _availableUpdates = MutableStateFlow<List<SkillPluginUpdate>>(emptyList())
         val availableUpdates: StateFlow<List<SkillPluginUpdate>> = _availableUpdates.asStateFlow()
-
-    private val _lastCheckTime = MutableStateFlow(0L)
+        private val _lastCheckTime = MutableStateFlow(0L)
         val lastCheckTime: StateFlow<Long> = _lastCheckTime.asStateFlow()
-
-    private val _isChecking = MutableStateFlow(false)
+        private val _isChecking = MutableStateFlow(false)
         val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
-
-    private val notifiedUpdates = ConcurrentHashMap.newKeySet<String>()
-
-    fun checkForUpdates() {
+        private val notifiedUpdates = ConcurrentHashMap.newKeySet<String>()
+        fun checkForUpdates() {
         scope.launch {
             _isChecking.value = true
             try {
                 val updates = marketplace.checkUpdates()
-                _availableUpdates.value = updates
+        _availableUpdates.value = updates
                 _lastCheckTime.value = System.currentTimeMillis()
-
-                if (updates.isNotEmpty()) {
+        if (updates.isNotEmpty()) {
                     val newUpdates = updates.filter { !notifiedUpdates.contains(it.pluginId) }
-                    if (newUpdates.isNotEmpty()) {
+        if (newUpdates.isNotEmpty()) {
                         newUpdates.forEach { notifiedUpdates.add(it.pluginId) }
-                        AppLogger.i(
+        AppLogger.i(
                             TAG,
                             "发现 ${newUpdates.size} 个新更新"
                         )
@@ -67,65 +60,54 @@ class SkillUpdateChecker private constructor(private val context: Context) {
             }
         }
     }
-
-    suspend fun checkForUpdatesSync(): List<SkillPluginUpdate> = withContext(Dispatchers.IO) {
+        suspend fun checkForUpdatesSync(): List<SkillPluginUpdate> = withContext(Dispatchers.IO) {
         _isChecking.value = true
         try {
             val updates = marketplace.checkUpdates()
-            _availableUpdates.value = updates
+        _availableUpdates.value = updates
             _lastCheckTime.value = System.currentTimeMillis()
-            updates
+        updates
         } catch (e: Exception) {
             AppLogger.e(TAG, "同步检查更新失败", e)
-            emptyList()
+        emptyList()
         } finally {
             _isChecking.value = false
         }
     }
-
-    suspend fun applyUpdate(update: SkillPluginUpdate): Result<String> = withContext(Dispatchers.IO) {
+        suspend fun applyUpdate(update: SkillPluginUpdate): Result<String> = withContext(Dispatchers.IO) {
         try {
             AppLogger.i(TAG, "开始更新插件 ${update.pluginId} (${update.currentVersion} -> ${update.latestVersion})")
-
-            val pluginManager = pluginManager
+        val pluginManager = pluginManager
         val existingPlugin = pluginManager.getPlugin(update.pluginId)
-            if (existingPlugin == null) {
+        if (existingPlugin == null) {
                 return@withContext Result.failure(Exception("插件 ${update.pluginId} 未安装"))
             }
-
-            pluginManager.disablePlugin(update.pluginId)
-            pluginManager.unregisterPlugin(update.pluginId)
-
-            val downloadedFile = marketplace.downloadPlugin(update.pluginId)
+        pluginManager.disablePlugin(update.pluginId)
+        pluginManager.unregisterPlugin(update.pluginId)
+        val downloadedFile = marketplace.downloadPlugin(update.pluginId)
         val loader = SkillPluginLoader.getInstance(context)
-            val newPlugin = loader.loadPlugin(downloadedFile)
-            newPlugin.onLoad(context)
-
-            pluginManager.registerPlugin(newPlugin)
-            pluginManager.enablePlugin(update.pluginId)
-
-            notifiedUpdates.remove(update.pluginId)
-            _availableUpdates.value = _availableUpdates.value.filter { it.pluginId != update.pluginId }
-
-            AppLogger.i(TAG, "插件更新完成: ${update.pluginId} v${update.latestVersion}")
-            Result.success(update.latestVersion)
+        val newPlugin = loader.loadPlugin(downloadedFile)
+        newPlugin.onLoad(context)
+        pluginManager.registerPlugin(newPlugin)
+        pluginManager.enablePlugin(update.pluginId)
+        notifiedUpdates.remove(update.pluginId)
+        _availableUpdates.value = _availableUpdates.value.filter { it.pluginId != update.pluginId }
+        AppLogger.i(TAG, "插件更新完成: ${update.pluginId} v${update.latestVersion}")
+        Result.success(update.latestVersion)
         } catch (e: Exception) {
             AppLogger.e(TAG, "更新插件失败: ${update.pluginId}", e)
-            Result.failure(e)
+        Result.failure(e)
         }
     }
-
-    fun getUpdateCount(): Int = _availableUpdates.value.size
+        fun getUpdateCount(): Int = _availableUpdates.value.size
 
     suspend fun hasUpdates(): Boolean = withContext(Dispatchers.IO) {
         _availableUpdates.value.isNotEmpty()
     }
-
-    fun dismissNotification(pluginId: String) {
+        fun dismissNotification(pluginId: String) {
         notifiedUpdates.remove(pluginId)
     }
-
-    fun dismissAll() {
+        fun dismissAll() {
         notifiedUpdates.clear()
     }
 }

@@ -44,11 +44,9 @@ class BurstStateStore(private val storageDir: File) {
         val state: Map<String, Any>,
         val timestamp: Long
     )
-
-    private val indexCache = ConcurrentHashMap<String, StateEntry>()
-    private val checkpointCache = ConcurrentHashMap<String, CheckpointEntry>()
-
-    init {
+        private val indexCache = ConcurrentHashMap<String, StateEntry>()
+        private val checkpointCache = ConcurrentHashMap<String, CheckpointEntry>()
+        init {
         if (!storageDir.exists()) {
             storageDir.mkdirs()
         }
@@ -62,10 +60,10 @@ class BurstStateStore(private val storageDir: File) {
         try {
             val stateFile = getStateFile(entry.taskId)
         val json = buildStateJson(entry)
-            stateFile.writeText(json)
-            indexCache[entry.taskId] = entry
+        stateFile.writeText(json)
+        indexCache[entry.taskId] = entry
             updateIndex(entry)
-            true
+        true
         } catch (e: Exception) {
             false
         }
@@ -77,10 +75,10 @@ class BurstStateStore(private val storageDir: File) {
     suspend fun restoreState(taskId: String): StateEntry? = withContext(Dispatchers.IO) {
         indexCache[taskId] ?: run {
             val stateFile = getStateFile(taskId)
-            if (stateFile.exists()) {
+        if (stateFile.exists()) {
                 try {
                     val json = stateFile.readText()
-                    parseStateJson(json)
+        parseStateJson(json)
                 } catch (_: Exception) {
                     null
                 }
@@ -95,8 +93,8 @@ class BurstStateStore(private val storageDir: File) {
         try {
             val cpFile = getCheckpointFile(entry.taskId, entry.checkpointId)
         val json = buildCheckpointJson(entry)
-            cpFile.writeText(json)
-            checkpointCache["${entry.taskId}_${entry.checkpointId}"] = entry
+        cpFile.writeText(json)
+        checkpointCache["${entry.taskId}_${entry.checkpointId}"] = entry
             true
         } catch (e: Exception) {
             false
@@ -117,7 +115,7 @@ class BurstStateStore(private val storageDir: File) {
 
         try {
             val json = latestFile.readText()
-            parseCheckpointJson(json)
+        parseCheckpointJson(json)
         } catch (_: Exception) {
             null
         }
@@ -129,10 +127,9 @@ class BurstStateStore(private val storageDir: File) {
     suspend fun listRecentExecutions(limit: Int = 20): List<StateEntry> = withContext(Dispatchers.IO) {
         val indexFile = getIndexFile()
         if (!indexFile.exists()) return@withContext emptyList()
-
         try {
             val json = indexFile.readText()
-            parseIndexJson(json)
+        parseIndexJson(json)
                 .sortedByDescending { it.timestamp }
                 .take(limit.coerceAtMost(MAX_RECENT_EXECUTIONS))
         } catch (_: Exception) {
@@ -153,25 +150,24 @@ class BurstStateStore(private val storageDir: File) {
             if (file.name.startsWith(STATE_FILE_PREFIX) && file.name.endsWith(STATE_FILE_SUFFIX)) {
                 if (file.lastModified() < cutoff) {
                     file.delete()
-                    deleted++
+        deleted++
                 }
             }
         }
 
         // 清理过期的检查点目录
-                storageDir.listFiles()?.forEach { file ->
+        storageDir.listFiles()?.forEach { file ->
             if (file.isDirectory && file.name.startsWith(CHECKPOINT_FILE_PREFIX)) {
                 if (file.lastModified() < cutoff) {
                     file.deleteRecursively()
-                    deleted++
+        deleted++
                 }
             }
         }
 
         // 清理缓存
-                indexCache.entries.removeAll { it.value.timestamp < cutoff }
+        indexCache.entries.removeAll { it.value.timestamp < cutoff }
         checkpointCache.entries.removeAll { it.value.timestamp < cutoff }
-
         deleted
     }
 
@@ -229,14 +225,12 @@ class BurstStateStore(private val storageDir: File) {
                     emptyList()
                 }
             } else emptyList()
-
-            val updated = (existing + entry)
+        val updated = (existing + entry)
                 .groupBy { it.taskId }
                 .mapValues { it.value.last() }
                 .values
                 .takeLast(MAX_RECENT_EXECUTIONS)
-
-            indexFile.writeText(buildIndexJson(updated))
+        indexFile.writeText(buildIndexJson(updated))
         } catch (_: Exception) {
         }
     }
@@ -249,7 +243,7 @@ class BurstStateStore(private val storageDir: File) {
     }
 
     // ========== JSON序列化/反序列化（简单实现，无三方依赖） ==========
-    private fun buildStateJson(entry: StateEntry): String {
+        private fun buildStateJson(entry: StateEntry): String {
         val metaJson = entry.metadata.entries.joinToString(",") { (k, v) ->
             "\"${escapeJson(k)}\":\"${escapeJson(v)}\""
         }
@@ -261,21 +255,19 @@ class BurstStateStore(private val storageDir: File) {
   "metadata": {$metaJson}
 }"""
     }
-
-    private fun parseStateJson(json: String): StateEntry? {
+        private fun parseStateJson(json: String): StateEntry? {
         return try {
             val taskId = extractJsonValue(json, "taskId") ?: return null
         val state = extractJsonValue(json, "state") ?: ""
-            val progress = extractJsonDouble(json, "progress") ?: 0.0
+        val progress = extractJsonDouble(json, "progress") ?: 0.0
         val timestamp = extractJsonLong(json, "timestamp") ?: 0L
             val metadata = extractJsonMap(json, "metadata")
-            StateEntry(taskId, state, progress.toFloat(), timestamp, metadata)
+        StateEntry(taskId, state, progress.toFloat(), timestamp, metadata)
         } catch (_: Exception) {
             null
         }
     }
-
-    private fun buildCheckpointJson(entry: CheckpointEntry): String {
+        private fun buildCheckpointJson(entry: CheckpointEntry): String {
         val stateJson = entry.state.entries.joinToString(",") { (k, v) ->
             "\"${escapeJson(k)}\":\"${escapeJson(v.toString())}\""
         }
@@ -286,8 +278,7 @@ class BurstStateStore(private val storageDir: File) {
   "timestamp": ${entry.timestamp}
 }"""
     }
-
-    private fun parseCheckpointJson(json: String): CheckpointEntry? {
+        private fun parseCheckpointJson(json: String): CheckpointEntry? {
         return try {
             val taskId = extractJsonValue(json, "taskId") ?: return null
         val checkpointId = extractJsonValue(json, "checkpointId") ?: return null
@@ -298,20 +289,17 @@ class BurstStateStore(private val storageDir: File) {
             null
         }
     }
-
-    private fun buildIndexJson(entries: List<StateEntry>): String {
+        private fun buildIndexJson(entries: List<StateEntry>): String {
         val entriesJson = entries.joinToString(",\n") { buildStateJson(it) }
         return "[\n$entriesJson\n]"
     }
-
-    private fun parseIndexJson(json: String): List<StateEntry> {
+        private fun parseIndexJson(json: String): List<StateEntry> {
         val entries = mutableListOf<StateEntry>()
         // 简单解析JSON数组
-    val arrayContent = json.trimStart().trimEnd()
+        val arrayContent = json.trimStart().trimEnd()
             .removePrefix("[").removeSuffix("]")
             .trim()
         if (arrayContent.isEmpty()) return emptyList()
-
         var depth = 0
         var start = 0
         for (i in arrayContent.indices) {
@@ -320,8 +308,8 @@ class BurstStateStore(private val storageDir: File) {
                 '}' -> depth--
                 ',' -> if (depth == 0) {
                     val objStr = arrayContent.substring(start, i).trim()
-                    parseStateJson(objStr)?.let { entries.add(it) }
-                    start = i + 1
+        parseStateJson(objStr)?.let { entries.add(it) }
+        start = i + 1
                 }
             }
         }
@@ -331,23 +319,19 @@ class BurstStateStore(private val storageDir: File) {
         }
         return entries
     }
-
-    private fun extractJsonValue(json: String, key: String): String? {
+        private fun extractJsonValue(json: String, key: String): String? {
         val regex = "\"${escapeRegex(key)}\"\\s*:\\s*\"([^\"]*)\"".toRegex()
         return regex.find(json)?.groupValues?.getOrNull(1)
     }
-
-    private fun extractJsonDouble(json: String, key: String): Double? {
+        private fun extractJsonDouble(json: String, key: String): Double? {
         val regex = "\"${escapeRegex(key)}\"\\s*:\\s*([\\d.]+)".toRegex()
         return regex.find(json)?.groupValues?.getOrNull(1)?.toDoubleOrNull()
     }
-
-    private fun extractJsonLong(json: String, key: String): Long? {
+        private fun extractJsonLong(json: String, key: String): Long? {
         val regex = "\"${escapeRegex(key)}\"\\s*:\\s*(\\d+)".toRegex()
         return regex.find(json)?.groupValues?.getOrNull(1)?.toLongOrNull()
     }
-
-    private fun extractJsonMap(json: String, key: String): Map<String, String> {
+        private fun extractJsonMap(json: String, key: String): Map<String, String> {
         val map = mutableMapOf<String, String>()
         val regex = "\"${escapeRegex(key)}\"\\s*:\\s*\\{([^}]*)\\}".toRegex()
         val match = regex.find(json) ?: return map
@@ -356,20 +340,18 @@ class BurstStateStore(private val storageDir: File) {
         entryRegex.findAll(content).forEach { m ->
             val k = m.groupValues.getOrNull(1) ?: return@forEach
         val v = m.groupValues.getOrNull(2) ?: ""
-            map[k] = v
+        map[k] = v
         }
         return map
     }
-
-    private fun escapeJson(s: String): String {
+        private fun escapeJson(s: String): String {
         return s.replace("\\", "\\\\")
             .replace("\"", "\\\"")
             .replace("\n", "\\n")
             .replace("\r", "\\r")
             .replace("\t", "\\t")
     }
-
-    private fun escapeRegex(s: String): String {
+        private fun escapeRegex(s: String): String {
         return Regex.escape(s)
     }
 }

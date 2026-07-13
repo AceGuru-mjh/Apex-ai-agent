@@ -34,20 +34,18 @@ data class MemoryQueryResultData(
         val chunkInfo: String? = null,
         val chunkIndices: List<Int>? = null
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val snapshotSummary = buildList {
             snapshotId?.takeIf { it.isNotBlank() }?.let {
                 add("Snapshot ID: ${it}")
             }
-            if (snapshotCreated) {
+        if (snapshotCreated) {
                 add("Snapshot created: true")
             }
-            if (excludedBySnapshotCount > 0) {
+        if (excludedBySnapshotCount > 0) {
                 add("Excluded by snapshot: ${excludedBySnapshotCount}")
             }
         }.joinToString("\n")
-
         if (memories.isEmpty()) {
             return if (snapshotSummary.isBlank()) {
                 "No relevant memories found."
@@ -57,11 +55,11 @@ data class MemoryQueryResultData(
         }
         val memoryText = memories.joinToString("\n---\n") { memory ->
             """
-            Title: ${memory.title}
-            Content: ${memory.content}
-            Source: ${memory.source}
-            Tags: ${memory.tags.joinToString(", ")}
-            Created: ${memory.createdAt}
+        Title: ${memory.title}
+        Content: ${memory.content}
+        Source: ${memory.source}
+        Tags: ${memory.tags.joinToString(", ")}
+        Created: ${memory.createdAt}
             """.trimIndent()
         }
         return if (snapshotSummary.isBlank()) {
@@ -103,8 +101,7 @@ data class MemoryLinkQueryResultData(
         val weight: Float,
         val description: String
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         if (links.isEmpty()) {
             return "No memory links found."
         }
@@ -112,7 +109,7 @@ data class MemoryLinkQueryResultData(
         sb.appendLine("Memory Links (${totalCount}):")
         links.forEach { link ->
             sb.appendLine("- #${link.linkId}: '${link.sourceTitle}' -> '${link.targetTitle}' (Type: ${link.linkType}, Weight: ${link.weight})")
-            if (link.description.isNotBlank()) {
+        if (link.description.isNotBlank()) {
                 sb.appendLine("  Description: ${link.description}")
             }
         }

@@ -7,9 +7,9 @@ import org.json.JSONObject
  */
 enum class ProvenanceSource {
     MANUAL,           // 手动创建
-                AUTO_EXTRACTED,   // 自动提取
-                IMPORTED,         // 外部导入
-                EVOLVED           // 演化生成
+        AUTO_EXTRACTED,   // 自动提取
+        IMPORTED,         // 外部导入
+        EVOLVED           // 演化生成
 }
 
 /**
@@ -32,8 +32,7 @@ data class SkillProvenance(
         put("author", author)
         put("extractionMethod", extractionMethod)
     }
-
-    companion object {
+        companion object {
         fun fromJson(json: JSONObject): SkillProvenance = SkillProvenance(
             createdAt = json.getLong("createdAt"),
             sourceType = ProvenanceSource.valueOf(json.getString("sourceType")),
@@ -42,7 +41,6 @@ data class SkillProvenance(
             author = json.getString("author"),
             extractionMethod = json.getString("extractionMethod")
         )
-
         fun createAutoExtracted(
             sessionId: String,
             confidence: Float,
@@ -55,7 +53,6 @@ data class SkillProvenance(
             author = "AutoSkillExtractor",
             extractionMethod = method
         )
-
         fun createManual(author: String): SkillProvenance = SkillProvenance(
             createdAt = System.currentTimeMillis(),
             sourceType = ProvenanceSource.MANUAL,
@@ -64,7 +61,6 @@ data class SkillProvenance(
             author = author,
             extractionMethod = "manual creation"
         )
-
         fun createImported(sourceSessionId: String, author: String): SkillProvenance = SkillProvenance(
             createdAt = System.currentTimeMillis(),
             sourceType = ProvenanceSource.IMPORTED,
@@ -73,7 +69,6 @@ data class SkillProvenance(
             author = author,
             extractionMethod = "imported"
         )
-
         fun createEvolved(parentSessionId: String, confidence: Float): SkillProvenance = SkillProvenance(
             createdAt = System.currentTimeMillis(),
             sourceType = ProvenanceSource.EVOLVED,

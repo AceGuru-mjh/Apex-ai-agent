@@ -94,7 +94,7 @@ object AgentFactoryRegistry {
     fun autoDiscover() {
         try {
             val loader = ServiceLoader.load(AgentFactory::class.java)
-            for (factory in loader) {
+        for (factory in loader) {
                 register(factory)
             }
         } catch (_: Exception) {
@@ -112,12 +112,11 @@ object AgentFactoryRegistry {
 class BuiltinAgentFactory : AgentFactory {
 
     override val supportedTypes: Set<String> = setOf("file", "general")
-
-    override fun create(agentType: String, config: Map<String, Any>): SubAgent? {
+        override fun create(agentType: String, config: Map<String, Any>): SubAgent? {
         return when (agentType) {
             "file" -> FileAgent()
             "general" -> GeneralAgent()
-            else -> null
+        else -> null
         }
     }
 }
@@ -139,7 +138,7 @@ class BuiltinAgentFactory : AgentFactory {
 object AgentPool {
 
     private val pool = ConcurrentHashMap<String, SubAgent>()
-    private val refCount = ConcurrentHashMap<String, Int>()
+        private val refCount = ConcurrentHashMap<String, Int>()
 
     /**
      * 获取或创建 Agent。
@@ -153,7 +152,7 @@ object AgentPool {
         return pool.getOrPut(agentType) {
             factory().also { agent ->
                 // 用 agentId 而非 agentType 作为 key 的二次索引，避免冲突
-                pool[agent.agentId] = agent
+        pool[agent.agentId] = agent
             }
         }
     }
@@ -168,7 +167,7 @@ object AgentPool {
             val newCount = (count ?: 1) - 1
             if (newCount <= 0) {
                 pool.remove(agentType)
-                null
+        null
             } else {
                 newCount
             }

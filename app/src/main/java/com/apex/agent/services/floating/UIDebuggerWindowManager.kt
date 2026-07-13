@@ -26,10 +26,9 @@ class UIDebuggerWindowManager(
     private var isExpanded = mutableStateOf(false)
     
     // Floating ball position state
-                private var ballX = mutableStateOf(100f)
-    private var ballY = mutableStateOf(100f)
-
-    fun show() {
+        private var ballX = mutableStateOf(100f)
+        private var ballY = mutableStateOf(100f)
+        fun show() {
         if (composeView != null) return
 
         val layoutFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -39,7 +38,7 @@ class UIDebuggerWindowManager(
         }
 
         // Start with floating ball size
-                params = WindowManager.LayoutParams(
+        params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             layoutFlag,
@@ -48,15 +47,13 @@ class UIDebuggerWindowManager(
         ).apply {
             gravity = Gravity.TOP or Gravity.START
             x = ballX.value.toInt()
-            y = ballY.value.toInt()
+        y = ballY.value.toInt()
         }
-
         composeView = ComposeView(context).apply {
             setViewTreeLifecycleOwner(lifecycleOwner)
-            setViewTreeSavedStateRegistryOwner(lifecycleOwner as SavedStateRegistryOwner)
-            setViewTreeViewModelStoreOwner(viewModelStoreOwner)
-
-            setContent {
+        setViewTreeSavedStateRegistryOwner(lifecycleOwner as SavedStateRegistryOwner)
+        setViewTreeViewModelStoreOwner(viewModelStoreOwner)
+        setContent {
                 UIDebuggerFloatingContent(
                     viewModelStoreOwner = viewModelStoreOwner,
                     isExpanded = isExpanded.value,
@@ -79,42 +76,39 @@ class UIDebuggerWindowManager(
         }
         windowManager.addView(composeView, params)
     }
-    
-    private fun updateWindowPosition() {
+        private fun updateWindowPosition() {
         params?.let { layoutParams ->
             layoutParams.x = ballX.value.toInt()
-            layoutParams.y = ballY.value.toInt()
-            composeView?.let { view ->
+        layoutParams.y = ballY.value.toInt()
+        composeView?.let { view ->
                 windowManager.updateViewLayout(view, layoutParams)
             }
         }
     }
-    
-    private fun updateWindowLayout() {
+        private fun updateWindowLayout() {
         params?.let { layoutParams ->
             if (isExpanded.value) {
                 // Expand to full screen
-                layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT
+        layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT
                 layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT
                 layoutParams.x = 0
                 layoutParams.y = 0
             } else {
                 // Shrink back to floating ball
-                layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT
+        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT
                 layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT
                 layoutParams.x = ballX.value.toInt()
-                layoutParams.y = ballY.value.toInt()
+        layoutParams.y = ballY.value.toInt()
             }
-            composeView?.let { view ->
+        composeView?.let { view ->
                 windowManager.updateViewLayout(view, layoutParams)
             }
         }
     }
-
-    fun remove() {
+        fun remove() {
         composeView?.let {
             windowManager.removeView(it)
-            composeView = null
+        composeView = null
         }
     }
 }

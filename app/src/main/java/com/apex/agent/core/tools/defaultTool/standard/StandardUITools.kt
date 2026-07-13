@@ -57,7 +57,6 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
         private const val COMMAND_TIMEOUT_SECONDS = 10L
         private const val OPERATION_NOT_SUPPORTED =
                 "This operation is not supported in the standard version. Please use the accessibility or debugger version."
-
         internal val APP_PACKAGES: MutableMap<String, String> =
                 mutableMapOf(
                         // Social & Messaging
@@ -249,11 +248,9 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                         "Whatsapp" to "com.whatsapp",
                         "WhatsApp" to "com.whatsapp"
                 )
-
         fun addAppPackages(packages: Map<String, String>) {
             APP_PACKAGES.putAll(packages)
         }
-
         private var appsScanned = false
 
         fun scanAndAddInstalledApps(context: Context) {
@@ -261,11 +258,11 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
             synchronized(this) {
                 if (appsScanned) return
                 AppLogger.d(TAG, "Scanning for installed applications to supplement APP_PACKAGES...")
-                val pm = context.packageManager
+        val pm = context.packageManager
                 try {
                     val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
         val newPackages = mutableMapOf<String, String>()
-                    for (app in apps) {
+        for (app in apps) {
                         val appName =
                                 try {
                                     pm.getApplicationLabel(app).toString()
@@ -275,18 +272,18 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                                             "Failed to load application label for ${app.packageName}",
                                             e
                                     )
-                                    app.packageName
+        app.packageName
                                 }
-                        if (appName.isNotBlank() && app.packageName.isNotBlank()) {
+        if (appName.isNotBlank() && app.packageName.isNotBlank()) {
                             if (!APP_PACKAGES.containsKey(appName)) {
                                 newPackages[appName] = app.packageName
                             }
                         }
                     }
-                    if (newPackages.isNotEmpty()) {
+        if (newPackages.isNotEmpty()) {
                         addAppPackages(newPackages)
                     }
-                    AppLogger.d(TAG, "Found and added ${newPackages.size} new application packages.")
+        AppLogger.d(TAG, "Found and added ${newPackages.size} new application packages.")
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Failed to scan installed applications", e)
                 } finally {
@@ -297,9 +294,8 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
     }
 
     // UI操作反馈覆盖层（使用单例避免多窗口叠加）
-                protected val operationOverlay = UIOperationOverlay.getInstance(context)
-
-    private var cachedMediaProjection: MediaProjection? = null
+        protected val operationOverlay = UIOperationOverlay.getInstance(context)
+        private var cachedMediaProjection: MediaProjection? = null
     private var cachedMediaProjectionCaptureManager: MediaProjectionCaptureManager? = null
 
     /** Gets the current UI page/window information */
@@ -311,8 +307,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                 error = OPERATION_NOT_SUPPORTED
         )
     }
-
-    data class UINode(
+        data class UINode(
             val className: String?,
             val text: String?,
             val contentDesc: String?,
@@ -321,8 +316,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
             val isClickable: Boolean,
             val children: MutableList<UINode> = mutableListOf()
     )
-
-    protected fun UINode.toUINode(): SimplifiedUINode {
+        protected fun UINode.toUINode(): SimplifiedUINode {
         return SimplifiedUINode(
                 className = className,
                 text = text,
@@ -333,8 +327,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                 children = children.map { it.toUINode() }
         )
     }
-
-    protected data class FocusInfo(
+        protected data class FocusInfo(
             var packageName: String? = null,
             var activityName: String? = null
     )
@@ -418,7 +411,6 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                 error = "Missing required parameter: intent"
             )
         }
-
         val uiConfig = EnhancedAIService.getModelConfigForFunction(context, FunctionType.UI_CONTROLLER)
         if (!uiConfig.enableDirectImageProcessing) {
             return ToolResult(
@@ -428,70 +420,63 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                 error = "当前 UI 控制器模型未启用识图能力，请在设置功能模型中为UI 控制器功能选择支持图片理解的模型后再试着"
             )
         }
-
         return try {
             // 获取专用户UI_CONTROLLER 的AIService 实例
-    val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
+        val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
         val systemPrompt = buildUiAutomationSystemPrompt()
-
-            val metrics = context.resources.displayMetrics
+        val metrics = context.resources.displayMetrics
         val screenWidth = metrics.widthPixels
             val screenHeight = metrics.heightPixels
         val agentConfig = AgentConfig(maxSteps = maxSteps)
-            val actionHandler = ActionHandler(
+        val actionHandler = ActionHandler(
                 context = context,
                 screenWidth = screenWidth,
                 screenHeight = screenHeight,
                 toolImplementations = this
             )
-
-            val agentId = if (!requestedAgentId.isNullOrBlank()) requestedAgentId else "default"
+        val agentId = if (!requestedAgentId.isNullOrBlank()) requestedAgentId else "default"
         val agent = PhoneAgent(
                 context = context,
                 config = agentConfig,
                 uiService = uiService, // 传递专用的 AIService
-                actionHandler = actionHandler,
+        actionHandler = actionHandler,
                 agentId = agentId,
                 cleanupOnFinish = false
             )
-
-            val pausedState = MutableStateFlow(false)
+        val pausedState = MutableStateFlow(false)
         val finalMessage = agent.run(
                 task = intent,
                 systemPrompt = systemPrompt,
                 isPausedFlow = pausedState,
                 targetApp = targetApp
             )
-
-            val displayId = try {
+        val displayId = try {
                 ShowerController.getDisplayId(agentId)
             } catch (_: Exception) {
                 null
             }
-
-            val success = !finalMessage.contains("Max steps reached") && !finalMessage.contains("Error")
+        val success = !finalMessage.contains("Max steps reached") && !finalMessage.contains("Error")
         val executionMessage = buildString {
                 appendLine("UI automation subagent run summary:")
-                appendLine("Intent: ${intent}")
-                appendLine("Steps executed: ${agent.stepCount} / ${agentConfig.maxSteps}")
-                appendLine("Finished: ${success}")
-                appendLine("Final message: ${finalMessage}")
-                appendLine()
-                appendLine("Full conversation history:")
-                agent.contextHistory.forEach { (role, content) ->
+        appendLine("Intent: ${intent}")
+        appendLine("Steps executed: ${agent.stepCount} / ${agentConfig.maxSteps}")
+        appendLine("Finished: ${success}")
+        appendLine("Final message: ${finalMessage}")
+        appendLine()
+        appendLine("Full conversation history:")
+        agent.contextHistory.forEach { (role, content) ->
                     appendLine("[${role}]: ${content.take(200)}")
                 }
             }
-
-            val resultData = AutomationExecutionResult(
+        val resultData = AutomationExecutionResult(
                 functionName = "UIAutomationSubAgent",
                 providedParameters = buildMap {
                     put("intent", intent)
-                    put("max_steps", maxSteps.toString())
-                    if (!targetApp.isNullOrBlank()) {
+        put("max_steps", maxSteps.toString())
+        if (!targetApp.isNullOrBlank()) {
                         put("target_app", targetApp)
                     }
-                    if (!requestedAgentId.isNullOrBlank()) {
+        if (!requestedAgentId.isNullOrBlank()) {
                         put("agent_id", requestedAgentId)
                     }
                 },
@@ -503,11 +488,10 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                 finalState = null,
                 executionSteps = agent.stepCount
             )
-
-            ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
+        ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: CancellationException) {
             AppLogger.e(TAG, "UI subagent cancelled", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -515,7 +499,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error running UI subagent", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -540,7 +524,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
             } else {
                 val calendar = Calendar.getInstance()
         val sdf = SimpleDateFormat("yyyy年MM月dd的 Locale.getDefault())"
-                val datePart = sdf.format(Date())
+        val datePart = sdf.format(Date())
         val weekdayNames =
                     arrayOf(
                         "星期。"
@@ -551,31 +535,27 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                         "星期。"
                         "星期。"
                     )
-                val weekday = weekdayNames[calendar.get(Calendar.DAY_OF_WEEK) - 1]
+        val weekday = weekdayNames[calendar.get(Calendar.DAY_OF_WEEK) - 1]
                 "${datePart} ${weekday}"
             }
         return FunctionalPrompts.buildUiAutomationAgentPrompt(formattedDate, useEnglish)
     }
-
-    private suspend fun ensureMediaProjectionCaptureManager(): MediaProjectionCaptureManager? {
+        private suspend fun ensureMediaProjectionCaptureManager(): MediaProjectionCaptureManager? {
         if (MediaProjectionHolder.mediaProjection == null) {
             AppLogger.d(TAG, "captureScreenshot: Requesting MediaProjection permission...")
-            withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
                 ScreenCaptureActivity.cleanStart(context)
             }
-
-            var retries = 0
+        var retries = 0
             while (MediaProjectionHolder.mediaProjection == null && retries < 20) {
                 delay(500)
-                retries++
+        retries++
             }
-
-            if (MediaProjectionHolder.mediaProjection == null) {
+        if (MediaProjectionHolder.mediaProjection == null) {
                 AppLogger.w(TAG, "captureScreenshot: MediaProjection permission not granted or timed out")
-                return null
+        return null
             }
         }
-
         return try {
             val projection = MediaProjectionHolder.mediaProjection ?: return null
         val manager =
@@ -584,92 +564,84 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
                         cachedMediaProjectionCaptureManager?.release()
                     } catch (_: Exception) {
                     }
-                    cachedMediaProjection = projection
+        cachedMediaProjection = projection
                     MediaProjectionCaptureManager(context, projection).also {
                         cachedMediaProjectionCaptureManager = it
                     }
                 } else {
                     cachedMediaProjectionCaptureManager!!
                 }
-
-            manager.setupDisplay()
-            delay(200)
-            manager
+        manager.setupDisplay()
+        delay(200)
+        manager
         } catch (e: Exception) {
             AppLogger.e(TAG, "captureScreenshot: Error preparing MediaProjectionCaptureManager", e)
-            try {
+        try {
                 cachedMediaProjectionCaptureManager?.release()
             } catch (_: Exception) {
             }
-            cachedMediaProjectionCaptureManager = null
+        cachedMediaProjectionCaptureManager = null
             cachedMediaProjection = null
             null
         }
     }
-
-    protected open suspend fun captureScreenshotToFile(tool: AITool): Pair<String?, Pair<Int, Int>?> {
+        protected open suspend fun captureScreenshotToFile(tool: AITool): Pair<String?, Pair<Int, Int>?> {
         return try {
             val screenshotDir = LogistraPaths.cleanOnExitDir()
         val shortName = System.currentTimeMillis().toString().takeLast(4)
-            val file = File(screenshotDir, "${shortName}.png")
+        val file = File(screenshotDir, "${shortName}.png")
         val manager = ensureMediaProjectionCaptureManager() ?: return Pair(null, null)
-
-            var success = false
+        var success = false
             var attempt = 0
             while (!success && attempt < 3) {
                 success = manager.captureToFile(file)
-                if (!success) {
+        if (!success) {
                     delay(120)
                 }
-                attempt++
+        attempt++
             }
-
-            if (success) {
+        if (success) {
                 AppLogger.d(TAG, "captureScreenshotToFile: captured via MediaProjectionCaptureManager")
-                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                BitmapFactory.decodeFile(file.absolutePath, options)
-                val dimensions =
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.absolutePath, options)
+        val dimensions =
                     if (options.outWidth > 0 && options.outHeight > 0) {
                         Pair(options.outWidth, options.outHeight)
                     } else {
                         null
                     }
-                Pair(file.absolutePath, dimensions)
+        Pair(file.absolutePath, dimensions)
             } else {
                 AppLogger.w(TAG, "captureScreenshotToFile: MediaProjectionCaptureManager capture failed")
-                Pair(null, null)
+        Pair(null, null)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "captureScreenshotToFile failed", e)
-            Pair(null, null)
+        Pair(null, null)
         }
     }
-
-    override suspend fun captureScreenshot(tool: AITool): Pair<String?, Pair<Int, Int>?> {
+        override suspend fun captureScreenshot(tool: AITool): Pair<String?, Pair<Int, Int>?> {
         return captureScreenshotToFile(tool)
     }
-
-    override suspend fun captureScreenshotBitmap(tool: AITool): Pair<Bitmap?, Pair<Int, Int>?> {
+        override suspend fun captureScreenshotBitmap(tool: AITool): Pair<Bitmap?, Pair<Int, Int>?> {
         return try {
             val manager = ensureMediaProjectionCaptureManager() ?: return Pair(null, null)
-
-            var attempt = 0
+        var attempt = 0
             while (attempt < 3) {
                 val bitmap = manager.captureToBitmap()
-                if (bitmap != null) {
+        if (bitmap != null) {
                     return Pair(bitmap, Pair(bitmap.width, bitmap.height))
                 }
-                if (attempt < 2) {
+        if (attempt < 2) {
                     delay(120)
                 }
-                attempt++
+        attempt++
             }
-
-            AppLogger.w(TAG, "captureScreenshotToFile: MediaProjectionCaptureManager capture failed")
-            Pair(null, null)
+        AppLogger.w(TAG, "captureScreenshotToFile: MediaProjectionCaptureManager capture failed")
+        Pair(null, null)
         } catch (e: Exception) {
             AppLogger.e(TAG, "captureScreenshotBitmap failed", e)
-            Pair(null, null)
+        Pair(null, null)
         }
     }
 

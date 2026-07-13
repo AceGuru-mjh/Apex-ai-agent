@@ -22,8 +22,8 @@ private const val TAG = "McpSoIntegration"
 class McpSoIntegration(private val context: Context) : IntegrationProvider {
 
     private val apiClient = MCPSoApiClient(context)
-    private val gson = Gson()
-    private val source = IntegrationSource.MCP_SO
+        private val gson = Gson()
+        private val source = IntegrationSource.MCP_SO
 
     override fun getInfo(): IntegrationInfo = IntegrationInfo(
         id = source.id,
@@ -32,7 +32,7 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
         version = "1.0.0",
         author = "mcp.so",
         homepage = "https://mcp.so",
-                logoUrl = null,
+        logoUrl = null,
         enabled = true,
         capabilities = listOf(
             IntegrationCapability("browse", "浏览服务, "按分类浏?MCP 服务, CapabilityType.BROWSE),
@@ -45,22 +45,20 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
         itemCount = 0,
         installedCount = getInstalledCount()
     )
-
-    override fun isAvailable(): Boolean = true
+        override fun isAvailable(): Boolean = true
 
     override suspend fun list(tag: String?, page: Int, pageSize: Int): Result<List<UnifiedItem>> {
         return runBlocking(Dispatchers.IO) {
             apiClient.getServers(tag).fold(
                 onSuccess = { servers ->
                     val paged = servers.drop((page - 1) * pageSize).take(pageSize)
-                    Result.success(paged.map { it.toUnifiedItem() })
+        Result.success(paged.map { it.toUnifiedItem() })
                 },
                 onFailure = { Result.failure(it) }
             )
         }
     }
-
-    override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
+        override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
         return runBlocking(Dispatchers.IO) {
             apiClient.searchServers(query).fold(
                 onSuccess = { servers -> Result.success(servers.map { it.toUnifiedItem() }) },
@@ -68,14 +66,13 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
             )
         }
     }
-
-    override suspend fun getDetail(id: String): Result<UnifiedItem> {
+        override suspend fun getDetail(id: String): Result<UnifiedItem> {
         return runBlocking(Dispatchers.IO) {
             // search by exact name/id first
-                apiClient.searchServers(id).fold(
+        apiClient.searchServers(id).fold(
                 onSuccess = { servers ->
                     val match = servers.firstOrNull { it.id == id || it.name == id }
-                    if (match != null) {
+        if (match != null) {
                         if (!match.canInstall) {
                             apiClient.getServerDetail(match).fold(
                                 onSuccess = { Result.success(it.toUnifiedItem()) },
@@ -92,18 +89,17 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
             )
         }
     }
-
-    override suspend fun install(item: UnifiedItem): Result<String> {
+        override suspend fun install(item: UnifiedItem): Result<String> {
         return runBlocking(Dispatchers.IO) {
             val searchResult = apiClient.searchServers(item.name)
-            searchResult.getOrNull()?.firstOrNull()?.let { server ->
+        searchResult.getOrNull()?.firstOrNull()?.let { server ->
                 val targetServer = if (!server.canInstall) {
                     apiClient.getServerDetail(server).getOrNull() ?: server
                 } else server
 
                 if (targetServer.canInstall && targetServer.configJson != null) {
                     val localServer = MCPLocalServer.getInstance(context)
-                    localServer.mergeConfigFromJson(targetServer.configJson).map { count ->
+        localServer.mergeConfigFromJson(targetServer.configJson).map { count ->
                         val metadata = MCPLocalServer.PluginMetadata(
                             id = "mcpso_${targetServer.id}",
                             name = targetServer.name,
@@ -118,8 +114,8 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
                             type = "local",
                             marketConfig = targetServer.configJson
                         )
-                        localServer.addOrUpdatePluginMetadata(metadata)
-                        MCPRepository(context).refreshPluginList()
+        localServer.addOrUpdatePluginMetadata(metadata)
+        MCPRepository(context).refreshPluginList()
                         "成功安装 ${targetServer.name}（已添加 $count 个配置）"
                     }
                 } else {
@@ -131,37 +127,34 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
             onFailure = { Result.failure(it) }
         )
     }
-
-    override suspend fun uninstall(installedId: String): Result<String> {
+        override suspend fun uninstall(installedId: String): Result<String> {
         return runBlocking(Dispatchers.IO) {
             val localServer = MCPLocalServer.getInstance(context)
         val allMetadata = localServer.getAllPluginMetadata()
-            val target = allMetadata.values.find {
+        val target = allMetadata.values.find {
                 it.id == installedId || it.name.equals(installedId, ignoreCase = true)
             }
-            target?.let { meta ->
+        target?.let { meta ->
                 if (meta.marketConfig != null) {
                     try {
                         val config = gson.fromJson(meta.marketConfig, McpServersConfig::class.java)
-                        config.mcpServers.keys.forEach { localServer.removeMCPServer(it) }
+        config.mcpServers.keys.forEach { localServer.removeMCPServer(it) }
                     } catch (e: Exception) { AppLogger.e(TAG, "Failed to remove MCP servers for ${meta.id}", e) }
                 }
-                localServer.removePluginMetadata(meta.id)
-                MCPRepository(context).refreshPluginList()
-                Result.success("已卸 ${meta.name}")
+        localServer.removePluginMetadata(meta.id)
+        MCPRepository(context).refreshPluginList()
+        Result.success("已卸 ${meta.name}")
             } ?: Result.failure(Exception("未找到已安装的服务器: $installedId"))
         }
     }
-
-    override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
+        override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
         return Result.success(null)
     }
-
-    override suspend fun listInstalled(): Result<List<UnifiedItem>> {
+        override suspend fun listInstalled(): Result<List<UnifiedItem>> {
         return runBlocking(Dispatchers.IO) {
             val localServer = MCPLocalServer.getInstance(context)
         val allMetadata = localServer.getAllPluginMetadata()
-            val items = allMetadata.values
+        val items = allMetadata.values
                 .filter { it.marketConfig != null || it.id.startsWith("mcpso_") }
                 .map { meta ->
                     UnifiedItem(
@@ -177,23 +170,21 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
                         logoUrl = meta.logoUrl
                     )
                 }
-            Result.success(items)
+        Result.success(items)
         }
     }
-
-    override suspend fun getCategories(): Result<List<String>> {
+        override suspend fun getCategories(): Result<List<String>> {
         return runBlocking(Dispatchers.IO) {
             apiClient.getServers(null).fold(
                 onSuccess = { servers ->
                     val tags = servers.flatMap { it.tags }.distinct().sorted().take(20)
-                    Result.success(tags)
+        Result.success(tags)
                 },
                 onFailure = { Result.success(listOf("featured", "latest", "hosted", "official")) }
             )
         }
     }
-
-    private fun MCPSoServer.toUnifiedItem() = UnifiedItem(
+        private fun MCPSoServer.toUnifiedItem() = UnifiedItem(
         source = source,
         sourceId = id,
         name = name,
@@ -206,15 +197,13 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
         homepage = serverUrl,
         logoUrl = logoUrl
     )
-
-    private fun getInstalledCount(): Int {
+        private fun getInstalledCount(): Int {
         return try {
             val localServer = MCPLocalServer.getInstance(context)
-            localServer.getAllPluginMetadata().values.count {
+        localServer.getAllPluginMetadata().values.count {
                 it.marketConfig != null || it.id.startsWith("mcpso_")
             }
         } catch (_: Exception) { 0 }
     }
-
-    private data class McpServersConfig(val mcpServers: Map<String, Any?> = emptyMap())
+        private data class McpServersConfig(val mcpServers: Map<String, Any?> = emptyMap())
 }

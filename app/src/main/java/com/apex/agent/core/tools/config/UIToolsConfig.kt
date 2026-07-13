@@ -141,7 +141,6 @@ object UIToolsConfig {
         if (!appsScanned) {
             scanInstalledApps(context)
         }
-        
         return BUILTIN_APP_PACKAGES + dynamicAppPackages
     }
     
@@ -157,23 +156,20 @@ object UIToolsConfig {
             if (appsScanned) return
             
             AppLogger.d(TAG, "开始扫描已安装的应用..")
-            
-            try {
+        try {
                 val packageManager = context.packageManager
         val installedApps = packageManager.getInstalledApplications(
                     android.content.pm.PackageManager.GET_META_DATA
                 )
-                
-                val newPackages = mutableMapOf<String, String>()
-                
-                for (app in installedApps) {
+        val newPackages = mutableMapOf<String, String>()
+        for (app in installedApps) {
                     try {
                         val appName = packageManager.getApplicationLabel(app).toString()
         val packageName = app.packageName
                         
                         if (appName.isNotBlank() && packageName.isNotBlank()) {
                             // 只添加不在内置列表中的应用
-                if (!BUILTIN_APP_PACKAGES.containsKey(appName)) {
+        if (!BUILTIN_APP_PACKAGES.containsKey(appName)) {
                                 newPackages[appName] = packageName
                             }
                         }
@@ -181,10 +177,9 @@ object UIToolsConfig {
                         AppLogger.w(TAG, "获取应用信息失败: ${app.packageName}", e)
                     }
                 }
-                
-                if (newPackages.isNotEmpty()) {
+        if (newPackages.isNotEmpty()) {
                     dynamicAppPackages.putAll(newPackages)
-                    AppLogger.d(TAG, "扫描完成，新增${newPackages.size} 个应用")
+        AppLogger.d(TAG, "扫描完成，新增${newPackages.size} 个应用")
                 }
                 
             } catch (e: Exception) {
@@ -206,17 +201,16 @@ object UIToolsConfig {
         return try {
             val inputStream = context.assets.open(fileName)
         val reader = InputStreamReader(inputStream, "UTF-8")
-            val json = reader.use { it.readText() }
+        val json = reader.use { it.readText() }
         val gson = Gson()
-            val type = object : TypeToken<Map<String, String>>() {}.type
+        val type = object : TypeToken<Map<String, String>>() {}.type
         val loadedPackages: Map<String, String> = gson.fromJson(json, type)
-            
-            AppLogger.d(TAG, "件${fileName} 加载于${loadedPackages.size} 个应用包后")
-            loadedPackages
+        AppLogger.d(TAG, "件${fileName} 加载于${loadedPackages.size} 个应用包后")
+        loadedPackages
             
         } catch (e: Exception) {
             AppLogger.e(TAG, "加载应用包名配置文件失败: ${fileName}", e)
-            emptyMap()
+        emptyMap()
         }
     }
     

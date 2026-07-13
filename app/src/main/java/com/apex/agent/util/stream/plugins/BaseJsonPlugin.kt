@@ -18,8 +18,7 @@ abstract class BaseJsonPlugin : StreamPlugin {
         OBJECT,
         ARRAY
     }
-
-    override fun processChar(c: Char, atStartOfLine: Boolean): Boolean {
+        override fun processChar(c: Char, atStartOfLine: Boolean): Boolean {
         if (state == PluginState.IDLE) {
             when (c) {
                 '{' -> {
@@ -34,18 +33,15 @@ abstract class BaseJsonPlugin : StreamPlugin {
                     openBracketCount = 1
                     return shouldEmit(c)
                 }
-                else -> return false // Not a JSON starting character
+        else -> return false // Not a JSON starting character
             }
         }
-
         if (state == PluginState.PROCESSING) {
             return handleCharInProcessing(c)
         }
-
         return false
     }
-
-    private fun handleCharInProcessing(c: Char): Boolean {
+        private fun handleCharInProcessing(c: Char): Boolean {
         if (inString) {
             if (isEscaped) {
                 isEscaped = false
@@ -81,21 +77,17 @@ abstract class BaseJsonPlugin : StreamPlugin {
         }
         return shouldEmit(c)
     }
-    
-    private fun finishProcessing() {
+        private fun finishProcessing() {
         StreamLogger.d(this::class.java.simpleName, "JSON structure complete.")
         // The reset will be called by the collector loop when it sees the IDLE state.
-                reset()
+        reset()
     }
-
-    override fun initPlugin(): Boolean {
+        override fun initPlugin(): Boolean {
         reset()
         return true
     }
-
-    override fun destroy() {}
-
-    override fun reset() {
+        override fun destroy() {}
+        override fun reset() {
         state = PluginState.IDLE
         openBraceCount = 0
         openBracketCount = 0

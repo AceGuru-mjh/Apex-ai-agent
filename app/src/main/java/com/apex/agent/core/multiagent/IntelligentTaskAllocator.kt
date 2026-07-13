@@ -11,8 +11,7 @@ class IntelligentTaskAllocator(private val context: Context) {
         val expectedDuration: Long = 60000,
         val requiredCapabilities: List<String> = emptyList()
     )
-
-    data class AllocationRequest(
+        data class AllocationRequest(
         val taskId: String = "",
         val taskDescription: String,
         val requiredSkills: List<String> = emptyList(),
@@ -21,8 +20,7 @@ class IntelligentTaskAllocator(private val context: Context) {
         val maxCandidates: Int = 3,
         val taskFeature: TaskFeature = TaskFeature()
     )
-
-    data class AgentMatch(
+        data class AgentMatch(
         val agentId: String,
         val agentName: String = "",
         val score: Double = 0.0,
@@ -31,8 +29,7 @@ class IntelligentTaskAllocator(private val context: Context) {
         val resourceMatch: Double = 0.0,
         val reasoning: String = ""
     )
-
-    data class AllocationResult(
+        data class AllocationResult(
         val taskId: String = "",
         val optimalAgent: AgentMatch = AgentMatch(agentId = "none"),
         val backupAgents: List<AgentMatch> = emptyList(),
@@ -40,21 +37,18 @@ class IntelligentTaskAllocator(private val context: Context) {
         val executionTime: Long = 0,
         val matchedSkill: String? = null
     )
-
-    private val agentProfiles = ConcurrentHashMap<String, AgentCapabilityProfile.CapabilityProfile>()
-    private val cache = ConcurrentHashMap<String, AllocationResult>()
-    private val profileManager = AgentCapabilityProfile()
-    private val maxCacheSize = 200
+        private val agentProfiles = ConcurrentHashMap<String, AgentCapabilityProfile.CapabilityProfile>()
+        private val cache = ConcurrentHashMap<String, AllocationResult>()
+        private val profileManager = AgentCapabilityProfile()
+        private val maxCacheSize = 200
 
     fun initializeAgentProfiles(agents: List<Agent>) {
         agents.forEach { agent -> profileManager.initializeProfile(agent) }
     }
-
-    fun allocateTask(request: AllocationRequest): AllocationResult {
+        fun allocateTask(request: AllocationRequest): AllocationResult {
         val taskId = request.taskId.ifEmpty { "task_${System.currentTimeMillis()}" }
         val cacheKey = "${request.taskDescription}_${request.taskFeature.category}_${request.taskFeature.difficulty}"
         cache[cacheKey]?.let { return it }
-
         val matches = agentProfiles.values.map { profile ->
         val capScore = profile.capabilities.values.average().takeIf { it.isFinite() } ?: 0.0
             AgentMatch(
@@ -67,7 +61,6 @@ class IntelligentTaskAllocator(private val context: Context) {
                 reasoning = "Capability-based allocation"
             )
         }.sortedByDescending { it.score }
-
         val primary = matches.firstOrNull() ?: AgentMatch(agentId = "sanxing_libu_hr", agentName = "Libu", score = 0.0)
         val result = AllocationResult(
             taskId = taskId,
@@ -77,19 +70,16 @@ class IntelligentTaskAllocator(private val context: Context) {
             executionTime = System.currentTimeMillis(),
             matchedSkill = request.taskFeature.requiredCapabilities.firstOrNull()
         )
-
         if (cache.size >= maxCacheSize) {
             val oldest = cache.keys.firstOrNull()
-            if (oldest != null) cache.remove(oldest)
+        if (oldest != null) cache.remove(oldest)
         }
         cache[cacheKey] = result
         return result
     }
-
-    fun updateAgentProfile(agentId: String, update: AgentCapabilityProfile.CapabilityUpdate) {
+        fun updateAgentProfile(agentId: String, update: AgentCapabilityProfile.CapabilityUpdate) {
         profileManager.updateProfile(agentId, update)
     }
-
-    fun clearCache() { cache.clear() }
-    fun getCacheSize(): Int = cache.size
+        fun clearCache() { cache.clear() }
+        fun getCacheSize(): Int = cache.size
 }

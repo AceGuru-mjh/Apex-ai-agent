@@ -9,12 +9,10 @@ class ReviewerAgent {
         val score: Double = 0.0,
         val suggestedImprovements: List<String> = emptyList()
     )
-
-    fun execute(context: Any): ReviewResult {
+        fun execute(context: Any): ReviewResult {
         return ReviewResult(approved = true)
     }
-
-    fun performReview(output: String): ReviewResult {
+        fun performReview(output: String): ReviewResult {
         val comments = mutableListOf<String>()
         val improvements = mutableListOf<String>()
         return ReviewResult(
@@ -24,8 +22,7 @@ class ReviewerAgent {
             suggestedImprovements = improvements
         )
     }
-
-    fun cancel() {
+        fun cancel() {
         // Cleanup resources
     }
 }

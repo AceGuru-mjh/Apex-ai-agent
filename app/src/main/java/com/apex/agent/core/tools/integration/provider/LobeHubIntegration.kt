@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 class LobeHubIntegration(private val context: Context) : IntegrationProvider {
 
     private val skillManager = LobeHubSkillManager.getInstance(context)
-    private val source = IntegrationSource.LOBE_HUB
+        private val source = IntegrationSource.LOBE_HUB
 
     override fun getInfo(): IntegrationInfo = IntegrationInfo(
         id = source.id,
@@ -25,7 +25,7 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
         version = "1.0.0",
         author = "LobeHub",
         homepage = "https://lobehub.com/skills",
-                logoUrl = null,
+        logoUrl = null,
         enabled = true,
         capabilities = listOf(
             IntegrationCapability("browse", "浏览技能, "浏览 LobeHub 技能市在, CapabilityType.BROWSE),
@@ -41,14 +41,13 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
         itemCount = 330000,
         installedCount = skillManager.getInstalledSkills().size
     )
-
-    override fun isAvailable(): Boolean = true
+        override fun isAvailable(): Boolean = true
 
     override suspend fun list(tag: String?, page: Int, pageSize: Int): Result<List<UnifiedItem>> {
         return when (tag?.lowercase()) {
             "featured" -> skillManager.getFeaturedSkills().map { list -> list.map { it.toUnifiedItem() } }
             "popular" -> skillManager.getPopularSkills(pageSize).map { list -> list.map { it.toUnifiedItem() } }
-            else -> {
+        else -> {
                 val category = if (tag != null && tag !in listOf("featured", "popular", "latest")) tag else null
         val agent = if (category != null) category else null
                 skillManager.browseSkills(agent = agent, page = page).map { list ->
@@ -57,40 +56,34 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
             }
         }
     }
-
-    override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
+        override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
         val agent = filters["agent"]
         val category = filters["category"]
         return skillManager.browseSkills(query = query, agent = agent, category = category).map { list ->
             list.map { it.toUnifiedItem() }
         }
     }
-
-    override suspend fun getDetail(id: String): Result<UnifiedItem> {
+        override suspend fun getDetail(id: String): Result<UnifiedItem> {
         return skillManager.getSkillDetail(id).map { it.toUnifiedItem() }
     }
-
-    override suspend fun install(item: UnifiedItem): Result<String> {
+        override suspend fun install(item: UnifiedItem): Result<String> {
         return skillManager.installSkill(item.sourceId).map { dir ->
             "成功安装 ${item.name} 分${dir.absolutePath}"
         }
     }
-
-    override suspend fun uninstall(installedId: String): Result<String> {
+        override suspend fun uninstall(installedId: String): Result<String> {
         val id = installedId.removePrefix("lobehub_")
         return skillManager.deleteInstalledSkill(id).map {
             "已卸转 $id"
         }
     }
-
-    override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
+        override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
         return Result.success(null)
     }
-
-    override suspend fun listInstalled(): Result<List<UnifiedItem>> {
+        override suspend fun listInstalled(): Result<List<UnifiedItem>> {
         return withContext(Dispatchers.IO) {
             val specs = skillManager.getAllInstalledSkillSpecs()
-            Result.success(specs.map { spec ->
+        Result.success(specs.map { spec ->
                 UnifiedItem(
                     source = source,
                     sourceId = spec.identifier,
@@ -107,14 +100,12 @@ class LobeHubIntegration(private val context: Context) : IntegrationProvider {
             })
         }
     }
-
-    override suspend fun getCategories(): Result<List<String>> {
+        override suspend fun getCategories(): Result<List<String>> {
         return Result.success(listOf(
             "open-claw", "claude-code", "codex", "cursor", "github-copilot"
         ))
     }
-
-    private fun LobeHubSkillListing.toUnifiedItem() = UnifiedItem(
+        private fun LobeHubSkillListing.toUnifiedItem() = UnifiedItem(
         source = source,
         sourceId = id,
         name = name,

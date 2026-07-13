@@ -26,16 +26,14 @@ object ForegroundServiceCompat {
         }
         return types
     }
-
-    fun startForeground(service: Service, notificationId: Int, notification: Notification, types: Int) {
+        fun startForeground(service: Service, notificationId: Int, notification: Notification, types: Int) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && types != 0) {
             service.startForeground(notificationId, notification, types)
         } else {
             service.startForeground(notificationId, notification)
         }
     }
-
-    fun startForegroundWithFallback(
+        fun startForegroundWithFallback(
         service: Service,
         notificationId: Int,
         notification: Notification,
@@ -47,12 +45,11 @@ object ForegroundServiceCompat {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && primaryTypes != 0) {
             try {
                 service.startForeground(notificationId, notification, primaryTypes)
-                return
+        return
             } catch (e: SecurityException) {
                 AppLogger.w(logTag, logMessage, e)
             }
-
-            if (fallbackTypes != 0) {
+        if (fallbackTypes != 0) {
                 startForeground(service, notificationId, notification, fallbackTypes)
             } else {
                 service.startForeground(notificationId, notification)

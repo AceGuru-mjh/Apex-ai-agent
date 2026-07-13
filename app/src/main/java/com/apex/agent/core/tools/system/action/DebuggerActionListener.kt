@@ -37,9 +37,8 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
             return ShizukuAuthorizer.getShizukuStartupInstructions(context)
         }
     }
-
-    private val isListening = AtomicBoolean(false)
-    private var actionCallback: ((ActionListener.ActionEvent) -> Unit)? = null
+        private val isListening = AtomicBoolean(false)
+        private var actionCallback: ((ActionListener.ActionEvent) -> Unit)? = null
     private var monitoringJob: Job? = null
     private var windowMonitorProcess: ShellProcess? = null
     private var activityMonitorProcess: ShellProcess? = null
@@ -49,14 +48,12 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
         com.apex.agent.core.tools.system.shell.ShellExecutorFactory
             .getExecutor(context, AndroidPermissionLevel.DEBUGGER)
     }
-
-    override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.DEBUGGER
+        override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.DEBUGGER
 
     override suspend fun isAvailable(): Boolean {
         return ShizukuAuthorizer.isShizukuServiceRunning()
     }
-
-    override suspend fun hasPermission(): ActionListener.PermissionStatus {
+        override suspend fun hasPermission(): ActionListener.PermissionStatus {
         val hasPermission = ShizukuAuthorizer.hasShizukuPermission()
         return if (hasPermission) {
             ActionListener.PermissionStatus.granted()
@@ -64,65 +61,54 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
             ActionListener.PermissionStatus.denied(ShizukuAuthorizer.getPermissionErrorMessage())
         }
     }
-
-    override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
+        override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
         ShizukuAuthorizer.requestShizukuPermission(onResult)
     }
-
-    override fun isListening(): Boolean = isListening.get()
-
-    override fun initialize() {
+        override fun isListening(): Boolean = isListening.get()
+        override fun initialize() {
         // No-op
     }
-
-    override suspend fun startListening(onAction: (ActionListener.ActionEvent) -> Unit): ActionListener.ListeningResult =
+        override suspend fun startListening(onAction: (ActionListener.ActionEvent) -> Unit): ActionListener.ListeningResult =
         withContext(Dispatchers.IO) {
             try {
                 val permStatus = hasPermission()
-                if (!permStatus.granted) {
+        if (!permStatus.granted) {
                     return@withContext ActionListener.ListeningResult.failure(permStatus.reason)
                 }
-
-                if (isListening.get()) {
+        if (isListening.get()) {
                     return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_already_listening))
                 }
-
-                actionCallback = onAction
+        actionCallback = onAction
                 isListening.set(true)
-
-                AppLogger.d(TAG, "开始调试器权限级别的UI操作监听")
+        AppLogger.d(TAG, "开始调试器权限级别的UI操作监听")
 
                 // 启动系统级事件监，
-                startSystemEventMonitoring()
-
-                return@withContext ActionListener.ListeningResult.success(context.getString(R.string.debugger_ui_listener_started))
+        startSystemEventMonitoring()
+        return@withContext ActionListener.ListeningResult.success(context.getString(R.string.debugger_ui_listener_started))
             } catch (e: Exception) {
                 AppLogger.e(TAG, "启动调试器UI操作监听失败", e)
-                isListening.set(false)
-                return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_start_failed, e.message ?: "Unknown error"))
+        isListening.set(false)
+        return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_start_failed, e.message ?: "Unknown error"))
             }
         }
-
-    override suspend fun stopListening(): Boolean = withContext(Dispatchers.IO) {
+        override suspend fun stopListening(): Boolean = withContext(Dispatchers.IO) {
         try {
             if (!isListening.get()) {
                 return@withContext true
             }
-
-            isListening.set(false)
-            actionCallback = null
+        isListening.set(false)
+        actionCallback = null
 
             // 停止监控任务
-                monitoringJob?.cancel()
-            monitoringJob = null
+        monitoringJob?.cancel()
+        monitoringJob = null
 
             stopSystemEventMonitoring()
-
-            AppLogger.d(TAG, "调试器UI操作监听已停止）"
-            return@withContext true
+        AppLogger.d(TAG, "调试器UI操作监听已停止）"
+        return@withContext true
         } catch (e: Exception) {
             AppLogger.e(TAG, "停止调试器UI操作监听失败", e)
-            return@withContext false
+        return@withContext false
         }
     }
 
@@ -140,14 +126,13 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
      */
     private fun startSystemEventMonitoring() {
         AppLogger.d(TAG, "开始系统级事件监控 - 使用startProcess启动持续监控进程")
-        
         monitoringJob = CoroutineScope(Dispatchers.IO).launch {
             try {
                 // 启动窗口焦点监控进程
-                startWindowFocusMonitoring()
+        startWindowFocusMonitoring()
                 
                 // 启动Activity栈监控进程
-                startActivityStackMonitoring()
+        startActivityStackMonitoring()
                 
             } catch (e: Exception) {
                 AppLogger.e(TAG, "启动系统事件监控进程失败", e)
@@ -162,7 +147,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
         AppLogger.d(TAG, "停止系统级事件监，"
         
         // 停止监控进程
-                windowMonitorProcess?.destroy()
+        windowMonitorProcess?.destroy()
         windowMonitorProcess = null
         
         activityMonitorProcess?.destroy()
@@ -180,18 +165,17 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private suspend fun startWindowFocusMonitoring() {
         try {
             // 使用watch命令每秒检查窗口焦点变重
-    val command = "while true; do dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | head -2; sleep 1; done"
-            windowMonitorProcess = shellExecutor.startProcess(command)
+        val command = "while true; do dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | head -2; sleep 1; done"
+        windowMonitorProcess = shellExecutor.startProcess(command)
             
             // 监听输出出
-                windowMonitorProcess?.stdout?.onEach { output ->
+        windowMonitorProcess?.stdout?.onEach { output ->
                 if (output.isNotEmpty() && output != lastFocusedWindow) {
                     lastFocusedWindow = output
                     parseWindowFocusEvents(output)
                 }
             }?.launchIn(CoroutineScope(Dispatchers.IO))
-            
-            AppLogger.d(TAG, "窗口焦点监控进程已启动）"
+        AppLogger.d(TAG, "窗口焦点监控进程已启动）"
         } catch (e: Exception) {
             AppLogger.e(TAG, "启动窗口焦点监控进程失败", e)
         }
@@ -203,18 +187,17 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private suspend fun startActivityStackMonitoring() {
         try {
             // 使用watch命令每秒检查Activity栈变重
-    val command = "while true; do dumpsys activity activities | grep -E 'Running activities|TaskRecord' | head -5; sleep 1; done"
-            activityMonitorProcess = shellExecutor.startProcess(command)
+        val command = "while true; do dumpsys activity activities | grep -E 'Running activities|TaskRecord' | head -5; sleep 1; done"
+        activityMonitorProcess = shellExecutor.startProcess(command)
             
             // 监听输出出
-                activityMonitorProcess?.stdout?.onEach { output ->
+        activityMonitorProcess?.stdout?.onEach { output ->
                 if (output.isNotEmpty() && output != lastActivityStack) {
                     lastActivityStack = output
                     parseActivityStackEvents(output)
                 }
             }?.launchIn(CoroutineScope(Dispatchers.IO))
-            
-            AppLogger.d(TAG, "Activity栈监控进程已启动")
+        AppLogger.d(TAG, "Activity栈监控进程已启动")
         } catch (e: Exception) {
             AppLogger.e(TAG, "启动Activity栈监控进程失败：${e.message})"
         }
@@ -231,9 +214,8 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
             AppLogger.v(TAG, "检测到窗口焦点变化: ${windowInfo.take(100)}")
             
             // 尝试从窗口信息中提取应用包名
-    val packageName = extractPackageNameFromWindowInfo(windowInfo)
-            
-            actionCallback?.let { callback ->
+        val packageName = extractPackageNameFromWindowInfo(windowInfo)
+        actionCallback?.let { callback ->
                 val event = ActionListener.ActionEvent(
                     timestamp = System.currentTimeMillis(),
                     actionType = ActionListener.ActionType.SCREEN_CHANGE,
@@ -243,7 +225,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                         "packageName" to (packageName ?: "unknown")
                     )
                 )
-                callback(event)
+        callback(event)
             }
         }
     }
@@ -258,8 +240,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
         AppLogger.v(TAG, "检测到Activity栈变重${activityStack.take(100)}")
         
         // 从Activity栈信息中提取当前前台Activity
-    val currentActivity = extractCurrentActivityFromStack(activityStack)
-        
+        val currentActivity = extractCurrentActivityFromStack(activityStack)
         actionCallback?.let { callback ->
             val event = ActionListener.ActionEvent(
                 timestamp = System.currentTimeMillis(),
@@ -270,7 +251,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                     "currentActivity" to (currentActivity ?: "unknown")
                 )
             )
-            callback(event)
+        callback(event)
         }
     }
 
@@ -287,8 +268,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                 "MOVE" -> ActionListener.ActionType.SWIPE
                 else -> ActionListener.ActionType.GESTURE
             }
-
-            val event = ActionListener.ActionEvent(
+        val event = ActionListener.ActionEvent(
                 timestamp = System.currentTimeMillis(),
                 actionType = actionType,
                 coordinates = Pair(x, y),
@@ -297,7 +277,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                     "source" to "system_input_monitor"
                 )
             )
-            actionCallback?.invoke(event)
+        actionCallback?.invoke(event)
         }
     }
 
@@ -317,7 +297,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                     "source" to "window_manager_monitor"
                 )
             )
-            actionCallback?.invoke(event)
+        actionCallback?.invoke(event)
         }
     }
 
@@ -329,7 +309,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private fun extractPackageNameFromWindowInfo(windowInfo: String): String? {
         // 尝试从窗口信息中提取包名
         // 示例格式: mCurrentFocus=Window{abc123 u0 com.example.app/com.example.app.MainActivity}
-    val packagePattern = Regex("""([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)+)/""")
+        val packagePattern = Regex("""([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)+)/""")
         return packagePattern.find(windowInfo)?.groupValues?.get(1)
     }
 
@@ -341,7 +321,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     private fun extractCurrentActivityFromStack(activityStack: String): String? {
         // 尝试从Activity栈信息中提取当前Activity
         // 示例格式: Running activities (most recent first): ActivityRecord{abc123 u0 com.example.app/.MainActivity t123}
-    val activityPattern = Regex("""ActivityRecord\{[^}]*\s+([^/]+/[^}]+)""")
+        val activityPattern = Regex("""ActivityRecord\{[^}]*\s+([^/]+/[^}]+)""")
         return activityPattern.find(activityStack)?.groupValues?.get(1)
     }
 } 

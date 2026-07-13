@@ -11,7 +11,7 @@ import androidx.compose.runtime.Stable
  * 4. 适用于流式内容构建场，*/
 class SmartString(initialContent: String = "") {
     private val builder = StringBuilder(initialContent)
-    private var cachedString: String? = if (initialContent.isEmpty()) "" else initialContent
+        private var cachedString: String? = if (initialContent.isEmpty()) "" else initialContent
     private var lastLength = initialContent.length
     
     /**
@@ -22,7 +22,7 @@ class SmartString(initialContent: String = "") {
     operator fun plus(content: String): SmartString {
         if (content.isNotEmpty()) {
             builder.append(content)
-            cachedString = null // 标记缓存失效
+        cachedString = null // 标记缓存失效
         }
         return this
     }
@@ -35,7 +35,7 @@ class SmartString(initialContent: String = "") {
     operator fun plus(char: Char): SmartString {
         builder.append(char)
         cachedString = null // 标记缓存失效
-                return this
+        return this
     }
     
     /**
@@ -46,12 +46,12 @@ class SmartString(initialContent: String = "") {
         val currentLength = builder.length
         
         // 如果长度没变且有缓存，直接返回缓字
-                if (currentLength == lastLength && cachedString != null) {
+        if (currentLength == lastLength && cachedString != null) {
             return requireNotNull(cachedString)
         }
         
         // 内容已变化，重新生成字符串并缓存
-                lastLength = currentLength
+        lastLength = currentLength
         cachedString = builder.toString()
         return requireNotNull(cachedString)
     }

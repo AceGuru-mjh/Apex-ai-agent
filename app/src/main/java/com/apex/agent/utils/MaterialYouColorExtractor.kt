@@ -308,14 +308,13 @@ object MaterialYouColorExtractor {
         if (max != min) {
             val d = max - min
             s = if (l > 0.5f) d / (2 - max - min) else d / (max + min)
-            h = when (max) {
+        h = when (max) {
                 r -> ((g - b) / d + (if (g < b) 6f else 0f)) / 6f
                 g -> ((b - r) / d + 2f) / 6f
                 b -> ((r - g) / d + 4f) / 6f
                 else -> 0f
             }
         }
-
         return floatArrayOf(h * 360f, s, l)
     }
 
@@ -336,18 +335,16 @@ object MaterialYouColorExtractor {
         val q = if (l < 0.5f) l * (1 + s) else l + s - l * s
             val p = 2 * l - q
             r = hueToRgb(p, q, hue + 1f / 3f)
-            g = hueToRgb(p, q, hue)
-            b = hueToRgb(p, q, hue - 1f / 3f)
+        g = hueToRgb(p, q, hue)
+        b = hueToRgb(p, q, hue - 1f / 3f)
         }
-
         return Color.rgb(
             (r * 255).toInt().coerceIn(0, 255),
             (g * 255).toInt().coerceIn(0, 255),
             (b * 255).toInt().coerceIn(0, 255)
         )
     }
-
-    private fun hueToRgb(p: Float, q: Float, t: Float): Float {
+        private fun hueToRgb(p: Float, q: Float, t: Float): Float {
         var hue = t
         if (hue < 0f) hue += 1f
         if (hue > 1f) hue -= 1f

@@ -13,10 +13,8 @@ internal class PermissionModeStateCache {
         private const val TAG = "PermissionModeCache"
         private const val CACHE_TTL_MS = 30_000L // 30移
     }
-
-    private val stateCache = ConcurrentHashMap<PermissionMode, CachedState>()
-
-    data class CachedState(
+        private val stateCache = ConcurrentHashMap<PermissionMode, CachedState>()
+        data class CachedState(
         val state: PermissionModeState,
         val timestamp: Long = System.currentTimeMillis()
     )
@@ -27,12 +25,10 @@ internal class PermissionModeStateCache {
     fun get(mode: PermissionMode): PermissionModeState? {
         val cached = stateCache[mode] ?: return null
         val now = System.currentTimeMillis()
-
         if (now - cached.timestamp > CACHE_TTL_MS) {
             stateCache.remove(mode)
-            return null
+        return null
         }
-
         return cached.state
     }
 
@@ -50,10 +46,10 @@ internal class PermissionModeStateCache {
     fun clear(mode: PermissionMode? = null) {
         if (mode != null) {
             stateCache.remove(mode)
-            AppLogger.d(TAG, "清除缓存: ${mode.displayName}")
+        AppLogger.d(TAG, "清除缓存: ${mode.displayName}")
         } else {
             stateCache.clear()
-            AppLogger.d(TAG, "清除所有缓字")
+        AppLogger.d(TAG, "清除所有缓字")
         }
     }
 
@@ -67,7 +63,6 @@ internal class PermissionModeStateCache {
         }.keys
 
         expiredKeys.forEach { stateCache.remove(it) }
-
         if (expiredKeys.isNotEmpty()) {
             AppLogger.d(TAG, "清除于${expiredKeys.size} 个过期缓存项")
         }
@@ -92,30 +87,28 @@ internal suspend fun PermissionModeManager.checkAllModesOptimized(
         val states = mutableMapOf<PermissionMode, PermissionModeState>()
 
     // 并行检测独立的模式
-                for (mode in PermissionMode.values()) {
+        for (mode in PermissionMode.values()) {
         if (!forceRefresh) {
             // 尝试使用缓存
-    val cached = stateCache.get(mode)
-            if (cached != null) {
+        val cached = stateCache.get(mode)
+        if (cached != null) {
                 states[mode] = cached
                 continue
             }
         }
 
         // 检测模式状态
-    val state = checkModeInternal(mode)
+        val state = checkModeInternal(mode)
         states[mode] = state
         stateCache.put(mode, state)
     }
 
     // 更新状态流
-                _modeStates.update { states }
-    notifyStateChanges(states.values)
-
-    val duration = System.currentTimeMillis() - startTime
+        _modeStates.update { states }
+        notifyStateChanges(states.values)
+        val duration = System.currentTimeMillis() - startTime
     AppLogger.d(TAG, "批量检测完成，耗时: ${duration}ms")
-
-    return BatchDetectionResult(states, duration)
+        return BatchDetectionResult(states, duration)
 }
 
 /**
@@ -125,8 +118,7 @@ private suspend fun PermissionModeManager.checkModeInternal(
     mode: PermissionMode
 ): PermissionModeState {
     val timestamp = System.currentTimeMillis()
-
-    return when (mode) {
+        return when (mode) {
         PermissionMode.STANDARD -> checkStandardMode(timestamp)
         PermissionMode.ACCESSIBILITY -> checkAccessibilityMode(timestamp)
         PermissionMode.DEBUGGER -> checkDebuggerMode(timestamp)
@@ -149,9 +141,8 @@ class PermissionModePerformanceMonitor {
     companion object {
         private const val TAG = "PermissionModePerf"
     }
-
-    private val checkTimes = mutableListOf<Long>()
-    private var checkCount = 0
+        private val checkTimes = mutableListOf<Long>()
+        private var checkCount = 0
     private var cacheHits = 0
     private var cacheMisses = 0
 
@@ -163,7 +154,7 @@ class PermissionModePerformanceMonitor {
         checkCount++
 
         // 保留最返00条记当
-                if (checkTimes.size > 100) {
+        if (checkTimes.size > 100) {
             checkTimes.removeAt(0)
         }
     }
@@ -191,14 +182,12 @@ class PermissionModePerformanceMonitor {
         } else {
             0.0
         }
-
         val totalCacheLookups = cacheHits + cacheMisses
         val hitRate = if (totalCacheLookups > 0) {
             (cacheHits.toDouble() / totalCacheLookups) * 100
         } else {
             0.0
         }
-
         return PerformanceStatistics(
             checkCount = checkCount,
             avgCheckTimeMs = avgTime,
@@ -250,13 +239,10 @@ suspend fun PermissionModeManager.checkAllModesWithMonitor(
 ): BatchDetectionResult {
     val startTime = System.currentTimeMillis()
         val result = checkAllModesOptimized(forceRefresh)
-
-    performanceMonitor.recordCheckTime(result.durationMs)
-
-    val stats = performanceMonitor.getStatistics()
-    AppLogger.d(TAG, "性能统计: checks=${stats.checkCount}, " +
+        performanceMonitor.recordCheckTime(result.durationMs)
+        val stats = performanceMonitor.getStatistics()
+        AppLogger.d(TAG, "性能统计: checks=${stats.checkCount}, " +
             "avg=${String.format("%.2f", stats.avgCheckTimeMs)}ms, " +
             "hitRate=${String.format("%.1f", stats.cacheHitRate)}%")
-
-    return result
+        return result
 }

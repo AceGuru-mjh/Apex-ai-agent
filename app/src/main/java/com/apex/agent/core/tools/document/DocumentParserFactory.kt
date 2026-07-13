@@ -7,12 +7,10 @@ object DocumentParserFactory {
         OfficeParser(),
         PdfParser()
     )
-
-    fun getParser(documentType: DocumentType): DocumentParser? {
+        fun getParser(documentType: DocumentType): DocumentParser? {
         return parsers.find { it.canParse(documentType) }
     }
-
-    fun getParserForFile(fileName: String): DocumentParser? {
+        fun getParserForFile(fileName: String): DocumentParser? {
         val extension = fileName.substringAfterLast('.', "").lowercase()
         val type = when (extension) {
             "epub" -> DocumentType.EPUB
@@ -26,8 +24,7 @@ object DocumentParserFactory {
         }
         return type?.let { getParser(it) }
     }
-
-    fun detectDocumentType(fileName: String): DocumentType? {
+        fun detectDocumentType(fileName: String): DocumentType? {
         val extension = fileName.substringAfterLast('.', "").lowercase()
         return when (extension) {
             "epub" -> DocumentType.EPUB

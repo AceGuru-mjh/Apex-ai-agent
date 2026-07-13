@@ -19,8 +19,7 @@ class ProfileEvolutionManager private constructor(
     private val memoryRepository: MemoryRepository
 ) {
     private val TAG = "ProfileEvolutionManager"
-    
-    companion object {
+        companion object {
         @Volatile private var INSTANCE: ProfileEvolutionManager? = null
         
         fun getInstance(context: Context, memoryRepository: MemoryRepository): ProfileEvolutionManager {
@@ -40,43 +39,39 @@ class ProfileEvolutionManager private constructor(
      */
     suspend fun evolveUserProfile(userId: String, messages: List<ChatMessage>): Boolean = withContext(Dispatchers.IO) {
         AppLogger.d(TAG, "开始演化用户画面${userId}")
-        
         try {
             // 获取当前用户画像
-    val currentProfile = userProfileManager.getUserProfile(userId)
+        val currentProfile = userProfileManager.getUserProfile(userId)
             
             // 分析用户反馈
-    val suggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(messages, currentProfile)
-            
-            if (suggestions.isEmpty()) {
+        val suggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(messages, currentProfile)
+        if (suggestions.isEmpty()) {
                 AppLogger.d(TAG, "没有画像更新建议")
-                return@withContext false
+        return@withContext false
             }
             
             // 应用更新建议
-                var updated = false
+        var updated = false
             for (suggestion in suggestions) {
                 if (suggestion.confidence > 0.6) { // 只应用置信度高于0.6的创建
-    val success = userProfileManager.updateProfileDimension(
+        val success = userProfileManager.updateProfileDimension(
                         userId = userId,
                         dimension = suggestion.dimension,
                         value = suggestion.newValue
                     )
-                    if (success) {
+        if (success) {
                         updated = true
                         AppLogger.d(TAG, "更新用户画像维度: ${suggestion.dimension} = ${suggestion.newValue}")
                     }
                 }
             }
-            
-            if (updated) {
+        if (updated) {
                 AppLogger.d(TAG, "用户画像演化完成")
             }
-            
-            updated
+        updated
         } catch (e: Exception) {
             AppLogger.e(TAG, "演化用户画像失败", e)
-            false
+        false
         }
     }
     
@@ -87,20 +82,19 @@ class ProfileEvolutionManager private constructor(
         val currentProfile = userProfileManager.getUserProfile(userId)
         val suggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(messages, currentProfile)
         val feedbackReport = feedbackAnalyzer.generateFeedbackReport(messages)
-        
         buildString {
             appendLine("# 用户画像演化报告")
-            appendLine()
-            appendLine("## 当前用户画像")
-            currentProfile.getNonEmptyDimensions().forEach { (dimension, value) ->
+        appendLine()
+        appendLine("## 当前用户画像")
+        currentProfile.getNonEmptyDimensions().forEach { (dimension, value) ->
                 appendLine("- ${dimension}: ${value}")
             }
-            appendLine()
-            appendLine("## 反馈分析")
-            appendLine(feedbackReport)
-            appendLine()
-            appendLine("## 画像更新建议")
-            if (suggestions.isNotEmpty()) {
+        appendLine()
+        appendLine("## 反馈分析")
+        appendLine(feedbackReport)
+        appendLine()
+        appendLine("## 画像更新建议")
+        if (suggestions.isNotEmpty()) {
                 suggestions.forEachIndexed { index, suggestion ->
                     appendLine("${index + 1}. ${suggestion.dimension}: ${suggestion.newValue} (置信息${(suggestion.confidence * 100).toInt()}%)")
                 }
@@ -115,17 +109,15 @@ class ProfileEvolutionManager private constructor(
      */
     suspend fun batchEvolveProfiles(userIds: List<String>, messagesMap: Map<String, List<ChatMessage>>): Map<String, Boolean> = withContext(Dispatchers.IO) {
         val results = mutableMapOf<String, Boolean>()
-        
         for (userId in userIds) {
             val messages = messagesMap[userId]
             if (messages != null) {
                 val success = evolveUserProfile(userId, messages)
-                results[userId] = success
+        results[userId] = success
             } else {
                 results[userId] = false
             }
         }
-        
         results
     }
     
@@ -157,7 +149,6 @@ class ProfileEvolutionManager private constructor(
      */
     suspend fun analyzeEvolutionTrend(userId: String, historicalMessages: List<List<ChatMessage>>): String = withContext(Dispatchers.IO) {
         val trends = mutableListOf<String>()
-        
         for (i in 1 until historicalMessages.size) {
             val previousMessages = historicalMessages[i-1]
         val currentMessages = historicalMessages[i]
@@ -166,14 +157,13 @@ class ProfileEvolutionManager private constructor(
                 previousMessages,
                 userProfileManager.getUserProfile(userId)
             )
-            
-            val currentSuggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(
+        val currentSuggestions = feedbackAnalyzer.extractProfileUpdateSuggestions(
                 currentMessages,
                 userProfileManager.getUserProfile(userId)
             )
             
             // 分析趋势
-                if (currentSuggestions.size > previousSuggestions.size) {
+        if (currentSuggestions.size > previousSuggestions.size) {
                 trends.add("画像更新频率增加")
             } else if (currentSuggestions.size < previousSuggestions.size) {
                 trends.add("画像更新频率减少")
@@ -181,7 +171,6 @@ class ProfileEvolutionManager private constructor(
                 trends.add("画像更新频率稳定")
             }
         }
-        
         if (trends.isEmpty()) {
             "无法分析演化趋势"
         } else {

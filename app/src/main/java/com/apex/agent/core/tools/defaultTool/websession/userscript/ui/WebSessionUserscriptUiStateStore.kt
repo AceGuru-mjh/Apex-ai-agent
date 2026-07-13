@@ -23,24 +23,19 @@ internal class WebSessionUserscriptUiStateStore(
 ) {
     private val mutableState = MutableStateFlow(WebSessionUserscriptUiState(supportState = initialSupportState))
         val state: StateFlow<WebSessionUserscriptUiState> = mutableState.asStateFlow()
-
-    fun updateSupportState(value: UserscriptSupportState) {
+        fun updateSupportState(value: UserscriptSupportState) {
         mutableState.update { current -> current.copy(supportState = value) }
     }
-
-    fun updateScripts(items: List<UserscriptListItem>) {
+        fun updateScripts(items: List<UserscriptListItem>) {
         mutableState.update { current -> current.copy(installedScripts = items) }
     }
-
-    fun updateLogs(items: List<UserscriptLogItem>) {
+        fun updateLogs(items: List<UserscriptLogItem>) {
         mutableState.update { current -> current.copy(recentLogs = items) }
     }
-
-    fun updateCurrentPageStatuses(items: Map<Long, UserscriptPageRuntimeStatus>) {
+        fun updateCurrentPageStatuses(items: Map<Long, UserscriptPageRuntimeStatus>) {
         mutableState.update { current -> current.copy(currentPageStatuses = items) }
     }
-
-    fun setPendingInstall(preview: UserscriptInstallPreview) {
+        fun setPendingInstall(preview: UserscriptInstallPreview) {
         mutableState.update { current -> current.copy(pendingInstall = preview) }
     }
 }

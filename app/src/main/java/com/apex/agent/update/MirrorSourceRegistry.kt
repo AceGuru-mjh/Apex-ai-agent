@@ -52,49 +52,49 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
                 id = "ghproxy",
                 name = "ghproxy.com",
                 urlTemplate = "https://ghproxy.com/{url}",
-                builtin = true,
+        builtin = true,
                 description = "老牌 GitHub 加速，国内可用"
             ),
             MirrorSource(
                 id = "ghproxy-net",
                 name = "mirror.ghproxy.com",
                 urlTemplate = "https://mirror.ghproxy.com/{url}",
-                builtin = true,
+        builtin = true,
                 description = "ghproxy 备用节点"
             ),
             MirrorSource(
                 id = "ghps",
                 name = "ghps.cc",
                 urlTemplate = "https://ghps.cc/{url}",
-                builtin = true,
+        builtin = true,
                 description = "Free CDN mirror, fast in mainland China"
             ),
             MirrorSource(
                 id = "moeyy",
                 name = "github.moeyy.xyz",
                 urlTemplate = "https://github.moeyy.xyz/{url}",
-                builtin = true,
+        builtin = true,
                 description = "moeyy 加速镜像"
             ),
             MirrorSource(
                 id = "gh-proxy",
                 name = "gh-proxy.com",
                 urlTemplate = "https://gh-proxy.com/{url}",
-                builtin = true,
+        builtin = true,
                 description = "公益 GitHub 代理"
             ),
             MirrorSource(
                 id = "kkgithub",
                 name = "kkgithub.com",
                 urlTemplate = "https://kkgithub.com/{url}",
-                builtin = true,
+        builtin = true,
                 description = "通过替换域名的镜像（仅 github.com 路径有效）"
             ),
             MirrorSource(
                 id = "gcore",
                 name = "gh.api.99988866.xyz",
                 urlTemplate = "https://gh.api.99988866.xyz/{url}",
-                builtin = true,
+        builtin = true,
                 description = "另一公益加速节点"
             )
         )
@@ -106,8 +106,7 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
                 .replace("http://github.com/", "http://kkgithub.com/")
         }
     }
-
-    private val _mirrorsFlow = MutableStateFlow<List<MirrorSource>>(emptyList())
+        private val _mirrorsFlow = MutableStateFlow<List<MirrorSource>>(emptyList())
         val mirrorsFlow: StateFlow<List<MirrorSource>> = _mirrorsFlow.asStateFlow()
 
     /** 当前镜像快照（内置 + 自定义）。 */
@@ -118,10 +117,9 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
         isLenient = true
         coerceInputValues = true
     }
-
-    init {
+        init {
         // 立即填充内置镜像，让 UI 先有数据可用；自定义镜像异步加载后会覆盖。
-                _mirrorsFlow.value = BUILTIN_MIRRORS
+        _mirrorsFlow.value = BUILTIN_MIRRORS
     }
 
     /**
@@ -138,14 +136,14 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
                     json.decodeFromString(ListSerializer(MirrorSource.serializer()), raw)
                 }.getOrElse {
                     AppLogger.w(TAG, "解析自定义镜像失败，重置为空: ${it.message}")
-                    emptyList()
+        emptyList()
                 }
             }
-            _mirrorsFlow.value = (BUILTIN_MIRRORS + custom)
-            AppLogger.i(TAG, "镜像源加载完成：内置 ${BUILTIN_MIRRORS.size} + 自定义 ${custom.size}")
+        _mirrorsFlow.value = (BUILTIN_MIRRORS + custom)
+        AppLogger.i(TAG, "镜像源加载完成：内置 ${BUILTIN_MIRRORS.size} + 自定义 ${custom.size}")
         } catch (t: Throwable) {
             AppLogger.e(TAG, "加载镜像源失败", t)
-            _mirrorsFlow.value = BUILTIN_MIRRORS
+        _mirrorsFlow.value = BUILTIN_MIRRORS
         }
     }
 
@@ -169,11 +167,11 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
         val target = current.firstOrNull { it.id == id }
         if (target == null) {
             AppLogger.w(TAG, "删除镜像失败：未找到 id=$id")
-            return
+        return
         }
         if (target.builtin) {
             AppLogger.w(TAG, "内置镜像不可删除：$id")
-            return
+        return
         }
         val customOnly = current.filter { !it.builtin && it.id != id }
         persistCustom(customOnly)
@@ -203,8 +201,7 @@ class MirrorSourceRegistry private constructor(private val context: Context) {
         persistCustom(customOnly)
         _mirrorsFlow.value = BUILTIN_MIRRORS + customOnly
     }
-
-    private suspend fun persistCustom(custom: List<MirrorSource>) {
+        private suspend fun persistCustom(custom: List<MirrorSource>) {
         val raw = json.encodeToString(ListSerializer(MirrorSource.serializer()), custom)
         ApexDataStore.putString(context, DATA_KEY, raw)
     }

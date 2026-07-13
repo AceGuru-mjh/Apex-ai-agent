@@ -76,32 +76,28 @@ class EventDispatcher(
 ) : EventBus {
 
     private val dispatchChannel = Channel<Any>(Channel.UNLIMITED)
-    private val activeJobs = ConcurrentHashMap<Any, Job>()
-    private val seqCounter = AtomicInteger(0)
-    private val isClosed = AtomicBoolean(false)
-
-    init {
+        private val activeJobs = ConcurrentHashMap<Any, Job>()
+        private val seqCounter = AtomicInteger(0)
+        private val isClosed = AtomicBoolean(false)
+        init {
         startDispatching()
     }
-
-    private fun startDispatching() {
+        private fun startDispatching() {
         when (strategy) {
             is DispatchingStrategy.Sequential -> startSequential()
-            is DispatchingStrategy.Parallel -> startParallel(strategy.parallelism)
-            is DispatchingStrategy.Ordered -> startOrdered(strategy.keyExtractor)
-            is DispatchingStrategy.Priority -> startPriority(strategy.comparator)
+        is DispatchingStrategy.Parallel -> startParallel(strategy.parallelism)
+        is DispatchingStrategy.Ordered -> startOrdered(strategy.keyExtractor)
+        is DispatchingStrategy.Priority -> startPriority(strategy.comparator)
         }
     }
-
-    private fun startSequential() {
+        private fun startSequential() {
         scope.launch {
             for (event in dispatchChannel) {
                 processWithErrorHandling(event)
             }
         }
     }
-
-    private fun startParallel(parallelism: Int) {
+        private fun startParallel(parallelism: Int) {
         val effectiveParallelism = max(1, min(parallelism, Runtime.getRuntime().availableProcessors() * 2))
         repeat(effectiveParallelism) {
             scope.launch {
@@ -111,8 +107,7 @@ class EventDispatcher(
             }
         }
     }
-
-    private fun startOrdered(keyExtractor: (Any) -> Any) {
+        private fun startOrdered(keyExtractor: (Any) -> Any) {
         val keyChannels = ConcurrentHashMap<Any, Channel<Any>>()
         scope.launch {
             for (event in dispatchChannel) {
@@ -126,42 +121,40 @@ class EventDispatcher(
                         }
                     }
                 }
-                channel.send(event)
+        channel.send(event)
             }
         }
     }
-
-    private fun startPriority(comparator: Comparator<Any>) {
+        private fun startPriority(comparator: Comparator<Any>) {
         scope.launch {
             val buffer = mutableListOf<Any>()
-            for (event in dispatchChannel) {
+        for (event in dispatchChannel) {
                 buffer.add(event)
-                buffer.sortWith(comparator)
-                if (buffer.isNotEmpty()) {
+        buffer.sortWith(comparator)
+        if (buffer.isNotEmpty()) {
                     processWithErrorHandling(buffer.removeAt(0))
                 }
             }
         }
     }
-
-    private suspend fun processWithErrorHandling(event: Any) {
+        private suspend fun processWithErrorHandling(event: Any) {
         when (errorStrategy) {
             is ErrorStrategy.FailFast -> {
                 eventBus.publish(event)
             }
-            is ErrorStrategy.ContinueOnError -> {
+        is ErrorStrategy.ContinueOnError -> {
                 try {
                     eventBus.publish(event)
                 } catch (_: Exception) {
                     // 忽略错误继续处理
                 }
             }
-            is ErrorStrategy.RetryOnError -> {
+        is ErrorStrategy.RetryOnError -> {
                 var lastException: Exception? = null
                 for (attempt in 1..errorStrategy.maxRetries) {
                     try {
                         eventBus.publish(event)
-                        lastException = null
+        lastException = null
                         break
                     } catch (e: Exception) {
                         lastException = e
@@ -170,12 +163,11 @@ class EventDispatcher(
                         }
                     }
                 }
-                lastException?.let { throw it }
+        lastException?.let { throw it }
             }
         }
     }
-
-    override fun <T : Any> publish(event: T) {
+        override fun <T : Any> publish(event: T) {
         if (isClosed.get()) return
         when (backpressureStrategy) {
             is BackpressureStrategy.Drop -> {
@@ -183,36 +175,30 @@ class EventDispatcher(
                     // 丢弃
                 }
             }
-            is BackpressureStrategy.Buffer -> {
+        is BackpressureStrategy.Buffer -> {
                 dispatchChannel.trySend(event)
             }
-            is BackpressureStrategy.Backpressure -> {
+        is BackpressureStrategy.Backpressure -> {
                 kotlinx.coroutines.runBlocking(Dispatchers.IO) {
                     dispatchChannel.send(event)
                 }
             }
         }
     }
-
-    override fun <T : Any> subscribe(eventClass: Class<T>): SharedFlow<T> {
+        override fun <T : Any> subscribe(eventClass: Class<T>): SharedFlow<T> {
         return eventBus.subscribe(eventClass)
     }
-
-    override fun <T : Any> stickyEvent(event: T) {
+        override fun <T : Any> stickyEvent(event: T) {
         eventBus.stickyEvent(event)
     }
-
-    override fun <T : Any> clearSticky(eventClass: Class<T>) {
+        override fun <T : Any> clearSticky(eventClass: Class<T>) {
         eventBus.clearSticky(eventClass)
     }
-
-    override fun clearAllSticky() {
+        override fun clearAllSticky() {
         eventBus.clearAllSticky()
     }
-
-    override fun stats(): EventBusStats = eventBus.stats()
-
-    override fun close() {
+        override fun stats(): EventBusStats = eventBus.stats()
+        override fun close() {
         if (isClosed.compareAndSet(false, true)) {
             dispatchChannel.close()
         }

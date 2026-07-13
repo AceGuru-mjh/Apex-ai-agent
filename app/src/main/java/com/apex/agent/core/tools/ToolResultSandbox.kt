@@ -141,7 +141,7 @@ data class ScriptExecutionTraceData(
                                     ?.let { "[${it}] " }
                                     ?: "[LOG] "
                     "intermediate" -> "[INTERMEDIATE] "
-                    else -> "[TRACE] "
+        else -> "[TRACE] "
                 }
         return prefix + message
     }

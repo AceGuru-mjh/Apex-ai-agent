@@ -27,13 +27,13 @@ import java.util.concurrent.ConcurrentPriorityQueue
  */
 enum class ReminderType {
     TODO,               // 待办事项
-                FOLLOW_UP,          // 跟进
-                SCHEDULED,          // 定时
-                CONTEXTUAL,         // 基于上下文
-                HABIT,              // 习惯性
-                DEADLINE,           // 截止日期
-                INACTIVITY,         // 不活跃
-                LEARNING_REVIEW     // 学习复习
+        FOLLOW_UP,          // 跟进
+        SCHEDULED,          // 定时
+        CONTEXTUAL,         // 基于上下文
+        HABIT,              // 习惯性
+        DEADLINE,           // 截止日期
+        INACTIVITY,         // 不活跃
+        LEARNING_REVIEW     // 学习复习
 }
 
 /**
@@ -68,10 +68,10 @@ data class Reminder(
  */
 sealed class RecurrencePattern {
     data class Daily(val hour: Int, val minute: Int) : RecurrencePattern()
-    data class Weekly(val dayOfWeek: Int, val hour: Int, val minute: Int) : RecurrencePattern()  // 1=周一
-                data class Monthly(val dayOfMonth: Int, val hour: Int, val minute: Int) : RecurrencePattern()
-    data class Interval(val intervalMs: Long) : RecurrencePattern()
-    data object Once : RecurrencePattern()
+        data class Weekly(val dayOfWeek: Int, val hour: Int, val minute: Int) : RecurrencePattern()  // 1=周一
+        data class Monthly(val dayOfMonth: Int, val hour: Int, val minute: Int) : RecurrencePattern()
+        data class Interval(val intervalMs: Long) : RecurrencePattern()
+        data object Once : RecurrencePattern()
 }
 
 /**
@@ -79,9 +79,9 @@ sealed class RecurrencePattern {
  */
 sealed class ReminderEvent {
     data class Triggered(val reminder: Reminder) : ReminderEvent()
-    data class Created(val reminder: Reminder) : ReminderEvent()
-    data class Dismissed(val reminderId: String) : ReminderEvent()
-    data class Snoozed(val reminderId: String, val until: Long) : ReminderEvent()
+        data class Created(val reminder: Reminder) : ReminderEvent()
+        data class Dismissed(val reminderId: String) : ReminderEvent()
+        data class Snoozed(val reminderId: String, val until: Long) : ReminderEvent()
 }
 
 /**
@@ -92,11 +92,10 @@ class SmartReminderManager(
 ) {
 
     private val reminders = ConcurrentHashMap<String, Reminder>()
-    private val pendingQueue = ConcurrentPriorityQueue<Reminder>(compareBy { it.scheduledAt })
-    private val _events = MutableSharedFlow<ReminderEvent>(extraBufferCapacity = 64)
+        private val pendingQueue = ConcurrentPriorityQueue<Reminder>(compareBy { it.scheduledAt })
+        private val _events = MutableSharedFlow<ReminderEvent>(extraBufferCapacity = 64)
         val events: SharedFlow<ReminderEvent> = _events.asSharedFlow()
-
-    private var checkerJob: Job? = null
+        private var checkerJob: Job? = null
 
     init {
         startChecker()
@@ -123,7 +122,7 @@ class SmartReminderManager(
         val extracted = mutableListOf<Reminder>()
 
         // 检测待办模式
-    val todoPatterns = mapOf(
+        val todoPatterns = mapOf(
             "提醒我(\\d+[点时分小时分钟]*)(.*)" to ReminderType.TODO,
             "记得(.*?)(?:当|在|明天|后天|今天)" to ReminderType.TODO,
             "不要忘了(.*?)" to ReminderType.TODO,
@@ -131,13 +130,12 @@ class SmartReminderManager(
             "remind me to (.+?) (?:at|on|in) (.+)" to ReminderType.TODO,
             "todo[:\\s]+(.+?)(?:\\s+(?:by|at|on)\\s+(.+))?" to ReminderType.TODO
         )
-
         for ((pattern, type) in todoPatterns) {
             Regex(pattern, RegexOption.IGNORE_CASE).findAll(message).forEach { match ->
                 val title = match.groupValues.getOrElse(1) { "" }.ifBlank { "待办事项" }
         val timeStr = match.groupValues.getOrNull(2) ?: ""
-                val scheduledAt = parseTimeString(timeStr) ?: (System.currentTimeMillis() + 60 * 60_000L)  // 默认 1 小时后
-    val reminder = Reminder(
+        val scheduledAt = parseTimeString(timeStr) ?: (System.currentTimeMillis() + 60 * 60_000L)  // 默认 1 小时后
+        val reminder = Reminder(
                     id = "reminder_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}",
                     type = type,
                     title = title.trim(),
@@ -147,17 +145,17 @@ class SmartReminderManager(
                     relatedChatId = chatId,
                     relatedMessageId = messageId
                 )
-                create(reminder)
-                extracted.add(reminder)
+        create(reminder)
+        extracted.add(reminder)
             }
         }
 
         // 检测截止日期
-    val deadlinePattern = Regex("(?:截止|deadline|due)[:\\s]+(.+?)(?:\\s+(?:by|at|on|前)\\s+(.+))?", RegexOption.IGNORE_CASE)
+        val deadlinePattern = Regex("(?:截止|deadline|due)[:\\s]+(.+?)(?:\\s+(?:by|at|on|前)\\s+(.+))?", RegexOption.IGNORE_CASE)
         deadlinePattern.findAll(message).forEach { match ->
             val title = match.groupValues[1].ifBlank { "截止任务" }
         val timeStr = match.groupValues.getOrNull(2) ?: ""
-            val scheduledAt = parseTimeString(timeStr) ?: (System.currentTimeMillis() + 24 * 60 * 60_000L)
+        val scheduledAt = parseTimeString(timeStr) ?: (System.currentTimeMillis() + 24 * 60 * 60_000L)
         val reminder = Reminder(
                 id = "reminder_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}",
                 type = ReminderType.DEADLINE,
@@ -167,10 +165,9 @@ class SmartReminderManager(
                 scheduledAt = scheduledAt,
                 relatedChatId = chatId
             )
-            scope.launch { create(reminder) }
-            extracted.add(reminder)
+        scope.launch { create(reminder) }
+        extracted.add(reminder)
         }
-
         return extracted
     }
 
@@ -206,7 +203,6 @@ class SmartReminderManager(
         if (cal.timeInMillis <= System.currentTimeMillis()) {
             cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
         }
-
         val reminder = Reminder(
             id = "habit_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}",
             type = ReminderType.HABIT,
@@ -297,12 +293,11 @@ class SmartReminderManager(
     fun generateReminderPrompt(): String {
         val pending = listPending().take(3)
         if (pending.isEmpty()) return ""
-
         val sb = StringBuilder()
         sb.appendLine("[待办提醒]")
         pending.forEach { r ->
             val timeStr = java.text.SimpleDateFormat("MM-dd HH:mm").format(java.util.Date(r.scheduledAt))
-            sb.appendLine("- [$timeStr] ${r.title} (${r.type})")
+        sb.appendLine("- [$timeStr] ${r.title} (${r.type})")
         }
         return sb.toString()
     }
@@ -316,81 +311,78 @@ class SmartReminderManager(
     }
 
     // ============ 内部方法 ============
-    private fun startChecker() {
+        private fun startChecker() {
         checkerJob = scope.launch {
             while (isActive) {
                 val now = System.currentTimeMillis()
-                while (pendingQueue.isNotEmpty() && pendingQueue.peek().scheduledAt <= now) {
+        while (pendingQueue.isNotEmpty() && pendingQueue.peek().scheduledAt <= now) {
                     val reminder = pendingQueue.poll()
-                    if (!reminder.dismissed && !reminder.triggered) {
+        if (!reminder.dismissed && !reminder.triggered) {
                         triggerReminder(reminder)
                     }
                 }
-                delay(30_000)  // 每 30 秒检查一次
+        delay(30_000)  // 每 30 秒检查一次
             }
         }
     }
-
-    private suspend fun triggerReminder(reminder: Reminder) {
+        private suspend fun triggerReminder(reminder: Reminder) {
         val triggered = reminder.copy(triggered = true)
         reminders[reminder.id] = triggered
         _events.emit(ReminderEvent.Triggered(triggered))
 
         // 如果是重复提醒，创建下一次
-                reminder.recurrence?.let { pattern ->
+        reminder.recurrence?.let { pattern ->
             val nextTime = computeNextOccurrence(pattern, reminder.scheduledAt)
-            if (nextTime != null) {
+        if (nextTime != null) {
                 val next = reminder.copy(
                     id = "reminder_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}",
                     scheduledAt = nextTime,
                     triggered = false,
                     createdAt = System.currentTimeMillis()
                 )
-                create(next)
+        create(next)
             }
         }
     }
-
-    private fun computeNextOccurrence(pattern: RecurrencePattern, from: Long): Long? {
+        private fun computeNextOccurrence(pattern: RecurrencePattern, from: Long): Long? {
         return when (pattern) {
             is RecurrencePattern.Daily -> {
                 val cal = java.util.Calendar.getInstance()
-                cal.timeInMillis = from
+        cal.timeInMillis = from
                 cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
-                cal.set(java.util.Calendar.HOUR_OF_DAY, pattern.hour)
-                cal.set(java.util.Calendar.MINUTE, pattern.minute)
-                cal.set(java.util.Calendar.SECOND, 0)
-                cal.timeInMillis
+        cal.set(java.util.Calendar.HOUR_OF_DAY, pattern.hour)
+        cal.set(java.util.Calendar.MINUTE, pattern.minute)
+        cal.set(java.util.Calendar.SECOND, 0)
+        cal.timeInMillis
             }
-            is RecurrencePattern.Weekly -> {
+        is RecurrencePattern.Weekly -> {
                 val cal = java.util.Calendar.getInstance()
-                cal.timeInMillis = from
+        cal.timeInMillis = from
                 cal.add(java.util.Calendar.DAY_OF_MONTH, 7)
-                cal.set(java.util.Calendar.DAY_OF_WEEK, pattern.dayOfWeek + 1)  // Calendar: 1=Sunday
-                cal.set(java.util.Calendar.HOUR_OF_DAY, pattern.hour)
-                cal.set(java.util.Calendar.MINUTE, pattern.minute)
-                cal.timeInMillis
+        cal.set(java.util.Calendar.DAY_OF_WEEK, pattern.dayOfWeek + 1)  // Calendar: 1=Sunday
+        cal.set(java.util.Calendar.HOUR_OF_DAY, pattern.hour)
+        cal.set(java.util.Calendar.MINUTE, pattern.minute)
+        cal.timeInMillis
             }
-            is RecurrencePattern.Monthly -> {
+        is RecurrencePattern.Monthly -> {
                 val cal = java.util.Calendar.getInstance()
-                cal.timeInMillis = from
+        cal.timeInMillis = from
                 cal.add(java.util.Calendar.MONTH, 1)
-                cal.set(java.util.Calendar.DAY_OF_MONTH, pattern.dayOfMonth)
-                cal.set(java.util.Calendar.HOUR_OF_DAY, pattern.hour)
-                cal.set(java.util.Calendar.MINUTE, pattern.minute)
-                cal.timeInMillis
+        cal.set(java.util.Calendar.DAY_OF_MONTH, pattern.dayOfMonth)
+        cal.set(java.util.Calendar.HOUR_OF_DAY, pattern.hour)
+        cal.set(java.util.Calendar.MINUTE, pattern.minute)
+        cal.timeInMillis
             }
-            is RecurrencePattern.Interval -> from + pattern.intervalMs
+        is RecurrencePattern.Interval -> from + pattern.intervalMs
             is RecurrencePattern.Once -> null
         }
     }
-
-    private fun parseTimeString(timeStr: String): Long? {
+        private fun parseTimeString(timeStr: String): Long? {
         if (timeStr.isBlank()) return null
         val now = System.currentTimeMillis()
 
         // 相对时间
-    val relativePatterns = mapOf(
+        val relativePatterns = mapOf(
             "明天" to 24 * 60 * 60_000L,
             "后天" to 2 * 24 * 60 * 60_000L,
             "下周" to 7 * 24 * 60 * 60_000L,
@@ -410,17 +402,16 @@ class SmartReminderManager(
         }
 
         // 绝对时间 HH:mm
-                Regex("(\\d{1,2})[:：](\\d{2})").find(timeStr)?.let { m ->
+        Regex("(\\d{1,2})[:：](\\d{2})").find(timeStr)?.let { m ->
             val hour = m.groupValues[1].toInt()
         val minute = m.groupValues[2].toInt()
-            val cal = java.util.Calendar.getInstance()
-            cal.set(java.util.Calendar.HOUR_OF_DAY, hour)
-            cal.set(java.util.Calendar.MINUTE, minute)
-            cal.set(java.util.Calendar.SECOND, 0)
-            if (cal.timeInMillis <= now) cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
-            return cal.timeInMillis
+        val cal = java.util.Calendar.getInstance()
+        cal.set(java.util.Calendar.HOUR_OF_DAY, hour)
+        cal.set(java.util.Calendar.MINUTE, minute)
+        cal.set(java.util.Calendar.SECOND, 0)
+        if (cal.timeInMillis <= now) cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
+        return cal.timeInMillis
         }
-
         return null
     }
 }

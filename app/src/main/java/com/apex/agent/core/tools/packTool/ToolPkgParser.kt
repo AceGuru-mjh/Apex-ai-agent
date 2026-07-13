@@ -186,7 +186,6 @@ internal object ToolPkgArchiveParser {
                 ?: throw IllegalArgumentException("Failed to read manifest entry")
         val manifestText = manifestBytes.toString(StandardCharsets.UTF_8)
         val manifest = parseToolPkgManifest(manifestText, manifestEntryName)
-
         if (manifest.toolpkgId.isBlank()) {
             throw IllegalArgumentException("manifest.toolpkg_id is required")
         }
@@ -200,31 +199,27 @@ internal object ToolPkgArchiveParser {
             findZipEntryContent(entries, normalizedMainEntry)
                 ?.toString(StandardCharsets.UTF_8)
                 ?: throw IllegalArgumentException("Failed to read manifest.main entry '${manifest.main}'")
-
         val subpackagePackages = mutableListOf<ToolPackage>()
         val subpackageRuntimes = mutableListOf<ToolPkgSubpackageRuntime>()
-
         manifest.subpackages.forEach { subpackage ->
             val rawSubpackageId = subpackage.id.trim()
         val subpackageErrorKey =
                 if (rawSubpackageId.isNotBlank()) rawSubpackageId else "${manifest.toolpkgId}:unknown_subpackage"
-
-            if (rawSubpackageId.isBlank()) {
+        if (rawSubpackageId.isBlank()) {
                 reportPackageLoadError(
                     subpackageErrorKey,
                     "${sourcePath}: subpackage.id is required"
                 )
-                return@forEach
+        return@forEach
             }
-            if (subpackage.entry.isBlank()) {
+        if (subpackage.entry.isBlank()) {
                 reportPackageLoadError(
                     subpackageErrorKey,
                     "${sourcePath}: subpackage.entry is required for '${rawSubpackageId}'"
                 )
-                return@forEach
+        return@forEach
             }
-
-            val normalizedSubpackageId = rawSubpackageId
+        val normalizedSubpackageId = rawSubpackageId
         val packageName = normalizedSubpackageId
 
             try {
@@ -233,7 +228,7 @@ internal object ToolPkgArchiveParser {
                         ?: throw IllegalArgumentException(
                             "Cannot find subpackage entry '${subpackage.entry}'"
                         )
-                val jsContent = entryBytes.toString(StandardCharsets.UTF_8)
+        val jsContent = entryBytes.toString(StandardCharsets.UTF_8)
         val parsedPackage =
                     parseJsPackage(jsContent) { _, error ->
                         reportPackageLoadError(packageName, "${sourcePath}:${subpackage.entry}: ${error}")
@@ -241,23 +236,20 @@ internal object ToolPkgArchiveParser {
                         ?: throw IllegalArgumentException(
                             "Failed to parse subpackage script '${subpackage.entry}'"
                         )
-
-                val resolvedDescription = parsedPackage.description
+        val resolvedDescription = parsedPackage.description
         val resolvedDisplayName =
                     if (hasLocalizedTextContent(parsedPackage.displayName)) {
                         parsedPackage.displayName
                     } else {
                         LocalizedText.of(parsedPackage.name)
                     }
-
-                val normalizedPackage =
+        val normalizedPackage =
                     parsedPackage.copy(
                         name = packageName,
                         isBuiltIn = isBuiltIn
                     )
-
-                subpackagePackages.add(normalizedPackage)
-                subpackageRuntimes.add(
+        subpackagePackages.add(normalizedPackage)
+        subpackageRuntimes.add(
                     ToolPkgSubpackageRuntime(
                         packageName = packageName,
                         containerPackageName = manifest.toolpkgId,
@@ -275,40 +267,37 @@ internal object ToolPkgArchiveParser {
                 )
             }
         }
-
         if (manifest.subpackages.isNotEmpty() && subpackagePackages.isEmpty()) {
             throw IllegalArgumentException(
                 "No valid subpackages were loaded from toolpkg '${manifest.toolpkgId}'"
             )
         }
-
         val resources =
             manifest.resources.map { resource ->
                 if (resource.key.isBlank()) {
                     throw IllegalArgumentException("resource.key is required")
                 }
-                if (resource.path.isBlank()) {
+        if (resource.path.isBlank()) {
                     throw IllegalArgumentException(
                         "resource.path is required for key '${resource.key}'"
                     )
                 }
-                val normalizedPath =
+        val normalizedPath =
                     normalizeResourcePath(resource.path)
                         ?: throw IllegalArgumentException("Invalid resource path: ${resource.path}")
-                if (isDirectoryResourceMime(resource.mime)) {
+        if (isDirectoryResourceMime(resource.mime)) {
                     if (!containsZipEntriesUnderDirectory(entries, normalizedPath)) {
                         throw IllegalArgumentException("Cannot find resource directory '${resource.path}'")
                     }
                 } else if (!containsZipEntry(entries, normalizedPath)) {
                     throw IllegalArgumentException("Cannot find resource path '${resource.path}'")
                 }
-                ToolPkgResourceRuntime(
+        ToolPkgResourceRuntime(
                     key = resource.key,
                     path = normalizedPath,
                     mime = resource.mime
                 )
             }
-
         val containerDisplayName =
             if (hasLocalizedTextContent(manifest.displayName)) {
                 manifest.displayName
@@ -321,31 +310,28 @@ internal object ToolPkgArchiveParser {
                     "Failed to parse main registration from '${manifest.main}'. " +
                         "main script must export registerToolPkg()"
                 )
-
         val uiModules = mutableListOf<ToolPkgUiModuleRuntime>()
         val uiModuleIds = linkedSetOf<String>()
         mainRegistration.toolboxUiModules.forEachIndexed { index, module ->
             val id = module.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOLBOX_UI_MODULE}[${index}].id is required")
             }
-            if (!uiModuleIds.add(id.lowercase())) {
+        if (!uiModuleIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate toolbox ui module id: ${id}")
             }
-
-            val runtimeName = module.runtime.trim().ifBlank { TOOLPKG_RUNTIME_COMPOSE_DSL }
+        val runtimeName = module.runtime.trim().ifBlank { TOOLPKG_RUNTIME_COMPOSE_DSL }
         val normalizedScreenPath =
                 normalizeZipEntryPath(module.screen)
                     ?: throw IllegalArgumentException(
                         "${TOOLPKG_REGISTRATION_TOOLBOX_UI_MODULE}[${index}].screen is invalid: ${module.screen}"
                     )
-            if (!containsZipEntry(entries, normalizedScreenPath)) {
+        if (!containsZipEntry(entries, normalizedScreenPath)) {
                 throw IllegalArgumentException(
                     "${TOOLPKG_REGISTRATION_TOOLBOX_UI_MODULE}[${index}].screen not found: ${module.screen}"
                 )
             }
-
-            uiModules.add(
+        uiModules.add(
                 ToolPkgUiModuleRuntime(
                     id = id,
                     runtime = runtimeName,
@@ -354,28 +340,25 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val appLifecycleHooks = mutableListOf<ToolPkgAppLifecycleHookRuntime>()
         val hookIds = linkedSetOf<String>()
         mainRegistration.appLifecycleHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].id is required")
             }
-            if (!hookIds.add(id.lowercase())) {
+        if (!hookIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate app lifecycle hook id: ${id}")
             }
-
-            val event = hook.event.trim().lowercase()
+        val event = hook.event.trim().lowercase()
         val function = hook.function.trim()
-            if (event.isBlank()) {
+        if (event.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].event is required")
             }
-            if (function.isBlank()) {
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].function is required")
             }
-
-            appLifecycleHooks.add(
+        appLifecycleHooks.add(
                 ToolPkgAppLifecycleHookRuntime(
                     id = id,
                     event = event,
@@ -384,23 +367,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val messageProcessingPlugins = mutableListOf<ToolPkgFunctionHookRuntime>()
         val messageProcessingIds = linkedSetOf<String>()
         mainRegistration.messageProcessingPlugins.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_MESSAGE_PROCESSING_PLUGIN}[${index}].id is required")
             }
-            if (!messageProcessingIds.add(id.lowercase())) {
+        if (!messageProcessingIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate message processing plugin id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_MESSAGE_PROCESSING_PLUGIN}[${index}].function is required")
             }
-            messageProcessingPlugins.add(
+        messageProcessingPlugins.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -408,27 +389,25 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val xmlRenderPlugins = mutableListOf<ToolPkgTagFunctionHookRuntime>()
         val xmlRenderIds = linkedSetOf<String>()
         mainRegistration.xmlRenderPlugins.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_XML_RENDER_PLUGIN}[${index}].id is required")
             }
-            if (!xmlRenderIds.add(id.lowercase())) {
+        if (!xmlRenderIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate xml render plugin id: ${id}")
             }
-
-            val tag = hook.tag.trim().lowercase()
+        val tag = hook.tag.trim().lowercase()
         val function = hook.function.trim()
-            if (tag.isBlank()) {
+        if (tag.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_XML_RENDER_PLUGIN}[${index}].tag is required")
             }
-            if (function.isBlank()) {
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_XML_RENDER_PLUGIN}[${index}].function is required")
             }
-            xmlRenderPlugins.add(
+        xmlRenderPlugins.add(
                 ToolPkgTagFunctionHookRuntime(
                     id = id,
                     tag = tag,
@@ -437,23 +416,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val inputMenuTogglePlugins = mutableListOf<ToolPkgFunctionHookRuntime>()
         val inputMenuToggleIds = linkedSetOf<String>()
         mainRegistration.inputMenuTogglePlugins.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_INPUT_MENU_TOGGLE_PLUGIN}[${index}].id is required")
             }
-            if (!inputMenuToggleIds.add(id.lowercase())) {
+        if (!inputMenuToggleIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate input menu toggle plugin id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_INPUT_MENU_TOGGLE_PLUGIN}[${index}].function is required")
             }
-            inputMenuTogglePlugins.add(
+        inputMenuTogglePlugins.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -461,23 +438,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val toolLifecycleHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val toolLifecycleIds = linkedSetOf<String>()
         mainRegistration.toolLifecycleHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOL_LIFECYCLE_HOOK}[${index}].id is required")
             }
-            if (!toolLifecycleIds.add(id.lowercase())) {
+        if (!toolLifecycleIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate tool lifecycle hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOL_LIFECYCLE_HOOK}[${index}].function is required")
             }
-            toolLifecycleHooks.add(
+        toolLifecycleHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -485,23 +460,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val promptInputHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val promptInputIds = linkedSetOf<String>()
         mainRegistration.promptInputHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_INPUT_HOOK}[${index}].id is required")
             }
-            if (!promptInputIds.add(id.lowercase())) {
+        if (!promptInputIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate prompt input hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_INPUT_HOOK}[${index}].function is required")
             }
-            promptInputHooks.add(
+        promptInputHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -509,23 +482,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val promptHistoryHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val promptHistoryIds = linkedSetOf<String>()
         mainRegistration.promptHistoryHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_HISTORY_HOOK}[${index}].id is required")
             }
-            if (!promptHistoryIds.add(id.lowercase())) {
+        if (!promptHistoryIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate prompt history hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_HISTORY_HOOK}[${index}].function is required")
             }
-            promptHistoryHooks.add(
+        promptHistoryHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -533,23 +504,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val promptEstimateHistoryHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val promptEstimateHistoryIds = linkedSetOf<String>()
         mainRegistration.promptEstimateHistoryHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_ESTIMATE_HISTORY_HOOK}[${index}].id is required")
             }
-            if (!promptEstimateHistoryIds.add(id.lowercase())) {
+        if (!promptEstimateHistoryIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate prompt estimate history hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_ESTIMATE_HISTORY_HOOK}[${index}].function is required")
             }
-            promptEstimateHistoryHooks.add(
+        promptEstimateHistoryHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -557,23 +526,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val systemPromptComposeHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val systemPromptComposeIds = linkedSetOf<String>()
         mainRegistration.systemPromptComposeHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_SYSTEM_PROMPT_COMPOSE_HOOK}[${index}].id is required")
             }
-            if (!systemPromptComposeIds.add(id.lowercase())) {
+        if (!systemPromptComposeIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate system prompt compose hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_SYSTEM_PROMPT_COMPOSE_HOOK}[${index}].function is required")
             }
-            systemPromptComposeHooks.add(
+        systemPromptComposeHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -581,23 +548,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val toolPromptComposeHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val toolPromptComposeIds = linkedSetOf<String>()
         mainRegistration.toolPromptComposeHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOL_PROMPT_COMPOSE_HOOK}[${index}].id is required")
             }
-            if (!toolPromptComposeIds.add(id.lowercase())) {
+        if (!toolPromptComposeIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate tool prompt compose hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOL_PROMPT_COMPOSE_HOOK}[${index}].function is required")
             }
-            toolPromptComposeHooks.add(
+        toolPromptComposeHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -605,23 +570,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val promptFinalizeHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val promptFinalizeIds = linkedSetOf<String>()
         mainRegistration.promptFinalizeHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_FINALIZE_HOOK}[${index}].id is required")
             }
-            if (!promptFinalizeIds.add(id.lowercase())) {
+        if (!promptFinalizeIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate prompt finalize hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_FINALIZE_HOOK}[${index}].function is required")
             }
-            promptFinalizeHooks.add(
+        promptFinalizeHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -629,23 +592,21 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val promptEstimateFinalizeHooks = mutableListOf<ToolPkgFunctionHookRuntime>()
         val promptEstimateFinalizeIds = linkedSetOf<String>()
         mainRegistration.promptEstimateFinalizeHooks.forEachIndexed { index, hook ->
             val id = hook.id.trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_ESTIMATE_FINALIZE_HOOK}[${index}].id is required")
             }
-            if (!promptEstimateFinalizeIds.add(id.lowercase())) {
+        if (!promptEstimateFinalizeIds.add(id.lowercase())) {
                 throw IllegalArgumentException("Duplicate prompt estimate finalize hook id: ${id}")
             }
-
-            val function = hook.function.trim()
-            if (function.isBlank()) {
+        val function = hook.function.trim()
+        if (function.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_PROMPT_ESTIMATE_FINALIZE_HOOK}[${index}].function is required")
             }
-            promptEstimateFinalizeHooks.add(
+        promptEstimateFinalizeHooks.add(
                 ToolPkgFunctionHookRuntime(
                     id = id,
                     function = function,
@@ -653,14 +614,12 @@ internal object ToolPkgArchiveParser {
                 )
             )
         }
-
         val containerDescription =
             when {
                 hasLocalizedTextContent(manifest.description) -> manifest.description
                 hasLocalizedTextContent(manifest.displayName) -> manifest.displayName
                 else -> LocalizedText.of(manifest.toolpkgId)
             }
-
         val containerPackage =
             ToolPackage(
                 name = manifest.toolpkgId,
@@ -671,7 +630,6 @@ internal object ToolPkgArchiveParser {
                 displayName = containerDisplayName,
                 category = "ToolPkg"
             )
-
         val runtime =
             ToolPkgContainerRuntime(
                 packageName = manifest.toolpkgId,
@@ -697,30 +655,27 @@ internal object ToolPkgArchiveParser {
                 promptFinalizeHooks = promptFinalizeHooks,
                 promptEstimateFinalizeHooks = promptEstimateFinalizeHooks
             )
-
         return ToolPkgLoadResult(
             containerPackage = containerPackage,
             subpackagePackages = subpackagePackages,
             containerRuntime = runtime
         )
     }
-
-    fun readZipEntries(input: InputStream): Map<String, ByteArray> {
+        fun readZipEntries(input: InputStream): Map<String, ByteArray> {
         val entries = linkedMapOf<String, ByteArray>()
         ZipInputStream(input.buffered()).use { zipInput ->
             while (true) {
                 val entry = zipInput.nextEntry ?: break
         val normalizedName = normalizeZipEntryPath(entry.name)
-                if (!entry.isDirectory && normalizedName != null) {
+        if (!entry.isDirectory && normalizedName != null) {
                     entries[normalizedName] = zipInput.readBytes()
                 }
-                zipInput.closeEntry()
+        zipInput.closeEntry()
             }
         }
         return entries
     }
-
-    fun normalizeZipEntryPath(rawPath: String): String? {
+        fun normalizeZipEntryPath(rawPath: String): String? {
         val normalized = rawPath.replace('\\', '/').trim().trimStart('/')
         if (normalized.isBlank()) {
             return null
@@ -730,43 +685,38 @@ internal object ToolPkgArchiveParser {
         }
         return normalized
     }
-
-    fun normalizeResourcePath(rawPath: String): String? {
+        fun normalizeResourcePath(rawPath: String): String? {
         val normalized = normalizeZipEntryPath(rawPath) ?: return null
         return normalized.trimEnd('/').ifBlank { null }
     }
-
-    fun isDirectoryResourceMime(mime: String): Boolean {
+        fun isDirectoryResourceMime(mime: String): Boolean {
         val normalizedMime = mime?.trim()?.lowercase().orEmpty()
         return TOOLPKG_DIRECTORY_RESOURCE_MIME_TYPES.contains(normalizedMime)
     }
-
-    fun findZipEntryContent(entries: Map<String, ByteArray>, rawPath: String): ByteArray? {
+        fun findZipEntryContent(entries: Map<String, ByteArray>, rawPath: String): ByteArray? {
         val normalizedPath = normalizeZipEntryPath(rawPath) ?: return null
         entries[normalizedPath]?.let { return it }
         return entries.entries.firstOrNull { it.key.equals(normalizedPath, ignoreCase = true) }?.value
     }
-
-    fun extractZipEntriesFromExternal(zipFilePath: String, destinationDir: File): Boolean {
+        fun extractZipEntriesFromExternal(zipFilePath: String, destinationDir: File): Boolean {
         val zipFile = File(zipFilePath)
         if (!zipFile.exists()) {
             return false
         }
-
         ZipFile(zipFile).use { archive ->
             val entries = archive.entries()
-            while (entries.hasMoreElements()) {
+        while (entries.hasMoreElements()) {
                 val entry = entries.nextElement()
-                if (entry.isDirectory) {
+        if (entry.isDirectory) {
                     continue
                 }
-                val normalizedEntry = normalizeZipEntryPath(entry.name) ?: continue
+        val normalizedEntry = normalizeZipEntryPath(entry.name) ?: continue
         val outputFile = File(destinationDir, normalizedEntry)
-                val parent = outputFile.parentFile
+        val parent = outputFile.parentFile
                 if (parent != null && !parent.exists()) {
                     parent.mkdirs()
                 }
-                archive.getInputStream(entry).use { input ->
+        archive.getInputStream(entry).use { input ->
                     outputFile.outputStream().use { output ->
                         input.copyTo(output)
                     }
@@ -775,8 +725,7 @@ internal object ToolPkgArchiveParser {
         }
         return true
     }
-
-    fun extractZipEntriesFromAsset(
+        fun extractZipEntriesFromAsset(
         context: Context,
         assetPath: String,
         destinationDir: File
@@ -787,42 +736,39 @@ internal object ToolPkgArchiveParser {
                     val entry = zipInput.nextEntry ?: break
                     if (entry.isDirectory) {
                         zipInput.closeEntry()
-                        continue
+        continue
                     }
-                    val normalizedEntry = normalizeZipEntryPath(entry.name)
-                    if (normalizedEntry != null) {
+        val normalizedEntry = normalizeZipEntryPath(entry.name)
+        if (normalizedEntry != null) {
                         val outputFile = File(destinationDir, normalizedEntry)
         val parent = outputFile.parentFile
                         if (parent != null && !parent.exists()) {
                             parent.mkdirs()
                         }
-                        outputFile.outputStream().use { output ->
+        outputFile.outputStream().use { output ->
                             zipInput.copyTo(output)
                         }
                     }
-                    zipInput.closeEntry()
+        zipInput.closeEntry()
                 }
             }
         }
         return true
     }
-
-    private fun containsZipEntry(entries: Map<String, ByteArray>, normalizedPath: String): Boolean {
+        private fun containsZipEntry(entries: Map<String, ByteArray>, normalizedPath: String): Boolean {
         if (entries.containsKey(normalizedPath)) {
             return true
         }
         return entries.keys.any { it.equals(normalizedPath, ignoreCase = true) }
     }
-
-    private fun containsZipEntriesUnderDirectory(
+        private fun containsZipEntriesUnderDirectory(
         entries: Map<String, ByteArray>,
         normalizedDirectoryPath: String
     ): Boolean {
         val prefix = normalizedDirectoryPath.trimEnd('/') + "/"
         return entries.keys.any { it.startsWith(prefix, ignoreCase = true) }
     }
-
-    private fun findManifestEntry(entries: Map<String, ByteArray>): String? {
+        private fun findManifestEntry(entries: Map<String, ByteArray>): String? {
         val exactHjson = entries.keys.firstOrNull { it.equals("manifest.hjson", ignoreCase = true) }
         if (exactHjson != null) return exactHjson
 
@@ -839,20 +785,17 @@ internal object ToolPkgArchiveParser {
             it.substringAfterLast('/').equals("manifest.json", ignoreCase = true)
         }
     }
-
-    private fun parseToolPkgManifest(content: String, manifestEntryName: String): ToolPkgManifest {
+        private fun parseToolPkgManifest(content: String, manifestEntryName: String): ToolPkgManifest {
         val manifestJson =
             if (manifestEntryName.endsWith(".hjson", ignoreCase = true)) {
                 JsonValue.readHjson(content).toString()
             } else {
                 content
             }
-
         val jsonConfig = Json { ignoreUnknownKeys = true }
         return jsonConfig.decodeFromString<ToolPkgManifest>(manifestJson)
     }
-
-    private fun hasLocalizedTextContent(text: LocalizedText): Boolean {
+        private fun hasLocalizedTextContent(text: LocalizedText): Boolean {
         return text?.values?.values?.any { it.isNotBlank() } == true
     }
 }

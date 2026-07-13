@@ -7,8 +7,7 @@ import org.json.JSONObject
 
 internal object ToolPkgMainRegistrationScriptParser {
     private const val TAG = "ToolPkgMainRegParser"
-
-    fun parse(
+        fun parse(
         script: String,
         toolPkgId: String,
         mainScriptPath: String,
@@ -28,64 +27,64 @@ internal object ToolPkgMainRegistrationScriptParser {
                             "__Apex_script_screen" to mainScriptPath
                         )
                 )
-            val uiModules = parseRegisteredUiModules(captured.toolboxUiModules)
+        val uiModules = parseRegisteredUiModules(captured.toolboxUiModules)
         val appLifecycleHooks = parseRegisteredAppLifecycleHooks(captured.appLifecycleHooks)
-            val messageProcessingPlugins =
+        val messageProcessingPlugins =
                 parseRegisteredFunctionHooks(
                     registrations = captured.messageProcessingPlugins,
                     registryName = TOOLPKG_REGISTRATION_MESSAGE_PROCESSING_PLUGIN
                 )
-            val xmlRenderPlugins =
+        val xmlRenderPlugins =
                 parseRegisteredTagFunctionHooks(
                     registrations = captured.xmlRenderPlugins,
                     registryName = TOOLPKG_REGISTRATION_XML_RENDER_PLUGIN
                 )
-            val inputMenuTogglePlugins =
+        val inputMenuTogglePlugins =
                 parseRegisteredFunctionHooks(
                     registrations = captured.inputMenuTogglePlugins,
                     registryName = TOOLPKG_REGISTRATION_INPUT_MENU_TOGGLE_PLUGIN
                 )
-            val toolLifecycleHooks =
+        val toolLifecycleHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.toolLifecycleHooks,
                     registryName = TOOLPKG_REGISTRATION_TOOL_LIFECYCLE_HOOK
                 )
-            val promptInputHooks =
+        val promptInputHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.promptInputHooks,
                     registryName = TOOLPKG_REGISTRATION_PROMPT_INPUT_HOOK
                 )
-            val promptHistoryHooks =
+        val promptHistoryHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.promptHistoryHooks,
                     registryName = TOOLPKG_REGISTRATION_PROMPT_HISTORY_HOOK
                 )
-            val promptEstimateHistoryHooks =
+        val promptEstimateHistoryHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.promptEstimateHistoryHooks,
                     registryName = TOOLPKG_REGISTRATION_PROMPT_ESTIMATE_HISTORY_HOOK
                 )
-            val systemPromptComposeHooks =
+        val systemPromptComposeHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.systemPromptComposeHooks,
                     registryName = TOOLPKG_REGISTRATION_SYSTEM_PROMPT_COMPOSE_HOOK
                 )
-            val toolPromptComposeHooks =
+        val toolPromptComposeHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.toolPromptComposeHooks,
                     registryName = TOOLPKG_REGISTRATION_TOOL_PROMPT_COMPOSE_HOOK
                 )
-            val promptFinalizeHooks =
+        val promptFinalizeHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.promptFinalizeHooks,
                     registryName = TOOLPKG_REGISTRATION_PROMPT_FINALIZE_HOOK
                 )
-            val promptEstimateFinalizeHooks =
+        val promptEstimateFinalizeHooks =
                 parseRegisteredFunctionHooks(
                     registrations = captured.promptEstimateFinalizeHooks,
                     registryName = TOOLPKG_REGISTRATION_PROMPT_ESTIMATE_FINALIZE_HOOK
                 )
-            ToolPkgMainRegistration(
+        ToolPkgMainRegistration(
                 toolboxUiModules = uiModules,
                 appLifecycleHooks = appLifecycleHooks,
                 messageProcessingPlugins = messageProcessingPlugins,
@@ -102,17 +101,16 @@ internal object ToolPkgMainRegistrationScriptParser {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to parse toolpkg main registration: ${toolPkgId}", e)
-            val message = e.message?.takeIf { it.isNotBlank() } ?: e.javaClass.simpleName
+        val message = e.message?.takeIf { it.isNotBlank() } ?: e.javaClass.simpleName
             AppLogger.e(
                 "ToolPkg",
                 "PKG: main registration parse failed, toolPkgId=${toolPkgId}, reason=${message}",
                 e
             )
-            null
+        null
         }
     }
-
-    private fun parseRegisteredUiModules(
+        private fun parseRegisteredUiModules(
         registrations: List<String>
     ): List<ToolPkgRegisteredUiModule> {
         val modules = mutableListOf<ToolPkgRegisteredUiModule>()
@@ -126,19 +124,17 @@ internal object ToolPkgMainRegistrationScriptParser {
                         e
                     )
                 }
-
-            val id = item.optString("id").trim()
+        val id = item.optString("id").trim()
         val screen = item.optString("screen").trim()
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOLBOX_UI_MODULE}[${index}].id is required")
             }
-            if (screen.isBlank()) {
+        if (screen.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_TOOLBOX_UI_MODULE}[${index}].screen is required")
             }
-
-            val runtime = item.optString("runtime").trim().ifBlank { TOOLPKG_RUNTIME_COMPOSE_DSL }
+        val runtime = item.optString("runtime").trim().ifBlank { TOOLPKG_RUNTIME_COMPOSE_DSL }
         val title = parseLocalizedText(item.opt("title"), fallback = id)
-            modules.add(
+        modules.add(
                 ToolPkgRegisteredUiModule(
                     id = id,
                     runtime = runtime,
@@ -149,8 +145,7 @@ internal object ToolPkgMainRegistrationScriptParser {
         }
         return modules
     }
-
-    private fun parseRegisteredAppLifecycleHooks(
+        private fun parseRegisteredAppLifecycleHooks(
         registrations: List<String>
     ): List<ToolPkgRegisteredAppLifecycleHook> {
         val hooks = mutableListOf<ToolPkgRegisteredAppLifecycleHook>()
@@ -164,22 +159,20 @@ internal object ToolPkgMainRegistrationScriptParser {
                         e
                     )
                 }
-            val id = item.optString("id").trim()
+        val id = item.optString("id").trim()
         val event = item.optString("event").trim()
-            val functionName = item.optString("function").trim()
+        val functionName = item.optString("function").trim()
         val functionSource = item.optString("function_source").trim().ifBlank { null }
-
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].id is required")
             }
-            if (event.isBlank()) {
+        if (event.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].event is required")
             }
-            if (functionName.isBlank()) {
+        if (functionName.isBlank()) {
                 throw IllegalArgumentException("${TOOLPKG_REGISTRATION_APP_LIFECYCLE_HOOK}[${index}].function is required")
             }
-
-            hooks.add(
+        hooks.add(
                 ToolPkgRegisteredAppLifecycleHook(
                     id = id,
                     event = event,
@@ -190,8 +183,7 @@ internal object ToolPkgMainRegistrationScriptParser {
         }
         return hooks
     }
-
-    private fun parseRegisteredFunctionHooks(
+        private fun parseRegisteredFunctionHooks(
         registrations: List<String>,
         registryName: String
     ): List<ToolPkgRegisteredFunctionHook> {
@@ -206,18 +198,16 @@ internal object ToolPkgMainRegistrationScriptParser {
                         e
                     )
                 }
-            val id = item.optString("id").trim()
+        val id = item.optString("id").trim()
         val functionName = item.optString("function").trim()
-            val functionSource = item.optString("function_source").trim().ifBlank { null }
-
-            if (id.isBlank()) {
+        val functionSource = item.optString("function_source").trim().ifBlank { null }
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${registryName}[${index}].id is required")
             }
-            if (functionName.isBlank()) {
+        if (functionName.isBlank()) {
                 throw IllegalArgumentException("${registryName}[${index}].function is required")
             }
-
-            hooks.add(
+        hooks.add(
                 ToolPkgRegisteredFunctionHook(
                     id = id,
                     function = functionName,
@@ -227,8 +217,7 @@ internal object ToolPkgMainRegistrationScriptParser {
         }
         return hooks
     }
-
-    private fun parseRegisteredTagFunctionHooks(
+        private fun parseRegisteredTagFunctionHooks(
         registrations: List<String>,
         registryName: String
     ): List<ToolPkgRegisteredTagFunctionHook> {
@@ -243,22 +232,20 @@ internal object ToolPkgMainRegistrationScriptParser {
                         e
                     )
                 }
-            val id = item.optString("id").trim()
+        val id = item.optString("id").trim()
         val tagName = item.optString("tag").trim()
-            val functionName = item.optString("function").trim()
+        val functionName = item.optString("function").trim()
         val functionSource = item.optString("function_source").trim().ifBlank { null }
-
-            if (id.isBlank()) {
+        if (id.isBlank()) {
                 throw IllegalArgumentException("${registryName}[${index}].id is required")
             }
-            if (tagName.isBlank()) {
+        if (tagName.isBlank()) {
                 throw IllegalArgumentException("${registryName}[${index}].tag is required")
             }
-            if (functionName.isBlank()) {
+        if (functionName.isBlank()) {
                 throw IllegalArgumentException("${registryName}[${index}].function is required")
             }
-
-            hooks.add(
+        hooks.add(
                 ToolPkgRegisteredTagFunctionHook(
                     id = id,
                     tag = tagName,
@@ -269,45 +256,42 @@ internal object ToolPkgMainRegistrationScriptParser {
         }
         return hooks
     }
-
-    private fun parseLocalizedText(raw: Any?, fallback: String): LocalizedText {
+        private fun parseLocalizedText(raw: Any?, fallback: String): LocalizedText {
         if (raw is String) {
             val text = raw.trim()
-            if (text.isNotBlank()) {
+        if (text.isNotBlank()) {
                 return LocalizedText.of(text)
             }
         }
-
         val json =
             when (raw) {
                 is JSONObject -> raw
                 is Map<*, *> -> JSONObject(raw)
-                is String ->
+        is String ->
                     try {
                         JSONObject(raw)
                     } catch (_: Exception) {
                         null
                     }
-                else -> null
+        else -> null
             }
         if (json != null) {
             val values = linkedMapOf<String, String>()
         val keys = json.keys()
-            while (keys.hasNext()) {
+        while (keys.hasNext()) {
                 val key = keys.next()
         val value = json.optString(key).trim()
-                if (value.isNotBlank()) {
+        if (value.isNotBlank()) {
                     values[key] = value
                 }
             }
-            if (values.isNotEmpty()) {
+        if (values.isNotEmpty()) {
                 if (!values.containsKey("default")) {
                     values["default"] = values.values.first()
                 }
-                return LocalizedText(values)
+        return LocalizedText(values)
             }
         }
-
         return LocalizedText.of(fallback)
     }
 }

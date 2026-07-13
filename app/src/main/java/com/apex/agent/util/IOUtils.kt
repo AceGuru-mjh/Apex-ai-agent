@@ -40,7 +40,7 @@ object IOUtils {
         var bytesRead: Int
         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
             outputStream.write(buffer, 0, bytesRead)
-            bytesCopied += bytesRead
+        bytesCopied += bytesRead
         }
         outputStream.flush()
         return bytesCopied
@@ -56,7 +56,7 @@ object IOUtils {
         val output = ByteArrayOutputStream()
         try {
             copyStream(inputStream, output)
-            return output.toByteArray()
+        return output.toByteArray()
         } finally {
             try {
                 output.close()
@@ -240,7 +240,7 @@ object IOUtils {
      * @throws IOException 如果文件不存在或无法读取
      */
     @Throws(IOException::class)
-    fun fileToInputStream(file: File): FileInputStream {
+        fun fileToInputStream(file: File): FileInputStream {
         return FileInputStream(file)
     }
 
@@ -273,10 +273,10 @@ object IOUtils {
             if (parentDir != null && !parentDir.exists()) {
                 parentDir.mkdirs()
             }
-            val outputStream = FileOutputStream(targetFile, append)
-            try {
+        val outputStream = FileOutputStream(targetFile, append)
+        try {
                 copyStream(inputStream, outputStream)
-                true
+        true
             } finally {
                 closeQuietly(outputStream)
             }

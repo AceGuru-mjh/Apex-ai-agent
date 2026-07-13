@@ -18,13 +18,12 @@ class ExeIconChanger(private val context: Context) {
         private const val TEMP_DIR = "exe_icon_temp"
         
         // PE文件头部常量
-                private const val PE_SIGNATURE = 0x4550 // "PE"
+        private const val PE_SIGNATURE = 0x4550 // "PE"
         private const val PE_OPTIONAL_HEADER_OFFSET = 24
         private const val RESOURCE_TABLE_ENTRY = 2 // 资源表在数据目录中的索引
-                private const val DOS_SIGNATURE = 0x5A4D // "MZ"
+        private const val DOS_SIGNATURE = 0x5A4D // "MZ"
     }
-    
-    private val tempDir: File by lazy {
+        private val tempDir: File by lazy {
         File(context.cacheDir, TEMP_DIR).apply { if (!exists()) mkdirs() }
     }
 
@@ -37,29 +36,27 @@ class ExeIconChanger(private val context: Context) {
      */
     fun changeIcon(exeFile: File, iconBitmap: Bitmap, outputFile: File): Boolean {
         AppLogger.d(TAG, "开始更换EXE图标: ${exeFile.absolutePath}")
-        
         try {
             // 先将文件复制到输出位置
-                if (outputFile.exists()) {
+        if (outputFile.exists()) {
                 outputFile.delete()
             }
-            outputFile.parentFile?.mkdirs()
-            exeFile.copyTo(outputFile, overwrite = true)
+        outputFile.parentFile?.mkdirs()
+        exeFile.copyTo(outputFile, overwrite = true)
             
             // 创建临时ICO文件
-    val tempIconFile = File.createTempFile("temp_icon", ".ico")
-            createIcoFile(iconBitmap, tempIconFile)
+        val tempIconFile = File.createTempFile("temp_icon", ".ico")
+        createIcoFile(iconBitmap, tempIconFile)
             
             // 调用资源替换工具 (在Android上我们只能模拟这个操作，无法实际执行，
-    val success = simulateResourceReplacement(outputFile, tempIconFile)
+        val success = simulateResourceReplacement(outputFile, tempIconFile)
             
             // 清理临时文件
-                tempIconFile.delete()
-            
-            return success
+        tempIconFile.delete()
+        return success
         } catch (e: Exception) {
             AppLogger.e(TAG, "更换EXE图标失败", e)
-            return false
+        return false
         }
     }
     
@@ -70,25 +67,25 @@ class ExeIconChanger(private val context: Context) {
      */
     private fun createIcoFile(bitmap: Bitmap, outputFile: File) {
         // ICO文件格式的简化实例
-                try {
+        try {
             FileOutputStream(outputFile).use { fos ->
                 // ICO文件失6字节，
-    val header = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN)
+        val header = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN)
                     .putShort(0) // 保留，必须为0
                     .putShort(1) // 图像类型: 1 = ICO
                     .putShort(1) // 图像数量: 1，
-                fos.write(header.array())
+        fos.write(header.array())
                 
                 // 图像目录 (16字节，
-    val width = bitmap.width.coerceAtMost(256)
+        val width = bitmap.width.coerceAtMost(256)
         val height = bitmap.height.coerceAtMost(256)
-                val widthByte = if (width == 256) 0 else width
+        val widthByte = if (width == 256) 0 else width
         val heightByte = if (height == 256) 0 else height
                 
                 // 将图像转换为PNG格式
-    val imageData = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, imageData)
-                val imageBytes = imageData.toByteArray()
+        val imageData = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, imageData)
+        val imageBytes = imageData.toByteArray()
         val imageSize = imageBytes.size
                 
                 val directory = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN)
@@ -98,16 +95,15 @@ class ExeIconChanger(private val context: Context) {
                     .put(0) // 保留，必须为0
                     .putShort(1) // 颜色平面，                   .putShort(32) // 每像素位置                   .putInt(imageSize) // 图像数据大小
                     .putInt(22) // 图像数据偏移，6 + 16 = 22)
-                fos.write(directory.array())
+        fos.write(directory.array())
                 
                 // 写入PNG图像数据
-                fos.write(imageBytes)
+        fos.write(imageBytes)
             }
-            
-            AppLogger.d(TAG, "临时ICO文件创建成功: ${outputFile.absolutePath}")
+        AppLogger.d(TAG, "临时ICO文件创建成功: ${outputFile.absolutePath}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "创建ICO文件失败", e)
-            throw e
+        throw e
         }
     }
     
@@ -121,7 +117,7 @@ class ExeIconChanger(private val context: Context) {
         AppLogger.d(TAG, "图标文件: ${iconFile.absolutePath}")
         
         // 这里我们只是模拟成功，实际上我们无法修改EXE文件
-                return true
+        return true
     }
     
     /**
@@ -133,27 +129,26 @@ class ExeIconChanger(private val context: Context) {
         try {
             RandomAccessFile(file, "r").use { raf ->
                 // 检查DOS头部
-                raf.seek(0)
-                val dosSignature = raf.readShort().toInt() and 0xFFFF
+        raf.seek(0)
+        val dosSignature = raf.readShort().toInt() and 0xFFFF
                 if (dosSignature != DOS_SIGNATURE) { // 将Short转为Int再比，
-                return false
+        return false
                 }
                 
                 // 获取PE头偏移量
-                raf.seek(0x3C)
-                val peOffset = raf.readInt()
+        raf.seek(0x3C)
+        val peOffset = raf.readInt()
                 
                 // 检查PE签名
-                raf.seek(peOffset.toLong())
-                if (raf.readInt() != 0x00004550) { // "PE\0\0"
-                    return false
+        raf.seek(peOffset.toLong())
+        if (raf.readInt() != 0x00004550) { // "PE\0\0"
+        return false
                 }
-                
-                return true
+        return true
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "检查PE文件格式失败", e)
-            return false
+        return false
         }
     }
 
@@ -161,7 +156,7 @@ class ExeIconChanger(private val context: Context) {
     fun cleanup() {
         if (tempDir.exists()) {
             tempDir.deleteRecursively()
-            AppLogger.d(TAG, "临时文件清理完成")
+        AppLogger.d(TAG, "临时文件清理完成")
         }
     }
 }

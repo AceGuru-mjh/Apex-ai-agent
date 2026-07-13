@@ -18,10 +18,8 @@ class StandardFFmpegToolExecutor(private val context: Context) : ToolExecutor {
     companion object {
         private const val TAG = "FFmpegToolExecutor"
     }
-
-    override fun invoke(tool: AITool): ToolResult {
+        override fun invoke(tool: AITool): ToolResult {
         val command = tool.parameters.find { it.name == "command" }?.value ?: ""
-
         if (command.isEmpty()) {
             return ToolResult(
                     toolName = tool.name,
@@ -30,12 +28,11 @@ class StandardFFmpegToolExecutor(private val context: Context) : ToolExecutor {
                     error = "Command cannot be empty"
             )
         }
-
         return try {
             val startTime = System.currentTimeMillis()
 
             // 执行FFmpeg命令
-    val session = FFmpegKit.execute(command)
+        val session = FFmpegKit.execute(command)
         val returnCode = session.returnCode
             val output = session.output ?: ""
         val duration = System.currentTimeMillis() - startTime
@@ -76,14 +73,12 @@ class StandardFFmpegToolExecutor(private val context: Context) : ToolExecutor {
             )
         }
     }
-
-    override fun validateParameters(tool: AITool): ToolValidationResult {
+        override fun validateParameters(tool: AITool): ToolValidationResult {
         val command = tool.parameters.find { it.name == "command" }?.value
 
         if (command.isNullOrEmpty()) {
             return ToolValidationResult(valid = false, errorMessage = "Must provide command parameter")
         }
-
         return ToolValidationResult(valid = true)
     }
 }
@@ -93,25 +88,23 @@ class StandardFFmpegInfoToolExecutor : ToolExecutor {
     companion object {
         private const val TAG = "FFmpegInfoToolExecutor"
     }
-
-    override fun invoke(tool: AITool): ToolResult {
+        override fun invoke(tool: AITool): ToolResult {
         return try {
             val info = StringBuilder()
         val startTime = System.currentTimeMillis()
 
             // 获取FFmpeg版本信息
-                info.appendLine("FFmpeg version: ${FFmpegKitConfig.getVersion()}")
-            info.appendLine("Build configuration: ${FFmpegKitConfig.getBuildDate()}")
+        info.appendLine("FFmpeg version: ${FFmpegKitConfig.getVersion()}")
+        info.appendLine("Build configuration: ${FFmpegKitConfig.getBuildDate()}")
 
             // 列出支持的编解码的
-    val codecsSession = FFmpegKit.execute("-codecs")
+        val codecsSession = FFmpegKit.execute("-codecs")
         val codecsOutput = codecsSession.output ?: ""
-            val duration = System.currentTimeMillis() - startTime
+        val duration = System.currentTimeMillis() - startTime
 
             info.appendLine("\nSupported codecs:")
-            info.appendLine(codecsOutput)
-
-            ToolResult(
+        info.appendLine(codecsOutput)
+        ToolResult(
                     toolName = tool.name,
                     success = true,
                     result =
@@ -131,10 +124,9 @@ class StandardFFmpegInfoToolExecutor : ToolExecutor {
             )
         }
     }
-
-    override fun validateParameters(tool: AITool): ToolValidationResult {
+        override fun validateParameters(tool: AITool): ToolValidationResult {
         // 不需要参数
-                return ToolValidationResult(valid = true)
+        return ToolValidationResult(valid = true)
     }
 }
 
@@ -143,8 +135,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
     companion object {
         private const val TAG = "FFmpegConvertToolExecutor"
     }
-
-    override fun invoke(tool: AITool): ToolResult {
+        override fun invoke(tool: AITool): ToolResult {
         val inputPath = tool.parameters.find { it.name == "input_path" }?.value ?: ""
         val outputPath = tool.parameters.find { it.name == "output_path" }?.value ?: ""
         val format = tool.parameters.find { it.name == "format" }?.value
@@ -161,7 +152,6 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                     error = "Input path and output path cannot be empty"
             )
         }
-
         val inputFile = File(inputPath)
         if (!inputFile.exists()) {
             return ToolResult(
@@ -173,42 +163,37 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
         }
 
         // 构建FFmpeg命令
-    val commandBuilder = StringBuilder("-i \"${inputPath}\"")
+        val commandBuilder = StringBuilder("-i \"${inputPath}\"")
 
         // 添加可选参数
-                if (!videoCodec.isNullOrEmpty()) {
+        if (!videoCodec.isNullOrEmpty()) {
             commandBuilder.append(" -c:v ${videoCodec}")
         }
-
         if (!audioCodec.isNullOrEmpty()) {
             commandBuilder.append(" -c:a ${audioCodec}")
         }
-
         if (!resolution.isNullOrEmpty()) {
             commandBuilder.append(" -s ${resolution}")
         }
-
         if (!bitrate.isNullOrEmpty()) {
             commandBuilder.append(" -b:v ${bitrate}")
         }
 
         // 添加输出文件
-                commandBuilder.append(" \"${outputPath}\"")
-
+        commandBuilder.append(" \"${outputPath}\"")
         val command = commandBuilder.toString()
-
         return try {
             val startTime = System.currentTimeMillis()
 
             // 执行FFmpeg命令
-    val session = FFmpegKit.execute(command)
+        val session = FFmpegKit.execute(command)
         val returnCode = session.returnCode
             val output = session.output ?: ""
         val duration = System.currentTimeMillis() - startTime
 
             if (ReturnCode.isSuccess(returnCode)) {
                 // 获取输出文件的媒体信息
-    val mediaSession = FFprobeKit.getMediaInformation(outputPath)
+        val mediaSession = FFprobeKit.getMediaInformation(outputPath)
         val mediaInfo = mediaSession?.mediaInformation
 
                 val ffmpegResult =
@@ -230,8 +215,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                                         )
                                             }
                                             .toMutableList()
-
-                            val audioStreams =
+        val audioStreams =
                                     mediaInfo
                                             .streams
                                             .filter { it.type.equals("audio", ignoreCase = true) }
@@ -243,7 +227,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                                         sampleRate =
                                                                 null, // We'll get this from FFprobe
                                                         // if needed
-                channels =
+        channels =
                                                                 null // We'll get this from FFprobe
                                                         // if needed
                                                         )
@@ -251,19 +235,19 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                             .toMutableList()
 
                             // Get additional media information using FFprobe
-    val ffprobeSession = FFprobeKit.getMediaInformation(outputPath)
+        val ffprobeSession = FFprobeKit.getMediaInformation(outputPath)
         val ffprobeInfo = ffprobeSession?.mediaInformation
 
                             if (ffprobeInfo != null) {
                                 // Update stream information with FFprobe data
-                ffprobeInfo.streams.forEach { probeStream ->
+        ffprobeInfo.streams.forEach { probeStream ->
                                     when (probeStream.type) {
                                         "video" -> {
                                             val index =
                                                     videoStreams.indexOfFirst {
                                                         it.index == probeStream.index?.toInt()
                                                     }
-                                            if (index != -1) {
+        if (index != -1) {
                                                 val stream = videoStreams[index]
                                                 videoStreams[index] =
                                                         stream.copy(
@@ -282,7 +266,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                                     audioStreams.indexOfFirst {
                                                         it.index == probeStream.index?.toInt()
                                                     }
-                                            if (index != -1) {
+        if (index != -1) {
                                                 val stream = audioStreams[index]
                                                 audioStreams[index] =
                                                         stream.copy(
@@ -303,8 +287,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                     }
                                 }
                             }
-
-                            FFmpegResultData(
+        FFmpegResultData(
                                     command = command,
                                     returnCode = returnCode.value,
                                     output = output,
@@ -328,8 +311,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                     outputFile = outputPath
                             )
                         }
-
-                ToolResult(toolName = tool.name, success = true, result = ffmpegResult)
+        ToolResult(toolName = tool.name, success = true, result = ffmpegResult)
             } else {
                 ToolResult(
                         toolName = tool.name,
@@ -347,19 +329,16 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
             )
         }
     }
-
-    override fun validateParameters(tool: AITool): ToolValidationResult {
+        override fun validateParameters(tool: AITool): ToolValidationResult {
         val inputPath = tool.parameters.find { it.name == "input_path" }?.value
         val outputPath = tool.parameters.find { it.name == "output_path" }?.value
 
         if (inputPath.isNullOrEmpty()) {
             return ToolValidationResult(valid = false, errorMessage = "Must provide input_path parameter")
         }
-
         if (outputPath.isNullOrEmpty()) {
             return ToolValidationResult(valid = false, errorMessage = "Must provide output_path parameter")
         }
-
         return ToolValidationResult(valid = true)
     }
 }

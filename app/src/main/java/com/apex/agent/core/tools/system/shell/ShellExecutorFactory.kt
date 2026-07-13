@@ -11,7 +11,7 @@ class ShellExecutorFactory {
         private const val TAG = "ShellExecutorFactory"
 
         // 缓存已创建的执行器实例
-    private val executors = mutableMapOf<AndroidPermissionLevel, ShellExecutor>()
+        private val executors = mutableMapOf<AndroidPermissionLevel, ShellExecutor>()
 
         /**
          * 获取指定权限级别的Shell执行的
@@ -23,26 +23,26 @@ class ShellExecutorFactory {
             // AppLogger.d(TAG, "Requested shell executor for permission level: ${permissionLevel}")
 
             // 检查缓存中是否已有该级别的执行的
-                executors[permissionLevel]?.let {
+        executors[permissionLevel]?.let {
                 // AppLogger.d(TAG, "Returning cached executor for level: ${permissionLevel}")
-                return it
+        return it
             }
 
             // 创建新的执行器实例
-    val executor =
+        val executor =
                     when (permissionLevel) {
                         AndroidPermissionLevel.ROOT -> RootShellExecutor(context)
-                        AndroidPermissionLevel.ADMIN -> AdminShellExecutor(context)
-                        AndroidPermissionLevel.DEBUGGER -> DebuggerShellExecutor(context)
-                        AndroidPermissionLevel.ACCESSIBILITY -> AccessibilityShellExecutor(context)
-                        AndroidPermissionLevel.STANDARD -> StandardShellExecutor(context)
+        AndroidPermissionLevel.ADMIN -> AdminShellExecutor(context)
+        AndroidPermissionLevel.DEBUGGER -> DebuggerShellExecutor(context)
+        AndroidPermissionLevel.ACCESSIBILITY -> AccessibilityShellExecutor(context)
+        AndroidPermissionLevel.STANDARD -> StandardShellExecutor(context)
                     }
 
             // 初始化执行器
-                executor.initialize()
+        executor.initialize()
 
             // 缓存执行的
-                executors[permissionLevel] = executor
+        executors[permissionLevel] = executor
 
             return executor
         }
@@ -57,7 +57,7 @@ class ShellExecutorFactory {
         ): Pair<ShellExecutor, ShellExecutor.PermissionStatus> {
 
             // 按权限从高到低尝，
-    val levels =
+        val levels =
                     listOf(
                             AndroidPermissionLevel.ROOT,
                             AndroidPermissionLevel.ADMIN,
@@ -65,21 +65,19 @@ class ShellExecutorFactory {
                             AndroidPermissionLevel.ACCESSIBILITY,
                             AndroidPermissionLevel.STANDARD
                     )
-
-            for (level in levels) {
+        for (level in levels) {
                 val executor = getExecutor(context, level)
         val permStatus = executor.hasPermission()
-
-                if (executor.isAvailable() && permStatus.granted) {
+        if (executor.isAvailable() && permStatus.granted) {
                     AppLogger.d(TAG, "Found highest available executor: ${executor.getPermissionLevel()}")
-                    return Pair(executor, permStatus)
+        return Pair(executor, permStatus)
                 }
             }
 
             // 如果没有找到可用的执行器，返回标准执行器（至少能执行基本命令，
-                AppLogger.d(TAG, "No available executor found, falling back to STANDARD")
-            val standardExecutor = getExecutor(context, AndroidPermissionLevel.STANDARD)
-            return Pair(standardExecutor, standardExecutor.hasPermission())
+        AppLogger.d(TAG, "No available executor found, falling back to STANDARD")
+        val standardExecutor = getExecutor(context, AndroidPermissionLevel.STANDARD)
+        return Pair(standardExecutor, standardExecutor.hasPermission())
         }
 
         /**
@@ -91,11 +89,11 @@ class ShellExecutorFactory {
             try {
                 val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
                 // 如果preferredLevel为null，使用标准权限级，
-    val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
+        val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
                 return getExecutor(context, actualLevel)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error getting preferred permission level, falling back to STANDARD", e)
-                return getExecutor(context, AndroidPermissionLevel.STANDARD)
+        return getExecutor(context, AndroidPermissionLevel.STANDARD)
             }
         }
 
@@ -106,7 +104,7 @@ class ShellExecutorFactory {
         */
         fun getHighestAvailableExecutorLegacy(context: Context): ShellExecutor {
             val (executor, _) = getHighestAvailableExecutor(context)
-            return executor
+        return executor
         }
 
         /**
@@ -116,10 +114,10 @@ class ShellExecutorFactory {
         fun clearCache(permissionLevel: AndroidPermissionLevel? = null) {
             if (permissionLevel != null) {
                 executors.remove(permissionLevel)
-                AppLogger.d(TAG, "Cleared executor cache for level: ${permissionLevel}")
+        AppLogger.d(TAG, "Cleared executor cache for level: ${permissionLevel}")
             } else {
                 executors.clear()
-                AppLogger.d(TAG, "Cleared all executor caches")
+        AppLogger.d(TAG, "Cleared all executor caches")
             }
         }
 
@@ -135,15 +133,12 @@ class ShellExecutorFactory {
                     mutableMapOf<
                             AndroidPermissionLevel,
                             Pair<ShellExecutor, ShellExecutor.PermissionStatus>>()
-
-            for (level in AndroidPermissionLevel.values()) {
+        for (level in AndroidPermissionLevel.values()) {
                 val executor = getExecutor(context, level)
         val status = executor.hasPermission()
-
-                result[level] = Pair(executor, status)
+        result[level] = Pair(executor, status)
             }
-
-            return result
+        return result
         }
     }
 }

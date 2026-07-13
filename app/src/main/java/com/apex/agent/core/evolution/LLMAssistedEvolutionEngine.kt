@@ -16,13 +16,11 @@ class LLMAssistedEvolutionEngine(
     private val evaluator: SemanticEvaluator
 ) {
     private val aiService by lazy { EnhancedAIService.getInstance(context) }
-    private val gson = Gson()
-
-    companion object {
+        private val gson = Gson()
+        companion object {
         private const val TAG = "LLMAssistedEvolution"
     }
-
-    suspend fun evolveSkill(
+        suspend fun evolveSkill(
         currentSkill: LogistraSkillSpecV2,
         taskGoal: String,
         executionLogs: List<String>,
@@ -30,11 +28,10 @@ class LLMAssistedEvolutionEngine(
         evaluationResult: SemanticEvaluationResult
     ): LogistraSkillSpecV2 {
         // 只有分数低于 8.0 才触的LLM 进化
-                if (evaluationResult.score >= 8.0f) {
+        if (evaluationResult.score >= 8.0f) {
             AppLogger.d(TAG, "Score ${evaluationResult.score} is high enough, skipping LLM evolution")
-            return currentSkill
+        return currentSkill
         }
-
         val prompt = """
             作为自进化系统的"技能重构官"，请根据以下信息优化或重写技能规格：
 
@@ -70,27 +67,24 @@ class LLMAssistedEvolutionEngine(
             3. 移除无效或冗余步验
             4. 保持逻辑的清晰可理解
         """.trimIndent()
-
         return try {
             val fullResponse = StringBuilder()
-            aiService.sendMessage(
+        aiService.sendMessage(
                 message = prompt,
                 functionType = com.apex.data.model.FunctionType.CHAT,
                 stream = false,
                 maxTokens = 2000,
                 tokenUsageThreshold = 0.9f
             ).collect { fullResponse.append(it) }
-
-            val newSkill = parseLLMResponse(fullResponse.toString(), currentSkill)
-            AppLogger.d(TAG, "Generated new skill version: ${newSkill.metadata.version}")
-            newSkill
+        val newSkill = parseLLMResponse(fullResponse.toString(), currentSkill)
+        AppLogger.d(TAG, "Generated new skill version: ${newSkill.metadata.version}")
+        newSkill
         } catch (e: Exception) {
             AppLogger.e(TAG, "LLM evolution failed", e)
-            currentSkill
+        currentSkill
         }
     }
-
-    private fun parseLLMResponse(
+        private fun parseLLMResponse(
         response: String,
         original: LogistraSkillSpecV2
     ): LogistraSkillSpecV2 {
@@ -101,7 +95,6 @@ class LLMAssistedEvolutionEngine(
         } else {
             response
         }
-
         val map = try {
             gson.fromJson(json, Map::class.java)
         } catch (e: Exception) {
@@ -111,7 +104,6 @@ class LLMAssistedEvolutionEngine(
                 )
             )
         }
-
         val skillSection = map["skill"] as? Map<*, *> ?: return original
         val newName = (skillSection["name"] as? String) ?: original.name
         val newDescription = (skillSection["description"] as? String) ?: original.description
@@ -135,7 +127,7 @@ class LLMAssistedEvolutionEngine(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun parseNode(nodeMap: Map<*, *>): EvolutionNode {
+        private fun parseNode(nodeMap: Map<*, *>): EvolutionNode {
         val id = (nodeMap["id"] as? String) ?: "node_${System.currentTimeMillis()}"
         val typeStr = (nodeMap["type"] as? String) ?: "ACTION"
         val type = EvolutionNodeType.values().find {
@@ -144,7 +136,6 @@ class LLMAssistedEvolutionEngine(
         val content = (nodeMap["content"] as? String) ?: ""
         val parameters = (nodeMap["parameters"] as? Map<String, Any?>) ?: emptyMap()
         val children = (nodeMap["children"] as? List<Map<*, *>>)?.map { parseNode(it) } ?: emptyList()
-
         return EvolutionNode(
             id = id,
             type = type,
@@ -153,8 +144,7 @@ class LLMAssistedEvolutionEngine(
             children = children
         )
     }
-
-    private fun incrementVersion(current: String): String {
+        private fun incrementVersion(current: String): String {
         val parts = current.split(".")
         if (parts.size == 3) {
             val major = parts[0].toIntOrNull() ?: 1

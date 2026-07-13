@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 class SkillRepoIntegration : IntegrationProvider {
 
     private val repoClient = SkillRepoClient.getInstance()
-    private val source = IntegrationSource.SKILL_REPO
+        private val source = IntegrationSource.SKILL_REPO
 
     override fun getInfo(): IntegrationInfo = IntegrationInfo(
         id = source.id,
@@ -23,7 +23,7 @@ class SkillRepoIntegration : IntegrationProvider {
         version = "1.0.0",
         author = "Logistra AI",
         homepage = "https://skill-repo.logistra.ai",
-                enabled = true,
+        enabled = true,
         capabilities = listOf(
             IntegrationCapability("browse", "浏览技能, "浏览技能仓应, CapabilityType.BROWSE),
             IntegrationCapability("search", "搜索技能, "搜索技能仓应, CapabilityType.SEARCH),
@@ -34,8 +34,7 @@ class SkillRepoIntegration : IntegrationProvider {
         itemCount = 0,
         installedCount = 0
     )
-
-    override fun isAvailable(): Boolean = true
+        override fun isAvailable(): Boolean = true
 
     override suspend fun list(tag: String?, page: Int, pageSize: Int): Result<List<UnifiedItem>> {
         return withContext(Dispatchers.IO) {
@@ -47,8 +46,7 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-
-    override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
+        override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
         val category = filters["category"]
         val sortBy = filters["sort"]
         return withContext(Dispatchers.IO) {
@@ -60,8 +58,7 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-
-    override suspend fun getDetail(id: String): Result<UnifiedItem> {
+        override suspend fun getDetail(id: String): Result<UnifiedItem> {
         return withContext(Dispatchers.IO) {
             repoClient.getSkillDetail(id).fold(
                 onSuccess = { detail ->
@@ -82,16 +79,15 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-
-    override suspend fun install(item: UnifiedItem): Result<String> {
+        override suspend fun install(item: UnifiedItem): Result<String> {
         return withContext(Dispatchers.IO) {
             val outputFile = java.io.File(
                 android.os.Environment.getExternalStoragePublicDirectory(
                     android.os.Environment.DIRECTORY_DOWNLOADS
                 ), "Apex/skills/repo/${item.sourceId}.zip"
             )
-            outputFile.parentFile?.mkdirs()
-            repoClient.downloadSkill(item.sourceId, item.version, outputFile).fold(
+        outputFile.parentFile?.mkdirs()
+        repoClient.downloadSkill(item.sourceId, item.version, outputFile).fold(
                 onSuccess = { file ->
                     Result.success("成功安装 ${item.name} 分${file.absolutePath}")
                 },
@@ -99,12 +95,10 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-
-    override suspend fun uninstall(installedId: String): Result<String> {
+        override suspend fun uninstall(installedId: String): Result<String> {
         return Result.success("卸载功能待实现 $installedId")
     }
-
-    override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
+        override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
         return withContext(Dispatchers.IO) {
             repoClient.checkForUpdate(item.sourceId, item.version).fold(
                 onSuccess = { update ->
@@ -118,12 +112,10 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-
-    override suspend fun listInstalled(): Result<List<UnifiedItem>> {
+        override suspend fun listInstalled(): Result<List<UnifiedItem>> {
         return Result.success(emptyList())
     }
-
-    override suspend fun getCategories(): Result<List<String>> {
+        override suspend fun getCategories(): Result<List<String>> {
         return withContext(Dispatchers.IO) {
             repoClient.getCategories().fold(
                 onSuccess = { Result.success(it) },
@@ -131,8 +123,7 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-
-    private fun SkillRepoClient.SkillInfo.toUnifiedItem() = UnifiedItem(
+        private fun SkillRepoClient.SkillInfo.toUnifiedItem() = UnifiedItem(
         source = source,
         sourceId = id,
         name = name,

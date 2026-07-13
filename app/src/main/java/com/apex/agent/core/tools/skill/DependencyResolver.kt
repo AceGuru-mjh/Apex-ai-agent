@@ -26,25 +26,22 @@ object DependencyResolver {
         val visited = mutableSetOf<String>()
         val visiting = mutableSetOf<String>()
         val skillMap = skills.associateBy { it.name }
-
         Log.d(TAG, "Starting dependency resolution for ${skills.size} skills")
-
         fun dfs(current: SkillMetadata) {
             if (current.name in visited) return
             if (current.name in visiting) {
                 val cycle = visiting.toList() + current.name
                 throw IllegalStateException("Circular dependency detected: ${cycle.joinToString(" -> ")}")
             }
-
-            visiting.add(current.name)
+        visiting.add(current.name)
 
             // 解析依赖
-                current.dependencies.forEach { depName ->
+        current.dependencies.forEach { depName ->
                 val dep = skillMap[depName]
                 if (dep == null) {
                     // 检查已解析的列表中是否有
-    val alreadyResolved = resolved.any { it.name == depName }
-                    if (!alreadyResolved) {
+        val alreadyResolved = resolved.any { it.name == depName }
+        if (!alreadyResolved) {
                         throw IllegalStateException("Missing dependency: '${depName}' required by '${current.name}'")
                     }
                 } else {
@@ -53,19 +50,16 @@ object DependencyResolver {
                     }
                 }
             }
-
-            visiting.remove(current.name)
-            visited.add(current.name)
-            resolved.add(current)
-            Log.d(TAG, "Resolved: ${current.name} v${current.version}")
+        visiting.remove(current.name)
+        visited.add(current.name)
+        resolved.add(current)
+        Log.d(TAG, "Resolved: ${current.name} v${current.version}")
         }
-
         skills.forEach { skill ->
             if (skill.name !in visited) {
                 dfs(skill)
             }
         }
-
         Log.d(TAG, "Dependency resolution complete: ${resolved.size} skills in order")
         return resolved
     }
@@ -81,37 +75,31 @@ object DependencyResolver {
         val gray = mutableSetOf<String>()
         val black = mutableSetOf<String>()
         val parent = mutableMapOf<String, String>()
-
         skills.forEach { white.add(it.name) }
-
         fun dfs(current: String) {
             white.remove(current)
-            gray.add(current)
-
-            val skill = skillMap[current]
+        gray.add(current)
+        val skill = skillMap[current]
             skill?.dependencies?.forEach { dep ->
                 if (dep in gray) {
                     // 发现循环
-    val cycle = mutableListOf(dep, current)
-                    var p = current
+        val cycle = mutableListOf(dep, current)
+        var p = current
                     while (p != dep) {
                         p = parent[p] ?: break
                         cycle.add(p)
                     }
-                    cycle.reverse()
-                    cycles.add(cycle.distinct())
+        cycle.reverse()
+        cycles.add(cycle.distinct())
                 } else if (dep in white) {
                     parent[dep] = current
                     dfs(dep)
                 }
             }
-
-            gray.remove(current)
-            black.add(current)
+        gray.remove(current)
+        black.add(current)
         }
-
         white.toList().forEach { dfs(it) }
-
         return cycles.distinct()
     }
 
@@ -123,18 +111,15 @@ object DependencyResolver {
      */
     fun validateDependencies(skill: SkillMetadata, available: Set<String>): List<String> {
         val missing = mutableListOf<String>()
-
         skill.dependencies.forEach { dep ->
             if (dep !in available) {
                 missing.add(dep)
-                Log.w(TAG, "Missing dependency '${dep}' for skill '${skill.name}'")
+        Log.w(TAG, "Missing dependency '${dep}' for skill '${skill.name}'")
             }
         }
-
         if (missing.isEmpty()) {
             Log.d(TAG, "All dependencies satisfied for '${skill.name}'")
         }
-
         return missing
     }
 
@@ -145,19 +130,17 @@ object DependencyResolver {
         val skillMap = skills.associateBy { it.name }
         val visited = mutableSetOf<String>()
         val result = mutableListOf<SkillMetadata>()
-
         fun dfs(name: String) {
             if (name in visited) return
             visited.add(name)
-            val skill = skillMap[name] ?: return
+        val skill = skillMap[name] ?: return
             skill.dependencies.forEach { dep ->
                 if (dep in skillMap) {
                     dfs(dep)
                 }
             }
-            result.add(skill)
+        result.add(skill)
         }
-
         skills.forEach { dfs(it.name) }
         return result
     }

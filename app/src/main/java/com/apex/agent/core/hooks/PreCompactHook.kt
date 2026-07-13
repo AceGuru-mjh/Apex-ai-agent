@@ -19,16 +19,13 @@ class PreCompactHook : SessionLifecycleHook {
         private const val CHECKPOINT_FILE_PREFIX = "session_checkpoint_"
         private const val CHECKPOINT_FILE_SUFFIX = ".json"
     }
-
-    override suspend fun onPreCompact(
+        override suspend fun onPreCompact(
         context: Context,
         sessionContext: SessionContext
     ): Map<String, Any> {
         AppLogger.i(TAG, "Pre-compact hook triggered for session: ${sessionContext.sessionId}")
-
         val checkpointData = extractKeyState(sessionContext)
         saveCheckpoint(context, sessionContext.sessionId, checkpointData)
-
         return checkpointData
     }
 
@@ -42,32 +39,31 @@ class PreCompactHook : SessionLifecycleHook {
         val state = mutableMapOf<String, Any>()
 
         // 提取会话基本信息
-                state["sessionId"] = sessionContext.sessionId
+        state["sessionId"] = sessionContext.sessionId
         state["messageCount"] = sessionContext.messageCount
         state["tokenUsage"] = sessionContext.tokenUsage
         state["lastActivity"] = sessionContext.lastActivity
 
         // 提取环境状态
-                state["environmentState"] = sessionContext.environmentState
+        state["environmentState"] = sessionContext.environmentState
 
         // 提取未完成任务列表（从环境状态中解析，
-    val pendingTasks = extractPendingTasks(sessionContext.environmentState)
+        val pendingTasks = extractPendingTasks(sessionContext.environmentState)
         if (pendingTasks.isNotEmpty()) {
             state["pendingTasks"] = pendingTasks
         }
 
         // 提取重要决策记录
-    val decisions = extractImportantDecisions(sessionContext.environmentState)
+        val decisions = extractImportantDecisions(sessionContext.environmentState)
         if (decisions.isNotEmpty()) {
             state["importantDecisions"] = decisions
         }
 
         // 提取关键变量值
-    val keyVariables = extractKeyVariables(sessionContext.environmentState)
+        val keyVariables = extractKeyVariables(sessionContext.environmentState)
         if (keyVariables.isNotEmpty()) {
             state["keyVariables"] = keyVariables
         }
-
         AppLogger.d(TAG, "Extracted key state: ${state.keys.joinToString(", ")}")
         return state
     }
@@ -82,7 +78,7 @@ class PreCompactHook : SessionLifecycleHook {
             (0 until jsonArray.length()).map { jsonArray.getString(it) }
         } catch (e: Exception) {
             AppLogger.w(TAG, "Failed to parse pending tasks", e)
-            emptyList()
+        emptyList()
         }
     }
 
@@ -95,11 +91,11 @@ class PreCompactHook : SessionLifecycleHook {
             val jsonArray = JSONArray(decisionsJson)
             (0 until jsonArray.length()).map {
                 val obj = jsonArray.getJSONObject(it)
-                obj.keys().asSequence().associateWith { key -> obj.getString(key) }
+        obj.keys().asSequence().associateWith { key -> obj.getString(key) }
             }
         } catch (e: Exception) {
             AppLogger.w(TAG, "Failed to parse important decisions", e)
-            emptyList()
+        emptyList()
         }
     }
 
@@ -110,10 +106,10 @@ class PreCompactHook : SessionLifecycleHook {
         val variablesJson = envState["keyVariables"] ?: return emptyMap()
         return try {
             val jsonObj = JSONObject(variablesJson)
-            jsonObj.keys().asSequence().associateWith { jsonObj.getString(it) }
+        jsonObj.keys().asSequence().associateWith { jsonObj.getString(it) }
         } catch (e: Exception) {
             AppLogger.w(TAG, "Failed to parse key variables", e)
-            emptyMap()
+        emptyMap()
         }
     }
 
@@ -132,11 +128,9 @@ class PreCompactHook : SessionLifecycleHook {
         try {
             val fileName = "${CHECKPOINT_FILE_PREFIX}${sessionId}${CHECKPOINT_FILE_SUFFIX}"
         val file = File(context.filesDir, fileName)
-
-            val jsonContent = convertMapToJson(checkpointData)
-            file.writeText(jsonContent.toString(2))
-
-            AppLogger.i(TAG, "Checkpoint saved to: ${file.absolutePath}")
+        val jsonContent = convertMapToJson(checkpointData)
+        file.writeText(jsonContent.toString(2))
+        AppLogger.i(TAG, "Checkpoint saved to: ${file.absolutePath}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to save checkpoint for session: ${sessionId}", e)
         }
@@ -150,28 +144,28 @@ class PreCompactHook : SessionLifecycleHook {
         for ((key, value) in map) {
             when (value) {
                 is String -> json.put(key, value)
-                is Int -> json.put(key, value)
-                is Long -> json.put(key, value)
-                is Boolean -> json.put(key, value)
-                is Map<*, *> -> {
+        is Int -> json.put(key, value)
+        is Long -> json.put(key, value)
+        is Boolean -> json.put(key, value)
+        is Map<*, *> -> {
                     @Suppress("UNCHECKED_CAST")
-                    json.put(key, convertMapToJson(value as Map<String, Any>))
+        json.put(key, convertMapToJson(value as Map<String, Any>))
                 }
-                is List<*> -> {
+        is List<*> -> {
                     val jsonArray = JSONArray()
-                    for (item in value) {
+        for (item in value) {
                         when (item) {
                             is String -> jsonArray.put(item)
-                            is Map<*, *> -> {
+        is Map<*, *> -> {
                                 @Suppress("UNCHECKED_CAST")
-                                jsonArray.put(convertMapToJson(item as Map<String, Any>))
+        jsonArray.put(convertMapToJson(item as Map<String, Any>))
                             }
-                            else -> jsonArray.put(item.toString())
+        else -> jsonArray.put(item.toString())
                         }
                     }
-                    json.put(key, jsonArray)
+        json.put(key, jsonArray)
                 }
-                else -> json.put(key, value.toString())
+        else -> json.put(key, value.toString())
             }
         }
         return json
@@ -188,20 +182,17 @@ class PreCompactHook : SessionLifecycleHook {
             try {
                 val fileName = "${CHECKPOINT_FILE_PREFIX}${sessionId}${CHECKPOINT_FILE_SUFFIX}"
         val file = File(context.filesDir, fileName)
-
-                if (!file.exists()) {
+        if (!file.exists()) {
                     AppLogger.d(TAG, "No checkpoint file found for session: ${sessionId}")
-                    return@withContext null
+        return@withContext null
                 }
-
-                AppLogger.d(TAG, "Restoring from checkpoint: ${file.absolutePath}")
-                val content = file.readText()
+        AppLogger.d(TAG, "Restoring from checkpoint: ${file.absolutePath}")
+        val content = file.readText()
         val json = JSONObject(content)
-
-                parseJsonToMap(json)
+        parseJsonToMap(json)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to restore from checkpoint for session: ${sessionId}", e)
-                null
+        null
             }
         }
 
@@ -213,18 +204,18 @@ class PreCompactHook : SessionLifecycleHook {
         for (key in json.keys()) {
             when (val value = json.get(key)) {
                 is JSONObject -> map[key] = parseJsonToMap(value)
-                is JSONArray -> {
+        is JSONArray -> {
                     val list = mutableListOf<Any>()
-                    for (i in 0 until value.length()) {
+        for (i in 0 until value.length()) {
                         val item = value.get(i)
-                        when (item) {
+        when (item) {
                             is JSONObject -> list.add(parseJsonToMap(item))
-                            else -> list.add(item)
+        else -> list.add(item)
                         }
                     }
-                    map[key] = list
+        map[key] = list
                 }
-                else -> map[key] = value
+        else -> map[key] = value
             }
         }
         return map

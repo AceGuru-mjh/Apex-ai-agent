@@ -121,26 +121,26 @@ internal fun getJsThirdPartyLibraries(): String {
                     for (var index = 0; index < collection.length; index += 1) {
                         iteratee(collection[index], index, collection);
                     }
-                    return collection;
+        return collection;
                 }
-                if (collection && typeof collection === 'object') {
+        if (collection && typeof collection === 'object') {
                     var keys = Object.keys(collection);
-            for (var keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
+        for (var keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
                         var key = keys[keyIndex];
-                        iteratee(collection[key], key, collection);
+        iteratee(collection[key], key, collection);
                     }
                 }
-                return collection;
+        return collection;
             },
             map: function(collection, iteratee) {
                 var output = [];
-                _.forEach(collection, function(item, key, source) {
+        _.forEach(collection, function(item, key, source) {
                     output.push(iteratee(item, key, source));
                 });
-            return output;
+        return output;
             }
         };
-            var dataUtils = {
+        var dataUtils = {
             parseJson: function(text) {
                 try { return JSON.parse(text); } catch (_error) { return null; }
             },
@@ -149,8 +149,8 @@ internal fun getJsThirdPartyLibraries(): String {
             },
             formatDate: function(value) {
                 var date = value ? new Date(value) : new Date();
-            function pad(part) { return String(part).padStart(2, '0'); }
-                return [
+        function pad(part) { return String(part).padStart(2, '0'); }
+        return [
                     date.getFullYear(),
                     pad(date.getMonth() + 1),
                     pad(date.getDate())

@@ -11,16 +11,13 @@ object SanxingRbacBridge {
         PERM_WRITE to "agent:write",
         PERM_CALL_AGENTS to "agent:call_agents"
     )
-
-    fun toRbacPermission(permissionTag: String): String? = permissionMapping[permissionTag]
+        fun toRbacPermission(permissionTag: String): String? = permissionMapping[permissionTag]
 
     fun toRbacPermissions(tags: Set<String>): Set<String> =
         tags.mapNotNull { permissionMapping[it] }.toSet()
-
-    fun toRbacPermissions(config: SanxingRoleConfig): Set<String> =
+        fun toRbacPermissions(config: SanxingRoleConfig): Set<String> =
         toRbacPermissions(config.permissionTags)
-
-    suspend fun checkRolePermissions(
+        suspend fun checkRolePermissions(
         rbacManager: RbacManager,
         userId: Long,
         role: SanxingRole
@@ -30,8 +27,7 @@ object SanxingRbacBridge {
             rbacManager.hasPermission(userId, permName)
         }
     }
-
-    suspend fun hasAllPermissions(
+        suspend fun hasAllPermissions(
         rbacManager: RbacManager,
         userId: Long,
         role: SanxingRole
@@ -39,8 +35,7 @@ object SanxingRbacBridge {
         val rbacPerms = toRbacPermissions(role.permissions)
         return rbacPerms.all { rbacManager.hasPermission(userId, it) }
     }
-
-    suspend fun getMissingPermissions(
+        suspend fun getMissingPermissions(
         rbacManager: RbacManager,
         userId: Long,
         role: SanxingRole

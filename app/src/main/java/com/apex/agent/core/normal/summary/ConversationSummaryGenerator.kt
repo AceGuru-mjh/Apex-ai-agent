@@ -59,12 +59,12 @@ data class ConversationSummary(
  */
 data class StructuredSummary(
     val overview: String,           // 总览
-    val topics: List<TopicSummary>, // 按主题
-    val timeline: List<TimelineEvent>, // 时间线
-    val decisions: List<DecisionRecord>, // 决策
-    val actionItems: List<ActionItem>,   // 待办
-    val keyEntities: List<EntityRecord>, // 关键实体
-    val openQuestions: List<String>      // 未解决问题
+        val topics: List<TopicSummary>, // 按主题
+        val timeline: List<TimelineEvent>, // 时间线
+        val decisions: List<DecisionRecord>, // 决策
+        val actionItems: List<ActionItem>,   // 待办
+        val keyEntities: List<EntityRecord>, // 关键实体
+        val openQuestions: List<String>      // 未解决问题
 )
 
 data class TopicSummary(val topic: String, val summary: String, val messageRange: IntRange)
@@ -90,13 +90,12 @@ class ConversationSummaryGenerator {
         maxTokens: Int = 1000
     ): ConversationSummary {
         val originalTokens = messages.sumOf { it.tokenCount }
-
         return when (strategy) {
             SummaryStrategy.EXTRACTIVE -> generateExtractive(chatId, messages, maxTokens, originalTokens)
-            SummaryStrategy.ABSTRACTIVE -> generateAbstractive(chatId, messages, maxTokens, originalTokens)
-            SummaryStrategy.STRUCTURED -> generateStructured(chatId, messages, maxTokens, originalTokens)
-            SummaryStrategy.INCREMENTAL -> generateIncremental(chatId, messages, maxTokens, originalTokens)
-            SummaryStrategy.HYBRID -> generateHybrid(chatId, messages, maxTokens, originalTokens)
+        SummaryStrategy.ABSTRACTIVE -> generateAbstractive(chatId, messages, maxTokens, originalTokens)
+        SummaryStrategy.STRUCTURED -> generateStructured(chatId, messages, maxTokens, originalTokens)
+        SummaryStrategy.INCREMENTAL -> generateIncremental(chatId, messages, maxTokens, originalTokens)
+        SummaryStrategy.HYBRID -> generateHybrid(chatId, messages, maxTokens, originalTokens)
         }.also { summary ->
             summaries.computeIfAbsent(chatId) { mutableListOf() }.add(summary)
         }
@@ -116,28 +115,26 @@ class ConversationSummaryGenerator {
                 .filter { it.isNotBlank() }
                 .map { Sentence(it.trim(), msg.id, msg.role, msg.timestamp) }
         }
-
         if (sentences.isEmpty()) {
             return emptySummary(chatId, messages, originalTokens)
         }
 
         // TextRank: 计算句子相似度并排序
-    val ranked = textrank(sentences)
+        val ranked = textrank(sentences)
 
         // 选取 top-N 句子（按 token 预算）
-    val selected = mutableListOf<Sentence>()
+        val selected = mutableListOf<Sentence>()
         var tokenCount = 0
         for (sentence in ranked) {
             val tokens = estimateTokens(sentence.text)
-            if (tokenCount + tokens > maxTokens) break
+        if (tokenCount + tokens > maxTokens) break
             selected.add(sentence)
-            tokenCount += tokens
+        tokenCount += tokens
         }
 
         // 按原始顺序排列
-    val ordered = selected.sortedBy { it.timestamp }
+        val ordered = selected.sortedBy { it.timestamp }
         val summaryText = ordered.joinToString(" ") { it.text }
-
         return ConversationSummary(
             id = "summary_${System.currentTimeMillis()}",
             chatId = chatId,
@@ -161,7 +158,7 @@ class ConversationSummaryGenerator {
         originalTokens: Int
     ): ConversationSummary {
         // 降级为抽取式
-    val extractive = generateExtractive(chatId, messages, maxTokens, originalTokens)
+        val extractive = generateExtractive(chatId, messages, maxTokens, originalTokens)
         return extractive.copy(strategy = SummaryStrategy.ABSTRACTIVE)
     }
 
@@ -190,10 +187,8 @@ class ConversationSummaryGenerator {
             keyEntities = entities,
             openQuestions = openQuestions
         )
-
         val summaryText = formatStructured(structured)
         val summaryTokens = estimateTokens(summaryText)
-
         return ConversationSummary(
             id = "summary_${System.currentTimeMillis()}",
             chatId = chatId,
@@ -229,11 +224,10 @@ class ConversationSummaryGenerator {
         if (newMessages.isEmpty()) {
             return lastSummary ?: emptySummary(chatId, messages, originalTokens)
         }
-
         val newSummary = generateStructured(chatId, newMessages, maxTokens, originalTokens)
 
         // 合并到旧摘要
-    val merged = if (lastSummary != null) {
+        val merged = if (lastSummary != null) {
             mergeSummaries(lastSummary, newSummary)
         } else newSummary
 
@@ -251,14 +245,12 @@ class ConversationSummaryGenerator {
     ): ConversationSummary {
         val structured = generateStructured(chatId, messages, maxTokens / 2, originalTokens)
         val extractive = generateExtractive(chatId, messages, maxTokens / 2, originalTokens)
-
         val combinedText = buildString {
             appendLine(structured.summary)
-            appendLine()
-            appendLine("--- 关键要点 ---")
-            extractive.keyPoints.take(5).forEach { appendLine("- $it") }
+        appendLine()
+        appendLine("--- 关键要点 ---")
+        extractive.keyPoints.take(5).forEach { appendLine("- $it") }
         }
-
         return structured.copy(
             strategy = SummaryStrategy.HYBRID,
             summary = combinedText.toString(),
@@ -268,12 +260,12 @@ class ConversationSummaryGenerator {
     }
 
     // ============ 提取方法 ============
-    private fun extractTopics(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<TopicSummary> {
+        private fun extractTopics(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<TopicSummary> {
         // 按关键词聚类
-    val topicGroups = mutableMapOf<String, MutableList<com.apex.agent.core.normal.context.ConversationMessage>>()
+        val topicGroups = mutableMapOf<String, MutableList<com.apex.agent.core.normal.context.ConversationMessage>>()
         messages.forEach { msg ->
             val keywords = extractKeywords(msg.content)
-            keywords.forEach { kw ->
+        keywords.forEach { kw ->
                 topicGroups.getOrPut(kw) { mutableListOf() }.add(msg)
             }
         }
@@ -289,12 +281,11 @@ class ConversationSummaryGenerator {
             .sortedByDescending { it.messageRange.last - it.messageRange.first }
             .take(5)
     }
-
-    private fun extractDecisions(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<DecisionRecord> {
+        private fun extractDecisions(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<DecisionRecord> {
         val decisionPatterns = listOf("决定", "同意", "选择", "确认", "decided", "agreed", "chose", "will", "let's go with")
         return messages.mapNotNull { msg ->
             val decision = decisionPatterns.firstOrNull { msg.content.contains(it, ignoreCase = true) }
-            if (decision != null) {
+        if (decision != null) {
                 DecisionRecord(
                     decision = msg.content.take(200),
                     rationale = "基于对话上下文",
@@ -304,8 +295,7 @@ class ConversationSummaryGenerator {
             } else null
         }
     }
-
-    private fun extractActionItems(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<ActionItem> {
+        private fun extractActionItems(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<ActionItem> {
         val actionPatterns = listOf("需要", "待办", "todo", "应该", "plan to", "need to", "should", "must")
         return messages.flatMap { msg ->
             actionPatterns.mapNotNull { pattern ->
@@ -313,7 +303,7 @@ class ConversationSummaryGenerator {
                     val sentence = msg.content.split(Regex("[。.！!？?\\n]"))
                         .firstOrNull { it.contains(pattern, ignoreCase = true) }
                         ?: msg.content.take(100)
-                    ActionItem(
+        ActionItem(
                         description = sentence.trim(),
                         assignee = null,
                         dueDate = null,
@@ -323,10 +313,9 @@ class ConversationSummaryGenerator {
             }
         }.distinctBy { it.description }.take(10)
     }
-
-    private fun extractEntities(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<EntityRecord> {
+        private fun extractEntities(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<EntityRecord> {
         val entityCounts = mutableMapOf<String, MutableList<Pair<Long, String>>>()  // name -> [(timestamp, type)]
-    val entityTypes = mapOf(
+        val entityTypes = mapOf(
             "人名" to Regex("[A-Z][a-z]+ [A-Z][a-z]+|[\\u4e00-\\u9fa5]{2,3}(说|表示|认为|提出)"),
             "日期" to Regex("\\d{4}[-/年]\\d{1,2}[-/月]\\d{1,2}日?"),
             "数字" to Regex("\\b\\d+(?:\\.\\d+)?%?\\b"),
@@ -350,8 +339,7 @@ class ConversationSummaryGenerator {
             )
         }.sortedByDescending { it.mentions }.take(10)
     }
-
-    private fun extractTimeline(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<TimelineEvent> {
+        private fun extractTimeline(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<TimelineEvent> {
         return messages.map { msg ->
             TimelineEvent(
                 timestamp = msg.timestamp,
@@ -360,8 +348,7 @@ class ConversationSummaryGenerator {
             )
         }
     }
-
-    private fun extractOpenQuestions(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<String> {
+        private fun extractOpenQuestions(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): List<String> {
         val questions = messages.flatMap { msg ->
             msg.content.split(Regex("[？?！!]"))
                 .map { it.trim() }
@@ -369,53 +356,49 @@ class ConversationSummaryGenerator {
         }
         return questions.distinct().take(5)
     }
-
-    private fun generateOverview(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): String {
+        private fun generateOverview(messages: List<com.apex.agent.core.normal.context.ConversationMessage>): String {
         val userMessages = messages.filter { it.role == com.apex.agent.core.normal.context.ConversationMessage.Role.USER }
         val firstUserMsg = userMessages.firstOrNull()?.content?.take(100) ?: ""
         val msgCount = messages.size
         return "本次对话共 $msgCount 条消息，主要讨论：$firstUserMsg"
     }
-
-    private fun formatStructured(s: StructuredSummary): String {
+        private fun formatStructured(s: StructuredSummary): String {
         return buildString {
             appendLine("## 总览")
-            appendLine(s.overview)
-            appendLine()
-            if (s.topics.isNotEmpty()) {
+        appendLine(s.overview)
+        appendLine()
+        if (s.topics.isNotEmpty()) {
                 appendLine("## 主题")
-                s.topics.forEach { appendLine("- ${it.topic}: ${it.summary}") }
-                appendLine()
+        s.topics.forEach { appendLine("- ${it.topic}: ${it.summary}") }
+        appendLine()
             }
-            if (s.decisions.isNotEmpty()) {
+        if (s.decisions.isNotEmpty()) {
                 appendLine("## 决策")
-                s.decisions.forEach { appendLine("- ${it.decision}") }
-                appendLine()
+        s.decisions.forEach { appendLine("- ${it.decision}") }
+        appendLine()
             }
-            if (s.actionItems.isNotEmpty()) {
+        if (s.actionItems.isNotEmpty()) {
                 appendLine("## 待办")
-                s.actionItems.forEach { appendLine("- [ ] ${it.description}") }
-                appendLine()
+        s.actionItems.forEach { appendLine("- [ ] ${it.description}") }
+        appendLine()
             }
-            if (s.keyEntities.isNotEmpty()) {
+        if (s.keyEntities.isNotEmpty()) {
                 appendLine("## 关键实体")
-                s.keyEntities.forEach { appendLine("- [${it.type}] ${it.name} (×${it.mentions})") }
-                appendLine()
+        s.keyEntities.forEach { appendLine("- [${it.type}] ${it.name} (×${it.mentions})") }
+        appendLine()
             }
-            if (s.openQuestions.isNotEmpty()) {
+        if (s.openQuestions.isNotEmpty()) {
                 appendLine("## 未解决问题")
-                s.openQuestions.forEach { appendLine("- $it") }
+        s.openQuestions.forEach { appendLine("- $it") }
             }
         }
     }
-
-    private fun mergeSummaries(old: ConversationSummary, new: ConversationSummary): ConversationSummary {
+        private fun mergeSummaries(old: ConversationSummary, new: ConversationSummary): ConversationSummary {
         val merged = (old.keyPoints + new.keyPoints).distinct()
         val mergedDecisions = (old.decisions + new.decisions).distinct()
         val mergedActions = (old.actionItems + new.actionItems).distinct()
         val mergedEntities = (old.entities + new.entities).distinct()
         val mergedTopics = (old.topics + new.topics).distinct()
-
         return new.copy(
             keyPoints = merged,
             decisions = mergedDecisions,
@@ -430,59 +413,53 @@ class ConversationSummaryGenerator {
     }
 
     // ============ TextRank ============
-                private data class Sentence(val text: String, val messageId: String, val role: com.apex.agent.core.normal.context.ConversationMessage.Role, val timestamp: Long)
-
-    private fun textrank(sentences: List<Sentence>): List<Sentence> {
+        private data class Sentence(val text: String, val messageId: String, val role: com.apex.agent.core.normal.context.ConversationMessage.Role, val timestamp: Long)
+        private fun textrank(sentences: List<Sentence>): List<Sentence> {
         if (sentences.size <= 3) return sentences
 
         // 计算句子间相似度（基于词重叠）
-    val n = sentences.size
+        val n = sentences.size
         val similarity = Array(n) { FloatArray(n) }
         val words = sentences.map { tokenize(it.text) }
-
         for (i in 0 until n) {
             for (j in i + 1 until n) {
                 val sim = jaccardSimilarity(words[i], words[j])
-                similarity[i][j] = sim
+        similarity[i][j] = sim
                 similarity[j][i] = sim
             }
         }
 
         // PageRank 迭代
-    val scores = FloatArray(n) { 1f }
+        val scores = FloatArray(n) { 1f }
         val d = 0.85f
         repeat(20) {
             val newScores = FloatArray(n)
-            for (i in 0 until n) {
+        for (i in 0 until n) {
                 var sum = 0f
                 for (j in 0 until n) {
                     if (i == j || similarity[j][i] == 0f) continue
                     val total = (0 until n).filter { it != j }.sumOf { similarity[j][it].toDouble() }.toFloat()
-                    if (total > 0) sum += similarity[j][i] / total * scores[j]
+        if (total > 0) sum += similarity[j][i] / total * scores[j]
                 }
-                newScores[i] = (1 - d) + d * sum
+        newScores[i] = (1 - d) + d * sum
             }
-            for (i in 0 until n) scores[i] = newScores[i]
+        for (i in 0 until n) scores[i] = newScores[i]
         }
-
         return sentences.indices.sortedByDescending { scores[it] }.map { sentences[it] }
     }
-
-    private fun jaccardSimilarity(a: List<String>, b: List<String>): Float {
+        private fun jaccardSimilarity(a: List<String>, b: List<String>): Float {
         val setA = a.toSet()
         val setB = b.toSet()
         val intersection = setA.intersect(setB).size
         val union = setA.union(setB).size
         return if (union > 0) intersection.toFloat() / union else 0f
     }
-
-    private fun tokenize(text: String): List<String> {
+        private fun tokenize(text: String): List<String> {
         return text.lowercase()
             .split(Regex("[\\s,，。.？?！!；;：:、\"'()（）\\[\\]【】\\n]+"))
             .filter { it.length >= 2 }
     }
-
-    private fun extractKeywords(text: String): List<String> {
+        private fun extractKeywords(text: String): List<String> {
         return tokenize(text)
             .filter { it.lowercase() !in STOP_WORDS }
             .groupBy { it }
@@ -490,11 +467,9 @@ class ConversationSummaryGenerator {
             .keys
             .toList()
     }
-
-    private fun estimateTokens(text: String): Int =
+        private fun estimateTokens(text: String): Int =
         com.apex.agent.core.normal.context.SmartContextCompressor.estimateTokens(text)
-
-    private fun emptySummary(
+        private fun emptySummary(
         chatId: String,
         messages: List<com.apex.agent.core.normal.context.ConversationMessage>,
         originalTokens: Int
@@ -508,8 +483,7 @@ class ConversationSummaryGenerator {
         summaryTokenCount = 0,
         compressionRatio = 0f
     )
-
-    private val STOP_WORDS = setOf(
+        private val STOP_WORDS = setOf(
         "的", "了", "是", "在", "我", "你", "他", "这", "那", "什么", "怎么",
         "the", "a", "an", "is", "are", "was", "were", "be", "been", "have", "has", "had",
         "do", "does", "did", "will", "would", "could", "should", "may", "might", "can",

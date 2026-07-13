@@ -34,12 +34,10 @@ internal class WebSessionAgentLoginStorage(
             }
         }
     }
-    
-    private val prefs: SharedPreferences by lazy {
+        private val prefs: SharedPreferences by lazy {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
-    
-    private val json = Json { 
+        private val json = Json { 
         encodeDefaults = true
         ignoreUnknownKeys = true
         prettyPrint = false
@@ -60,13 +58,11 @@ internal class WebSessionAgentLoginStorage(
                 url = url,
                 timestamp = System.currentTimeMillis()
             )
-            val jsonStr = json.encodeToString(data)
-            
-            prefs.edit()
+        val jsonStr = json.encodeToString(data)
+        prefs.edit()
                 .putString(key, jsonStr)
                 .apply()
-            
-            AppLogger.d(TAG, "Saved cookies for: ${siteKey}")
+        AppLogger.d(TAG, "Saved cookies for: ${siteKey}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to save cookies for: ${siteKey}", e)
         }
@@ -82,12 +78,11 @@ internal class WebSessionAgentLoginStorage(
         try {
             val key = "cookies_${siteKey}"
         val jsonStr = prefs.getString(key, null) ?: return ""
-            
-            val data = json.decodeFromString<AgentLoginData>(jsonStr)
-            return data.cookies
+        val data = json.decodeFromString<AgentLoginData>(jsonStr)
+        return data.cookies
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to load cookies for: ${siteKey}", e)
-            return ""
+        return ""
         }
     }
     
@@ -99,8 +94,8 @@ internal class WebSessionAgentLoginStorage(
     fun deleteCookies(siteKey: String) {
         try {
             val key = "cookies_${siteKey}"
-            prefs.edit().remove(key).apply()
-            AppLogger.d(TAG, "Deleted cookies for: ${siteKey}")
+        prefs.edit().remove(key).apply()
+        AppLogger.d(TAG, "Deleted cookies for: ${siteKey}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to delete cookies for: ${siteKey}", e)
         }
@@ -123,7 +118,7 @@ internal class WebSessionAgentLoginStorage(
         val jsonStr = prefs.getString(key, null) ?: return 0L
             
             val data = json.decodeFromString<AgentLoginData>(jsonStr)
-            return data.timestamp
+        return data.timestamp
         } catch (e: Exception) {
             return 0L
         }
@@ -134,14 +129,12 @@ internal class WebSessionAgentLoginStorage(
      */
     fun listSavedSites(): List<String> {
         val sites = mutableListOf<String>()
-        
         prefs.all.keys.forEach { key ->
             if (key.startsWith("cookies_")) {
                 val siteKey = key.removePrefix("cookies_")
-                sites.add(siteKey)
+        sites.add(siteKey)
             }
         }
-        
         return sites
     }
     
@@ -152,7 +145,7 @@ internal class WebSessionAgentLoginStorage(
         val keysToRemove = prefs.all.keys.filter { it.startsWith("cookies_") }
         prefs.edit().apply {
             keysToRemove.forEach { remove(it) }
-            apply()
+        apply()
         }
         AppLogger.d(TAG, "Cleared all agent login data")
     }

@@ -27,14 +27,12 @@ class SkillToolMemory {
 
     /** 狂暴模式工具经验。 */
     val burst: ToolExperienceStore = ToolExperienceStore("burst_mode")
-
-    fun clear() {
+        fun clear() {
         normal.clear()
         multiAgent.clear()
         burst.clear()
     }
-
-    fun getStats(): MemoryModuleStats {
+        fun getStats(): MemoryModuleStats {
         val total = normal.count() + multiAgent.count() + burst.count()
         return MemoryModuleStats(
             totalEntries = total,
@@ -139,10 +137,8 @@ class ToolExperienceStore(private val modeName: String) {
     fun getToolStats(toolName: String): ToolStats {
         val entries = getByToolName(toolName, 1000)
         if (entries.isEmpty()) return ToolStats(toolName, 0, 0f, 0L)
-
         val successCount = entries.count { it.metadata["success"] == true }
         val times = entries.mapNotNull { it.metadata["executionTimeMs"] as? Long }.filter { it > 0 }
-
         return ToolStats(
             toolName = toolName,
             totalUses = entries.size,
@@ -159,10 +155,8 @@ class ToolExperienceStore(private val modeName: String) {
             .mapNotNull { it.metadata["toolName"] as? String }
             .toSet()
     }
-
-    fun count(): Int = store.count()
-
-    fun clear() = store.clear()
+        fun count(): Int = store.count()
+        fun clear() = store.clear()
 }
 
 /**

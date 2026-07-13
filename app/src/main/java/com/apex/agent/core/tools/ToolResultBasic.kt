@@ -37,15 +37,13 @@ data class IntResultData(val value: Int) : ToolResultData() {
 @Serializable
 data class BinaryResultData(val value: ByteArray) : ToolResultData() {
     override fun toString(): String = "Binary data (${value.size} bytes)"
-
-    override fun equals(other: Any): Boolean {
+        override fun equals(other: Any): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as BinaryResultData
         return value.contentEquals(other.value)
     }
-
-    override fun hashCode(): Int {
+        override fun hashCode(): Int {
         return value.contentHashCode()
     }
 }
@@ -63,12 +61,10 @@ data class CalculationResultData(
         val sb = StringBuilder()
         sb.appendLine("Expression: ${expression}")
         sb.appendLine("Result: ${formattedResult}")
-
         if (variables.isNotEmpty()) {
             sb.appendLine("Variables:")
-            variables.forEach { (name, value) -> sb.appendLine("  ${name} = ${value}") }
+        variables.forEach { (name, value) -> sb.appendLine("  ${name} = ${value}") }
         }
-
         return sb.toString()
     }
 }

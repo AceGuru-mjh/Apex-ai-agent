@@ -16,12 +16,10 @@ object PresetAgentTemplates {
             productStrategistTemplate
         )
     }
-
-    fun getTemplatesByCategory(category: TemplateCategory): List<AgentTemplate> {
+        fun getTemplatesByCategory(category: TemplateCategory): List<AgentTemplate> {
         return getAllTemplates().filter { it.category == category }
     }
-
-    fun searchTemplates(query: String): List<AgentTemplate> {
+        fun searchTemplates(query: String): List<AgentTemplate> {
         val lowerQuery = query.lowercase()
         return getAllTemplates().filter { template ->
             template.name.lowercase().contains(lowerQuery) ||
@@ -29,8 +27,7 @@ object PresetAgentTemplates {
                     template.tags.any { it.lowercase().contains(lowerQuery) }
         }
     }
-
-    val codeDeveloperTemplate = AgentTemplate(
+        val codeDeveloperTemplate = AgentTemplate(
         id = "template_code_developer",
         name = "代码开发助手，"
         description = "专业的软件开发助手，擅长编写高质量代码、代码审查和重构",
@@ -40,8 +37,8 @@ object PresetAgentTemplates {
             id = "",
             name = "代码开发？",
             role = "代码开取"
-            systemPrompt = "你是一位经验丰富的软件开发者，擅长编写清晰、高效、可维护的代码。你熟悉多种编程语言和框架，能够进行代码审查、重构和优化，"
-            modelConfig = ModelConfig(
+        systemPrompt = "你是一位经验丰富的软件开发者，擅长编写清晰、高效、可维护的代码。你熟悉多种编程语言和框架，能够进行代码审查、重构和优化，"
+        modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
                 temperature = 0.3,
@@ -59,8 +56,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val documentWriterTemplate = AgentTemplate(
+        val documentWriterTemplate = AgentTemplate(
         id = "template_document_writer",
         name = "文档撰写助手",
         description = "专业的技术文档撰写专家，能够撰写各类技术文档、用户手册和项目报告",
@@ -71,7 +67,7 @@ object PresetAgentTemplates {
             name = "文档撰写专家",
             role = "文档撰写",
             systemPrompt = "你是一位专业的技术文档撰写专家，擅长撰写清晰、准确、易读的技术文档、用户手册、项目报告等，"
-            modelConfig = ModelConfig(
+        modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
                 temperature = 0.5,
@@ -89,8 +85,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val dataAnalystTemplate = AgentTemplate(
+        val dataAnalystTemplate = AgentTemplate(
         id = "template_data_analyst",
         name = "数据分析专家",
         description = "专业的数据分析师，擅长数据分析、统计建模和数据可视化"
@@ -101,7 +96,7 @@ object PresetAgentTemplates {
             name = "数据分析专家",
             role = "数据分析",
             systemPrompt = "你是一位专业的数据分析师，精通各种数据分析方法和统计模型，能够从数据中提取有价值的洞察，并创建直观的数据可视化，"
-            modelConfig = ModelConfig(
+        modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
                 temperature = 0.4,
@@ -119,8 +114,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val designCreativeTemplate = AgentTemplate(
+        val designCreativeTemplate = AgentTemplate(
         id = "template_design_creative",
         name = "设计创意专家",
         description = "创意设计专家，擅？UI/UX 设计、视觉设计和创意构？",
@@ -131,7 +125,7 @@ object PresetAgentTemplates {
             name = "设计专家",
             role = "创意设计",
             systemPrompt = "你是一位资深的设计专家，精通UI/UX 设计和视觉设计，能够提供创新的设计方案和改进建议，"
-            modelConfig = ModelConfig(
+        modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
                 temperature = 0.7,
@@ -149,8 +143,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val researchAssistantTemplate = AgentTemplate(
+        val researchAssistantTemplate = AgentTemplate(
         id = "template_research_assistant",
         name = "研究助手",
         description = "专业的研究助手，擅长文献检索、信息整理和研究分析",
@@ -179,8 +172,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val projectManagerTemplate = AgentTemplate(
+        val projectManagerTemplate = AgentTemplate(
         id = "template_project_manager",
         name = "项目经理",
         description = "经验丰富的项目管理专家，擅长任务分解、进度跟踪和团队协调",
@@ -191,7 +183,7 @@ object PresetAgentTemplates {
             name = "项目经理",
             role = "项目协调",
             systemPrompt = "你是一位经验丰富的项目经理，精通敏捷开发和传统项目管理方法，擅长任务分解、进度跟踪和团队协调，"
-            modelConfig = ModelConfig(
+        modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
                 temperature = 0.4,
@@ -209,8 +201,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val qualityAssuranceTemplate = AgentTemplate(
+        val qualityAssuranceTemplate = AgentTemplate(
         id = "template_quality_assurance",
         name = "质量保证专家",
         description = "专业QA 专家，擅长测试策略制定、缺陷分析和质量评估",
@@ -219,9 +210,9 @@ object PresetAgentTemplates {
         agent = Agent(
             id = "",
             name = "测试工程常"
-            role = "质量保证",
+        role = "质量保证",
             systemPrompt = "你是一位专业的质量保证专家，精通各种测试方法和工具，擅长测试策略制定、缺陷分析和质量评估，"
-            modelConfig = ModelConfig(
+        modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
                 temperature = 0.3,
@@ -239,8 +230,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val devOpsEngineerTemplate = AgentTemplate(
+        val devOpsEngineerTemplate = AgentTemplate(
         id = "template_devops_engineer",
         name = "DevOps 工程常"
         description = "专业？DevOps 工程师，擅长 CI/CD、容器化和云原生架构",
@@ -249,8 +239,8 @@ object PresetAgentTemplates {
         agent = Agent(
             id = "",
             name = "DevOps 工程常"
-            role = "运维开取"
-            systemPrompt = "你是一位专业的 DevOps 工程师，精通CI/CD 流水线、容器化技术（Docker、Kubernetes）和云原生架构，能够设计和实现高效的自动化运维方案？",
+        role = "运维开取"
+        systemPrompt = "你是一位专业的 DevOps 工程师，精通CI/CD 流水线、容器化技术（Docker、Kubernetes）和云原生架构，能够设计和实现高效的自动化运维方案？",
             modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
@@ -269,8 +259,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val uxResearcherTemplate = AgentTemplate(
+        val uxResearcherTemplate = AgentTemplate(
         id = "template_ux_researcher",
         name = "UX 研究专家",
         description = "专业的用户体验研究员，擅长用户研究、可用性测试和体验优化",
@@ -281,7 +270,7 @@ object PresetAgentTemplates {
             name = "UX 研究专家",
             role = "用户体验研究",
             systemPrompt = "你是一位专业的用户体验研究员，精通各种用户研究方法和可用性测试技术，能够深入了解用户需求并提供体验优化建议，"
-            modelConfig = ModelConfig(
+        modelConfig = ModelConfig(
                 provider = "openai",
                 model = "gpt-4o",
                 temperature = 0.6,
@@ -299,8 +288,7 @@ object PresetAgentTemplates {
             useGlobalConfig = true
         )
     )
-
-    val productStrategistTemplate = AgentTemplate(
+        val productStrategistTemplate = AgentTemplate(
         id = "template_product_strategist",
         name = "产品策略专家",
         description = "专业的产品策略专家，擅长产品规划、市场分析和商业策略",
@@ -342,19 +330,18 @@ enum class TemplateCategory {
     DEVOPS,
     UX_RESEARCH,
     PRODUCT_STRATEGY;
-
-    fun getDisplayName(): String {
+        fun getDisplayName(): String {
         return when (this) {
             CODE_DEVELOPMENT -> "代码开取"
-            DOCUMENTATION -> "文档撰写"
-            DATA_ANALYSIS -> "数据分析"
-            DESIGN -> "设计创意"
-            RESEARCH -> "研究助手"
-            PROJECT_MANAGEMENT -> "项目管理"
-            QUALITY_ASSURANCE -> "质量保证"
-            DEVOPS -> "DevOps"
-            UX_RESEARCH -> "UX 研究"
-            PRODUCT_STRATEGY -> "产品策略"
+        DOCUMENTATION -> "文档撰写"
+        DATA_ANALYSIS -> "数据分析"
+        DESIGN -> "设计创意"
+        RESEARCH -> "研究助手"
+        PROJECT_MANAGEMENT -> "项目管理"
+        QUALITY_ASSURANCE -> "质量保证"
+        DEVOPS -> "DevOps"
+        UX_RESEARCH -> "UX 研究"
+        PRODUCT_STRATEGY -> "产品策略"
         }
     }
 }

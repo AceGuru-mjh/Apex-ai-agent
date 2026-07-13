@@ -25,16 +25,14 @@ class OnnxSileroVad(
     private companion object {
         private const val TAG = "OnnxSileroVad"
     }
-
-    enum class Mode {
+        enum class Mode {
         OFF,
         NORMAL,
         AGGRESSIVE,
         VERY_AGGRESSIVE,
     }
-
-    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
-    private val session: OrtSession
+        private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+        private val session: OrtSession
 
     private val inputNameOrder: List<String>
     private val outputNameOrder: List<String>
@@ -53,43 +51,38 @@ class OnnxSileroVad(
     private val cTensorShape: LongArray
 
     private var audioContext = FloatArray(0)
-
-    private var h = FloatArray(128)
-    private var c = FloatArray(128)
-    private var state = FloatArray(256)
-
-    private var speechFramesCount = 0
+        private var h = FloatArray(128)
+        private var c = FloatArray(128)
+        private var state = FloatArray(256)
+        private var speechFramesCount = 0
     private var silenceFramesCount = 0
     private var maxSpeechFramesCount = msToFrames(speechDurationMs)
-    private var maxSilenceFramesCount = msToFrames(silenceDurationMs)
-
-    init {
+        private var maxSilenceFramesCount = msToFrames(silenceDurationMs)
+        init {
         val modelFile = AssetCopyUtils.copyAssetToCache(context, modelAssetPath)
         val opts = OrtSession.SessionOptions().apply {
             setIntraOpNumThreads(1)
-            setInterOpNumThreads(1)
-            setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
+        setInterOpNumThreads(1)
+        setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
         }
         session = env.createSession(modelFile.absolutePath, opts)
-
         inputNameOrder = session.inputNames.toList()
         outputNameOrder = session.outputNames.toList()
-
         val inputNameSet = inputNameOrder.toSet()
         audioInputName = when {
             inputNameSet.contains("input") -> "input"
-            inputNameSet.contains("audio") -> "audio"
-            inputNameSet.contains("x") -> "x"
-            else -> inputNameOrder.firstOrNull() ?: "input"
+        inputNameSet.contains("audio") -> "audio"
+        inputNameSet.contains("x") -> "x"
+        else -> inputNameOrder.firstOrNull() ?: "input"
         }
         srInputName = when {
             inputNameSet.contains("sr") -> "sr"
-            inputNameSet.contains("sample_rate") -> "sample_rate"
-            else -> null
+        inputNameSet.contains("sample_rate") -> "sample_rate"
+        else -> null
         }
         stateInputName = when {
             inputNameSet.contains("state") -> "state"
-            else -> null
+        else -> null
         }
         hInputName = if (inputNameSet.contains("h")) "h" else null
         cInputName = if (inputNameSet.contains("c")) "c" else null
@@ -97,7 +90,6 @@ class OnnxSileroVad(
         fun getTensorInfo(name: String): TensorInfo? {
             return (session.inputInfo[name]?.info as? TensorInfo)
         }
-
         fun normalizeShape(shape: LongArray?, fallback: LongArray): LongArray {
             if (shape == null || shape.isEmpty()) return fallback
             return LongArray(shape.size) { i ->
@@ -105,7 +97,6 @@ class OnnxSileroVad(
                 if (v <= 0) 1L else v
             }
         }
-
         val audioTensorInfo = getTensorInfo(audioInputName)
         val audioModelShape = audioTensorInfo?.shape
         val lastDim = audioModelShape?.lastOrNull()?.toInt() ?: -1
@@ -121,35 +112,29 @@ class OnnxSileroVad(
             }
         contextSize = (inputWindowSize - frameSize).coerceAtLeast(0)
         audioContext = FloatArray(contextSize)
-
         audioTensorShape = when (audioModelShape?.size) {
             1 -> longArrayOf(inputWindowSize.toLong())
             2 -> longArrayOf(1, inputWindowSize.toLong())
-            else -> longArrayOf(1, inputWindowSize.toLong())
+        else -> longArrayOf(1, inputWindowSize.toLong())
         }
-
         val srInfo = srInputName?.let { getTensorInfo(it) }
         srTensorShape = when (srInfo?.shape?.size) {
             null -> longArrayOf(1)
             0 -> longArrayOf()
-            else -> normalizeShape(srInfo.shape, longArrayOf(1))
+        else -> normalizeShape(srInfo.shape, longArrayOf(1))
         }
-
         val stateInfo = stateInputName?.let { getTensorInfo(it) }
         stateTensorShape = normalizeShape(stateInfo?.shape, longArrayOf(2, 1, 128))
-
         val hInfo = hInputName?.let { getTensorInfo(it) }
         val cInfo = cInputName?.let { getTensorInfo(it) }
         hTensorShape = normalizeShape(hInfo?.shape, longArrayOf(2, 1, 64))
         cTensorShape = normalizeShape(cInfo?.shape, longArrayOf(2, 1, 64))
-
         AppLogger.d(
             TAG,
             "Loaded Silero VAD model. inputs=${inputNameOrder} outputs=${outputNameOrder} inputWindowSize=${inputWindowSize} audioShape=${audioTensorShape.toList()} srShape=${srTensorShape.toList()} stateShape=${stateTensorShape.toList()}"
         )
     }
-
-    fun reset() {
+        fun reset() {
         h = FloatArray(128)
         c = FloatArray(128)
         state = FloatArray(256)
@@ -157,42 +142,34 @@ class OnnxSileroVad(
         speechFramesCount = 0
         silenceFramesCount = 0
     }
-
-    fun setSpeechDurationMs(ms: Int) {
+        fun setSpeechDurationMs(ms: Int) {
         maxSpeechFramesCount = msToFrames(ms)
     }
-
-    fun setSilenceDurationMs(ms: Int) {
+        fun setSilenceDurationMs(ms: Int) {
         maxSilenceFramesCount = msToFrames(ms)
     }
-
-    fun isSpeech(frame: ShortArray): Boolean {
+        fun isSpeech(frame: ShortArray): Boolean {
         if (mode == Mode.OFF) return false
         require(frame.size == frameSize)
-
         val audio = FloatArray(frameSize) { i -> frame[i] / 32768.0f }
         val modelInput = if (contextSize > 0) {
             val input = FloatArray(contextSize + frameSize)
-            if (audioContext.isNotEmpty()) {
+        if (audioContext.isNotEmpty()) {
                 java.lang.System.arraycopy(audioContext, 0, input, 0, contextSize)
             }
-            java.lang.System.arraycopy(audio, 0, input, contextSize, frameSize)
-            input
+        java.lang.System.arraycopy(audio, 0, input, contextSize, frameSize)
+        input
         } else {
             audio
         }
-
         val prob = predictProbability(modelInput)
         val isSpeechFrame = prob > threshold()
-
         if (contextSize > 0) {
             java.lang.System.arraycopy(modelInput, modelInput.size - contextSize, audioContext, 0, contextSize)
         }
-
         return isContinuousSpeech(isSpeechFrame)
     }
-
-    private fun isContinuousSpeech(isSpeechFrame: Boolean): Boolean {
+        private fun isContinuousSpeech(isSpeechFrame: Boolean): Boolean {
         if (isSpeechFrame) {
             if (speechFramesCount <= maxSpeechFramesCount) speechFramesCount++
 
@@ -212,8 +189,7 @@ class OnnxSileroVad(
         }
         return false
     }
-
-    private fun predictProbability(audioData: FloatArray): Float {
+        private fun predictProbability(audioData: FloatArray): Float {
         val toClose = ArrayList<AutoCloseable>(4)
         try {
             val inputs = LinkedHashMap<String, OnnxTensor>()
@@ -222,8 +198,8 @@ class OnnxSileroVad(
                 FloatBuffer.wrap(audioData),
                 audioTensorShape
             )
-            toClose.add(inputTensor)
-            inputs[audioInputName] = inputTensor
+        toClose.add(inputTensor)
+        inputs[audioInputName] = inputTensor
 
             srInputName?.let { name ->
                 val srTensor = OnnxTensor.createTensor(
@@ -231,40 +207,37 @@ class OnnxSileroVad(
                     LongBuffer.wrap(longArrayOf(sampleRate.toLong())),
                     srTensorShape
                 )
-                toClose.add(srTensor)
-                inputs[name] = srTensor
+        toClose.add(srTensor)
+        inputs[name] = srTensor
             }
-
-            if (stateInputName != null) {
+        if (stateInputName != null) {
                 val stateTensor = OnnxTensor.createTensor(
                     env,
                     FloatBuffer.wrap(state),
                     stateTensorShape
                 )
-                toClose.add(stateTensor)
-                inputs[stateInputName] = stateTensor
+        toClose.add(stateTensor)
+        inputs[stateInputName] = stateTensor
             } else if (hInputName != null && cInputName != null) {
                 val hTensor = OnnxTensor.createTensor(
                     env,
                     FloatBuffer.wrap(h),
                     hTensorShape
                 )
-                toClose.add(hTensor)
-                inputs[hInputName] = hTensor
+        toClose.add(hTensor)
+        inputs[hInputName] = hTensor
 
                 val cTensor = OnnxTensor.createTensor(
                     env,
                     FloatBuffer.wrap(c),
                     cTensorShape
                 )
-                toClose.add(cTensor)
-                inputs[cInputName] = cTensor
+        toClose.add(cTensor)
+        inputs[cInputName] = cTensor
             }
-
-            session.run(inputs).use { out ->
+        session.run(inputs).use { out ->
                 val confidence = extractScalarFloat(out[0].value)
-
-                if (stateInputName != null && out.size() >= 2) {
+        if (stateInputName != null && out.size() >= 2) {
                     extractFloatArray(out[1].value, 256)?.let { st ->
                         state = st
                     }
@@ -272,12 +245,11 @@ class OnnxSileroVad(
                     extractFloatArray(out[1].value, 128)?.let { hn ->
                         h = hn
                     }
-                    extractFloatArray(out[2].value, 128)?.let { cn ->
+        extractFloatArray(out[2].value, 128)?.let { cn ->
                         c = cn
                     }
                 }
-
-                return confidence
+        return confidence
             }
         } finally {
             for (i in toClose.indices.reversed()) {
@@ -288,28 +260,25 @@ class OnnxSileroVad(
             }
         }
     }
-
-    private fun extractScalarFloat(value: Any): Float {
+        private fun extractScalarFloat(value: Any): Float {
         return when (value) {
             is FloatArray -> value.firstOrNull() ?: 0f
             is Array<*> -> extractScalarFloat(value.firstOrNull())
-            else -> 0f
+        else -> 0f
         }
     }
-
-    private fun extractFloatArray(value: Any?, expectedSize: Int): FloatArray? {
+        private fun extractFloatArray(value: Any?, expectedSize: Int): FloatArray? {
         val out = ArrayList<Float>(expectedSize)
         fun walk(v: Any) {
             when (v) {
                 is FloatArray -> v.forEach { out.add(it) }
-                is Array<*> -> v.forEach { walk(it) }
+        is Array<*> -> v.forEach { walk(it) }
             }
         }
         walk(value)
         return if (out.size == expectedSize) out.toFloatArray() else null
     }
-
-    private fun threshold(): Float {
+        private fun threshold(): Float {
         return when (mode) {
             Mode.NORMAL -> 0.5f
             Mode.AGGRESSIVE -> 0.8f
@@ -317,14 +286,12 @@ class OnnxSileroVad(
             Mode.OFF -> 1f
         }
     }
-
-    private fun msToFrames(ms: Int): Int {
+        private fun msToFrames(ms: Int): Int {
         if (ms <= 0) return 0
         val frameDurationMs = (frameSize * 1000.0) / sampleRate
         return ceil(ms / frameDurationMs).toInt().coerceAtLeast(0)
     }
-
-    override fun close() {
+        override fun close() {
         session.close()
     }
 }

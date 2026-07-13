@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentHashMap
 class PerformanceOptimizer {
 
     private val allocationCache = ConcurrentHashMap<String, IntelligentTaskAllocator.AllocationResult>()
-    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    private val maxCacheSize = 200
+        private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+        private val maxCacheSize = 200
 
     suspend fun optimizeAllocation(
         allocator: IntelligentTaskAllocator,
@@ -15,17 +15,14 @@ class PerformanceOptimizer {
     ): IntelligentTaskAllocator.AllocationResult = withContext(Dispatchers.Default) {
         val cacheKey = "${request.taskDescription}_${request.taskFeature.category}_${request.taskFeature.difficulty}"
         allocationCache[cacheKey]?.let { return@withContext it }
-
         val result = allocator.allocateTask(request)
-
         if (allocationCache.size >= maxCacheSize) {
             allocationCache.keys.firstOrNull()?.let { allocationCache.remove(it) }
         }
         allocationCache[cacheKey] = result
         result
     }
-
-    suspend fun optimizeBatchAllocation(
+        suspend fun optimizeBatchAllocation(
         allocator: IntelligentTaskAllocator,
         requests: List<IntelligentTaskAllocator.AllocationRequest>
     ): List<IntelligentTaskAllocator.AllocationResult> = coroutineScope {
@@ -47,8 +44,7 @@ class PerformanceOptimizer {
             }
         }.awaitAll()
     }
-
-    fun clearCache() { allocationCache.clear() }
-    fun getCacheSize(): Int = allocationCache.size
+        fun clearCache() { allocationCache.clear() }
+        fun getCacheSize(): Int = allocationCache.size
     fun shutdown() { scope.cancel(); allocationCache.clear() }
 }

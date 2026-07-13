@@ -65,13 +65,11 @@ class MtsEngine private constructor(
     /** 获取各模式的工具分布 */
     val modeDistribution: Map<AgentMode, Int>
         get() = AgentMode.values().associateWith { getToolCountByMode(it) }
-
-    suspend fun route(userInput: String, context: ExecutionContext = ExecutionContext()): RoutingPlan {
+        suspend fun route(userInput: String, context: ExecutionContext = ExecutionContext()): RoutingPlan {
         val effectiveContext = context.copy(agentMode = currentMode)
         return router.route(userInput, effectiveContext)
     }
-
-    suspend fun execute(
+        suspend fun execute(
         calls: List<ParsedToolCall>,
         context: ExecutionContext = ExecutionContext()
     ): ExecutionSummary {
@@ -89,14 +87,11 @@ class MtsEngine private constructor(
         }
         return summary
     }
-
-    fun analyzeIntent(userInput: String): IntentAnalysis {
+        fun analyzeIntent(userInput: String): IntentAnalysis {
         return router.analyzeIntent(userInput)
     }
-
-    fun searchTools(query: String, topK: Int = 5) = registry.search(query, topK)
-
-    fun optimizePrompts(
+        fun searchTools(query: String, topK: Int = 5) = registry.search(query, topK)
+        fun optimizePrompts(
         userInput: String? = null,
         context: OptimizationContext = OptimizationContext()
     ): OptimizationResult {
@@ -108,23 +103,19 @@ class MtsEngine private constructor(
             optimizer.optimize(modeTools, effectiveContext)
         }
     }
-
-    fun buildDefinitions(
+        fun buildDefinitions(
         tools: List<ToolSpec>? = null,
         config: ProtocolConfig = ProtocolConfig()
     ) = protocolAdapter.buildDefinitions(tools ?: getToolsByMode(), config)
-
-    fun parseToolCalls(
+        fun parseToolCalls(
         response: String,
         protocol: com.apex.agent.mts.adapter.Protocol = com.apex.agent.mts.adapter.Protocol.AUTO
     ) = protocolAdapter.parseToolCalls(response, { registry.getByName(it) }, protocol)
-
-    fun registerTool(tool: ToolSpec) = registry.register(tool)
-    fun registerTools(tools: List<ToolSpec>) = registry.registerBatch(tools)
-    fun unregisterTool(toolId: String) = registry.unregister(toolId)
-    fun getTool(name: String) = registry.getByName(name)
-
-    val isBerserk: Boolean get() = currentMode == AgentMode.BERSERK
+        fun registerTool(tool: ToolSpec) = registry.register(tool)
+        fun registerTools(tools: List<ToolSpec>) = registry.registerBatch(tools)
+        fun unregisterTool(toolId: String) = registry.unregister(toolId)
+        fun getTool(name: String) = registry.getByName(name)
+        val isBerserk: Boolean get() = currentMode == AgentMode.BERSERK
 
     suspend fun berserkExecute(
         calls: List<ParsedToolCall>,
@@ -139,10 +130,10 @@ class MtsEngine private constructor(
                         async { orchestrator.executeBerserk(call) }
                     }.map { it.await() }
                 }
-                val succeeded = results.count { it.outcome is ToolOutcome.Success }
+        val succeeded = results.count { it.outcome is ToolOutcome.Success }
         val failed = results.count { it.outcome is ToolOutcome.Failure }
-                val cancelled = results.count { it.outcome is ToolOutcome.Cancelled }
-                results.forEach { r ->
+        val cancelled = results.count { it.outcome is ToolOutcome.Cancelled }
+        results.forEach { r ->
                     observability.recordCall(
                         com.apex.agent.mts.observer.ToolCallRecord(
                             toolName = r.toolName,
@@ -152,7 +143,7 @@ class MtsEngine private constructor(
                         )
                     )
                 }
-                ExecutionSummary(
+        ExecutionSummary(
                     totalCalls = calls.size,
                     succeeded = succeeded,
                     failed = failed,
@@ -172,12 +163,10 @@ class MtsEngine private constructor(
             setMode(oldMode)
         }
     }
-
-    suspend fun berserkRoute(userInput: String): RoutingPlan {
+        suspend fun berserkRoute(userInput: String): RoutingPlan {
         return route(userInput, ExecutionContext(agentMode = AgentMode.BERSERK))
     }
-
-    suspend fun bruteForceExecute(
+        suspend fun bruteForceExecute(
         toolName: String,
         vararg argumentSets: Map<String, Any?>
     ): List<ExecutionResult> {
@@ -191,15 +180,14 @@ class MtsEngine private constructor(
                         arguments = args,
                         rawName = toolName
                     )
-                    val plan = listOf(call)
+        val plan = listOf(call)
         val summary = execute(plan, ExecutionContext(agentMode = AgentMode.BERSERK))
-                    summary.results.firstOrNull()
+        summary.results.firstOrNull()
                 }
             }.mapNotNull { it.await() }
         }
     }
-
-    val summary: String
+        val summary: String
         get() {
             val toolCount = registry.size()
         val dist = modeDistribution
@@ -213,46 +201,38 @@ Registered tools (total): $toolCount
 $metrics
             """.trimIndent()
         }
-
-    class Builder(private val invoker: ToolInvoker) {
+        class Builder(private val invoker: ToolInvoker) {
         private val registry = ToolRegistry()
         private val router = IntelligentRouter(registry)
         private val observability = ToolObservability()
-
         fun withDefaultConfig(): Builder {
             executorConfig = ExecutionConfig()
-            protocolConfig = ProtocolConfig()
-            return this
+        protocolConfig = ProtocolConfig()
+        return this
         }
-
         private var executorConfig: ExecutionConfig = ExecutionConfig()
         private var protocolConfig: ProtocolConfig = ProtocolConfig()
-
         fun executorConfig(config: ExecutionConfig): Builder {
             executorConfig = config
             return this
         }
-
         fun protocolConfig(config: ProtocolConfig): Builder {
             protocolConfig = config
             return this
         }
-
         fun registerAll(tools: List<ToolSpec>): Builder {
             registry.registerBatch(tools)
-            return this
+        return this
         }
-
         fun build(): MtsEngine {
             val executor = SmartExecutor(registry, invoker, executorConfig)
         val optimizer = PromptOptimizer(registry)
-            val adapter = ToolCallProtocolAdapter()
+        val adapter = ToolCallProtocolAdapter()
         val orchestrator = BerserkModeOrchestrator(registry, invoker)
-            return MtsEngine(registry, router, executor, optimizer, adapter, observability, orchestrator)
+        return MtsEngine(registry, router, executor, optimizer, adapter, observability, orchestrator)
         }
     }
-
-    companion object {
+        companion object {
         fun create(
             invoker: ToolInvoker,
             tools: List<ToolSpec> = emptyList(),

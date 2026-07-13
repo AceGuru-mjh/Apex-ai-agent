@@ -45,7 +45,7 @@ fun BurstModeScreen(
             .padding(16.dp)
     ) {
         // 顶部:水母 + 状态 + 控制
-                BurstTopBar(
+        BurstTopBar(
             kernelState = kernelState,
             skillCount = loadedSkills.size,
             logCount = logs.size,
@@ -57,11 +57,11 @@ fun BurstModeScreen(
         Spacer(Modifier.height(12.dp))
 
         // 技能链
-                SkillChainPanel(skills = loadedSkills, modifier = Modifier.weight(0.35f))
+        SkillChainPanel(skills = loadedSkills, modifier = Modifier.weight(0.35f))
         Spacer(Modifier.height(12.dp))
 
         // 日志流
-                LogStreamPanel(logs = logs, modifier = Modifier.weight(0.65f))
+        LogStreamPanel(logs = logs, modifier = Modifier.weight(0.65f))
     }
 }
 
@@ -83,7 +83,7 @@ private fun BurstTopBar(
         KernelState.STOPPING -> Color(0xFF60A5FA)
         KernelState.ERROR -> Color(0xFFEF4444)
     }
-    val stateName = when (kernelState) {
+        val stateName = when (kernelState) {
         KernelState.STOPPED -> "已停止"
         KernelState.STARTING -> "启动中"
         KernelState.RUNNING -> "运行中"
@@ -91,7 +91,7 @@ private fun BurstTopBar(
         KernelState.STOPPING -> "停止中"
         KernelState.ERROR -> "错误"
     }
-    val isBerserk = kernelState == KernelState.RUNNING
+        val isBerserk = kernelState == KernelState.RUNNING
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -99,22 +99,22 @@ private fun BurstTopBar(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // 水母(狂暴形态)
-                AuraMascotView(
+        AuraMascotView(
             form = if (isBerserk) AuraMascot.AuraForm.BERSERK else AuraMascot.AuraForm.IDLE,
             modifier = Modifier.size(72.dp),
             transitionEnabled = true,
         )
         Column(modifier = Modifier.weight(1f)) {
             Text("狂暴模式", color = Color(0xFFFF6B9D), fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.size(8.dp).background(stateColor, RoundedCornerShape(4.dp)))
-                Spacer(Modifier.width(6.dp))
-                Text(stateName, color = stateColor, fontSize = 12.sp)
-                Text("  ·  $skillCount 技能  ·  $logCount 日志", color = Color(0xFF94A3B8), fontSize = 12.sp)
+        Spacer(Modifier.width(6.dp))
+        Text(stateName, color = stateColor, fontSize = 12.sp)
+        Text("  ·  $skillCount 技能  ·  $logCount 日志", color = Color(0xFF94A3B8), fontSize = 12.sp)
             }
         }
         // 控制按钮
-                Button(onClick = onStart, enabled = kernelState == KernelState.STOPPED, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4ADE80))) { Text("启动", color = Color.Black, fontSize = 12.sp) }
+        Button(onClick = onStart, enabled = kernelState == KernelState.STOPPED, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4ADE80))) { Text("启动", color = Color.Black, fontSize = 12.sp) }
         Button(onClick = onPause, enabled = kernelState == KernelState.RUNNING, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFBBF24))) { Text("暂停", color = Color.Black, fontSize = 12.sp) }
         Button(onClick = onStop, enabled = kernelState != KernelState.STOPPED, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))) { Text("停止", color = Color.White, fontSize = 12.sp) }
         Button(onClick = onBerserk, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B9D))) { Text("🔥 狂暴", color = Color.White, fontSize = 12.sp) }
@@ -138,14 +138,14 @@ private fun SkillChainPanel(skills: List<String>, modifier: Modifier = Modifier)
             skills.forEachIndexed { i, skill ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("[${i + 1}]", color = Color(0xFF00E5FF), fontSize = 11.sp, fontFamily = FontFamily.Monospace)
-                    Spacer(Modifier.width(8.dp))
-                    Text(skill, color = Color(0xFFE2E8F0), fontSize = 11.sp, fontFamily = FontFamily.Monospace)
-                    if (i < skills.size - 1) {
+        Spacer(Modifier.width(8.dp))
+        Text(skill, color = Color(0xFFE2E8F0), fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+        if (i < skills.size - 1) {
                         Spacer(Modifier.width(8.dp))
-                        Text("→", color = Color(0xFF64748B), fontSize = 11.sp)
+        Text("→", color = Color(0xFF64748B), fontSize = 11.sp)
                     }
                 }
-                Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(2.dp))
             }
         }
     }
@@ -180,7 +180,7 @@ private fun LogRow(log: BurstLogEntry) {
         BurstLogLevel.ERROR -> Color(0xFFEF4444)
         BurstLogLevel.BERSERK -> Color(0xFFFF6B9D)
     }
-    Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth()) {
         Text(log.timestamp, color = Color(0xFF64748B), fontSize = 10.sp, fontFamily = FontFamily.Monospace)
         Spacer(Modifier.width(8.dp))
         Text("[${log.level.name}]", color = levelColor, fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)

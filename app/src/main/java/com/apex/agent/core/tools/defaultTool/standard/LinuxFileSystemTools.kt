@@ -36,13 +36,12 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
     }
 
     // 动态获取文件系统（支持SSH切换的
-    private val fs get() = getLinuxFileSystem()
+        private val fs get() = getLinuxFileSystem()
 
     /** 列出Linux目录中的文件 */
     override suspend fun listFiles(tool: AITool): ToolResult {
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -51,7 +50,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             if (!fs.exists(path)) {
                 return ToolResult(
@@ -61,8 +59,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Directory does not exist: ${path}"
                 )
             }
-
-            if (!fs.isDirectory(path)) {
+        if (!fs.isDirectory(path)) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -70,9 +67,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Path is not a directory: ${path}"
                 )
             }
-
-            val fileInfoList = fs.listDirectory(path)
-            if (fileInfoList == null) {
+        val fileInfoList = fs.listDirectory(path)
+        if (fileInfoList == null) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -80,8 +76,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Failed to list directory: ${path}"
                 )
             }
-
-            val entries = fileInfoList.map { fileInfo ->
+        val entries = fileInfoList.map { fileInfo ->
                 DirectoryListingData.FileEntry(
                     name = fileInfo.name,
                     isDirectory = fileInfo.isDirectory,
@@ -90,10 +85,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     lastModified = fileInfo.lastModified
                 )
             }
-
-            AppLogger.d(TAG, "Listed ${entries.size} entries in directory ${path}")
-
-            return ToolResult(
+        AppLogger.d(TAG, "Listed ${entries.size} entries in directory ${path}")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = DirectoryListingData(path = path, entries = entries, env = "linux"),
@@ -101,7 +94,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error listing directory", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -115,7 +108,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         val textOnly = tool.parameters.find { it.name == "text_only" }?.value?.toBoolean() ?: false
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -124,7 +116,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         try {
             if (!fs.exists(path)) {
                 return ToolResult(
@@ -134,8 +125,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "File does not exist: ${path}"
                 )
             }
-
-            if (!fs.isFile(path)) {
+        if (!fs.isFile(path)) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -143,12 +133,11 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Path is not a file: ${path}"
                 )
             }
-
-            val fileExt = path.substringAfterLast('.', "").lowercase()
+        val fileExt = path.substringAfterLast('.', "").lowercase()
             
             // 特殊文件类型处理（图片、PDF等）暂时不支持在Linux环境
             // 因为这些需要Android本地文件访问
-                if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
+        if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -158,9 +147,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             // 检查文件是否是文本文件（如果启用了 text_only的
-                if (textOnly) {
+        if (textOnly) {
                 val sample = fs.readFileSample(path, 512)
-                if (sample == null || !FileUtils.isTextLike(sample)) {
+        if (sample == null || !FileUtils.isTextLike(sample)) {
                     return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -169,9 +158,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     )
                 }
             }
-
-            val content = fs.readFile(path)
-            if (content == null) {
+        val content = fs.readFile(path)
+        if (content == null) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -179,9 +167,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Failed to read file: ${path}"
                 )
             }
-
-            val fileSize = fs.getFileSize(path)
-            return ToolResult(
+        val fileSize = fs.getFileSize(path)
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileContentData(
@@ -194,7 +181,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error reading file (full)", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -207,7 +194,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
     override suspend fun readFileBinary(tool: AITool): ToolResult {
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -216,7 +202,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             if (!fs.exists(path)) {
                 return ToolResult(
@@ -226,8 +211,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "File does not exist: ${path}"
                 )
             }
-
-            if (!fs.isFile(path)) {
+        if (!fs.isFile(path)) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -235,9 +219,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Path is not a file: ${path}"
                 )
             }
-
-            val bytes = fs.readFileBytes(path)
-            if (bytes == null) {
+        val bytes = fs.readFileBytes(path)
+        if (bytes == null) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -245,11 +228,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Failed to read file bytes: ${path}"
                 )
             }
-
-            val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
         val size = fs.getFileSize(path)
-
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = BinaryFileContentData(
@@ -262,7 +243,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error reading binary file", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -275,7 +256,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
     override suspend fun fileExists(tool: AITool): ToolResult {
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -284,11 +264,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val exists = fs.exists(path)
-
-            if (!exists) {
+        if (!exists) {
                 return ToolResult(
                     toolName = tool.name,
                     success = true,
@@ -296,11 +274,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = ""
                 )
             }
-
-            val isDirectory = fs.isDirectory(path)
+        val isDirectory = fs.isDirectory(path)
         val size = fs.getFileSize(path)
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileExistsData(
@@ -314,7 +290,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error checking file existence", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileExistsData(
@@ -333,7 +309,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
     override suspend fun readFile(tool: AITool): ToolResult {
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -342,7 +317,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         try {
             if (!fs.exists(path)) {
                 return ToolResult(
@@ -352,8 +326,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "File does not exist: ${path}"
                 )
             }
-
-            if (!fs.isFile(path)) {
+        if (!fs.isFile(path)) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -361,23 +334,22 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Path is not a file: ${path}"
                 )
             }
-
-            val fileExt = path.substringAfterLast('.', "").lowercase()
+        val fileExt = path.substringAfterLast('.', "").lowercase()
 
             // 特殊文件类型不支的
-                if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
+        if (fileExt in listOf("doc", "docx", "pdf", "jpg", "jpeg", "png", "gif", "bmp")) {
                 // 对于特殊类型，先尝试读取完整文件
-                return readFileFull(tool)
+        return readFileFull(tool)
             }
 
             // 检查文件大将
-    val fileSize = fs.getFileSize(path)
+        val fileSize = fs.getFileSize(path)
         val maxFileSizeBytes = ToolExecutionLimits.MAX_FILE_READ_BYTES
 
             if (fileSize > maxFileSizeBytes) {
                 // 文件过大，读取限制大将
-    val content = fs.readFileWithLimit(path, maxFileSizeBytes.toInt())
-                if (content == null) {
+        val content = fs.readFileWithLimit(path, maxFileSizeBytes.toInt())
+        if (content == null) {
                     return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -385,9 +357,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                         error = "Failed to read file: ${path}"
                     )
                 }
-
-                val truncatedMsg = "\n\n[File truncated. Size: ${fileSize} bytes, showing first ${maxFileSizeBytes} bytes]"
-                return ToolResult(
+        val truncatedMsg = "\n\n[File truncated. Size: ${fileSize} bytes, showing first ${maxFileSizeBytes} bytes]"
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = FileContentData(
@@ -400,11 +371,11 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 )
             } else {
                 // 文件大小合适，读取完整内容
-                return readFileFull(tool)
+        return readFileFull(tool)
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error reading file", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -419,7 +390,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val startLineParam = tool.parameters.find { it.name == "start_line" }?.value?.toIntOrNull() ?: 1
         val endLineParam = tool.parameters.find { it.name == "end_line" }?.value?.toIntOrNull()
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -428,7 +398,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             if (!fs.exists(path)) {
                 return ToolResult(
@@ -438,8 +407,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "File does not exist or is not a regular file: ${path}"
                 )
             }
-
-            if (!fs.isFile(path)) {
+        if (!fs.isFile(path)) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -449,43 +417,39 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             }
 
             // 获取总行为
-    val totalLines = fs.getLineCount(path)
+        val totalLines = fs.getLineCount(path)
 
             // 计算实际的行号范围（行号。开始）
-    val startLine = maxOf(1, startLineParam).coerceIn(1, maxOf(1, totalLines))
+        val startLine = maxOf(1, startLineParam).coerceIn(1, maxOf(1, totalLines))
         val endLine =
                 (endLineParam
                         ?: (startLine + ToolExecutionLimits.DEFAULT_FILE_READ_PART_LINES - 1))
                     .coerceIn(startLine, maxOf(1, totalLines))
-
-            val partContent = if (totalLines > 0) {
+        val partContent = if (totalLines > 0) {
                 fs.readFileLines(path, startLine, endLine) ?: ""
             } else {
                 ""
             }
-
-            val maxFileSizeBytes = ToolExecutionLimits.MAX_FILE_READ_BYTES
+        val maxFileSizeBytes = ToolExecutionLimits.MAX_FILE_READ_BYTES
             var truncatedPartContent = partContent
             val isTruncated = truncatedPartContent.length > maxFileSizeBytes
             if (isTruncated) {
                 truncatedPartContent = truncatedPartContent.substring(0, maxFileSizeBytes)
             }
-
-            var contentWithLineNumbers = addLineNumbers(truncatedPartContent, startLine - 1, totalLines)
-            if (isTruncated) {
+        var contentWithLineNumbers = addLineNumbers(truncatedPartContent, startLine - 1, totalLines)
+        if (isTruncated) {
                 contentWithLineNumbers += "\n\n... (file content truncated) ..."
             }
-
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FilePartContentData(
                     path = path,
                     content = contentWithLineNumbers,
                     partIndex = 0, // 保留兼容性，但不再使的
-                totalParts = 1, // 保留兼容性，但不再使的
-                startLine = startLine - 1, // 转为0-based
-                endLine = endLine,
+        totalParts = 1, // 保留兼容性，但不再使的
+        startLine = startLine - 1, // 转为0-based
+        endLine = endLine,
                     totalLines = totalLines,
                     env = "linux"
                 ),
@@ -493,7 +457,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error reading file part", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -508,7 +472,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val content = tool.parameters.find { it.name == "content" }?.value ?: ""
         val append = tool.parameters.find { it.name == "append" }?.value?.toBoolean() ?: false
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -523,11 +486,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val result = fs.writeFile(path, content, append)
-
-            if (!result.success) {
+        if (!result.success) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -541,9 +502,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = result.message
                 )
             }
-
-            val operation = if (append) "append" else "write"
-            return ToolResult(
+        val operation = if (append) "append" else "write"
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData(
@@ -557,9 +517,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error writing to file", e)
-            val errorMessage = "Error writing to file: ${e.message}"
-
-            return ToolResult(
+        val errorMessage = "Error writing to file: ${e.message}"
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileOperationData(
@@ -579,7 +538,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         val base64Content = tool.parameters.find { it.name == "base64Content" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -594,13 +552,11 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             // 解码base64内容
-    val bytes = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT)
+        val bytes = android.util.Base64.decode(base64Content, android.util.Base64.DEFAULT)
         val result = fs.writeFileBytes(path, bytes)
-
-            if (!result.success) {
+        if (!result.success) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -614,8 +570,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = result.message
                 )
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData(
@@ -629,9 +584,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error writing binary file", e)
-            val errorMessage = "Error writing binary file: ${e.message}"
-
-            return ToolResult(
+        val errorMessage = "Error writing binary file: ${e.message}"
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileOperationData(
@@ -651,7 +605,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         val recursive = tool.parameters.find { it.name == "recursive" }?.value?.toBoolean() ?: false
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -666,7 +619,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             if (!fs.exists(path)) {
                 return ToolResult(
@@ -682,10 +634,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Path does not exist: ${path}"
                 )
             }
-
-            val result = fs.delete(path, recursive)
-
-            if (!result.success) {
+        val result = fs.delete(path, recursive)
+        if (!result.success) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -699,8 +649,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = result.message
                 )
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData(
@@ -714,9 +663,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error deleting file", e)
-            val errorMessage = "Error deleting file: ${e.message}"
-
-            return ToolResult(
+        val errorMessage = "Error deleting file: ${e.message}"
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileOperationData(
@@ -737,7 +685,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val destPath = tool.parameters.find { it.name == "destination" }?.value ?: ""
         PathValidator.validateLinuxPath(sourcePath, tool.name, "source")?.let { return it }
         PathValidator.validateLinuxPath(destPath, tool.name, "destination")?.let { return it }
-
         if (sourcePath.isBlank() || destPath.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -752,7 +699,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Both sourcePath and destPath parameters are required"
             )
         }
-
         return try {
             if (!fs.exists(sourcePath)) {
                 return ToolResult(
@@ -768,10 +714,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Source path does not exist: ${sourcePath}"
                 )
             }
-
-            val result = fs.move(sourcePath, destPath)
-
-            if (!result.success) {
+        val result = fs.move(sourcePath, destPath)
+        if (!result.success) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -785,8 +729,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = result.message
                 )
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData(
@@ -800,9 +743,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error moving file", e)
-            val errorMessage = "Error moving file: ${e.message}"
-
-            return ToolResult(
+        val errorMessage = "Error moving file: ${e.message}"
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileOperationData(
@@ -824,7 +766,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val recursive = tool.parameters.find { it.name == "recursive" }?.value?.toBoolean() ?: true
         PathValidator.validateLinuxPath(sourcePath, tool.name, "source")?.let { return it }
         PathValidator.validateLinuxPath(destPath, tool.name, "destination")?.let { return it }
-
         if (sourcePath.isBlank() || destPath.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -839,11 +780,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Both sourcePath and destPath parameters are required"
             )
         }
-
         return try {
             val result = fs.copy(sourcePath, destPath, recursive)
-
-            if (!result.success) {
+        if (!result.success) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -857,8 +796,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = result.message
                 )
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData(
@@ -872,9 +810,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error copying file", e)
-            val errorMessage = "Error copying file: ${e.message}"
-
-            return ToolResult(
+        val errorMessage = "Error copying file: ${e.message}"
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileOperationData(
@@ -894,7 +831,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         val createParents = tool.parameters.find { it.name == "create_parents" }?.value?.toBoolean() ?: false
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -909,11 +845,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val result = fs.createDirectory(path, createParents)
-
-            if (!result.success) {
+        if (!result.success) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -927,8 +861,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = result.message
                 )
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileOperationData(
@@ -942,9 +875,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error creating directory", e)
-            val errorMessage = "Error creating directory: ${e.message}"
-
-            return ToolResult(
+        val errorMessage = "Error creating directory: ${e.message}"
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileOperationData(
@@ -964,7 +896,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val basePath = tool.parameters.find { it.name == "path" }?.value ?: ""
         val pattern = tool.parameters.find { it.name == "pattern" }?.value ?: ""
         PathValidator.validateLinuxPath(basePath, tool.name, "path")?.let { return it }
-
         if (basePath.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -973,7 +904,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "basePath parameter is required"
             )
         }
-
         if (pattern.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -982,10 +912,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "pattern parameter is required"
             )
         }
-
         return try {
             ToolProgressBus.update(tool.name, -1f, "Searching...")
-            if (!fs.exists(basePath)) {
+        if (!fs.exists(basePath)) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -993,32 +922,26 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "Base path does not exist: ${basePath}"
                 )
             }
-
-            if (!fs.isDirectory(basePath)) {
+        if (!fs.isDirectory(basePath)) {
                 val fileName = basePath.substringAfterLast('/')
         val regex = globToRegex(pattern, caseInsensitive = false)
-                val files = if (regex.matches(fileName)) listOf(basePath) else emptyList()
-
-                ToolProgressBus.update(tool.name, 1f, "Search completed, found ${files.size}")
-
-                return ToolResult(
+        val files = if (regex.matches(fileName)) listOf(basePath) else emptyList()
+        ToolProgressBus.update(tool.name, 1f, "Search completed, found ${files.size}")
+        return ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = FindFilesResultData(path = basePath, pattern = pattern, files = files, env = "linux"),
                     error = ""
                 )
             }
-
-            val files = fs.findFiles(
+        val files = fs.findFiles(
                 basePath = basePath,
                 pattern = pattern,
                 maxDepth = -1,
                 caseInsensitive = false
             )
-
-            ToolProgressBus.update(tool.name, 1f, "Search completed, found ${files.size}")
-
-            return ToolResult(
+        ToolProgressBus.update(tool.name, 1f, "Search completed, found ${files.size}")
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FindFilesResultData(path = basePath, pattern = pattern, files = files, env = "linux"),
@@ -1026,8 +949,8 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error finding files", e)
-            ToolProgressBus.update(tool.name, 1f, "Search failed")
-            return ToolResult(
+        ToolProgressBus.update(tool.name, 1f, "Search failed")
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FindFilesResultData(path = basePath, pattern = pattern, files = emptyList(), env = "linux"),
@@ -1040,7 +963,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
     override suspend fun fileInfo(tool: AITool): ToolResult {
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1060,10 +982,9 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         return try {
             val fileInfo = fs.getFileInfo(path)
-            if (fileInfo == null) {
+        if (fileInfo == null) {
                 return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -1082,17 +1003,15 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                     error = "File does not exist: ${path}"
                 )
             }
-
-            val fileType = if (fileInfo.isDirectory) "directory" else "file"
+        val fileType = if (fileInfo.isDirectory) "directory" else "file"
         val rawInfo = buildString {
                 appendLine("File: ${path}")
-                appendLine("Size: ${fileInfo.size} bytes")
-                appendLine("Type: ${fileType}")
-                appendLine("Permissions: ${fileInfo.permissions}")
-                appendLine("Last Modified: ${fileInfo.lastModified}")
+        appendLine("Size: ${fileInfo.size} bytes")
+        appendLine("Type: ${fileType}")
+        appendLine("Permissions: ${fileInfo.permissions}")
+        appendLine("Last Modified: ${fileInfo.lastModified}")
             }
-
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = true,
                 result = FileInfoData(
@@ -1111,7 +1030,7 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error getting file info", e)
-            return ToolResult(
+        return ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = FileInfoData(
@@ -1135,7 +1054,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
     override suspend fun openFile(tool: AITool): ToolResult {
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         return ToolResult(
             toolName = tool.name,
             success = false,
@@ -1154,7 +1072,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val contextLines = tool.parameters.find { it.name == "context_lines" }?.value?.toIntOrNull() ?: 3
         val maxResults = tool.parameters.find { it.name == "max_results" }?.value?.toIntOrNull() ?: 100
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1163,7 +1080,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         if (pattern.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1172,7 +1088,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Pattern parameter is required"
             )
         }
-
         return grepCodeWithRipgrep(
             toolName = tool.name,
             path = path,
@@ -1193,7 +1108,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
         val maxResults = tool.parameters.find { it.name == "max_results" }?.value?.toIntOrNull() ?: 10
         
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1202,7 +1116,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Path parameter is required"
             )
         }
-
         if (intent.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -1211,14 +1124,12 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 error = "Intent parameter is required"
             )
         }
-
         val isFile = fs.isFile(path)
-
         if (isFile) {
             val parent = path.substringBeforeLast('/', "")
         val fileName = path.substringAfterLast('/')
-            val searchPath = if (parent.isNotBlank()) parent else "/"
-            return grepContextAgentic(
+        val searchPath = if (parent.isNotBlank()) parent else "/"
+        return grepContextAgentic(
                 toolName = tool.name,
                 displayPath = path,
                 searchPath = searchPath,
@@ -1229,7 +1140,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
                 envLabel = "linux"
             )
         }
-
         return grepContextAgentic(
             toolName = tool.name,
             displayPath = path,
@@ -1246,7 +1156,6 @@ class LinuxFileSystemTools(context: Context) : StandardFileSystemTools(context) 
     override suspend fun shareFile(tool: AITool): ToolResult {
         val path = tool.parameters.find { it.name == "path" }?.value ?: ""
         PathValidator.validateLinuxPath(path, tool.name)?.let { return it }
-
         return ToolResult(
             toolName = tool.name,
             success = false,

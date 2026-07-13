@@ -12,14 +12,12 @@ import java.util.UUID
 class ARVRInteractionManager(private val context: Context) {
 
     private val TAG = "ARVRManager"
-
-    enum class SessionType {
+        enum class SessionType {
         AR,
         VR,
         MIXED_REALITY
     }
-
-    enum class InteractionMode {
+        enum class InteractionMode {
         GESTURE,
         VOICE,
         EYE_TRACKING,
@@ -27,16 +25,14 @@ class ARVRInteractionManager(private val context: Context) {
         TOUCH,
         GRAVITY
     }
-
-    enum class SpatialType {
+        enum class SpatialType {
         SURFACE,
         MARKER,
         ANCHOR,
         WORLD_MAP,
         GEOLOCATION
     }
-
-    data class ARVRSession(
+        data class ARVRSession(
         val id: String,
         val type: SessionType,
         val mode: InteractionMode,
@@ -47,8 +43,7 @@ class ARVRInteractionManager(private val context: Context) {
         val interactions: List<Interaction> = emptyList(),
         val spatialAnchors: List<SpatialAnchor> = emptyList()
     )
-
-    data class SceneObject(
+        data class SceneObject(
         val id: String,
         val name: String,
         val type: ObjectType,
@@ -59,8 +54,7 @@ class ARVRInteractionManager(private val context: Context) {
         val isVisible: Boolean = true,
         val isInteractive: Boolean = true
     )
-
-    enum class ObjectType {
+        enum class ObjectType {
         MESH,
         SPHERE,
         CUBE,
@@ -74,8 +68,7 @@ class ARVRInteractionManager(private val context: Context) {
         CAMERA,
         CUSTOM_MODEL
     }
-
-    data class Vector3(
+        data class Vector3(
         val x: Float,
         val y: Float,
         val z: Float
@@ -85,8 +78,7 @@ class ARVRInteractionManager(private val context: Context) {
         val one = Vector3(1f, 1f, 1f)
         }
     }
-
-    data class Quaternion(
+        data class Quaternion(
         val x: Float,
         val y: Float,
         val z: Float,
@@ -96,8 +88,7 @@ class ARVRInteractionManager(private val context: Context) {
             val identity = Quaternion(0f, 0f, 0f, 1f)
         }
     }
-
-    data class Interaction(
+        data class Interaction(
         val id: String,
         val type: InteractionType,
         val timestamp: Long,
@@ -106,8 +97,7 @@ class ARVRInteractionManager(private val context: Context) {
         val parameters: Map<String, Any>,
         val success: Boolean
     )
-
-    enum class InteractionType {
+        enum class InteractionType {
         SELECT,
         DRAG,
         ROTATE,
@@ -123,15 +113,13 @@ class ARVRInteractionManager(private val context: Context) {
         BUTTON_PRESS,
         GESTURE_RECOGNIZED
     }
-
-    enum class InteractionSource {
+        enum class InteractionSource {
         USER,
         SYSTEM,
         AI,
         ANIMATION
     }
-
-    data class SpatialAnchor(
+        data class SpatialAnchor(
         val id: String,
         val name: String,
         val type: SpatialType,
@@ -142,15 +130,13 @@ class ARVRInteractionManager(private val context: Context) {
         val createdAt: Long,
         val lastUpdatedAt: Long
     )
-
-    data class GeoLocation(
+        data class GeoLocation(
         val latitude: Double,
         val longitude: Double,
         val altitude: Double,
         val accuracy: Float
     )
-
-    data class Gesture(
+        data class Gesture(
         val id: String,
         val type: GestureType,
         val confidence: Float,
@@ -159,8 +145,7 @@ class ARVRInteractionManager(private val context: Context) {
         val endPosition: Vector3,
         val timestamp: Long
     )
-
-    enum class GestureType {
+        enum class GestureType {
         WAVE,
         PINCH,
         POINT,
@@ -175,8 +160,7 @@ class ARVRInteractionManager(private val context: Context) {
         SWIPE_DOWN,
         CUSTOM
     }
-
-    data class VoiceCommand(
+        data class VoiceCommand(
         val id: String,
         val text: String,
         val confidence: Float,
@@ -184,27 +168,22 @@ class ARVRInteractionManager(private val context: Context) {
         val entities: Map<String, String>,
         val timestamp: Long
     )
-
-    private val sessionsDir: File
+        private val sessionsDir: File
         get() = File(context.filesDir, "arvr_sessions").also {
             if (!it.exists()) it.mkdirs()
         }
-
-    private val objectsDir: File
+        private val objectsDir: File
         get() = File(context.filesDir, "arvr_objects").also {
             if (!it.exists()) it.mkdirs()
         }
-
-    private val anchorsDir: File
+        private val anchorsDir: File
         get() = File(context.filesDir, "arvr_anchors").also {
             if (!it.exists()) it.mkdirs()
         }
-
-    private val activeSessions = mutableMapOf<String, ARVRSession>()
-    private val sceneObjects = mutableMapOf<String, SceneObject>()
-    private val spatialAnchors = mutableMapOf<String, SpatialAnchor>()
-
-    suspend fun startSession(
+        private val activeSessions = mutableMapOf<String, ARVRSession>()
+        private val sceneObjects = mutableMapOf<String, SceneObject>()
+        private val spatialAnchors = mutableMapOf<String, SpatialAnchor>()
+        suspend fun startSession(
         type: SessionType,
         mode: InteractionMode = InteractionMode.GESTURE
     ): ARVRSession = withContext(Dispatchers.IO) {
@@ -215,141 +194,125 @@ class ARVRInteractionManager(private val context: Context) {
             startTime = System.currentTimeMillis(),
             isActive = true
         )
-
         saveSession(session)
         activeSessions[session.id] = session
         session
     }
-
-    private suspend fun saveSession(session: ARVRSession) = withContext(Dispatchers.IO) {
+        private suspend fun saveSession(session: ARVRSession) = withContext(Dispatchers.IO) {
         val sessionFile = File(sessionsDir, "${session.id}.json")
         val objectsJson = JSONArray()
         session.sceneObjects.forEach { obj ->
             objectsJson.put(serializeSceneObject(obj))
         }
-
         val interactionsJson = JSONArray()
         session.interactions.forEach { interaction ->
             interactionsJson.put(serializeInteraction(interaction))
         }
-
         val anchorsJson = JSONArray()
         session.spatialAnchors.forEach { anchor ->
             anchorsJson.put(serializeAnchor(anchor))
         }
-
         val json = JSONObject().apply {
             put("id", session.id)
-            put("type", session.type.name)
-            put("mode", session.mode.name)
-            put("startTime", session.startTime)
-            put("endTime", session.endTime ?: JSONObject.NULL)
-            put("isActive", session.isActive)
-            put("sceneObjects", objectsJson)
-            put("interactions", interactionsJson)
-            put("spatialAnchors", anchorsJson)
+        put("type", session.type.name)
+        put("mode", session.mode.name)
+        put("startTime", session.startTime)
+        put("endTime", session.endTime ?: JSONObject.NULL)
+        put("isActive", session.isActive)
+        put("sceneObjects", objectsJson)
+        put("interactions", interactionsJson)
+        put("spatialAnchors", anchorsJson)
         }
-
         sessionFile.writeText(json.toString(2))
     }
-
-    private fun serializeSceneObject(obj: SceneObject): JSONObject {
+        private fun serializeSceneObject(obj: SceneObject): JSONObject {
         val propsJson = JSONObject()
         obj.properties.forEach { (key, value) ->
             when (value) {
                 is String -> propsJson.put(key, value)
-                is Number -> propsJson.put(key, value)
-                is Boolean -> propsJson.put(key, value)
+        is Number -> propsJson.put(key, value)
+        is Boolean -> propsJson.put(key, value)
             }
         }
-
         return JSONObject().apply {
             put("id", obj.id)
-            put("name", obj.name)
-            put("type", obj.type.name)
-            put("position", serializeVector3(obj.position))
-            put("rotation", serializeQuaternion(obj.rotation))
-            put("scale", serializeVector3(obj.scale))
-            put("properties", propsJson)
-            put("isVisible", obj.isVisible)
-            put("isInteractive", obj.isInteractive)
+        put("name", obj.name)
+        put("type", obj.type.name)
+        put("position", serializeVector3(obj.position))
+        put("rotation", serializeQuaternion(obj.rotation))
+        put("scale", serializeVector3(obj.scale))
+        put("properties", propsJson)
+        put("isVisible", obj.isVisible)
+        put("isInteractive", obj.isInteractive)
         }
     }
-
-    private fun serializeInteraction(interaction: Interaction): JSONObject {
+        private fun serializeInteraction(interaction: Interaction): JSONObject {
         val paramsJson = JSONObject()
         interaction.parameters.forEach { (key, value) ->
             when (value) {
                 is String -> paramsJson.put(key, value)
-                is Number -> paramsJson.put(key, value)
-                is Boolean -> paramsJson.put(key, value)
+        is Number -> paramsJson.put(key, value)
+        is Boolean -> paramsJson.put(key, value)
             }
         }
-
         return JSONObject().apply {
             put("id", interaction.id)
-            put("type", interaction.type.name)
-            put("timestamp", interaction.timestamp)
-            put("targetObjectId", interaction.targetObjectId ?: JSONObject.NULL)
-            put("source", interaction.source.name)
-            put("parameters", paramsJson)
-            put("success", interaction.success)
+        put("type", interaction.type.name)
+        put("timestamp", interaction.timestamp)
+        put("targetObjectId", interaction.targetObjectId ?: JSONObject.NULL)
+        put("source", interaction.source.name)
+        put("parameters", paramsJson)
+        put("success", interaction.success)
         }
     }
-
-    private fun serializeAnchor(anchor: SpatialAnchor): JSONObject {
+        private fun serializeAnchor(anchor: SpatialAnchor): JSONObject {
         val geoJson = anchor.worldCoordinates?.let {
             JSONObject().apply {
                 put("latitude", it.latitude)
-                put("longitude", it.longitude)
-                put("altitude", it.altitude)
-                put("accuracy", it.accuracy.toDouble())
+        put("longitude", it.longitude)
+        put("altitude", it.altitude)
+        put("accuracy", it.accuracy.toDouble())
             }
         } ?: JSONObject.NULL
 
         return JSONObject().apply {
             put("id", anchor.id)
-            put("name", anchor.name)
-            put("type", anchor.type.name)
-            put("position", serializeVector3(anchor.position))
-            put("rotation", serializeQuaternion(anchor.rotation))
-            put("worldCoordinates", geoJson)
-            put("isPersistent", anchor.isPersistent)
-            put("createdAt", anchor.createdAt)
-            put("lastUpdatedAt", anchor.lastUpdatedAt)
+        put("name", anchor.name)
+        put("type", anchor.type.name)
+        put("position", serializeVector3(anchor.position))
+        put("rotation", serializeQuaternion(anchor.rotation))
+        put("worldCoordinates", geoJson)
+        put("isPersistent", anchor.isPersistent)
+        put("createdAt", anchor.createdAt)
+        put("lastUpdatedAt", anchor.lastUpdatedAt)
         }
     }
-
-    private fun serializeVector3(vector: Vector3): JSONObject {
+        private fun serializeVector3(vector: Vector3): JSONObject {
         return JSONObject().apply {
             put("x", vector.x.toDouble())
-            put("y", vector.y.toDouble())
-            put("z", vector.z.toDouble())
+        put("y", vector.y.toDouble())
+        put("z", vector.z.toDouble())
         }
     }
-
-    private fun serializeQuaternion(quaternion: Quaternion): JSONObject {
+        private fun serializeQuaternion(quaternion: Quaternion): JSONObject {
         return JSONObject().apply {
             put("x", quaternion.x.toDouble())
-            put("y", quaternion.y.toDouble())
-            put("z", quaternion.z.toDouble())
-            put("w", quaternion.w.toDouble())
+        put("y", quaternion.y.toDouble())
+        put("z", quaternion.z.toDouble())
+        put("w", quaternion.w.toDouble())
         }
     }
-
-    suspend fun endSession(sessionId: String): Boolean = withContext(Dispatchers.IO) {
+        suspend fun endSession(sessionId: String): Boolean = withContext(Dispatchers.IO) {
         val session = activeSessions[sessionId] ?: return@withContext false
         val updatedSession = session.copy(
             isActive = false,
             endTime = System.currentTimeMillis()
         )
-
         saveSession(updatedSession)
         activeSessions.remove(sessionId)
         true
     }
-
-    suspend fun addObject(
+        suspend fun addObject(
         sessionId: String,
         name: String,
         type: ObjectType,
@@ -366,28 +329,23 @@ class ARVRInteractionManager(private val context: Context) {
             scale = scale,
             properties = emptyMap()
         )
-
         sceneObjects[obj.id] = obj
         saveObject(obj)
-
         val session = activeSessions[sessionId]
         session?.let {
             val updatedSession = it.copy(
                 sceneObjects = it.sceneObjects + obj
             )
-            saveSession(updatedSession)
-            activeSessions[sessionId] = updatedSession
+        saveSession(updatedSession)
+        activeSessions[sessionId] = updatedSession
         }
-
         obj
     }
-
-    private suspend fun saveObject(obj: SceneObject) = withContext(Dispatchers.IO) {
+        private suspend fun saveObject(obj: SceneObject) = withContext(Dispatchers.IO) {
         val objFile = File(objectsDir, "${obj.id}.json")
         objFile.writeText(serializeSceneObject(obj).toString(2))
     }
-
-    suspend fun updateObjectPosition(
+        suspend fun updateObjectPosition(
         objectId: String,
         newPosition: Vector3
     ): Boolean = withContext(Dispatchers.IO) {
@@ -395,13 +353,11 @@ class ARVRInteractionManager(private val context: Context) {
         val updatedObj = obj.copy(
             position = newPosition
         )
-
         sceneObjects[objectId] = updatedObj
         saveObject(updatedObj)
         true
     }
-
-    suspend fun rotateObject(
+        suspend fun rotateObject(
         objectId: String,
         deltaRotation: Quaternion
     ): Boolean = withContext(Dispatchers.IO) {
@@ -414,31 +370,26 @@ class ARVRInteractionManager(private val context: Context) {
                 w = obj.rotation.w * deltaRotation.w - obj.rotation.x * deltaRotation.x
             )
         )
-
         sceneObjects[objectId] = updatedObj
         saveObject(updatedObj)
         true
     }
-
-    suspend fun removeObject(objectId: String): Boolean = withContext(Dispatchers.IO) {
+        suspend fun removeObject(objectId: String): Boolean = withContext(Dispatchers.IO) {
         val removed = sceneObjects.remove(objectId) ?: return@withContext false
 
         File(objectsDir, "${objectId}.json").delete()
-
         activeSessions.values.forEach { session ->
             if (session.sceneObjects.any { it.id == objectId }) {
                 val updatedSession = session.copy(
                     sceneObjects = session.sceneObjects.filter { it.id != objectId }
                 )
-                saveSession(updatedSession)
-                activeSessions[session.id] = updatedSession
+        saveSession(updatedSession)
+        activeSessions[session.id] = updatedSession
             }
         }
-
         true
     }
-
-    suspend fun recordInteraction(
+        suspend fun recordInteraction(
         sessionId: String,
         type: InteractionType,
         targetObjectId: String? = null,
@@ -455,20 +406,17 @@ class ARVRInteractionManager(private val context: Context) {
             parameters = parameters,
             success = success
         )
-
         val session = activeSessions[sessionId]
         session?.let {
             val updatedSession = it.copy(
                 interactions = it.interactions + interaction
             )
-            saveSession(updatedSession)
-            activeSessions[sessionId] = updatedSession
+        saveSession(updatedSession)
+        activeSessions[sessionId] = updatedSession
         }
-
         interaction
     }
-
-    suspend fun createAnchor(
+        suspend fun createAnchor(
         sessionId: String,
         name: String,
         type: SpatialType,
@@ -486,68 +434,57 @@ class ARVRInteractionManager(private val context: Context) {
             createdAt = System.currentTimeMillis(),
             lastUpdatedAt = System.currentTimeMillis()
         )
-
         spatialAnchors[anchor.id] = anchor
         saveAnchor(anchor)
-
         val session = activeSessions[sessionId]
         session?.let {
             val updatedSession = it.copy(
                 spatialAnchors = it.spatialAnchors + anchor
             )
-            saveSession(updatedSession)
-            activeSessions[sessionId] = updatedSession
+        saveSession(updatedSession)
+        activeSessions[sessionId] = updatedSession
         }
-
         anchor
     }
-
-    private suspend fun saveAnchor(anchor: SpatialAnchor) = withContext(Dispatchers.IO) {
+        private suspend fun saveAnchor(anchor: SpatialAnchor) = withContext(Dispatchers.IO) {
         val anchorFile = File(anchorsDir, "${anchor.id}.json")
         anchorFile.writeText(serializeAnchor(anchor).toString(2))
     }
-
-    suspend fun getSessions(activeOnly: Boolean = false): List<ARVRSession> = withContext(Dispatchers.IO) {
+        suspend fun getSessions(activeOnly: Boolean = false): List<ARVRSession> = withContext(Dispatchers.IO) {
         val sessions = mutableListOf<ARVRSession>()
-
         sessionsDir.listFiles { _, name -> name.endsWith(".json") }
             ?.forEach { file ->
                 try {
                     val session = deserializeSession(file.readText())
-                    sessions.add(session)
-                    activeSessions[session.id] = session
+        sessions.add(session)
+        activeSessions[session.id] = session
                 } catch (e: Exception) {
                     AppLogger.w(TAG, "解析会话配置失败: ${file.name}", e)
                 }
             }
-
         if (activeOnly) {
             sessions.filter { it.isActive }
         } else {
             sessions
         }
     }
-
-    private fun deserializeSession(jsonString: String): ARVRSession {
+        private fun deserializeSession(jsonString: String): ARVRSession {
         val json = JSONObject(jsonString)
         val objects = mutableListOf<SceneObject>()
         val objectsJson = json.getJSONArray("sceneObjects")
         for (i in 0 until objectsJson.length()) {
             objects.add(deserializeSceneObject(objectsJson.getJSONObject(i)))
         }
-
         val interactions = mutableListOf<Interaction>()
         val interactionsJson = json.getJSONArray("interactions")
         for (i in 0 until interactionsJson.length()) {
             interactions.add(deserializeInteraction(interactionsJson.getJSONObject(i)))
         }
-
         val anchors = mutableListOf<SpatialAnchor>()
         val anchorsJson = json.getJSONArray("spatialAnchors")
         for (i in 0 until anchorsJson.length()) {
             anchors.add(deserializeAnchor(anchorsJson.getJSONObject(i)))
         }
-
         return ARVRSession(
             id = json.getString("id"),
             type = SessionType.valueOf(json.getString("type")),
@@ -560,19 +497,17 @@ class ARVRInteractionManager(private val context: Context) {
             spatialAnchors = anchors
         )
     }
-
-    private fun deserializeSceneObject(json: JSONObject): SceneObject {
+        private fun deserializeSceneObject(json: JSONObject): SceneObject {
         val props = mutableMapOf<String, Any>()
         val propsJson = json.getJSONObject("properties")
         propsJson.keys().forEach { key ->
             val value = propsJson.get(key)
-            when (value) {
+        when (value) {
                 is String -> props[key] = value
                 is Number -> props[key] = value.toFloat()
-                is Boolean -> props[key] = value
+        is Boolean -> props[key] = value
             }
         }
-
         return SceneObject(
             id = json.getString("id"),
             name = json.getString("name"),
@@ -585,19 +520,17 @@ class ARVRInteractionManager(private val context: Context) {
             isInteractive = json.getBoolean("isInteractive")
         )
     }
-
-    private fun deserializeInteraction(json: JSONObject): Interaction {
+        private fun deserializeInteraction(json: JSONObject): Interaction {
         val params = mutableMapOf<String, Any>()
         val paramsJson = json.getJSONObject("parameters")
         paramsJson.keys().forEach { key ->
             val value = paramsJson.get(key)
-            when (value) {
+        when (value) {
                 is String -> params[key] = value
                 is Number -> params[key] = value.toFloat()
-                is Boolean -> params[key] = value
+        is Boolean -> params[key] = value
             }
         }
-
         return Interaction(
             id = json.getString("id"),
             type = InteractionType.valueOf(json.getString("type")),
@@ -608,10 +541,8 @@ class ARVRInteractionManager(private val context: Context) {
             success = json.getBoolean("success")
         )
     }
-
-    private fun deserializeAnchor(json: JSONObject): SpatialAnchor {
+        private fun deserializeAnchor(json: JSONObject): SpatialAnchor {
         val geoJson = if (json.isNull("worldCoordinates")) null else json.getJSONObject("worldCoordinates")
-
         return SpatialAnchor(
             id = json.getString("id"),
             name = json.getString("name"),
@@ -631,16 +562,14 @@ class ARVRInteractionManager(private val context: Context) {
             lastUpdatedAt = json.getLong("lastUpdatedAt")
         )
     }
-
-    private fun deserializeVector3(json: JSONObject): Vector3 {
+        private fun deserializeVector3(json: JSONObject): Vector3 {
         return Vector3(
             x = json.getDouble("x").toFloat(),
             y = json.getDouble("y").toFloat(),
             z = json.getDouble("z").toFloat()
         )
     }
-
-    private fun deserializeQuaternion(json: JSONObject): Quaternion {
+        private fun deserializeQuaternion(json: JSONObject): Quaternion {
         return Quaternion(
             x = json.getDouble("x").toFloat(),
             y = json.getDouble("y").toFloat(),
@@ -648,44 +577,38 @@ class ARVRInteractionManager(private val context: Context) {
             w = json.getDouble("w").toFloat()
         )
     }
-
-    suspend fun generateSessionReport(sessionId: String): String = withContext(Dispatchers.IO) {
+        suspend fun generateSessionReport(sessionId: String): String = withContext(Dispatchers.IO) {
         val session = activeSessions[sessionId] ?: return@withContext "会话不存在"
-
         buildString {
             appendLine("=== AR/VR 会话报告 ===")
-            appendLine()
-            appendLine("【会话信息。")
-            appendLine("ID: ${session.id}")
-            appendLine("类型: ${session.type.name}")
-            appendLine("交互模式: ${session.mode.name}")
-            appendLine("状态 ${if (session.isActive) "活跃" else "已结权}")"
-            appendLine()
-
-            appendLine("【场景统计。")
-            appendLine("对象数量: ${session.sceneObjects.size}")
-            appendLine("锚点数量: ${session.spatialAnchors.size}")
-            appendLine("交互次数: ${session.interactions.size}")
-            appendLine()
-
-            appendLine("【交互类型分布。")
-            val typeCounts = session.interactions.groupingBy { it.type }.eachCount()
-            typeCounts.forEach { (type, count) ->
+        appendLine()
+        appendLine("【会话信息。")
+        appendLine("ID: ${session.id}")
+        appendLine("类型: ${session.type.name}")
+        appendLine("交互模式: ${session.mode.name}")
+        appendLine("状态 ${if (session.isActive) "活跃" else "已结权}")"
+        appendLine()
+        appendLine("【场景统计。")
+        appendLine("对象数量: ${session.sceneObjects.size}")
+        appendLine("锚点数量: ${session.spatialAnchors.size}")
+        appendLine("交互次数: ${session.interactions.size}")
+        appendLine()
+        appendLine("【交互类型分布。")
+        val typeCounts = session.interactions.groupingBy { it.type }.eachCount()
+        typeCounts.forEach { (type, count) ->
                 appendLine("  ${type}: ${count}")
             }
         }
     }
-
-    suspend fun cleanupOldSessions(daysToKeep: Int = 30) = withContext(Dispatchers.IO) {
+        suspend fun cleanupOldSessions(daysToKeep: Int = 30) = withContext(Dispatchers.IO) {
         val cutoffTime = System.currentTimeMillis() - (daysToKeep * 24 * 60 * 60 * 1000L)
-
         sessionsDir.listFiles()?.forEach { file ->
             try {
                 val session = deserializeSession(file.readText())
-                if (session.endTime != null && session.endTime < cutoffTime) {
+        if (session.endTime != null && session.endTime < cutoffTime) {
                     file.delete()
-                    activeSessions.remove(session.id)
-                    AppLogger.d(TAG, "清理旧会试 ${file.name}")
+        activeSessions.remove(session.id)
+        AppLogger.d(TAG, "清理旧会试 ${file.name}")
                 }
             } catch (e: Exception) {
                 file.delete()

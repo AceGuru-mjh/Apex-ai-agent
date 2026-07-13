@@ -21,7 +21,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
         private const val TAG = "LobeHubSkillManager"
         
         // LobeHub skills storage directory
-                private const val LOBEHUB_SKILLS_DIR = "LobeHub"
+        private const val LOBEHUB_SKILLS_DIR = "LobeHub"
 
         @Volatile private var INSTANCE: LobeHubSkillManager? = null
 
@@ -31,19 +31,17 @@ class LobeHubSkillManager private constructor(private val context: Context) {
             }
         }
     }
-
-    private val marketplaceClient = LobeHubMarketplaceClient.getInstance()
-    private val parser = LobeHubSkillParser()
-
-    private val lobeHubSkillsDir: File
+        private val marketplaceClient = LobeHubMarketplaceClient.getInstance()
+        private val parser = LobeHubSkillParser()
+        private val lobeHubSkillsDir: File
         get() {
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val apexDir = File(downloadsDir, "Apex")
-            val lobeHubDir = File(apexDir, "skills/${LOBEHUB_SKILLS_DIR}")
-            if (!lobeHubDir.exists()) {
+        val lobeHubDir = File(apexDir, "skills/${LOBEHUB_SKILLS_DIR}")
+        if (!lobeHubDir.exists()) {
                 lobeHubDir.mkdirs()
             }
-            return lobeHubDir
+        return lobeHubDir
         }
 
     /**
@@ -98,17 +96,13 @@ class LobeHubSkillManager private constructor(private val context: Context) {
      */
     suspend fun installSkill(skillId: String): Result<File> = withContext(Dispatchers.IO) {
         AppLogger.i(TAG, "Installing LobeHub skill: ${skillId}")
-        
         val result = marketplaceClient.downloadSkill(skillId, lobeHubSkillsDir)
-        
         result.onSuccess { dir ->
             AppLogger.i(TAG, "Successfully installed skill to: ${dir.absolutePath}")
         }
-        
         result.onFailure { error ->
             AppLogger.e(TAG, "Failed to install skill: ${skillId}", error)
         }
-        
         result
     }
 
@@ -136,7 +130,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
         lobeHubSkillsDir.listFiles()?.forEach { dir ->
             if (dir.isDirectory) {
                 val skillFile = File(dir, "SKILL.md")
-                if (skillFile.exists()) {
+        if (skillFile.exists()) {
                     skills.add(dir)
                 }
             }
@@ -162,15 +156,15 @@ class LobeHubSkillManager private constructor(private val context: Context) {
     suspend fun deleteInstalledSkill(skillId: String): Result<Boolean> = withContext(Dispatchers.IO) {
         try {
             val skillDir = File(lobeHubSkillsDir, skillId)
-            if (skillDir.exists()) {
+        if (skillDir.exists()) {
                 val deleted = skillDir.deleteRecursively()
-                Result.success(deleted)
+        Result.success(deleted)
             } else {
                 Result.failure(Exception("Skill not found"))
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to delete skill: ${skillId}", e)
-            Result.failure(e)
+        Result.failure(e)
         }
     }
 
@@ -180,7 +174,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
     fun getAllInstalledSkillSpecs(): List<LobeHubSkillSpec> {
         return getInstalledSkills().mapNotNull { dir ->
             val skillFile = File(dir, "SKILL.md")
-            parser.parseSkillFile(skillFile)
+        parser.parseSkillFile(skillFile)
         }
     }
 
@@ -236,7 +230,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
                 agent = listOf("open-claw", "claude-code", "codex", "cursor"),
                 updatedAt = "2026-01-15",
                 skillMdUrl = "https://lobehub.com/skills/lobehub-skills-search-engine",
-                homepage = "https://lobehub.com/skills"
+        homepage = "https://lobehub.com/skills"
             ),
             LobeHubSkillListing(
                 id = "temmo1004-smart-short-video",
@@ -250,7 +244,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
                 agent = listOf("open-claw"),
                 updatedAt = "2026-05-15",
                 skillMdUrl = "https://lobehub.com/skills/temmo1004-smart-short-video",
-                homepage = "https://lobehub.com/skills/temmo1004-smart-short-video"
+        homepage = "https://lobehub.com/skills/temmo1004-smart-short-video"
             ),
             LobeHubSkillListing(
                 id = "superpowers-ai-code-review",
@@ -264,7 +258,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
                 agent = listOf("claude-code", "open-claw", "codex"),
                 updatedAt = "2026-06-01",
                 skillMdUrl = "https://lobehub.com/skills/superpowers-ai-code-review",
-                homepage = "https://lobehub.com/skills/superpowers-ai-code-review"
+        homepage = "https://lobehub.com/skills/superpowers-ai-code-review"
             ),
             LobeHubSkillListing(
                 id = "browser-automation",
@@ -278,7 +272,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
                 agent = listOf("open-claw", "claude-code"),
                 updatedAt = "2026-05-28",
                 skillMdUrl = "https://lobehub.com/skills/browser-automation",
-                homepage = "https://lobehub.com/skills/browser-automation"
+        homepage = "https://lobehub.com/skills/browser-automation"
             ),
             LobeHubSkillListing(
                 id = "database-assistant",
@@ -292,7 +286,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
                 agent = listOf("claude-code", "open-claw"),
                 updatedAt = "2026-06-05",
                 skillMdUrl = "https://lobehub.com/skills/database-assistant",
-                homepage = "https://lobehub.com/skills/database-assistant"
+        homepage = "https://lobehub.com/skills/database-assistant"
             )
         )
     }

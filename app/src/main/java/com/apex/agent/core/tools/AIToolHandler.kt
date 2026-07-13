@@ -40,20 +40,19 @@ class AIToolHandler private constructor(
     }
 
     // Available tools registry
-    private val availableTools = ConcurrentHashMap<String, ToolExecutor>()
-    private val toolHooks = CopyOnWriteArrayList<AIToolHook>()
-    private val defaultToolsRegistered = AtomicBoolean(false)
-    private val registrationLock = Any()
+        private val availableTools = ConcurrentHashMap<String, ToolExecutor>()
+        private val toolHooks = CopyOnWriteArrayList<AIToolHook>()
+        private val defaultToolsRegistered = AtomicBoolean(false)
+        private val registrationLock = Any()
 
     // Tool permission system
-    private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
+        private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
 
     /** Get the tool permission system for UI use */
     fun getToolPermissionSystem(): ToolPermissionSystem {
         return toolPermissionSystem
     }
-
-    fun unregisterTool(toolName: String) {
+        fun unregisterTool(toolName: String) {
         availableTools.remove(toolName)
     }
 
@@ -145,20 +144,20 @@ class AIToolHandler private constructor(
     }
 
     // 工具注册的唯一方法 - 提供完整信息的注解
-    fun registerTool(
+        fun registerTool(
         name: String,
         descriptionGenerator: ((AITool) -> String)? = null,
         executor: ToolExecutor
     ) {
         availableTools[name] = executor
         // 注册描述生成器（如果提供）
-                if (descriptionGenerator != null) {
+        if (descriptionGenerator != null) {
             toolPermissionSystem.registerOperationDescription(name, descriptionGenerator)
         }
     }
 
     // 添加重载方法接受函数式接口作为executor的便捷写法
-    fun registerTool(
+        fun registerTool(
         name: String,
         descriptionGenerator: ((AITool) -> String)? = null,
         executor: (AITool) -> ToolResult
@@ -175,24 +174,24 @@ class AIToolHandler private constructor(
     }
 
     // Register all default tools
-    fun registerDefaultTools() {
+        fun registerDefaultTools() {
         if (defaultToolsRegistered.get()) return
         synchronized(registrationLock) {
             if (defaultToolsRegistered.get()) return
             registerAllTools(this, context)
-            defaultToolsRegistered.set(true)
+        defaultToolsRegistered.set(true)
         }
     }
 
     // Package manager instance (lazy initialized)
-                private var packageManagerInstance: PackageManager? = null
+        private var packageManagerInstance: PackageManager? = null
 
     /** Gets or creates the package manager instance */
     fun getOrCreatePackageManager(): PackageManager {
         return packageManagerInstance
             ?: run {
                 packageManagerInstance = PackageManager.getInstance(context, this)
-                packageManagerInstance!!
+        packageManagerInstance!!
             }
     }
 
@@ -215,11 +214,11 @@ class AIToolHandler private constructor(
     private fun unescapeXml(input: String): String {
         var result = input
         // 处理 CDATA 标记
-                if (result.startsWith("<![CDATA[") && result.endsWith("]]>")) {
+        if (result.startsWith("<![CDATA[") && result.endsWith("]]>")) {
             result = result.substring(9, result.length - 3)
         }
         // 即使没有完整 CDATA 标记，也尝试清理末尾 ]]> 和开头的 <![CDATA[
-                if (result.endsWith("]]>")) {
+        if (result.endsWith("]]>")) {
             result = result.substring(0, result.length - 3)
         }
         if (result.startsWith("<![CDATA[")) {
@@ -236,7 +235,7 @@ class AIToolHandler private constructor(
     fun reset() {
         synchronized(registrationLock) {
             availableTools.clear()
-            packageManagerInstance = null
+        packageManagerInstance = null
             defaultToolsRegistered.set(false)
         }
     }
@@ -264,19 +263,19 @@ class AIToolHandler private constructor(
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to register default tools before executing tool ${toolName}", e)
             }
-            executor = availableTools[toolName]
+        executor = availableTools[toolName]
         }
         if (executor == null && toolName.contains(':')) {
             val packageName = toolName.substringBefore(':', missingDelimiterValue = "")
-            if (packageName.isNotBlank()) {
+        if (packageName.isNotBlank()) {
                 try {
                     val packageManager = getOrCreatePackageManager()
         val isPackageAvailable = packageManager.getAvailablePackages().containsKey(packageName)
-                    val isMcpAvailable = packageManager.getAvailableServerPackages().containsKey(packageName)
-                    if (isPackageAvailable || isMcpAvailable) {
+        val isMcpAvailable = packageManager.getAvailableServerPackages().containsKey(packageName)
+        if (isPackageAvailable || isMcpAvailable) {
                         AppLogger.d(TAG, "Auto-activating package '${packageName}' for tool ${toolName}")
-                        packageManager.usePackage(packageName)
-                        executor = availableTools[toolName]
+        packageManager.usePackage(packageName)
+        executor = availableTools[toolName]
                     }
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Failed to auto-activate package '${packageName}' for tool ${toolName}", e)
@@ -297,12 +296,12 @@ class AIToolHandler private constructor(
                 result = StringResultData(""),
                 error = "Tool not found: ${tool.name}"
             )
-            notifyToolExecutionResult(tool, notFoundResult)
-            notifyToolExecutionFinished(tool)
-            return notFoundResult
+        notifyToolExecutionResult(tool, notFoundResult)
+        notifyToolExecutionFinished(tool)
+        return notFoundResult
         }
         // Validate parameters
-    val validationResult = executor.validateParameters(tool)
+        val validationResult = executor.validateParameters(tool)
         if (!validationResult.valid) {
             val validationFailedResult = ToolResult(
                 toolName = tool.name,
@@ -310,18 +309,18 @@ class AIToolHandler private constructor(
                 result = StringResultData(""),
                 error = validationResult.errorMessage
             )
-            notifyToolExecutionResult(tool, validationFailedResult)
-            notifyToolExecutionFinished(tool)
-            return validationFailedResult
+        notifyToolExecutionResult(tool, validationFailedResult)
+        notifyToolExecutionFinished(tool)
+        return validationFailedResult
         }
         notifyToolExecutionStarted(tool)
         return try {
             val result = executor.invoke(tool)
-            notifyToolExecutionResult(tool, result)
-            result
+        notifyToolExecutionResult(tool, result)
+        result
         } catch (e: Exception) {
             notifyToolExecutionError(tool, e)
-            throw e
+        throw e
         } finally {
             notifyToolExecutionFinished(tool)
         }

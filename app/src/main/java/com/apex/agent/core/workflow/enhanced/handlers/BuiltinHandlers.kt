@@ -91,13 +91,13 @@ class EvaluateConditionHandler : EnhancedWorkflowExecutor.ActionHandler {
         val result = when {
             expr.contains("==") -> {
                 val (l, r) = expr.split("==", limit = 2).map { it.trim() }
-                l == r
+        l == r
             }
-            expr.contains("!=") -> {
+        expr.contains("!=") -> {
                 val (l, r) = expr.split("!=", limit = 2).map { it.trim() }
-                l != r
+        l != r
             }
-            else -> false
+        else -> false
         }
         return EnhancedWorkflowExecutor.ActionResult.Success(result.toString())
     }

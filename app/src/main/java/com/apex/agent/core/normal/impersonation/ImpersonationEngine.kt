@@ -30,19 +30,19 @@ data class ImpersonationProfile(
     val systemPrompt: String,
     val catchphrases: List<String>,
     val vocabulary: List<String>,        // 常用词汇
-    val sentencePatterns: List<String>,  // 句式模板
-    val toneDescription: String,
+        val sentencePatterns: List<String>,  // 句式模板
+        val toneDescription: String,
     val example: String
 )
 
 enum class ImpersonationCategory {
     HISTORICAL,      // 历史人物
-                CELEBRITY,       // 名人明星
-                FICTIONAL,       // 虚构角色
-                LITERARY,        // 文学角色
-                ANIME,           // 动漫角色
-                STYLE,           // 风格
-                CUSTOM           // 自定义
+        CELEBRITY,       // 名人明星
+        FICTIONAL,       // 虚构角色
+        LITERARY,        // 文学角色
+        ANIME,           // 动漫角色
+        STYLE,           // 风格
+        CUSTOM           // 自定义
 }
 
 /**
@@ -51,8 +51,8 @@ enum class ImpersonationCategory {
 class ImpersonationEngine {
 
     private val profiles = ConcurrentHashMap<String, ImpersonationProfile>()
-    private val activeProfiles = ConcurrentHashMap<String, String>()  // chatId -> profileId
-                init {
+        private val activeProfiles = ConcurrentHashMap<String, String>()  // chatId -> profileId
+        init {
         registerBuiltinProfiles()
     }
 
@@ -127,9 +127,9 @@ class ImpersonationEngine {
     }
 
     // ============ 预置模仿对象 ============
-    private fun registerBuiltinProfiles() {
+        private fun registerBuiltinProfiles() {
         // 历史人物
-                register(ImpersonationProfile(
+        register(ImpersonationProfile(
             "imp_luxun", "luxun", "鲁迅", "🖊️", "中国现代文学奠基人",
             ImpersonationCategory.HISTORICAL,
             """模仿鲁迅先生的笔触：尖锐、深刻、冷峻。
@@ -143,7 +143,6 @@ class ImpersonationEngine {
             "冷峻犀利，讽刺辛辣",
             "其实地上本没有路，走的人多了，也便成了路。"
         ))
-
         register(ImpersonationProfile(
             "imp_confucius", "confucius", "孔子", "📜", "至圣先师",
             ImpersonationCategory.HISTORICAL,
@@ -160,7 +159,7 @@ class ImpersonationEngine {
         ))
 
         // 名人
-                register(ImpersonationProfile(
+        register(ImpersonationProfile(
             "imp_jobs", "jobs", "乔布斯", "🍎", "Apple 联合创始人",
             ImpersonationCategory.CELEBRITY,
             """模仿 Steve Jobs 的演讲风格：简洁、富有激情、富有愿景。
@@ -174,7 +173,6 @@ class ImpersonationEngine {
             "激情澎湃，简洁有力",
             "Today, we're introducing three revolutionary products. An iPod, a phone, and an internet communicator."
         ))
-
         register(ImpersonationProfile(
             "imp_musk", "musk", "马斯克", "🚀", "SpaceX/Tesla CEO",
             ImpersonationCategory.CELEBRITY,
@@ -191,7 +189,7 @@ class ImpersonationEngine {
         ))
 
         // 虚构角色
-                register(ImpersonationProfile(
+        register(ImpersonationProfile(
             "imp_sherlock", "sherlock", "福尔摩斯", "🔍", "大侦探",
             ImpersonationCategory.FICTIONAL,
             """模仿 Sherlock Holmes：冷静、理性、观察入微。
@@ -205,7 +203,6 @@ class ImpersonationEngine {
             "冷静理性，傲慢自负",
             "When you have eliminated the impossible, whatever remains, however improbable, must be the truth."
         ))
-
         register(ImpersonationProfile(
             "imp_ironman", "ironman", "钢铁侠", "🦾", "Tony Stark",
             ImpersonationCategory.FICTIONAL,
@@ -220,7 +217,6 @@ class ImpersonationEngine {
             "自信幽默，天才范",
             "I am Iron Man."
         ))
-
         register(ImpersonationProfile(
             "imp_wukong", "wukong", "孙悟空", "🐒", "齐天大圣",
             ImpersonationCategory.LITERARY,
@@ -237,7 +233,7 @@ class ImpersonationEngine {
         ))
 
         // 动漫
-                register(ImpersonationProfile(
+        register(ImpersonationProfile(
             "imp_naruto", "naruto", "鸣人", "🍥", "火影忍者",
             ImpersonationCategory.ANIME,
             """模仿漩涡鸣人：热血、坚持、重视羁绊。
@@ -251,7 +247,6 @@ class ImpersonationEngine {
             "热血青春，永不言败",
             "我会成为火影！这是我的忍道！だってばよ！"
         ))
-
         register(ImpersonationProfile(
             "imp_luffy", "luffy", "路飞", "🏴‍☠️", "海贼王",
             ImpersonationCategory.ANIME,
@@ -268,7 +263,7 @@ class ImpersonationEngine {
         ))
 
         // 风格
-                register(ImpersonationProfile(
+        register(ImpersonationProfile(
             "imp_classical", "classical", "古风", "🏮", "古典文学风格",
             ImpersonationCategory.STYLE,
             """使用古典文学风格：典雅、含蓄、有意境。
@@ -282,7 +277,6 @@ class ImpersonationEngine {
             "典雅含蓄，古意盎然",
             "且听我道来，此中缘由，说来话长。"
         ))
-
         register(ImpersonationProfile(
             "imp_internet", "internet", "网络流行语", "📱", "网络腔",
             ImpersonationCategory.STYLE,
@@ -297,7 +291,6 @@ class ImpersonationEngine {
             "活泼接地气，梗多有趣",
             "家人们这波属实 yyds，直接破防了属于是。"
         ))
-
         register(ImpersonationProfile(
             "imp_academic", "academic", "学术腔", "🎓", "学术正式风格",
             ImpersonationCategory.STYLE,

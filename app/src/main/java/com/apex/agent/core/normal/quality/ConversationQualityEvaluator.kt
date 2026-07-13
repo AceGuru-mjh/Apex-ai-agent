@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 data class ConversationQuality(
     val chatId: String,
     val overallScore: Int,           // 0-100
-    val qualityLevel: QualityLevel,
+        val qualityLevel: QualityLevel,
     val dimensions: Map<QualityDimension, Int>,
     val metrics: QualityMetrics,
     val issues: List<QualityIssue>,
@@ -33,21 +33,21 @@ data class ConversationQuality(
 
 enum class QualityLevel {
     EXCELLENT,  // 90-100
-                GOOD,       // 75-89
-                ACCEPTABLE, // 60-74
-                POOR,       // 40-59
-                BAD         // 0-39
+        GOOD,       // 75-89
+        ACCEPTABLE, // 60-74
+        POOR,       // 40-59
+        BAD         // 0-39
 }
 
 enum class QualityDimension {
     RELEVANCE,        // 相关性
-                ACCURACY,         // 准确性
-                COMPLETENESS,     // 完整性
-                CLARITY,          // 清晰度
-                RESPONSIVENESS,   // 响应性
-                COHERENCE,        // 连贯性
-                HELPFULNESS,      // 有用性
-                ENGAGEMENT        // 参与度
+        ACCURACY,         // 准确性
+        COMPLETENESS,     // 完整性
+        CLARITY,          // 清晰度
+        RESPONSIVENESS,   // 响应性
+        COHERENCE,        // 连贯性
+        HELPFULNESS,      // 有用性
+        ENGAGEMENT        // 参与度
 }
 
 /**
@@ -59,11 +59,11 @@ data class QualityMetrics(
     val totalTokensUsed: Long,
     val tokensPerRound: Float,
     val userEditRate: Float,        // 用户编辑 AI 回复的比例
-    val userFollowupRate: Float,    // 用户追问的比例
-    val toolCallSuccessRate: Float,
+        val userFollowupRate: Float,    // 用户追问的比例
+        val toolCallSuccessRate: Float,
     val clarificationRate: Float,   // 澄清次数/总轮数
-    val contextEfficiency: Float,   // 上下文利用率
-    val errorRecoveryRate: Float    // 错误恢复成功率
+        val contextEfficiency: Float,   // 上下文利用率
+        val errorRecoveryRate: Float    // 错误恢复成功率
 )
 
 /**
@@ -79,15 +79,15 @@ data class QualityIssue(
 
 enum class IssueType {
     SLOW_RESPONSE,          // 响应慢
-                IRRELEVANT_ANSWER,      // 不相关
-                INCOMPLETE_ANSWER,      // 不完整
-                UNCLEAR_EXPLANATION,    // 不清晰
-                CONTEXT_LOSS,           // 上下文丢失
-                REPETITIVE_RESPONSE,    // 重复
-                TOOL_FAILURE,           // 工具失败
-                EXCESSIVE_CLARIFICATION,// 过多澄清
-                HIGH_TOKEN_USAGE,       // token 消耗高
-                LOW_ENGAGEMENT          // 参与度低
+        IRRELEVANT_ANSWER,      // 不相关
+        INCOMPLETE_ANSWER,      // 不完整
+        UNCLEAR_EXPLANATION,    // 不清晰
+        CONTEXT_LOSS,           // 上下文丢失
+        REPETITIVE_RESPONSE,    // 重复
+        TOOL_FAILURE,           // 工具失败
+        EXCESSIVE_CLARIFICATION,// 过多澄清
+        HIGH_TOKEN_USAGE,       // token 消耗高
+        LOW_ENGAGEMENT          // 参与度低
 }
 
 enum class IssueSeverity { CRITICAL, MAJOR, MINOR, INFO }
@@ -135,35 +135,34 @@ class ConversationQualityEvaluator {
         val scores = mutableMapOf<QualityDimension, Int>()
 
         // 相关性：检查回答是否包含用户问题的关键词
-                scores[QualityDimension.RELEVANCE] = evaluateRelevance(userMessage, assistantResponse)
+        scores[QualityDimension.RELEVANCE] = evaluateRelevance(userMessage, assistantResponse)
 
         // 完整性：检查回答长度和结构
-                scores[QualityDimension.COMPLETENESS] = evaluateCompleteness(userMessage, assistantResponse)
+        scores[QualityDimension.COMPLETENESS] = evaluateCompleteness(userMessage, assistantResponse)
 
         // 清晰度：检查格式化（标题/列表/代码块）
-                scores[QualityDimension.CLARITY] = evaluateClarity(assistantResponse)
+        scores[QualityDimension.CLARITY] = evaluateClarity(assistantResponse)
 
         // 响应性：基于响应时间
-                scores[QualityDimension.RESPONSIVENESS] = evaluateResponsiveness(responseTimeMs)
+        scores[QualityDimension.RESPONSIVENESS] = evaluateResponsiveness(responseTimeMs)
 
         // 连贯性：与之前轮次的相关性
-                scores[QualityDimension.COHERENCE] = evaluateCoherence(userMessage, assistantResponse, previousRounds)
+        scores[QualityDimension.COHERENCE] = evaluateCoherence(userMessage, assistantResponse, previousRounds)
 
         // 有用性：是否包含可执行信息
-                scores[QualityDimension.HELPFULNESS] = evaluateHelpfulness(userMessage, assistantResponse)
+        scores[QualityDimension.HELPFULNESS] = evaluateHelpfulness(userMessage, assistantResponse)
 
         // 参与度：回答是否引导用户继续
-                scores[QualityDimension.ENGAGEMENT] = evaluateEngagement(assistantResponse, userFollowedUp)
+        scores[QualityDimension.ENGAGEMENT] = evaluateEngagement(assistantResponse, userFollowedUp)
 
         // 准确性（占位：需 LLM 评估）
-                scores[QualityDimension.ACCURACY] = 80  // 默认
+        scores[QualityDimension.ACCURACY] = 80  // 默认
 
         // 检测问题
-    val issues = detectIssues(
+        val issues = detectIssues(
             roundIndex, userMessage, assistantResponse, responseTimeMs,
             tokensUsed, scores, toolCalls, toolSuccesses, userFollowedUp
         )
-
         val round = RoundQuality(
             roundIndex = roundIndex,
             userMessage = userMessage,
@@ -177,7 +176,6 @@ class ConversationQualityEvaluator {
             toolCalls = toolCalls,
             toolSuccesses = toolSuccesses
         )
-
         roundHistory.computeIfAbsent(chatId) { mutableListOf() }.add(round)
         return round
     }
@@ -200,12 +198,12 @@ class ConversationQualityEvaluator {
         }
 
         // 各维度平均分
-    val avgDimensions = QualityDimension.values().associateWith { dim ->
+        val avgDimensions = QualityDimension.values().associateWith { dim ->
             rounds.mapNotNull { it.scores[dim] }.average().toInt()
         }
 
         // 计算指标
-    val totalRounds = rounds.size
+        val totalRounds = rounds.size
         val avgResponseTime = rounds.map { it.responseTimeMs }.average().toLong()
         val totalTokens = rounds.sumOf { it.tokensUsed }
         val tokensPerRound = totalTokens.toFloat() / totalRounds
@@ -233,7 +231,7 @@ class ConversationQualityEvaluator {
         )
 
         // 汇总问题
-    val allIssues = rounds.flatMap { r -> r.issues.map { it to r.roundIndex } }
+        val allIssues = rounds.flatMap { r -> r.issues.map { it to r.roundIndex } }
             .groupBy { it.first.type }
             .map { (type, list) ->
                 val mostSevere = list.maxByOrNull { it.first.severity.ordinal }!!.first
@@ -247,7 +245,7 @@ class ConversationQualityEvaluator {
             }
 
         // 整体评分（加权平均）
-    val weights = mapOf(
+        val weights = mapOf(
             QualityDimension.RELEVANCE to 0.2,
             QualityDimension.ACCURACY to 0.2,
             QualityDimension.COMPLETENESS to 0.15,
@@ -261,7 +259,6 @@ class ConversationQualityEvaluator {
             .sumOf { (dim, score) -> score * (weights[dim] ?: 0.0) }
             .toInt()
             .coerceIn(0, 100)
-
         val qualityLevel = when {
             overallScore >= 90 -> QualityLevel.EXCELLENT
             overallScore >= 75 -> QualityLevel.GOOD
@@ -271,8 +268,7 @@ class ConversationQualityEvaluator {
         }
 
         // 生成建议
-    val recommendations = generateRecommendations(avgDimensions, metrics, allIssues)
-
+        val recommendations = generateRecommendations(avgDimensions, metrics, allIssues)
         return ConversationQuality(
             chatId = chatId,
             overallScore = overallScore,
@@ -285,7 +281,7 @@ class ConversationQualityEvaluator {
     }
 
     // ============ 评估方法 ============
-    private fun evaluateRelevance(userMsg: String, response: String): Int {
+        private fun evaluateRelevance(userMsg: String, response: String): Int {
         val userKeywords = extractKeywords(userMsg)
         if (userKeywords.isEmpty()) return 70
 
@@ -301,41 +297,37 @@ class ConversationQualityEvaluator {
             else -> 30
         }
     }
-
-    private fun evaluateCompleteness(userMsg: String, response: String): Int {
+        private fun evaluateCompleteness(userMsg: String, response: String): Int {
         val questionWords = listOf("如何", "怎么", "为什么", "什么", "哪些", "how", "why", "what", "which")
         val isQuestion = questionWords.any { userMsg.contains(it, ignoreCase = true) }
-
         return when {
             !isQuestion && response.length > 50 -> 85
             !isQuestion -> 60
             response.length < 50 -> 30
             response.length < 200 -> 60
             response.contains(Regex("\\d+[.、)]")) -> 90  // 有分点
-                response.contains("```") -> 85  // 有代码
-                response.length > 500 -> 80
+        response.contains("```") -> 85  // 有代码
+        response.length > 500 -> 80
             else -> 70
         }
     }
-
-    private fun evaluateClarity(response: String): Int {
+        private fun evaluateClarity(response: String): Int {
         var score = 60
 
         // 有标题
-                if (response.contains(Regex("^#+\\s", RegexOption.MULTILINE))) score += 10
+        if (response.contains(Regex("^#+\\s", RegexOption.MULTILINE))) score += 10
         // 有列表
-                if (response.contains(Regex("^[-*+]\\s", RegexOption.MULTILINE))) score += 10
+        if (response.contains(Regex("^[-*+]\\s", RegexOption.MULTILINE))) score += 10
         // 有代码块
-                if (response.contains("```")) score += 10
+        if (response.contains("```")) score += 10
         // 有加粗
-                if (response.contains("**") || response.contains("__")) score += 5
+        if (response.contains("**") || response.contains("__")) score += 5
         // 有分段
-                if (response.split("\n\n").size > 1) score += 5
+        if (response.split("\n\n").size > 1) score += 5
 
         return score.coerceIn(0, 100)
     }
-
-    private fun evaluateResponsiveness(responseTimeMs: Long): Int {
+        private fun evaluateResponsiveness(responseTimeMs: Long): Int {
         return when {
             responseTimeMs < 1000 -> 100
             responseTimeMs < 3000 -> 90
@@ -345,8 +337,7 @@ class ConversationQualityEvaluator {
             else -> 20
         }
     }
-
-    private fun evaluateCoherence(userMsg: String, response: String, previous: List<RoundQuality>): Int {
+        private fun evaluateCoherence(userMsg: String, response: String, previous: List<RoundQuality>): Int {
         if (previous.isEmpty()) return 85
 
         val lastResponse = previous.last().assistantResponse
@@ -355,7 +346,7 @@ class ConversationQualityEvaluator {
         val responseKeywords = extractKeywords(response).toSet()
 
         // 检查回答是否承接了之前的话题
-    val overlapWithLast = lastKeywords.intersect(responseKeywords).size
+        val overlapWithLast = lastKeywords.intersect(responseKeywords).size
         val overlapWithUser = currentUserKeywords.intersect(responseKeywords).size
 
         return when {
@@ -365,8 +356,7 @@ class ConversationQualityEvaluator {
             else -> 60
         }
     }
-
-    private fun evaluateHelpfulness(userMsg: String, response: String): Int {
+        private fun evaluateHelpfulness(userMsg: String, response: String): Int {
         val actionIndicators = listOf("步骤", "方法", "建议", "可以", "应该", "需要", "step", "method", "should", "need")
         val hasActionable = actionIndicators.any { response.contains(it, ignoreCase = true) }
         val hasExample = response.contains("例如") || response.contains("比如") || response.contains("example") || response.contains("```")
@@ -379,12 +369,10 @@ class ConversationQualityEvaluator {
 
         return score.coerceIn(0, 100)
     }
-
-    private fun evaluateEngagement(response: String, userFollowedUp: Boolean): Int {
+        private fun evaluateEngagement(response: String, userFollowedUp: Boolean): Int {
         return if (userFollowedUp) 90 else 60
     }
-
-    private fun detectIssues(
+        private fun detectIssues(
         roundIndex: Int,
         userMsg: String,
         response: String,
@@ -396,7 +384,6 @@ class ConversationQualityEvaluator {
         userFollowedUp: Boolean
     ): List<QualityIssue> {
         val issues = mutableListOf<QualityIssue>()
-
         if (responseTimeMs > 10000) {
             issues.add(QualityIssue(
                 type = IssueType.SLOW_RESPONSE,
@@ -406,7 +393,6 @@ class ConversationQualityEvaluator {
                 suggestion = "考虑切换更快的模型或简化请求"
             ))
         }
-
         if ((scores[QualityDimension.RELEVANCE] ?: 100) < 50) {
             issues.add(QualityIssue(
                 type = IssueType.IRRELEVANT_ANSWER,
@@ -416,7 +402,6 @@ class ConversationQualityEvaluator {
                 suggestion = "检查 prompt 是否清晰，补充上下文"
             ))
         }
-
         if ((scores[QualityDimension.COMPLETENESS] ?: 100) < 50) {
             issues.add(QualityIssue(
                 type = IssueType.INCOMPLETE_ANSWER,
@@ -426,7 +411,6 @@ class ConversationQualityEvaluator {
                 suggestion = "增加回答深度或追问细节"
             ))
         }
-
         if (toolCalls > 0 && toolSuccesses < toolCalls) {
             issues.add(QualityIssue(
                 type = IssueType.TOOL_FAILURE,
@@ -436,7 +420,6 @@ class ConversationQualityEvaluator {
                 suggestion = "检查工具权限和参数"
             ))
         }
-
         if (tokensUsed > 4000) {
             issues.add(QualityIssue(
                 type = IssueType.HIGH_TOKEN_USAGE,
@@ -446,7 +429,6 @@ class ConversationQualityEvaluator {
                 suggestion = "考虑压缩上下文或简化请求"
             ))
         }
-
         if (response.length < 20 && userMsg.length > 20) {
             issues.add(QualityIssue(
                 type = IssueType.INCOMPLETE_ANSWER,
@@ -456,11 +438,9 @@ class ConversationQualityEvaluator {
                 suggestion = "可能需要更详细的回答"
             ))
         }
-
         return issues
     }
-
-    private fun generateRecommendations(
+        private fun generateRecommendations(
         dimensions: Map<QualityDimension, Int>,
         metrics: QualityMetrics,
         issues: List<QualityIssue>
@@ -468,12 +448,12 @@ class ConversationQualityEvaluator {
         val recs = mutableListOf<String>()
 
         // 基于维度
-                dimensions.filter { it.value < 60 }.forEach { (dim, score) ->
+        dimensions.filter { it.value < 60 }.forEach { (dim, score) ->
             recs.add("提升${dim.name}评分（当前 $score）")
         }
 
         // 基于指标
-                if (metrics.userEditRate > 0.3f) {
+        if (metrics.userEditRate > 0.3f) {
             recs.add("用户编辑率高（${(metrics.userEditRate * 100).toInt()}%），建议调整回答风格")
         }
         if (metrics.toolCallSuccessRate < 0.8f) {
@@ -484,26 +464,22 @@ class ConversationQualityEvaluator {
         }
 
         // 基于问题
-                issues.filter { it.severity == IssueSeverity.CRITICAL || it.severity == IssueSeverity.MAJOR }.forEach { issue ->
+        issues.filter { it.severity == IssueSeverity.CRITICAL || it.severity == IssueSeverity.MAJOR }.forEach { issue ->
             recs.add(issue.suggestion)
         }
-
         if (recs.isEmpty()) {
             recs.add("对话质量良好，继续保持")
         }
-
         return recs.distinct().take(5)
     }
-
-    private fun extractKeywords(text: String): List<String> {
+        private fun extractKeywords(text: String): List<String> {
         return text.lowercase()
             .split(Regex("[\\s,，。.？?！!；;：:、\"'()（）\\[\\]【】\\n]+"))
             .filter { it.length >= 2 }
             .filter { it.lowercase() !in STOP_WORDS }
             .take(10)
     }
-
-    private val STOP_WORDS = setOf(
+        private val STOP_WORDS = setOf(
         "的", "了", "是", "在", "我", "你", "他", "这", "那", "什么", "怎么",
         "the", "a", "an", "is", "are", "was", "were", "be", "what", "how", "why"
     )
@@ -526,32 +502,32 @@ class ConversationQualityEvaluator {
  */
 fun ConversationQuality.format(): String {
     val sb = StringBuilder()
-    sb.appendLine("═══ 对话质量评估 ═══")
-    sb.appendLine("总评分: $overallScore/100 (${qualityLevel})")
-    sb.appendLine()
-    sb.appendLine("维度评分:")
-    dimensions.forEach { (dim, score) ->
+        sb.appendLine("═══ 对话质量评估 ═══")
+        sb.appendLine("总评分: $overallScore/100 (${qualityLevel})")
+        sb.appendLine()
+        sb.appendLine("维度评分:")
+        dimensions.forEach { (dim, score) ->
         val bar = "█".repeat(score / 10) + "░".repeat(10 - score / 10)
         sb.appendLine("  ${dim.name.padEnd(16)}: $bar $score")
     }
-    sb.appendLine()
-    sb.appendLine("指标:")
-    sb.appendLine("  总轮次: ${metrics.totalRounds}")
-    sb.appendLine("  平均响应: ${metrics.avgResponseTimeMs}ms")
-    sb.appendLine("  总 Token: ${metrics.totalTokensUsed}")
-    sb.appendLine("  用户编辑率: ${(metrics.userEditRate * 100).toInt()}%")
-    sb.appendLine("  工具成功率: ${(metrics.toolCallSuccessRate * 100).toInt()}%")
-    sb.appendLine()
-    if (issues.isNotEmpty()) {
+        sb.appendLine()
+        sb.appendLine("指标:")
+        sb.appendLine("  总轮次: ${metrics.totalRounds}")
+        sb.appendLine("  平均响应: ${metrics.avgResponseTimeMs}ms")
+        sb.appendLine("  总 Token: ${metrics.totalTokensUsed}")
+        sb.appendLine("  用户编辑率: ${(metrics.userEditRate * 100).toInt()}%")
+        sb.appendLine("  工具成功率: ${(metrics.toolCallSuccessRate * 100).toInt()}%")
+        sb.appendLine()
+        if (issues.isNotEmpty()) {
         sb.appendLine("问题 (${issues.size}):")
         issues.forEach { issue ->
             sb.appendLine("  [${issue.severity}] ${issue.type}: ${issue.description}")
-            sb.appendLine("         → ${issue.suggestion}")
+        sb.appendLine("         → ${issue.suggestion}")
         }
         sb.appendLine()
     }
-    sb.appendLine("建议:")
-    recommendations.forEach { sb.appendLine("  • $it") }
-    sb.appendLine("═══════════════════")
-    return sb.toString()
+        sb.appendLine("建议:")
+        recommendations.forEach { sb.appendLine("  • $it") }
+        sb.appendLine("═══════════════════")
+        return sb.toString()
 }

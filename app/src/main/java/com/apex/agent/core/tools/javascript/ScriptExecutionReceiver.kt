@@ -23,7 +23,6 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "ScriptExecutionReceiver"
-
         const val ACTION_EXECUTE_JS = "com.apex.EXECUTE_JS"
         const val EXTRA_EXECUTION_MODE = "execution_mode"
         const val EXTRA_FILE_PATH = "file_path"
@@ -36,17 +35,14 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
         const val EXTRA_ENV_FILE_PATH = "env_file_path"
         const val EXTRA_TEMP_ENV_FILE = "temp_env_file"
         const val EXTRA_RESULT_FILE_PATH = "result_file_path"
-
         const val EXECUTION_MODE_FUNCTION = "function"
         const val EXECUTION_MODE_SCRIPT = "script"
         const val EXECUTION_MODE_CODE = "code"
     }
-
-    override fun onReceive(context: Context, intent: Intent) {
+        override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_EXECUTE_JS) {
             return
         }
-
         val executionMode =
             intent.getStringExtra(EXTRA_EXECUTION_MODE)?.trim()?.lowercase().orEmpty()
                 .ifBlank { EXECUTION_MODE_FUNCTION }
@@ -66,18 +62,17 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
         val hasValidRequest =
             when (executionMode) {
                 EXECUTION_MODE_FUNCTION -> !filePath.isNullOrBlank() && functionName.isNotBlank()
-                EXECUTION_MODE_SCRIPT -> !filePath.isNullOrBlank()
-                EXECUTION_MODE_CODE -> !codeText.isNullOrBlank()
-                else -> false
+        EXECUTION_MODE_SCRIPT -> !filePath.isNullOrBlank()
+        EXECUTION_MODE_CODE -> !codeText.isNullOrBlank()
+        else -> false
             }
         if (!hasValidRequest) {
             AppLogger.e(
                 TAG,
                 "Missing required parameters: mode=${executionMode}, filePath=${filePath}, functionName=${functionName}, codeLength=${codeText?.length ?: 0}"
             )
-            return
+        return
         }
-
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -100,8 +95,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
             }
         }
     }
-
-    private fun execute(
+        private fun execute(
         context: Context,
         executionMode: String,
         filePath: String?,
@@ -119,7 +113,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
         val scriptIdentityPath =
             when (normalizedMode) {
                 EXECUTION_MODE_CODE -> filePath?.takeIf { it.isNotBlank() } ?: "<inline-code>"
-                else -> filePath?.takeIf { it.isNotBlank() } ?: "<script>"
+        else -> filePath?.takeIf { it.isNotBlank() } ?: "<script>"
             }
         val scriptFile = filePath?.takeIf { it.isNotBlank() }?.let(::File)
         val resultFile = resolveResultFile(resultFilePath, scriptIdentityPath, functionName, normalizedMode)
@@ -140,9 +134,9 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                         paramsJson = fallbackParamsJson,
                         envFilePath = envFilePath
                     )
-                val errorMessage = e.message ?: "Failed to resolve params JSON"
-                AppLogger.e(TAG, errorMessage, e)
-                runCatching {
+        val errorMessage = e.message ?: "Failed to resolve params JSON"
+        AppLogger.e(TAG, errorMessage, e)
+        runCatching {
                     traceRecorder.writeTo(
                         resultFile,
                         traceRecorder.buildPayload(
@@ -152,7 +146,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                         )
                     )
                 }
-                return
+        return
             }
         val traceRecorder =
             JsExecutionTraceRecorder(
@@ -169,10 +163,10 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
         val scriptText =
             when (normalizedMode) {
                 EXECUTION_MODE_CODE -> codeText.orEmpty()
-                EXECUTION_MODE_SCRIPT, EXECUTION_MODE_FUNCTION -> {
+        EXECUTION_MODE_SCRIPT, EXECUTION_MODE_FUNCTION -> {
                     if (scriptFile == null || !scriptFile.exists()) {
                         AppLogger.e(TAG, "JavaScript file not found: ${scriptIdentityPath}")
-                        runCatching {
+        runCatching {
                             traceRecorder.writeTo(
                                 resultFile,
                                 traceRecorder.buildPayload(
@@ -182,14 +176,14 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                                 )
                             )
                         }
-                        return
+        return
                     }
-                    scriptFile.readText()
+        scriptFile.readText()
                 }
-                else -> {
+        else -> {
                     val error = "Unsupported execution mode: ${normalizedMode}"
-                    AppLogger.e(TAG, error)
-                    runCatching {
+        AppLogger.e(TAG, error)
+        runCatching {
                         traceRecorder.writeTo(
                             resultFile,
                             traceRecorder.buildPayload(
@@ -199,12 +193,12 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                             )
                         )
                     }
-                    return
+        return
                 }
             }
         if (normalizedMode == EXECUTION_MODE_CODE && scriptText.isBlank()) {
             AppLogger.e(TAG, "JavaScript code is empty for inline execution")
-            runCatching {
+        runCatching {
                 traceRecorder.writeTo(
                     resultFile,
                     traceRecorder.buildPayload(
@@ -214,13 +208,12 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                     )
                 )
             }
-            return
+        return
         }
-
         try {
             val engine = JsEngine(context)
         val parsedParams = parseParams(paramsJson)
-            val envOverrides = parseEnvFile(envFilePath)
+        val envOverrides = parseEnvFile(envFilePath)
         val result =
                 when (normalizedMode) {
                     EXECUTION_MODE_SCRIPT, EXECUTION_MODE_CODE ->
@@ -230,7 +223,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                             envOverrides = envOverrides,
                             executionListener = traceRecorder
                         )
-                    else ->
+        else ->
                         engine.executeScriptFunction(
                             script = scriptText,
                             functionName = functionName,
@@ -239,14 +232,14 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                             executionListener = traceRecorder
                         )
                 }
-            val success = !result.toString().startsWith("Error:", ignoreCase = true)
+        val success = !result.toString().startsWith("Error:", ignoreCase = true)
         val error =
                 if (success) {
                     null
                 } else {
                     result?.toString()?.removePrefix("Error:")?.trim().orEmpty()
                 }
-            traceRecorder.writeTo(
+        traceRecorder.writeTo(
                 resultFile,
                 traceRecorder.buildPayload(
                     success = success,
@@ -254,10 +247,10 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
                     error = error
                 )
             )
-            AppLogger.d(TAG, "JavaScript execution result written to: ${resultFile.absolutePath}")
+        AppLogger.d(TAG, "JavaScript execution result written to: ${resultFile.absolutePath}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error executing JavaScript: ${e.message}", e)
-            runCatching {
+        runCatching {
                 traceRecorder.writeTo(
                     resultFile,
                     traceRecorder.buildPayload(
@@ -273,16 +266,15 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
             if (scriptFile != null) {
                 deleteIfNeeded(scriptFile, tempScript, "temporary script")
             }
-            if (tempParamsFile && !paramsFilePath.isNullOrBlank()) {
+        if (tempParamsFile && !paramsFilePath.isNullOrBlank()) {
                 deleteIfNeeded(File(paramsFilePath), true, "temporary params file")
             }
-            if (tempEnvFile && !envFilePath.isNullOrBlank()) {
+        if (tempEnvFile && !envFilePath.isNullOrBlank()) {
                 deleteIfNeeded(File(envFilePath), true, "temporary env file")
             }
         }
     }
-
-    private fun resolveResultFile(
+        private fun resolveResultFile(
         rawPath: String?,
         scriptIdentityPath: String,
         functionName: String,
@@ -298,7 +290,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
             when (executionMode) {
                 EXECUTION_MODE_FUNCTION ->
                     functionName.replace(Regex("[^A-Za-z0-9._-]"), "_").ifBlank { "main" }
-                else -> executionMode.replace(Regex("[^A-Za-z0-9._-]"), "_").ifBlank { "script" }
+        else -> executionMode.replace(Regex("[^A-Za-z0-9._-]"), "_").ifBlank { "script" }
             }
         val resultDir = File(ApexPaths.testDir(), "js_results")
         if (!resultDir.exists()) {
@@ -309,26 +301,23 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
             "${safeScriptName}_${safeFunctionName}_${System.currentTimeMillis()}.json"
         )
     }
-
-    private fun resolveParamsJson(rawParamsJson: String?, paramsFilePath: String): String {
+        private fun resolveParamsJson(rawParamsJson: String?, paramsFilePath: String): String {
         val candidateFilePath = paramsFilePath?.trim().orEmpty()
         val rawPayload =
             if (candidateFilePath.isNotBlank()) {
                 val paramsFile = File(candidateFilePath)
-                if (!paramsFile.exists() || !paramsFile.isFile) {
+        if (!paramsFile.exists() || !paramsFile.isFile) {
                     throw IllegalArgumentException(
                         "params_file_path must point to an existing file: ${candidateFilePath}"
                     )
                 }
-                paramsFile.readText()
+        paramsFile.readText()
             } else {
                 rawParamsJson.orEmpty()
             }
-
         return normalizeParamsJson(rawPayload)
     }
-
-    private fun normalizeParamsJson(rawPayload: String): String {
+        private fun normalizeParamsJson(rawPayload: String): String {
         val trimmed = rawPayload.removePrefix("\uFEFF").trim()
         if (trimmed.isBlank()) {
             return "{}"
@@ -336,25 +325,21 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
         if (canParseJsonObject(trimmed)) {
             return trimmed
         }
-
         val unescapedQuotes = trimmed.replace("\\\"", "\"")
         if (unescapedQuotes != trimmed && canParseJsonObject(unescapedQuotes)) {
             AppLogger.w(TAG, "Recovered params JSON from quote-escaped transport payload")
-            return unescapedQuotes
+        return unescapedQuotes
         }
-
         return trimmed
     }
-
-    private fun canParseJsonObject(raw: String): Boolean {
+        private fun canParseJsonObject(raw: String): Boolean {
         return runCatching { Json.parseToJsonElement(raw) }
             .getOrNull() is JsonObject
     }
-
-    private fun parseParams(paramsJson: String): Map<String, Any?> {
+        private fun parseParams(paramsJson: String): Map<String, Any?> {
         return try {
             val payload = Json.parseToJsonElement(paramsJson)
-            if (payload is JsonObject) {
+        if (payload is JsonObject) {
                 payload.entries.associate { (key, value) ->
                     key to jsonElementToValue(value)
                 }
@@ -363,47 +348,43 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error parsing params: ${paramsJson}", e)
-            emptyMap()
+        emptyMap()
         }
     }
-
-    private fun parseEnvFile(envFilePath: String): Map<String, String> {
+        private fun parseEnvFile(envFilePath: String): Map<String, String> {
         if (envFilePath.isNullOrBlank()) {
             return emptyMap()
         }
-
         return try {
             val envFile = File(envFilePath)
-            if (!envFile.exists()) {
+        if (!envFile.exists()) {
                 AppLogger.w(TAG, "Env file not found: ${envFilePath}")
-                return emptyMap()
+        return emptyMap()
             }
-
-            buildMap {
+        buildMap {
                 envFile.readLines().forEach { rawLine ->
                     val line = rawLine.trim()
-                    if (line.isEmpty() || line.startsWith("#")) {
+        if (line.isEmpty() || line.startsWith("#")) {
                         return@forEach
                     }
-                    val separatorIndex = line.indexOf('=')
-                    if (separatorIndex <= 0) {
+        val separatorIndex = line.indexOf('=')
+        if (separatorIndex <= 0) {
                         return@forEach
                     }
-                    val key = line.substring(0, separatorIndex).trim()
-                    if (key.isEmpty()) {
+        val key = line.substring(0, separatorIndex).trim()
+        if (key.isEmpty()) {
                         return@forEach
                     }
-                    val value = line.substring(separatorIndex + 1).trim().removeWrappingQuotes()
-                    put(key, value)
+        val value = line.substring(separatorIndex + 1).trim().removeWrappingQuotes()
+        put(key, value)
                 }
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error parsing env file: ${envFilePath}", e)
-            emptyMap()
+        emptyMap()
         }
     }
-
-    private fun String.removeWrappingQuotes(): String {
+        private fun String.removeWrappingQuotes(): String {
         if (length < 2) {
             return this
         }
@@ -415,8 +396,7 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
             this
         }
     }
-
-    private fun deleteIfNeeded(file: File, enabled: Boolean, label: String) {
+        private fun deleteIfNeeded(file: File, enabled: Boolean, label: String) {
         if (!enabled) {
             return
         }
@@ -428,15 +408,14 @@ class ScriptExecutionReceiver : BroadcastReceiver() {
             AppLogger.e(TAG, "Error deleting ${label}: ${file.absolutePath}", error)
         }
     }
-
-    private fun jsonElementToValue(element: JsonElement): Any? {
+        private fun jsonElementToValue(element: JsonElement): Any? {
         return when (element) {
             is JsonObject ->
                 element.entries.associate { (key, value) ->
                     key to jsonElementToValue(value)
                 }
-            is JsonArray -> element.map(::jsonElementToValue)
-            is JsonNull -> null
+        is JsonArray -> element.map(::jsonElementToValue)
+        is JsonNull -> null
             is JsonPrimitive -> {
                 if (element.isString) {
                     element.content

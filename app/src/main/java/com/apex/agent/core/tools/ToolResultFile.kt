@@ -54,15 +54,14 @@ data class DirectoryListingData(
             val permissions: String,
             val lastModified: String
     )
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine("[${env}] Directory listing for ${path}:")
         entries.forEach { entry ->
             val typeIndicator = if (entry.isDirectory) "d" else "-"
-            sb.appendLine(
+        sb.appendLine(
                     "${typeIndicator}${entry.permissions} ${"
-                    entry.size.toString().padStart(8)
+        entry.size.toString().padStart(8)
                 } ${entry.lastModified} ${entry.name}"
             )
         }
@@ -133,7 +132,7 @@ data class FileInfoData(
         val path: String,
         val exists: Boolean,
         val fileType: String, // "file", "directory", or "other"
-    val size: Long,
+        val size: Long,
         val permissions: String,
         val owner: String,
         val group: String,
@@ -146,7 +145,6 @@ data class FileInfoData(
         if (!exists) {
             return "[${env}] File or directory does not exist at path: ${path}"
         }
-
         val sb = StringBuilder()
         sb.appendLine("[${env}] File information for ${path}:")
         sb.appendLine("Type: ${fileType}")
@@ -188,20 +186,15 @@ data class FileApplyResultData(
     private fun buildRequestContent(): String {
         val sections = mutableListOf<String>()
         sections.add(operation.toString())
-
         extractDiffSummaryLine()?.let { sections.add(it) }
-
         if (!syntaxCheckResult.isNullOrBlank()) {
             sections.add("--- Syntax Check ---")
-            sections.add(syntaxCheckResult)
+        sections.add(syntaxCheckResult)
         }
-
         return sections.joinToString("\n")
     }
-
-    private fun extractDiffSummaryLine(): String? {
+        private fun extractDiffSummaryLine(): String? {
         val candidates = listOfNotNull(diffContent, aiDiffInstructions)
-
         return candidates
             .asSequence()
             .flatMap { it.lineSequence() }
@@ -211,31 +204,28 @@ data class FileApplyResultData(
                     it.equals("No changes detected (files are identical)", ignoreCase = true)
             }
     }
-
-    override fun toString(): String {
+        override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine(operation.toString())
 
         // If diffContent is available, embed it in a custom XML-like tag for the renderer.
-                if (diffContent != null) {
+        if (diffContent != null) {
             val encodedDiff = diffContent.replace("&", "&").replace("<", "<").replace(">", ">")
-            sb.append("<file-diff path=\"${operation.path}\" details=\"${operation.details}\">")
-            sb.append("<![CDATA[${encodedDiff}]]>")
-            sb.append("</file-diff>")
+        sb.append("<file-diff path=\"${operation.path}\" details=\"${operation.details}\">")
+        sb.append("<![CDATA[${encodedDiff}]]>")
+        sb.append("</file-diff>")
         }
-
         val requestContent = buildRequestContent()
         if (requestContent.isNotBlank()) {
             sb.append("<file-request-content><![CDATA[${requestContent}]]></file-request-content>")
         }
-
         if (aiDiffInstructions.isNotEmpty() && !aiDiffInstructions.startsWith("Error")) {
             sb.appendLine("\n--- AI-Generated Diff ---")
-            sb.appendLine(aiDiffInstructions)
+        sb.appendLine(aiDiffInstructions)
         }
         if (!syntaxCheckResult.isNullOrEmpty()) {
             sb.appendLine("\n--- Syntax Check ---")
-            sb.appendLine(syntaxCheckResult)
+        sb.appendLine(syntaxCheckResult)
         }
         return sb.toString()
     }
@@ -258,7 +248,6 @@ data class FindFilesResultData(
         sb.appendLine("[${env}] File Search Result:")
         sb.appendLine("Search Path: ${path}")
         sb.appendLine("Pattern: ${pattern}")
-
         sb.appendLine("Found ${files.size} files:")
         files.forEachIndexed { index, file ->
             if (index < 10 || files.size <= 20) {
@@ -267,7 +256,6 @@ data class FindFilesResultData(
                 sb.appendLine("... and ${files.size - 10} other files")
             }
         }
-
         return sb.toString()
     }
 }

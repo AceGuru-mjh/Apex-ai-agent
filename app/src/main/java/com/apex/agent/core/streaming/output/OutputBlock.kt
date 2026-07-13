@@ -248,7 +248,7 @@ sealed class OutputBlock {
                 val confidence: Float = 0f,
                 val status: BlockStatus = BlockStatus.PENDING,
             )
-            enum class SelectionStrategy(val displayName: String) {
+        enum class SelectionStrategy(val displayName: String) {
                 BEST_OF_ALL("择优"), RACING("竞速"), VOTING("投票"),
                 ADVERSARIAL("对抗"), CONSENSUS("共识"),
             }
@@ -389,7 +389,7 @@ fun blockToForm(block: OutputBlock): com.ai.assistance.aiterminal.terminal.masco
         is OutputBlock.ErrorBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.ERROR
         is OutputBlock.SuccessBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.SUCCESS
         // 狂暴块
-                is OutputBlock.BerserkBlock.MultiPathReasoningBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
+        is OutputBlock.BerserkBlock.MultiPathReasoningBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
         is OutputBlock.BerserkBlock.AdversarialBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
         is OutputBlock.BerserkBlock.SelfCorrectionBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK
         is OutputBlock.BerserkBlock.TreeOfThoughtsBlock -> com.ai.assistance.aiterminal.terminal.mascot.AuraMascot.AuraForm.BERSERK

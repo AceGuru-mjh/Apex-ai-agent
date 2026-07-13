@@ -32,23 +32,21 @@ class LinkServicesManager private constructor(private val context: Context) {
         fun getInstance(context: Context): LinkServicesManager {
             return INSTANCE ?: synchronized(this) {
                 val instance = LinkServicesManager(context.applicationContext)
-                INSTANCE = instance
+        INSTANCE = instance
                 instance
             }
         }
     }
-
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val mainHandler = Handler(Looper.getMainLooper())
-    private var monitoringJob: Job? = null
+        private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        private val mainHandler = Handler(Looper.getMainLooper())
+        private var monitoringJob: Job? = null
     private var pingRunnable: Runnable? = null
 
     private var isWechatClawbotEnabled = false
     private var wechatClawbotServerUrl = ""
-    private var isLinkServicesEnabled = false
+        private var isLinkServicesEnabled = false
     private var linkServicesServerUrl = ""
-
-    private var isConnected = false
+        private var isConnected = false
     private var lastPingTime = 0L
 
     sealed class LinkServiceStatus {
@@ -57,78 +55,67 @@ class LinkServicesManager private constructor(private val context: Context) {
         data class Connected(val serviceType: String) : LinkServiceStatus()
         data class Error(val message: String) : LinkServiceStatus()
     }
-
-    interface LinkServiceCallback {
+        interface LinkServiceCallback {
         fun onStatusChanged(status: LinkServiceStatus)
         fun onMessageReceived(message: String)
         fun onCommandReceived(command: String)
     }
-
-    private var callback: LinkServiceCallback? = null
+        private var callback: LinkServiceCallback? = null
 
     fun setCallback(callback: LinkServiceCallback) {
         this.callback = callback
     }
-
-    fun startMonitoring() {
+        fun startMonitoring() {
         if (monitoringJob?.isActive == true) return
 
         monitoringJob = serviceScope.launch {
             val preferences = UserPreferencesManager.getInstance(context)
-
-            launch {
+        launch {
                 preferences.wechatClawbotEnabled.collectLatest { enabled ->
                     isWechatClawbotEnabled = enabled
                     AppLogger.d(TAG, "WeChat clawbot enabled changed: ${enabled}")
-                    updateServiceState()
+        updateServiceState()
                 }
             }
-
-            launch {
+        launch {
                 preferences.wechatClawbotServerUrl.collectLatest { url ->
                     wechatClawbotServerUrl = url
                     AppLogger.d(TAG, "WeChat clawbot server URL changed: ${url}")
-                    updateServiceState()
+        updateServiceState()
                 }
             }
-
-            launch {
+        launch {
                 preferences.linkServicesEnabled.collectLatest { enabled ->
                     isLinkServicesEnabled = enabled
                     AppLogger.d(TAG, "Link services enabled changed: ${enabled}")
-                    updateServiceState()
+        updateServiceState()
                 }
             }
-
-            launch {
+        launch {
                 preferences.linkServicesServerUrl.collectLatest { url ->
                     linkServicesServerUrl = url
                     AppLogger.d(TAG, "Link services server URL changed: ${url}")
-                    updateServiceState()
+        updateServiceState()
                 }
             }
         }
     }
-
-    fun stopMonitoring() {
+        fun stopMonitoring() {
         monitoringJob?.cancel()
         monitoringJob = null
         stopPing()
         disconnect()
     }
-
-    private fun updateServiceState() {
+        private fun updateServiceState() {
         val shouldConnect = (isWechatClawbotEnabled && wechatClawbotServerUrl.isNotBlank()) ||
                 (isLinkServicesEnabled && linkServicesServerUrl.isNotBlank())
-
         if (shouldConnect && !isConnected) {
             connect()
         } else if (!shouldConnect && isConnected) {
             disconnect()
         }
     }
-
-    private fun connect() {
+        private fun connect() {
         if (isConnected) return
 
         val serverUrl = when {
@@ -136,21 +123,19 @@ class LinkServicesManager private constructor(private val context: Context) {
             isLinkServicesEnabled && linkServicesServerUrl.isNotBlank() -> linkServicesServerUrl
             else -> return
         }
-
         callback?.onStatusChanged(LinkServiceStatus.Connecting)
-
         thread {
             try {
                 AppLogger.d(TAG, "Connecting to link service: ${serverUrl}")
-                val result = testConnection(serverUrl)
-                if (result) {
+        val result = testConnection(serverUrl)
+        if (result) {
                     isConnected = true
                     lastPingTime = System.currentTimeMillis()
-                    mainHandler.post {
+        mainHandler.post {
                         val serviceType = if (isWechatClawbotEnabled) "WeChat Clawbot" else "Link Service"
-                        callback?.onStatusChanged(LinkServiceStatus.Connected(serviceType))
+        callback?.onStatusChanged(LinkServiceStatus.Connected(serviceType))
                     }
-                    startPing()
+        startPing()
                 } else {
                     mainHandler.post {
                         callback?.onStatusChanged(LinkServiceStatus.Error("Connection test failed"))
@@ -158,140 +143,125 @@ class LinkServicesManager private constructor(private val context: Context) {
                 }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to connect to link service", e)
-                mainHandler.post {
+        mainHandler.post {
                     callback?.onStatusChanged(LinkServiceStatus.Error(e.message ?: "Unknown error"))
                 }
             }
         }
     }
-
-    private fun disconnect() {
+        private fun disconnect() {
         stopPing()
         isConnected = false
         callback?.onStatusChanged(LinkServiceStatus.Disconnected)
         AppLogger.d(TAG, "Disconnected from link service")
     }
-
-    private fun startPing() {
+        private fun startPing() {
         stopPing()
-
         pingRunnable = object : Runnable {
             override fun run() {
                 if (!isConnected) return
                 performPing()
-                mainHandler.postDelayed(this, PING_INTERVAL)
+        mainHandler.postDelayed(this, PING_INTERVAL)
             }
         }
         mainHandler.postDelayed(pingRunnable!!, PING_INTERVAL)
     }
-
-    private fun stopPing() {
+        private fun stopPing() {
         pingRunnable?.let { mainHandler.removeCallbacks(it) }
         pingRunnable = null
     }
-
-    private fun performPing() {
+        private fun performPing() {
         val serverUrl = when {
             isWechatClawbotEnabled && wechatClawbotServerUrl.isNotBlank() -> wechatClawbotServerUrl
             isLinkServicesEnabled && linkServicesServerUrl.isNotBlank() -> linkServicesServerUrl
             else -> return
         }
-
         thread {
             try {
                 val response = sendRequest(serverUrl, "ping", mapOf("timestamp" to System.currentTimeMillis().toString()))
-                if (response != null) {
+        if (response != null) {
                     lastPingTime = System.currentTimeMillis()
-                    AppLogger.v(TAG, "Ping successful: ${response}")
-                    if (!isConnected) {
+        AppLogger.v(TAG, "Ping successful: ${response}")
+        if (!isConnected) {
                         isConnected = true
                         mainHandler.post {
                             val serviceType = if (isWechatClawbotEnabled) "WeChat Clawbot" else "Link Service"
-                            callback?.onStatusChanged(LinkServiceStatus.Connected(serviceType))
+        callback?.onStatusChanged(LinkServiceStatus.Connected(serviceType))
                         }
                     }
                 }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Ping failed", e)
-                isConnected = false
+        isConnected = false
                 mainHandler.post {
                     callback?.onStatusChanged(LinkServiceStatus.Error("Connection lost: ${e.message}"))
                 }
             }
         }
     }
-
-    private fun testConnection(serverUrl: String): Boolean {
+        private fun testConnection(serverUrl: String): Boolean {
         return try {
             val response = sendRequest(serverUrl, "test", emptyMap())
-            response != null
+        response != null
         } catch (e: Exception) {
             AppLogger.e(TAG, "Connection test failed", e)
-            false
+        false
         }
     }
-
-    fun sendCommand(command: String, params: Map<String, String> = emptyMap()): String? {
+        fun sendCommand(command: String, params: Map<String, String> = emptyMap()): String? {
         val serverUrl = when {
             isWechatClawbotEnabled && wechatClawbotServerUrl.isNotBlank() -> wechatClawbotServerUrl
             isLinkServicesEnabled && linkServicesServerUrl.isNotBlank() -> linkServicesServerUrl
             else -> return null
         }
-
         return try {
             val allParams = params.toMutableMap()
-            allParams["command"] = command
+        allParams["command"] = command
             sendRequest(serverUrl, "command", allParams)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to send command", e)
-            null
+        null
         }
     }
-
-    fun requestWechatAction(action: String, params: Map<String, String> = emptyMap()): String? {
+        fun requestWechatAction(action: String, params: Map<String, String> = emptyMap()): String? {
         if (!isWechatClawbotEnabled || wechatClawbotServerUrl.isBlank()) {
             return null
         }
-
         val allParams = params.toMutableMap()
         allParams["action"] = action
         return sendRequest(wechatClawbotServerUrl, "wechat/${action}", allParams)
     }
-
-    private fun sendRequest(baseUrl: String, endpoint: String, params: Map<String, String>): String? {
+        private fun sendRequest(baseUrl: String, endpoint: String, params: Map<String, String>): String? {
         return withContext(Dispatchers.IO) {
             try {
                 val url = URL("${baseUrl}/${endpoint.removePrefix("/")}")
         val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
-                connection.doOutput = true
+        connection.doOutput = true
                 connection.connectTimeout = CONNECTION_TIMEOUT
                 connection.readTimeout = READ_TIMEOUT
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-
-                val postData = params.entries.joinToString("&") { "${it.key}=${java.net.URLEncoder.encode(it.value, "UTF-8")}" }
-                OutputStreamWriter(connection.outputStream).use { writer ->
+        val postData = params.entries.joinToString("&") { "${it.key}=${java.net.URLEncoder.encode(it.value, "UTF-8")}" }
+        OutputStreamWriter(connection.outputStream).use { writer ->
                     writer.write(postData)
-                    writer.flush()
+        writer.flush()
                 }
-
-                val responseCode = connection.responseCode
+        val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     BufferedReader(InputStreamReader(connection.inputStream)).use { reader ->
                         reader.readText()
                     }
                 } else {
                     AppLogger.w(TAG, "HTTP response code: ${responseCode}")
-                    null
+        null
                 }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Request failed: ${endpoint}", e)
-                null
+        null
             }
         }
     }
-
-    fun isServiceConnected(): Boolean = isConnected
+        fun isServiceConnected(): Boolean = isConnected
 
     fun getLastPingTime(): Long = lastPingTime
 }

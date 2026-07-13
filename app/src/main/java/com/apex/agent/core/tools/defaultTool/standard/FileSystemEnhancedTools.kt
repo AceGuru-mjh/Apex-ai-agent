@@ -33,7 +33,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
         val environment = tool.parameters.find { it.name == "environment" }?.value
 
         PathValidator.validateAndroidPath(path, tool.name)?.let { return it }
-
         if (path.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -42,12 +41,10 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         return try {
             withContext(Dispatchers.IO) {
                 val directory = File(path)
-
-                if (!directory.exists()) {
+        if (!directory.exists()) {
                     return@withContext ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -55,8 +52,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                         error = "Directory does not exist: ${path}"
                     )
                 }
-
-                if (!directory.isDirectory) {
+        if (!directory.isDirectory) {
                     return@withContext ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -64,10 +60,9 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                         error = "Path is not a directory: ${path}"
                     )
                 }
-
-                val results = mutableListOf<JSONObject>()
+        val results = mutableListOf<JSONObject>()
         val fileRegex = Regex(filePattern.replace("*", ".*"))
-                val contentRegex = if (contentPattern.isNotEmpty()) {
+        val contentRegex = if (contentPattern.isNotEmpty()) {
                     if (ignoreCase) {
                         Regex(contentPattern, RegexOption.IGNORE_CASE)
                     } else {
@@ -92,38 +87,34 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                                 if (contentPattern.isNotEmpty() && contentRegex != null) {
                                     try {
                                         val content = file.readText()
-                                        contentMatch = contentRegex.containsMatchIn(content)
+        contentMatch = contentRegex.containsMatchIn(content)
                                     } catch (e: Exception) {
                                         AppLogger.w(TAG, "Error reading file content ${file.name}", e)
-                                        contentMatch = false
+        contentMatch = false
                                     }
                                 }
-                                
-                                if (contentMatch && currentCount < maxResults) {
+        if (contentMatch && currentCount < maxResults) {
                                     results.add(JSONObject().apply {
                                         put("path", file.absolutePath)
-                                        put("name", file.name)
-                                        put("size", file.length())
-                                        put("modified", file.lastModified())
+        put("name", file.name)
+        put("size", file.length())
+        put("modified", file.lastModified())
                                     })
-                                    currentCount++
+        currentCount++
                                 }
                             }
                         }
                     }
                 }
-
-                searchDirectory(directory)
-
-                val resultObject = JSONObject().apply {
+        searchDirectory(directory)
+        val resultObject = JSONObject().apply {
                     put("searchPath", path)
-                    put("searchPattern", filePattern)
-                    put("contentPattern", contentPattern)
-                    put("matches", JSONArray(results))
-                    put("totalMatches", results.size)
+        put("searchPattern", filePattern)
+        put("contentPattern", contentPattern)
+        put("matches", JSONArray(results))
+        put("totalMatches", results.size)
                 }
-
-                ToolResult(
+        ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = StringResultData(resultObject.toString()),
@@ -132,7 +123,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error searching files", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -158,7 +149,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
         } else {
             paths.split(",").map { it.trim() }
         }
-
         if (pathList.isEmpty()) {
             return ToolResult(
                 toolName = tool.name,
@@ -167,7 +157,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Paths parameter is required"
             )
         }
-
         if (operation.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -176,36 +165,33 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Operation parameter is required"
             )
         }
-
         return try {
             withContext(Dispatchers.IO) {
                 val results = mutableListOf<JSONObject>()
-
-                for ((index, srcPath) in pathList.withIndex()) {
+        for ((index, srcPath) in pathList.withIndex()) {
                     val srcFile = File(srcPath)
         val result = JSONObject().apply {
                         put("source", srcPath)
-                        put("success", true)
-                        put("operation", operation)
+        put("success", true)
+        put("operation", operation)
                     }
-
-                    when (operation.lowercase()) {
+        when (operation.lowercase()) {
                         "rename" -> {
                             if (targetPath.isBlank()) {
                                 result.put("success", false)
-                                result.put("error", "Target path is required for rename")
+        result.put("error", "Target path is required for rename")
                             } else {
                                 val newName = if (newNamePattern.contains("{i}")) {
                                     newNamePattern.replace("{i}", "${index + 1}")
                                 } else {
                                     srcFile.name
                                 }
-                                val destFile = File(targetPath, newName)
-                                if (srcFile.renameTo(destFile)) {
+        val destFile = File(targetPath, newName)
+        if (srcFile.renameTo(destFile)) {
                                     result.put("target", destFile.absolutePath)
                                 } else {
                                     result.put("success", false)
-                                    result.put("error", "Rename failed")
+        result.put("error", "Rename failed")
                                 }
                             }
                         }
@@ -213,16 +199,16 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                         "move" -> {
                             if (targetPath.isBlank()) {
                                 result.put("success", false)
-                                result.put("error", "Target path is required for move")
+        result.put("error", "Target path is required for move")
                             } else {
                                 val destDir = File(targetPath)
-                                destDir.mkdirs()
-                                val destFile = File(destDir, srcFile.name)
-                                if (srcFile.renameTo(destFile)) {
+        destDir.mkdirs()
+        val destFile = File(destDir, srcFile.name)
+        if (srcFile.renameTo(destFile)) {
                                     result.put("target", destFile.absolutePath)
                                 } else {
                                     result.put("success", false)
-                                    result.put("error", "Move failed")
+        result.put("error", "Move failed")
                                 }
                             }
                         }
@@ -230,13 +216,13 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                         "copy" -> {
                             if (targetPath.isBlank()) {
                                 result.put("success", false)
-                                result.put("error", "Target path is required for copy")
+        result.put("error", "Target path is required for copy")
                             } else {
                                 val destDir = File(targetPath)
-                                destDir.mkdirs()
-                                val destFile = File(destDir, srcFile.name)
-                                srcFile.copyTo(destFile, overwrite = true)
-                                result.put("target", destFile.absolutePath)
+        destDir.mkdirs()
+        val destFile = File(destDir, srcFile.name)
+        srcFile.copyTo(destFile, overwrite = true)
+        result.put("target", destFile.absolutePath)
                             }
                         }
 
@@ -245,27 +231,23 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                                 result.put("deleted", true)
                             } else {
                                 result.put("success", false)
-                                result.put("error", "Delete failed")
+        result.put("error", "Delete failed")
                             }
                         }
-
-                        else -> {
+        else -> {
                             result.put("success", false)
-                            result.put("error", "Unknown operation: ${operation}")
+        result.put("error", "Unknown operation: ${operation}")
                         }
                     }
-
-                    results.add(result)
+        results.add(result)
                 }
-
-                val resultObject = JSONObject().apply {
+        val resultObject = JSONObject().apply {
                     put("operation", operation)
-                    put("totalFiles", pathList.size)
-                    put("results", JSONArray(results))
-                    put("successfulOperations", results.count { it.optBoolean("success") })
+        put("totalFiles", pathList.size)
+        put("results", JSONArray(results))
+        put("successfulOperations", results.count { it.optBoolean("success") })
                 }
-
-                ToolResult(
+        ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = StringResultData(resultObject.toString()),
@@ -274,7 +256,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error performing batch operation", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -300,7 +282,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
         } else {
             paths.split(",").map { it.trim() }
         }
-
         if (pathList.isEmpty()) {
             return ToolResult(
                 toolName = tool.name,
@@ -309,7 +290,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Paths parameter is required"
             )
         }
-
         if (outputPath.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -318,41 +298,37 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Output path parameter is required"
             )
         }
-
         return try {
             withContext(Dispatchers.IO) {
                 val outputFile = File(outputPath)
-                var originalSize = 0L
+        var originalSize = 0L
                 var filesProcessed = 0
 
                 if (format.lowercase() == "zip") {
                     ZipOutputStream(FileOutputStream(outputFile)).use { zipOut ->
                         for (srcPath in pathList) {
                             val srcFile = File(srcPath)
-                            if (srcFile.exists()) {
+        if (srcFile.exists()) {
                                 addFileToZip(zipOut, srcFile, "")
-                                originalSize += srcFile.length()
-                                filesProcessed++
+        originalSize += srcFile.length()
+        filesProcessed++
                             }
                         }
                     }
-
-                    val compressedSize = outputFile.length()
+        val compressedSize = outputFile.length()
         val compressionRatio = if (originalSize > 0) {
                         "%.1f%%".format(100 - (compressedSize * 100) / originalSize)
                     } else "0%"
-
-                    val resultObject = JSONObject().apply {
+        val resultObject = JSONObject().apply {
                         put("outputPath", outputPath)
-                        put("format", format)
-                        put("filesProcessed", filesProcessed)
-                        put("originalSize", originalSize)
-                        put("compressedSize", compressedSize)
-                        put("compressionRatio", compressionRatio)
-                        put("success", true)
+        put("format", format)
+        put("filesProcessed", filesProcessed)
+        put("originalSize", originalSize)
+        put("compressedSize", compressedSize)
+        put("compressionRatio", compressionRatio)
+        put("success", true)
                     }
-
-                    ToolResult(
+        ToolResult(
                         toolName = tool.name,
                         success = true,
                         result = StringResultData(resultObject.toString()),
@@ -369,7 +345,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error compressing files", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -377,26 +353,24 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             )
         }
     }
-
-    private fun addFileToZip(zipOut: ZipOutputStream, file: File, path: String) {
+        private fun addFileToZip(zipOut: ZipOutputStream, file: File, path: String) {
         if (file.isDirectory) {
             val dirPath = if (path.isBlank()) file.name + "/" else "${path}${file.name}/"
         val entry = ZipEntry(dirPath)
-            zipOut.putNextEntry(entry)
-            zipOut.closeEntry()
-
-            file.listFiles()?.forEach { child ->
+        zipOut.putNextEntry(entry)
+        zipOut.closeEntry()
+        file.listFiles()?.forEach { child ->
                 addFileToZip(zipOut, child, dirPath)
             }
         } else {
             val filePath = if (path.isBlank()) file.name else "${path}${file.name}"
         val entry = ZipEntry(filePath)
-            entry.time = file.lastModified()
-            zipOut.putNextEntry(entry)
-            FileInputStream(file).use { fis ->
+        entry.time = file.lastModified()
+        zipOut.putNextEntry(entry)
+        FileInputStream(file).use { fis ->
                 fis.copyTo(zipOut)
             }
-            zipOut.closeEntry()
+        zipOut.closeEntry()
         }
     }
 
@@ -415,11 +389,10 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Zip path parameter is required"
             )
         }
-
         return try {
             withContext(Dispatchers.IO) {
                 val zipFile = File(zipPath)
-                if (!zipFile.exists()) {
+        if (!zipFile.exists()) {
                     return@withContext ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -427,43 +400,38 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                         error = "Zip file does not exist: ${zipPath}"
                     )
                 }
-
-                val extractDir = if (extractPath.isBlank()) {
+        val extractDir = if (extractPath.isBlank()) {
                     File(zipFile.parent, zipFile.nameWithoutExtension)
                 } else {
                     File(extractPath)
                 }
-                extractDir.mkdirs()
-
-                val extractedFiles = mutableListOf<String>()
-
-                ZipInputStream(FileInputStream(zipFile)).use { zipIn ->
+        extractDir.mkdirs()
+        val extractedFiles = mutableListOf<String>()
+        ZipInputStream(FileInputStream(zipFile)).use { zipIn ->
                     var entry: ZipEntry?
                     while (zipIn.nextEntry.also { entry = it }) != null {
                         entry?.let { zipEntry ->
                             val destFile = File(extractDir, zipEntry.name)
-                            if (zipEntry.isDirectory) {
+        if (zipEntry.isDirectory) {
                                 destFile.mkdirs()
                             } else {
                                 destFile.parentFile?.mkdirs()
-                                FileOutputStream(destFile).use { fos ->
+        FileOutputStream(destFile).use { fos ->
                                     zipIn.copyTo(fos)
                                 }
-                                extractedFiles.add(destFile.absolutePath)
+        extractedFiles.add(destFile.absolutePath)
                             }
-                            zipIn.closeEntry()
+        zipIn.closeEntry()
                         }
                     }
                 }
-
-                val resultObject = JSONObject().apply {
+        val resultObject = JSONObject().apply {
                     put("extractPath", extractDir.absolutePath)
-                    put("format", format)
-                    put("extractedFiles", JSONArray(extractedFiles))
-                    put("totalExtracted", extractedFiles.size)
+        put("format", format)
+        put("extractedFiles", JSONArray(extractedFiles))
+        put("totalExtracted", extractedFiles.size)
                 }
-
-                ToolResult(
+        ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = StringResultData(resultObject.toString()),
@@ -472,7 +440,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error extracting files", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -496,7 +464,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Source path parameter is required"
             )
         }
-
         if (targetPath.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -505,12 +472,11 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Target path parameter is required"
             )
         }
-
         return try {
             withContext(Dispatchers.IO) {
                 val sourceDir = File(sourcePath)
         val targetDir = File(targetPath)
-                if (!sourceDir.isDirectory) {
+        if (!sourceDir.isDirectory) {
                     return@withContext ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -518,63 +484,57 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                         error = "Source path is not a directory"
                     )
                 }
-
-                targetDir.mkdirs()
-
-                val copiedFiles = mutableListOf<String>()
+        targetDir.mkdirs()
+        val copiedFiles = mutableListOf<String>()
         val deletedFiles = mutableListOf<String>()
-                val skippedFiles = mutableListOf<String>()
+        val skippedFiles = mutableListOf<String>()
         val existingInTarget = mutableSetOf<String>()
-                targetDir.listFiles()?.forEach { f ->
+        targetDir.listFiles()?.forEach { f ->
                     existingInTarget.add(f.relativeTo(targetDir).path)
                 }
-
-                fun copyFile(srcFile: File, relativePath: String = "") {
+        fun copyFile(srcFile: File, relativePath: String = "") {
                     if (srcFile.isDirectory) {
                         val destDir = File(targetDir, relativePath)
-                        destDir.mkdirs()
-                        srcFile.listFiles()?.forEach { child ->
+        destDir.mkdirs()
+        srcFile.listFiles()?.forEach { child ->
                             val newRelativePath = if (relativePath.isBlank()) {
                                 child.name
                             } else {
                                 "${relativePath}/${child.name}"
                             }
-                            copyFile(child, newRelativePath)
+        copyFile(child, newRelativePath)
                         }
                     } else {
                         val destFile = File(targetDir, relativePath)
-                        if (!destFile.exists()) {
+        if (!destFile.exists()) {
                             if (srcFile.lastModified() > destFile.lastModified() || srcFile.length() != destFile.length()) {
                                 srcFile.copyTo(destFile, overwrite = true)
-                                copiedFiles.add(relativePath)
+        copiedFiles.add(relativePath)
                             } else {
                                 skippedFiles.add(relativePath)
                             }
                         } else {
                             srcFile.copyTo(destFile)
-                            copiedFiles.add(relativePath)
+        copiedFiles.add(relativePath)
                         }
                     }
                 }
-
-                sourceDir.listFiles()?.forEach { srcFile ->
+        sourceDir.listFiles()?.forEach { srcFile ->
                     copyFile(srcFile, srcFile.name)
                 }
-
-                if (mode == "mirror") {
+        if (mode == "mirror") {
                     val sourceFiles = mutableSetOf<String>()
-                    fun collectSourceFiles(dir: File, prefix: String = "") {
+        fun collectSourceFiles(dir: File, prefix: String = "") {
                         dir.listFiles()?.forEach { f ->
                             val relPath = if (prefix.isBlank()) f.name else "${prefix}/${f.name}"
-                            sourceFiles.add(relPath)
-                            if (f.isDirectory) {
+        sourceFiles.add(relPath)
+        if (f.isDirectory) {
                                 collectSourceFiles(f, relPath)
                             }
                         }
                     }
-                    collectSourceFiles(sourceDir)
-
-                    targetDir.listFiles()?.forEach { f ->
+        collectSourceFiles(sourceDir)
+        targetDir.listFiles()?.forEach { f ->
                         val relPath = f.relativeTo(targetDir).path
                         if (!sourceFiles.contains(relPath)) {
                             if (f.deleteRecursively()) {
@@ -583,19 +543,17 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                         }
                     }
                 }
-
-                val resultObject = JSONObject().apply {
+        val resultObject = JSONObject().apply {
                     put("sourcePath", sourceDir.absolutePath)
-                    put("targetPath", targetDir.absolutePath)
-                    put("copiedFiles", JSONArray(copiedFiles))
-                    put("deletedFiles", JSONArray(deletedFiles))
-                    put("skippedFiles", JSONArray(skippedFiles))
-                    put("copiedCount", copiedFiles.size)
-                    put("deletedCount", deletedFiles.size)
-                    put("skippedCount", skippedFiles.size)
+        put("targetPath", targetDir.absolutePath)
+        put("copiedFiles", JSONArray(copiedFiles))
+        put("deletedFiles", JSONArray(deletedFiles))
+        put("skippedFiles", JSONArray(skippedFiles))
+        put("copiedCount", copiedFiles.size)
+        put("deletedCount", deletedFiles.size)
+        put("skippedCount", skippedFiles.size)
                 }
-
-                ToolResult(
+        ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = StringResultData(resultObject.toString()),
@@ -604,7 +562,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error syncing directories", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),
@@ -628,7 +586,6 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Path parameter is required"
             )
         }
-
         if (operation.isBlank()) {
             return ToolResult(
                 toolName = tool.name,
@@ -637,46 +594,45 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                 error = "Operation parameter is required"
             )
         }
-
         return try {
             withContext(Dispatchers.IO) {
                 val resultObject = JSONObject().apply {
                     put("path", path)
-                    put("operation", operation)
-                    when (operation.lowercase()) {
+        put("operation", operation)
+        when (operation.lowercase()) {
                         "status" -> {
                             put("status", "clean")
-                            put("branch", "main")
-                            put("modifiedFiles", JSONArray())
-                            put("stagedFiles", JSONArray())
+        put("branch", "main")
+        put("modifiedFiles", JSONArray())
+        put("stagedFiles", JSONArray())
                         }
                         "commit" -> {
                             put("commitMessage", params)
-                            put("success", true)
-                            put("commitHash", "abcd12345678")
+        put("success", true)
+        put("commitHash", "abcd12345678")
                         }
                         "push" -> {
                             put("remote", "origin")
-                            put("branch", "main")
-                            put("success", true)
+        put("branch", "main")
+        put("success", true)
                         }
                         "pull" -> {
                             put("remote", "origin")
-                            put("branch", "main")
-                            put("success", true)
+        put("branch", "main")
+        put("success", true)
                         }
                         "branch" -> {
                             put("currentBranch", "main")
-                            put("branches", JSONArray().apply {
+        put("branches", JSONArray().apply {
                                 put("main")
-                                put("feature/new-feature")
+        put("feature/new-feature")
                             })
                         }
                         "diff" -> {
                             put("changes", JSONArray().apply {
                                 put(JSONObject().apply {
                                     put("file", "src/main.kt")
-                                    put("type", "modified")
+        put("type", "modified")
                                 })
                             })
                         }
@@ -684,20 +640,19 @@ open class FileSystemEnhancedTools(protected val context: Context) {
                             put("commits", JSONArray().apply {
                                 put(JSONObject().apply {
                                     put("hash", "abcd1234")
-                                    put("message", "Initial commit")
-                                    put("date", "2024-01-01 10:00:00")
-                                    put("author", "User")
+        put("message", "Initial commit")
+        put("date", "2024-01-01 10:00:00")
+        put("author", "User")
                                 })
                             })
                         }
-                        else -> {
+        else -> {
                             put("error", "Unknown operation: ${operation}")
-                            put("success", false)
+        put("success", false)
                         }
                     }
                 }
-
-                ToolResult(
+        ToolResult(
                     toolName = tool.name,
                     success = true,
                     result = StringResultData(resultObject.toString()),
@@ -706,7 +661,7 @@ open class FileSystemEnhancedTools(protected val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error performing git operation", e)
-            ToolResult(
+        ToolResult(
                 toolName = tool.name,
                 success = false,
                 result = StringResultData(""),

@@ -30,12 +30,10 @@ class TaskDispatcher(
             val worker: WorkerRegistry.Worker,
             val agentAssigned: Boolean
         ) : DispatchResult()
-
         data class Failure(
             val task: KanbanTask,
             val reason: String
         ) : DispatchResult()
-
         data class Blocked(
             val task: KanbanTask,
             val blockedBy: List<String>
@@ -47,35 +45,34 @@ class TaskDispatcher(
      */
     suspend fun dispatchTask(task: KanbanTask): DispatchResult = withContext(Dispatchers.IO) {
         // 检查是否有未完成的依赖
-    val blockedBy = task.dependencies.filter { depId ->
+        val blockedBy = task.dependencies.filter { depId ->
         val depTask = board.getTask(depId)
-            depTask?.status != KanbanTaskStatus.COMPLETED
+        depTask?.status != KanbanTaskStatus.COMPLETED
         }
-
         if (blockedBy.isNotEmpty()) {
             AppLogger.d(TAG, "Task ${task.id} is blocked by ${blockedBy}")
-            return@withContext DispatchResult.Blocked(task, blockedBy)
+        return@withContext DispatchResult.Blocked(task, blockedBy)
         }
 
         // 检查列条件
-    val column = board.getColumn(task.columnId)
+        val column = board.getColumn(task.columnId)
         if (column != null && !column.canEnter(task)) {
             return@withContext DispatchResult.Failure(task, "Task does not meet column entry conditions")
         }
 
         // 找到最作Worker
-    val worker = workerRegistry.findBestWorker(task, task.assignedRole)
+        val worker = workerRegistry.findBestWorker(task, task.assignedRole)
             ?: return@withContext DispatchResult.Failure(task, "No suitable worker found")
 
         // 尝试分配分Worker
-                if (!worker.canHandle(task)) {
+        if (!worker.canHandle(task)) {
             return@withContext DispatchResult.Failure(task, "Worker ${worker.id} cannot handle task")
         }
 
         // 执行分配
-                try {
+        try {
             // 分配任务
-                task.assignTo(
+        task.assignTo(
                 workerId = worker.id,
                 agentId = null,
                 agentName = null,
@@ -83,24 +80,23 @@ class TaskDispatcher(
             )
 
             // 如果协作框架存在，尝试分配Agent
-                var agentAssigned = false
+        var agentAssigned = false
             if (collaborationFramework != null) {
                 agentAssigned = tryAssignAgent(task, worker)
             }
 
             // 移动任务分进行为列（如果配置了自动流转）
-                if (column?.autoProcessEnabled == true) {
+        if (column?.autoProcessEnabled == true) {
                 val nextColumn = findNextColumn(column)
-                if (nextColumn != null) {
+        if (nextColumn != null) {
                     board.moveTask(task.id, nextColumn.id)
                 }
             }
-
-            AppLogger.d(TAG, "Dispatched task ${task.id} to worker ${worker.name}")
-            DispatchResult.Success(task, worker, agentAssigned)
+        AppLogger.d(TAG, "Dispatched task ${task.id} to worker ${worker.name}")
+        DispatchResult.Success(task, worker, agentAssigned)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to dispatch task ${task.id}", e)
-            DispatchResult.Failure(task, "Dispatch error: ${e.message}")
+        DispatchResult.Failure(task, "Dispatch error: ${e.message}")
         }
     }
 
@@ -123,12 +119,12 @@ class TaskDispatcher(
             )
 
         // 如果任务被阻塞，先解限
-                if (task.status == KanbanTaskStatus.BLOCKED) {
+        if (task.status == KanbanTaskStatus.BLOCKED) {
             task.unblock()
         }
 
         // 重置为待处理
-                task.status = KanbanTaskStatus.PENDING
+        task.status = KanbanTaskStatus.PENDING
         task.result = null
 
         return dispatchTask(task)
@@ -139,11 +135,11 @@ class TaskDispatcher(
      */
     suspend fun autoRouteTask(task: KanbanTask): Boolean = withContext(Dispatchers.IO) {
         // 根据任务属性自动选择分
-    val targetColumn = selectColumnForTask(task)
+        val targetColumn = selectColumnForTask(task)
         if (targetColumn != null && targetColumn.id != task.columnId) {
             board.moveTask(task.id, targetColumn.id)
-            AppLogger.d(TAG, "Auto-routed task ${task.id} to column ${targetColumn.name}")
-            true
+        AppLogger.d(TAG, "Auto-routed task ${task.id} to column ${targetColumn.name}")
+        true
         } else {
             false
         }
@@ -154,7 +150,7 @@ class TaskDispatcher(
      */
     private fun selectColumnForTask(task: KanbanTask): KanbanColumn? {
         // 简单实现：基于标签或类型选择
-    val typeColumnMap = mapOf(
+        val typeColumnMap = mapOf(
             "design" to "设计",
             "development" to "开取",
             "testing" to "测试",
@@ -162,7 +158,6 @@ class TaskDispatcher(
             "analysis" to "需求",
             "research" to "需求"
         )
-
         val typeKey = typeColumnMap.entries.find { (key, _) ->
             task.taskType.contains(key, ignoreCase = true) ||
                     task.tags.any { it.contains(key, ignoreCase = true) }
@@ -186,9 +181,8 @@ class TaskDispatcher(
             task.assignedAgentId = agent.id
             task.assignedAgentName = agent.name
             collaborationFramework.assignTask(task.id, agent.id)
-            return true
+        return true
         }
-
         return false
     }
 
@@ -206,16 +200,14 @@ class TaskDispatcher(
      */
     suspend fun checkAndUnblockTasks() = withContext(Dispatchers.IO) {
         val blockedTasks = board.getTasksByStatus(KanbanTaskStatus.BLOCKED)
-
         blockedTasks.forEach { task ->
             val stillBlocked = task.dependencies.filter { depId ->
         val depTask = board.getTask(depId)
-                depTask?.status != KanbanTaskStatus.COMPLETED
+        depTask?.status != KanbanTaskStatus.COMPLETED
             }
-
-            if (stillBlocked.isEmpty()) {
+        if (stillBlocked.isEmpty()) {
                 task.unblock()
-                AppLogger.d(TAG, "Task ${task.id} is now unblocked")
+        AppLogger.d(TAG, "Task ${task.id} is now unblocked")
             }
         }
     }
@@ -230,7 +222,6 @@ class TaskDispatcher(
         val completed = allTasks.count { it.status == KanbanTaskStatus.COMPLETED }
         val failed = allTasks.count { it.status == KanbanTaskStatus.FAILED }
         val blocked = allTasks.count { it.status == KanbanTaskStatus.BLOCKED }
-
         return DispatchStatistics(
             totalTasks = allTasks.size,
             pending = pending,
@@ -243,8 +234,7 @@ class TaskDispatcher(
             } else 0f
         )
     }
-
-    data class DispatchStatistics(
+        data class DispatchStatistics(
         val totalTasks: Int,
         val pending: Int,
         val inProgress: Int,

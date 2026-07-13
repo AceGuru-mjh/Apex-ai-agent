@@ -35,16 +35,15 @@ fun MainNavigation(
     var currentTab by remember { mutableStateOf(NavTab.TERMINAL) }
 
     // 终端状态(mock,实际接入真实状态)
-                var terminalLines by remember { mutableStateOf(listOf(TerminalLine("Apex Terminal v2.4.0 — Deep Sea Aurora", TerminalLineKind.SYSTEM))) }
-    var inputText by remember { mutableStateOf("") }
-    val terminalForm = AuraMascot.AuraForm.IDLE
+        var terminalLines by remember { mutableStateOf(listOf(TerminalLine("Apex Terminal v2.4.0 — Deep Sea Aurora", TerminalLineKind.SYSTEM))) }
+        var inputText by remember { mutableStateOf("") }
+        val terminalForm = AuraMascot.AuraForm.IDLE
 
     // 狂暴模式状态(mock)
-                var kernelState by remember { mutableStateOf(KernelState.STOPPED) }
-    val loadedSkills = remember { mutableStateOf(listOf("ReAct", "ToT", "Racing", "RedBlueAdversarial", "SelfCorrection")) }
+        var kernelState by remember { mutableStateOf(KernelState.STOPPED) }
+        val loadedSkills = remember { mutableStateOf(listOf("ReAct", "ToT", "Racing", "RedBlueAdversarial", "SelfCorrection")) }
         val burstLogs = remember { mutableStateOf(listOf<BurstLogEntry>()) }
-
-    Scaffold(
+        Scaffold(
         modifier = modifier,
         bottomBar = {
             NavigationBar(containerColor = Color(0xFF111827)) {
@@ -66,7 +65,7 @@ fun MainNavigation(
         Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0A0E1A)).padding(padding)) {
             when (currentTab) {
                 NavTab.TERMINAL -> com.apex.agent.presentation.enhancedterminal.ui.EnhancedTerminalScreen()
-                NavTab.BURST -> BurstModeScreen(
+        NavTab.BURST -> BurstModeScreen(
                     kernelState = kernelState,
                     loadedSkills = loadedSkills.value,
                     logs = burstLogs.value,
@@ -81,7 +80,7 @@ fun MainNavigation(
                         burstLogs.value = burstLogs.value + BurstLogEntry(java.text.SimpleDateFormat("HH:mm:ss").format(java.util.Date()), com.apex.agent.kernel.burst.ui.BurstLogLevel.BERSERK, "🔥 进入狂暴模式!")
                     },
                 )
-                NavTab.MULTI_AGENT -> MultiAgentScreen(state = multiAgentState)
+        NavTab.MULTI_AGENT -> MultiAgentScreen(state = multiAgentState)
             }
         }
     }

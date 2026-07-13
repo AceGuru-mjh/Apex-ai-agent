@@ -17,30 +17,25 @@ class AgentVisualizationManager(private val context: Context) {
         private const val MAX_LOG_ENTRIES = 1000
         private const val PERFORMANCE_SAMPLE_SIZE = 100
     }
-
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val gson = Gson()
-
-    private val topologyView = TopologyView()
-    private val performanceMonitor = PerformanceMonitor()
-    private val behaviorLogger = BehaviorLogger()
-    private val workflowEditor = WorkflowEditor()
-
-    private val _visualizationState = MutableStateFlow(VisualizationState())
+        private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        private val gson = Gson()
+        private val topologyView = TopologyView()
+        private val performanceMonitor = PerformanceMonitor()
+        private val behaviorLogger = BehaviorLogger()
+        private val workflowEditor = WorkflowEditor()
+        private val _visualizationState = MutableStateFlow(VisualizationState())
         val visualizationState: StateFlow<VisualizationState> = _visualizationState
 
     init {
         initializeVisualization()
     }
-
-    data class VisualizationState(
+        data class VisualizationState(
         val topology: TopologySnapshot? = null,
         val performance: PerformanceMetrics? = null,
         val activeWorkflows: List<WorkflowSnapshot> = emptyList(),
         val selectedAgent: String? = null
     )
-
-    data class TopologySnapshot(
+        data class TopologySnapshot(
         val nodes: List<NodeView>,
         val edges: List<EdgeView>,
         val clusters: List<ClusterView>
@@ -55,14 +50,12 @@ class AgentVisualizationManager(private val context: Context) {
             val health: Float,
             val load: Float
         )
-
         data class EdgeView(
             val from: String,
             val to: String,
             val weight: Float,
             val type: String
         )
-
         data class ClusterView(
             val clusterId: String,
             val nodeIds: List<String>,
@@ -70,8 +63,7 @@ class AgentVisualizationManager(private val context: Context) {
             val centerY: Float
         )
     }
-
-    data class PerformanceMetrics(
+        data class PerformanceMetrics(
         val cpuUsage: Float,
         val memoryUsage: Float,
         val networkLatency: Float,
@@ -87,16 +79,14 @@ class AgentVisualizationManager(private val context: Context) {
             val successRate: Float
         )
     }
-
-    data class WorkflowSnapshot(
+        data class WorkflowSnapshot(
         val workflowId: String,
         val name: String,
         val nodes: List<WorkflowNode>,
         val edges: List<WorkflowEdge>,
         val currentStep: Int
     )
-
-    data class WorkflowNode(
+        data class WorkflowNode(
         val nodeId: String,
         val type: String,
         val label: String,
@@ -106,14 +96,12 @@ class AgentVisualizationManager(private val context: Context) {
     ) {
         enum class NodeStatus { PENDING, RUNNING, COMPLETED, FAILED }
     }
-
-    data class WorkflowEdge(
+        data class WorkflowEdge(
         val from: String,
         val to: String,
         val label: String?
     )
-
-    fun updateTopology(topology: DynamicTopologyManager.NetworkTopology) {
+        fun updateTopology(topology: DynamicTopologyManager.NetworkTopology) {
         val nodes = topology.nodes.values.map { agent ->
             TopologySnapshot.NodeView(
                 agentId = agent.agentId,
@@ -126,7 +114,6 @@ class AgentVisualizationManager(private val context: Context) {
                 load = agent.load
             )
         }
-
         val edges = topology.edges.flatMap { (sourceId, edges) ->
             edges.filter { it.sourceId == sourceId }.map { edge ->
                 TopologySnapshot.EdgeView(
@@ -137,44 +124,36 @@ class AgentVisualizationManager(private val context: Context) {
                 )
             }
         }
-
         val clusters = topology.clusters.mapIndexed { index, cluster ->
         val centerX = cluster.map { nodeId ->
                 nodes.find { it.agentId == nodeId }?.x ?: 0f
             }.average().toFloat()
-            val centerY = cluster.map { nodeId ->
+        val centerY = cluster.map { nodeId ->
                 nodes.find { it.agentId == nodeId }?.y ?: 0f
             }.average().toFloat()
-
-            TopologySnapshot.ClusterView(
+        TopologySnapshot.ClusterView(
                 clusterId = "cluster_${index}",
                 nodeIds = cluster.toList(),
                 centerX = centerX,
                 centerY = centerY
             )
         }
-
         topologyView.updateSnapshot(TopologySnapshot(nodes, edges, clusters))
-
         _visualizationState.value = _visualizationState.value.copy(topology = topologyView.getSnapshot())
     }
-
-    private fun calculateNodeX(agentId: String, topology: DynamicTopologyManager.NetworkTopology): Float {
+        private fun calculateNodeX(agentId: String, topology: DynamicTopologyManager.NetworkTopology): Float {
         val hash = agentId.hashCode()
         return ((hash % 800) + 400).toFloat()
     }
-
-    private fun calculateNodeY(agentId: String, topology: DynamicTopologyManager.NetworkTopology): Float {
+        private fun calculateNodeY(agentId: String, topology: DynamicTopologyManager.NetworkTopology): Float {
         val hash = agentId.hashCode()
         return ((hash / 800 % 600) + 300).toFloat()
     }
-
-    fun recordAgentAction(agentId: String, action: AgentAction) {
+        fun recordAgentAction(agentId: String, action: AgentAction) {
         behaviorLogger.logAction(agentId, action)
         performanceMonitor.recordAction(agentId, action)
     }
-
-    data class AgentAction(
+        data class AgentAction(
         val actionType: ActionType,
         val description: String,
         val timestamp: Long,
@@ -185,52 +164,42 @@ class AgentVisualizationManager(private val context: Context) {
             STATE_CHANGED, COLLABORATION_STARTED, COLLABORATION_ENDED, ERROR_OCCURRED
         }
     }
-
-    fun createWorkflow(name: String, initialNodes: List<WorkflowNode>): String {
+        fun createWorkflow(name: String, initialNodes: List<WorkflowNode>): String {
         val workflowId = workflowEditor.createWorkflow(name, initialNodes)
         updateVisualizationState()
         return workflowId
     }
-
-    fun addWorkflowNode(workflowId: String, node: WorkflowNode) {
+        fun addWorkflowNode(workflowId: String, node: WorkflowNode) {
         workflowEditor.addNode(workflowId, node)
         updateVisualizationState()
     }
-
-    fun removeWorkflowNode(workflowId: String, nodeId: String) {
+        fun removeWorkflowNode(workflowId: String, nodeId: String) {
         workflowEditor.removeNode(workflowId, nodeId)
         updateVisualizationState()
     }
-
-    fun connectWorkflowNodes(workflowId: String, from: String, to: String, label: String? = null) {
+        fun connectWorkflowNodes(workflowId: String, from: String, to: String, label: String? = null) {
         workflowEditor.connect(workflowId, from, to, label)
         updateVisualizationState()
     }
-
-    fun updateWorkflowNodePosition(workflowId: String, nodeId: String, x: Float, y: Float) {
+        fun updateWorkflowNodePosition(workflowId: String, nodeId: String, x: Float, y: Float) {
         workflowEditor.updatePosition(workflowId, nodeId, x, y)
         updateVisualizationState()
     }
-
-    fun executeWorkflow(workflowId: String): Boolean {
+        fun executeWorkflow(workflowId: String): Boolean {
         return workflowEditor.execute(workflowId)
     }
-
-    fun pauseWorkflow(workflowId: String) {
+        fun pauseWorkflow(workflowId: String) {
         workflowEditor.pause(workflowId)
         updateVisualizationState()
     }
-
-    fun resumeWorkflow(workflowId: String) {
+        fun resumeWorkflow(workflowId: String) {
         workflowEditor.resume(workflowId)
         updateVisualizationState()
     }
-
-    fun getPerformanceReport(): PerformanceReport {
+        fun getPerformanceReport(): PerformanceReport {
         return performanceMonitor.generateReport()
     }
-
-    data class PerformanceReport(
+        data class PerformanceReport(
         val overallMetrics: PerformanceMetrics,
         val agentBreakdown: Map<String, PerformanceMetrics.AgentPerformance>,
         val bottlenecks: List<PerformanceBottleneck>,
@@ -245,12 +214,10 @@ class AgentVisualizationManager(private val context: Context) {
             enum class Severity { LOW, MEDIUM, HIGH, CRITICAL }
         }
     }
-
-    fun getAgentBehaviorTimeline(agentId: String, startTime: Long, endTime: Long): List<TimelineEvent> {
+        fun getAgentBehaviorTimeline(agentId: String, startTime: Long, endTime: Long): List<TimelineEvent> {
         return behaviorLogger.getTimeline(agentId, startTime, endTime)
     }
-
-    data class TimelineEvent(
+        data class TimelineEvent(
         val eventId: String,
         val agentId: String,
         val action: AgentAction.ActionType,
@@ -259,16 +226,14 @@ class AgentVisualizationManager(private val context: Context) {
         val duration: Long? = null,
         val success: Boolean? = null
     )
-
-    fun exportVisualizationData(): String {
+        fun exportVisualizationData(): String {
         return gson.toJson(mapOf(
             "topology" to topologyView.getSnapshot(),
             "performance" to performanceMonitor.getCurrentMetrics(),
             "workflows" to workflowEditor.getAllWorkflows()
         ))
     }
-
-    private fun updateVisualizationState() {
+        private fun updateVisualizationState() {
         _visualizationState.value = VisualizationState(
             topology = topologyView.getSnapshot(),
             performance = performanceMonitor.getCurrentMetrics(),
@@ -276,12 +241,10 @@ class AgentVisualizationManager(private val context: Context) {
             selectedAgent = _visualizationState.value.selectedAgent
         )
     }
-
-    private fun initializeVisualization() {
+        private fun initializeVisualization() {
         updateVisualizationState()
     }
-
-    fun shutdown() {
+        fun shutdown() {
         scope.cancel()
     }
 }
@@ -292,25 +255,21 @@ class TopologyView {
     fun updateSnapshot(snapshot: AgentVisualizationManager.TopologySnapshot) {
         currentSnapshot = snapshot
     }
-
-    fun getSnapshot(): AgentVisualizationManager.TopologySnapshot? = currentSnapshot
+        fun getSnapshot(): AgentVisualizationManager.TopologySnapshot? = currentSnapshot
 
     fun animateTransition(targetSnapshot: AgentVisualizationManager.TopologySnapshot, duration: Long) {
         Thread.sleep(duration)
     }
-
-    fun highlightPath(agentId1: String, agentId2: String): List<String> {
+        fun highlightPath(agentId1: String, agentId2: String): List<String> {
         return listOf(agentId1, agentId2)
     }
-
-    fun filterNodes(criteria: FilterCriteria): List<String> {
+        fun filterNodes(criteria: FilterCriteria): List<String> {
         return currentSnapshot?.nodes
             ?.filter { criteria.matches(it) }
             ?.map { it.agentId }
             ?: emptyList()
     }
-
-    data class FilterCriteria(
+        data class FilterCriteria(
         val role: String? = null,
         val status: String? = null,
         val minHealth: Float? = null,
@@ -328,37 +287,31 @@ class TopologyView {
 class PerformanceMonitor {
 
     private val metricsHistory = ConcurrentHashMap<String, MutableList<MetricSample>>()
-    private val currentMetrics = MutableStateFlow<AgentVisualizationManager.PerformanceMetrics?>(null)
-
-    data class MetricSample(
+        private val currentMetrics = MutableStateFlow<AgentVisualizationManager.PerformanceMetrics?>(null)
+        data class MetricSample(
         val timestamp: Long,
         val metric: String,
         val value: Float,
         val agentId: String? = null
     )
-
-    fun recordAction(agentId: String, action: AgentVisualizationManager.AgentAction) {
+        fun recordAction(agentId: String, action: AgentVisualizationManager.AgentAction) {
         val sample = MetricSample(
             timestamp = action.timestamp,
             metric = action.actionType.name,
             value = 1.0f,
             agentId = agentId
         )
-
         metricsHistory.getOrPut(agentId) { mutableListOf() }.add(sample)
-
         if (metricsHistory\.getValue(agentId).size > AgentVisualizationManager.PERFORMANCE_SAMPLE_SIZE) {
             metricsHistory\.getValue(agentId).removeAt(0)
         }
     }
-
-    fun generateReport(): AgentVisualizationManager.PerformanceReport {
+        fun generateReport(): AgentVisualizationManager.PerformanceReport {
         val agentMetrics = metricsHistory.mapValues { (agentId, samples) ->
         val completed = samples.count { it.metric == "TASK_COMPLETED" }
-            val inProgress = samples.count { it.metric == "TASK_STARTED" } - completed
+        val inProgress = samples.count { it.metric == "TASK_STARTED" } - completed
         val avgResponse = samples.filter { it.metric == "TASK_COMPLETED" }.size.toFloat()
-
-            AgentVisualizationManager.PerformanceMetrics.AgentPerformance(
+        AgentVisualizationManager.PerformanceMetrics.AgentPerformance(
                 agentId = agentId,
                 tasksCompleted = completed,
                 tasksInProgress = inProgress,
@@ -366,9 +319,7 @@ class PerformanceMonitor {
                 successRate = if (completed > 0) completed.toFloat() / (completed + samples.count { it.metric == "TASK_FAILED" }) else 0f
             )
         }
-
         val bottlenecks = identifyBottlenecks(agentMetrics)
-
         return AgentVisualizationManager.PerformanceReport(
             overallMetrics = currentMetrics.value ?: AgentVisualizationManager.PerformanceMetrics(0f, 0f, 0f, 0f, 0f, agentMetrics),
             agentBreakdown = agentMetrics,
@@ -376,10 +327,8 @@ class PerformanceMonitor {
             recommendations = generateRecommendations(bottlenecks)
         )
     }
-
-    private fun identifyBottlenecks(metrics: Map<String, AgentVisualizationManager.PerformanceMetrics.AgentPerformance>): List<AgentVisualizationManager.PerformanceReport.PerformanceBottleneck> {
+        private fun identifyBottlenecks(metrics: Map<String, AgentVisualizationManager.PerformanceMetrics.AgentPerformance>): List<AgentVisualizationManager.PerformanceReport.PerformanceBottleneck> {
         val bottlenecks = mutableListOf<AgentVisualizationManager.PerformanceReport.PerformanceBottleneck>()
-
         metrics.forEach { (agentId, perf) ->
             if (perf.avgResponseTime > 5000f) {
                 bottlenecks.add(
@@ -391,8 +340,7 @@ class PerformanceMonitor {
                     )
                 )
             }
-
-            if (perf.tasksInProgress > 10) {
+        if (perf.tasksInProgress > 10) {
                 bottlenecks.add(
                     AgentVisualizationManager.PerformanceReport.PerformanceBottleneck(
                         component = agentId,
@@ -403,24 +351,21 @@ class PerformanceMonitor {
                 )
             }
         }
-
         return bottlenecks
     }
-
-    private fun generateRecommendations(bottlenecks: List<AgentVisualizationManager.PerformanceReport.PerformanceBottleneck>): List<String> {
+        private fun generateRecommendations(bottlenecks: List<AgentVisualizationManager.PerformanceReport.PerformanceBottleneck>): List<String> {
         return bottlenecks.map { bottleneck ->
             when (bottleneck.severity) {
                 AgentVisualizationManager.PerformanceReport.PerformanceBottleneck.Severity.HIGH ->
                     "URGENT: Address ${bottleneck.component} - ${bottleneck.description}"
-                AgentVisualizationManager.PerformanceReport.PerformanceBottleneck.Severity.MEDIUM ->
+        AgentVisualizationManager.PerformanceReport.PerformanceBottleneck.Severity.MEDIUM ->
                     "Consider optimizing ${bottleneck.component}: ${bottleneck.description}"
-                else ->
+        else ->
                     "Monitor ${bottleneck.component}: ${bottleneck.description}"
             }
         }
     }
-
-    fun getCurrentMetrics(): AgentVisualizationManager.PerformanceMetrics? = currentMetrics.value
+        fun getCurrentMetrics(): AgentVisualizationManager.PerformanceMetrics? = currentMetrics.value
 
     fun updateCurrentMetrics(metrics: AgentVisualizationManager.PerformanceMetrics) {
         currentMetrics.value = metrics
@@ -430,8 +375,7 @@ class PerformanceMonitor {
 class BehaviorLogger {
 
     private val logEntries = ConcurrentHashMap<String, MutableList<LogEntry>>()
-
-    data class LogEntry(
+        data class LogEntry(
         val entryId: String,
         val agentId: String,
         val action: AgentVisualizationManager.AgentAction.ActionType,
@@ -439,8 +383,7 @@ class BehaviorLogger {
         val timestamp: Long,
         val metadata: Map<String, Any>
     )
-
-    fun logAction(agentId: String, action: AgentVisualizationManager.AgentAction) {
+        fun logAction(agentId: String, action: AgentVisualizationManager.AgentAction) {
         val entry = LogEntry(
             entryId = UUID.randomUUID().toString(),
             agentId = agentId,
@@ -449,17 +392,13 @@ class BehaviorLogger {
             timestamp = action.timestamp,
             metadata = action.metadata
         )
-
         logEntries.getOrPut(agentId) { mutableListOf() }.add(entry)
-
         if (logEntries\.getValue(agentId).size > AgentVisualizationManager.MAX_LOG_ENTRIES) {
             logEntries\.getValue(agentId).removeAt(0)
         }
     }
-
-    fun getTimeline(agentId: String, startTime: Long, endTime: Long): List<AgentVisualizationManager.TimelineEvent> {
+        fun getTimeline(agentId: String, startTime: Long, endTime: Long): List<AgentVisualizationManager.TimelineEvent> {
         val entries = logEntries[agentId] ?: return emptyList()
-
         return entries
             .filter { it.timestamp in startTime..endTime }
             .map { entry ->
@@ -474,22 +413,18 @@ class BehaviorLogger {
             }
             .sortedBy { it.timestamp }
     }
-
-    fun getRecentActions(agentId: String, limit: Int = 50): List<LogEntry> {
+        fun getRecentActions(agentId: String, limit: Int = 50): List<LogEntry> {
         return logEntries[agentId]?.takeLast(limit) ?: emptyList()
     }
-
-    fun searchLogs(query: String, agentId: String? = null): List<LogEntry> {
+        fun searchLogs(query: String, agentId: String? = null): List<LogEntry> {
         val entries = if (agentId != null) {
             logEntries[agentId] ?: emptyList()
         } else {
             logEntries.values.flatten()
         }
-
         return entries.filter { it.description.contains(query, ignoreCase = true) }
     }
-
-    fun exportLogs(): String {
+        fun exportLogs(): String {
         return Gson().toJson(logEntries.mapValues { it.value.toList() })
     }
 }
@@ -497,8 +432,7 @@ class BehaviorLogger {
 class WorkflowEditor {
 
     private val workflows = ConcurrentHashMap<String, Workflow>()
-
-    data class Workflow(
+        data class Workflow(
         val workflowId: String,
         val name: String,
         val nodes: MutableList<AgentVisualizationManager.WorkflowNode>,
@@ -508,8 +442,7 @@ class WorkflowEditor {
     ) {
         enum class Status { DRAFT, RUNNING, PAUSED, COMPLETED, FAILED }
     }
-
-    fun createWorkflow(name: String, initialNodes: List<AgentVisualizationManager.WorkflowNode>): String {
+        fun createWorkflow(name: String, initialNodes: List<AgentVisualizationManager.WorkflowNode>): String {
         val workflowId = UUID.randomUUID().toString()
         workflows[workflowId] = Workflow(
             workflowId = workflowId,
@@ -519,25 +452,21 @@ class WorkflowEditor {
         )
         return workflowId
     }
-
-    fun addNode(workflowId: String, node: AgentVisualizationManager.WorkflowNode) {
+        fun addNode(workflowId: String, node: AgentVisualizationManager.WorkflowNode) {
         workflows[workflowId]?.nodes?.add(node)
     }
-
-    fun removeNode(workflowId: String, nodeId: String) {
+        fun removeNode(workflowId: String, nodeId: String) {
         workflows[workflowId]?.let { workflow ->
             workflow.nodes.removeAll { it.nodeId == nodeId }
-            workflow.edges.removeAll { it.from == nodeId || it.to == nodeId }
+        workflow.edges.removeAll { it.from == nodeId || it.to == nodeId }
         }
     }
-
-    fun connect(workflowId: String, from: String, to: String, label: String) {
+        fun connect(workflowId: String, from: String, to: String, label: String) {
         workflows[workflowId]?.edges?.add(
             AgentVisualizationManager.WorkflowEdge(from, to, label)
         )
     }
-
-    fun updatePosition(workflowId: String, nodeId: String, x: Float, y: Float) {
+        fun updatePosition(workflowId: String, nodeId: String, x: Float, y: Float) {
         workflows[workflowId]?.nodes?.find { it.nodeId == nodeId }?.let { node ->
             workflows[workflowId]?.nodes?.set(
                 workflows\.getValue(workflowId).nodes.indexOf(node),
@@ -545,24 +474,20 @@ class WorkflowEditor {
             )
         }
     }
-
-    fun execute(workflowId: String): Boolean {
+        fun execute(workflowId: String): Boolean {
         workflows[workflowId]?.let { workflow ->
             workflow.status = Workflow.Status.RUNNING
             return true
         }
         return false
     }
-
-    fun pause(workflowId: String) {
+        fun pause(workflowId: String) {
         workflows[workflowId]?.status = Workflow.Status.PAUSED
     }
-
-    fun resume(workflowId: String) {
+        fun resume(workflowId: String) {
         workflows[workflowId]?.status = Workflow.Status.RUNNING
     }
-
-    fun getActiveWorkflows(): List<AgentVisualizationManager.WorkflowSnapshot> {
+        fun getActiveWorkflows(): List<AgentVisualizationManager.WorkflowSnapshot> {
         return workflows.values
             .filter { it.status == Workflow.Status.RUNNING || it.status == Workflow.Status.PAUSED }
             .map { workflow ->
@@ -575,6 +500,5 @@ class WorkflowEditor {
                 )
             }
     }
-
-    fun getAllWorkflows(): List<Workflow> = workflows.values.toList()
+        fun getAllWorkflows(): List<Workflow> = workflows.values.toList()
 }

@@ -34,7 +34,7 @@ class ScreenCaptureService : Service() {
             val intent = Intent(context, ScreenCaptureService::class.java).apply {
                 action = ACTION_START
             }
-            try {
+        try {
                 context.startService(intent)
             } catch (_: IllegalStateException) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -44,61 +44,52 @@ class ScreenCaptureService : Service() {
                 }
             }
         }
-
         fun stop(context: Context) {
             isMediaProjectionForegroundReady = false
             val intent = Intent(context, ScreenCaptureService::class.java)
-            context.stopService(intent)
+        context.stopService(intent)
         }
     }
-
-    override fun onBind(intent: Intent): IBinder? = null
+        override fun onBind(intent: Intent): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         AppLogger.d(TAG, "ScreenCaptureService created")
         createNotificationChannel()
     }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         AppLogger.d(TAG, "ScreenCaptureService started")
         if (intent?.action == ACTION_START) {
             startForegroundService()
-            return START_NOT_STICKY
+        return START_NOT_STICKY
         }
-
         stopSelf()
         return START_NOT_STICKY
     }
-
-    override fun onDestroy() {
+        override fun onDestroy() {
         super.onDestroy()
         isMediaProjectionForegroundReady = false
         AppLogger.d(TAG, "ScreenCaptureService destroyed")
     }
-
-    private fun startForegroundService() {
+        private fun startForegroundService() {
         try {
             val notification = createNotification()
-            
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val serviceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                 } else {
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                 }
-                startForeground(NOTIFICATION_ID, notification, serviceType)
+        startForeground(NOTIFICATION_ID, notification, serviceType)
             } else {
                 startForeground(NOTIFICATION_ID, notification)
             }
-
-            isMediaProjectionForegroundReady = true
+        isMediaProjectionForegroundReady = true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error starting foreground service", e)
         }
     }
-
-    private fun createNotification(): Notification {
+        private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Screen Capture Active")
             .setContentText("logistra is capturing screen content")
@@ -106,16 +97,15 @@ class ScreenCaptureService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
-
-    private fun createNotificationChannel() {
+        private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 "Screen Capture Service",
                 NotificationManager.IMPORTANCE_LOW
             )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(serviceChannel)
         }
     }
 }

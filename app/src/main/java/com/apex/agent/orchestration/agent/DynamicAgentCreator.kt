@@ -18,8 +18,7 @@ class DynamicAgentCreator @Inject constructor(
         val modelConfig: ModelConfig = ModelConfig(),
         val specialties: List<String> = emptyList()
     )
-
-    fun createAgent(request: AgentCreationRequest): Result<String> {
+        fun createAgent(request: AgentCreationRequest): Result<String> {
         val agent = Agent(
             id = "",
             name = request.name,

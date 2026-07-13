@@ -28,12 +28,11 @@ import javax.crypto.spec.SecretKeySpec
 object CryptoUtils {
 
     private const val AES_ALGORITHM = "AES/CBC/PKCS5Padding"
-    private const val AES_KEY_ALGORITHM = "AES"
-    private const val IV_SIZE = 16
+        private const val AES_KEY_ALGORITHM = "AES"
+        private const val IV_SIZE = 16
     private const val HEX_CHARS = "0123456789abcdef"
-    private const val ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-
-    private val MORSE_CODE = mapOf(
+        private const val ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        private val MORSE_CODE = mapOf(
         'A' to ".-", 'B' to "-...", 'C' to "-.-.", 'D' to "-..", 'E' to ".",
         'F' to "..-.", 'G' to "--.", 'H' to "....", 'I' to "..", 'J' to ".---",
         'K' to "-.-", 'L' to ".-..", 'M' to "--", 'N' to "-.", 'O' to "---",
@@ -43,8 +42,7 @@ object CryptoUtils {
         '0' to "-----", '1' to ".----", '2' to "..---", '3' to "...--", '4' to "....-",
         '5' to ".....", '6' to "-....", '7' to "--...", '8' to "---..", '9' to "----."
     )
-
-    private val MORSE_REVERSE = MORSE_CODE.entries.associate { it.value to it.key }
+        private val MORSE_REVERSE = MORSE_CODE.entries.associate { it.value to it.key }
 
     /**
      * 计算字符串的 SHA-256 哈希值
@@ -194,7 +192,6 @@ object CryptoUtils {
     fun aesEncrypt(plainText: String, secretKey: String): String {
         val keyBytes = MessageDigest.getInstance("SHA-256").digest(secretKey.toByteArray(Charsets.UTF_8))
         val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
-
         val iv = ByteArray(IV_SIZE)
         SecureRandom().nextBytes(iv)
         val ivSpec = IvParameterSpec(iv)
@@ -204,7 +201,6 @@ object CryptoUtils {
         val combined = ByteArray(IV_SIZE + encrypted.size)
         System.arraycopy(iv, 0, combined, 0, IV_SIZE)
         System.arraycopy(encrypted, 0, combined, IV_SIZE, encrypted.size)
-
         return Base64.getEncoder().encodeToString(combined)
     }
 
@@ -218,17 +214,14 @@ object CryptoUtils {
     fun aesDecrypt(cipherText: String, secretKey: String): String {
         val keyBytes = MessageDigest.getInstance("SHA-256").digest(secretKey.toByteArray(Charsets.UTF_8))
         val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
-
         val combined = Base64.getDecoder().decode(cipherText)
         if (combined.size < IV_SIZE) throw IllegalArgumentException("Invalid cipher text")
-
         val iv = combined.copyOfRange(0, IV_SIZE)
         val ivSpec = IvParameterSpec(iv)
         val encrypted = combined.copyOfRange(IV_SIZE, combined.size)
         val cipher = Cipher.getInstance(AES_ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec)
         val decrypted = cipher.doFinal(encrypted)
-
         return String(decrypted, Charsets.UTF_8)
     }
 
@@ -253,7 +246,6 @@ object CryptoUtils {
         System.arraycopy(salt, 0, combined, 0, 16)
         System.arraycopy(iv, 0, combined, 16, IV_SIZE)
         System.arraycopy(encrypted, 0, combined, 16 + IV_SIZE, encrypted.size)
-
         return Base64.getEncoder().encodeToString(combined)
     }
 
@@ -267,18 +259,15 @@ object CryptoUtils {
     fun decryptString(ciphertext: String, password: String): String {
         val combined = Base64.getDecoder().decode(ciphertext)
         if (combined.size < 32) throw IllegalArgumentException("Invalid cipher text")
-
         val salt = combined.copyOfRange(0, 16)
         val iv = combined.copyOfRange(16, 32)
         val ivSpec = IvParameterSpec(iv)
         val encrypted = combined.copyOfRange(32, combined.size)
-
         val keyBytes = MessageDigest.getInstance("SHA-256").digest(salt + password.toByteArray(Charsets.UTF_8))
         val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
         val cipher = Cipher.getInstance(AES_ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec)
         val decrypted = cipher.doFinal(encrypted)
-
         return String(decrypted, Charsets.UTF_8)
     }
 
@@ -357,7 +346,7 @@ object CryptoUtils {
         val result = StringBuilder(length)
         for (i in 0 until length) {
             val index = random.nextInt(ALPHANUMERIC.length)
-            result.append(ALPHANUMERIC[index])
+        result.append(ALPHANUMERIC[index])
         }
         return result.toString()
     }
@@ -412,7 +401,7 @@ object CryptoUtils {
         for (b in bytes) {
             val unsigned = b.toInt() and 0xFF
             result.append(HEX_CHARS[unsigned shr 4])
-            result.append(HEX_CHARS[unsigned and 0x0F])
+        result.append(HEX_CHARS[unsigned and 0x0F])
         }
         return result.toString()
     }
@@ -430,8 +419,8 @@ object CryptoUtils {
         for (i in 0 until len) {
             val high = Character.digit(hex[i * 2], 16)
         val low = Character.digit(hex[i * 2 + 1], 16)
-            if (high == -1 || low == -1) throw IllegalArgumentException("invalid hex character")
-            result[i] = ((high shl 4) or low).toByte()
+        if (high == -1 || low == -1) throw IllegalArgumentException("invalid hex character")
+        result[i] = ((high shl 4) or low).toByte()
         }
         return result
     }
@@ -687,27 +676,26 @@ object CryptoUtils {
         return try {
             val keyBytes = Base64.getDecoder().decode(key)
         val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
-            val iv = ByteArray(IV_SIZE)
-            SecureRandom().nextBytes(iv)
-            val ivSpec = IvParameterSpec(iv)
+        val iv = ByteArray(IV_SIZE)
+        SecureRandom().nextBytes(iv)
+        val ivSpec = IvParameterSpec(iv)
         val cipher = Cipher.getInstance(AES_ALGORITHM)
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec)
-
-            outputFile.parentFile?.mkdirs()
-            FileOutputStream(outputFile).use { output ->
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec)
+        outputFile.parentFile?.mkdirs()
+        FileOutputStream(outputFile).use { output ->
                 output.write(iv)
-                FileInputStream(inputFile).use { input ->
+        FileInputStream(inputFile).use { input ->
                     val buffer = ByteArray(8192)
-                    var read: Int
+        var read: Int
                     while (input.read(buffer).also { read = it } >= 0) {
                         val encrypted = cipher.update(buffer, 0, read)
-                        if (encrypted != null) output.write(encrypted)
+        if (encrypted != null) output.write(encrypted)
                     }
-                    val finalBytes = cipher.doFinal()
-                    if (finalBytes != null) output.write(finalBytes)
+        val finalBytes = cipher.doFinal()
+        if (finalBytes != null) output.write(finalBytes)
                 }
             }
-            true
+        true
         } catch (_: Exception) {
             false
         }
@@ -725,27 +713,25 @@ object CryptoUtils {
         return try {
             val keyBytes = Base64.getDecoder().decode(key)
         val secretKeySpec = SecretKeySpec(keyBytes, AES_KEY_ALGORITHM)
-
-            FileInputStream(inputFile).use { input ->
+        FileInputStream(inputFile).use { input ->
                 val iv = ByteArray(IV_SIZE)
-                if (input.read(iv) != IV_SIZE) throw IllegalArgumentException("Invalid file format")
-                val ivSpec = IvParameterSpec(iv)
+        if (input.read(iv) != IV_SIZE) throw IllegalArgumentException("Invalid file format")
+        val ivSpec = IvParameterSpec(iv)
         val cipher = Cipher.getInstance(AES_ALGORITHM)
-                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec)
-
-                outputFile.parentFile?.mkdirs()
-                FileOutputStream(outputFile).use { output ->
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec)
+        outputFile.parentFile?.mkdirs()
+        FileOutputStream(outputFile).use { output ->
                     val buffer = ByteArray(8192)
-                    var read: Int
+        var read: Int
                     while (input.read(buffer).also { read = it } >= 0) {
                         val decrypted = cipher.update(buffer, 0, read)
-                        if (decrypted != null) output.write(decrypted)
+        if (decrypted != null) output.write(decrypted)
                     }
-                    val finalBytes = cipher.doFinal()
-                    if (finalBytes != null) output.write(finalBytes)
+        val finalBytes = cipher.doFinal()
+        if (finalBytes != null) output.write(finalBytes)
                 }
             }
-            true
+        true
         } catch (_: Exception) {
             false
         }

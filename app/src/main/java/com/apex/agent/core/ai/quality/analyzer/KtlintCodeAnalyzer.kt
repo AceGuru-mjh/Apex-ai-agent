@@ -24,19 +24,16 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                     issues = emptyList()
                 )
             }
-
-            try {
+        try {
                 val issues = mutableListOf<CodeIssue>()
-
-                issues.addAll(checkBasicSyntax(code))
-                issues.addAll(checkNamingConventions(code))
-                issues.addAll(checkCodeStyle(code))
-                issues.addAll(checkPotentialIssues(code))
-                issues.addAll(checkFileSize(code))
-                issues.addAll(checkTrailingWhitespace(code))
-                issues.addAll(checkTodoFixes(code))
-
-                CodeAnalysisResult(
+        issues.addAll(checkBasicSyntax(code))
+        issues.addAll(checkNamingConventions(code))
+        issues.addAll(checkCodeStyle(code))
+        issues.addAll(checkPotentialIssues(code))
+        issues.addAll(checkFileSize(code))
+        issues.addAll(checkTrailingWhitespace(code))
+        issues.addAll(checkTodoFixes(code))
+        CodeAnalysisResult(
                     isValid = issues.none { it.severity == IssueSeverity.CRITICAL || it.severity == IssueSeverity.ERROR },
                     issues = issues
                 )
@@ -53,8 +50,7 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             }
         }
-
-    private fun checkBasicSyntax(code: String): List<CodeIssue> {
+        private fun checkBasicSyntax(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
         val openBraces = code.count { it == '{' }
         val closeBraces = code.count { it == '}' }
@@ -66,7 +62,6 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             )
         }
-
         val quotes = code.count { it == '"' }
         if (quotes % 2 != 0) {
             issues.add(
@@ -76,11 +71,9 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             )
         }
-
         return issues
     }
-
-    private fun checkNamingConventions(code: String): List<CodeIssue> {
+        private fun checkNamingConventions(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
         val classPattern = Regex("""class\s+([a-z]\w*)""")
         classPattern.findAll(code).forEach { match ->
@@ -92,7 +85,6 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             )
         }
-
         val functionPattern = Regex("""fun\s+([A-Z]\w*)""")
         functionPattern.findAll(code).forEach { match ->
             issues.add(
@@ -103,13 +95,10 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             )
         }
-
         return issues
     }
-
-    private fun checkCodeStyle(code: String): List<CodeIssue> {
+        private fun checkCodeStyle(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
-
         code.lines().forEachIndexed { index, line ->
             if (line.length > 120) {
                 issues.add(
@@ -121,7 +110,6 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             }
         }
-
         if (code.contains("  ") && !code.contains("    ")) {
             issues.add(
                 CodeIssue(
@@ -130,11 +118,9 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             )
         }
-
         return issues
     }
-
-    private fun checkPotentialIssues(code: String): List<CodeIssue> {
+        private fun checkPotentialIssues(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
         val forceUnwrapCount = code.split("!!").size - 1
         if (forceUnwrapCount > 0) {
@@ -145,7 +131,6 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             )
         }
-
         val magicNumberPattern = Regex("""[^a-zA-Z_](\d{2,})[^a-zA-Z_\d]""")
         magicNumberPattern.findAll(code).forEach { match ->
             val number = match.groupValues[1]
@@ -159,10 +144,9 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             }
         }
-
         if (code.contains("catch") && code.contains("}")) {
             val catchPattern = Regex("""catch\s*\([^)]*\)\s*\{\s*\}""")
-            catchPattern.findAll(code).forEach {
+        catchPattern.findAll(code).forEach {
                 issues.add(
                     CodeIssue(
                         severity = IssueSeverity.WARNING,
@@ -171,11 +155,9 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             }
         }
-
         return issues
     }
-
-    private fun checkFileSize(code: String): List<CodeIssue> {
+        private fun checkFileSize(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
         val lineCount = code.lines().size
         if (lineCount > 800) {
@@ -188,8 +170,7 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
         }
         return issues
     }
-
-    private fun checkTrailingWhitespace(code: String): List<CodeIssue> {
+        private fun checkTrailingWhitespace(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
         val trailingPattern = Regex("""[ \t]+$""", RegexOption.MULTILINE)
         val matches = trailingPattern.findAll(code).toList()
@@ -203,14 +184,13 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
         }
         return issues
     }
-
-    private fun checkTodoFixes(code: String): List<CodeIssue> {
+        private fun checkTodoFixes(code: String): List<CodeIssue> {
         val issues = mutableListOf<CodeIssue>()
         val todoPattern = Regex("""//\s*(TODO|FIXME|HACK|XXX)\b""", RegexOption.IGNORE_CASE)
-                code.lines().forEachIndexed { index, line ->
+        code.lines().forEachIndexed { index, line ->
             if (todoPattern.containsMatchIn(line)) {
                 val match = todoPattern.find(line)
-                issues.add(
+        issues.add(
                     CodeIssue(
                         severity = IssueSeverity.INFO,
                         message = "未完成的标记: ${match?.groupValues?.get(1)}",
@@ -221,8 +201,7 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
         }
         return issues
     }
-
-    private fun getLineNumber(code: String, charIndex: Int): Int {
+        private fun getLineNumber(code: String, charIndex: Int): Int {
         return code.substring(0, charIndex).count { it == '\n' } + 1
     }
 }

@@ -12,8 +12,7 @@ class NotificationChannelAdapter @Inject constructor(
 ) : ChannelAdapter {
     override val channel = CommunicationChannel.NOTIFICATION
     override val name = "通知"
-
-    private var messageCallback: ((AgentMessage) -> Unit)? = null
+        private var messageCallback: ((AgentMessage) -> Unit)? = null
     private var initialized = false
 
     override suspend fun sendMessage(message: AgentMessage): Result<Boolean> {
@@ -24,18 +23,15 @@ class NotificationChannelAdapter @Inject constructor(
             Result.Failure(e)
         }
     }
-
-    override fun receiveMessage(callback: (AgentMessage) -> Unit) {
+        override fun receiveMessage(callback: (AgentMessage) -> Unit) {
         this.messageCallback = callback
     }
-
-    override suspend fun isAvailable() = initialized
+        override suspend fun isAvailable() = initialized
 
     override fun initialize() {
         initialized = true
     }
-
-    override fun shutdown() {
+        override fun shutdown() {
         messageCallback = null
         initialized = false
     }

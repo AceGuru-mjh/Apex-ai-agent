@@ -17,23 +17,18 @@ class SkillBenchmark(private val context: Context) {
         private const val DEFAULT_BENCHMARK_ITERATIONS = 5
         private const val MEMORY_SAMPLE_INTERVAL_MS = 50L
     }
-
-    private val activityManager: ActivityManager by lazy {
+        private val activityManager: ActivityManager by lazy {
         context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     }
-
-    private val memoryInfo = ActivityManager.MemoryInfo()
-
-    data class BenchmarkConfig(
+        private val memoryInfo = ActivityManager.MemoryInfo()
+        data class BenchmarkConfig(
         val warmupIterations: Int = DEFAULT_WARMUP_ITERATIONS,
         val benchmarkIterations: Int = DEFAULT_BENCHMARK_ITERATIONS,
         val measureMemory: Boolean = true,
         val measureCpu: Boolean = true
     )
-
-    fun benchmark(toolPackage: ToolPackage, config: BenchmarkConfig = BenchmarkConfig()): PerformanceReport {
+        fun benchmark(toolPackage: ToolPackage, config: BenchmarkConfig = BenchmarkConfig()): PerformanceReport {
         AppLogger.d(TAG, "Starting benchmark for skill: ${toolPackage.name}")
-
         val loadTimeMs = measureLoadTime(toolPackage)
         val memoryBeforeLoad = if (config.measureMemory) getUsedMemoryBytes() else 0L
         val memoryAfterLoad = if (config.measureMemory) getUsedMemoryBytes() else 0L
@@ -44,18 +39,16 @@ class SkillBenchmark(private val context: Context) {
         repeat(config.warmupIterations) {
             runToolWarmup(toolPackage)
         }
-
         repeat(config.benchmarkIterations) {
             val startMem = if (config.measureMemory) getUsedMemoryBytes() else 0L
         val execTime = measureToolExecutionTime(toolPackage)
-            executionTimes.add(execTime)
-            if (config.measureMemory) {
+        executionTimes.add(execTime)
+        if (config.measureMemory) {
                 val endMem = getUsedMemoryBytes()
-                memorySamples.add(endMem)
-                peakMemory = maxOf(peakMemory, endMem)
+        memorySamples.add(endMem)
+        peakMemory = maxOf(peakMemory, endMem)
             }
         }
-
         val avgExecutionTime = if (executionTimes.isNotEmpty()) executionTimes.average().toLong() else 0L
         val minExecutionTime = executionTimes.minOrNull() ?: 0L
         val maxExecutionTime = executionTimes.maxOrNull() ?: 0L
@@ -65,7 +58,6 @@ class SkillBenchmark(private val context: Context) {
         } else {
             0L
         }
-
         val metrics = PerformanceMetrics(
             avgLoadTimeMs = loadTimeMs,
             avgExecutionTimeMs = avgExecutionTime,
@@ -74,11 +66,8 @@ class SkillBenchmark(private val context: Context) {
             totalToolExecutions = executionTimes.size,
             memoryOverheadPerToolBytes = memoryOverheadPerTool
         )
-
         val recommendations = generateRecommendations(toolPackage, metrics)
-
         AppLogger.d(TAG, "Benchmark completed for ${toolPackage.name}: loadTime=${loadTimeMs}ms, avgExecTime=${avgExecutionTime}ms")
-
         return PerformanceReport(
             isPassed = loadTimeMs < 5000 && avgExecutionTime < 2000,
             loadTimeMs = loadTimeMs,
@@ -90,14 +79,12 @@ class SkillBenchmark(private val context: Context) {
             recommendations = recommendations
         )
     }
-
-    fun benchmarkScript(
+        fun benchmarkScript(
         scriptContent: String,
         skillName: String = "unknown",
         config: BenchmarkConfig = BenchmarkConfig()
     ): PerformanceReport {
         AppLogger.d(TAG, "Starting benchmark for script: ${skillName}")
-
         val memoryBeforeLoad = if (config.measureMemory) getUsedMemoryBytes() else 0L
         val loadStartTime = System.currentTimeMillis()
         val loadTimeMs = measureScriptParseTime(scriptContent)
@@ -110,18 +97,16 @@ class SkillBenchmark(private val context: Context) {
         repeat(config.warmupIterations) {
             warmupScript(scriptContent)
         }
-
         repeat(config.benchmarkIterations) {
             val startMem = if (config.measureMemory) getUsedMemoryBytes() else 0L
         val execTime = measureScriptExecutionTime(scriptContent)
-            executionTimes.add(execTime)
-            if (config.measureMemory) {
+        executionTimes.add(execTime)
+        if (config.measureMemory) {
                 val endMem = getUsedMemoryBytes()
-                memorySamples.add(endMem)
-                peakMemory = maxOf(peakMemory, endMem)
+        memorySamples.add(endMem)
+        peakMemory = maxOf(peakMemory, endMem)
             }
         }
-
         val avgExecutionTime = if (executionTimes.isNotEmpty()) executionTimes.average().toLong() else 0L
         val minExecutionTime = executionTimes.minOrNull() ?: 0L
         val maxExecutionTime = executionTimes.maxOrNull() ?: 0L
@@ -135,9 +120,7 @@ class SkillBenchmark(private val context: Context) {
             totalToolExecutions = executionTimes.size,
             memoryOverheadPerToolBytes = memoryOverheadPerTool
         )
-
         val recommendations = generateScriptRecommendations(metrics)
-
         return PerformanceReport(
             isPassed = loadTimeMs < 3000 && avgExecutionTime < 1000,
             loadTimeMs = loadTimeMs,
@@ -149,8 +132,7 @@ class SkillBenchmark(private val context: Context) {
             recommendations = recommendations
         )
     }
-
-    private fun measureLoadTime(toolPackage: ToolPackage): Long {
+        private fun measureLoadTime(toolPackage: ToolPackage): Long {
         val startTime = System.currentTimeMillis()
         runBlocking(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
@@ -162,8 +144,7 @@ class SkillBenchmark(private val context: Context) {
         }
         return System.currentTimeMillis() - startTime
     }
-
-    private fun measureScriptParseTime(scriptContent: String): Long {
+        private fun measureScriptParseTime(scriptContent: String): Long {
         val startTime = System.currentTimeMillis()
         runBlocking(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
@@ -172,8 +153,7 @@ class SkillBenchmark(private val context: Context) {
         }
         return System.currentTimeMillis() - startTime
     }
-
-    private fun runToolWarmup(toolPackage: ToolPackage) {
+        private fun runToolWarmup(toolPackage: ToolPackage) {
         runBlocking(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
                 toolPackage.tools.firstOrNull()?.let { tool ->
@@ -183,16 +163,14 @@ class SkillBenchmark(private val context: Context) {
             }
         }
     }
-
-    private fun warmupScript(scriptContent: String) {
+        private fun warmupScript(scriptContent: String) {
         runBlocking(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
                 scriptContent.hashCode()
             }
         }
     }
-
-    private fun measureToolExecutionTime(toolPackage: ToolPackage): Long {
+        private fun measureToolExecutionTime(toolPackage: ToolPackage): Long {
         val startTime = System.currentTimeMillis()
         runBlocking(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
@@ -204,8 +182,7 @@ class SkillBenchmark(private val context: Context) {
         }
         return System.currentTimeMillis() - startTime
     }
-
-    private fun measureScriptExecutionTime(scriptContent: String): Long {
+        private fun measureScriptExecutionTime(scriptContent: String): Long {
         val startTime = System.currentTimeMillis()
         runBlocking(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
@@ -216,68 +193,52 @@ class SkillBenchmark(private val context: Context) {
         }
         return System.currentTimeMillis() - startTime
     }
-
-    private fun getUsedMemoryBytes(): Long {
+        private fun getUsedMemoryBytes(): Long {
         activityManager.getMemoryInfo(memoryInfo)
         val totalMem = memoryInfo.totalMem
         val availMem = memoryInfo.availMem
         return totalMem - availMem
     }
-
-    private fun getPeakMemoryBytes(): Long {
+        private fun getPeakMemoryBytes(): Long {
         activityManager.getMemoryInfo(memoryInfo)
         return memoryInfo.totalMem - memoryInfo.availMem
     }
-
-    private fun generateRecommendations(toolPackage: ToolPackage, metrics: PerformanceMetrics): List<String> {
+        private fun generateRecommendations(toolPackage: ToolPackage, metrics: PerformanceMetrics): List<String> {
         val recommendations = mutableListOf<String>()
-
         if (metrics.avgLoadTimeMs > 2000) {
             recommendations.add("Skill load time is high (${metrics.avgLoadTimeMs}ms). Consider optimizing the script or lazy-loading components.")
         }
-
         if (metrics.avgExecutionTimeMs > 1000) {
             recommendations.add("Tool execution time is high (${metrics.avgExecutionTimeMs}ms). Review the implementation for efficiency improvements.")
         }
-
         if (metrics.memoryOverheadPerToolBytes > 1024 * 1024) {
             recommendations.add("Memory overhead per tool is significant (${metrics.memoryOverheadPerToolBytes / 1024}KB). Consider reducing resource usage.")
         }
-
         if (toolPackage.tools.size > 20) {
             recommendations.add("This skill has many tools (${toolPackage.tools.size}). Consider splitting into sub-packages for better performance.")
         }
-
         if (recommendations.isEmpty()) {
             recommendations.add("Performance is within acceptable ranges.")
         }
-
         return recommendations
     }
-
-    private fun generateScriptRecommendations(metrics: PerformanceMetrics): List<String> {
+        private fun generateScriptRecommendations(metrics: PerformanceMetrics): List<String> {
         val recommendations = mutableListOf<String>()
-
         if (metrics.avgLoadTimeMs > 1000) {
             recommendations.add("Script parse time is high (${metrics.avgLoadTimeMs}ms). Consider code splitting or optimization.")
         }
-
         if (metrics.avgExecutionTimeMs > 500) {
             recommendations.add("Script execution time is high (${metrics.avgExecutionTimeMs}ms). Review algorithm complexity.")
         }
-
         if (metrics.memoryOverheadPerToolBytes > 512 * 1024) {
             recommendations.add("Memory usage is elevated. Consider reducing allocations and using efficient data structures.")
         }
-
         if (recommendations.isEmpty()) {
             recommendations.add("Script performance is within acceptable ranges.")
         }
-
         return recommendations
     }
-
-    fun getSystemMemoryInfo(): Map<String, Long> {
+        fun getSystemMemoryInfo(): Map<String, Long> {
         activityManager.getMemoryInfo(memoryInfo)
         return mapOf(
             "totalMem" to memoryInfo.totalMem,

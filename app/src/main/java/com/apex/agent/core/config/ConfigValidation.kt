@@ -18,8 +18,7 @@ sealed class ValidationResult {
     data class Warning(val messages: List<String>) : ValidationResult() {
         constructor(message: String) : this(listOf(message))
     }
-
-    val isValid: Boolean get() = this is Valid || this is Warning
+        val isValid: Boolean get() = this is Valid || this is Warning
     val isInvalid: Boolean get() = this is Invalid
 }
 
@@ -77,8 +76,7 @@ class PatternValidator(
     private val message: String? = null
 ) : ConfigValidator {
     constructor(pattern: String, message: String? = null) : this(pattern.toRegex(), message)
-
-    override fun validate(key: ConfigKey, value: String): ValidationResult {
+        override fun validate(key: ConfigKey, value: String): ValidationResult {
         return if (pattern.matches(value)) {
             ValidationResult.Valid
         } else {
@@ -119,7 +117,7 @@ object UrlValidator : ConfigValidator {
     override fun validate(key: ConfigKey, value: String): ValidationResult {
         return try {
             URL(value).toURI()
-            ValidationResult.Valid
+        ValidationResult.Valid
         } catch (e: Exception) {
             ValidationResult.Invalid("配置项 [${key.path}] 的值 \"$value\" 不是有效的 URL 格式")
         }
@@ -133,8 +131,7 @@ object EmailValidator : ConfigValidator {
     private val emailRegex = Regex(
         "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     )
-
-    override fun validate(key: ConfigKey, value: String): ValidationResult {
+        override fun validate(key: ConfigKey, value: String): ValidationResult {
         return if (emailRegex.matches(value)) {
             ValidationResult.Valid
         } else {
@@ -151,8 +148,8 @@ object PortValidator : ConfigValidator {
         val port = value.toIntOrNull()
         return when {
             port == null -> ValidationResult.Invalid("配置项 [${key.path}] 的值 \"$value\" 不是有效的数字")
-            port < 0 || port > 65535 -> ValidationResult.Invalid("配置项 [${key.path}] 的值 $port 超出端口范围 (0-65535)")
-            else -> ValidationResult.Valid
+        port < 0 || port > 65535 -> ValidationResult.Invalid("配置项 [${key.path}] 的值 $port 超出端口范围 (0-65535)")
+        else -> ValidationResult.Valid
         }
     }
 }
@@ -162,8 +159,7 @@ object PortValidator : ConfigValidator {
  */
 object DurationValidator : ConfigValidator {
     private val durationRegex = Regex("^(\\d+)(ns|us|ms|s|m|h|d)$")
-
-    override fun validate(key: ConfigKey, value: String): ValidationResult {
+        override fun validate(key: ConfigKey, value: String): ValidationResult {
         return if (durationRegex.matches(value)) {
             ValidationResult.Valid
         } else {
@@ -179,8 +175,7 @@ object DurationValidator : ConfigValidator {
  */
 object SizeValidator : ConfigValidator {
     private val sizeRegex = Regex("^(\\d+)(B|KB|MB|GB|TB)$", RegexOption.IGNORE_CASE)
-
-    override fun validate(key: ConfigKey, value: String): ValidationResult {
+        override fun validate(key: ConfigKey, value: String): ValidationResult {
         return if (sizeRegex.matches(value)) {
             ValidationResult.Valid
         } else {
@@ -199,22 +194,21 @@ class CompositeValidator(
     private val mode: CombineMode = CombineMode.AND
 ) : ConfigValidator {
     enum class CombineMode { AND, OR }
-
-    override fun validate(key: ConfigKey, value: String): ValidationResult {
+        override fun validate(key: ConfigKey, value: String): ValidationResult {
         val results = validators.map { it.validate(key, value) }
         return when (mode) {
             CombineMode.AND -> {
                 val errors = results.filterIsInstance<ValidationResult.Invalid>()
                     .flatMap { it.errors }
-                if (errors.isEmpty()) ValidationResult.Valid
+        if (errors.isEmpty()) ValidationResult.Valid
                 else ValidationResult.Invalid(errors)
             }
-            CombineMode.OR -> {
+        CombineMode.OR -> {
                 if (results.any { it.isValid }) ValidationResult.Valid
                 else {
                     val errors = results.filterIsInstance<ValidationResult.Invalid>()
                         .flatMap { it.errors }
-                    ValidationResult.Invalid(errors)
+        ValidationResult.Invalid(errors)
                 }
             }
         }
@@ -246,7 +240,7 @@ class ValidationEngine(
             } catch (e: Exception) {
                 false
             }
-            if (!passed) {
+        if (!passed) {
                 results.add(ValidationResult.Invalid("配置项 [${key.path}] 自定义校验失败"))
             }
         }
@@ -257,8 +251,8 @@ class ValidationEngine(
         val warnings = results.filterIsInstance<ValidationResult.Warning>().flatMap { it.messages }
         return when {
             errors.isNotEmpty() -> ValidationResult.Invalid(errors)
-            warnings.isNotEmpty() -> ValidationResult.Warning(warnings)
-            else -> ValidationResult.Valid
+        warnings.isNotEmpty() -> ValidationResult.Warning(warnings)
+        else -> ValidationResult.Valid
         }
     }
 

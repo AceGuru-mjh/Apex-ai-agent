@@ -58,18 +58,18 @@ data class LanguageDetectionResult(
 
 enum class Script {
     LATIN,           // 拉丁字母
-                CJK_SIMPLIFIED,  // 简体汉字
-                CJK_TRADITIONAL, // 繁体汉字
-                HIRAGANA,        // 平假名
-                KATAKANA,        // 片假名
-                KANJI,           // 日文汉字
-                HANGUL,          // 韩文
-                CYRILLIC,        // 西里尔字母
-                ARABIC,          // 阿拉伯字母
-                DEVANAGARI,      // 天城文
-                THAI,            // 泰文
-                GREEK,           // 希腊字母
-                OTHER
+        CJK_SIMPLIFIED,  // 简体汉字
+        CJK_TRADITIONAL, // 繁体汉字
+        HIRAGANA,        // 平假名
+        KATAKANA,        // 片假名
+        KANJI,           // 日文汉字
+        HANGUL,          // 韩文
+        CYRILLIC,        // 西里尔字母
+        ARABIC,          // 阿拉伯字母
+        DEVANAGARI,      // 天城文
+        THAI,            // 泰文
+        GREEK,           // 希腊字母
+        OTHER
 }
 
 /**
@@ -85,8 +85,8 @@ data class LanguageConfig(
 
 enum class ResponseLanguagePolicy {
     MATCH_USER,          // 匹配用户语言
-                ALWAYS_PREFERRED,    // 始终用偏好语言
-                MIXED_IF_USER_MIXED  // 用户混合时也混合
+        ALWAYS_PREFERRED,    // 始终用偏好语言
+        MIXED_IF_USER_MIXED  // 用户混合时也混合
 }
 
 /**
@@ -107,7 +107,7 @@ class MultilingualManager(
         val totalChars = text.length.toFloat().coerceAtLeast(1f)
 
         // 按字符统计语言
-                var chineseSimplified = 0
+        var chineseSimplified = 0
         var chineseTraditional = 0
         var japanese = 0
         var korean = 0
@@ -122,33 +122,33 @@ class MultilingualManager(
             val code = c.code
             when {
                 // CJK 统一表意文字
-                code in 0x4e00..0x9fff -> {
+        code in 0x4e00..0x9fff -> {
                     // 简化：无法精确区分简繁，按偏好判断
-                if (config.preferredLanguage == Language.CHINESE_TRADITIONAL) chineseTraditional++
+        if (config.preferredLanguage == Language.CHINESE_TRADITIONAL) chineseTraditional++
                     else chineseSimplified++
                 }
                 // 日文假名
-                code in 0x3040..0x309f -> japanese++  // 平假名
-                code in 0x30a0..0x30ff -> japanese++  // 片假名
+        code in 0x3040..0x309f -> japanese++  // 平假名
+        code in 0x30a0..0x30ff -> japanese++  // 片假名
                 // 韩文
-                code in 0xac00..0xd7af -> korean++
+        code in 0xac00..0xd7af -> korean++
                 // 拉丁字母
-                c in 'a'..'z' -> english++
+        c in 'a'..'z' -> english++
                 c in 'A'..'Z' -> english++
                 c.isLetter() && code < 0x4e00 -> otherLatin++
                 // 西里尔
-                code in 0x0400..0x04ff -> cyrillic++
+        code in 0x0400..0x04ff -> cyrillic++
                 // 阿拉伯
-                code in 0x0600..0x06ff -> arabic++
+        code in 0x0600..0x06ff -> arabic++
                 // 天城文
-                code in 0x0900..0x097f -> devanagari++
+        code in 0x0900..0x097f -> devanagari++
                 // 泰文
-                code in 0x0e00..0x0e7f -> thai++
+        code in 0x0e00..0x0e7f -> thai++
             }
         }
 
         // 计算语言比例
-                if (chineseSimplified > 0) ratios[Language.CHINESE_SIMPLIFIED] = chineseSimplified / totalChars
+        if (chineseSimplified > 0) ratios[Language.CHINESE_SIMPLIFIED] = chineseSimplified / totalChars
         if (chineseTraditional > 0) ratios[Language.CHINESE_TRADITIONAL] = chineseTraditional / totalChars
         if (japanese > 0) ratios[Language.JAPANESE] = japanese / totalChars
         if (korean > 0) ratios[Language.KOREAN] = korean / totalChars
@@ -159,7 +159,7 @@ class MultilingualManager(
         if (thai > 0) ratios[Language.THAI] = thai / totalChars
 
         // 排序
-    val sorted = ratios.entries.sortedByDescending { it.value }
+        val sorted = ratios.entries.sortedByDescending { it.value }
         val primary = sorted.firstOrNull()?.key ?: Language.UNKNOWN
         val secondary = sorted.getOrNull(1)?.key
         val isMixed = sorted.size > 1 && (sorted.getOrNull(1)?.value ?: 0f) > 0.2f
@@ -180,14 +180,13 @@ class MultilingualManager(
      */
     fun decideResponseLanguage(detection: LanguageDetectionResult, userId: String): Language {
         // 更新用户语言统计
-                if (config.learningEnabled) {
+        if (config.learningEnabled) {
             val stats = userLanguageStats.computeIfAbsent(userId) { mutableMapOf() }
-            stats[detection.primaryLanguage] = (stats[detection.primaryLanguage] ?: 0) + 1
+        stats[detection.primaryLanguage] = (stats[detection.primaryLanguage] ?: 0) + 1
             if (detection.secondaryLanguage != null) {
                 stats[detection.secondaryLanguage] = (stats[detection.secondaryLanguage] ?: 0) + 1
             }
         }
-
         return when (config.responseLanguage) {
             ResponseLanguagePolicy.ALWAYS_PREFERRED -> config.preferredLanguage
             ResponseLanguagePolicy.MATCH_USER -> detection.primaryLanguage
@@ -204,26 +203,26 @@ class MultilingualManager(
     fun generateLanguagePrompt(responseLanguage: Language): String {
         return when (responseLanguage) {
             Language.CHINESE_SIMPLIFIED -> "[语言提示: 请用简体中文回答]"
-            Language.CHINESE_TRADITIONAL -> "[語言提示: 請用繁體中文回答]"
-            Language.ENGLISH -> "[Language: Please respond in English]"
-            Language.JAPANESE -> "[言語: 日本語で回答してください]"
-            Language.KOREAN -> "[언어: 한국어로 답변해 주세요]"
-            Language.FRENCH -> "[Langue: Veuillez répondre en français]"
-            Language.GERMAN -> "[Sprache: Bitte auf Deutsch antworten]"
-            Language.SPANISH -> "[Idioma: Por favor responde en español]"
-            Language.PORTUGUESE -> "[Idioma: Por favor, responda em português]"
-            Language.RUSSIAN -> "[Язык: Пожалуйста, отвечайте на русском]"
-            Language.ARABIC -> "[اللغة: يرجى الرد بالعربية]"
-            Language.HINDI -> "[भाषा: कृपया हिंदी में उत्तर दें]"
-            Language.ITALIAN -> "[Lingua: Si prega di rispondere in italiano]"
-            Language.DUTCH -> "[Taal: Gelieve in het Nederlands te antwoorden]"
-            Language.POLISH -> "[Język: Proszę odpowiedzieć po polsku]"
-            Language.TURKISH -> "[Dil: Lütfen Türkçe yanıt verin]"
-            Language.VIETNAMESE -> "[Ngôn ngữ: Vui lòng trả lời bằng tiếng Việt]"
-            Language.THAI -> "[ภาษา: กรุณาตอบเป็นภาษาไทย]"
-            Language.INDONESIAN -> "[Bahasa: Silakan jawab dalam bahasa Indonesia]"
-            Language.MALAY -> "[Bahasa: Sila jawab dalam Bahasa Melayu]"
-            Language.UNKNOWN -> ""
+        Language.CHINESE_TRADITIONAL -> "[語言提示: 請用繁體中文回答]"
+        Language.ENGLISH -> "[Language: Please respond in English]"
+        Language.JAPANESE -> "[言語: 日本語で回答してください]"
+        Language.KOREAN -> "[언어: 한국어로 답변해 주세요]"
+        Language.FRENCH -> "[Langue: Veuillez répondre en français]"
+        Language.GERMAN -> "[Sprache: Bitte auf Deutsch antworten]"
+        Language.SPANISH -> "[Idioma: Por favor responde en español]"
+        Language.PORTUGUESE -> "[Idioma: Por favor, responda em português]"
+        Language.RUSSIAN -> "[Язык: Пожалуйста, отвечайте на русском]"
+        Language.ARABIC -> "[اللغة: يرجى الرد بالعربية]"
+        Language.HINDI -> "[भाषा: कृपया हिंदी में उत्तर दें]"
+        Language.ITALIAN -> "[Lingua: Si prega di rispondere in italiano]"
+        Language.DUTCH -> "[Taal: Gelieve in het Nederlands te antwoorden]"
+        Language.POLISH -> "[Język: Proszę odpowiedzieć po polsku]"
+        Language.TURKISH -> "[Dil: Lütfen Türkçe yanıt verin]"
+        Language.VIETNAMESE -> "[Ngôn ngữ: Vui lòng trả lời bằng tiếng Việt]"
+        Language.THAI -> "[ภาษา: กรุณาตอบเป็นภาษาไทย]"
+        Language.INDONESIAN -> "[Bahasa: Silakan jawab dalam bahasa Indonesia]"
+        Language.MALAY -> "[Bahasa: Sila jawab dalam Bahasa Melayu]"
+        Language.UNKNOWN -> ""
         }
     }
 
@@ -267,24 +266,23 @@ class MultilingualManager(
             else -> TextDirection.LTR
         }
     }
-
-    enum class TextDirection { LTR, RTL }
+        enum class TextDirection { LTR, RTL }
 
     // ============ 内部方法 ============
-    private fun detectScripts(text: String): Set<Script> {
+        private fun detectScripts(text: String): Set<Script> {
         val scripts = mutableSetOf<Script>()
         for (c in text) {
             val code = c.code
             when {
                 code in 0x4e00..0x9fff -> scripts.add(if (config.preferredLanguage == Language.CHINESE_TRADITIONAL) Script.CJK_TRADITIONAL else Script.CJK_SIMPLIFIED)
-                code in 0x3040..0x309f -> scripts.add(Script.HIRAGANA)
-                code in 0x30a0..0x30ff -> scripts.add(Script.KATAKANA)
-                code in 0xac00..0xd7af -> scripts.add(Script.HANGUL)
-                c in 'a'..'z' || c in 'A'..'Z' -> scripts.add(Script.LATIN)
-                code in 0x0400..0x04ff -> scripts.add(Script.CYRILLIC)
-                code in 0x0600..0x06ff -> scripts.add(Script.ARABIC)
-                code in 0x0900..0x097f -> scripts.add(Script.DEVANAGARI)
-                code in 0x0e00..0x0e7f -> scripts.add(Script.THAI)
+        code in 0x3040..0x309f -> scripts.add(Script.HIRAGANA)
+        code in 0x30a0..0x30ff -> scripts.add(Script.KATAKANA)
+        code in 0xac00..0xd7af -> scripts.add(Script.HANGUL)
+        c in 'a'..'z' || c in 'A'..'Z' -> scripts.add(Script.LATIN)
+        code in 0x0400..0x04ff -> scripts.add(Script.CYRILLIC)
+        code in 0x0600..0x06ff -> scripts.add(Script.ARABIC)
+        code in 0x0900..0x097f -> scripts.add(Script.DEVANAGARI)
+        code in 0x0e00..0x0e7f -> scripts.add(Script.THAI)
             }
         }
         return scripts

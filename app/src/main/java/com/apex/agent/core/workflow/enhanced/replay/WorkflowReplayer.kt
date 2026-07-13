@@ -50,8 +50,7 @@ class WorkflowReplayer {
         val attributes: Map<String, Any>,
         val exception: Throwable?
     )
-
-    enum class TimelineEventType {
+        enum class TimelineEventType {
         WORKFLOW_START, NODE_START, NODE_END, BRANCH_START, BRANCH_END, WORKFLOW_END
     }
 
@@ -69,15 +68,13 @@ class WorkflowReplayer {
         val slowestNodes: List<NodeTiming>,
         val failureChain: List<FailureRecord>
     )
-
-    data class NodeTiming(
+        data class NodeTiming(
         val nodeId: String,
         val nodeName: String,
         val durationMs: Long,
         val percentage: Float
     )
-
-    data class FailureRecord(
+        data class FailureRecord(
         val nodeId: String,
         val nodeName: String,
         val error: String,
@@ -96,9 +93,7 @@ class WorkflowReplayer {
         val nodeSpans = spans.filter { it.nodeId != null }
         val successCount = nodeSpans.count { it.status.name == "OK" }
         val failureCount = nodeSpans.count { it.status.name == "ERROR" }
-
         val timeline = buildTimeline(spans)
-
         return ReplaySession(
             threadId = threadId,
             spans = spans,
@@ -118,7 +113,7 @@ class WorkflowReplayer {
         val events = mutableListOf<TimelineEvent>()
 
         // 工作流开始
-    val rootSpan = spans.find { it.parentId == null }
+        val rootSpan = spans.find { it.parentId == null }
         if (rootSpan != null) {
             events.add(TimelineEvent(
                 timestampMs = rootSpan.startTimeMs,
@@ -135,7 +130,7 @@ class WorkflowReplayer {
         }
 
         // 节点事件
-                spans.filter { it.nodeId != null }.forEach { span ->
+        spans.filter { it.nodeId != null }.forEach { span ->
             events.add(TimelineEvent(
                 timestampMs = span.startTimeMs,
                 relativeMs = span.startTimeMs - startTime,
@@ -149,7 +144,6 @@ class WorkflowReplayer {
                 exception = span.exception
             ))
         }
-
         return events.sortedBy { it.timestampMs }
     }
 
@@ -160,7 +154,7 @@ class WorkflowReplayer {
         val nodeSpans = session.spans.filter { it.nodeId != null }
 
         // 找瓶颈节点
-    val sorted = nodeSpans.sortedByDescending { it.durationMs }
+        val sorted = nodeSpans.sortedByDescending { it.durationMs }
         val bottleneck = sorted.firstOrNull()
         val slowestNodes = sorted.take(5).map {
             NodeTiming(
@@ -172,7 +166,7 @@ class WorkflowReplayer {
         }
 
         // 失败链
-    val failureChain = nodeSpans.filter { it.status.name == "ERROR" }.map {
+        val failureChain = nodeSpans.filter { it.status.name == "ERROR" }.map {
             FailureRecord(
                 nodeId = it.nodeId ?: "",
                 nodeName = it.name,
@@ -182,10 +176,10 @@ class WorkflowReplayer {
         }
 
         // 关键路径（最长串行路径）
-    val criticalPath = computeCriticalPath(nodeSpans)
+        val criticalPath = computeCriticalPath(nodeSpans)
 
         // 并行度
-    val parallelism = if (session.totalDurationMs > 0) {
+        val parallelism = if (session.totalDurationMs > 0) {
             nodeSpans.sumOf { it.durationMs }.toFloat() / session.totalDurationMs
         } else 1f
 
@@ -207,19 +201,18 @@ class WorkflowReplayer {
      */
     private fun computeCriticalPath(spans: List<SpanRecord>): Long {
         // 简化算法：找最长串行链
-    val byParent = spans.groupBy { it.parentId }
+        val byParent = spans.groupBy { it.parentId }
         var maxPath = 0L
 
         fun dfs(spanId: String?, currentDuration: Long): Long {
             val children = byParent[spanId] ?: emptyList()
-            if (children.isEmpty()) return currentDuration
+        if (children.isEmpty()) return currentDuration
             return children.maxOf { child -> dfs(child.spanId, currentDuration + child.durationMs) }
         }
-
         val roots = byParent[null] ?: emptyList()
         for (root in roots) {
             val path = dfs(root.spanId, root.durationMs)
-            if (path > maxPath) maxPath = path
+        if (path > maxPath) maxPath = path
         }
         return maxPath
     }
@@ -237,26 +230,21 @@ class WorkflowReplayer {
     fun compare(session1: ReplaySession, session2: ReplaySession): ComparisonResult {
         val analysis1 = analyze(session1)
         val analysis2 = analyze(session2)
-
         val durationDiff = analysis2.totalDurationMs - analysis1.totalDurationMs
         val nodeDiff = analysis2.nodeCount - analysis1.nodeCount
         val bottleneckChanged = analysis1.bottleneckNodeId != analysis2.bottleneckNodeId
         val regressions = mutableListOf<String>()
         val improvements = mutableListOf<String>()
-
         if (durationDiff > 0) regressions.add("总耗时增加 ${durationDiff}ms")
         else if (durationDiff < 0) improvements.add("总耗时减少 ${-durationDiff}ms")
-
         if (analysis2.failureChain.size > analysis1.failureChain.size) {
             regressions.add("失败节点增加 ${analysis2.failureChain.size - analysis1.failureChain.size} 个")
         } else if (analysis2.failureChain.size < analysis1.failureChain.size) {
             improvements.add("失败节点减少 ${analysis1.failureChain.size - analysis2.failureChain.size} 个")
         }
-
         if (bottleneckChanged) {
             regressions.add("瓶颈节点变化: ${analysis1.bottleneckNodeId} -> ${analysis2.bottleneckNodeId}")
         }
-
         return ComparisonResult(
             session1 = analysis1,
             session2 = analysis2,
@@ -267,8 +255,7 @@ class WorkflowReplayer {
             improvements = improvements
         )
     }
-
-    data class ComparisonResult(
+        data class ComparisonResult(
         val session1: ReplayAnalysis,
         val session2: ReplayAnalysis,
         val durationDiffMs: Long,
@@ -293,8 +280,8 @@ class WorkflowReplayer {
         sb.appendLine("--- 时间轴 ---")
         session.timeline.forEach { e ->
             val indent = if (e.type == TimelineEventType.WORKFLOW_START) "" else "  "
-            sb.appendLine("$indent+${e.relativeMs}ms [${e.durationMs}ms] ${e.nodeName} (${e.status})")
-            if (e.exception != null) {
+        sb.appendLine("$indent+${e.relativeMs}ms [${e.durationMs}ms] ${e.nodeName} (${e.status})")
+        if (e.exception != null) {
                 sb.appendLine("$indent  ERROR: ${e.exception.message}")
             }
         }
@@ -310,7 +297,7 @@ class WorkflowReplayer {
         }
         if (analysis.failureChain.isNotEmpty()) {
             sb.appendLine("失败链:")
-            analysis.failureChain.forEach { fr ->
+        analysis.failureChain.forEach { fr ->
                 sb.appendLine("  ${fr.nodeName}: ${fr.error}")
             }
         }

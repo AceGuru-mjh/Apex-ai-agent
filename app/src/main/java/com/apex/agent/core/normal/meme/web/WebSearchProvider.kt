@@ -81,9 +81,9 @@ interface WebSearchProvider {
 class WebSearchProviderRegistry {
 
     private val providers = mutableListOf<WebSearchProvider>()
-    private val failureCount = ConcurrentHashMap<String, Int>()
-    private val lastFailureTime = ConcurrentHashMap<String, Long>()
-    private val maxFailures = 3
+        private val failureCount = ConcurrentHashMap<String, Int>()
+        private val lastFailureTime = ConcurrentHashMap<String, Long>()
+        private val maxFailures = 3
     private val cooldownMs = 5 * 60_000L  // 5 分钟冷却
 
     /**
@@ -105,7 +105,7 @@ class WebSearchProviderRegistry {
                 false  // 冷却中
             } else if (failures >= maxFailures && now - lastFail >= cooldownMs) {
                 // 冷却结束，重置
-                failureCount[p.name] = 0
+        failureCount[p.name] = 0
                 true
             } else {
                 true
@@ -144,14 +144,13 @@ class WebSearchProviderRegistry {
             val status = when {
                 failures >= maxFailures && now - lastFail < cooldownMs ->
                     ProviderStatus.COOLING_DOWN(failures, cooldownMs - (now - lastFail))
-                failures > 0 -> ProviderStatus.DEGRADED(failures)
-                else -> ProviderStatus.HEALTHY
+        failures > 0 -> ProviderStatus.DEGRADED(failures)
+        else -> ProviderStatus.HEALTHY
             }
-            p.name to status
+        p.name to status
         }
     }
-
-    sealed class ProviderStatus {
+        sealed class ProviderStatus {
         data object HEALTHY : ProviderStatus()
         data class DEGRADED(val failures: Int) : ProviderStatus()
         data class COOLING_DOWN(val failures: Int, val remainingMs: Long) : ProviderStatus()
@@ -171,8 +170,7 @@ object MemeHttpUtil {
             .followRedirects(true)
             .build()
     }
-
-    private val requestCounter = AtomicLong(0)
+        private val requestCounter = AtomicLong(0)
 
     /**
      * GET 请求
@@ -181,14 +179,13 @@ object MemeHttpUtil {
         return try {
             val requestBuilder = Request.Builder().url(url).get()
             // 模拟浏览器 UA，避免被反爬
-                requestBuilder.addHeader("User-Agent", defaultUserAgent())
-            requestBuilder.addHeader("Accept", "application/json, text/plain, */*")
-            requestBuilder.addHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
-            headers.forEach { (k, v) -> requestBuilder.addHeader(k, v) }
-
-            val response = client.newCall(requestBuilder.build()).execute()
+        requestBuilder.addHeader("User-Agent", defaultUserAgent())
+        requestBuilder.addHeader("Accept", "application/json, text/plain, */*")
+        requestBuilder.addHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+        headers.forEach { (k, v) -> requestBuilder.addHeader(k, v) }
+        val response = client.newCall(requestBuilder.build()).execute()
         val body = response.body?.string() ?: ""
-            HttpResult(
+        HttpResult(
                 success = response.isSuccessful,
                 statusCode = response.code,
                 body = body,
@@ -231,8 +228,8 @@ object MemeJsonUtil {
     fun parseArray(json: String): JSONArray? {
         return try {
             // 去除可能的 JSONP 包装
-    val cleaned = cleanJsonp(json)
-            JSONArray(cleaned)
+        val cleaned = cleanJsonp(json)
+        JSONArray(cleaned)
         } catch (e: Exception) {
             null
         }
@@ -244,7 +241,7 @@ object MemeJsonUtil {
     fun parseObject(json: String): JSONObject? {
         return try {
             val cleaned = cleanJsonp(json)
-            JSONObject(cleaned)
+        JSONObject(cleaned)
         } catch (e: Exception) {
             null
         }
@@ -256,10 +253,10 @@ object MemeJsonUtil {
     private fun cleanJsonp(json: String): String {
         val trimmed = json.trim()
         // 如果是 JSONP 格式 callback(...)
-                if (trimmed.contains("(") && trimmed.endsWith(")")) {
+        if (trimmed.contains("(") && trimmed.endsWith(")")) {
             val start = trimmed.indexOf("(")
         val end = trimmed.lastIndexOf(")")
-            if (start in 0..end) {
+        if (start in 0..end) {
                 return trimmed.substring(start + 1, end)
             }
         }

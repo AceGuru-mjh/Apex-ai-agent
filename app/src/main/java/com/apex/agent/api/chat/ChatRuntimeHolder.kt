@@ -18,21 +18,19 @@ import kotlinx.coroutines.launch
 class ChatRuntimeHolder private constructor(context: Context) {
     private val appContext = context.applicationContext
     private val runtimeScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val cores = ConcurrentHashMap<ChatRuntimeSlot, ChatServiceCore>()
-    private val _activeConversationCount = MutableStateFlow(0)
+        private val cores = ConcurrentHashMap<ChatRuntimeSlot, ChatServiceCore>()
+        private val _activeConversationCount = MutableStateFlow(0)
         val activeConversationCount: StateFlow<Int> = _activeConversationCount.asStateFlow()
-    private val _currentSessionToolCount = MutableStateFlow(0)
+        private val _currentSessionToolCount = MutableStateFlow(0)
         val currentSessionToolCount: StateFlow<Int> = _currentSessionToolCount.asStateFlow()
-
-    init {
+        init {
         ChatRuntimeSlot.values().forEach { slot ->
             getCore(slot)
         }
         setupCrossSessionSync()
         observeStats()
     }
-
-    fun getCore(slot: ChatRuntimeSlot): ChatServiceCore {
+        fun getCore(slot: ChatRuntimeSlot): ChatServiceCore {
         return cores.getOrPut(slot) {
             ChatServiceCore(
                 context = appContext,
@@ -44,11 +42,9 @@ class ChatRuntimeHolder private constructor(context: Context) {
             )
         }
     }
-
-    private fun observeStats() {
+        private fun observeStats() {
         val mainCore = getCore(ChatRuntimeSlot.MAIN)
         val floatingCore = getCore(ChatRuntimeSlot.FLOATING)
-
         runtimeScope.launch {
             combine(
                 mainCore.activeStreamingChatIds,
@@ -59,7 +55,6 @@ class ChatRuntimeHolder private constructor(context: Context) {
                 _activeConversationCount.value = count
             }
         }
-
         runtimeScope.launch {
             combine(
                 mainCore.activeStreamingChatIds,
@@ -74,15 +69,13 @@ class ChatRuntimeHolder private constructor(context: Context) {
             }
         }
     }
-
-    private fun countCurrentTurnToolsForActiveChats(
+        private fun countCurrentTurnToolsForActiveChats(
         activeChatIds: Set<String>,
         countMap: Map<String, Int>
     ): Int {
         return activeChatIds.sumOf { chatId -> countMap[chatId] ?: 0 }
     }
-
-    private fun setupCrossSessionSync() {
+        private fun setupCrossSessionSync() {
         registerChatSelectionSync(
             sourceSlot = ChatRuntimeSlot.MAIN,
             targetSlot = ChatRuntimeSlot.FLOATING
@@ -96,28 +89,25 @@ class ChatRuntimeHolder private constructor(context: Context) {
             targetSlot = ChatRuntimeSlot.MAIN
         )
     }
-
-    private fun registerTurnSync(
+        private fun registerTurnSync(
         sourceSlot: ChatRuntimeSlot,
         targetSlot: ChatRuntimeSlot
     ) {
         val sourceCore = getCore(sourceSlot)
         val targetCore = getCore(targetSlot)
-
         sourceCore.setAdditionalOnTurnComplete { chatId, inputTokens, outputTokens, windowSize ->
             if (chatId.isNullOrBlank()) {
                 return@setAdditionalOnTurnComplete
             }
-            if (targetCore.currentChatId.value != chatId) {
+        if (targetCore.currentChatId.value != chatId) {
                 return@setAdditionalOnTurnComplete
             }
-
-            runtimeScope.launch {
+        runtimeScope.launch {
                 try {
                     targetCore.reloadChatMessagesSmart(chatId)
-                    targetCore.getTokenStatisticsDelegate()
+        targetCore.getTokenStatisticsDelegate()
                         .setTokenCounts(chatId, inputTokens, outputTokens, windowSize)
-                    AppLogger.d(
+        AppLogger.d(
                         TAG,
                         "，Session smart 同步完成: ${sourceSlot} -> ${targetSlot}, chatId=${chatId}, input=${inputTokens}, output=${outputTokens}, window=${windowSize}"
                     )
@@ -131,8 +121,7 @@ class ChatRuntimeHolder private constructor(context: Context) {
             }
         }
     }
-
-    fun syncMainChatSelectionToFloating(chatId: String) {
+        fun syncMainChatSelectionToFloating(chatId: String) {
         if (chatId.isBlank()) return
         syncChatSelection(
             sourceSlot = ChatRuntimeSlot.MAIN,
@@ -140,25 +129,22 @@ class ChatRuntimeHolder private constructor(context: Context) {
             chatId = chatId
         )
     }
-
-    private fun registerChatSelectionSync(
+        private fun registerChatSelectionSync(
         sourceSlot: ChatRuntimeSlot,
         targetSlot: ChatRuntimeSlot
     ) {
         val sourceCore = getCore(sourceSlot)
-
         runtimeScope.launch {
             sourceCore.currentChatId
                 .collect { chatId ->
                     if (chatId.isNullOrBlank()) {
                         return@collect
                     }
-                    syncChatSelection(sourceSlot, targetSlot, chatId)
+        syncChatSelection(sourceSlot, targetSlot, chatId)
                 }
         }
     }
-
-    private fun syncChatSelection(
+        private fun syncChatSelection(
         sourceSlot: ChatRuntimeSlot,
         targetSlot: ChatRuntimeSlot,
         chatId: String
@@ -167,10 +153,9 @@ class ChatRuntimeHolder private constructor(context: Context) {
         if (targetCore.currentChatId.value == chatId) {
             return
         }
-
         try {
             targetCore.switchChatLocal(chatId)
-            AppLogger.d(
+        AppLogger.d(
                 TAG,
                 "，Session 当前聊天同步: ${sourceSlot} -> ${targetSlot}, chatId=${chatId}"
             )
@@ -182,8 +167,7 @@ class ChatRuntimeHolder private constructor(context: Context) {
             )
         }
     }
-
-    companion object {
+        companion object {
         private const val TAG = "ChatRuntimeHolder"
 
         @Volatile

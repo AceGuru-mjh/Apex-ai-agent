@@ -44,14 +44,12 @@ internal object ToolPkgPromptHookBridge {
     private var promptFinalizeHooks: List<ToolPkgPromptHookRegistration> = emptyList()
     @Volatile
     private var promptEstimateFinalizeHooks: List<ToolPkgPromptHookRegistration> = emptyList()
-    private val runtimeChangeListener =
+        private val runtimeChangeListener =
         PackageManager.ToolPkgRuntimeChangeListener {
             syncToolPkgRegistrations(toolPkgPackageManager().getImportedToolPkgContainerRuntimes())
         }
-
-    private object PromptInputBridge : PromptInputHook {
+        private object PromptInputBridge : PromptInputHook {
         override val id: String = "builtin.toolpkg.prompt-input-hook-bridge"
-
         override fun onEvent(context: PromptHookContext): PromptHookMutation? {
             return dispatchPromptHooks(
                 hooks = promptInputHooks,
@@ -61,10 +59,8 @@ internal object ToolPkgPromptHookBridge {
             )
         }
     }
-
-    private object PromptHistoryBridge : PromptHistoryHook {
+        private object PromptHistoryBridge : PromptHistoryHook {
         override val id: String = "builtin.toolpkg.prompt-history-hook-bridge"
-
         override fun onEvent(context: PromptHookContext): PromptHookMutation? {
             return dispatchPromptHooks(
                 hooks = promptHistoryHooks,
@@ -74,10 +70,8 @@ internal object ToolPkgPromptHookBridge {
             )
         }
     }
-
-    private object PromptEstimateHistoryBridge : PromptEstimateHistoryHook {
+        private object PromptEstimateHistoryBridge : PromptEstimateHistoryHook {
         override val id: String = "builtin.toolpkg.prompt-estimate-history-hook-bridge"
-
         override fun onEvent(context: PromptHookContext): PromptHookMutation? {
             return dispatchPromptHooks(
                 hooks = promptEstimateHistoryHooks,
@@ -87,10 +81,8 @@ internal object ToolPkgPromptHookBridge {
             )
         }
     }
-
-    private object SystemPromptComposeBridge : SystemPromptComposeHook {
+        private object SystemPromptComposeBridge : SystemPromptComposeHook {
         override val id: String = "builtin.toolpkg.system-prompt-compose-hook-bridge"
-
         override fun onEvent(context: PromptHookContext): PromptHookMutation? {
             return dispatchPromptHooks(
                 hooks = systemPromptComposeHooks,
@@ -100,10 +92,8 @@ internal object ToolPkgPromptHookBridge {
             )
         }
     }
-
-    private object ToolPromptComposeBridge : ToolPromptComposeHook {
+        private object ToolPromptComposeBridge : ToolPromptComposeHook {
         override val id: String = "builtin.toolpkg.tool-prompt-compose-hook-bridge"
-
         override fun onEvent(context: PromptHookContext): PromptHookMutation? {
             return dispatchPromptHooks(
                 hooks = toolPromptComposeHooks,
@@ -113,10 +103,8 @@ internal object ToolPkgPromptHookBridge {
             )
         }
     }
-
-    private object PromptFinalizeBridge : PromptFinalizeHook {
+        private object PromptFinalizeBridge : PromptFinalizeHook {
         override val id: String = "builtin.toolpkg.prompt-finalize-hook-bridge"
-
         override fun onEvent(context: PromptHookContext): PromptHookMutation? {
             return dispatchPromptHooks(
                 hooks = promptFinalizeHooks,
@@ -126,10 +114,8 @@ internal object ToolPkgPromptHookBridge {
             )
         }
     }
-
-    private object PromptEstimateFinalizeBridge : PromptEstimateFinalizeHook {
+        private object PromptEstimateFinalizeBridge : PromptEstimateFinalizeHook {
         override val id: String = "builtin.toolpkg.prompt-estimate-finalize-hook-bridge"
-
         override fun onEvent(context: PromptHookContext): PromptHookMutation? {
             return dispatchPromptHooks(
                 hooks = promptEstimateFinalizeHooks,
@@ -139,8 +125,7 @@ internal object ToolPkgPromptHookBridge {
             )
         }
     }
-
-    fun register() {
+        fun register() {
         if (!installed.compareAndSet(false, true)) {
             return
         }
@@ -151,12 +136,10 @@ internal object ToolPkgPromptHookBridge {
         PromptHookRegistry.registerToolPromptComposeHook(ToolPromptComposeBridge)
         PromptHookRegistry.registerPromptFinalizeHook(PromptFinalizeBridge)
         PromptHookRegistry.registerPromptEstimateFinalizeHook(PromptEstimateFinalizeBridge)
-
         val manager = toolPkgPackageManager()
         manager.addToolPkgRuntimeChangeListener(runtimeChangeListener)
     }
-
-    private fun dispatchPromptHooks(
+        private fun dispatchPromptHooks(
         hooks: List<ToolPkgPromptHookRegistration>,
         familyEvent: String,
         context: PromptHookContext,
@@ -165,7 +148,6 @@ internal object ToolPkgPromptHookBridge {
         if (hooks.isEmpty()) {
             return null
         }
-
         val manager = toolPkgPackageManager()
         var current = context
         hooks.forEach { hook ->
@@ -182,14 +164,14 @@ internal object ToolPkgPromptHookBridge {
                     inlineFunctionSource = hook.functionSource,
                     eventPayload = buildPromptEventPayload(current)
                 )
-            val decoded =
+        val decoded =
                 result.getOrElse { error ->
                     AppLogger.e(
                         TAG,
                         "ToolPkg prompt hook failed: ${resolvedContainer}:${resolvedHookId}",
                         error
                     )
-                    return@getOrElse null
+        return@getOrElse null
                 }?.let { raw ->
                     runCatching { decodeToolPkgHookResult(raw) }
                         .getOrElse { error ->
@@ -198,13 +180,12 @@ internal object ToolPkgPromptHookBridge {
                                 "ToolPkg prompt hook decode failed: ${resolvedContainer}:${resolvedHookId}",
                                 error
                             )
-                            null
+        null
                         }
                 }
-            val mutation = parseMutation(decoded, current) ?: return@forEach
+        val mutation = parseMutation(decoded, current) ?: return@forEach
             current = applyMutation(current, mutation)
         }
-
         return PromptHookMutation(
             rawInput = current.rawInput,
             processedInput = current.processedInput,
@@ -215,8 +196,7 @@ internal object ToolPkgPromptHookBridge {
             metadata = current.metadata
         )
     }
-
-    private fun syncToolPkgRegistrations(activeContainers: List<ToolPkgContainerRuntime>) {
+        private fun syncToolPkgRegistrations(activeContainers: List<ToolPkgContainerRuntime>) {
         promptInputHooks =
             activeContainers.flatMap { runtime ->
                 runtime.promptInputHooks.map { hook ->
@@ -233,7 +213,6 @@ internal object ToolPkgPromptHookBridge {
                     ToolPkgPromptHookRegistration::hookId
                 )
             )
-
         promptHistoryHooks =
             activeContainers.flatMap { runtime ->
                 runtime.promptHistoryHooks.map { hook ->
@@ -250,7 +229,6 @@ internal object ToolPkgPromptHookBridge {
                     ToolPkgPromptHookRegistration::hookId
                 )
             )
-
         promptEstimateHistoryHooks =
             activeContainers.flatMap { runtime ->
                 runtime.promptEstimateHistoryHooks.map { hook ->
@@ -267,7 +245,6 @@ internal object ToolPkgPromptHookBridge {
                     ToolPkgPromptHookRegistration::hookId
                 )
             )
-
         systemPromptComposeHooks =
             activeContainers.flatMap { runtime ->
                 runtime.systemPromptComposeHooks.map { hook ->
@@ -284,7 +261,6 @@ internal object ToolPkgPromptHookBridge {
                     ToolPkgPromptHookRegistration::hookId
                 )
             )
-
         toolPromptComposeHooks =
             activeContainers.flatMap { runtime ->
                 runtime.toolPromptComposeHooks.map { hook ->
@@ -301,7 +277,6 @@ internal object ToolPkgPromptHookBridge {
                     ToolPkgPromptHookRegistration::hookId
                 )
             )
-
         promptFinalizeHooks =
             activeContainers.flatMap { runtime ->
                 runtime.promptFinalizeHooks.map { hook ->
@@ -318,7 +293,6 @@ internal object ToolPkgPromptHookBridge {
                     ToolPkgPromptHookRegistration::hookId
                 )
             )
-
         promptEstimateFinalizeHooks =
             activeContainers.flatMap { runtime ->
                 runtime.promptEstimateFinalizeHooks.map { hook ->
@@ -336,27 +310,25 @@ internal object ToolPkgPromptHookBridge {
                 )
             )
     }
-
-    private fun buildPromptEventPayload(context: PromptHookContext): Map<String, Any?> {
+        private fun buildPromptEventPayload(context: PromptHookContext): Map<String, Any?> {
         return buildMap {
             put("stage", context.stage)
-            put("chatId", context.chatId)
-            put("functionType", context.functionType)
-            put("promptFunctionType", context.promptFunctionType)
-            put("useEnglish", context.useEnglish)
-            put("rawInput", context.rawInput)
-            put("processedInput", context.processedInput)
-            put("chatHistory", context.chatHistory.map(::promptTurnToMap))
-            put("preparedHistory", context.preparedHistory.map(::promptTurnToMap))
-            put("systemPrompt", context.systemPrompt)
-            put("toolPrompt", context.toolPrompt)
-            put("modelParameters", context.modelParameters)
-            put("availableTools", context.availableTools)
-            put("metadata", context.metadata)
+        put("chatId", context.chatId)
+        put("functionType", context.functionType)
+        put("promptFunctionType", context.promptFunctionType)
+        put("useEnglish", context.useEnglish)
+        put("rawInput", context.rawInput)
+        put("processedInput", context.processedInput)
+        put("chatHistory", context.chatHistory.map(::promptTurnToMap))
+        put("preparedHistory", context.preparedHistory.map(::promptTurnToMap))
+        put("systemPrompt", context.systemPrompt)
+        put("toolPrompt", context.toolPrompt)
+        put("modelParameters", context.modelParameters)
+        put("availableTools", context.availableTools)
+        put("metadata", context.metadata)
         }
     }
-
-    private fun promptTurnToMap(message: PromptTurn): Map<String, Any?> {
+        private fun promptTurnToMap(message: PromptTurn): Map<String, Any?> {
         return mapOf(
             "kind" to message.kind.name,
             "content" to message.content,
@@ -364,8 +336,7 @@ internal object ToolPkgPromptHookBridge {
             "metadata" to message.metadata
         )
     }
-
-    private fun applyMutation(
+        private fun applyMutation(
         context: PromptHookContext,
         mutation: PromptHookMutation
     ): PromptHookContext {
@@ -379,20 +350,18 @@ internal object ToolPkgPromptHookBridge {
             metadata = if (mutation.metadata.isEmpty()) context.metadata else context.metadata + mutation.metadata
         )
     }
-
-    private fun parsePromptInputMutation(
+        private fun parsePromptInputMutation(
         decoded: Any?,
         context: PromptHookContext
     ): PromptHookMutation? {
         return when (decoded) {
             null -> null
             is String -> PromptHookMutation(processedInput = decoded)
-            is JSONObject -> parsePromptHookObject(decoded)
-            else -> null
+        is JSONObject -> parsePromptHookObject(decoded)
+        else -> null
         }
     }
-
-    private fun parsePromptHistoryMutation(
+        private fun parsePromptHistoryMutation(
         decoded: Any?,
         context: PromptHookContext
     ): PromptHookMutation? {
@@ -406,52 +375,48 @@ internal object ToolPkgPromptHookBridge {
                     PromptHookMutation(preparedHistory = messages)
                 }
             }
-            is JSONObject -> parsePromptHookObject(decoded)
-            else -> null
+        is JSONObject -> parsePromptHookObject(decoded)
+        else -> null
         }
     }
-
-    private fun parseSystemPromptMutation(
+        private fun parseSystemPromptMutation(
         decoded: Any?,
         context: PromptHookContext
     ): PromptHookMutation? {
         return when (decoded) {
             null -> null
             is String -> PromptHookMutation(systemPrompt = decoded)
-            is JSONObject -> parsePromptHookObject(decoded)
-            else -> null
+        is JSONObject -> parsePromptHookObject(decoded)
+        else -> null
         }
     }
-
-    private fun parseToolPromptMutation(
+        private fun parseToolPromptMutation(
         decoded: Any?,
         context: PromptHookContext
     ): PromptHookMutation? {
         return when (decoded) {
             null -> null
             is String -> PromptHookMutation(toolPrompt = decoded)
-            is JSONObject -> parsePromptHookObject(decoded)
-            else -> null
+        is JSONObject -> parsePromptHookObject(decoded)
+        else -> null
         }
     }
-
-    private fun parsePromptFinalizeMutation(
+        private fun parsePromptFinalizeMutation(
         decoded: Any?,
         context: PromptHookContext
     ): PromptHookMutation? {
         return when (decoded) {
             null -> null
             is String -> PromptHookMutation(processedInput = decoded)
-            is JSONArray -> {
+        is JSONArray -> {
                 val messages = parsePromptTurns(decoded) ?: return null
                 PromptHookMutation(preparedHistory = messages)
             }
-            is JSONObject -> parsePromptHookObject(decoded)
-            else -> null
+        is JSONObject -> parsePromptHookObject(decoded)
+        else -> null
         }
     }
-
-    private fun parsePromptHookObject(jsonObject: JSONObject): PromptHookMutation {
+        private fun parsePromptHookObject(jsonObject: JSONObject): PromptHookMutation {
         val metadata = jsonObject.optJSONObject("metadata")?.let(::jsonObjectToMap).orEmpty()
         return PromptHookMutation(
             rawInput = jsonObject.optString("rawInput").takeIf { it.isNotBlank() },
@@ -463,8 +428,7 @@ internal object ToolPkgPromptHookBridge {
             metadata = metadata
         )
     }
-
-    private fun parsePromptTurns(jsonArray: JSONArray): List<PromptTurn>? {
+        private fun parsePromptTurns(jsonArray: JSONArray): List<PromptTurn>? {
         if (jsonArray == null) {
             return null
         }
@@ -478,7 +442,7 @@ internal object ToolPkgPromptHookBridge {
                     ?.let { runCatching { PromptTurnKind.valueOf(it.uppercase()) }.getOrNull() }
                     ?: continue
             val content = item.optString("content")
-            result.add(
+        result.add(
                 PromptTurn(
                     kind = kind,
                     content = content,

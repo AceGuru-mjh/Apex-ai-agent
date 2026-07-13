@@ -3,14 +3,10 @@ package com.apex.agent.core.tools.skill
 object SkillWorkflowSystem {
 
     fun getEventBus(): SkillEventBus = SkillEventBus.getInstance()
-
-    fun getWorkflowEngine(): WorkflowEngine = WorkflowEngine.getInstance()
-
-    fun getWorkflowEditor(): SkillWorkflowEditor = SkillWorkflowEditor.getInstance()
-
-    fun getTaskScheduler(): SkillScheduler = SkillScheduler.getInstance()
-
-    fun getEventTrigger(): SkillEventTrigger = SkillEventTrigger.getInstance()
+        fun getWorkflowEngine(): WorkflowEngine = WorkflowEngine.getInstance()
+        fun getWorkflowEditor(): SkillWorkflowEditor = SkillWorkflowEditor.getInstance()
+        fun getTaskScheduler(): SkillScheduler = SkillScheduler.getInstance()
+        fun getEventTrigger(): SkillEventTrigger = SkillEventTrigger.getInstance()
 }
 
 @JvmField
@@ -80,37 +76,36 @@ val CONDITION_FALSE = ConnectionCondition.FALSE
 
 object ConditionOperators {
     const val EQ = "EQ"
-    const val NE = "NE"
-    const val GT = "GT"
-    const val GTE = "GTE"
-    const val LT = "LT"
-    const val LTE = "LTE"
-    const val CONTAINS = "CONTAINS"
-    const val NOT_CONTAINS = "NOT_CONTAINS"
-    const val IN = "IN"
-    const val NOT_IN = "NOT_IN"
-
-    const val AND = "AND"
-    const val OR = "OR"
+        const val NE = "NE"
+        const val GT = "GT"
+        const val GTE = "GTE"
+        const val LT = "LT"
+        const val LTE = "LTE"
+        const val CONTAINS = "CONTAINS"
+        const val NOT_CONTAINS = "NOT_CONTAINS"
+        const val IN = "IN"
+        const val NOT_IN = "NOT_IN"
+        const val AND = "AND"
+        const val OR = "OR"
 }
 
 object TaskScheduleTypes {
     const val INTERVAL = "INTERVAL"
-    const val SPECIFIC_TIME = "SPECIFIC_TIME"
-    const val CRON = "CRON"
-    const val ONE_TIME = "ONE_TIME"
+        const val SPECIFIC_TIME = "SPECIFIC_TIME"
+        const val CRON = "CRON"
+        const val ONE_TIME = "ONE_TIME"
 }
 
 object TriggerConditionTypes {
     const val ALWAYS = "ALWAYS"
-    const val EQUALS = "EQUALS"
-    const val NOT_EQUALS = "NOT_EQUALS"
-    const val CONTAINS = "CONTAINS"
-    const val REGEX = "REGEX"
-    const val GREATER_THAN = "GREATER_THAN"
-    const val LESS_THAN = "LESS_THAN"
-    const val STARTS_WITH = "STARTS_WITH"
-    const val ENDS_WITH = "ENDS_WITH"
+        const val EQUALS = "EQUALS"
+        const val NOT_EQUALS = "NOT_EQUALS"
+        const val CONTAINS = "CONTAINS"
+        const val REGEX = "REGEX"
+        const val GREATER_THAN = "GREATER_THAN"
+        const val LESS_THAN = "LESS_THAN"
+        const val STARTS_WITH = "STARTS_WITH"
+        const val ENDS_WITH = "ENDS_WITH"
 }
 
 fun createTriggerNode(
@@ -119,7 +114,7 @@ fun createTriggerNode(
     position: NodePosition = NodePosition()
 ): WorkflowNode {
     val config = TriggerConfig(triggerType = triggerType)
-    return WorkflowNode(
+        return WorkflowNode(
         name = name,
         type = NodeType.TRIGGER,
         position = position,

@@ -10,8 +10,7 @@ object GlobalLifecycleManager : Application.ActivityLifecycleCallbacks, Componen
         application.registerActivityLifecycleCallbacks(this)
         application.registerComponentCallbacks(this)
     }
-
-    override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle) = Unit
+        override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle) = Unit
     override fun onActivityStarted(activity: android.app.Activity) = Unit
     override fun onActivityResumed(activity: android.app.Activity) = Unit
     override fun onActivityPaused(activity: android.app.Activity) = Unit

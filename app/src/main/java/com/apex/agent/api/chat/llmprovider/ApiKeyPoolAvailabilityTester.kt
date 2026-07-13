@@ -36,17 +36,14 @@ class ApiKeyPoolAvailabilityTester(
     private val configManager: ModelConfigManager
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    private val _state = MutableStateFlow(ApiKeyPoolTestState())
+        private val _state = MutableStateFlow(ApiKeyPoolTestState())
         val state: StateFlow<ApiKeyPoolTestState> = _state.asStateFlow()
-
-    private var job: Job? = null
+        private var job: Job? = null
 
     fun pause() {
         job?.cancel()
     }
-
-    fun isRunning(): Boolean = job?.isActive == true
+        fun isRunning(): Boolean = job?.isActive == true
 
     fun startOrResume(
         context: Context,
@@ -61,7 +58,6 @@ class ApiKeyPoolAvailabilityTester(
         val keysToTest = apiKeyPool
             .filter { it.isEnabled }
             .filter { it.availabilityStatus == ApiKeyAvailabilityStatus.UNTESTED }
-
         if (keysToTest.isEmpty()) {
             _state.update {
                 it.copy(
@@ -74,9 +70,8 @@ class ApiKeyPoolAvailabilityTester(
                     lastError = null
                 )
             }
-            return
+        return
         }
-
         _state.update {
             it.copy(
                 totalToTest = keysToTest.size,
@@ -88,14 +83,12 @@ class ApiKeyPoolAvailabilityTester(
                 lastError = null
             )
         }
-
         job = scope.launch {
             try {
                 val channel = Channel<ApiKeyInfo>(Channel.UNLIMITED)
-                keysToTest.forEach { channel.trySend(it) }
-                channel.close()
-
-                var workingPool = apiKeyPool
+        keysToTest.forEach { channel.trySend(it) }
+        channel.close()
+        var workingPool = apiKeyPool
 
                 val workerCount = maxOf(1, min(concurrency, keysToTest.size))
         val workers = (0 until workerCount).map {
@@ -113,22 +106,18 @@ class ApiKeyPoolAvailabilityTester(
                                 } else {
                                     ApiKeyAvailabilityStatus.UNAVAILABLE
                                 }
-
-                            workingPool = workingPool.map { existing ->
+        workingPool = workingPool.map { existing ->
                                 if (existing.id == keyInfo.id) existing.copy(availabilityStatus = status) else existing
                             }
-
-                            configManager.updateApiKeyPoolSettings(
+        configManager.updateApiKeyPoolSettings(
                                 configId = configId,
                                 useMultipleApiKeys = useMultipleApiKeys,
                                 apiKeyPool = workingPool
                             )
-
-                            withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
                                 onPoolUpdated(workingPool)
                             }
-
-                            _state.update { current ->
+        _state.update { current ->
                                 current.copy(
                                     tested = current.tested + 1,
                                     available = current.available + if (status == ApiKeyAvailabilityStatus.AVAILABLE) 1 else 0,
@@ -138,10 +127,8 @@ class ApiKeyPoolAvailabilityTester(
                         }
                     }
                 }
-
-                workers.joinAll()
-
-                _state.update { it.copy(running = false, paused = false) }
+        workers.joinAll()
+        _state.update { it.copy(running = false, paused = false) }
             } catch (e: CancellationException) {
                 _state.update { it.copy(running = false, paused = true) }
             } catch (e: Exception) {
@@ -155,8 +142,7 @@ class ApiKeyPoolAvailabilityTester(
             }
         }
     }
-
-    private suspend fun testSingleKey(
+        private suspend fun testSingleKey(
         context: Context,
         baseConfig: ModelConfigData,
         apiKey: String
@@ -169,16 +155,14 @@ class ApiKeyPoolAvailabilityTester(
                 useMultipleApiKeys = false,
                 apiKeyPool = emptyList()
             )
-
-            val service = AIServiceFactory.createService(
+        val service = AIServiceFactory.createService(
                 config = configForTest,
                 modelConfigManager = configManager,
                 context = context
             )
-
-            try {
+        try {
                 val result = service.testConnection(context)
-                result.getOrThrow()
+        result.getOrThrow()
             } finally {
                 service.release()
             }

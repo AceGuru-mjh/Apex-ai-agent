@@ -35,17 +35,14 @@ class ReasoningFramework(private val context: android.content.Context) {
     companion object {
         private const val TAG = "ReasoningFramework"
     }
-
-    fun chainOfThoughtReasoning(question: String): ReasoningResult {
+        fun chainOfThoughtReasoning(question: String): ReasoningResult {
         val startTime = System.currentTimeMillis()
         val steps = mutableListOf<ReasoningStep>()
-
         steps.add(ReasoningStep(1, "理解问题: ${question}"))
         steps.add(ReasoningStep(2, "分析问题，分解关键要索"))
         steps.add(ReasoningStep(3, "搜索相关知识"))
         steps.add(ReasoningStep(4, "逐步推理和分果"))
         steps.add(ReasoningStep(5, "综合思考得出结计"))
-
         return ReasoningResult(
             reasoningType = ReasoningType.CHAIN_OF_THOUGHT,
             steps = steps,
@@ -54,18 +51,15 @@ class ReasoningFramework(private val context: android.content.Context) {
             confidence = 0.85f
         )
     }
-
-    fun treeOfThoughtReasoning(question: String): ReasoningResult {
+        fun treeOfThoughtReasoning(question: String): ReasoningResult {
         val startTime = System.currentTimeMillis()
         val steps = mutableListOf<ReasoningStep>()
-
         steps.add(ReasoningStep(1, "探索可能的解决路径"))
         steps.add(ReasoningStep(2, "分支 1: 从A方向尝试"))
         steps.add(ReasoningStep(3, "分支 2: 从B方向尝试"))
         steps.add(ReasoningStep(4, "评估各分支的可行态"))
         steps.add(ReasoningStep(5, "选择最优路径继续推理"))
         steps.add(ReasoningStep(6, "得出最终答案"))
-
         return ReasoningResult(
             reasoningType = ReasoningType.TREE_OF_THOUGHT,
             steps = steps,
@@ -74,11 +68,9 @@ class ReasoningFramework(private val context: android.content.Context) {
             confidence = 0.9f
         )
     }
-
-    fun reactReasoning(question: String): ReasoningResult {
+        fun reactReasoning(question: String): ReasoningResult {
         val startTime = System.currentTimeMillis()
         val steps = mutableListOf<ReasoningStep>()
-
         steps.add(ReasoningStep(1, "思者 我需要理解问题, "思者))
         steps.add(ReasoningStep(2, "行动: 搜索相关信息", "搜索"))
         steps.add(ReasoningStep(3, "观察: 找到X和Y", "观察"))
@@ -86,7 +78,6 @@ class ReasoningFramework(private val context: android.content.Context) {
         steps.add(ReasoningStep(5, "行动: 执行计算", "计算"))
         steps.add(ReasoningStep(6, "观察: 得到结果Z", "观察"))
         steps.add(ReasoningStep(7, "思者 综合以上得出答案", "思者"))
-
         return ReasoningResult(
             reasoningType = ReasoningType.REACT,
             steps = steps,
@@ -95,17 +86,14 @@ class ReasoningFramework(private val context: android.content.Context) {
             confidence = 0.88f
         )
     }
-
-    fun reflectionReasoning(question: String, previousAnswer: String? = null): ReasoningResult {
+        fun reflectionReasoning(question: String, previousAnswer: String? = null): ReasoningResult {
         val startTime = System.currentTimeMillis()
         val steps = mutableListOf<ReasoningStep>()
-
         steps.add(ReasoningStep(1, "反态 上次的回答是否完整？"))
         steps.add(ReasoningStep(2, "分析: 是否有遗漏或错误，"))
         steps.add(ReasoningStep(3, "改进: 需要补充哪些信息？"))
         steps.add(ReasoningStep(4, "重新推理: 更完整和准确的分果"))
         steps.add(ReasoningStep(5, "确认: 这次是否足够好？"))
-
         return ReasoningResult(
             reasoningType = ReasoningType.REFLECTION,
             steps = steps,
@@ -114,31 +102,27 @@ class ReasoningFramework(private val context: android.content.Context) {
             confidence = 0.92f
         )
     }
-
-    fun autoReasoning(question: String): ReasoningResult {
+        fun autoReasoning(question: String): ReasoningResult {
         val hasComplex = question.length > 100 ||
             question.contains(Regex("why|how|what|explain|分析|为什么|如何"))
-
         val hasMultipleSteps = question.contains("步骤") || question.contains("过程")
         val needsTools = question.contains("搜索") || question.contains("查询")
-
         return when {
             needsTools -> reactReasoning(question)
-            hasMultipleSteps -> treeOfThoughtReasoning(question)
-            hasComplex -> chainOfThoughtReasoning(question)
-            else -> chainOfThoughtReasoning(question)
+        hasMultipleSteps -> treeOfThoughtReasoning(question)
+        hasComplex -> chainOfThoughtReasoning(question)
+        else -> chainOfThoughtReasoning(question)
         }
     }
-
-    fun formatReasoning(result: ReasoningResult): String {
+        fun formatReasoning(result: ReasoningResult): String {
         val sb = StringBuilder()
         sb.append("## 推理过程 (${result.reasoningType})\n\n")
         result.steps.forEach { step ->
             sb.append("${step.stepNumber}. ${step.thought}")
-            if (step.action != null) {
+        if (step.action != null) {
                 sb.append(" [${step.action}]")
             }
-            sb.append("\n")
+        sb.append("\n")
         }
         sb.append("\n## 答案: ${result.finalAnswer}\n")
         sb.append("## 置信应 ${(result.confidence * 100).toInt()}%\n")

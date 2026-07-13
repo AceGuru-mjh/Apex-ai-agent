@@ -17,10 +17,9 @@ import kotlinx.coroutines.withContext
 class BatchRunStorage(context: Context) {
     
     private val database = SessionDatabase.getInstance(context)
-    private val batchRunDao = database.batchRunDao()
-    private val rlTrajectoryDao = database.rlTrajectoryDao()
-    
-    companion object {
+        private val batchRunDao = database.batchRunDao()
+        private val rlTrajectoryDao = database.rlTrajectoryDao()
+        companion object {
         @Volatile
         private var INSTANCE: BatchRunStorage? = null
         
@@ -91,8 +90,8 @@ class BatchRunStorage(context: Context) {
                 result = null
             )
             // 获取实体并更新错误信息
-    val entity = batchRunDao.getBatchRunById(batchRunId)
-            entity?.let {
+        val entity = batchRunDao.getBatchRunById(batchRunId)
+        entity?.let {
                 batchRunDao.updateBatchRun(it.copy(errorMessage = errorMessage))
             }
         }
@@ -132,9 +131,9 @@ class BatchRunStorage(context: Context) {
     suspend fun deleteBatchRun(batchRunId: String) {
         withContext(Dispatchers.IO) {
             // 先删除关联的RL轨迹
-                rlTrajectoryDao.deleteTrajectoriesByBatchRunId(batchRunId)
+        rlTrajectoryDao.deleteTrajectoriesByBatchRunId(batchRunId)
             // 再删除批量运行本身
-                batchRunDao.deleteBatchRun(batchRunId)
+        batchRunDao.deleteBatchRun(batchRunId)
         }
     }
     
@@ -213,11 +212,9 @@ class BatchRunStorage(context: Context) {
      */
     suspend fun getRLStats(batchRunId: String): RLStats = withContext(Dispatchers.IO) {
         val trajectories = rlTrajectoryDao.getTrajectoriesByBatchRunIdSync(batchRunId)
-        
         if (trajectories.isEmpty()) {
             return@withContext RLStats(0, 0.0, 0.0, 0.0)
         }
-        
         val avgReward = trajectories.sumOf { it.reward } / trajectories.size
         val maxReward = trajectories.maxOf { it.reward }
         val minReward = trajectories.minOf { it.reward }
@@ -232,7 +229,7 @@ class BatchRunStorage(context: Context) {
     suspend fun cleanupOldData(olderThanTimestamp: Long) {
         withContext(Dispatchers.IO) {
             // 清理旧的批量运行（级联删除RL轨迹，
-    val allBatchRuns = batchRunDao.getBatchRunsByBatchId("")
+        val allBatchRuns = batchRunDao.getBatchRunsByBatchId("")
             // Note: This is simplified; in production you'd want a proper cleanup query
         }
     }

@@ -31,7 +31,7 @@ class QualityAssuredCodeGenerator(
         while (attempt < maxAttempts) {
             try {
                 // 1. 报告进度
-                progressCallback?.invoke(
+        progressCallback?.invoke(
                     GenerationProgress(
                         attempt = attempt + 1,
                         maxAttempts = maxAttempts,
@@ -41,17 +41,17 @@ class QualityAssuredCodeGenerator(
                 )
                 
                 // 2. 生成代码
-    val code = generateCode(task, attempt)
+        val code = generateCode(task, attempt)
                 
                 // 3. 静态分析
-    val analysisResult = codeAnalyzer?.analyze(code, task.language)
+        val analysisResult = codeAnalyzer?.analyze(code, task.language)
                     ?: CodeAnalysisResult(isValid = true, issues = emptyList())
                 
                 // 4. 计算质量分数
-    val qualityScore = calculateQualityScore(code, analysisResult, task)
+        val qualityScore = calculateQualityScore(code, analysisResult, task)
                 
                 // 5. 创建结果对象
-    val result = CodeGenerationResult(
+        val result = CodeGenerationResult(
                     code = code,
                     qualityScore = qualityScore,
                     analysisResult = analysisResult,
@@ -60,12 +60,12 @@ class QualityAssuredCodeGenerator(
                 )
                 
                 // 6. 保存最佳结果
-                if (bestResult == null || qualityScore > bestResult.qualityScore) {
+        if (bestResult == null || qualityScore > bestResult.qualityScore) {
                     bestResult = result
                 }
                 
                 // 7. 如果质量达标，直接返回
-                if (qualityScore >= qualityThreshold) {
+        if (qualityScore >= qualityThreshold) {
                     progressCallback?.invoke(
                         GenerationProgress(
                             attempt = attempt + 1,
@@ -74,11 +74,11 @@ class QualityAssuredCodeGenerator(
                             progress = 100f
                         )
                     )
-                    return@withContext result
+        return@withContext result
                 }
                 
                 // 8. 否则，基于问题重新生成
-                progressCallback?.invoke(
+        progressCallback?.invoke(
                     GenerationProgress(
                         attempt = attempt + 1,
                         maxAttempts = maxAttempts,
@@ -88,18 +88,17 @@ class QualityAssuredCodeGenerator(
                 )
                 
                 // 更新任务，添加反馈
-                task.feedback = buildFeedbackFromIssues(analysisResult.issues)
+        task.feedback = buildFeedbackFromIssues(analysisResult.issues)
                 
             } catch (e: Exception) {
                 lastError = e
                 // 继续尝试
             }
-            
-            attempt++
+        attempt++
         }
         
         // 达到最大尝试次数，返回最佳结果或抛出异常
-                if (bestResult != null) {
+        if (bestResult != null) {
             bestResult.copy(warnings = listOf("Quality threshold not met after ${maxAttempts} attempts"))
         } else {
             throw CodeGenerationException(
@@ -117,12 +116,10 @@ class QualityAssuredCodeGenerator(
         progressCallback: ((BatchProgress) -> Unit)? = null
     ): List<CodeGenerationResult> {
         val results = mutableListOf<CodeGenerationResult>()
-        
         tasks.forEachIndexed { index, task ->
             val result = generateQualityCode(task)
-            results.add(result)
-            
-            progressCallback?.invoke(
+        results.add(result)
+        progressCallback?.invoke(
                 BatchProgress(
                     completed = index + 1,
                     total = tasks.size,
@@ -130,7 +127,6 @@ class QualityAssuredCodeGenerator(
                 )
             )
         }
-        
         return results
     }
     
@@ -144,12 +140,12 @@ class QualityAssuredCodeGenerator(
         val issues = mutableListOf<String>()
         
         // 1. 基本语法检查
-                if (code.isBlank()) {
+        if (code.isBlank()) {
             issues.add("Generated code is empty")
         }
         
         // 2. 检查是否包含必要的导入
-                if (task.requiredImports.isNotEmpty()) {
+        if (task.requiredImports.isNotEmpty()) {
             task.requiredImports.forEach { import ->
                 if (!code.contains(import)) {
                     issues.add("Missing import: ${import}")
@@ -158,18 +154,17 @@ class QualityAssuredCodeGenerator(
         }
         
         // 3. 检查是否满足约束条件
-                task.constraints.forEach { constraint ->
+        task.constraints.forEach { constraint ->
             if (!checkConstraint(code, constraint)) {
                 issues.add("Constraint not met: ${constraint}")
             }
         }
         
         // 4. 静态分析（如果有）
-    val analysisResult = codeAnalyzer?.analyze(code, task.language)
+        val analysisResult = codeAnalyzer?.analyze(code, task.language)
         analysisResult?.issues?.forEach { issue ->
             issues.add("${issue.severity}: ${issue.message}")
         }
-        
         return ValidationResult(
             isValid = issues.isEmpty(),
             issues = issues,
@@ -178,85 +173,73 @@ class QualityAssuredCodeGenerator(
     }
     
     // ==================== 私有方法 ====================
-                private suspend fun generateCode(task: CodeGenerationTask, attempt: Int): String {
+        private suspend fun generateCode(task: CodeGenerationTask, attempt: Int): String {
         val prompt = if (attempt == 0) {
             // 首次尝试：使用标准提示
-                buildInitialPrompt(task)
+        buildInitialPrompt(task)
         } else {
             // 首次尝试：使用标准提示
-                buildImprovedPrompt(task, attempt)
+        buildImprovedPrompt(task, attempt)
         }
-        
         return llamaEngine.generate(prompt)
     }
-    
-    private fun buildInitialPrompt(task: CodeGenerationTask): String {
+        private fun buildInitialPrompt(task: CodeGenerationTask): String {
         return buildString {
             appendLine("You are an expert ${task.language} developer.")
-            appendLine("Generate high-quality, production-ready code.")
-            appendLine()
-            
-            if (task.context != null) {
+        appendLine("Generate high-quality, production-ready code.")
+        appendLine()
+        if (task.context != null) {
                 appendLine("Context:")
-                appendLine(task.context)
-                appendLine()
+        appendLine(task.context)
+        appendLine()
             }
-            
-            if (task.examples.isNotEmpty()) {
+        if (task.examples.isNotEmpty()) {
                 appendLine("Examples:")
-                task.examples.forEachIndexed { index, example ->
+        task.examples.forEachIndexed { index, example ->
                     appendLine("Example ${index + 1}:")
-                    appendLine(example)
-                    appendLine()
+        appendLine(example)
+        appendLine()
                 }
             }
-            
-            appendLine("Task: ${task.description}")
-            appendLine()
-            
-            if (task.constraints.isNotEmpty()) {
+        appendLine("Task: ${task.description}")
+        appendLine()
+        if (task.constraints.isNotEmpty()) {
                 appendLine("Constraints:")
-                task.constraints.forEach { appendLine("- ${it}") }
-                appendLine()
+        task.constraints.forEach { appendLine("- ${it}") }
+        appendLine()
             }
-            
-            appendLine("Requirements:")
-            appendLine("1. Write clean, readable code")
-            appendLine("2. Follow best practices")
-            appendLine("3. Handle edge cases")
-            appendLine("4. Include necessary imports")
-            appendLine("5. Add comments for complex logic")
-            appendLine()
-            appendLine("Provide only the code, no explanations.")
+        appendLine("Requirements:")
+        appendLine("1. Write clean, readable code")
+        appendLine("2. Follow best practices")
+        appendLine("3. Handle edge cases")
+        appendLine("4. Include necessary imports")
+        appendLine("5. Add comments for complex logic")
+        appendLine()
+        appendLine("Provide only the code, no explanations.")
         }
     }
-    
-    private fun buildImprovedPrompt(task: CodeGenerationTask, attempt: Int): String {
+        private fun buildImprovedPrompt(task: CodeGenerationTask, attempt: Int): String {
         return buildString {
             appendLine("Previous attempt had issues. Please improve the code.")
-            appendLine()
-            
-            appendLine("Original task: ${task.description}")
-            appendLine()
-            
-            if (task.feedback != null) {
+        appendLine()
+        appendLine("Original task: ${task.description}")
+        appendLine()
+        if (task.feedback != null) {
                 appendLine("Issues found in previous attempt:")
-                appendLine(task.feedback)
-                appendLine()
-                appendLine("Please fix these issues and generate improved code.")
-                appendLine()
+        appendLine(task.feedback)
+        appendLine()
+        appendLine("Please fix these issues and generate improved code.")
+        appendLine()
             }
-            
-            appendLine("Additional requirements:")
-            appendLine("- Address all the issues mentioned above")
-            appendLine("- Maintain code functionality")
-            appendLine("- Improve code quality")
-            appendLine()
-            appendLine("Provide only the improved code.")
+        appendLine("Additional requirements:")
+        appendLine("- Address all the issues mentioned above")
+        appendLine("- Maintain code functionality")
+        appendLine("- Improve code quality")
+        appendLine()
+        appendLine("Provide only the improved code.")
         }
     }
-    
-    private fun calculateQualityScore(
+        private fun calculateQualityScore(
         code: String,
         analysisResult: CodeAnalysisResult,
         task: CodeGenerationTask
@@ -264,7 +247,7 @@ class QualityAssuredCodeGenerator(
         var score = 1.0f
         
         // 1. 基本语法检查
-                analysisResult.issues.forEach { issue ->
+        analysisResult.issues.forEach { issue ->
             score -= when (issue.severity) {
                 IssueSeverity.CRITICAL -> 0.3f
                 IssueSeverity.ERROR -> 0.2f
@@ -274,52 +257,47 @@ class QualityAssuredCodeGenerator(
         }
         
         // 2. 检查是否包含必要的导入
-                if (code.length < 10) score -= 0.2f // 太短可能不完整
-                if (code.length > 10000) score -= 0.1f // 太长可能冗余
+        if (code.length < 10) score -= 0.2f // 太短可能不完整
+        if (code.length > 10000) score -= 0.1f // 太长可能冗余
         
         // 3. 检查是否满足约束条件
-    val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
+        val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
         score -= unmetConstraints * 0.1f
         
         // 4. 静态分析（如果有）
-                if (task.requiredImports.isNotEmpty()) {
+        if (task.requiredImports.isNotEmpty()) {
             val missingImports = task.requiredImports.count { !code.contains(it) }
-            score -= missingImports * 0.1f
+        score -= missingImports * 0.1f
         }
-        
         return maxOf(0.0f, minOf(1.0f, score))
     }
-    
-    private fun calculateSimpleQualityScore(code: String, issues: List<String>): Float {
+        private fun calculateSimpleQualityScore(code: String, issues: List<String>): Float {
         var score = 1.0f
         score -= issues.size * 0.1f
         return maxOf(0.0f, minOf(1.0f, score))
     }
-    
-    private fun checkConstraint(code: String, constraint: String): Boolean {
+        private fun checkConstraint(code: String, constraint: String): Boolean {
         // 达到最大尝试次数，返回最佳结果或抛出异常
         // 实际项目中应该有更复杂的逻辑
-                return when {
+        return when {
             constraint.contains("tail recursion", ignoreCase = true) -> {
                 code.contains("tailrec", ignoreCase = true)
             }
-            constraint.contains("null safety", ignoreCase = true) -> {
+        constraint.contains("null safety", ignoreCase = true) -> {
                 !code.contains("!!") || code.contains("?.", ignoreCase = true)
             }
-            constraint.contains("immutable", ignoreCase = true) -> {
+        constraint.contains("immutable", ignoreCase = true) -> {
                 code.contains("val ", ignoreCase = true) && !code.contains("var ", ignoreCase = true)
             }
-            else -> true // 默认认为满足
+        else -> true // 默认认为满足
         }
     }
-    
-    private fun buildFeedbackFromIssues(issues: List<CodeIssue>): String {
+        private fun buildFeedbackFromIssues(issues: List<CodeIssue>): String {
         if (issues.isEmpty()) return ""
-        
         return buildString {
             issues.forEach { issue ->
                 appendLine("- [${issue.severity}] ${issue.message}")
-                if (issue.lineNumber != null) {
+        if (issue.lineNumber != null) {
                     appendLine("  Line: ${issue.lineNumber}")
                 }
             }

@@ -21,22 +21,19 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    enum class DebugState {
+        enum class DebugState {
         IDLE,
         RUNNING,
         PAUSED,
         STEP_MODE,
         TERMINATED
     }
-
-    enum class BreakpointType {
+        enum class BreakpointType {
         TOOL_CALL,
         LINE_NUMBER,
         CONDITION
     }
-
-    data class Breakpoint(
+        data class Breakpoint(
         val id: String,
         val type: BreakpointType,
         val target: String,
@@ -50,63 +47,60 @@ class SkillDebugger private constructor(private val context: Context) {
             return when (type) {
                 BreakpointType.TOOL_CALL -> context.currentTool == target
                 BreakpointType.LINE_NUMBER -> context.currentLine == target.toIntOrNull()
-                BreakpointType.CONDITION -> evaluateCondition(condition, context)
+        BreakpointType.CONDITION -> evaluateCondition(condition, context)
             }
         }
-
         private fun evaluateCondition(condition: String?, ctx: ExecutionContext): Boolean {
             if (condition.isNullOrBlank()) return false
             return try {
                 val result = evaluateExpression(condition, ctx)
-                result as? Boolean ?: false
+        result as? Boolean ?: false
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Failed to evaluate condition: ${condition}", e)
-                false
+        false
             }
         }
-
         private fun evaluateExpression(expr: String, ctx: ExecutionContext): Any? {
             return when {
                 expr.contains("==") -> {
                     val parts = expr.split("==").map { it.trim() }
         val left = resolveVariable(parts[0], ctx)
-                    val right = resolveVariable(parts[1], ctx)
-                    left == right
+        val right = resolveVariable(parts[1], ctx)
+        left == right
                 }
-                expr.contains("!=") -> {
+        expr.contains("!=") -> {
                     val parts = expr.split("!=").map { it.trim() }
         val left = resolveVariable(parts[0], ctx)
-                    val right = resolveVariable(parts[1], ctx)
-                    left != right
+        val right = resolveVariable(parts[1], ctx)
+        left != right
                 }
-                expr.contains(">=") -> {
+        expr.contains(">=") -> {
                     val parts = expr.split(">=").map { it.trim() }
         val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left >= right
                 }
-                expr.contains("<=") -> {
+        expr.contains("<=") -> {
                     val parts = expr.split("<=").map { it.trim() }
         val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left <= right
                 }
-                expr.contains(">") -> {
+        expr.contains(">") -> {
                     val parts = expr.split(">").map { it.trim() }
         val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left > right
                 }
-                expr.contains("<") -> {
+        expr.contains("<") -> {
                     val parts = expr.split("<").map { it.trim() }
         val left = (resolveVariable(parts[0], ctx) as? Number)?.toLong() ?: 0
                     val right = (resolveVariable(parts[1], ctx) as? Number)?.toLong() ?: 0
                     left < right
                 }
-                else -> resolveVariable(expr, ctx) as? Boolean
+        else -> resolveVariable(expr, ctx) as? Boolean
             }
         }
-
         private fun resolveVariable(name: String, ctx: ExecutionContext): Any? {
             return when (name) {
                 "toolCount" -> ctx.toolCallCount
@@ -117,8 +111,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    data class ExecutionContext(
+        data class ExecutionContext(
         val skillName: String,
         var currentTool: String? = null,
         var currentLine: Int? = null,
@@ -128,14 +121,12 @@ class SkillDebugger private constructor(private val context: Context) {
         val variables: MutableMap<String, Any> = mutableMapOf(),
         val callStack: MutableList<StackFrame> = mutableListOf()
     )
-
-    data class StackFrame(
+        data class StackFrame(
         val toolName: String,
         val lineNumber: Int,
         val timestamp: Long = System.currentTimeMillis()
     )
-
-    data class ToolCall(
+        data class ToolCall(
         val id: String = java.util.UUID.randomUUID().toString(),
         val toolName: String,
         val input: Map<String, Any?>,
@@ -147,13 +138,12 @@ class SkillDebugger private constructor(private val context: Context) {
     ) {
         fun complete(output: Any?, error: String? = null) {
             endTime = System.currentTimeMillis()
-            durationMs = endTime!! - startTime
+        durationMs = endTime!! - startTime
             this.output = output
             this.error = error
         }
     }
-
-    data class DebugSession(
+        data class DebugSession(
         val id: String = java.util.UUID.randomUUID().toString(),
         val skillName: String,
         val startTime: Long = System.currentTimeMillis(),
@@ -164,26 +154,21 @@ class SkillDebugger private constructor(private val context: Context) {
         val breakpoints: ConcurrentHashMap<String, Breakpoint> = ConcurrentHashMap(),
         val pauseReason: PauseReason? = null
     )
-
-    enum class PauseReason {
+        enum class PauseReason {
         BREAKPOINT_HIT,
         STEP_COMPLETE,
         MANUAL,
         ERROR
     }
-
-    private val breakpointManager = BreakpointManager()
-    private val executionTracer = ExecutionTracer(context)
-
-    private val sessions = ConcurrentHashMap<String, DebugSession>()
-    private var activeSession: DebugSession? = null
+        private val breakpointManager = BreakpointManager()
+        private val executionTracer = ExecutionTracer(context)
+        private val sessions = ConcurrentHashMap<String, DebugSession>()
+        private var activeSession: DebugSession? = null
     private val isDebugging = AtomicBoolean(false)
-    private val isPaused = AtomicBoolean(false)
-    private val stepMode = AtomicBoolean(false)
-
-    private val debugListeners = CopyOnWriteArrayList<DebugListener>()
-
-    interface DebugListener {
+        private val isPaused = AtomicBoolean(false)
+        private val stepMode = AtomicBoolean(false)
+        private val debugListeners = CopyOnWriteArrayList<DebugListener>()
+        interface DebugListener {
         fun onBreakpointHit(session: DebugSession, breakpoint: Breakpoint)
         fun onStepComplete(session: DebugSession)
         fun onToolCallStart(session: DebugSession, toolName: String, input: Map<String, Any?>)
@@ -193,18 +178,15 @@ class SkillDebugger private constructor(private val context: Context) {
         fun onSessionEnd(session: DebugSession)
         fun onStateChanged(session: DebugSession, oldState: DebugState, newState: DebugState)
     }
-
-    fun addDebugListener(listener: DebugListener) {
+        fun addDebugListener(listener: DebugListener) {
         if (!debugListeners.contains(listener)) {
             debugListeners.add(listener)
         }
     }
-
-    fun removeDebugListener(listener: DebugListener) {
+        fun removeDebugListener(listener: DebugListener) {
         debugListeners.remove(listener)
     }
-
-    fun startDebugSession(skillName: String): DebugSession {
+        fun startDebugSession(skillName: String): DebugSession {
         val session = DebugSession(skillName = skillName).apply {
             state = DebugState.RUNNING
             currentContext = ExecutionContext(skillName = skillName)
@@ -214,14 +196,11 @@ class SkillDebugger private constructor(private val context: Context) {
         isDebugging.set(true)
         isPaused.set(false)
         stepMode.set(false)
-
         notifySessionStart(session)
         AppLogger.d(TAG, "Debug session started: ${session.id} for skill: ${skillName}")
-
         return session
     }
-
-    fun endDebugSession(sessionId: String): DebugSession? {
+        fun endDebugSession(sessionId: String): DebugSession? {
         val session = sessions[sessionId] ?: return null
         session.endTime = System.currentTimeMillis()
         session.state = DebugState.TERMINATED
@@ -229,48 +208,40 @@ class SkillDebugger private constructor(private val context: Context) {
         if (activeSession?.id == sessionId) {
             activeSession = null
             isDebugging.set(false)
-            isPaused.set(false)
-            stepMode.set(false)
+        isPaused.set(false)
+        stepMode.set(false)
         }
-
         executionTracer.recordSession(session)
         notifySessionEnd(session)
         AppLogger.d(TAG, "Debug session ended: ${sessionId}")
-
         return session
     }
-
-    fun addBreakpoint(type: BreakpointType, target: String, condition: String? = null): Breakpoint {
+        fun addBreakpoint(type: BreakpointType, target: String, condition: String? = null): Breakpoint {
         val breakpoint = breakpointManager.addBreakpoint(type, target, condition)
         activeSession?.breakpoints?.put(breakpoint.id, breakpoint)
         AppLogger.d(TAG, "Breakpoint added: ${breakpoint.id} type=${type} target=${target}")
         return breakpoint
     }
-
-    fun removeBreakpoint(breakpointId: String): Boolean {
+        fun removeBreakpoint(breakpointId: String): Boolean {
         val result = breakpointManager.removeBreakpoint(breakpointId)
         activeSession?.breakpoints?.remove(breakpointId)
         return result
     }
-
-    fun enableBreakpoint(breakpointId: String, enabled: Boolean) {
+        fun enableBreakpoint(breakpointId: String, enabled: Boolean) {
         breakpointManager.setBreakpointEnabled(breakpointId, enabled)
         activeSession?.breakpoints?.get(breakpointId)?.let {
             activeSession?.breakpoints?.put(breakpointId, it.copy(enabled = enabled))
         }
     }
-
-    fun getAllBreakpoints(): List<Breakpoint> = breakpointManager.getAllBreakpoints()
-
-    fun pauseExecution(reason: PauseReason = PauseReason.MANUAL) {
+        fun getAllBreakpoints(): List<Breakpoint> = breakpointManager.getAllBreakpoints()
+        fun pauseExecution(reason: PauseReason = PauseReason.MANUAL) {
         isPaused.set(true)
         activeSession?.let { session ->
             session.state = DebugState.PAUSED
             session.pauseReason = reason
         }
     }
-
-    fun resumeExecution() {
+        fun resumeExecution() {
         isPaused.set(false)
         stepMode.set(false)
         activeSession?.let { session ->
@@ -280,8 +251,7 @@ class SkillDebugger private constructor(private val context: Context) {
             notifyStateChanged(session, oldState, DebugState.RUNNING)
         }
     }
-
-    fun stepOver() {
+        fun stepOver() {
         stepMode.set(true)
         isPaused.set(false)
         activeSession?.let { session ->
@@ -291,8 +261,7 @@ class SkillDebugger private constructor(private val context: Context) {
             notifyStateChanged(session, oldState, DebugState.STEP_MODE)
         }
     }
-
-    fun stepInto() {
+        fun stepInto() {
         stepMode.set(true)
         isPaused.set(false)
         activeSession?.let { session ->
@@ -302,8 +271,7 @@ class SkillDebugger private constructor(private val context: Context) {
             notifyStateChanged(session, oldState, DebugState.STEP_MODE)
         }
     }
-
-    fun stepOut() {
+        fun stepOut() {
         stepMode.set(true)
         isPaused.set(false)
         activeSession?.let { session ->
@@ -313,41 +281,33 @@ class SkillDebugger private constructor(private val context: Context) {
             notifyStateChanged(session, oldState, DebugState.STEP_MODE)
         }
     }
-
-    fun onToolCallStart(toolName: String, input: Map<String, Any?>) {
+        fun onToolCallStart(toolName: String, input: Map<String, Any?>) {
         val session = activeSession ?: return
 
         session.currentContext?.apply {
             currentTool = toolName
             toolCallCount++
         }
-
         val toolCall = ToolCall(toolName = toolName, input = input)
         session.toolCalls.add(toolCall)
-
         if (session.toolCalls.size > MAX_TRACE_SIZE) {
             session.toolCalls.removeAt(0)
         }
-
         notifyToolCallStart(session, toolName, input)
         AppLogger.d(TAG, "Tool call started: ${toolName} in session ${session.id}")
     }
-
-    fun onToolCallEnd(toolName: String, output: Any?, error: String? = null) {
+        fun onToolCallEnd(toolName: String, output: Any?, error: String? = null) {
         val session = activeSession ?: return
         val toolCall = session.toolCalls.findLast {
             it.toolName == toolName && it.endTime == null
         }
         toolCall?.complete(output, error)
-
         session.currentContext?.apply {
             if (error != null) errorCount++
         }
-
         toolCall?.let { notifyToolCallEnd(session, it) }
     }
-
-    fun onLineReached(lineNumber: Int) {
+        fun onLineReached(lineNumber: Int) {
         val session = activeSession ?: return
 
         session.currentContext?.currentLine = lineNumber
@@ -356,8 +316,7 @@ class SkillDebugger private constructor(private val context: Context) {
             checkBreakpoints(session)
         }
     }
-
-    fun onError(error: String) {
+        fun onError(error: String) {
         val session = activeSession ?: return
         session.currentContext?.errorCount?.let { it }
         session.pauseReason = PauseReason.ERROR
@@ -365,66 +324,55 @@ class SkillDebugger private constructor(private val context: Context) {
         session.state = DebugState.PAUSED
         notifyError(session, error)
     }
-
-    fun checkBreakpoints(session: DebugSession) {
+        fun checkBreakpoints(session: DebugSession) {
         val context = session.currentContext ?: return
 
         for (breakpoint in session.breakpoints.values) {
             if (breakpoint.isHit(context)) {
                 breakpoint.hitCount.incrementAndGet()
-                session.pauseReason = PauseReason.BREAKPOINT_HIT
+        session.pauseReason = PauseReason.BREAKPOINT_HIT
                 isPaused.set(true)
-                val oldState = session.state
+        val oldState = session.state
                 session.state = DebugState.PAUSED
                 notifyStateChanged(session, oldState, DebugState.PAUSED)
-                notifyBreakpointHit(session, breakpoint)
-                AppLogger.d(TAG, "Breakpoint hit: ${breakpoint.id} in session ${session.id}")
-                return
+        notifyBreakpointHit(session, breakpoint)
+        AppLogger.d(TAG, "Breakpoint hit: ${breakpoint.id} in session ${session.id}")
+        return
             }
         }
     }
-
-    fun isCurrentlyDebugging(): Boolean = isDebugging.get()
-
-    fun isCurrentlyPaused(): Boolean = isPaused.get()
-
-    fun getActiveSession(): DebugSession? = activeSession
+        fun isCurrentlyDebugging(): Boolean = isDebugging.get()
+        fun isCurrentlyPaused(): Boolean = isPaused.get()
+        fun getActiveSession(): DebugSession? = activeSession
 
     fun getSession(sessionId: String): DebugSession? = sessions[sessionId]
 
     fun getAllSessions(): List<DebugSession> = sessions.values.toList()
-
-    fun getExecutionTracer(): ExecutionTracer = executionTracer
+        fun getExecutionTracer(): ExecutionTracer = executionTracer
 
     fun getBreakpointManager(): BreakpointManager = breakpointManager
 
     fun setVariable(name: String, value: Any) {
         activeSession?.currentContext?.variables?.put(name, value)
     }
-
-    fun getVariable(name: String): Any? {
+        fun getVariable(name: String): Any? {
         return activeSession?.currentContext?.variables?.get(name)
     }
-
-    fun getAllVariables(): Map<String, Any> {
+        fun getAllVariables(): Map<String, Any> {
         return activeSession?.currentContext?.variables?.toMap() ?: emptyMap()
     }
-
-    fun getCallStack(): List<StackFrame> {
+        fun getCallStack(): List<StackFrame> {
         return activeSession?.currentContext?.callStack?.toList() ?: emptyList()
     }
-
-    fun pushStackFrame(toolName: String, lineNumber: Int) {
+        fun pushStackFrame(toolName: String, lineNumber: Int) {
         activeSession?.currentContext?.callStack?.add(
             StackFrame(toolName = toolName, lineNumber = lineNumber)
         )
     }
-
-    fun popStackFrame(): StackFrame? {
+        fun popStackFrame(): StackFrame? {
         return activeSession?.currentContext?.callStack?.removeLastOrNull()
     }
-
-    private fun notifyBreakpointHit(session: DebugSession, breakpoint: Breakpoint) {
+        private fun notifyBreakpointHit(session: DebugSession, breakpoint: Breakpoint) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onBreakpointHit(session, breakpoint)
@@ -433,8 +381,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyStepComplete(session: DebugSession) {
+        private fun notifyStepComplete(session: DebugSession) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onStepComplete(session)
@@ -443,8 +390,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyToolCallStart(session: DebugSession, toolName: String, input: Map<String, Any?>) {
+        private fun notifyToolCallStart(session: DebugSession, toolName: String, input: Map<String, Any?>) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onToolCallStart(session, toolName, input)
@@ -453,8 +399,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyToolCallEnd(session: DebugSession, toolCall: ToolCall) {
+        private fun notifyToolCallEnd(session: DebugSession, toolCall: ToolCall) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onToolCallEnd(session, toolCall)
@@ -463,8 +408,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyError(session: DebugSession, error: String) {
+        private fun notifyError(session: DebugSession, error: String) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onError(session, error)
@@ -473,8 +417,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifySessionStart(session: DebugSession) {
+        private fun notifySessionStart(session: DebugSession) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onSessionStart(session)
@@ -483,8 +426,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifySessionEnd(session: DebugSession) {
+        private fun notifySessionEnd(session: DebugSession) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onSessionEnd(session)
@@ -493,8 +435,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    private fun notifyStateChanged(session: DebugSession, oldState: DebugState, newState: DebugState) {
+        private fun notifyStateChanged(session: DebugSession, oldState: DebugState, newState: DebugState) {
         debugListeners.forEach { listener ->
             runCatching {
                 listener.onStateChanged(session, oldState, newState)
@@ -503,8 +444,7 @@ class SkillDebugger private constructor(private val context: Context) {
             }
         }
     }
-
-    fun clearAllSessions() {
+        fun clearAllSessions() {
         sessions.forEach { (_, session) ->
             session.state = DebugState.TERMINATED
             session.endTime = System.currentTimeMillis()

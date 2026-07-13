@@ -25,30 +25,29 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
             }
         }
     }
-
-    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+        private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     // 核心管理器
-    val knowledgeGraphManager: KnowledgeGraphManager by lazy { KnowledgeGraphManager(context) }
-    val federatedLearningManager: FederatedLearningManager by lazy { FederatedLearningManager(context) }
-    val realTimeCollaborationManager: RealTimeCollaborationManager by lazy { RealTimeCollaborationManager(context) }
-    val dynamicTopologyManager: DynamicTopologyManager by lazy { DynamicTopologyManager(context) }
-    val multimodalAgentManager: MultimodalAgentManager by lazy { MultimodalAgentManager(context) }
-    val advancedReasoningEngine: AdvancedReasoningEngine by lazy { AdvancedReasoningEngine() }
-    val selfHealingManager: SelfHealingManager by lazy { SelfHealingManager(context) }
-    val agentVisualizationManager: AgentVisualizationManager by lazy { AgentVisualizationManager(context) }
-    val distributedArchitectureManager: DistributedArchitectureManager by lazy { DistributedArchitectureManager(context) }
-    val performanceOptimizationManager: PerformanceOptimizationManager by lazy { PerformanceOptimizationManager(context) }
+        val knowledgeGraphManager: KnowledgeGraphManager by lazy { KnowledgeGraphManager(context) }
+        val federatedLearningManager: FederatedLearningManager by lazy { FederatedLearningManager(context) }
+        val realTimeCollaborationManager: RealTimeCollaborationManager by lazy { RealTimeCollaborationManager(context) }
+        val dynamicTopologyManager: DynamicTopologyManager by lazy { DynamicTopologyManager(context) }
+        val multimodalAgentManager: MultimodalAgentManager by lazy { MultimodalAgentManager(context) }
+        val advancedReasoningEngine: AdvancedReasoningEngine by lazy { AdvancedReasoningEngine() }
+        val selfHealingManager: SelfHealingManager by lazy { SelfHealingManager(context) }
+        val agentVisualizationManager: AgentVisualizationManager by lazy { AgentVisualizationManager(context) }
+        val distributedArchitectureManager: DistributedArchitectureManager by lazy { DistributedArchitectureManager(context) }
+        val performanceOptimizationManager: PerformanceOptimizationManager by lazy { PerformanceOptimizationManager(context) }
 
     // 现有系统
-                var multiAgentManager: MultiAgentManager? = null
+        var multiAgentManager: MultiAgentManager? = null
 
     // 系统状态
-    private val _systemState = MutableStateFlow(SystemState.INITIALIZING)
+        private val _systemState = MutableStateFlow(SystemState.INITIALIZING)
         val systemState: StateFlow<SystemState> = _systemState
 
     // 性能指标
-    private val _performanceMetrics = MutableStateFlow(PerformanceMetrics())
+        private val _performanceMetrics = MutableStateFlow(PerformanceMetrics())
         val performanceMetrics: StateFlow<PerformanceMetrics> = _performanceMetrics
 
     /**
@@ -57,26 +56,23 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
     suspend fun initialize() {
         _systemState.value = SystemState.INITIALIZING
         AppLogger.d(TAG, "开始初始化超级Agent系统")
-
         try {
             // 加载性能优化设置
-                performanceOptimizationManager.initialize()
+        performanceOptimizationManager.initialize()
 
             // 初始化自愈系统（首先启动，监控所有其他组件
-                initializeCoreManagers()
+        initializeCoreManagers()
 
             // 注册默认Agent
-                initializeDefaultAgents()
-
-            _systemState.value = SystemState.RUNNING
+        initializeDefaultAgents()
+        _systemState.value = SystemState.RUNNING
             AppLogger.d(TAG, "超级Agent系统初始化完成")
         } catch (e: Exception) {
             _systemState.value = SystemState.ERROR
             AppLogger.e(TAG, "超级Agent系统初始化失败", e)
         }
     }
-
-    private fun initializeCoreManagers() {
+        private fun initializeCoreManagers() {
         knowledgeGraphManager
         federatedLearningManager
         realTimeCollaborationManager
@@ -85,10 +81,9 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
         selfHealingManager
         distributedArchitectureManager
     }
-
-    private suspend fun initializeDefaultAgents() {
+        private suspend fun initializeDefaultAgents() {
         // 注册默认Agent到所有管理器
-    val defaultAgent = Agent(
+        val defaultAgent = Agent(
             id = "default_coordinator",
             name = "系统协调者",
             role = "COORDINATOR",
@@ -98,14 +93,14 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
         )
 
         // 注册到动态拓扑管理器
-                dynamicTopologyManager.registerAgent(
+        dynamicTopologyManager.registerAgent(
             defaultAgent.id,
             capabilities = mapOf("coordination" to 0.95f, "troubleshooting" to 0.9f),
             initialRole = DynamicTopologyManager.AgentRole.COORDINATOR
         )
 
         // 注册到联邦学习管理器
-                federatedLearningManager.registerAgent(
+        federatedLearningManager.registerAgent(
             defaultAgent.id,
             initialCapabilities = mapOf(
                 "coordination" to 0.95f,
@@ -114,11 +109,11 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
         )
 
         // 注册到自愈管理器
-                selfHealingManager.registerAgent(defaultAgent.id)
+        selfHealingManager.registerAgent(defaultAgent.id)
     }
 
         // 更新状态
-    fun registerAgent(
+        fun registerAgent(
         id: String,
         name: String,
         role: String,
@@ -128,27 +123,24 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
     ) {
         scope.launch {
             // 注册到所有相关管理器
-    val defaultAgent = Agent(id, name, role, goal, backstory, tools)
+        val defaultAgent = Agent(id, name, role, goal, backstory, tools)
         val capabilities = calculateAgentCapabilities(role)
-
-            dynamicTopologyManager.registerAgent(id, capabilities = capabilities, initialRole = mapRoleToEnum(role))
-            federatedLearningManager.registerAgent(id, initialCapabilities = capabilities)
-            selfHealingManager.registerAgent(id)
-            _performanceMetrics.value = _performanceMetrics.value.copy(totalAgents = _performanceMetrics.value.totalAgents + 1)
+        dynamicTopologyManager.registerAgent(id, capabilities = capabilities, initialRole = mapRoleToEnum(role))
+        federatedLearningManager.registerAgent(id, initialCapabilities = capabilities)
+        selfHealingManager.registerAgent(id)
+        _performanceMetrics.value = _performanceMetrics.value.copy(totalAgents = _performanceMetrics.value.totalAgents + 1)
         }
     }
-
-    private fun calculateAgentCapabilities(role: String): Map<String, Float> {
+        private fun calculateAgentCapabilities(role: String): Map<String, Float> {
         return when (role) {
             "COORDINATOR" -> mapOf("coordination" to 0.9f, "planning" to 0.85f, "negotiation" to 0.8f)
             "RESEARCHER" -> mapOf("research" to 0.9f, "analysis" to 0.85f, "learning" to 0.9f)
             "DEVELOPER" -> mapOf("coding" to 0.9f, "debugging" to 0.85f, "problem_solving" to 0.85f)
             "DESIGNER" -> mapOf("design" to 0.9f, "creativity" to 0.9f, "visualization" to 0.85f)
-            else -> mapOf("general" to 0.7f)
+        else -> mapOf("general" to 0.7f)
         }
     }
-
-    private fun mapRoleToEnum(role: String): DynamicTopologyManager.AgentRole {
+        private fun mapRoleToEnum(role: String): DynamicTopologyManager.AgentRole {
         return when (role) {
             "COORDINATOR" -> DynamicTopologyManager.AgentRole.COORDINATOR
             "EXECUTOR" -> DynamicTopologyManager.AgentRole.EXECUTOR
@@ -159,8 +151,7 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
             else -> DynamicTopologyManager.AgentRole.EXECUTOR
         }
     }
-
-    fun executeMultiAgentTask(
+        fun executeMultiAgentTask(
         description: String,
         taskId: String,
         taskType: String = "general",
@@ -176,7 +167,7 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
                 "type" to taskType
             )
             // 1. 使用高级推理引擎进行任务规划
-    val reasoningResult = advancedReasoningEngine.reason(
+        val reasoningResult = advancedReasoningEngine.reason(
                 goal = description,
                 context = mapOf(
                 "taskType" to taskType,
@@ -184,18 +175,16 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
             ),
             reasoningType = AdvancedReasoningEngine.ReasoningResult.ReasoningType.MCTS
             )
-
-            onProgress(ProgressUpdate(0.3f, "分析完成"))
+        onProgress(ProgressUpdate(0.3f, "分析完成"))
 
             // 2. 使用动态拓扑管理器分配任务
-    val suitableAgents = capabilities.mapNotNull { cap ->
+        val suitableAgents = capabilities.mapNotNull { cap ->
                 dynamicTopologyManager.findAgentsByCapability(cap).firstOrNull()?.first
             }.distinct()
-
-            onProgress(ProgressUpdate(0.5f, "Agent分配完成"))
+        onProgress(ProgressUpdate(0.5f, "Agent分配完成"))
 
             // 3. 执行任务
-    val results = suitableAgents.map { agentId ->
+        val results = suitableAgents.map { agentId ->
                 federatedLearningManager.recordTaskOutcome(
                     agentId = agentId,
                     taskType = taskType,
@@ -207,44 +196,40 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
             }
 
             // 4. 使用知识图谱存储结果
-                results.forEach { result ->
+        results.forEach { result ->
                 knowledgeGraphManager.extractInsights(taskId, result.toString(), taskMetrics)
             }
-
-            onProgress(ProgressUpdate(1.0f, "任务完成"))
-            val executionTime = System.currentTimeMillis() - startTime
+        onProgress(ProgressUpdate(1.0f, "任务完成"))
+        val executionTime = System.currentTimeMillis() - startTime
             _performanceMetrics.value = _performanceMetrics.value.copy(
                 tasksCompleted = _performanceMetrics.value.tasksCompleted + 1,
                 avgExecutionTime = (_performanceMetrics.value.avgExecutionTime * _performanceMetrics.value.tasksCompleted + executionTime) / (_performanceMetrics.value.tasksCompleted + 1)
-            return@async TaskExecutionResult.Success(taskId, results.map { "Agent完成任务" })
+        return@async TaskExecutionResult.Success(taskId, results.map { "Agent完成任务" })
         } catch (e: Exception) {
             AppLogger.e(TAG, "任务执行失败", e)
-            selfHealingManager.triggerFaultDetection("default_coordinator",
+        selfHealingManager.triggerFaultDetection("default_coordinator",
                 SelfHealingManager.FaultRecord.FaultType.UNKNOWN,
                 SelfHealingManager.FaultRecord.Severity.MEDIUM)
-            onProgress(ProgressUpdate(1.0f, "任务失败: ${e.message}"))
-            return@async TaskExecutionResult.Error(taskId, e.message ?: "未知错误")
+        onProgress(ProgressUpdate(1.0f, "任务失败: ${e.message}"))
+        return@async TaskExecutionResult.Error(taskId, e.message ?: "未知错误")
         }
     }
-
-    fun createCollaborationSession(
+        fun createCollaborationSession(
         name: String,
         participants: List<String>,
         onSessionCreated: (String) -> Unit
     ) {
         scope.launch {
             val sessionId = realTimeCollaborationManager.createSession(name, participants).toString()
-            onSessionCreated(sessionId)
+        onSessionCreated(sessionId)
         }
     }
-
-    fun updateSystemSettings(settings: SystemSettings) {
+        fun updateSystemSettings(settings: SystemSettings) {
         scope.launch {
             performanceOptimizationManager.applySettings(settings)
         }
     }
-
-    fun getSystemReport(): SystemReport {
+        fun getSystemReport(): SystemReport {
         return SystemReport(
             totalAgents = _performanceMetrics.value.totalAgents,
             tasksCompleted = _performanceMetrics.value.tasksCompleted,
@@ -256,12 +241,11 @@ class SuperAgentSystemManager private constructor(private val context: Context) 
             topologies = dynamicTopologyManager.networkTopology.value
         )
     }
-
-    fun shutdown() {
+        fun shutdown() {
         _systemState.value = SystemState.SHUTTING_DOWN
         scope.cancel()
         // 关闭所有管理器
-                knowledgeGraphManager.shutdown()
+        knowledgeGraphManager.shutdown()
         federatedLearningManager.shutdown()
         selfHealingManager.shutdown()
         distributedArchitectureManager.shutdown()
@@ -312,7 +296,7 @@ data class SystemSettings(
 
 sealed class TaskExecutionResult {
     data class Success(val taskId: String, val results: List<String>) : TaskExecutionResult()
-    data class Error(val taskId: String, val error: String) : TaskExecutionResult()
+        data class Error(val taskId: String, val error: String) : TaskExecutionResult()
 }
 
 data class ProgressUpdate(val progress: Float, val message: String)
