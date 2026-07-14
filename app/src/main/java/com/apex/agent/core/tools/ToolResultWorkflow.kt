@@ -119,51 +119,40 @@ data class WorkflowDetailResultData(
             when (node) {
                 is com.apex.data.model.TriggerNode -> {
                     sb.appendLine("  - [Trigger] ${node.name} (${node.id})")
-        sb.appendLine("
-        Type: ${node.triggerType}")
+        sb.appendLine("Type: ${node.triggerType}")
         if (node.description.isNotBlank()) {
-                        sb.appendLine("
-        Description: ${node.description}")
+                        sb.appendLine("Description: ${node.description}")
                     }
                 }
         is com.apex.data.model.ExecuteNode -> {
                     sb.appendLine("  - [Execute] ${node.name} (${node.id})")
-        sb.appendLine("
-        Action: ${node.actionType}")
+        sb.appendLine("Action: ${node.actionType}")
         if (node.description.isNotBlank()) {
-                        sb.appendLine("
-        Description: ${node.description}")
+                        sb.appendLine("Description: ${node.description}")
                     }
                 }
         is com.apex.data.model.ConditionNode -> {
                     sb.appendLine("  - [Condition] ${node.name} (${node.id})")
-        sb.appendLine("
-        Operator: ${node.operator}")
+        sb.appendLine("Operator: ${node.operator}")
         if (node.description.isNotBlank()) {
-                        sb.appendLine("
-        Description: ${node.description}")
+                        sb.appendLine("Description: ${node.description}")
                     }
                 }
         is com.apex.data.model.LogicNode -> {
                     sb.appendLine("  - [Logic] ${node.name} (${node.id})")
-        sb.appendLine("
-        Operator: ${node.operator}")
+        sb.appendLine("Operator: ${node.operator}")
         if (node.description.isNotBlank()) {
-                        sb.appendLine("
-        Description: ${node.description}")
+                        sb.appendLine("Description: ${node.description}")
                     }
                 }
         is com.apex.data.model.ExtractNode -> {
                     sb.appendLine("  - [Extract] ${node.name} (${node.id})")
-        sb.appendLine("
-        Mode: ${node.mode}")
+        sb.appendLine("Mode: ${node.mode}")
         if (node.expression.isNotBlank()) {
-                        sb.appendLine("
-        Expression: ${node.expression}")
+                        sb.appendLine("Expression: ${node.expression}")
                     }
         if (node.description.isNotBlank()) {
-                        sb.appendLine("
-        Description: ${node.description}")
+                        sb.appendLine("Description: ${node.description}")
                     }
                 }
             }

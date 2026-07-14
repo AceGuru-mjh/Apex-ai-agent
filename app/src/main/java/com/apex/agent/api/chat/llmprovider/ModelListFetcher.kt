@@ -435,8 +435,7 @@ object ModelListFetcher {
         try {
             val jsonObject = JSONObject(jsonResponse)
 
-            // 检查是否包含models"字段（Gemini API格式
-        if (jsonObject.has("models")) {"
+            // 检查是否包含models"字段（Gemini API格式 if (jsonObject.has("models")) {"
         val modelsArray = jsonObject.getJSONArray("models")
         AppLogger.d(TAG, "解析Google Gemini API格式响应: 发现 ${modelsArray.length()} 个模型）"
         for (i in 0 until modelsArray.length()) {

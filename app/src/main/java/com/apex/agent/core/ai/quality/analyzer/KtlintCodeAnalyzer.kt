@@ -62,8 +62,7 @@ class SimpleCodeAnalyzer : CodeAnalyzerInterface {
                 )
             )
         }
-        val quotes = code.count { it == '"' }
-        if (quotes % 2 != 0) {
+        val quotes = code.count { it == '"' } if (quotes % 2 != 0) {
             issues.add(
                 CodeIssue(
                     severity = IssueSeverity.ERROR,

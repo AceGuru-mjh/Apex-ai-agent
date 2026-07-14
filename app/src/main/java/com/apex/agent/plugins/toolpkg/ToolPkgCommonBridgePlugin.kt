@@ -312,8 +312,7 @@ private object ToolPkgMessageProcessingBridgePlugin : MessageProcessingPlugin {
                                 TOOLPKG_LOG_TAG,
                                 "message-processing final fallback hook=${"
         hook.containerPackageName
-                                }:${hook.pluginId}:${hook.functionName} chunkCount=${parsed.chunks.size}"
-                            )
+                                }:${hook.pluginId}:${hook.functionName} chunkCount=${parsed.chunks.size}" )
         parsed.chunks
                                 .filter { it.isNotEmpty() }
                                 .forEach { chunk ->

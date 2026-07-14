@@ -47,8 +47,7 @@ object ConditionEvaluator {
                         out.add(Token.Punct(c))
         i++
                     }
-        c == '"' || c == '\'' -> {
-                        out.add(Token.StringLiteral(readString(c)))
+        c == '"' || c == '\'' -> { out.add(Token.StringLiteral(readString(c)))
                     }
         c.isDigit() || (c == '.' && i + 1 < input.length && input[i + 1].isDigit()) -> {
                         out.add(Token.NumberLiteral(readNumber()))

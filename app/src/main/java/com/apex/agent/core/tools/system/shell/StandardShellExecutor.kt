@@ -171,8 +171,7 @@ class StandardShellExecutor(private val context: Context) : ShellExecutor {
             // 处理引号
         if (c == '\'' && !escaped && !inDoubleQuotes) {
                 inSingleQuotes = !inSingleQuotes
-            } else if (c == '"' && !escaped && !inSingleQuotes) {
-                inDoubleQuotes = !inDoubleQuotes
+            } else if (c == '"' && !escaped && !inSingleQuotes) { inDoubleQuotes = !inDoubleQuotes
             }
             // 只在不在引号内时检测操作符
         else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {
@@ -273,8 +272,7 @@ private class StandardShellProcess(command: String) : ShellProcess {
                 // 处理引号
         if (c == '\'' && !escaped && !inDoubleQuotes) {
                     inSingleQuotes = !inSingleQuotes
-                } else if (c == '"' && !escaped && !inSingleQuotes) {
-                    inDoubleQuotes = !inDoubleQuotes
+                } else if (c == '"' && !escaped && !inSingleQuotes) { inDoubleQuotes = !inDoubleQuotes
                 }
                 // 只在不在引号内时检测操作符
         else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {

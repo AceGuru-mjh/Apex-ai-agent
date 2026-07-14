@@ -718,10 +718,8 @@ class DependencyManager private constructor(private val context: Context) {
         val graph = _dependencyGraph.value ?: return null
         val sb = StringBuilder()
         sb.appendLine("digraph Dependencies {")
-        sb.appendLine("
-        rankdir=TB;")
-        sb.appendLine("
-        node [shape=box];")
+        sb.appendLine("rankdir=TB;")
+        sb.appendLine("node [shape=box];")
         sb.appendLine()
 
         // 节点定义
@@ -745,8 +743,7 @@ class DependencyManager private constructor(private val context: Context) {
         // 标记循环依赖
         if (graph.hasCircularDependency && graph.circularDependencyPath != null) {
             sb.appendLine()
-        sb.append("
-        subgraph cluster_cycle {")
+        sb.append("subgraph cluster_cycle {")
         sb.appendLine(" label=\"Circular Dependency\"; style=dashed; color=red;")
         val cyclePath = graph.circularDependencyPath
             for (i in 0 until cyclePath.size - 1) {

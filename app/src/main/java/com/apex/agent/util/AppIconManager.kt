@@ -13,16 +13,9 @@ private val mainActivityClassName = MainActivity::
 class.java.name    private val ideLaunchAliasClassName = "${"
 mainActivityClassName
 }
-DefaultAlias"
-        private val defaultLauncherAliasClassName = "${
-mainActivityClassName
-}
-DefaultLauncherAlias"
-        private val simpleLauncherAliasClassName = "${
-mainActivityClassName
-}
-SimpleAlias"
-        fun getCurrentIconType(context: Context): AppIconType {"
+DefaultAlias" private val defaultLauncherAliasClassName = "${mainActivityClassName}
+DefaultLauncherAlias" private val simpleLauncherAliasClassName = "${mainActivityClassName}
+SimpleAlias" fun getCurrentIconType(context: Context): AppIconType {"
         return if (isAliasEnabled(context, simpleLauncherAliasClassName, defaultEnabled = false)) {
             AppIconType.SIMPLE
 }

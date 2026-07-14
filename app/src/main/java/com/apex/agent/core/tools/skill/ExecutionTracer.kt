@@ -360,10 +360,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         val flow = buildExecutionFlow(sessionId) ?: return "No flow data available"
         val sb = StringBuilder()
         sb.appendLine("graph TD")
-        sb.appendLine("
-        Start((Session Start))")
-        sb.appendLine("
-        Skill_${flow.skillName}[${flow.skillName}]")
+        sb.appendLine("Start((Session Start))")
+        sb.appendLine("Skill_${flow.skillName}[${flow.skillName}]")
         var prevNodeId = "Start"
         var nodeIndex = 0
 
@@ -375,14 +373,11 @@ class ExecutionTracer private constructor(private val context: Context) {
         sb.appendLine("    ${prevNodeId} --> ${nodeId}")
         prevNodeId = nodeId
         }
-        sb.appendLine("
-        End${nodeIndex}((Session End))")
+        sb.appendLine("End${nodeIndex}((Session End))")
         sb.appendLine("    ${prevNodeId} --> End${nodeIndex}")
         sb.appendLine()
-        sb.appendLine("
-        classDef success fill:#90EE90")
-        sb.appendLine("
-        classDef error fill:#FFB6C1")
+        sb.appendLine("classDef success fill:#90EE90")
+        sb.appendLine("classDef error fill:#FFB6C1")
         return sb.toString()
     }
         fun clearTrace() {

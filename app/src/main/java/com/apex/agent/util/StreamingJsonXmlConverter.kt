@@ -67,8 +67,7 @@ class StreamingJsonXmlConverter {
             when (state) {
                 State.WAIT_BRACE -> if (c == '{') state = State.WAIT_KEY_QUOTE
                 State.WAIT_KEY_QUOTE -> {
-                    if (c == '"') {
-                        state = State.READ_KEY
+                    if (c == '"') { state = State.READ_KEY
                         keyEscape = false
                         buffer.setLength(0)
                     } else if (c == '}') {
@@ -83,8 +82,7 @@ class StreamingJsonXmlConverter {
                     } else {
                         when (c) {
                             '\\' -> keyEscape = true
-                            '"' -> {
-                                events.add(Event.Tag("\n  <param name=\"${buffer}\">"))
+                            '"' -> { events.add(Event.Tag("\n  <param name=\"${buffer}\">"))
         hasOpenParam = true
                                 state = State.WAIT_COLON
                             }
@@ -95,8 +93,7 @@ class StreamingJsonXmlConverter {
         State.WAIT_COLON -> if (c == ':') state = State.WAIT_VALUE
                 State.WAIT_VALUE -> {
                     if (!c.isWhitespace()) {
-                        if (c == '"') {
-                            state = State.READ_STRING
+                        if (c == '"') { state = State.READ_STRING
                         } else {
                             state = State.READ_PRIMITIVE
                             buffer.setLength(0)
@@ -109,8 +106,7 @@ class StreamingJsonXmlConverter {
                     }
                 }
         State.READ_STRING -> {
-                    if (c == '"') {
-                        state = State.WAIT_COMMA
+                    if (c == '"') { state = State.WAIT_COMMA
                         events.add(Event.Tag("</param>"))
         hasOpenParam = false
                     } else if (c == '\\') {
@@ -132,8 +128,7 @@ class StreamingJsonXmlConverter {
                             'b' -> "\b"
                             'f' -> "\u000c"
                             '\"' -> "\""
-                            '\\' -> "\\"
-                            '/' -> "/"
+                            '\\' -> "\\" '/' -> "/"
         else -> c.toString()
                         }
         events.add(Event.Content(escapeXml(unescaped)))
@@ -159,13 +154,11 @@ class StreamingJsonXmlConverter {
                                 primitiveEscape = false
                             } else if (c == '\\') {
                                 primitiveEscape = true
-                            } else if (c == '"') {
-                                primitiveInString = false
+                            } else if (c == '"') { primitiveInString = false
                             }
                         } else {
                             when (c) {
-                                '"' -> {
-                                    primitiveInString = true
+                                '"' -> { primitiveInString = true
                                     buffer.append(c)
                                 }
 

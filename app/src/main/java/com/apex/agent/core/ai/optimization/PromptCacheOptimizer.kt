@@ -302,8 +302,7 @@ class PromptCacheOptimizer private constructor() {
         fun estimateTokens(text: String): Int {
         if (text.isEmpty()) return 0
         val words = text.split(Regex("\\s+")).size
-        val punctuation = text.count { it in setOf('.', ',', '!', '?', ';', ':', '"', '\'', '(', ')', '[', ']', '{', '}') }
-        val specialTokens = text.split(Regex("\\s+")).count { it.length > 10 }
+        val punctuation = text.count { it in setOf('.', ',', '!', '?', ';', ':', '"', '\'', '(', ')', '[', ']', '{', '}') } val specialTokens = text.split(Regex("\\s+")).count { it.length > 10 }
         (words * 1.3 + punctuation * 0.5 + specialTokens * 0.8).toInt().coerceAtLeast(1)
     }
         fun computeHash(text: String): String {

@@ -1382,8 +1382,7 @@ class EnhancedAIService private constructor(private val context: Context) {
             }
         }
         if (((partialTag.length + suffix.length) > 0) &&
-            ((partialTag + suffix.toString()).count { it == '"' } % 2 != 0)
-        ) {
+            ((partialTag + suffix.toString()).count { it == '"' } % 2 != 0) ) {
             suffix.append("\"")
         }
         if (!(partialTag + suffix.toString()).endsWith(">")) {

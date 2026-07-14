@@ -19,8 +19,7 @@ class StreamPureJsonPlugin : BaseJsonPlugin() {
             // Inside a string, emit most characters
         return when (c) {
                 '\\' -> false // Don't emit the escape char itself
-                '"' -> false // Don't emit quotes
-        else -> true
+                '"' -> false // Don't emit quotes else -> true
             }
         } else {
             // Outside a string, filter out structural chars and whitespace

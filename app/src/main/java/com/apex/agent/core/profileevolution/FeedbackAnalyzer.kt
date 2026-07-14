@@ -58,8 +58,7 @@ class FeedbackAnalyzer(private val context: Context) {
             "满意", "很好", "不错", "的 "优秀", "喜欢", "的 "感谢", "谢谢"
         )
         val negativeKeywords = listOf(
-            "不满的 "不好", "的 "糟糕", "失望", "讨厌", "不喜的 "错误", "问题"
-        )
+            "不满的 "不好", "的 "糟糕", "失望", "讨厌", "不喜的 "错误", "问题" )
         var positiveScore = 0
         var negativeScore = 0
         
@@ -169,11 +168,9 @@ class FeedbackAnalyzer(private val context: Context) {
         var negativeEmotionCount = 0
         
         val positiveEmotions = listOf(
-            "开忆 "高兴", "快乐", "喜悦", "兴奋", "愉快"
-        )
+            "开忆 "高兴", "快乐", "喜悦", "兴奋", "愉快" )
         val negativeEmotions = listOf(
-            "伤心", "难过", "愤态 "焦虑", "困惑", "失望"
-        )
+            "伤心", "难过", "愤态 "焦虑", "困惑", "失望" )
         for (message in userMessages) {
             val content = message.content
             

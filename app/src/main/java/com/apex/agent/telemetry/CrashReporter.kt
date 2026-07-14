@@ -192,8 +192,7 @@ class CrashReporter private constructor() {
         for (t in report.threads.take(10)) {
                 sb.appendLine("  ${t.threadName} (id=${t.threadId}, state=${t.state})")
         for (st in t.stackTrace.take(5)) {
-                    sb.appendLine("
-        at $st")
+                    sb.appendLine("at $st")
                 }
             }
         }

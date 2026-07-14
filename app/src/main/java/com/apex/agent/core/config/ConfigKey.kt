@@ -123,8 +123,7 @@ object ConfigPath {
         var inQuote = false
         for (ch in path) {
             when {
-                ch == '"' -> inQuote = !inQuote
-                ch == '.' && !inQuote -> {
+                ch == '"' -> inQuote = !inQuote ch == '.' && !inQuote -> {
                     if (current.isNotEmpty()) {
                         result.add(current.toString())
         current.clear()

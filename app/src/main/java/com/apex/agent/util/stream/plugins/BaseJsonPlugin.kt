@@ -48,14 +48,12 @@ abstract class BaseJsonPlugin : StreamPlugin {
             } else {
                 when (c) {
                     '\\' -> isEscaped = true
-                    '"' -> inString = false
-                    else -> {}
+                    '"' -> inString = false else -> {}
                 }
             }
         } else {
             when (c) {
-                '"' -> inString = true
-                '{' -> if (jsonType == JsonType.OBJECT) openBraceCount++
+                '"' -> inString = true '{' -> if (jsonType == JsonType.OBJECT) openBraceCount++
                 '[' -> if (jsonType == JsonType.ARRAY) openBracketCount++
                 '}' -> {
                     if (jsonType == JsonType.OBJECT) {

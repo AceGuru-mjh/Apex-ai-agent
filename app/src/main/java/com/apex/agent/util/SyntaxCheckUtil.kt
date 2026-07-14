@@ -202,8 +202,7 @@ object SyntaxCheckUtil {
                 }
 
                 // 处理字符串
-        if (!inBlockComment && (ch == '"' || ch == '\'')) {
-                    if (!inString) {
+        if (!inBlockComment && (ch == '"' || ch == '\'')) { if (!inString) {
                         inString = true
                         stringChar = ch
                     } else if (ch == stringChar) {
@@ -865,8 +864,7 @@ object SyntaxCheckUtil {
                     inSingleLineComment = true
                     break
                 }
-        if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) {
-                    var isEscaped = false
+        if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) { var isEscaped = false
                     var escapeCount = 0
                     var j = i - 1
                     while (j >= 0 && line[j] == '\\') {
@@ -978,8 +976,7 @@ object SyntaxCheckUtil {
                     inSingleLineComment = true
                     break
                 }
-        if (!inMultiLineComment && !inSingleLineComment && line[i] in listOf('"', '\'', '`')) {
-                    var escapeCount = 0
+        if (!inMultiLineComment && !inSingleLineComment && line[i] in listOf('"', '\'', '`')) { var escapeCount = 0
                     var j = i - 1
                     while (j >= 0 && line[j] == '\\') {
                         escapeCount++
@@ -1226,8 +1223,7 @@ object SyntaxCheckUtil {
                 i++
                 continue
             }
-        if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) {
-                var escapeCount = 0
+        if (!inMultiLineComment && !inSingleLineComment && (char == '"' || char == '\'' || char == '`')) { var escapeCount = 0
                 var j = i - 1
                 while (j >= 0 && content[j] == '\\') {
                     escapeCount++
@@ -1312,8 +1308,7 @@ object SyntaxCheckUtil {
                     if (i < tagContent.length) {
                         val quoteChar = tagContent[i]
                         when (quoteChar) {
-                            '"', '\'' -> {
-                                i++
+                            '"', '\'' -> { i++
                                 while (i < tagContent.length && tagContent[i] != quoteChar) {
                                     if (tagContent[i] == '\\' && i + 1 < tagContent.length) {
                                         i += 2

@@ -249,8 +249,7 @@ class ExpressionParser(private val input: String) {
         if (pos >= input.length || input[pos] != ')') throw IllegalStateException("Missing )")
         pos++; expr
             }
-        input[pos] == '"' || input[pos] == '\'' -> {
-                val quote = input[pos]; pos++
+        input[pos] == '"' || input[pos] == '\'' -> { val quote = input[pos]; pos++
         val start = pos
                 while (pos < input.length && input[pos] != quote) pos++
                 val str = input.substring(start, pos)

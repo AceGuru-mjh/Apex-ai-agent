@@ -125,8 +125,7 @@ class ExpressionEvaluator {
                         tokens.add(Token.Variable(s.substring(i + 1, j)))
         i = j
                     }
-        c == '\'' || c == '"' -> {
-                        // 字符串字面量
+        c == '\'' || c == '"' -> { // 字符串字面量
         val quote = c
         val sb = StringBuilder()
         var j = i + 1

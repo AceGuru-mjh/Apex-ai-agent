@@ -300,8 +300,7 @@ class ShortcutCommandRegistry {
 
         for (c in argsStr) {
             when {
-                c == '"' -> inQuote = !inQuote
-                c.isWhitespace() && !inQuote -> {
+                c == '"' -> inQuote = !inQuote c.isWhitespace() && !inQuote -> {
                     if (sb.isNotEmpty()) {
                         tokens.add(sb.toString())
         sb.clear()

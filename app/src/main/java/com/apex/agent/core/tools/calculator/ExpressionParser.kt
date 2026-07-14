@@ -332,8 +332,7 @@ class ExpressionParser(private val expression: String) {
         val parts = mutableListOf<Any>()
 
         // æ·»å æ¨¡æ¿èµ·å§é¨å
-        parts.add(currentToken.substring(1)) // å»æå¼å§ç"
-        nextToken()
+        parts.add(currentToken.substring(1)) // å»æå¼å§ç" nextToken()
         while (currentTokenType == TokenType.TEMPLATE_MIDDLE ||
                 currentTokenType == TokenType.TEMPLATE_END) {
             if (currentTokenType == TokenType.TEMPLATE_MIDDLE) {
@@ -371,8 +370,7 @@ class ExpressionParser(private val expression: String) {
         c.isLetter() || c == '_' -> {
                 scanIdentifier()
             }
-        c == '"' || c == '\'' -> {
-                scanString(c)
+        c == '"' || c == '\'' -> { scanString(c)
             }
         c == '`' -> {
                 scanTemplateString()
@@ -493,9 +491,7 @@ class ExpressionParser(private val expression: String) {
             ) {
                 currentToken = expression.substring(start, position)
         currentTokenType = TokenType.TEMPLATE_START
-                position += 2 // è·³è¿ ${
-        return
-            } else if (expression[position] == '`') {
+                position += 2 // è·³è¿ ${return} else if (expression[position] == '`') {
                 currentToken = expression.substring(start, position + 1)
         currentTokenType = TokenType.TEMPLATE_END
                 position++ // è·³è¿ç»æï¼`

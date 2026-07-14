@@ -16,8 +16,7 @@ private const
 AppLogger.i(TAG, "开始执行验证阶段${"
 context.originalGoal
 }
-")
-        return try {"
+") return try {"
 val previousOutput = context.getPreviousStageOutput()
         val validationResult = performValidation(context.originalGoal, previousOutput)
         if (isCancelled) {
@@ -36,8 +35,7 @@ validationResult.failures.size
         AppLogger.i(TAG, "验证阶段完成: ${"
 if (validationResult.passed) "通过" else "失败"
 }
-")
-        StageAgentResult(                output = validationResult.report,                summary = summary,                tokenCost = estimateTokenCost(validationResult.report),                success = validationResult.passed,                error = if (!validationResult.passed) validationResult.failures.joinToString(";
+") StageAgentResult(                output = validationResult.report,                summary = summary,                tokenCost = estimateTokenCost(validationResult.report),                success = validationResult.passed,                error = if (!validationResult.passed) validationResult.failures.joinToString(";
  ") else null            )"
 }
  catch (e: Exception) {
@@ -86,8 +84,7 @@ sb.appendLine("全部测试运行失败")
         sb.appendLine("状态${"
 if (passed) "全部通过" else "存在失败"
 }
-")
-        if (failures.isNotEmpty()) {"
+") if (failures.isNotEmpty()) {"
 sb.appendLine("失败原因，")
         failures.forEach {
 sb.appendLine("- ${it}")

@@ -15,8 +15,7 @@ private const
 AppLogger.i(TAG, "开始执行研究阶段${"
 context.originalGoal
 }
-")
-        return try {"
+") return try {"
 // 模拟研究过程
         val researchResult = performResearch(context.originalGoal)
         if (isCancelled) {

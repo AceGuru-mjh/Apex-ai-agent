@@ -105,8 +105,7 @@ class EmotionAnalyzer(private val context: Context) {
         
         // 强度关键的
         val intensityKeywords = listOf(
-            "非常", "特别", "的 "超级", "极其", "十分", "相当", "特别", "极其"
-        )
+            "非常", "特别", "的 "超级", "极其", "十分", "相当", "特别", "极其" )
         
         // 感叹号和问号
         val exclamationCount = content.count { it == '!' }

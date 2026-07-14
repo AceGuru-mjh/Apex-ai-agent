@@ -263,8 +263,7 @@ class WorkflowSerializer {
                             sb.appendLine("$pad$k:")
         sb.append(jsonToYaml(v, indent + 1))
                         }
-        else -> sb.appendLine("$pad$k: ${v.toString().trim('"')}")
-                    }
+        else -> sb.appendLine("$pad$k: ${v.toString().trim('"')}") }
                 }
             }
         is kotlinx.serialization.json.JsonArray -> {

@@ -545,31 +545,23 @@ private class ImplementerAgent : StageAgent {
         sb.appendLine("### 1. 核心数据类")
         sb.appendLine("```kotlin")
         sb.appendLine("data class PipelineStage(")
-        sb.appendLine("
-        val name: String,")
-        sb.appendLine("
-        val description: String,")
-        sb.appendLine("
-        val order: Int")
+        sb.appendLine("val name: String,")
+        sb.appendLine("val description: String,")
+        sb.appendLine("val order: Int")
         sb.appendLine(")")
         sb.appendLine()
         sb.appendLine("data class StageResult(")
-        sb.appendLine("
-        val stage: PipelineStage,")
-        sb.appendLine("
-        val output: String,")
-        sb.appendLine("
-        val success: Boolean,")
-        sb.appendLine("
-        val duration: Long")
+        sb.appendLine("val stage: PipelineStage,")
+        sb.appendLine("val output: String,")
+        sb.appendLine("val success: Boolean,")
+        sb.appendLine("val duration: Long")
         sb.appendLine(")")
         sb.appendLine("```")
         sb.appendLine()
         sb.appendLine("### 2. 管道执行器")
         sb.appendLine("```kotlin")
         sb.appendLine("class StagedAgentPipeline {")
-        sb.appendLine("
-        fun execute(goal: String): PipelineResult {")
+        sb.appendLine("fun execute(goal: String): PipelineResult {")
         sb.appendLine("        // 按阶段顺序执行")
         sb.appendLine("        // 支持循环回退机制")
         sb.appendLine("        // 返回最终结果")

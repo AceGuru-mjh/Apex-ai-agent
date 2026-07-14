@@ -429,8 +429,7 @@ data class ToolPackageState(
         toolPackage.tools.forEach { tool ->
              sb.appendLine("  - ${tool.name}: ${tool.description.resolve(context)}")
         if (tool.parameters.isNotEmpty()) {
-                 sb.appendLine("
-        Parameters:")
+                 sb.appendLine("Parameters:")
         tool.parameters.forEach { param ->
                      val required = if (param.required) " (required)" else " (optional)"
         sb.appendLine("      - ${param.name}: ${param.description.resolve(context)} [${param.type}]${required}")

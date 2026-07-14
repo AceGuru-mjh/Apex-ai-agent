@@ -11,8 +11,7 @@ object PathMapper {
      * 将Linux路径转换为Android文件系统中的实际路径
      * 
      * @param context Android上下，
-    * @param linuxPath Linux格式的路径，例如 "/home/user/test.txt" ，/etc/hosts"
-     * @return Android文件系统中的实际绝对路径
+    * @param linuxPath Linux格式的路径，例如 "/home/user/test.txt" ，/etc/hosts" * @return Android文件系统中的实际绝对路径
      */
     fun mapLinuxPath(context: Context, linuxPath: String): String {
         // Ubuntu根目录位置{filesDir}/usr/var/lib/proot-distro/installed-rootfs/ubuntu

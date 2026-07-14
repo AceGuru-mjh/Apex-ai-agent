@@ -62,8 +62,7 @@ data class DirectoryListingData(
         sb.appendLine(
                     "${typeIndicator}${entry.permissions} ${"
         entry.size.toString().padStart(8)
-                } ${entry.lastModified} ${entry.name}"
-            )
+                } ${entry.lastModified} ${entry.name}" )
         }
         return sb.toString()
     }

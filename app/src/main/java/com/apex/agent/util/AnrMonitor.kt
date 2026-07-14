@@ -219,8 +219,7 @@ class AnrMonitor(
         mainThreadHandler.post {
             try {
                 val stackTrace = Thread.currentThread().stackTrace
-                    .drop(3) // 跳过前三个元素（VM相关调用于                   .joinToString("\n") { "
-        at ${it}" }
+                    .drop(3) // 跳过前三个元素（VM相关调用于                   .joinToString("\n") { " at ${it}" }
         val timeStamp = System.currentTimeMillis()
         val trace = Pair(timeStamp, stackTrace)
         synchronized(stackTraces) {
@@ -273,8 +272,7 @@ class AnrMonitor(
         val mainThreadStack: String = mainThread?.let {
                 try {
                     val stackTraceElements = it.stackTrace
-        val stackStr = stackTraceElements.joinToString("\n") { element -> "
-        at ${element}" }
+        val stackStr = stackTraceElements.joinToString("\n") { element -> " at ${element}" }
         context.getString(R.string.anr_main_thread_with_state, it.name, it.state, stackStr)
                 } catch (e: Exception) {
                     context.getString(R.string.anr_cannot_get_main_thread_stack, e.message ?: "")

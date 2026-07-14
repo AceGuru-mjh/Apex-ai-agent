@@ -95,8 +95,7 @@ object WaifuMessageProcessor {
                     sentences =
                         sentences
                             .map { sentence ->
-                                // 移除句末标点，但保留省略，.."
-        if (sentence.endsWith("...")) {
+                                // 移除句末标点，但保留省略，.." if (sentence.endsWith("...")) {
                                     sentence.trim()
                                 } else {
                                     sentence.replace(Regex("[。！，?]+$"), "").trim()

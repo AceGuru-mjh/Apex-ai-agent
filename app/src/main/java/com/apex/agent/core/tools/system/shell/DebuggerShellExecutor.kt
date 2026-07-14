@@ -122,8 +122,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             // 处理引号
         if (c == '\'' && !escaped && !inDoubleQuotes) {
                 inSingleQuotes = !inSingleQuotes
-            } else if (c == '"' && !escaped && !inSingleQuotes) {
-                inDoubleQuotes = !inDoubleQuotes
+            } else if (c == '"' && !escaped && !inSingleQuotes) { inDoubleQuotes = !inDoubleQuotes
             }
             // 只在不在引号内时检测操作符
         else if (!inSingleQuotes && !inDoubleQuotes && !escaped) {
@@ -493,8 +492,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             // 处理转义字符
         if (i < command.length - 1 && c == '\\') {
                 val nextChar = command[i + 1]
-                if (nextChar == '\'' || nextChar == '"') {
-                    // 处理转义的引，
+                if (nextChar == '\'' || nextChar == '"') { // 处理转义的引，
         currentArg.append(nextChar)
         i += 2
                     continue
@@ -509,8 +507,7 @@ class DebuggerShellExecutor(private val context: Context) : ShellExecutor {
             }
 
             // 处理双引，只有当不在单引号中时才处理双引号的开始和结束，
-        if (c == '"' && !inSingleQuotes) {
-                inDoubleQuotes = !inDoubleQuotes
+        if (c == '"' && !inSingleQuotes) { inDoubleQuotes = !inDoubleQuotes
                 i++
                 continue
             }
