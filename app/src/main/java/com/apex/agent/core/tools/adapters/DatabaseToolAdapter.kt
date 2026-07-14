@@ -18,19 +18,24 @@ class DatabaseToolAdapter : ToolAdapter {
     private val connections = ConcurrentHashMap<String, Connection>()
     
     // 简单的查询缓存
-        private val queryCache = mutableMapOf<String, CachedQueryResult>()
-        private val MAX_CACHE_SIZE = 50
+    private val queryCache = mutableMapOf<String, CachedQueryResult>()
+    private val MAX_CACHE_SIZE = 50
     private val CACHE_EXPIRE_TIME = 5 * 60 * 1000L // 5分钟
-        override fun getName(): String {
+
+    override fun getName(): String {
         return "database"
     }
-        override fun getDescription(): String {
-        return "执行数据库操作，支持查询、插入、更新和删除等操作，包含连接管理和查询缓字"
+
+    override fun getDescription(): String {
+        return "执行数据库操作，支持查询、插入、更新和删除等操作，包含连接管理和查询缓�?
     }
-        override suspend fun execute(parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
+
+    override suspend fun execute(parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
         val action = parameters["action"] as? String 
             ?: return@withContext StringResultData("错误：缺少action参数")
+        
         val connectionId = parameters["connection_id"] as? String ?: "default"
+
         try {
             when (action) {
                 "connect" -> connect(connectionId, parameters)
@@ -41,7 +46,7 @@ class DatabaseToolAdapter : ToolAdapter {
                 "disconnect" -> disconnect(connectionId)
                 "list_connections" -> listConnections()
                 "clear_cache" -> clearCache()
-        else -> StringResultData("错误：不支持的action: ${action}，可用操作：connect, query, insert, update, delete, disconnect, list_connections, clear_cache")
+                else -> StringResultData("错误：不支持的action: ${action}，可用操作：connect, query, insert, update, delete, disconnect, list_connections, clear_cache")
             }
         } catch (e: SQLException) {
             StringResultData("数据库操作失败：${e.message}\nSQL状态：${e.sqlState}\n错误代码，{e.errorCode}")
@@ -49,48 +54,50 @@ class DatabaseToolAdapter : ToolAdapter {
             StringResultData("错误，{e.message}")
         }
     }
-        override fun getParameters(): List<ToolParameter> {
+
+    override fun getParameters(): List<ToolParameter> {
         return listOf(
             ToolParameter("action", "string", "操作类型：connect, query, insert, update, delete, disconnect, list_connections, clear_cache", true),
-            ToolParameter("connection_id", "string", "连接ID，用于管理多个数据库连接（默认：default， false, "default"),"
-        ToolParameter("url", "string", "数据库连接URL（connect操作需要）", false),
+            ToolParameter("connection_id", "string", "连接ID，用于管理多个数据库连接（默认：default�? false, "default"),
+            ToolParameter("url", "string", "数据库连接URL（connect操作需要）", false),
             ToolParameter("username", "string", "数据库用户名（connect操作需要）", false),
             ToolParameter("password", "string", "数据库密码（connect操作需要）", false),
-            ToolParameter("driver", "string", "JDBC驱动类名（connect操作可选，默认：com.mysql.cj.jdbc.Driver， false, "com.mysql.cj.jdbc.Driver"),"
-        ToolParameter("sql", "string", "SQL语句（query, insert, update, delete操作需要）", false),
+            ToolParameter("driver", "string", "JDBC驱动类名（connect操作可选，默认：com.mysql.cj.jdbc.Driver�? false, "com.mysql.cj.jdbc.Driver"),
+            ToolParameter("sql", "string", "SQL语句（query, insert, update, delete操作需要）", false),
             ToolParameter("params", "array", "SQL参数（可选）", false),
-            ToolParameter("use_cache", "boolean", "是否使用查询缓存（query操作可选，默认：true， false, true),"
-        ToolParameter("timeout", "int", "查询超时时间（秒，默认：30， false, 30)"
+            ToolParameter("use_cache", "boolean", "是否使用查询缓存（query操作可选，默认：true�? false, true),
+            ToolParameter("timeout", "int", "查询超时时间（秒，默认：30�? false, 30)
         )
     }
-        override fun isAvailable(): Boolean {
+
+    override fun isAvailable(): Boolean {
         return true
     }
-        private suspend fun connect(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
+
+    private suspend fun connect(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
         val url = parameters["url"] as? String 
             ?: return@withContext StringResultData("错误：缺少url参数")
         val username = parameters["username"] as? String ?: ""
         val password = parameters["password"] as? String ?: ""
         val driver = parameters["driver"] as? String ?: "com.mysql.cj.jdbc.Driver"
+
         try {
-            // 如果连接已存在，先关间
-        connections[connectionId]?.let {
+            // 如果连接已存在，先关�?           connections[connectionId]?.let {
                 if (!it.isClosed) {
                     it.close()
                 }
             }
 
             // 加载驱动
-        Class.forName(driver)
+            Class.forName(driver)
             
             // 创建连接
-        val connection = DriverManager.getConnection(url, username, password)
+            val connection = DriverManager.getConnection(url, username, password)
             
-            // 设置连接属态
-        connection.autoCommit = true
+            // 设置连接属�?           connection.autoCommit = true
             
             // 保存连接
-        connections[connectionId] = connection
+            connections[connectionId] = connection
             
             StringResultData("成功连接到数据库，连接ID，connectionId")
         } catch (e: ClassNotFoundException) {
@@ -99,20 +106,22 @@ class DatabaseToolAdapter : ToolAdapter {
             StringResultData("连接失败，{e.message}")
         }
     }
-        private suspend fun query(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
+
+    private suspend fun query(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
         val sql = parameters["sql"] as? String 
             ?: return@withContext StringResultData("错误：缺少sql参数")
         val params = parameters["params"] as? List<*> ?: emptyList()
         val useCache = parameters["use_cache"] as? Boolean ?: true
         val timeout = (parameters["timeout"] as? Int ?: 30)
+
         val connection = connections[connectionId] 
             ?: return@withContext StringResultData("错误：未连接到数据库，请先执行connect操作")
+        
         if (connection.isClosed) {
             return@withContext StringResultData("错误：连接已关闭，请重新连接")
         }
 
-        // 检查缓字
-        val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
+        // 检查缓�?       val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
         if (useCache) {
             queryCache[cacheKey]?.let { cached ->
                 if (System.currentTimeMillis() - cached.timestamp < CACHE_EXPIRE_TIME) {
@@ -122,6 +131,7 @@ class DatabaseToolAdapter : ToolAdapter {
                 }
             }
         }
+
         try {
             val statement = connection.prepareStatement(sql).apply {
                 queryTimeout = timeout
@@ -129,65 +139,72 @@ class DatabaseToolAdapter : ToolAdapter {
                     setObject(index + 1, param)
                 }
             }
-        val resultSet = statement.executeQuery()
-        val result = StringBuilder()
-        if (resultSet != null) {
+
+            val resultSet = statement.executeQuery()
+            val result = StringBuilder()
+
+            if (resultSet != null) {
                 val metaData = resultSet.metaData
-        val columnCount = metaData.columnCount
+                val columnCount = metaData.columnCount
 
                 // 输出列名
-        for (i in 1..columnCount) {
+                for (i in 1..columnCount) {
                     result.append(metaData.getColumnName(i))
-        if (i < columnCount) result.append("\t")
+                    if (i < columnCount) result.append("\t")
                 }
-        result.append("\n")
+                result.append("\n")
 
-                // 输出分隔，
-        for (i in 1..columnCount) {
+                // 输出分隔�?               for (i in 1..columnCount) {
                     val columnNameLength = metaData.getColumnName(i).length
                     result.append("-".repeat(columnNameLength))
-        if (i < columnCount) result.append("\t")
+                    if (i < columnCount) result.append("\t")
                 }
-        result.append("\n")
+                result.append("\n")
 
                 // 输出数据
-        var rowCount = 0
+                var rowCount = 0
                 while (resultSet.next()) {
                     for (i in 1..columnCount) {
                         val value = resultSet.getObject(i)
-        result.append(value ?: "NULL")
-        if (i < columnCount) result.append("\t")
+                        result.append(value ?: "NULL")
+                        if (i < columnCount) result.append("\t")
                     }
-        result.append("\n")
-        rowCount++
+                    result.append("\n")
+                    rowCount++
                 }
-        result.append("\n，的${rowCount} ，"
+                result.append("\n，的${rowCount} �?
             }
-        statement.close()
+
+            statement.close()
 
             // 缓存结果
-        if (useCache) {
+            if (useCache) {
                 if (queryCache.size >= MAX_CACHE_SIZE) {
                     val oldestKey = queryCache.keys.firstOrNull()
-        oldestKey?.let { queryCache.remove(it) }
+                    oldestKey?.let { queryCache.remove(it) }
                 }
-        queryCache[cacheKey] = CachedQueryResult(result.toString(), System.currentTimeMillis())
+                queryCache[cacheKey] = CachedQueryResult(result.toString(), System.currentTimeMillis())
             }
-        StringResultData("查询成功:\n${result.toString()}")
+
+            StringResultData("查询成功:\n${result.toString()}")
         } catch (e: SQLException) {
             StringResultData("查询失败，{e.message}")
         }
     }
-        private suspend fun insert(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
+
+    private suspend fun insert(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
         val sql = parameters["sql"] as? String 
             ?: return@withContext StringResultData("错误：缺少sql参数")
         val params = parameters["params"] as? List<*> ?: emptyList()
         val timeout = (parameters["timeout"] as? Int ?: 30)
+
         val connection = connections[connectionId] 
             ?: return@withContext StringResultData("错误：未连接到数据库，请先执行connect操作")
+        
         if (connection.isClosed) {
             return@withContext StringResultData("错误：连接已关闭，请重新连接")
         }
+
         try {
             val statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).apply {
                 queryTimeout = timeout
@@ -195,30 +212,37 @@ class DatabaseToolAdapter : ToolAdapter {
                     setObject(index + 1, param)
                 }
             }
-        val affectedRows = statement.executeUpdate()
-        val generatedKeys = statement.generatedKeys
+
+            val affectedRows = statement.executeUpdate()
+            val generatedKeys = statement.generatedKeys
 
             val result = StringBuilder()
-        result.append("${affectedRows}")
-        if (generatedKeys != null && generatedKeys.next()) {
+            result.append("${affectedRows}")
+
+            if (generatedKeys != null && generatedKeys.next()) {
                 result.append("\n生成的ID，{generatedKeys.getObject(1)}")
             }
-        statement.close()
-        StringResultData(result.toString())
+
+            statement.close()
+            StringResultData(result.toString())
         } catch (e: SQLException) {
             StringResultData("插入失败，{e.message}")
         }
     }
-        private suspend fun update(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
+
+    private suspend fun update(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
         val sql = parameters["sql"] as? String 
             ?: return@withContext StringResultData("错误：缺少sql参数")
         val params = parameters["params"] as? List<*> ?: emptyList()
         val timeout = (parameters["timeout"] as? Int ?: 30)
+
         val connection = connections[connectionId] 
             ?: return@withContext StringResultData("错误：未连接到数据库，请先执行connect操作")
+        
         if (connection.isClosed) {
             return@withContext StringResultData("错误：连接已关闭，请重新连接")
         }
+
         try {
             val statement = connection.prepareStatement(sql).apply {
                 queryTimeout = timeout
@@ -226,23 +250,29 @@ class DatabaseToolAdapter : ToolAdapter {
                     setObject(index + 1, param)
                 }
             }
-        val affectedRows = statement.executeUpdate()
-        statement.close()
-        StringResultData("${affectedRows}")
+
+            val affectedRows = statement.executeUpdate()
+            statement.close()
+
+            StringResultData("${affectedRows}")
         } catch (e: SQLException) {
             StringResultData("更新失败，{e.message}")
         }
     }
-        private suspend fun delete(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
+
+    private suspend fun delete(connectionId: String, parameters: Map<String, Any>): ToolResultData = withContext(Dispatchers.IO) {
         val sql = parameters["sql"] as? String 
             ?: return@withContext StringResultData("错误：缺少sql参数")
         val params = parameters["params"] as? List<*> ?: emptyList()
         val timeout = (parameters["timeout"] as? Int ?: 30)
+
         val connection = connections[connectionId] 
             ?: return@withContext StringResultData("错误：未连接到数据库，请先执行connect操作")
+        
         if (connection.isClosed) {
             return@withContext StringResultData("错误：连接已关闭，请重新连接")
         }
+
         try {
             val statement = connection.prepareStatement(sql).apply {
                 queryTimeout = timeout
@@ -250,50 +280,60 @@ class DatabaseToolAdapter : ToolAdapter {
                     setObject(index + 1, param)
                 }
             }
-        val affectedRows = statement.executeUpdate()
-        statement.close()
-        StringResultData("${affectedRows}")
+
+            val affectedRows = statement.executeUpdate()
+            statement.close()
+
+            StringResultData("${affectedRows}")
         } catch (e: SQLException) {
             StringResultData("删除失败，{e.message}")
         }
     }
-        private suspend fun disconnect(connectionId: String): ToolResultData = withContext(Dispatchers.IO) {
+
+    private suspend fun disconnect(connectionId: String): ToolResultData = withContext(Dispatchers.IO) {
         connections[connectionId]?.let {
             try {
                 if (!it.isClosed) {
                     it.close()
                 }
-        connections.remove(connectionId)
-        StringResultData("成功断开数据库连接，连接ID，connectionId")
+                connections.remove(connectionId)
+                StringResultData("成功断开数据库连接，连接ID，connectionId")
             } catch (e: Exception) {
                 StringResultData("断开连接失败，{e.message}")
             }
         } ?: StringResultData("错误：未找到连接ID，connectionId")
     }
-        private fun listConnections(): ToolResultData {
+
+    private fun listConnections(): ToolResultData {
         val activeConnections = connections.filterValues { !it.isClosed }
         val closedConnections = connections.filterValues { it.isClosed }
+        
         val result = StringBuilder()
         result.append("数据库连接列表\n")
         result.append("活跃连接(${activeConnections.size}):\n")
         activeConnections.keys.forEach { id ->
             result.append("  - ${id}\n")
         }
+        
         if (closedConnections.isNotEmpty()) {
-            result.append("\n已关闭连，{closedConnections.size}):\n")
-        closedConnections.keys.forEach { id ->
+            result.append("\n已关闭连�?{closedConnections.size}):\n")
+            closedConnections.keys.forEach { id ->
                 result.append("  - ${id}\n")
             }
         }
-        result.append("\n缓存查询，${queryCache.size}")
+        
+        result.append("\n缓存查询�?${queryCache.size}")
+        
         return StringResultData(result.toString())
     }
-        private fun clearCache(): ToolResultData {
+
+    private fun clearCache(): ToolResultData {
         val cacheSize = queryCache.size
         queryCache.clear()
-        return StringResultData("成功清除查询缓存，清除了 ${cacheSize} 条记，"
+        return StringResultData("成功清除查询缓存，清除了 ${cacheSize} 条记�?
     }
-        private data class CachedQueryResult(
+
+    private data class CachedQueryResult(
         val result: String,
         val timestamp: Long
     )

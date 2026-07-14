@@ -25,15 +25,18 @@ class RbacManager private constructor(private val context: Context) {
                 instance ?: RbacManager(context.applicationContext).also { it.initialize() }
             }
     }
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        private val permissionCache = ConcurrentHashMap<String, CacheEntry>()
-        private lateinit var repo: DatabaseRepository
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val permissionCache = ConcurrentHashMap<String, CacheEntry>()
+
+    private lateinit var repo: DatabaseRepository
 
     private data class CacheEntry(
         val result: Boolean,
         val timestamp: Long
     )
-        private fun initialize() {
+
+    private fun initialize() {
         val db = AppDatabase.getDatabase(context)
         repo = DatabaseRepository(
             userDao = db.userDao(),
@@ -46,17 +49,20 @@ class RbacManager private constructor(private val context: Context) {
         )
         scope.launch { ensureDefaultData() }
     }
-        private suspend fun ensureDefaultData() {
+
+    private suspend fun ensureDefaultData() {
         if (repo.roleCount() > 0) return
         val now = System.currentTimeMillis()
-        val superAdminRole = repo.insertRole(Role(name = "super_admin", description = "超级管理命- 全部权限", level = 5, isSystem = true))
-        val adminRole = repo.insertRole(Role(name = "admin", description = "管理命- 高级权限", level = 4, isSystem = true))
-        val userRole = repo.insertRole(Role(name = "user", description = "普通用成- 标准权限", level = 1, isSystem = true))
+        val superAdminRole = repo.insertRole(Role(name = "super_admin", description = "超级管理�?- 全部权限", level = 5, isSystem = true))
+        val adminRole = repo.insertRole(Role(name = "admin", description = "管理�?- 高级权限", level = 4, isSystem = true))
+        val userRole = repo.insertRole(Role(name = "user", description = "普通用�?- 标准权限", level = 1, isSystem = true))
         val guestRole = repo.insertRole(Role(name = "guest", description = "访客 - 只读权限", level = 0, isSystem = true))
+
         val permIds = mutableMapOf<String, Long>()
         for (perm in defaultPermissions()) {
             permIds[perm.name] = repo.insertPermission(perm)
         }
+
         fun add(roleId: Long, vararg permNames: String) {
             for (name in permNames) {
                 permIds[name]?.let { pid ->
@@ -64,7 +70,9 @@ class RbacManager private constructor(private val context: Context) {
                 }
             }
         }
+
         add(superAdminRole, *permIds.keys.toTypedArray())
+
         add(adminRole,
             "agent:tools", "agent:internet", "agent:read", "agent:write", "agent:call_agents",
             "api:tasks:create", "api:tasks:read", "api:tasks:update", "api:tasks:cancel",
@@ -73,19 +81,22 @@ class RbacManager private constructor(private val context: Context) {
             "file:read", "file:write", "file:delete",
             "system:settings", "system:audit"
         )
+
         add(userRole,
             "agent:tools", "agent:internet", "agent:read", "agent:write", "agent:call_agents",
             "api:tasks:create", "api:tasks:read", "api:tasks:cancel",
             "api:stats:read", "api:files:upload",
             "file:read", "file:write"
         )
+
         add(guestRole,
             "agent:read",
             "api:tasks:read",
             "api:stats:read"
         )
     }
-        private fun defaultPermissions(): List<Permission> {
+
+    private fun defaultPermissions(): List<Permission> {
         val now = System.currentTimeMillis()
         return listOf(
             Permission(name = "agent:tools", description = "允许使用工具", category = "agent", createdAt = now),
@@ -105,7 +116,7 @@ class RbacManager private constructor(private val context: Context) {
             Permission(name = "users:manage", description = "管理用户", category = "system", createdAt = now),
             Permission(name = "roles:manage", description = "管理角色", category = "system", createdAt = now),
             Permission(name = "permissions:manage", description = "管理权限", category = "system", createdAt = now),
-            Permission(name = "system:admin", description = "系统管理员权限", category = "system", createdAt = now),
+            Permission(name = "system:admin", description = "系统管理员权�?, category = "system", createdAt = now),
             Permission(name = "system:settings", description = "修改系统设置", category = "system", createdAt = now),
             Permission(name = "system:audit", description = "查看审计日志", category = "system", createdAt = now),
             Permission(name = "file:read", description = "读取文件系统中的文件", category = "file", createdAt = now),
@@ -113,7 +124,8 @@ class RbacManager private constructor(private val context: Context) {
             Permission(name = "file:delete", description = "删除文件系统中的文件", category = "file", createdAt = now)
         )
     }
-        fun getRepository(): DatabaseRepository = repo
+
+    fun getRepository(): DatabaseRepository = repo
 
     suspend fun hasPermission(userId: Long, permissionName: String): Boolean {
         val cacheKey = "$userId:$permissionName"
@@ -125,53 +137,64 @@ class RbacManager private constructor(private val context: Context) {
         permissionCache[cacheKey] = CacheEntry(result, now)
         return result
     }
-        suspend fun checkPermission(userId: Long, permissionName: String): PermissionResult {
+
+    suspend fun checkPermission(userId: Long, permissionName: String): PermissionResult {
         val has = hasPermission(userId, permissionName)
         return if (has) PermissionResult.Granted
         else PermissionResult.Denied("用户缺少 '${permissionName.replaceBeforeLast(':', "")}' 权限")
     }
-        suspend fun requirePermission(userId: Long, permissionName: String) {
+
+    suspend fun requirePermission(userId: Long, permissionName: String) {
         val result = checkPermission(userId, permissionName)
         if (result is PermissionResult.Denied) {
             throw PermissionDeniedException(result.reason)
         }
     }
-        suspend fun assignRoleToUser(userId: Long, roleName: String, grantedBy: String? = null) {
+
+    suspend fun assignRoleToUser(userId: Long, roleName: String, grantedBy: String? = null) {
         val role = repo.getRoleByName(roleName) ?: return
         repo.assignRole(userId, role.id, grantedBy)
         invalidateCacheForUser(userId)
     }
-        suspend fun assignRoleToUserById(userId: Long, roleId: Long, grantedBy: String? = null) {
+
+    suspend fun assignRoleToUserById(userId: Long, roleId: Long, grantedBy: String? = null) {
         repo.assignRole(userId, roleId, grantedBy)
         invalidateCacheForUser(userId)
     }
-        suspend fun revokeRoleFromUser(userId: Long, roleName: String) {
+
+    suspend fun revokeRoleFromUser(userId: Long, roleName: String) {
         val role = repo.getRoleByName(roleName) ?: return
         repo.revokeRole(userId, role.id)
         invalidateCacheForUser(userId)
     }
-        suspend fun getPermissionNamesForUser(userId: Long): List<String> =
+
+    suspend fun getPermissionNamesForUser(userId: Long): List<String> =
         repo.getPermissionNamesForUser(userId)
-        suspend fun getMaxRoleLevelForUser(userId: Long): Int =
+
+    suspend fun getMaxRoleLevelForUser(userId: Long): Int =
         repo.getMaxRoleLevelForUser(userId) ?: 0
 
     fun getPermissionsForUser(userId: Long): Flow<List<Permission>> =
         repo.getPermissionsForUser(userId)
-        fun getRolesForUser(userId: Long): Flow<List<Role>> =
+
+    fun getRolesForUser(userId: Long): Flow<List<Role>> =
         repo.getRolesForUser(userId)
-        suspend fun getRolesForUserSync(userId: Long): List<Role> =
+
+    suspend fun getRolesForUserSync(userId: Long): List<Role> =
         repo.getRolesForUserSync(userId)
-        fun invalidateCacheForUser(userId: Long) {
+
+    fun invalidateCacheForUser(userId: Long) {
         permissionCache.keys.removeAll { it.startsWith("$userId:") }
     }
-        fun invalidateAllCache() {
+
+    fun invalidateAllCache() {
         permissionCache.clear()
     }
 }
 
 sealed class PermissionResult {
     data object Granted : PermissionResult()
-        data class Denied(val reason: String) : PermissionResult()
+    data class Denied(val reason: String) : PermissionResult()
 }
 
 class PermissionDeniedException(reason: String) : SecurityException(reason)

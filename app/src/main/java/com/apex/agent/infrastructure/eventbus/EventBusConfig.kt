@@ -39,7 +39,8 @@ data class EventBusConfig(
             enableLogging = true
         )
     }
-        class Builder {
+
+    class Builder {
         private var bufferSize: Int = 100
         private var overflowStrategy: BufferOverflow = BufferOverflow.DROP_OLDEST
         private var dispatcher: CoroutineDispatcher = Dispatchers.Default

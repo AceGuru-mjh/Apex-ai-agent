@@ -47,7 +47,7 @@ object LocationUtils {
      * @return true 设备在中国大陆，false 不在或无法判断
      */
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-        suspend fun isDeviceInMainlandChina(context: Context): Boolean {
+    suspend fun isDeviceInMainlandChina(context: Context): Boolean {
         // 快速、无需权限的启发式检测
         getCountryIsoByTelephony(context)?.let { iso ->
             if (iso.equals("CN", true)) return true
@@ -56,23 +56,23 @@ object LocationUtils {
 
         if (!hasLocationPermission(context)) {
             AppLogger.w(TAG, "No location permission; returning result from heuristics only.")
-        return false
+            return false
         }
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         try {
             val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
                 ?: locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        if (lastKnownLocation != null) {
+            if (lastKnownLocation != null) {
                 AppLogger.d(TAG, "Got last known location from native API.")
-        return getCountryFromLocation(context, lastKnownLocation)
+                return getCountryFromLocation(context, lastKnownLocation)
             }
-        AppLogger.d(TAG, "No last known location, requesting current location update.")
-        val currentLocation = getCurrentLocationNative(context, locationManager)
-        return getCountryFromLocation(context, currentLocation)
+            AppLogger.d(TAG, "No last known location, requesting current location update.")
+            val currentLocation = getCurrentLocationNative(context, locationManager)
+            return getCountryFromLocation(context, currentLocation)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to get location using native API", e)
-        return false
+            return false
         }
     }
 
@@ -84,12 +84,12 @@ object LocationUtils {
      * @return 获取到的 Location 对象
      */
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-        private suspend fun getCurrentLocationNative(context: Context, locationManager: LocationManager): Location {
+    private suspend fun getCurrentLocationNative(context: Context, locationManager: LocationManager): Location {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return suspendCancellableCoroutine { continuation ->
                 val cancellationSignal = CancellationSignal()
-        continuation.invokeOnCancellation { cancellationSignal.cancel() }
-        locationManager.getCurrentLocation(
+                continuation.invokeOnCancellation { cancellationSignal.cancel() }
+                locationManager.getCurrentLocation(
                     LocationManager.NETWORK_PROVIDER,
                     cancellationSignal,
                     context.mainExecutor,
@@ -104,19 +104,20 @@ object LocationUtils {
             }
         } else {
             @Suppress("DEPRECATION")
-        return suspendCancellableCoroutine { continuation ->
+            return suspendCancellableCoroutine { continuation ->
                 val locationListener = object : android.location.LocationListener {
                     override fun onLocationChanged(location: Location) {
                         locationManager.removeUpdates(this)
-        continuation.resume(location)
+                        continuation.resume(location)
                     }
-        override fun onProviderDisabled(provider: String) {
+
+                    override fun onProviderDisabled(provider: String) {
                         locationManager.removeUpdates(this)
-        continuation.resumeWithException(RuntimeException("Provider ${provider} disabled"))
+                        continuation.resumeWithException(RuntimeException("Provider ${provider} disabled"))
                     }
                 }
-        continuation.invokeOnCancellation { locationManager.removeUpdates(locationListener) }
-        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, context.mainLooper)
+                continuation.invokeOnCancellation { locationManager.removeUpdates(locationListener) }
+                locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, context.mainLooper)
             }
         }
     }
@@ -142,9 +143,10 @@ object LocationUtils {
                                     override fun onGeocode(results: MutableList<Address>) {
                                         cont.resume(results)
                                     }
-        override fun onError(errorMessage: String) {
+
+                                    override fun onError(errorMessage: String) {
                                         AppLogger.w(TAG, "Geocoder error: ${errorMessage}")
-        cont.resume(emptyList())
+                                        cont.resume(emptyList())
                                     }
                                 }
                             )
@@ -154,23 +156,25 @@ object LocationUtils {
                     }
                 } else {
                     @Suppress("DEPRECATION")
-        Geocoder(context, Locale.getDefault()).getFromLocation(
+                    Geocoder(context, Locale.getDefault()).getFromLocation(
                         location.latitude,
                         location.longitude,
                         1
                     )
                 }
-        if (!addresses.isNullOrEmpty()) {
+
+                if (!addresses.isNullOrEmpty()) {
                     val countryCode = addresses[0].countryCode
                     AppLogger.d(TAG, "Detected country code: ${countryCode}")
-        return@withContext "CN".equals(countryCode, ignoreCase = true)
+                    return@withContext "CN".equals(countryCode, ignoreCase = true)
                 }
-        val inBounds = isWithinMainlandChinaBounds(location.latitude, location.longitude)
-        if (!inBounds) AppLogger.w(TAG, "Coordinates outside CN bounds; lat=${location.latitude}, lon=${location.longitude}")
-        inBounds
+
+                val inBounds = isWithinMainlandChinaBounds(location.latitude, location.longitude)
+                if (!inBounds) AppLogger.w(TAG, "Coordinates outside CN bounds; lat=${location.latitude}, lon=${location.longitude}")
+                inBounds
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Geocoder failed", e)
-        false
+                false
             }
         }
     }
@@ -200,13 +204,13 @@ object LocationUtils {
     private fun getCountryIsoByTelephony(context: Context): String? {
         return try {
             val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val networkIso = tm.networkCountryIso?.trim()
-        val simIso = tm.simCountryIso?.trim()
-        val iso = (networkIso?.ifBlank { null } ?: simIso?.ifBlank { null })
-        iso?.uppercase(Locale.ROOT)
+            val networkIso = tm.networkCountryIso?.trim()
+            val simIso = tm.simCountryIso?.trim()
+            val iso = (networkIso?.ifBlank { null } ?: simIso?.ifBlank { null })
+            iso?.uppercase(Locale.ROOT)
         } catch (e: Exception) {
             AppLogger.w(TAG, "Telephony country ISO unavailable", e)
-        null
+            null
         }
     }
 
@@ -218,7 +222,7 @@ object LocationUtils {
     private fun isChinaTimezone(): Boolean {
         return try {
             val tz = TimeZone.getDefault()
-        tz.id.equals("Asia/Shanghai", ignoreCase = true) || tz.id.equals("Asia/Urumqi", ignoreCase = true)
+            tz.id.equals("Asia/Shanghai", ignoreCase = true) || tz.id.equals("Asia/Urumqi", ignoreCase = true)
         } catch (_: Exception) {
             false
         }
@@ -236,7 +240,7 @@ object LocationUtils {
             locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to check GPS status", e)
-        false
+            false
         }
     }
 
@@ -252,7 +256,7 @@ object LocationUtils {
             locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to check network location status", e)
-        false
+            false
         }
     }
 
@@ -268,7 +272,7 @@ object LocationUtils {
             locationManager.getProviders(true).toList()
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to get location providers", e)
-        emptyList()
+            emptyList()
         }
     }
 

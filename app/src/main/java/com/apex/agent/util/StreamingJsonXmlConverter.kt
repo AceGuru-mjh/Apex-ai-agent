@@ -13,7 +13,8 @@ class StreamingJsonXmlConverter {
         data class Tag(val text: String) : Event()
         data class Content(val text: String) : Event()
     }
-        private enum class State {
+
+    private enum class State {
         WAIT_BRACE,      // 等待起始 {
         WAIT_KEY_QUOTE,  // 等待 Key 的起。
         READ_KEY,        // 读取 Key 内容
@@ -25,9 +26,10 @@ class StreamingJsonXmlConverter {
         UNICODE_ESCAPE,  // Unicode 转义
         WAIT_COMMA       // 等待 , ，}
     }
-        private var state = State.WAIT_BRACE
+
+    private var state = State.WAIT_BRACE
     private val buffer = StringBuilder()
-        private var unicodeCount = 0
+    private var unicodeCount = 0
     private var primitiveNestingDepth = 0
     private var primitiveInString = false
     private var primitiveEscape = false
@@ -41,14 +43,16 @@ class StreamingJsonXmlConverter {
         primitiveEscape = false
         readingComplexValue = false
     }
-        private fun emitPrimitiveParam(events: MutableList<Event>) {
+
+    private fun emitPrimitiveParam(events: MutableList<Event>) {
         events.add(Event.Content(escapeXml(buffer.toString())))
         events.add(Event.Tag("</param>"))
         hasOpenParam = false
         buffer.setLength(0)
         resetPrimitiveTracking()
     }
-        private fun canFinalizePrimitiveOnFlush(): Boolean {
+
+    private fun canFinalizePrimitiveOnFlush(): Boolean {
         if (state != State.READ_PRIMITIVE || buffer.isEmpty()) return false
         if (!readingComplexValue) return true
         return primitiveNestingDepth == 0 && !primitiveInString && !primitiveEscape
@@ -63,31 +67,64 @@ class StreamingJsonXmlConverter {
      */
     fun feed(chunk: String): List<Event> {
         val events = mutableListOf<Event>()
+
         for (c in chunk) {
             when (state) {
                 State.WAIT_BRACE -> if (c == '{') state = State.WAIT_KEY_QUOTE
                 State.WAIT_KEY_QUOTE -> {
-                    if (c == '"') { state = State.READ_KEY keyEscape = false buffer.setLength(0) } else if (c == '}') { // 对象结束 state = State.WAIT_BRACE } } State.READ_KEY -> { if (keyEscape) { buffer.append(c) keyEscape = false } else { when (c) { '\\' -> keyEscape = true '"' -> { events.add(Event.Tag("\n  <param name=\"${buffer}\">"))
-        hasOpenParam = true
+                    if (c == '"') {
+                        state = State.READ_KEY
+                        keyEscape = false
+                        buffer.setLength(0)
+                    } else if (c == '}') {
+                        // 对象结束
+                        state = State.WAIT_BRACE
+                    }
+                }
+                State.READ_KEY -> {
+                    if (keyEscape) {
+                        buffer.append(c)
+                        keyEscape = false
+                    } else {
+                        when (c) {
+                            '\\' -> keyEscape = true
+                            '"' -> {
+                                events.add(Event.Tag("\n  <param name=\"${buffer}\">"))
+                                hasOpenParam = true
                                 state = State.WAIT_COLON
                             }
-        else -> buffer.append(c)
+                            else -> buffer.append(c)
                         }
                     }
                 }
-        State.WAIT_COLON -> if (c == ':') state = State.WAIT_VALUE
+                State.WAIT_COLON -> if (c == ':') state = State.WAIT_VALUE
                 State.WAIT_VALUE -> {
                     if (!c.isWhitespace()) {
-                        if (c == '"') { state = State.READ_STRING } else { state = State.READ_PRIMITIVE buffer.setLength(0) buffer.append(c) readingComplexValue = c == '[' || c == '{' primitiveNestingDepth = if (readingComplexValue) 1 else 0 primitiveInString = false primitiveEscape = false } } } State.READ_STRING -> { if (c == '"') { state = State.WAIT_COMMA
+                        if (c == '"') {
+                            state = State.READ_STRING
+                        } else {
+                            state = State.READ_PRIMITIVE
+                            buffer.setLength(0)
+                            buffer.append(c)
+                            readingComplexValue = c == '[' || c == '{'
+                            primitiveNestingDepth = if (readingComplexValue) 1 else 0
+                            primitiveInString = false
+                            primitiveEscape = false
+                        }
+                    }
+                }
+                State.READ_STRING -> {
+                    if (c == '"') {
+                        state = State.WAIT_COMMA
                         events.add(Event.Tag("</param>"))
-        hasOpenParam = false
+                        hasOpenParam = false
                     } else if (c == '\\') {
                         state = State.ESCAPE
                     } else {
                         events.add(Event.Content(escapeXml(c.toString())))
                     }
                 }
-        State.ESCAPE -> {
+                State.ESCAPE -> {
                     if (c == 'u') {
                         state = State.UNICODE_ESCAPE
                         unicodeCount = 0
@@ -100,18 +137,100 @@ class StreamingJsonXmlConverter {
                             'b' -> "\b"
                             'f' -> "\u000c"
                             '\"' -> "\""
-                            '\\' -> "\\" '/' -> "/" else -> c.toString() }
-events.add(Event.Content(escapeXml(unescaped))) state = State.READ_STRING } } State.UNICODE_ESCAPE -> { buffer.append(c) unicodeCount++ if (unicodeCount == 4) { try { val code = buffer.toString().toInt(16) events.add(Event.Content(escapeXml(code.toChar().toString()))) }
-catch (e: Exception) { AppLogger.w("StreamingJsonXmlConverter", "Unicode parse error", e) }
-state = State.READ_STRING } } State.READ_PRIMITIVE -> { if (readingComplexValue) { if (primitiveInString) { buffer.append(c) if (primitiveEscape) { primitiveEscape = false }
-else if (c == '\\') { primitiveEscape = true }
-else if (c == '"') { primitiveInString = false
+                            '\\' -> "\\"
+                            '/' -> "/"
+                            else -> c.toString()
+                        }
+                        events.add(Event.Content(escapeXml(unescaped)))
+                        state = State.READ_STRING
+                    }
+                }
+                State.UNICODE_ESCAPE -> {
+                    buffer.append(c)
+                    unicodeCount++
+                    if (unicodeCount == 4) {
+                        try {
+                            val code = buffer.toString().toInt(16)
+                            events.add(Event.Content(escapeXml(code.toChar().toString())))
+                        } catch (e: Exception) { AppLogger.w("StreamingJsonXmlConverter", "Unicode parse error", e) }
+                        state = State.READ_STRING
+                    }
+                }
+                State.READ_PRIMITIVE -> {
+                    if (readingComplexValue) {
+                        if (primitiveInString) {
+                            buffer.append(c)
+                            if (primitiveEscape) {
+                                primitiveEscape = false
+                            } else if (c == '\\') {
+                                primitiveEscape = true
+                            } else if (c == '"') {
+                                primitiveInString = false
                             }
                         } else {
                             when (c) {
-                                '"' -> { primitiveInString = true buffer.append(c) }  '[', '{' -> { primitiveNestingDepth++ buffer.append(c) }  ']', '}' -> { primitiveNestingDepth-- buffer.append(c) if (primitiveNestingDepth == 0) { emitPrimitiveParam(events) state = State.WAIT_COMMA } }
-else -> buffer.append(c) } } }
-else { if (c == ',' || c == '}' || c.isWhitespace()) { emitPrimitiveParam(events) if (c == ',') state = State.WAIT_KEY_QUOTE else if (c == '}') state = State.WAIT_BRACE else state = State.WAIT_COMMA }
-else { buffer.append(c) } } } State.WAIT_COMMA -> { if (c == ',') state = State.WAIT_KEY_QUOTE else if (c == '}') state = State.WAIT_BRACE } } }
-return events }  /** * 刷新缓冲区，处理剩余的原始，     */ fun flush(): List<Event> { val events = mutableListOf<Event>() if (canFinalizePrimitiveOnFlush()) { emitPrimitiveParam(events) }
-return events }  /** * XML 转义辅助函数 */ private fun escapeXml(text: String): String { return text.replace("&", "&amp;") .replace("<", "&lt;") .replace(">", "&gt;") .replace("\"", "&quot;") .replace("'", "&apos;") } }
+                                '"' -> {
+                                    primitiveInString = true
+                                    buffer.append(c)
+                                }
+
+                                '[', '{' -> {
+                                    primitiveNestingDepth++
+                                    buffer.append(c)
+                                }
+
+                                ']', '}' -> {
+                                    primitiveNestingDepth--
+                                    buffer.append(c)
+
+                                    if (primitiveNestingDepth == 0) {
+                                        emitPrimitiveParam(events)
+                                        state = State.WAIT_COMMA
+                                    }
+                                }
+
+                                else -> buffer.append(c)
+                            }
+                        }
+                    } else {
+                        if (c == ',' || c == '}' || c.isWhitespace()) {
+                            emitPrimitiveParam(events)
+
+                            if (c == ',') state = State.WAIT_KEY_QUOTE
+                            else if (c == '}') state = State.WAIT_BRACE
+                            else state = State.WAIT_COMMA
+                        } else {
+                            buffer.append(c)
+                        }
+                    }
+                }
+                State.WAIT_COMMA -> {
+                    if (c == ',') state = State.WAIT_KEY_QUOTE
+                    else if (c == '}') state = State.WAIT_BRACE
+                }
+            }
+        }
+        return events
+    }
+
+    /**
+     * 刷新缓冲区，处理剩余的原始，     */
+    fun flush(): List<Event> {
+        val events = mutableListOf<Event>()
+        if (canFinalizePrimitiveOnFlush()) {
+            emitPrimitiveParam(events)
+        }
+        return events
+    }
+
+    /**
+     * XML 转义辅助函数
+     */
+    private fun escapeXml(text: String): String {
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;")
+    }
+}

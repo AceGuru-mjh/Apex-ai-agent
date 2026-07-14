@@ -29,10 +29,10 @@ import com.apex.ui.features.toolbox.screens.uidebugger.UIDebuggerViewModel
  */
 class UIDebuggerService : Service(), ViewModelStoreOwner {
     private val TAG = "UIDebuggerService"
-        private lateinit var windowManager: UIDebuggerWindowManager
+    private lateinit var windowManager: UIDebuggerWindowManager
     private lateinit var lifecycleOwner: ServiceLifecycleOwner
     override val viewModelStore = ViewModelStore()
-        private lateinit var viewModel: UIDebuggerViewModel
+    private lateinit var viewModel: UIDebuggerViewModel
 
     private var floatingChatService: FloatingChatService? = null
     private var isBound = false
@@ -40,23 +40,25 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as FloatingChatService.LocalBinder
-        val chatService = binder.getService()
-        floatingChatService = chatService
+            val chatService = binder.getService()
+            floatingChatService = chatService
             isBound = true
             viewModel.setWindowInteractionController { visible ->
-                // 控制悬浮窗的可见性，从而控制其可交互，
-        chatService.setFloatingWindowVisible(visible)
+                // 控制悬浮窗的可见性，从而控制其可交互，                chatService.setFloatingWindowVisible(visible)
             }
         }
+
         override fun onServiceDisconnected(arg0: ComponentName) {
             isBound = false
             floatingChatService = null
             viewModel.setWindowInteractionController(null)
         }
     }
-        private val NOTIFICATION_ID = 1337
+
+    private val NOTIFICATION_ID = 1337
     private val CHANNEL_ID = "UIDebuggerChannel"
-        override fun onBind(intent: Intent): IBinder? = null
+
+    override fun onBind(intent: Intent): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -65,6 +67,7 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
         
         // Initialize ViewModel - use singleton instance to share state with main app
         viewModel = UIDebuggerViewModel.getInstance()
+
         windowManager = UIDebuggerWindowManager(this, this, lifecycleOwner)
         createNotificationChannel()
 
@@ -73,7 +76,8 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
-        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         AppLogger.d(TAG, "UI Debugger service started")
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
@@ -82,7 +86,8 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
         windowManager.show()
         return START_NOT_STICKY
     }
-        override fun onDestroy() {
+
+    override fun onDestroy() {
         super.onDestroy()
         AppLogger.d(TAG, "UI Debugger service stopped")
         lifecycleOwner.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY)
@@ -91,32 +96,34 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
         viewModelStore.clear()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             @Suppress("DEPRECATION")
-        stopForeground(Service.STOP_FOREGROUND_REMOVE)
+            stopForeground(Service.STOP_FOREGROUND_REMOVE)
         } else {
             @Suppress("DEPRECATION")
-        stopForeground(true)
+            stopForeground(true)
         }
 
         // Unbind from FloatingChatService
         if (isBound) {
             unbindService(connection)
-        isBound = false
+            isBound = false
         }
     }
-        private fun createNotificationChannel() {
+
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "UI Debugger Service"
-        val descriptionText = "Displays a floating overlay for UI debugging"
-        val importance = NotificationManager.IMPORTANCE_LOW
-        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            val descriptionText = "Displays a floating overlay for UI debugging"
+            val importance = NotificationManager.IMPORTANCE_LOW
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
-        val notificationManager: NotificationManager =
+            val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
-        private fun createNotification(): Notification {
+
+    private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("UI Debugger Active")
             .setContentText("Tap to manage the UI debugger overlay.")
@@ -124,7 +131,8 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
-        companion object {
+
+    companion object {
         val isServiceRunning = MutableStateFlow(false)
     }
 } 

@@ -13,10 +13,11 @@ import java.util.concurrent.ConcurrentHashMap
 class KanbanBoard {
 
     private val logger = LoggerFactory.getLogger(KanbanBoard::class.java)
-        private val columns = mutableListOf<KanbanColumn>()
-        private val tasks = mutableListOf<KanbanTask>()
-        private val boardState = MutableStateFlow(BoardState(columns, tasks))
-        companion object {
+    private val columns = mutableListOf<KanbanColumn>()
+    private val tasks = mutableListOf<KanbanTask>()
+    private val boardState = MutableStateFlow(BoardState(columns, tasks))
+
+    companion object {
         @Volatile
         private var instance: KanbanBoard? = null
 
@@ -27,44 +28,54 @@ class KanbanBoard {
                 }
             }
         }
+
         fun getInstance(): KanbanBoard {
             return instance ?: throw IllegalStateException("KanbanBoard not initialized")
         }
     }
-        fun addColumn(column: KanbanColumn) {
+
+    fun addColumn(column: KanbanColumn) {
         columns.add(column)
         updateState()
     }
-        fun removeColumn(columnId: String) {
+
+    fun removeColumn(columnId: String) {
         columns.removeAll { it.id == columnId }
         tasks.removeAll { it.currentColumnId == columnId }
         updateState()
     }
-        fun addTask(task: KanbanTask) {
+
+    fun addTask(task: KanbanTask) {
         tasks.add(task)
         updateState()
     }
-        fun moveTask(taskId: String, targetColumnId: String) {
+
+    fun moveTask(taskId: String, targetColumnId: String) {
         val task = tasks.find { it.id == taskId }
         task?.let {
             it.currentColumnId = targetColumnId
             it.status = getColumnStatus(targetColumnId)
-        updateState()
+            updateState()
         }
     }
-        fun updateTask(taskId: String, updates: KanbanTask.() -> Unit) {
+
+    fun updateTask(taskId: String, updates: KanbanTask.() -> Unit) {
         val task = tasks.find { it.id == taskId }
         task?.apply(updates)
         updateState()
     }
-        fun getTasksByColumn(columnId: String): List<KanbanTask> {
+
+    fun getTasksByColumn(columnId: String): List<KanbanTask> {
         return tasks.filter { it.currentColumnId == columnId }
     }
-        fun getTask(taskId: String): KanbanTask? {
+
+    fun getTask(taskId: String): KanbanTask? {
         return tasks.find { it.id == taskId }
     }
-        fun getStateFlow() = boardState.asStateFlow()
-        fun getStatistics(): BoardStatistics {
+
+    fun getStateFlow() = boardState.asStateFlow()
+
+    fun getStatistics(): BoardStatistics {
         return BoardStatistics(
             totalTasks = tasks.size,
             completedTasks = tasks.count { it.status == KanbanTask.Status.DONE },
@@ -77,23 +88,28 @@ class KanbanBoard {
             }
         )
     }
-        private fun getColumnStatus(columnId: String): KanbanTask.Status {
+
+    private fun getColumnStatus(columnId: String): KanbanTask.Status {
         return columns.find { it.id == columnId }?.status ?: KanbanTask.Status.TODO
     }
-        private fun updateState() {
+
+    private fun updateState() {
         boardState.value = BoardState(columns.toList(), tasks.toList())
     }
-        data class BoardState(
+
+    data class BoardState(
         val columns: List<KanbanColumn>,
         val tasks: List<KanbanTask>
     )
-        data class BoardStatistics(
+
+    data class BoardStatistics(
         val totalTasks: Int,
         val completedTasks: Int,
         val inProgressTasks: Int,
         val columnStats: Map<String, ColumnStats>
     )
-        data class ColumnStats(
+
+    data class ColumnStats(
         val name: String,
         val taskCount: Int
     )
@@ -123,13 +139,16 @@ class KanbanTask(
     enum class Status {
         TODO, IN_PROGRESS, REVIEW, DONE
     }
-        enum class Priority {
+
+    enum class Priority {
         LOW, MEDIUM, HIGH, URGENT
     }
-        fun addConversationEntry(entry: ConversationEntry) {
+
+    fun addConversationEntry(entry: ConversationEntry) {
         conversationHistory.toMutableList().add(entry)
     }
-        data class ConversationEntry(
+
+    data class ConversationEntry(
         val agentName: String,
         val content: String,
         val timestamp: Long = System.currentTimeMillis()
@@ -139,9 +158,10 @@ class KanbanTask(
 class WorkerRegistry {
 
     private val logger = LoggerFactory.getLogger(WorkerRegistry::class.java)
-        private val workers = ConcurrentHashMap<String, Worker>()
-        private val capabilityRegistry = CapabilityRegistry.getInstance()
-        companion object {
+    private val workers = ConcurrentHashMap<String, Worker>()
+    private val capabilityRegistry = CapabilityRegistry.getInstance()
+
+    companion object {
         @Volatile
         private var instance: WorkerRegistry? = null
 
@@ -152,11 +172,13 @@ class WorkerRegistry {
                 }
             }
         }
+
         fun getInstance(): WorkerRegistry {
             return instance ?: throw IllegalStateException("WorkerRegistry not initialized")
         }
     }
-        fun registerWorker(worker: Worker) {
+
+    fun registerWorker(worker: Worker) {
         capabilityRegistry.register(com.apex.agent.core.extension.Capability(
             name = "worker.${worker.name}",
             level = FootprintLevel.PLUGIN,
@@ -165,22 +187,28 @@ class WorkerRegistry {
         workers[worker.id] = worker
         logger.info("Registered worker: ${worker.name}")
     }
-        fun unregisterWorker(workerId: String) {
+
+    fun unregisterWorker(workerId: String) {
         workers.remove(workerId)
     }
-        fun getWorker(workerId: String): Worker? {
+
+    fun getWorker(workerId: String): Worker? {
         return workers[workerId]
     }
-        fun getWorkersByRole(role: String): List<Worker> {
+
+    fun getWorkersByRole(role: String): List<Worker> {
         return workers.values.filter { it.role == role }
     }
-        fun getAllWorkers(): List<Worker> {
+
+    fun getAllWorkers(): List<Worker> {
         return workers.values.toList()
     }
-        fun getAvailableWorkers(): List<Worker> {
+
+    fun getAvailableWorkers(): List<Worker> {
         return workers.values.filter { it.isAvailable }
     }
-        data class Worker(
+
+    data class Worker(
         val id: String = UUID.randomUUID().toString(),
         val name: String,
         val role: String,
@@ -194,9 +222,10 @@ class WorkerRegistry {
 class TaskDispatcher {
 
     private val logger = LoggerFactory.getLogger(TaskDispatcher::class.java)
-        private val workerRegistry = WorkerRegistry.getInstance()
-        private val kanbanBoard = KanbanBoard.getInstance()
-        companion object {
+    private val workerRegistry = WorkerRegistry.getInstance()
+    private val kanbanBoard = KanbanBoard.getInstance()
+
+    companion object {
         @Volatile
         private var instance: TaskDispatcher? = null
 
@@ -207,34 +236,41 @@ class TaskDispatcher {
                 }
             }
         }
+
         fun getInstance(): TaskDispatcher {
             return instance ?: throw IllegalStateException("TaskDispatcher not initialized")
         }
     }
-        suspend fun dispatchTask(task: KanbanTask): DispatchResult {
+
+    suspend fun dispatchTask(task: KanbanTask): DispatchResult {
         return withContext(Dispatchers.Default) {
             val targetColumn = kanbanBoard.getStateFlow().value.columns.find { it.id == task.currentColumnId }
-        targetColumn?.workerRole?.let { role ->
+            
+            targetColumn?.workerRole?.let { role ->
                 val workers = workerRegistry.getWorkersByRole(role)
-        val availableWorker = selectWorker(workers, task)
-        availableWorker?.let {
+                val availableWorker = selectWorker(workers, task)
+                
+                availableWorker?.let {
                     logger.info("Dispatching task ${task.id} to worker ${it.name}")
-        return@withContext DispatchResult(
+                    return@withContext DispatchResult(
                         success = true,
                         workerId = it.id,
                         workerName = it.name
                     )
                 }
-        logger.warn("No available worker for role: ${role}")
-        return@withContext DispatchResult(
+                
+                logger.warn("No available worker for role: ${role}")
+                return@withContext DispatchResult(
                     success = false,
                     error = "No available worker for role: ${role}"
                 )
             }
-        DispatchResult(success = true)
+            
+            DispatchResult(success = true)
         }
     }
-        suspend fun processTasks() {
+
+    suspend fun processTasks() {
         withContext(Dispatchers.Default) {
             val state = kanbanBoard.getStateFlow().value
             
@@ -243,26 +279,31 @@ class TaskDispatcher {
                     it.currentColumnId == column.id && 
                     it.status == KanbanTask.Status.TODO 
                 }
-        for (task in tasks) {
+                
+                for (task in tasks) {
                     dispatchTask(task)
                 }
             }
         }
     }
-        private fun selectWorker(workers: List<WorkerRegistry.Worker>, task: KanbanTask): WorkerRegistry.Worker? {
+
+    private fun selectWorker(workers: List<WorkerRegistry.Worker>, task: KanbanTask): WorkerRegistry.Worker? {
         val availableWorkers = workers.filter { it.isAvailable }
+        
         if (availableWorkers.isEmpty()) {
             return null
         }
+
         return when (task.priority) {
             KanbanTask.Priority.URGENT -> availableWorkers.firstOrNull()
-        KanbanTask.Priority.HIGH -> availableWorkers.firstOrNull()
-        else -> availableWorkers.minByOrNull { 
+            KanbanTask.Priority.HIGH -> availableWorkers.firstOrNull()
+            else -> availableWorkers.minByOrNull { 
                 kanbanBoard.getTasksByColumn(task.currentColumnId).count { it.assignee == it.id }
             }
         }
     }
-        data class DispatchResult(
+
+    data class DispatchResult(
         val success: Boolean,
         val workerId: String? = null,
         val workerName: String? = null,

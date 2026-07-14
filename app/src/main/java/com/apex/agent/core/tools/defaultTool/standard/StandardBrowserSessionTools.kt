@@ -79,11 +79,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         internal const val MOBILE_USER_AGENT =
             "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+
         internal val mainHandler = Handler(Looper.getMainLooper())
+
         internal val sessions = ConcurrentHashMap<String, WebSession>()
         internal val sessionOrder = mutableListOf<String>()
         internal val pendingAsyncJsCalls = ConcurrentHashMap<String, PendingAsyncJsCall>()
         private val snapshotGenerationSeed = AtomicLong(0L)
+
         internal val sessionOrderLock = Any()
         internal val overlayLock = Any()
         internal val sessionConfigLock = Any()
@@ -94,10 +97,11 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         @Volatile internal var desktopModeInitialized: Boolean = false
         @Volatile internal var pendingExternalOpenRequest: PendingExternalOpenRequest? = null
     }
-        internal val historyStore by lazy { WebSessionHistoryStore.getInstance(context.applicationContext) }
-        private val userscriptRepository by lazy { UserscriptRepository.getInstance(context.applicationContext) }
-        internal val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        internal val userscriptManager by lazy {
+
+    internal val historyStore by lazy { WebSessionHistoryStore.getInstance(context.applicationContext) }
+    private val userscriptRepository by lazy { UserscriptRepository.getInstance(context.applicationContext) }
+    internal val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    internal val userscriptManager by lazy {
         WebSessionUserscriptManager(
             context = context.applicationContext,
             onOpenUserscriptUi = {
@@ -131,11 +135,13 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             onToast = { message -> showToast(message) }
         )
     }
-        init {
+
+    init {
         ensureDesktopModeInitialized()
         initializeBrowserDownloadSupport()
     }
-        internal data class WebSession(
+
+    internal data class WebSession(
         val id: String,
         val webView: WebView,
         val sessionName: String?,
@@ -161,7 +167,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val consoleEntries: MutableList<BrowserConsoleEntry> = mutableListOf()
         val networkEntries: MutableList<BrowserNetworkRequestEntry> = mutableListOf()
     }
-        internal data class BrowserActionSettlementPolicy(
+
+    internal data class BrowserActionSettlementPolicy(
         val timeoutMs: Long = DEFAULT_TIMEOUT_MS,
         val waitForDocumentReady: Boolean = false,
         val waitForNavigationChange: Boolean = false,
@@ -170,7 +177,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val waitForTimeSeconds: Double? = null,
         val allowActivePageSwitch: Boolean = true
     )
-        internal data class BrowserActionMarkers(
+
+    internal data class BrowserActionMarkers(
         val initialSessionId: String,
         val initialUrl: String,
         val consoleTimestamp: Long,
@@ -178,7 +186,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val snapshotGeneration: Long,
         val startedAt: Long
     )
-        internal data class BrowserActionSettlement(
+
+    internal data class BrowserActionSettlement(
         val registry: BrowserPageRegistry,
         val session: WebSession,
         val snapshot: BrowserSnapshot,
@@ -186,7 +195,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val downloadMarker: Long,
         val timedOut: Boolean = false
     )
-        override fun invoke(tool: AITool): ToolResult {
+
+    override fun invoke(tool: AITool): ToolResult {
         return try {
             when (tool.name) {
                 "browser_click" -> browserClick(tool)
@@ -210,14 +220,15 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 "browser_tabs" -> browserTabs(tool)
                 "browser_take_screenshot" -> browserTakeScreenshot(tool)
                 "browser_type" -> browserType(tool)
-        else -> error(tool.name, "Unsupported browser session tool: ${tool.name}")
+                else -> error(tool.name, "Unsupported browser session tool: ${tool.name}")
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Tool execution failed: ${tool.name}", e)
-        error(tool.name, e.message ?: "Unknown error")
+            error(tool.name, e.message ?: "Unknown error")
         }
     }
-        private fun browserNavigate(tool: AITool): ToolResult {
+
+    private fun browserNavigate(tool: AITool): ToolResult {
         val targetUrl = param(tool, "url")?.trim()
         if (targetUrl.isNullOrBlank()) {
             return error(tool.name, "url is required")
@@ -229,9 +240,10 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 getSession(null) ?: createSessionTabOnMain(context.applicationContext, "about:blank")
             }
         val markers = captureActionMarkers(session)
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
-        navigateSessionOnMain(session, targetUrl, headers)
+            navigateSessionOnMain(session, targetUrl, headers)
         }
         val settlement =
             settleBrowserAction(
@@ -244,6 +256,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                         waitForNavigationChange = true
                     )
             )
+
         return ok(
             tool.name,
             buildSettledBrowserResponse(
@@ -253,21 +266,25 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserClick(tool: AITool): ToolResult {
+
+    private fun browserClick(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val ref = param(tool, "ref")?.trim()?.takeIf { it.isNotBlank() }
         val selector = param(tool, "selector")?.trim()?.takeIf { it.isNotBlank() }
         if (ref == null && selector == null) {
             return error(tool.name, "ref or selector is required")
         }
+
         val buttonRaw = param(tool, "button")?.trim()
         val button =
             when {
                 buttonRaw.isNullOrBlank() -> "left"
-        buttonRaw == "left" || buttonRaw == "right" || buttonRaw == "middle" -> buttonRaw
+                buttonRaw == "left" || buttonRaw == "right" || buttonRaw == "middle" -> buttonRaw
                 else -> return error(tool.name, "button must be one of: left, right, middle")
             }
+
         val doubleClick = boolParam(tool, "doubleClick", false)
+
         val (modifiers, invalidModifiers) = parseClickModifiers(param(tool, "modifiers"))
         if (invalidModifiers.isNotEmpty()) {
             return error(
@@ -275,6 +292,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 "Invalid modifiers: ${invalidModifiers.joinToString(", ")}. Allowed: Alt, Control, ControlOrMeta, Meta, Shift"
             )
         }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -289,7 +307,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val code =
             when {
                 ref != null -> buildClickCode(session, ref, button, doubleClick, modifiers)
-        else -> buildClickCodeForSelector(requireNotNull(selector), button, doubleClick, modifiers)
+                else -> buildClickCodeForSelector(selector!!, button, doubleClick, modifiers)
             }
         val jsResult =
             when {
@@ -301,10 +319,10 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                         modifiers = modifiers,
                         doubleClick = doubleClick
                     )
-        else ->
+                else ->
                     dispatchClickBySelector(
                         webView = session.webView,
-                        selector = requireNotNull(selector),
+                        selector = selector!!,
                         button = button,
                         modifiers = modifiers,
                         doubleClick = doubleClick
@@ -318,14 +336,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     "Ref ${ref} was not found in the current snapshot. Capture a new snapshot and retry."
                 )
             }
-        if (jsResult?.optString("error") == "selector_not_found") {
+            if (jsResult?.optString("error") == "selector_not_found") {
                 return pageError(
                     tool.name,
                     session,
                     "Selector ${selector ?: ""} did not match any elements."
                 )
             }
-        return error(tool.name, "Click failed: ${jsResult?.optString("error") ?: "unknown"}")
+            return error(tool.name, "Click failed: ${jsResult?.optString("error") ?: "unknown"}")
         }
         val settlement =
             settleBrowserAction(
@@ -345,6 +363,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 "Click triggered a download, but it failed: ${downloadEvent.error ?: downloadEvent.fileName}"
             )
         }
+
         return ok(
             tool.name,
             buildSettledBrowserResponse(
@@ -352,15 +371,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 code = code,
                 result =
                     when {
-                        val _kaptFix45 = if (doubleClick) " (double)" else ""
-                        ref != null -> "Clicked ref=${ref} with button=${button}${_kaptFix45}"
-        val _kaptFix44 = if (doubleClick) " (double)" else ""
-        else -> "Clicked selector=${selector ?: ""} with button=${button}${_kaptFix44}"
+                        ref != null -> "Clicked ref=${ref} with button=${button}${if (doubleClick) " (double)" else ""}"
+                        else -> "Clicked selector=${selector ?: ""} with button=${button}${if (doubleClick) " (double)" else ""}"
                     }
             )
         )
     }
-        private fun buildClickCodeForSelector(
+
+    private fun buildClickCodeForSelector(
         selector: String,
         button: String,
         doubleClick: Boolean,
@@ -381,7 +399,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             "await ${locator}.${method}({ ${options.joinToString(", ")} });"
         }
     }
-        private fun dispatchClickByRef(
+
+    private fun dispatchClickByRef(
         webView: WebView,
         ref: String,
         button: String,
@@ -400,42 +419,43 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 "right" -> 2
                 else -> 1
             }
+
         val altKey = modifiers.contains("Alt")
         val controlKey = modifiers.contains("Control") || modifiers.contains("ControlOrMeta")
         val metaKey = modifiers.contains("Meta") || modifiers.contains("ControlOrMeta")
         val shiftKey = modifiers.contains("Shift")
+
         val script =
             """
             (function() {
                 try {
                     const refValue = ${quoteJs(ref)};
                     ${browserRefResolverScript()}
-        const resolved = __apex-agentResolveRef(refValue);
-        if (!resolved || !resolved.element) {
+                    const resolved = __apex-agentResolveRef(refValue);
+                    if (!resolved || !resolved.element) {
                         return JSON.stringify({ ok: false, error: "ref_not_found", ref: refValue });
                     }
-        const target = resolved.element;
-        const targetWindow = resolved.window || window;
-        const anchor = target.closest('a[href]');
-        try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
-        const rect = target.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-        try { target.focus({ preventScroll: true }); } catch (_) {}
-        const buttonValue = ${buttonValue};
-        const buttonsValue = ${buttonsValue};
-        val _kaptFix43 = if (altKey) "true" else "false"
-        const altKey = ${_kaptFix43};
-        val _kaptFix42 = if (controlKey) "true" else "false"
-        const ctrlKey = ${_kaptFix42};
-        val _kaptFix41 = if (metaKey) "true" else "false"
-        const metaKey = ${_kaptFix41};
-        val _kaptFix40 = if (shiftKey) "true" else "false"
-        const shiftKey = ${_kaptFix40};
-        function emit(type, detail) {
+                    const target = resolved.element;
+                    const targetWindow = resolved.window || window;
+                    const anchor = target.closest('a[href]');
+                    try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+                    const rect = target.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+
+                    try { target.focus({ preventScroll: true }); } catch (_) {}
+
+                    const buttonValue = ${buttonValue};
+                    const buttonsValue = ${buttonsValue};
+                    const altKey = ${if (altKey) "true" else "false"};
+                    const ctrlKey = ${if (controlKey) "true" else "false"};
+                    const metaKey = ${if (metaKey) "true" else "false"};
+                    const shiftKey = ${if (shiftKey) "true" else "false"};
+
+                    function emit(type, detail) {
                         try {
                             const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
-        target.dispatchEvent(new MouseEventCtor(type, {
+                            target.dispatchEvent(new MouseEventCtor(type, {
                                 bubbles: true,
                                 cancelable: true,
                                 composed: true,
@@ -454,39 +474,40 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                             }));
                         } catch (_) {}
                     }
-        function clickOnce(detail) {
+
+                    function clickOnce(detail) {
                         emit("mousedown", detail);
-        emit("mouseup", detail);
-        emit("click", detail);
+                        emit("mouseup", detail);
+                        emit("click", detail);
                     }
-        let activationMethod = "mouse_event";
-        let activationTag = String(target.tagName || "").toLowerCase();
-        val _kaptFix39 = if (doubleClick) "true" else "false"
-        const nativeAnchorClickEligible = !${_kaptFix39} &&
+
+                    let activationMethod = "mouse_event";
+                    let activationTag = String(target.tagName || "").toLowerCase();
+                    const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
                         buttonValue === 0 && !altKey && !ctrlKey && !metaKey && !shiftKey &&
                         !!anchor && typeof anchor.click === "function";
-        setTimeout(() => {
+
+                    setTimeout(() => {
                         try {
                             if (nativeAnchorClickEligible) {
                                 activationMethod = "native_anchor_click";
-        activationTag = String(anchor.tagName || "").toLowerCase();
-        anchor.click();
-                            val _kaptFix38 = if (doubleClick) "true" else "false"
-                            } else if (${_kaptFix38}) {
+                                activationTag = String(anchor.tagName || "").toLowerCase();
+                                anchor.click();
+                            } else if (${if (doubleClick) "true" else "false"}) {
                                 clickOnce(1);
-        clickOnce(2);
-        emit("dblclick", 2);
+                                clickOnce(2);
+                                emit("dblclick", 2);
                             } else {
                                 clickOnce(1);
                             }
                         } catch (_) {}
                     }, 0);
-        return JSON.stringify({
+
+                    return JSON.stringify({
                         ok: true,
                         ref: refValue,
                         button: ${quoteJs(button)},
-                        val _kaptFix37 = if (doubleClick) "true" else "false"
-                        doubleClick: ${_kaptFix37},
+                        doubleClick: ${if (doubleClick) "true" else "false"},
                         tag: String(target.tagName || "").toLowerCase(),
                         activationMethod,
                         activationTag,
@@ -497,35 +518,37 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 }
             })();
             """.trimIndent()
+
         return try {
             val raw = evaluateJavascriptSync(webView, script, DEFAULT_TIMEOUT_MS.coerceIn(2_000L, 8_000L))
-        val decoded = decodeJsResult(raw)
-        JSONObject(decoded)
+            val decoded = decodeJsResult(raw)
+            JSONObject(decoded)
         } catch (e: Exception) {
             JSONObject().put("ok", false).put("error", e.message ?: "click_dispatch_error")
         }
     }
-        private fun dispatchHoverByRef(webView: WebView, ref: String): JSONObject? {
+
+    private fun dispatchHoverByRef(webView: WebView, ref: String): JSONObject? {
         val script =
             """
             (function() {
                 try {
                     const refValue = ${quoteJs(ref)};
                     ${browserRefResolverScript()}
-        const resolved = __apex-agentResolveRef(refValue);
-        if (!resolved || !resolved.element) {
+                    const resolved = __apex-agentResolveRef(refValue);
+                    if (!resolved || !resolved.element) {
                         return JSON.stringify({ ok: false, error: "ref_not_found" });
                     }
-        const target = resolved.element;
-        const targetWindow = resolved.window || window;
-        try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
-        const rect = target.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
+                    const target = resolved.element;
+                    const targetWindow = resolved.window || window;
+                    try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+                    const rect = target.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
                     ["pointerover", "mouseover", "mouseenter", "mousemove"].forEach((type) => {
                         try {
                             const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
-        target.dispatchEvent(new MouseEventCtor(type, {
+                            target.dispatchEvent(new MouseEventCtor(type, {
                                 bubbles: true,
                                 cancelable: true,
                                 composed: true,
@@ -535,7 +558,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                             }));
                         } catch (_) {}
                     });
-        return JSON.stringify({ ok: true, ref: refValue });
+                    return JSON.stringify({ ok: true, ref: refValue });
                 } catch (e) {
                     return JSON.stringify({ ok: false, error: String(e) });
                 }
@@ -543,28 +566,29 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             """.trimIndent()
         return runJsonScript(webView, script, "hover_dispatch_error")
     }
-        private fun dispatchDragByRef(webView: WebView, startRef: String, endRef: String): JSONObject? {
+
+    private fun dispatchDragByRef(webView: WebView, startRef: String, endRef: String): JSONObject? {
         val script =
             """
             (function() {
                 try {
                     ${browserRefResolverScript()}
-        const startResolved = __apex-agentResolveRef(${quoteJs(startRef)});
-        const endResolved = __apex-agentResolveRef(${quoteJs(endRef)});
-        const start = startResolved && startResolved.element;
-        const end = endResolved && endResolved.element;
-        if (!start || !end) {
+                    const startResolved = __apex-agentResolveRef(${quoteJs(startRef)});
+                    const endResolved = __apex-agentResolveRef(${quoteJs(endRef)});
+                    const start = startResolved && startResolved.element;
+                    const end = endResolved && endResolved.element;
+                    if (!start || !end) {
                         return JSON.stringify({ ok: false, error: !start ? "start_ref_not_found" : "end_ref_not_found" });
                     }
-        const startWindow = (startResolved && startResolved.window) || window;
-        const endWindow = (endResolved && endResolved.window) || window;
-        try { start.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
-        try { end.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
-        const DataTransferCtor = startWindow.DataTransfer || endWindow.DataTransfer || (typeof DataTransfer === "function" ? DataTransfer : null);
-        const DragEventCtor = startWindow.DragEvent || endWindow.DragEvent || (typeof DragEvent === "function" ? DragEvent : null);
-        const EventCtor = startWindow.Event || endWindow.Event || Event;
-        const dataTransfer = typeof DataTransferCtor === "function" ? new DataTransferCtor() : null;
-        const dispatchDrag = (target, type) => {
+                    const startWindow = (startResolved && startResolved.window) || window;
+                    const endWindow = (endResolved && endResolved.window) || window;
+                    try { start.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+                    try { end.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+                    const DataTransferCtor = startWindow.DataTransfer || endWindow.DataTransfer || (typeof DataTransfer === "function" ? DataTransfer : null);
+                    const DragEventCtor = startWindow.DragEvent || endWindow.DragEvent || (typeof DragEvent === "function" ? DragEvent : null);
+                    const EventCtor = startWindow.Event || endWindow.Event || Event;
+                    const dataTransfer = typeof DataTransferCtor === "function" ? new DataTransferCtor() : null;
+                    const dispatchDrag = (target, type) => {
                         try {
                             const event = DragEventCtor ? new DragEventCtor(type, {
                                 bubbles: true,
@@ -572,21 +596,21 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                                 composed: true,
                                 dataTransfer
                             }) : new EventCtor(type, { bubbles: true, cancelable: true, composed: true });
-        target.dispatchEvent(event);
+                            target.dispatchEvent(event);
                         } catch (_) {
                             try {
                                 const fallback = new EventCtor(type, { bubbles: true, cancelable: true, composed: true });
-        fallback.dataTransfer = dataTransfer;
-        target.dispatchEvent(fallback);
+                                fallback.dataTransfer = dataTransfer;
+                                target.dispatchEvent(fallback);
                             } catch (_) {}
                         }
                     };
-        dispatchDrag(start, "dragstart");
-        dispatchDrag(end, "dragenter");
-        dispatchDrag(end, "dragover");
-        dispatchDrag(end, "drop");
-        dispatchDrag(start, "dragend");
-        return JSON.stringify({ ok: true, startRef: ${quoteJs(startRef)}, endRef: ${quoteJs(endRef)} });
+                    dispatchDrag(start, "dragstart");
+                    dispatchDrag(end, "dragenter");
+                    dispatchDrag(end, "dragover");
+                    dispatchDrag(end, "drop");
+                    dispatchDrag(start, "dragend");
+                    return JSON.stringify({ ok: true, startRef: ${quoteJs(startRef)}, endRef: ${quoteJs(endRef)} });
                 } catch (e) {
                     return JSON.stringify({ ok: false, error: String(e) });
                 }
@@ -594,7 +618,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             """.trimIndent()
         return runJsonScript(webView, script, "drag_dispatch_error")
     }
-        private fun dispatchClickBySelector(
+
+    private fun dispatchClickBySelector(
         webView: WebView,
         selector: String,
         button: String,
@@ -613,40 +638,41 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 "right" -> 2
                 else -> 1
             }
+
         val altKey = modifiers.contains("Alt")
         val controlKey = modifiers.contains("Control") || modifiers.contains("ControlOrMeta")
         val metaKey = modifiers.contains("Meta") || modifiers.contains("ControlOrMeta")
         val shiftKey = modifiers.contains("Shift")
+
         val script =
             """
             (function() {
                 try {
                     const selectorValue = ${quoteJs(selector)};
-        const target = document.querySelector(selectorValue);
-        if (!target) {
+                    const target = document.querySelector(selectorValue);
+                    if (!target) {
                         return JSON.stringify({ ok: false, error: "selector_not_found", selector: selectorValue });
                     }
-        const targetWindow = target.ownerDocument && target.ownerDocument.defaultView ? target.ownerDocument.defaultView : window;
-        const anchor = target.closest('a[href]');
-        try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
-        const rect = target.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-        try { target.focus({ preventScroll: true }); } catch (_) {}
-        const buttonValue = ${buttonValue};
-        const buttonsValue = ${buttonsValue};
-        val _kaptFix36 = if (altKey) "true" else "false"
-        const altKey = ${_kaptFix36};
-        val _kaptFix35 = if (controlKey) "true" else "false"
-        const ctrlKey = ${_kaptFix35};
-        val _kaptFix34 = if (metaKey) "true" else "false"
-        const metaKey = ${_kaptFix34};
-        val _kaptFix33 = if (shiftKey) "true" else "false"
-        const shiftKey = ${_kaptFix33};
-        function emit(type, detail) {
+                    const targetWindow = target.ownerDocument && target.ownerDocument.defaultView ? target.ownerDocument.defaultView : window;
+                    const anchor = target.closest('a[href]');
+                    try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
+                    const rect = target.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+
+                    try { target.focus({ preventScroll: true }); } catch (_) {}
+
+                    const buttonValue = ${buttonValue};
+                    const buttonsValue = ${buttonsValue};
+                    const altKey = ${if (altKey) "true" else "false"};
+                    const ctrlKey = ${if (controlKey) "true" else "false"};
+                    const metaKey = ${if (metaKey) "true" else "false"};
+                    const shiftKey = ${if (shiftKey) "true" else "false"};
+
+                    function emit(type, detail) {
                         try {
                             const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
-        target.dispatchEvent(new MouseEventCtor(type, {
+                            target.dispatchEvent(new MouseEventCtor(type, {
                                 bubbles: true,
                                 cancelable: true,
                                 composed: true,
@@ -665,45 +691,46 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                             }));
                         } catch (_) {}
                     }
-        function clickOnce(detail) {
+
+                    function clickOnce(detail) {
                         emit("mousedown", detail);
-        emit("mouseup", detail);
-        emit("click", detail);
+                        emit("mouseup", detail);
+                        emit("click", detail);
                     }
-        let activationMethod = "mouse_event";
-        let activationTag = String(target.tagName || "").toLowerCase();
-        val _kaptFix32 = if (doubleClick) "true" else "false"
-        const nativeAnchorClickEligible = !${_kaptFix32} &&
+
+                    let activationMethod = "mouse_event";
+                    let activationTag = String(target.tagName || "").toLowerCase();
+                    const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
                         buttonValue === 0 && !altKey && !ctrlKey && !metaKey && !shiftKey &&
                         !!anchor && typeof anchor.click === "function";
-        setTimeout(() => {
+
+                    setTimeout(() => {
                         try {
                             if (nativeAnchorClickEligible) {
                                 activationMethod = "anchor_click";
-        activationTag = String(anchor.tagName || "").toLowerCase();
-        anchor.click();
-        return;
+                                activationTag = String(anchor.tagName || "").toLowerCase();
+                                anchor.click();
+                                return;
                             }
-        clickOnce(1);
-        val _kaptFix31 = if (doubleClick) "true" else "false"
-        if (${_kaptFix31}) {
+                            clickOnce(1);
+                            if (${if (doubleClick) "true" else "false"}) {
                                 emit("mousedown", 2);
-        emit("mouseup", 2);
-        emit("click", 2);
-        emit("dblclick", 2);
+                                emit("mouseup", 2);
+                                emit("click", 2);
+                                emit("dblclick", 2);
                             }
-        if (buttonValue === 0 && typeof target.click === "function") {
+                            if (buttonValue === 0 && typeof target.click === "function") {
                                 activationMethod = "native_click";
-        target.click();
+                                target.click();
                             }
                         } catch (_) {}
                     }, 0);
-        return JSON.stringify({
+
+                    return JSON.stringify({
                         ok: true,
                         selector: selectorValue,
                         button: ${quoteJs(button)},
-                        val _kaptFix30 = if (doubleClick) "true" else "false"
-                        doubleClick: ${_kaptFix30},
+                        doubleClick: ${if (doubleClick) "true" else "false"},
                         activationMethod,
                         activationTag
                     });
@@ -714,39 +741,46 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             """.trimIndent()
         return runJsonScript(webView, script, "click_dispatch_error")
     }
-        internal fun runJsonScript(webView: WebView, script: String, fallbackError: String): JSONObject? {
+
+    internal fun runJsonScript(webView: WebView, script: String, fallbackError: String): JSONObject? {
         return try {
             val raw = evaluateJavascriptSync(webView, script, DEFAULT_TIMEOUT_MS.coerceIn(2_000L, 8_000L))
-        val decoded = decodeJsResult(raw)
-        JSONObject(decoded)
+            val decoded = decodeJsResult(raw)
+            JSONObject(decoded)
         } catch (e: Exception) {
             JSONObject().put("ok", false).put("error", e.message ?: fallbackError)
         }
     }
-        private fun parseClickModifiers(raw: String): Pair<Set<String>, List<String>> {
+
+    private fun parseClickModifiers(raw: String): Pair<Set<String>, List<String>> {
         if (raw.isNullOrBlank()) {
             return emptySet<String>() to emptyList()
         }
+
         val allowed = setOf("Alt", "Control", "ControlOrMeta", "Meta", "Shift")
         val parsed = linkedSetOf<String>()
         val invalid = mutableListOf<String>()
+
         val arr =
             try {
                 JSONArray(raw)
             } catch (_: Exception) {
                 return emptySet<String>() to listOf(raw)
             }
+
         for (i in 0 until arr.length()) {
             val token = arr.optString(i, "").trim()
-        if (token in allowed) {
+            if (token in allowed) {
                 parsed.add(token)
             } else {
                 invalid.add(token.ifBlank { "<empty>" })
             }
         }
+
         return parsed to invalid
     }
-        internal fun readCurrentUrl(webView: WebView, fallback: String): String {
+
+    internal fun readCurrentUrl(webView: WebView, fallback: String): String {
         return runCatching {
             val raw =
                 evaluateJavascriptSync(
@@ -754,36 +788,41 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     "(function(){ return String(location.href || ''); })();",
                     2_000L
                 )
-        decodeJsResult(raw)
+            decodeJsResult(raw)
         }.getOrDefault(fallback)
     }
-        private fun browserFileUpload(tool: AITool): ToolResult {
+
+    private fun browserFileUpload(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
+
         val rawPaths = param(tool, "paths")?.trim().orEmpty()
         val shouldCancel = rawPaths.isBlank()
+
         val files: List<File> =
             if (shouldCancel) {
                 emptyList()
             } else {
                 val pathList = parseStringArrayParam(rawPaths)
                     ?: return error(tool.name, "paths must be a JSON array")
-        val resolved = mutableListOf<File>()
-        for (rawPath in pathList) {
+
+                val resolved = mutableListOf<File>()
+                for (rawPath in pathList) {
                     val path = rawPath.trim()
-        if (path.isBlank()) {
+                    if (path.isBlank()) {
                         return error(tool.name, "paths contains an empty item")
                     }
-        val file = File(path)
-        if (!file.isAbsolute) {
+                    val file = File(path)
+                    if (!file.isAbsolute) {
                         return error(tool.name, "path must be absolute: ${path}")
                     }
-        if (!file.exists() || !file.isFile) {
+                    if (!file.exists() || !file.isFile) {
                         return error(tool.name, "file does not exist: ${path}")
                     }
-        resolved.add(file)
+                    resolved.add(file)
                 }
-        resolved
+                resolved
             }
+
         var resolvedCode: String? = null
         var resolvedResult: String? = null
         runOnMainSync<Unit> {
@@ -793,28 +832,31 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val callbackError =
             runOnMainSync {
                 ensureSessionAttachedOnMain(session.id)
-        val callback = session.pendingFileChooserCallback
+
+                val callback = session.pendingFileChooserCallback
                     ?: return@runOnMainSync "No file chooser is active"
-        return@runOnMainSync try {
+
+                return@runOnMainSync try {
                     if (shouldCancel) {
                         callback.onReceiveValue(null)
-        session.pendingFileChooserCallback = null
+                        session.pendingFileChooserCallback = null
                         resolvedCode = "await fileChooser.cancel();"
-        resolvedResult = "Cancelled the active file chooser."
+                        resolvedResult = "Cancelled the active file chooser."
                     } else {
                         val uris = files.map { Uri.fromFile(it) }.toTypedArray()
-        callback.onReceiveValue(uris)
-        session.pendingFileChooserCallback = null
+                        callback.onReceiveValue(uris)
+                        session.pendingFileChooserCallback = null
                         resolvedCode =
                             "await fileChooser.setFiles(${renderJsArrayCode(files.map { it.absolutePath })});"
-        resolvedResult =
+                        resolvedResult =
                             "Uploaded ${files.size} file(s): ${files.joinToString(", ") { it.absolutePath }}"
                     }
-        null
+                    null
                 } catch (e: Exception) {
                     "Failed to resolve file chooser: ${e.message}"
                 }
             }
+
         if (callbackError != null) {
             return error(tool.name, callbackError)
         }
@@ -833,7 +875,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserWaitFor(tool: AITool): ToolResult {
+
+    private fun browserWaitFor(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val timeRaw = param(tool, "time")?.trim()?.takeIf { it.isNotBlank() }
         val parsedTimeSeconds = timeRaw?.toDoubleOrNull()
@@ -846,6 +889,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         if (timeSeconds == null && text == null && textGone == null) {
             return error(tool.name, "One of time, text, or textGone is required")
         }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -872,13 +916,15 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 downloadMarker = markers.downloadTimestamp,
                 timedOut = false
             )
+
         val summary =
             when {
                 text != null && textGone != null -> "Waited until \"${text}\" appeared and \"${textGone}\" disappeared."
-        text != null -> "Waited until \"${text}\" appeared."
-        textGone != null -> "Waited until \"${textGone}\" disappeared."
-        else -> "Waited for ${timeSeconds ?: 0.0} second(s)."
+                text != null -> "Waited until \"${text}\" appeared."
+                textGone != null -> "Waited until \"${textGone}\" disappeared."
+                else -> "Waited for ${timeSeconds ?: 0.0} second(s)."
             }
+
         return ok(
             tool.name,
             buildSettledBrowserResponse(
@@ -888,7 +934,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserSnapshot(tool: AITool): ToolResult {
+
+    private fun browserSnapshot(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val selector = param(tool, "selector")?.trim()?.takeIf { it.isNotBlank() }
         val depthRaw = param(tool, "depth")?.trim()?.takeIf { it.isNotBlank() }
@@ -896,12 +943,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             when {
                 depthRaw == null -> null
                 depthRaw.toIntOrNull() == null -> return error(tool.name, "depth must be a non-negative integer")
-        depthRaw.toInt() < 0 -> return error(tool.name, "depth must be a non-negative integer")
-        else -> depthRaw.toInt()
+                depthRaw.toInt() < 0 -> return error(tool.name, "depth must be a non-negative integer")
+                else -> depthRaw.toInt()
             }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
+
         val snapshot = captureSnapshotModel(session, selector = selector, depth = depth)
         session.lastSnapshot = snapshot
         val filename = param(tool, "filename")?.trim()?.takeIf { it.isNotBlank() }
@@ -914,6 +963,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             } else {
                 snapshot.yaml
             }
+
         return ok(
             tool.name,
             buildBrowserResponse(
@@ -925,17 +975,19 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserNavigateBack(tool: AITool): ToolResult {
+
+    private fun browserNavigateBack(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val couldGoBack = session.canGoBack || runCatching { session.webView.canGoBack() }.getOrDefault(false)
         val markers = captureActionMarkers(session)
+
         runOnMainSync(timeoutMs = 8_000L) {
             ensureSessionAttachedOnMain(session.id)
-        if (session.webView.canGoBack()) {
+            if (session.webView.canGoBack()) {
                 session.webView.goBack()
             }
-        refreshNavigationStateAsync(session)
-        Unit
+            refreshNavigationStateAsync(session)
+            Unit
         }
         val settlement =
             settleBrowserAction(
@@ -948,6 +1000,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                         waitForNavigationChange = couldGoBack
                     )
             )
+
         return ok(
             tool.name,
             buildSettledBrowserResponse(
@@ -962,10 +1015,12 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserHover(tool: AITool): ToolResult {
+
+    private fun browserHover(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val ref = param(tool, "ref")?.trim()?.takeIf { it.isNotBlank() }
             ?: return error(tool.name, "ref is required")
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -990,6 +1045,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             }
         }
         val settlement = settleBrowserAction(session, markers)
+
         return ok(
             tool.name,
             buildSettledBrowserResponse(
@@ -999,12 +1055,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserDrag(tool: AITool): ToolResult {
+
+    private fun browserDrag(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val startRef = param(tool, "startRef")?.trim()?.takeIf { it.isNotBlank() }
             ?: return error(tool.name, "startRef is required")
         val endRef = param(tool, "endRef")?.trim()?.takeIf { it.isNotBlank() }
             ?: return error(tool.name, "endRef is required")
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -1038,12 +1096,13 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                         session,
                         "Ref ${endRef} was not found in the current snapshot. Capture a new snapshot and retry."
                     )
-        else -> error(tool.name, "Drag failed: ${jsResult?.optString("error") ?: "unknown"}")
+                else -> error(tool.name, "Drag failed: ${jsResult?.optString("error") ?: "unknown"}")
             }
         }
         val settlement = settleBrowserAction(session, markers)
         val startLocator = locatorExpressionForRef(session, startRef)
         val endLocator = locatorExpressionForRef(session, endRef)
+
         return ok(
             tool.name,
             buildSettledBrowserResponse(
@@ -1053,7 +1112,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserEvaluate(tool: AITool): ToolResult {
+
+    private fun browserEvaluate(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val functionSource = param(tool, "function")?.trim()
         if (functionSource.isNullOrBlank()) {
@@ -1064,6 +1124,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         if (!elementDescription.isNullOrBlank() && ref == null) {
             return error(tool.name, "ref is required when element is provided")
         }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -1097,7 +1158,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserFillForm(tool: AITool): ToolResult {
+
+    private fun browserFillForm(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val rawFields = param(tool, "fields")?.trim()
         if (rawFields.isNullOrBlank()) {
@@ -1107,12 +1169,13 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         if (fields.isEmpty()) {
             return error(tool.name, "fields must not be empty")
         }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
         fields.forEach { field ->
             val ref = field.optString("ref").trim()
-        if (ref.isNotBlank() && requireSnapshotNode(session, ref) == null) {
+            if (ref.isNotBlank() && requireSnapshotNode(session, ref) == null) {
                 return pageError(
                     tool.name,
                     session,
@@ -1137,7 +1200,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserHandleDialog(tool: AITool): ToolResult {
+
+    private fun browserHandleDialog(tool: AITool): ToolResult {
         val acceptRaw = param(tool, "accept")
             ?: return error(tool.name, "accept is required")
         val accept =
@@ -1148,6 +1212,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val pending = session.pendingDialog ?: return error(tool.name, "No dialog is currently open")
         val markers = captureActionMarkers(session)
+
         runOnMainSync<Unit> {
             if (pending.jsPromptResult != null) {
                 if (accept) {
@@ -1162,7 +1227,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     pending.jsResult.cancel()
                 }
             }
-        session.pendingDialog = null
+            session.pendingDialog = null
         }
         val settlement =
             settleBrowserAction(
@@ -1170,6 +1235,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 markers = markers,
                 policy = BrowserActionSettlementPolicy(waitForDocumentReady = true)
             )
+
         return ok(
             tool.name,
             buildSettledBrowserResponse(
@@ -1185,7 +1251,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserConsoleMessages(tool: AITool): ToolResult {
+
+    private fun browserConsoleMessages(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val level = param(tool, "level")?.trim()?.lowercase(Locale.ROOT).orEmpty().ifBlank { "info" }
         if (level !in setOf("error", "warning", "warn", "info", "debug")) {
@@ -1208,7 +1275,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserNetworkRequests(tool: AITool): ToolResult {
+
+    private fun browserNetworkRequests(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val includeStatic = boolParam(tool, "includeStatic", false)
         val rendered = renderNetworkRequestLog(session, includeStatic)
@@ -1228,12 +1296,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserPressKey(tool: AITool): ToolResult {
+
+    private fun browserPressKey(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val key = param(tool, "key")?.trim()
         if (key.isNullOrBlank()) {
             return error(tool.name, "key is required")
         }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -1262,26 +1332,29 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserResize(tool: AITool): ToolResult {
+
+    private fun browserResize(tool: AITool): ToolResult {
         ensureOverlayPermission(tool.name)?.let { return it }
         val width = intParam(tool, "width", -1)
         val height = intParam(tool, "height", -1)
         if (width <= 0 || height <= 0) {
             return error(tool.name, "width and height must be positive integers")
         }
+
         val session =
             runOnMainSync {
                 getSession(null) ?: createSessionTabOnMain(context.applicationContext, "about:blank")
             }
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
-        browserHost?.setViewportSize(width, height)
-        session.viewportWidthPx = width
+            browserHost?.setViewportSize(width, height)
+            session.viewportWidthPx = width
             session.viewportHeightPx = height
             applyViewportOverride(session)
-        refreshSessionUiOnMain(session.id)
+            refreshSessionUiOnMain(session.id)
         }
         Thread.sleep(100)
+
         return ok(
             tool.name,
             buildBrowserResponse(
@@ -1293,12 +1366,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserRunCode(tool: AITool): ToolResult {
+
+    private fun browserRunCode(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val code = param(tool, "code")?.trim()
         if (code.isNullOrBlank()) {
             return error(tool.name, "code is required")
         }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -1319,7 +1394,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserSelectOption(tool: AITool): ToolResult {
+
+    private fun browserSelectOption(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val ref = param(tool, "ref")?.trim()?.takeIf { it.isNotBlank() }
             ?: return error(tool.name, "ref is required")
@@ -1328,6 +1404,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         if (values.isEmpty()) {
             return error(tool.name, "values must not be empty")
         }
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -1355,14 +1432,15 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserTabs(tool: AITool): ToolResult {
+
+    private fun browserTabs(tool: AITool): ToolResult {
         val action = param(tool, "action")?.trim()?.lowercase(Locale.ROOT)
             ?: return error(tool.name, "action is required")
         return when (action) {
             "list" -> {
                 val registry = buildPageRegistry()
-        val session = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
-        ok(
+                val session = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
+                ok(
                     tool.name,
                     buildBrowserResponse(
                         openTabs = renderOpenTabs(registry),
@@ -1375,12 +1453,12 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
             "create" -> {
                 ensureOverlayPermission(tool.name)?.let { return it }
-        val session =
+                val session =
                     runOnMainSync {
                         createSessionTabOnMain(context.applicationContext, initialUrl = "about:blank")
                     }
-        val settlement = settleBrowserAction(session, captureActionMarkers(session))
-        ok(
+                val settlement = settleBrowserAction(session, captureActionMarkers(session))
+                ok(
                     tool.name,
                     buildSettledBrowserResponse(
                         settlement = settlement,
@@ -1391,16 +1469,16 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
             "select" -> {
                 val index = intParam(tool, "index", -1)
-        if (index < 0) {
+                if (index < 0) {
                     return error(tool.name, "index is required for action=select")
                 }
-        val targetId = sessionIdAtIndex(index) ?: return error(tool.name, "Tab index out of range: ${index}")
-        runOnMainSync<Unit> {
+                val targetId = sessionIdAtIndex(index) ?: return error(tool.name, "Tab index out of range: ${index}")
+                runOnMainSync<Unit> {
                     ensureSessionAttachedOnMain(targetId)
                 }
-        val session = sessions[targetId] ?: return error(tool.name, "Tab index out of range: ${index}")
-        val settlement = settleBrowserAction(session, captureActionMarkers(session))
-        ok(
+                val session = sessions[targetId] ?: return error(tool.name, "Tab index out of range: ${index}")
+                val settlement = settleBrowserAction(session, captureActionMarkers(session))
+                ok(
                     tool.name,
                     buildSettledBrowserResponse(
                         settlement = settlement,
@@ -1411,17 +1489,17 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
             "close" -> {
                 val requestedIndex = param(tool, "index")?.trim()?.toIntOrNull()
-        val targetId =
+                val targetId =
                     when {
                         requestedIndex != null -> sessionIdAtIndex(requestedIndex)
-        else -> resolvePreferredSessionId()
+                        else -> resolvePreferredSessionId()
                     } ?: return error(tool.name, "No tab available to close")
-        if (!closeSession(targetId)) {
+                if (!closeSession(targetId)) {
                     return error(tool.name, "Failed to close tab")
                 }
-        val registry = buildPageRegistry()
-        val active = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
-        ok(
+                val registry = buildPageRegistry()
+                val active = registry.activeSessionId?.let { sessionId -> sessionById(sessionId) }
+                ok(
                     tool.name,
                     buildBrowserResponse(
                         openTabs = renderOpenTabs(registry),
@@ -1436,10 +1514,12 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     )
                 )
             }
-        else -> error(tool.name, "action must be one of: list, create, select, close")
+
+            else -> error(tool.name, "action must be one of: list, create, select, close")
         }
     }
-        private fun browserTakeScreenshot(tool: AITool): ToolResult {
+
+    private fun browserTakeScreenshot(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val type = param(tool, "type")?.trim()?.lowercase(Locale.ROOT).orEmpty().ifBlank { "png" }
         if (type !in setOf("png", "jpeg", "jpg")) {
@@ -1465,13 +1545,15 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserType(tool: AITool): ToolResult {
+
+    private fun browserType(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
         val ref = param(tool, "ref")?.trim()?.takeIf { it.isNotBlank() }
             ?: return error(tool.name, "ref is required")
         val text = param(tool, "text") ?: return error(tool.name, "text is required")
         val submit = boolParam(tool, "submit", false)
         val slowly = boolParam(tool, "slowly", false)
+
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
@@ -1501,12 +1583,12 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         val code =
             buildString {
                 val locator = locatorExpressionForRef(session, ref)
-        if (slowly) {
+                if (slowly) {
                     append("await ${locator}.pressSequentially(${quoteJsCode(text)});")
                 } else {
                     append("await ${locator}.fill(${quoteJsCode(text)});")
                 }
-        if (submit) {
+                if (submit) {
                     append("\nawait ${locator}.press('Enter');")
                 }
             }
@@ -1519,7 +1601,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun browserClose(tool: AITool): ToolResult {
+
+    private fun browserClose(tool: AITool): ToolResult {
         val activeId = resolvePreferredSessionId()
             ?: return ok(tool.name, buildBrowserResponse(openTabs = "No open tabs.", result = "No browser tab was open."))
         if (!closeSession(activeId)) {
@@ -1542,22 +1625,24 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             )
         )
     }
-        private fun determineExtensionFromMimeType(mimeType: String): String =
+
+    private fun determineExtensionFromMimeType(mimeType: String): String =
         when {
             mimeType.lowercase(Locale.ROOT).startsWith("image/") -> ".${mimeType.lowercase(Locale.ROOT).substringAfter('/')}"
-        mimeType.lowercase(Locale.ROOT).startsWith("audio/") -> ".${mimeType.lowercase(Locale.ROOT).substringAfter('/')}"
-        mimeType.lowercase(Locale.ROOT).startsWith("video/") -> ".${mimeType.lowercase(Locale.ROOT).substringAfter('/')}"
-        mimeType.lowercase(Locale.ROOT).contains("pdf") -> ".pdf"
-        mimeType.lowercase(Locale.ROOT).contains("json") -> ".json"
-        mimeType.lowercase(Locale.ROOT).contains("xml") -> ".xml"
-        mimeType.lowercase(Locale.ROOT).contains("csv") -> ".csv"
-        mimeType.lowercase(Locale.ROOT).contains("zip") -> ".zip"
-        mimeType.lowercase(Locale.ROOT).contains("html") -> ".html"
-        mimeType.lowercase(Locale.ROOT).contains("javascript") -> ".js"
-        mimeType.lowercase(Locale.ROOT).contains("plain") -> ".txt"
-        else -> ".bin"
+            mimeType.lowercase(Locale.ROOT).startsWith("audio/") -> ".${mimeType.lowercase(Locale.ROOT).substringAfter('/')}"
+            mimeType.lowercase(Locale.ROOT).startsWith("video/") -> ".${mimeType.lowercase(Locale.ROOT).substringAfter('/')}"
+            mimeType.lowercase(Locale.ROOT).contains("pdf") -> ".pdf"
+            mimeType.lowercase(Locale.ROOT).contains("json") -> ".json"
+            mimeType.lowercase(Locale.ROOT).contains("xml") -> ".xml"
+            mimeType.lowercase(Locale.ROOT).contains("csv") -> ".csv"
+            mimeType.lowercase(Locale.ROOT).contains("zip") -> ".zip"
+            mimeType.lowercase(Locale.ROOT).contains("html") -> ".html"
+            mimeType.lowercase(Locale.ROOT).contains("javascript") -> ".js"
+            mimeType.lowercase(Locale.ROOT).contains("plain") -> ".txt"
+            else -> ".bin"
         }
-        internal fun evaluateJavascriptSync(webView: WebView, script: String, timeoutMs: Long): String {
+
+    internal fun evaluateJavascriptSync(webView: WebView, script: String, timeoutMs: Long): String {
         val latch = CountDownLatch(1)
         var result: String? = null
 
@@ -1565,27 +1650,31 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             try {
                 if (!webView.isAttachedToWindow) {
                     result = JSONObject.quote("WebView is not attached")
-        latch.countDown()
-        return@post
+                    latch.countDown()
+                    return@post
                 }
-        webView.evaluateJavascript(script) { value ->
+                webView.evaluateJavascript(script) { value ->
                     result = value
                     latch.countDown()
                 }
             } catch (e: Exception) {
                 result = JSONObject.quote("JavaScript evaluation error: ${e.message}")
-        latch.countDown()
+                latch.countDown()
             }
         }
+
         if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
             throw RuntimeException("JavaScript execution timeout (${timeoutMs}ms)")
         }
+
         return result ?: "null"
     }
-        internal fun decodeJsResult(raw: String): String {
+
+    internal fun decodeJsResult(raw: String): String {
         if (raw.isNullOrBlank() || raw == "null") {
             return ""
         }
+
         if (raw.startsWith("\"") && raw.endsWith("\"")) {
             return try {
                 JSONObject("{\"v\":${raw}}").getString("v")
@@ -1593,32 +1682,38 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 raw.substring(1, raw.length - 1)
             }
         }
+
         return raw
     }
-        private fun quoteJs(value: String): String = JSONObject.quote(value)
-        internal fun quoteJsCode(value: String): String {
+
+    private fun quoteJs(value: String): String = JSONObject.quote(value)
+
+    internal fun quoteJsCode(value: String): String {
         val escaped =
             buildString(value.length + 8) {
                 value.forEach { ch ->
                     when (ch) {
-                        '\\' -> append("\\\\")"
+                        '\\' -> append("\\\\")
                         '\'' -> append("\\'")
                         '\n' -> append("\\n")
                         '\r' -> append("\\r")
                         '\t' -> append("\\t")
-        else -> append(ch)
+                        else -> append(ch)
                     }
                 }
             }
         return "'${escaped}'"
     }
-        internal fun renderJsArrayCode(values: Collection<String>): String =
+
+    internal fun renderJsArrayCode(values: Collection<String>): String =
         values.joinToString(prefix = "[", postfix = "]", separator = ", ") { quoteJsCode(it) }
-        internal fun nextSnapshotGeneration(): Long = snapshotGenerationSeed.incrementAndGet()
-        internal fun <T> runOnMainSync(timeoutMs: Long = 8_000L, block: () -> T): T {
+
+    internal fun nextSnapshotGeneration(): Long = snapshotGenerationSeed.incrementAndGet()
+    internal fun <T> runOnMainSync(timeoutMs: Long = 8_000L, block: () -> T): T {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             return block()
         }
+
         val latch = CountDownLatch(1)
         var result: T? = null
         var error: Throwable? = null
@@ -1632,9 +1727,11 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 latch.countDown()
             }
         }
+
         if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
             throw RuntimeException("Main-thread operation timeout (${timeoutMs}ms)")
         }
+
         if (error != null) {
             throw RuntimeException(error)
         }

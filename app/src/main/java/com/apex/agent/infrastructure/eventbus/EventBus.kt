@@ -28,12 +28,16 @@ data class EventBusStats(
 interface EventBus {
 
     fun <T : Any> publish(event: T)
-        fun <T : Any> subscribe(eventClass: Class<T>): SharedFlow<T>
+
+    fun <T : Any> subscribe(eventClass: Class<T>): SharedFlow<T>
 
     fun <T : Any> stickyEvent(event: T)
-        fun <T : Any> clearSticky(eventClass: Class<T>)
-        fun clearAllSticky()
-        fun stats(): EventBusStats
+
+    fun <T : Any> clearSticky(eventClass: Class<T>)
+
+    fun clearAllSticky()
+
+    fun stats(): EventBusStats
 
     fun close()
 
@@ -50,9 +54,10 @@ interface EventBus {
         private val stickyEvents = ConcurrentHashMap<Class<*>, Any>()
         private val totalEvents = AtomicLong(0)
         private val startTime = System.nanoTime()
+
         override fun <T : Any> publish(event: T) {
             bus.tryEmit(event)
-        totalEvents.incrementAndGet()
+            totalEvents.incrementAndGet()
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -64,24 +69,28 @@ interface EventBus {
                 extraBufferCapacity = config.bufferSize,
                 onBufferOverflow = config.overflowStrategy
             )
-        stickyEvents[eventClass]?.let { flow.tryEmit(it) }
-        subscribers[eventClass] = flow
+            stickyEvents[eventClass]?.let { flow.tryEmit(it) }
+            subscribers[eventClass] = flow
             scope.launch {
                 bus.filterIsInstance(eventClass).collect { flow.tryEmit(it) }
             }
-        return flow as SharedFlow<T>
+            return flow as SharedFlow<T>
         }
+
         override fun <T : Any> stickyEvent(event: T) {
             stickyEvents[event.javaClass] = event
             publish(event)
-        subscribers[event.javaClass]?.tryEmit(event)
+            subscribers[event.javaClass]?.tryEmit(event)
         }
+
         override fun <T : Any> clearSticky(eventClass: Class<T>) {
             stickyEvents.remove(eventClass)
         }
+
         override fun clearAllSticky() {
             stickyEvents.clear()
         }
+
         override fun stats(): EventBusStats {
             val elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0
             return EventBusStats(
@@ -90,9 +99,10 @@ interface EventBus {
                 throughput = if (elapsed > 0) totalEvents.get() / elapsed else 0.0
             )
         }
+
         override fun close() {
             stickyEvents.clear()
-        subscribers.clear()
+            subscribers.clear()
         }
     }
 }

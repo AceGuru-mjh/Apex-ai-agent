@@ -4,8 +4,8 @@ import android.content.Context
 import java.util.UUID
 
 /**
- * Agent 反思系结- 参者GPTeam 和AutoGPT 的反思功能
- * 计Agent 能够反思过去的行为并改返
+ * Agent 反思系�?- 参�?GPTeam �?AutoGPT 的反思功�?
+ * �?Agent 能够反思过去的行为并改�?
  */
 data class Reflection(
     val id: String = UUID.randomUUID().toString(),
@@ -28,8 +28,10 @@ class ReflectionSystem(private val context: Context) {
     companion object {
         private const val TAG = "ReflectionSystem"
     }
-        private val reflections = mutableListOf<Reflection>()
-        fun recordObservation(
+
+    private val reflections = mutableListOf<Reflection>()
+
+    fun recordObservation(
         agentId: String,
         observation: String,
         type: ReflectionType = ReflectionType.OBSERVATION,
@@ -46,26 +48,32 @@ class ReflectionSystem(private val context: Context) {
         reflections.add(reflection)
         return reflection
     }
-        fun generateReflectionsForAgent(agentId: String, limit: Int = 10): List<Reflection> {
+
+    fun generateReflectionsForAgent(agentId: String, limit: Int = 10): List<Reflection> {
         return reflections
             .filter { it.agentId == agentId }
             .sortedByDescending { it.timestamp }
             .take(limit)
     }
-        fun getInsightsForAgent(agentId: String): List<String> {
+
+    fun getInsightsForAgent(agentId: String): List<String> {
         return reflections
             .filter { it.agentId == agentId }
             .filter { it.insight.isNotEmpty() }
             .map { it.insight }
     }
-        fun analyzePerformanceTrends(agentId: String): Map<String, Any> {
+
+    fun analyzePerformanceTrends(agentId: String): Map<String, Any> {
         val agentReflections = reflections.filter { it.agentId == agentId }
+
         val successRate = if (agentReflections.isNotEmpty()) {
             agentReflections.count { it.type == ReflectionType.SUCCESS }.toFloat() / agentReflections.size
         } else {
             0f
         }
+
         val improvementCount = agentReflections.count { it.type == ReflectionType.IMPROVEMENT }
+
         return mapOf(
             "success_rate" to successRate,
             "improvement_count" to improvementCount,
@@ -73,17 +81,22 @@ class ReflectionSystem(private val context: Context) {
             "last_observation" to agentReflections.lastOrNull()?.observation
         )
     }
-        fun generateImprovementSuggestions(agentId: String): List<String> {
+
+    fun generateImprovementSuggestions(agentId: String): List<String> {
         val agentReflections = reflections.filter { it.agentId == agentId }
         val suggestions = mutableListOf<String>()
+
         val recentFailures = agentReflections.filter { it.type == ReflectionType.FAILURE }.takeLast(3)
+
         recentFailures.forEach { failure ->
             suggestions.add("改进: ${failure.observation}")
         }
+
         val recentSuccess = agentReflections.takeLast(5)
         if (recentSuccess.isNotEmpty()) {
             suggestions.add("回顾上次成功: ${recentSuccess.first().observation}")
         }
+
         return suggestions.take(3)
     }
 }

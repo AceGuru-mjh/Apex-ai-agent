@@ -7,9 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * 多模型编排系， 参数AgentX
- * 支持多种大模型的智能选择和切，
- */
+ * 多模型编排系�? 参数AgentX
+ * 支持多种大模型的智能选择和切�? */
 enum class ModelProvider(
     val displayName: String,
     val maxTokens: Int = 4096,
@@ -52,34 +51,41 @@ class MultiModelOrchestrator(private val context: Context) {
     companion object {
         private const val TAG = "MultiModelOrchestrator"
     }
-        private val configs = mutableMapOf<ModelProvider, ModelConfig>()
-        private val _currentProvider = MutableStateFlow<ModelProvider>(ModelProvider.OPENAI)
-        val currentProvider: StateFlow<ModelProvider> = _currentProvider
+
+    private val configs = mutableMapOf<ModelProvider, ModelConfig>()
+    private val _currentProvider = MutableStateFlow<ModelProvider>(ModelProvider.OPENAI)
+    val currentProvider: StateFlow<ModelProvider> = _currentProvider
 
     fun configureProvider(config: ModelConfig) {
         configs[config.provider] = config
     }
-        fun switchProvider(provider: ModelProvider): Boolean {
+
+    fun switchProvider(provider: ModelProvider): Boolean {
         return configs[provider]?.isEnabled == true && run {
             _currentProvider.value = provider
             true
         }
     }
-        fun selectOptimalProvider(request: ModelRequest): ModelProvider {
+
+    fun selectOptimalProvider(request: ModelRequest): ModelProvider {
         if (request.preferredProvider != null && configs[request.preferredProvider]?.isEnabled == true) {
             return request.preferredProvider
         }
+
         val taskComplexity = estimateComplexity(request.query)
+
         return when {
             taskComplexity > 0.7f -> findBestModel { it.maxTokens > 4096 }
-        request.context.size > 3 -> findBestModel { !it.supportsVision }
-        else -> findBestModel { true }
+            request.context.size > 3 -> findBestModel { !it.supportsVision }
+            else -> findBestModel { true }
         }
     }
-        private fun estimateComplexity(query: String): Float {
+
+    private fun estimateComplexity(query: String): Float {
         val wordCount = query.split(" ").size
         val hasCode = query.contains(Regex("def |function |class |{ }"))
         val hasMath = query.contains(Regex("[0-9]+[+\\-*/]"))
+
         var complexity = 0.5f
         if (wordCount > 100) complexity += 0.2f
         if (hasCode) complexity += 0.15f
@@ -87,7 +93,8 @@ class MultiModelOrchestrator(private val context: Context) {
 
         return complexity.coerceAtMost(1f)
     }
-        private fun findBestModel(predicate: (ModelConfig) -> Boolean): ModelProvider {
+
+    private fun findBestModel(predicate: (ModelConfig) -> Boolean): ModelProvider {
         return configs.values
             .filter { it.isEnabled }
             .filter { predicate(it) }
@@ -95,14 +102,16 @@ class MultiModelOrchestrator(private val context: Context) {
             ?.provider
             ?: _currentProvider.value
     }
-        suspend fun executeRequest(request: ModelRequest): ModelResponse {
+
+    suspend fun executeRequest(request: ModelRequest): ModelResponse {
         val startTime = System.currentTimeMillis()
         val provider = selectOptimalProvider(request)
         val config = configs[provider]
-            ?: return ModelResponse(false, null, provider, error = "未配置模型）"
+            ?: return ModelResponse(false, null, provider, error = "未配置模型）
+
         return try {
             val response = callLLM(request, config)
-        ModelResponse(
+            ModelResponse(
                 success = true,
                 content = response,
                 provider = provider,
@@ -117,11 +126,14 @@ class MultiModelOrchestrator(private val context: Context) {
             )
         }
     }
-        private suspend fun callLLM(request: ModelRequest, config: ModelConfig): String {
+
+    private suspend fun callLLM(request: ModelRequest, config: ModelConfig): String {
         return "模拟响应: ${request.query}"
     }
-        fun getAvailableProviders(): List<ModelProvider> {
+
+    fun getAvailableProviders(): List<ModelProvider> {
         return configs.values.filter { it.isEnabled }.map { it.provider }
     }
-        fun getConfig(provider: ModelProvider): ModelConfig? = configs[provider]
+
+    fun getConfig(provider: ModelProvider): ModelConfig? = configs[provider]
 }

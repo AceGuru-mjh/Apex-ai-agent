@@ -17,7 +17,7 @@ import com.apex.agent.core.tools.system.shell.ShellProcess
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-/** 基于Shizuku的UI操作监听了实现DEBUGGER权限级别的操作监，/
+/** 基于Shizuku的UI操作监听了实现DEBUGGER权限级别的操作监�?/
 class DebuggerActionListener(private val context: Context) : ActionListener {
     companion object {
         private const val TAG = "DebuggerActionListener"
@@ -37,8 +37,9 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
             return ShizukuAuthorizer.getShizukuStartupInstructions(context)
         }
     }
-        private val isListening = AtomicBoolean(false)
-        private var actionCallback: ((ActionListener.ActionEvent) -> Unit)? = null
+
+    private val isListening = AtomicBoolean(false)
+    private var actionCallback: ((ActionListener.ActionEvent) -> Unit)? = null
     private var monitoringJob: Job? = null
     private var windowMonitorProcess: ShellProcess? = null
     private var activityMonitorProcess: ShellProcess? = null
@@ -48,12 +49,14 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
         com.apex.agent.core.tools.system.shell.ShellExecutorFactory
             .getExecutor(context, AndroidPermissionLevel.DEBUGGER)
     }
-        override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.DEBUGGER
+
+    override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.DEBUGGER
 
     override suspend fun isAvailable(): Boolean {
         return ShizukuAuthorizer.isShizukuServiceRunning()
     }
-        override suspend fun hasPermission(): ActionListener.PermissionStatus {
+
+    override suspend fun hasPermission(): ActionListener.PermissionStatus {
         val hasPermission = ShizukuAuthorizer.hasShizukuPermission()
         return if (hasPermission) {
             ActionListener.PermissionStatus.granted()
@@ -61,60 +64,69 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
             ActionListener.PermissionStatus.denied(ShizukuAuthorizer.getPermissionErrorMessage())
         }
     }
-        override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
+
+    override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
         ShizukuAuthorizer.requestShizukuPermission(onResult)
     }
-        override fun isListening(): Boolean = isListening.get()
-        override fun initialize() {
+
+    override fun isListening(): Boolean = isListening.get()
+
+    override fun initialize() {
         // No-op
     }
-        override suspend fun startListening(onAction: (ActionListener.ActionEvent) -> Unit): ActionListener.ListeningResult =
+
+    override suspend fun startListening(onAction: (ActionListener.ActionEvent) -> Unit): ActionListener.ListeningResult =
         withContext(Dispatchers.IO) {
             try {
                 val permStatus = hasPermission()
-        if (!permStatus.granted) {
+                if (!permStatus.granted) {
                     return@withContext ActionListener.ListeningResult.failure(permStatus.reason)
                 }
-        if (isListening.get()) {
+
+                if (isListening.get()) {
                     return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_already_listening))
                 }
-        actionCallback = onAction
-                isListening.set(true)
-        AppLogger.d(TAG, "开始调试器权限级别的UI操作监听")
 
-                // 启动系统级事件监，
-        startSystemEventMonitoring()
-        return@withContext ActionListener.ListeningResult.success(context.getString(R.string.debugger_ui_listener_started))
+                actionCallback = onAction
+                isListening.set(true)
+
+                AppLogger.d(TAG, "开始调试器权限级别的UI操作监听")
+
+                // 启动系统级事件监�?               startSystemEventMonitoring()
+
+                return@withContext ActionListener.ListeningResult.success(context.getString(R.string.debugger_ui_listener_started))
             } catch (e: Exception) {
                 AppLogger.e(TAG, "启动调试器UI操作监听失败", e)
-        isListening.set(false)
-        return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_start_failed, e.message ?: "Unknown error"))
+                isListening.set(false)
+                return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_start_failed, e.message ?: "Unknown error"))
             }
         }
-        override suspend fun stopListening(): Boolean = withContext(Dispatchers.IO) {
+
+    override suspend fun stopListening(): Boolean = withContext(Dispatchers.IO) {
         try {
             if (!isListening.get()) {
                 return@withContext true
             }
-        isListening.set(false)
-        actionCallback = null
+
+            isListening.set(false)
+            actionCallback = null
 
             // 停止监控任务
-        monitoringJob?.cancel()
-        monitoringJob = null
+            monitoringJob?.cancel()
+            monitoringJob = null
 
             stopSystemEventMonitoring()
-        AppLogger.d(TAG, "调试器UI操作监听已停止）"
-        return@withContext true
+
+            AppLogger.d(TAG, "调试器UI操作监听已停止）
+            return@withContext true
         } catch (e: Exception) {
             AppLogger.e(TAG, "停止调试器UI操作监听失败", e)
-        return@withContext false
+            return@withContext false
         }
     }
 
     /**
-     * 检查Shizuku是否已安，
-    * @return 是否已安装Shizuku
+     * 检查Shizuku是否已安�?    * @return 是否已安装Shizuku
      */
     fun isShizukuInstalled(): Boolean {
         return ShizukuAuthorizer.isShizukuInstalled(context)
@@ -126,13 +138,13 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
      */
     private fun startSystemEventMonitoring() {
         AppLogger.d(TAG, "开始系统级事件监控 - 使用startProcess启动持续监控进程")
+        
         monitoringJob = CoroutineScope(Dispatchers.IO).launch {
             try {
                 // 启动窗口焦点监控进程
-        startWindowFocusMonitoring()
+                startWindowFocusMonitoring()
                 
-                // 启动Activity栈监控进程
-        startActivityStackMonitoring()
+                // 启动Activity栈监控进�?               startActivityStackMonitoring()
                 
             } catch (e: Exception) {
                 AppLogger.e(TAG, "启动系统事件监控进程失败", e)
@@ -141,10 +153,9 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
     }
 
     /**
-     * 停止系统级事件监，
-    */
+     * 停止系统级事件监�?    */
     private fun stopSystemEventMonitoring() {
-        AppLogger.d(TAG, "停止系统级事件监，"
+        AppLogger.d(TAG, "停止系统级事件监�?
         
         // 停止监控进程
         windowMonitorProcess?.destroy()
@@ -164,42 +175,39 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
      */
     private suspend fun startWindowFocusMonitoring() {
         try {
-            // 使用watch命令每秒检查窗口焦点变重
-        val command = "while true; do dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | head -2; sleep 1; done"
-        windowMonitorProcess = shellExecutor.startProcess(command)
+            // 使用watch命令每秒检查窗口焦点变�?           val command = "while true; do dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | head -2; sleep 1; done"
+            windowMonitorProcess = shellExecutor.startProcess(command)
             
-            // 监听输出出
-        windowMonitorProcess?.stdout?.onEach { output ->
+            // 监听输出�?           windowMonitorProcess?.stdout?.onEach { output ->
                 if (output.isNotEmpty() && output != lastFocusedWindow) {
                     lastFocusedWindow = output
                     parseWindowFocusEvents(output)
                 }
             }?.launchIn(CoroutineScope(Dispatchers.IO))
-        AppLogger.d(TAG, "窗口焦点监控进程已启动）"
+            
+            AppLogger.d(TAG, "窗口焦点监控进程已启动）
         } catch (e: Exception) {
             AppLogger.e(TAG, "启动窗口焦点监控进程失败", e)
         }
     }
 
     /**
-     * 启动Activity栈监控进程
-    */
+     * 启动Activity栈监控进�?    */
     private suspend fun startActivityStackMonitoring() {
         try {
-            // 使用watch命令每秒检查Activity栈变重
-        val command = "while true; do dumpsys activity activities | grep -E 'Running activities|TaskRecord' | head -5; sleep 1; done"
-        activityMonitorProcess = shellExecutor.startProcess(command)
+            // 使用watch命令每秒检查Activity栈变�?           val command = "while true; do dumpsys activity activities | grep -E 'Running activities|TaskRecord' | head -5; sleep 1; done"
+            activityMonitorProcess = shellExecutor.startProcess(command)
             
-            // 监听输出出
-        activityMonitorProcess?.stdout?.onEach { output ->
+            // 监听输出�?           activityMonitorProcess?.stdout?.onEach { output ->
                 if (output.isNotEmpty() && output != lastActivityStack) {
                     lastActivityStack = output
                     parseActivityStackEvents(output)
                 }
             }?.launchIn(CoroutineScope(Dispatchers.IO))
-        AppLogger.d(TAG, "Activity栈监控进程已启动")
+            
+            AppLogger.d(TAG, "Activity栈监控进程已启动")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "启动Activity栈监控进程失败：${e.message})"
+            AppLogger.e(TAG, "启动Activity栈监控进程失败：${e.message})
         }
     }
 
@@ -214,8 +222,9 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
             AppLogger.v(TAG, "检测到窗口焦点变化: ${windowInfo.take(100)}")
             
             // 尝试从窗口信息中提取应用包名
-        val packageName = extractPackageNameFromWindowInfo(windowInfo)
-        actionCallback?.let { callback ->
+            val packageName = extractPackageNameFromWindowInfo(windowInfo)
+            
+            actionCallback?.let { callback ->
                 val event = ActionListener.ActionEvent(
                     timestamp = System.currentTimeMillis(),
                     actionType = ActionListener.ActionType.SCREEN_CHANGE,
@@ -225,7 +234,7 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                         "packageName" to (packageName ?: "unknown")
                     )
                 )
-        callback(event)
+                callback(event)
             }
         }
     }
@@ -233,14 +242,13 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
 
 
     /**
-     * 解析Activity栈事，
-    * @param activityStack Activity栈信，
-    */
+     * 解析Activity栈事�?    * @param activityStack Activity栈信�?    */
     private fun parseActivityStackEvents(activityStack: String) {
-        AppLogger.v(TAG, "检测到Activity栈变重${activityStack.take(100)}")
+        AppLogger.v(TAG, "检测到Activity栈变�?${activityStack.take(100)}")
         
         // 从Activity栈信息中提取当前前台Activity
         val currentActivity = extractCurrentActivityFromStack(activityStack)
+        
         actionCallback?.let { callback ->
             val event = ActionListener.ActionEvent(
                 timestamp = System.currentTimeMillis(),
@@ -251,13 +259,12 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                     "currentActivity" to (currentActivity ?: "unknown")
                 )
             )
-        callback(event)
+            callback(event)
         }
     }
 
     /**
-     * 处理检测到的触摸事，
-    * @param x 触摸X坐标
+     * 处理检测到的触摸事�?    * @param x 触摸X坐标
      * @param y 触摸Y坐标
      * @param action 触摸动作类型
      */
@@ -268,7 +275,8 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                 "MOVE" -> ActionListener.ActionType.SWIPE
                 else -> ActionListener.ActionType.GESTURE
             }
-        val event = ActionListener.ActionEvent(
+
+            val event = ActionListener.ActionEvent(
                 timestamp = System.currentTimeMillis(),
                 actionType = actionType,
                 coordinates = Pair(x, y),
@@ -277,13 +285,12 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                     "source" to "system_input_monitor"
                 )
             )
-        actionCallback?.invoke(event)
+            actionCallback?.invoke(event)
         }
     }
 
     /**
-     * 处理检测到的应用切换事，
-    * @param fromPackage 切换前的应用包名
+     * 处理检测到的应用切换事�?    * @param fromPackage 切换前的应用包名
      * @param toPackage 切换后的应用包名
      */
     fun handleAppSwitchEvent(fromPackage: String?, toPackage: String) {
@@ -297,14 +304,13 @@ class DebuggerActionListener(private val context: Context) : ActionListener {
                     "source" to "window_manager_monitor"
                 )
             )
-        actionCallback?.invoke(event)
+            actionCallback?.invoke(event)
         }
     }
 
     /**
      * 从窗口信息中提取应用包名
-     * @param windowInfo 窗口信息字符为
-    * @return 提取的包名，如果无法提取则返回null
+     * @param windowInfo 窗口信息字符�?    * @return 提取的包名，如果无法提取则返回null
      */
     private fun extractPackageNameFromWindowInfo(windowInfo: String): String? {
         // 尝试从窗口信息中提取包名

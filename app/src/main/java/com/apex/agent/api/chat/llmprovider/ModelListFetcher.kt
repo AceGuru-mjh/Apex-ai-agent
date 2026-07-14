@@ -24,15 +24,14 @@ import org.json.JSONObject
 /** 模型列表获取工具，用于从不同API提供商获取可用模型列/
 object ModelListFetcher {
     private const val TAG = "ModelListFetcher"
-        private const val ANTHROPIC_VERSION = "2023-06-01"
-        private val ZHIPU_CODING_PLAN_MODELS =
+    private const val ANTHROPIC_VERSION = "2023-06-01"
+    private val ZHIPU_CODING_PLAN_MODELS =
             listOf("glm-4.7", "glm-4.6", "glm-4.5", "glm-4.5-air")
-        private val KIMI_CODING_MODELS =
+    private val KIMI_CODING_MODELS =
             listOf("kimi-for-coding")
 
-    // 使用更长的超时时
-        private val client =
-                UnsafeModelSsl.apply(
+    // 使用更长的超时时   private val client =
+            UnsafeModelSsl.apply(
                     OkHttpClient.Builder()
                             .connectTimeout(30, TimeUnit.SECONDS)
                             .readTimeout(30, TimeUnit.SECONDS)
@@ -47,35 +46,35 @@ object ModelListFetcher {
      */
     fun getModelsListUrl(apiEndpoint: String, apiProviderType: ApiProviderType): String {
         AppLogger.d(TAG, "生成模型列表URL，API端点: ${apiEndpoint}, 提供商类${apiProviderType}")
+
         val modelsUrl =
                 when (apiProviderType) {
                     ApiProviderType.OPENAI,
                     ApiProviderType.OPENAI_RESPONSES,
                     ApiProviderType.OPENAI_RESPONSES_GENERIC,
                     ApiProviderType.OPENAI_GENERIC -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.ANTHROPIC,
+                    ApiProviderType.ANTHROPIC,
                     ApiProviderType.ANTHROPIC_GENERIC -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.GOOGLE,
+                    ApiProviderType.GOOGLE,
                     ApiProviderType.GEMINI_GENERIC -> {
-                        // 对于Gemini API，直接使用提供的端点或默认端
-        if (apiEndpoint.contains("generativelanguage.googleapis.com")) {
-                            // 如果端点已经是模型列表URL，直接使
-        if (apiEndpoint.endsWith("/models")) {
+                        // 对于Gemini API，直接使用提供的端点或默认端                       if (apiEndpoint.contains("generativelanguage.googleapis.com")) {
+                            // 如果端点已经是模型列表URL，直接使                           if (apiEndpoint.endsWith("/models")) {
                                 apiEndpoint
                             } else {
                                 // 否则构造标准模型列表URL
-        val version = if (apiEndpoint.contains("/v1/")) "v1" else "v1beta"
+                                val version = if (apiEndpoint.contains("/v1/")) "v1" else "v1beta"
                                 "https://generativelanguage.googleapis.com/${version}/models"
                             }
                         } else if (apiEndpoint.contains("aiplatform.googleapis.com") ||
                                         apiEndpoint.contains("vertex")
                         ) {
                             // Vertex AI格式
-        val projectMatch = Regex("projects/([^/]+)").find(apiEndpoint)
-        val locationMatch = Regex("locations/([^/]+)").find(apiEndpoint)
-        if (projectMatch != null && locationMatch != null) {
+                            val projectMatch = Regex("projects/([^/]+)").find(apiEndpoint)
+                            val locationMatch = Regex("locations/([^/]+)").find(apiEndpoint)
+
+                            if (projectMatch != null && locationMatch != null) {
                                 val project = projectMatch.groupValues[1]
-        val location = locationMatch.groupValues[1]
+                                val location = locationMatch.groupValues[1]
                                 "https://${location}-aiplatform.googleapis.com/v1/projects/${project}/locations/${location}/publishers/google/models"
                             } else {
                                 "https://generativelanguage.googleapis.com/v1beta/models"
@@ -85,66 +84,70 @@ object ModelListFetcher {
                             "https://generativelanguage.googleapis.com/v1beta/models"
                         }
                     }
-        ApiProviderType.DEEPSEEK -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.OPENROUTER -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.MOONSHOT -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.SILICONFLOW -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.IFLOW -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.DOUBAO -> "${extractBaseUrl(apiEndpoint)}/v3/models"
-        ApiProviderType.NVIDIA -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.BAICHUAN -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.INFINIAI -> "${extractBaseUrl(apiEndpoint)}/maas/v1/models"
-        ApiProviderType.ALIPAY_BAILING -> "${extractBaseUrl(apiEndpoint)}/llm/v1/models"
-        ApiProviderType.LMSTUDIO -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.OLLAMA -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-        ApiProviderType.PPINFRA -> "${extractBaseUrl(apiEndpoint)}/v1/models"
-                    // 其他API提供商可能需要特殊处
-        else -> "${extractBaseUrl(apiEndpoint)}/v1/models" // 默认尝试OpenAI兼容格式
+                    ApiProviderType.DEEPSEEK -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.OPENROUTER -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.MOONSHOT -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.SILICONFLOW -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.IFLOW -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.DOUBAO -> "${extractBaseUrl(apiEndpoint)}/v3/models"
+                    ApiProviderType.NVIDIA -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.BAICHUAN -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.INFINIAI -> "${extractBaseUrl(apiEndpoint)}/maas/v1/models"
+                    ApiProviderType.ALIPAY_BAILING -> "${extractBaseUrl(apiEndpoint)}/llm/v1/models"
+                    ApiProviderType.LMSTUDIO -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.OLLAMA -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    ApiProviderType.PPINFRA -> "${extractBaseUrl(apiEndpoint)}/v1/models"
+                    // 其他API提供商可能需要特殊处                   else -> "${extractBaseUrl(apiEndpoint)}/v1/models" // 默认尝试OpenAI兼容格式
                 }
+
         AppLogger.d(TAG, "生成的模型列表URL: ${modelsUrl}")
         return modelsUrl
     }
-        private fun isZhipuCodingPlanEndpoint(apiEndpoint: String): Boolean {
+
+    private fun isZhipuCodingPlanEndpoint(apiEndpoint: String): Boolean {
         return apiEndpoint.contains("/coding/paas/v4", ignoreCase = true)
     }
-        private fun getZhipuCodingPlanModels(): List<ModelOption> {
+
+    private fun getZhipuCodingPlanModels(): List<ModelOption> {
         return ZHIPU_CODING_PLAN_MODELS.map { modelId ->
             ModelOption(id = modelId, name = modelId)
         }
     }
-        private fun isKimiCodingEndpoint(apiEndpoint: String): Boolean {
+
+    private fun isKimiCodingEndpoint(apiEndpoint: String): Boolean {
         return apiEndpoint.contains("api.kimi.com/coding/v1", ignoreCase = true)
     }
-        private fun getKimiCodingModels(): List<ModelOption> {
+
+    private fun getKimiCodingModels(): List<ModelOption> {
         return KIMI_CODING_MODELS.map { modelId ->
             ModelOption(id = modelId, name = modelId)
         }
     }
 
     /** 从完整URL提取基本URL 例如: https://api.openai.com/v1/chat/completions -> https://api.openai.com */
-        private fun extractBaseUrl(fullUrl: String): String {
+    private fun extractBaseUrl(fullUrl: String): String {
         return try {
             val url = URL(fullUrl)
-        val path = url.path
+            val path = url.path
 
             // 查找版本路径，例?v1, /v2
-        val versionPathRegex = Regex("/v\\d+")
-        val match = versionPathRegex.find(path)
-        if (match != null) {
+            val versionPathRegex = Regex("/v\\d+")
+            val match = versionPathRegex.find(path)
+
+            if (match != null) {
                 // 截取到版本路径之前的部分
-        val pathBeforeVersion = path.substring(0, match.range.first)
-        val finalUrl = "${url.protocol}://${url.authority}${pathBeforeVersion}"
-        AppLogger.d(TAG, "，的${fullUrl} 提取基本URL: ${finalUrl} (找到版本路径 ${match.value})")
-        finalUrl
+                val pathBeforeVersion = path.substring(0, match.range.first)
+                val finalUrl = "${url.protocol}://${url.authority}${pathBeforeVersion}"
+                AppLogger.d(TAG, "，的${fullUrl} 提取基本URL: ${finalUrl} (找到版本路径 ${match.value})")
+                finalUrl
             } else {
-                // 如果找不到版本路径，则返回原始URL的主机部分，这通常是安全的备选方
-        val finalUrl = "${url.protocol}://${url.authority}"
-        AppLogger.d(TAG, "，的${fullUrl} 提取基本URL: ${finalUrl} (未找到版本路")
-        finalUrl
+                // 如果找不到版本路径，则返回原始URL的主机部分，这通常是安全的备选方               val finalUrl = "${url.protocol}://${url.authority}"
+                AppLogger.d(TAG, "，的${fullUrl} 提取基本URL: ${finalUrl} (未找到版本路)
+                finalUrl
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "URL解析错误: ${e}")
-        fullUrl
+            fullUrl
         }
     }
 
@@ -163,6 +166,7 @@ object ModelListFetcher {
             apiProviderType: ApiProviderType = ApiProviderType.OPENAI
     ): Result<List<ModelOption>> {
         AppLogger.d(TAG, "开始获取模型列表，端点=${apiEndpoint}, 提供${apiProviderType.name}")
+
         return withContext(Dispatchers.IO) {
             val maxRetries = 2
             var retryCount = 0
@@ -172,67 +176,69 @@ object ModelListFetcher {
                 try {
                     val completedEndpoint =
                             EndpointCompleter.completeEndpoint(apiEndpoint, apiProviderType)
-        if (
+
+                    if (
                             apiProviderType == ApiProviderType.ZHIPU &&
                                     isZhipuCodingPlanEndpoint(completedEndpoint)
                     ) {
                         AppLogger.d(TAG, "检测到智谱Coding Plan端点，返回文档约束的固定模型列表")
-        return@withContext Result.success(getZhipuCodingPlanModels())
+                        return@withContext Result.success(getZhipuCodingPlanModels())
                     }
-        if (
+
+                    if (
                             apiProviderType == ApiProviderType.MOONSHOT &&
                                     isKimiCodingEndpoint(completedEndpoint)
                     ) {
-                        AppLogger.d(TAG, "检测到 Kimi Code 端点，返回官方配置中的固定模型列表）"
-        return@withContext Result.success(getKimiCodingModels())
+                        AppLogger.d(TAG, "检测到 Kimi Code 端点，返回官方配置中的固定模型列表）
+                        return@withContext Result.success(getKimiCodingModels())
                     }
 
                     // 根据提供商类型获取模型列表URL
-        val modelsUrl = getModelsListUrl(completedEndpoint, apiProviderType)
-        val providerRequiresApiKey =
+                    val modelsUrl = getModelsListUrl(completedEndpoint, apiProviderType)
+                    val providerRequiresApiKey =
                             ApiProviderConfigs.requiresApiKey(apiProviderType, completedEndpoint)
-        AppLogger.d(TAG, "准备发送请求到: ${modelsUrl}, 尝试次数: ${retryCount + 1}/${maxRetries + 1}")
-        val requestBuilder =
+                    AppLogger.d(TAG, "准备发送请求到: ${modelsUrl}, 尝试次数: ${retryCount + 1}/${maxRetries + 1}")
+
+                    val requestBuilder =
                             Request.Builder()
                                     .url(modelsUrl)
                                     .addHeader("Content-Type", "application/json")
 
-                    // 根据不同供应商添加不同的认证
-        when (apiProviderType) {
+                    // 根据不同供应商添加不同的认证                   when (apiProviderType) {
                         ApiProviderType.GOOGLE,
                         ApiProviderType.GEMINI_GENERIC -> {
                             // Google Gemini API 使用 API 密钥作为查询参数
-        val urlWithKey =
+                            val urlWithKey =
                                     if (modelsUrl.contains("?")) {
                                         "${modelsUrl}&key=${apiKey}"
                                     } else {
                                         "${modelsUrl}?key=${apiKey}"
                                     }
-        AppLogger.d(
+                            AppLogger.d(
                                     TAG,
                                     "添加Google API密钥，完整URL: ${urlWithKey.replace(apiKey, "API_KEY_HIDDEN")}"
                             )
-        requestBuilder.url(urlWithKey)
+                            requestBuilder.url(urlWithKey)
                         }
-        ApiProviderType.OPENROUTER -> {
+                        ApiProviderType.OPENROUTER -> {
                             // OpenRouter需要添加特定请求头
-        AppLogger.d(TAG, "使用Bearer认证方式并添加OpenRouter特定请求。"
-        requestBuilder.addHeader("Authorization", "Bearer ${apiKey}")
-        requestBuilder.addHeader("HTTP-Referer", "ai.assistance.Apex")
-        requestBuilder.addHeader("X-Title", "Assistance App")
+                            AppLogger.d(TAG, "使用Bearer认证方式并添加OpenRouter特定请求。
+                            requestBuilder.addHeader("Authorization", "Bearer ${apiKey}")
+                            requestBuilder.addHeader("HTTP-Referer", "ai.assistance.Apex")
+                            requestBuilder.addHeader("X-Title", "Assistance App")
                         }
-        ApiProviderType.ANTHROPIC,
+                        ApiProviderType.ANTHROPIC,
                         ApiProviderType.ANTHROPIC_GENERIC -> {
                             AppLogger.d(TAG, "使用Anthropic x-api-key认证方式")
-        if (apiKey.isNotBlank()) {
+                            if (apiKey.isNotBlank()) {
                                 requestBuilder.addHeader("x-api-key", apiKey)
                             }
-        requestBuilder.addHeader("anthropic-version", ANTHROPIC_VERSION)
+                            requestBuilder.addHeader("anthropic-version", ANTHROPIC_VERSION)
                         }
-        else -> {
+                        else -> {
                             if (apiKey.isNotBlank()) {
                                 AppLogger.d(TAG, "使用Bearer认证方式")
-        requestBuilder.addHeader("Authorization", "Bearer ${apiKey}")
+                                requestBuilder.addHeader("Authorization", "Bearer ${apiKey}")
                             } else if (providerRequiresApiKey) {
                                 AppLogger.d(TAG, "当前提供商需要API Key，但当前请求未提供认证头")
                             } else {
@@ -240,60 +246,64 @@ object ModelListFetcher {
                             }
                         }
                     }
-        val request = requestBuilder.get().build()
-        AppLogger.d(TAG, "发送HTTP请求: ${request.url}")
-        val response = client.newCall(request).execute()
-        if (!response.isSuccessful) {
+
+                    val request = requestBuilder.get().build()
+
+                    AppLogger.d(TAG, "发送HTTP请求: ${request.url}")
+                    val response = client.newCall(request).execute()
+
+                    if (!response.isSuccessful) {
                         val errorBody = response.body?.string() ?: context.getString(R.string.model_fetch_no_error_details)
-        val responseCode = response.code
+                        val responseCode = response.code
                         response.close()
-        if ((apiProviderType == ApiProviderType.OPENAI || apiProviderType == ApiProviderType.OPENAI_RESPONSES || apiProviderType == ApiProviderType.OPENAI_RESPONSES_GENERIC || apiProviderType == ApiProviderType.OPENAI_GENERIC || apiProviderType == ApiProviderType.IFLOW || apiProviderType == ApiProviderType.NVIDIA || apiProviderType == ApiProviderType.LMSTUDIO || apiProviderType == ApiProviderType.OLLAMA) &&
+                        if ((apiProviderType == ApiProviderType.OPENAI || apiProviderType == ApiProviderType.OPENAI_RESPONSES || apiProviderType == ApiProviderType.OPENAI_RESPONSES_GENERIC || apiProviderType == ApiProviderType.OPENAI_GENERIC || apiProviderType == ApiProviderType.IFLOW || apiProviderType == ApiProviderType.NVIDIA || apiProviderType == ApiProviderType.LMSTUDIO || apiProviderType == ApiProviderType.OLLAMA) &&
                                         modelsUrl.endsWith("/v1/models")) {
                             val fallbackUrl = modelsUrl.removeSuffix("/v1/models") + "/models"
-        AppLogger.w(TAG, "API请求失败，尝试兼容路${fallbackUrl}")
-        val fallbackRequest = request.newBuilder().url(fallbackUrl).get().build()
-        val fallbackResponse = client.newCall(fallbackRequest).execute()
-        if (fallbackResponse.isSuccessful) {
+                            AppLogger.w(TAG, "API请求失败，尝试兼容路${fallbackUrl}")
+                            val fallbackRequest = request.newBuilder().url(fallbackUrl).get().build()
+                            val fallbackResponse = client.newCall(fallbackRequest).execute()
+                            if (fallbackResponse.isSuccessful) {
                                 val fallbackBody = fallbackResponse.body?.string()
-        if (fallbackBody.isNullOrEmpty()) {
+                                if (fallbackBody.isNullOrEmpty()) {
                                     fallbackResponse.close()
-        return@withContext Result.failure(IOException(context.getString(R.string.model_fetch_response_empty)))
+                                    return@withContext Result.failure(IOException(context.getString(R.string.model_fetch_response_empty)))
                                 }
-        fallbackResponse.close()
-        val modelOptions = parseOpenAIModelResponse(context, fallbackBody)
-        AppLogger.d(TAG, "成功解析模型列表，共获取 ${modelOptions.size} 个模型）"
-        return@withContext Result.success(modelOptions)
+                                fallbackResponse.close()
+                                val modelOptions = parseOpenAIModelResponse(context, fallbackBody)
+                                AppLogger.d(TAG, "成功解析模型列表，共获取 ${modelOptions.size} 个模型）
+                                return@withContext Result.success(modelOptions)
                             } else {
                                 val fallbackErrorBody = fallbackResponse.body?.string() ?: context.getString(R.string.model_fetch_no_error_details)
-        AppLogger.e(
+                                AppLogger.e(
                                         TAG,
                                         "API请求失败: 状态码=${fallbackResponse.code}, 错误=${fallbackErrorBody}"
                                 )
-        fallbackResponse.close()
-        return@withContext Result.failure(
+                                fallbackResponse.close()
+                                return@withContext Result.failure(
                                         IOException(
                                                 context.getString(R.string.model_fetch_api_failed, fallbackResponse.code, fallbackErrorBody)
                                         )
                                 )
                             }
                         }
-        AppLogger.e(TAG, "API请求失败: 状态码=${responseCode}, 错误=${errorBody}")
-        return@withContext Result.failure(IOException(context.getString(R.string.model_fetch_api_failed, responseCode, errorBody)))
+
+                        AppLogger.e(TAG, "API请求失败: 状态码=${responseCode}, 错误=${errorBody}")
+                        return@withContext Result.failure(IOException(context.getString(R.string.model_fetch_api_failed, responseCode, errorBody)))
                     }
-        val responseBody = response.body?.string()
-        response.close()
-        if (responseBody == null) {
-                        AppLogger.e(TAG, "没有可用的上下文，无法执行命�?"
-        return@withContext Result.failure(IOException(context.getString(R.string.model_fetch_response_empty)))
+
+                    val responseBody = response.body?.string()
+                    response.close()
+                    if (responseBody == null) {
+                        AppLogger.e(TAG, "没有可用的上下文，无法执行命�?
+                        return@withContext Result.failure(IOException(context.getString(R.string.model_fetch_response_empty)))
                     }
-        AppLogger.d(
+
+                    AppLogger.d(
                             TAG,
-                            val _kaptFix0 = if (responseBody.length > 200) "..." else ""
-                            "收到响应: ${responseBody.take(200)}${_kaptFix0}"
+                            "收到响应: ${responseBody.take(200)}${if (responseBody.length > 200) "..." else ""}"
                     )
 
-                    // 根据提供商类型解析响
-        val modelOptions =
+                    // 根据提供商类型解析响                   val modelOptions =
                             try {
                                 when (apiProviderType) {
                                     ApiProviderType.OPENAI,
@@ -313,82 +323,87 @@ object ModelListFetcher {
                                     ApiProviderType.LMSTUDIO,
                                     ApiProviderType.OLLAMA,
                                     ApiProviderType.PPINFRA -> parseOpenAIModelResponse(context, responseBody)
-        ApiProviderType.ANTHROPIC,
+                                    ApiProviderType.ANTHROPIC,
                                     ApiProviderType.ANTHROPIC_GENERIC -> parseAnthropicModelResponse(context, responseBody)
-        ApiProviderType.GOOGLE,
+                                    ApiProviderType.GOOGLE,
                                     ApiProviderType.GEMINI_GENERIC -> parseGoogleModelResponse(context, responseBody)
 
                                     // 其他提供商可能需要单独的解析方法
-        else -> parseOpenAIModelResponse(context, responseBody) // 默认尝试OpenAI格式
+                                    else -> parseOpenAIModelResponse(context, responseBody) // 默认尝试OpenAI格式
                                 }
                             } catch (e: Exception) {
                                 AppLogger.e(TAG, "解析响应失败: ${e.message}")
-        return@withContext Result.failure(e)
+                                return@withContext Result.failure(e)
                             }
-        AppLogger.d(TAG, "成功解析模型列表，共获取 ${modelOptions.size} 个模型）"
-        return@withContext Result.success(modelOptions)
+
+                    AppLogger.d(TAG, "成功解析模型列表，共获取 ${modelOptions.size} 个模型）
+                    return@withContext Result.success(modelOptions)
                 } catch (e: SocketTimeoutException) {
                     lastException = e
                     retryCount++
                     AppLogger.e(TAG, "连接超时: ${e.message}", e)
-        AppLogger.d(TAG, "网络超时，尝试重，的${retryCount}/${maxRetries}")
-        if (retryCount <= maxRetries) {
-                        // 指数退避重
-        val delayTime = 1000L * retryCount
-                        AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。"
-        delay(delayTime)
+                    AppLogger.d(TAG, "网络超时，尝试重，的${retryCount}/${maxRetries}")
+
+                    if (retryCount <= maxRetries) {
+                        // 指数退避重                       val delayTime = 1000L * retryCount
+                        AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。
+                        delay(delayTime)
                     }
                 } catch (e: IOException) {
                     lastException = e
                     retryCount++
                     AppLogger.e(TAG, "IO异常: ${e.message}", e)
-        AppLogger.d(TAG, "IO异常，尝试重，的${retryCount}/${maxRetries}")
-        if (retryCount <= maxRetries) {
+                    AppLogger.d(TAG, "IO异常，尝试重，的${retryCount}/${maxRetries}")
+
+                    if (retryCount <= maxRetries) {
                         val delayTime = 1000L * retryCount
-                        AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。"
-        delay(delayTime)
+                        AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。
+                        delay(delayTime)
                     }
                 } catch (e: UnknownHostException) {
-                    AppLogger.e(TAG, "无法连接到服务器，域名解析失败：${e.message})"
-        return@withContext Result.failure(IOException(context.getString(R.string.modellist_error_cannot_connect), e))
+                    AppLogger.e(TAG, "无法连接到服务器，域名解析失败：${e.message})
+                    return@withContext Result.failure(IOException(context.getString(R.string.modellist_error_cannot_connect), e))
                 } catch (e: Exception) {
                     lastException = e
                     retryCount++
                     AppLogger.e(TAG, "获取模型列表失败: ${e.message}", e)
-        if (retryCount <= maxRetries) {
-                        // 指数退避重
-        val delayTime = 1000L * retryCount
-                        AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。"
-        delay(delayTime)
+
+                    if (retryCount <= maxRetries) {
+                        // 指数退避重                       val delayTime = 1000L * retryCount
+                        AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。
+                        delay(delayTime)
                     }
                 }
             }
 
             // 所有重试都失败
-        AppLogger.e(TAG, "超过最大重试次数，获取模型列表失败")
-        Result.failure(lastException ?: IOException(context.getString(R.string.modellist_error_fetch_failed)))
+            AppLogger.e(TAG, "超过最大重试次数，获取模型列表失败")
+            Result.failure(lastException ?: IOException(context.getString(R.string.modellist_error_fetch_failed)))
         }
     }
 
     /** 解析OpenAI格式的模型响应，格式: {"data": [{"id": "model-id", "object": "model", ...}, ...]} */
     private fun parseOpenAIModelResponse(context: Context, jsonResponse: String): List<ModelOption> {
         val modelList = mutableListOf<ModelOption>()
+
         try {
             val jsonObject = JSONObject(jsonResponse)
-        if (!jsonObject.has("data")) {
+            if (!jsonObject.has("data")) {
                 AppLogger.e(TAG, "OpenAI响应格式错误: 缺少'data'字段")
-        throw JSONException(context.getString(R.string.modellist_error_missing_data))
+                throw JSONException(context.getString(R.string.modellist_error_missing_data))
             }
-        val dataArray = jsonObject.getJSONArray("data")
-        AppLogger.d(TAG, "解析OpenAI格式响应: 发现 ${dataArray.length()} 个模型）"
-        for (i in 0 until dataArray.length()) {
+
+            val dataArray = jsonObject.getJSONArray("data")
+            AppLogger.d(TAG, "解析OpenAI格式响应: 发现 ${dataArray.length()} 个模型）
+
+            for (i in 0 until dataArray.length()) {
                 val modelObj = dataArray.getJSONObject(i)
-        val id = modelObj.getString("id")
-        modelList.add(ModelOption(id = id, name = id))
+                val id = modelObj.getString("id")
+                modelList.add(ModelOption(id = id, name = id))
             }
         } catch (e: JSONException) {
             AppLogger.e(TAG, "解析OpenAI格式JSON失败: ${e.message}", e)
-        throw e
+            throw e
         }
 
         // 按照模型名称排序
@@ -398,104 +413,115 @@ object ModelListFetcher {
     /** 解析Anthropic格式的模型响应 */
     private fun parseAnthropicModelResponse(context: Context, jsonResponse: String): List<ModelOption> {
         val modelList = mutableListOf<ModelOption>()
+
         try {
             val jsonObject = JSONObject(jsonResponse)
-        val modelsArray = when {
+            val modelsArray = when {
                 jsonObject.has("data") -> jsonObject.getJSONArray("data")
-        jsonObject.has("models") -> jsonObject.getJSONArray("models")
-        else -> {
+                jsonObject.has("models") -> jsonObject.getJSONArray("models")
+                else -> {
                     AppLogger.e(TAG, "Anthropic响应格式错误: 缺少'data'，models'字段")
-        throw JSONException(context.getString(R.string.modellist_error_missing_data_or_models))
+                    throw JSONException(context.getString(R.string.modellist_error_missing_data_or_models))
                 }
             }
-        AppLogger.d(TAG, "解析Anthropic格式响应: 发现 ${modelsArray.length()} 个模型）"
-        for (i in 0 until modelsArray.length()) {
+
+            AppLogger.d(TAG, "解析Anthropic格式响应: 发现 ${modelsArray.length()} 个模型）
+
+            for (i in 0 until modelsArray.length()) {
                 val modelObj = modelsArray.getJSONObject(i)
-        val id = when {
+
+                val id = when {
                     modelObj.has("id") -> modelObj.getString("id")
-        modelObj.has("name") -> modelObj.getString("name")
-        else -> continue
+                    modelObj.has("name") -> modelObj.getString("name")
+                    else -> continue
                 }
-        val displayName = modelObj.optString("display_name", id)
-        modelList.add(ModelOption(id = id, name = displayName))
+                val displayName = modelObj.optString("display_name", id)
+                modelList.add(ModelOption(id = id, name = displayName))
             }
         } catch (e: JSONException) {
             AppLogger.e(TAG, "解析Anthropic模型JSON失败: ${e.message}", e)
-        throw e
+            throw e
         }
+
         return modelList.sortedBy { it.id }
     }
 
     /**
      * 解析Google Gemini API格式的模型响，Gemini API有两种格。
      * 1. 直接API格式: {"models": [{model对象}, ...]}
-     * 2. Vertex AI格式: {"models" ?publisher_models": [{model对象}, ...]}"
+     * 2. Vertex AI格式: {"models" ?publisher_models": [{model对象}, ...]}
      */
     private fun parseGoogleModelResponse(context: Context, jsonResponse: String): List<ModelOption> {
         val modelList = mutableListOf<ModelOption>()
+
         try {
             val jsonObject = JSONObject(jsonResponse)
 
-            // 检查是否包含models"字段（Gemini API格式 if (jsonObject.has("models")) {"
-        val modelsArray = jsonObject.getJSONArray("models")
-        AppLogger.d(TAG, "解析Google Gemini API格式响应: 发现 ${modelsArray.length()} 个模型）"
-        for (i in 0 until modelsArray.length()) {
+            // 检查是否包含models"字段（Gemini API格式           if (jsonObject.has("models")) {
+                val modelsArray = jsonObject.getJSONArray("models")
+                AppLogger.d(TAG, "解析Google Gemini API格式响应: 发现 ${modelsArray.length()} 个模型）
+
+                for (i in 0 until modelsArray.length()) {
                     val modelObj = modelsArray.getJSONObject(i)
-        val id = modelObj.getString("name").split("/").last()
-        val displayName = modelObj.optString("displayName", id)
-        val baseModelId = modelObj.optString("baseModelId", "")
+                    val id = modelObj.getString("name").split("/").last()
+                    val displayName = modelObj.optString("displayName", id)
+                    val baseModelId = modelObj.optString("baseModelId", "")
 
                     // 只添加支持generateContent的模型，通过检查supportedGenerationMethods字段
-        val supportedMethods =
+                    val supportedMethods =
                             try {
                                 if (modelObj.has("supportedGenerationMethods")) {
                                     val methods =
                                             modelObj.getJSONArray("supportedGenerationMethods")
-        val methodsList = mutableListOf<String>()
-        for (j in 0 until methods.length()) {
+                                    val methodsList = mutableListOf<String>()
+                                    for (j in 0 until methods.length()) {
                                         methodsList.add(methods.getString(j))
                                     }
-        methodsList
+                                    methodsList
                                 } else {
                                     listOf("generateContent") // 假设支持
                                 }
                             } catch (e: Exception) {
                                 listOf("generateContent") // 出错时默认支                           }
-        if (supportedMethods.contains("generateContent")) {
+
+                    if (supportedMethods.contains("generateContent")) {
                         // 使用基本模型ID作为下拉列表中的选项
-        val finalId = if (baseModelId.isNotEmpty()) baseModelId else id
+                        val finalId = if (baseModelId.isNotEmpty()) baseModelId else id
                         modelList.add(ModelOption(id = finalId, name = displayName))
                     }
                 }
             }
             // 检查Vertex AI格式
-        else if (jsonObject.has("models") || jsonObject.has("publisher_models")) {
+            else if (jsonObject.has("models") || jsonObject.has("publisher_models")) {
                 val modelsArray =
                         if (jsonObject.has("models")) {
                             jsonObject.getJSONArray("models")
                         } else {
                             jsonObject.getJSONArray("publisher_models")
                         }
-        AppLogger.d(TAG, "解析Vertex AI格式响应: 发现 ${modelsArray.length()} 个模型）"
-        for (i in 0 until modelsArray.length()) {
+
+                AppLogger.d(TAG, "解析Vertex AI格式响应: 发现 ${modelsArray.length()} 个模型）
+
+                for (i in 0 until modelsArray.length()) {
                     val modelObj = modelsArray.getJSONObject(i)
-        val fullName = modelObj.getString("name")
-        val id = fullName.split("/").last()
-        val displayName = modelObj.optString("displayName", id)
+                    val fullName = modelObj.getString("name")
+                    val id = fullName.split("/").last()
+                    val displayName = modelObj.optString("displayName", id)
 
                     // 过滤只添加Gemini模型
-        if (id.contains("gemini")) {
+                    if (id.contains("gemini")) {
                         modelList.add(ModelOption(id = id, name = displayName))
                     }
                 }
             } else {
                 AppLogger.e(TAG, "Google响应格式错误: 未找，models'字段")
-        throw JSONException(context.getString(R.string.modellist_error_missing_models))
+                throw JSONException(context.getString(R.string.modellist_error_missing_models))
             }
         } catch (e: JSONException) {
             AppLogger.e(TAG, "解析Google模型JSON失败: ${e.message}", e)
-        throw e
+            throw e
         }
+
         return modelList.sortedBy { it.id }
     }
 
@@ -509,42 +535,46 @@ object ModelListFetcher {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                     "Apex/models/mnn"
                 )
-        AppLogger.d(TAG, "读取MNN模型目录: ${modelsDir.absolutePath}")
-        if (!modelsDir.exists()) {
-                    AppLogger.w(TAG, "MNN模型目录不存。"
-        return@withContext Result.success(emptyList())
+                
+                AppLogger.d(TAG, "读取MNN模型目录: ${modelsDir.absolutePath}")
+                
+                if (!modelsDir.exists()) {
+                    AppLogger.w(TAG, "MNN模型目录不存。
+                    return@withContext Result.success(emptyList())
                 }
                 
                 // 遍历所有模型文件夹
-        val models = modelsDir.listFiles { file -> 
+                val models = modelsDir.listFiles { file -> 
                     file.isDirectory
                 }?.mapNotNull { folder ->
-                    // 在文件夹中查，llm.mnn 主文
-        val mnnFile = File(folder, "llm.mnn")
-        val mnnWeightFile = File(folder, "llm.mnn.weight")
-        if (mnnFile.exists()) {
-                        // 计算文件夹总大
-        val totalSize = folder.listFiles()?.sumOf { it.length() } ?: 0L
+                    // 在文件夹中查，llm.mnn 主文                   val mnnFile = File(folder, "llm.mnn")
+                    val mnnWeightFile = File(folder, "llm.mnn.weight")
+                    
+                    if (mnnFile.exists()) {
+                        // 计算文件夹总大                       val totalSize = folder.listFiles()?.sumOf { it.length() } ?: 0L
                         
                         AppLogger.d(TAG, "找到MNN模型: ${folder.name}, 主文${mnnFile.exists()}, 权重文件: ${mnnWeightFile.exists()}, 总大${formatFileSize(totalSize)}")
-        ModelOption(
+                        
+                        ModelOption(
                             id = folder.name,  // 使用文件夹名称作为ID（与其他提供商保持一致）
-        name = "${folder.name} (${formatFileSize(totalSize)})"
+                            name = "${folder.name} (${formatFileSize(totalSize)})"
                         )
                     } else {
                         AppLogger.w(TAG, "文件${folder.name} 中未找到 llm.mnn 文件")
-        null
+                        null
                     }
                 }?.sortedBy { it.name } ?: emptyList()
-        AppLogger.d(TAG, "找到 ${models.size} 个可用的MNN模型")
-        Result.success(models)
+                
+                AppLogger.d(TAG, "找到 ${models.size} 个可用的MNN模型")
+                Result.success(models)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "读取MNN模型列表失败", e)
-        Result.failure(e)
+                Result.failure(e)
             }
         }
     }
-        suspend fun getLlamaLocalModels(context: Context): Result<List<ModelOption>> {
+
+    suspend fun getLlamaLocalModels(context: Context): Result<List<ModelOption>> {
         // 本地 llama.cpp 推理已移除，返回空列表
         return Result.success(emptyList())
     }?.map { file ->
@@ -553,11 +583,12 @@ object ModelListFetcher {
                         name = "${file.name} (${formatFileSize(file.length())})"
                     )
                 }?.sortedBy { it.name } ?: emptyList()
-        AppLogger.d(TAG, "找到 ${models.size} 个可用的llama.cpp模型")
-        Result.success(models)
+
+                AppLogger.d(TAG, "找到 ${models.size} 个可用的llama.cpp模型")
+                Result.success(models)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "读取llama.cpp模型列表失败", e)
-        Result.failure(e)
+                Result.failure(e)
             }
         }
     }
@@ -567,9 +598,9 @@ object ModelListFetcher {
     private fun formatFileSize(sizeBytes: Long): String {
         return when {
             sizeBytes < 1024 -> "${sizeBytes} B"
-        sizeBytes < 1024 * 1024 -> "${sizeBytes / 1024} KB"
-        sizeBytes < 1024 * 1024 * 1024 -> "${sizeBytes / (1024 * 1024)} MB"
-        else -> String.format("%.2f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0))
+            sizeBytes < 1024 * 1024 -> "${sizeBytes / 1024} KB"
+            sizeBytes < 1024 * 1024 * 1024 -> "${sizeBytes / (1024 * 1024)} MB"
+            else -> String.format("%.2f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0))
         }
     }
 }

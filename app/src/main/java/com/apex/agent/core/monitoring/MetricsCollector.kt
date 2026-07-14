@@ -32,7 +32,8 @@ class MetricsCollector private constructor(
         val heapMaxBytes: Long,
         val nonHeapUsedBytes: Long
     )
-        data class CollectorMetrics(
+
+    data class CollectorMetrics(
         val totalCollections: Long,
         val totalMetricsCollected: Long,
         val averageCollectionTimeMs: Double,
@@ -41,23 +42,28 @@ class MetricsCollector private constructor(
         val storageSize: Int,
         val errorCount: Long
     )
-        private val logger = LoggerFactory.getLogger("MetricsCollector-$name")
-        private val metricsHistory = ConcurrentLinkedQueue<SystemMetrics>()
-        private val osBean: OperatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean()
-        private val memoryBean: MemoryMXBean = ManagementFactory.getMemoryMXBean()
-        private val threadBean: ThreadMXBean = ManagementFactory.getThreadMXBean()
-        private val runtime = Runtime.getRuntime()
-        private val collectionCount = AtomicLong(0)
-        private val totalCollectionTimeNs = AtomicLong(0)
-        private val minCollectionTimeNs = AtomicLong(Long.MAX_VALUE)
-        private val maxCollectionTimeNs = AtomicLong(0)
-        private val errorCount = AtomicLong(0)
-        private val listeners = CopyOnWriteArrayList<(SystemMetrics) -> Unit>()
-        private val scope = Executors.newSingleThreadScheduledExecutor { r ->
+
+    private val logger = LoggerFactory.getLogger("MetricsCollector-$name")
+    private val metricsHistory = ConcurrentLinkedQueue<SystemMetrics>()
+    private val osBean: OperatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean()
+    private val memoryBean: MemoryMXBean = ManagementFactory.getMemoryMXBean()
+    private val threadBean: ThreadMXBean = ManagementFactory.getThreadMXBean()
+    private val runtime = Runtime.getRuntime()
+
+    private val collectionCount = AtomicLong(0)
+    private val totalCollectionTimeNs = AtomicLong(0)
+    private val minCollectionTimeNs = AtomicLong(Long.MAX_VALUE)
+    private val maxCollectionTimeNs = AtomicLong(0)
+    private val errorCount = AtomicLong(0)
+
+    private val listeners = CopyOnWriteArrayList<(SystemMetrics) -> Unit>()
+    private val scope = Executors.newSingleThreadScheduledExecutor { r ->
         Thread(r, "metrics-collector-$name").apply { isDaemon = true }
     }
-        private val systemMetricsFlow = LinkedBlockingQueue<SystemMetrics>(64)
-        init {
+
+    private val systemMetricsFlow = LinkedBlockingQueue<SystemMetrics>(64)
+
+    init {
         scope.scheduleAtFixedRate(
             { collectMetrics() },
             0,
@@ -65,19 +71,24 @@ class MetricsCollector private constructor(
             TimeUnit.MILLISECONDS
         )
     }
-        fun registerListener(listener: (SystemMetrics) -> Unit) {
+
+    fun registerListener(listener: (SystemMetrics) -> Unit) {
         listeners.add(listener)
     }
-        fun unregisterListener(listener: (SystemMetrics) -> Unit) {
+
+    fun unregisterListener(listener: (SystemMetrics) -> Unit) {
         listeners.remove(listener)
     }
-        fun getLatestMetrics(): SystemMetrics? = metricsHistory.peek()
-        fun getMetricsHistory(): List<SystemMetrics> = metricsHistory.toList()
-        fun <T> measureOperation(name: String, block: () -> T): MeasuredResult<T> {
+
+    fun getLatestMetrics(): SystemMetrics? = metricsHistory.peek()
+
+    fun getMetricsHistory(): List<SystemMetrics> = metricsHistory.toList()
+
+    fun <T> measureOperation(name: String, block: () -> T): MeasuredResult<T> {
         val start = System.nanoTime()
         return try {
             val result = block()
-        MeasuredResult(
+            MeasuredResult(
                 success = true,
                 result = result,
                 durationNs = System.nanoTime() - start,
@@ -93,11 +104,12 @@ class MetricsCollector private constructor(
             )
         }
     }
-        suspend fun <T> measureOperationSuspend(name: String, block: suspend () -> T): MeasuredResult<T> {
+
+    suspend fun <T> measureOperationSuspend(name: String, block: suspend () -> T): MeasuredResult<T> {
         val start = System.nanoTime()
         return try {
             val result = block()
-        MeasuredResult(
+            MeasuredResult(
                 success = true,
                 result = result,
                 durationNs = System.nanoTime() - start,
@@ -113,23 +125,27 @@ class MetricsCollector private constructor(
             )
         }
     }
-        fun takeMetricsSnapshot(): SystemMetrics = collectMetricsNow()
-        fun getCollectorMetrics(): CollectorMetrics {
+
+    fun takeMetricsSnapshot(): SystemMetrics = collectMetricsNow()
+
+    fun getCollectorMetrics(): CollectorMetrics {
         val count = collectionCount.get()
         return CollectorMetrics(
             totalCollections = count,
             totalMetricsCollected = count,
             averageCollectionTimeMs = if (count > 0)
-        totalCollectionTimeNs.get().toDouble() / count / 1_000_000.0 else 0.0,
+                totalCollectionTimeNs.get().toDouble() / count / 1_000_000.0 else 0.0,
             minCollectionTimeMs = if (minCollectionTimeNs.get() < Long.MAX_VALUE)
-        minCollectionTimeNs.get() / 1_000_000.0 else 0.0,
+                minCollectionTimeNs.get() / 1_000_000.0 else 0.0,
             maxCollectionTimeMs = maxCollectionTimeNs.get() / 1_000_000.0,
             storageSize = metricsHistory.size,
             errorCount = errorCount.get()
         )
     }
-        fun pollMetricsQueue(): SystemMetrics? = systemMetricsFlow.poll()
-        fun shutdown() {
+
+    fun pollMetricsQueue(): SystemMetrics? = systemMetricsFlow.poll()
+
+    fun shutdown() {
         scope.shutdown()
         try {
             scope.awaitTermination(2, TimeUnit.SECONDS)
@@ -137,40 +153,45 @@ class MetricsCollector private constructor(
             scope.shutdownNow()
         }
     }
-        private fun collectMetrics() {
+
+    private fun collectMetrics() {
         val start = System.nanoTime()
         try {
             val metrics = collectMetricsNow()
-        metricsHistory.add(metrics)
-        while (metricsHistory.size > maxHistorySize) {
+            metricsHistory.add(metrics)
+            while (metricsHistory.size > maxHistorySize) {
                 metricsHistory.poll()
             }
-        systemMetricsFlow.offer(metrics)
-        listeners.forEach { listener ->
+            systemMetricsFlow.offer(metrics)
+            listeners.forEach { listener ->
                 try { listener(metrics) } catch (e: Exception) { logger.warn("Listener failed", e) }
             }
-        val elapsed = System.nanoTime() - start
+            val elapsed = System.nanoTime() - start
             collectionCount.incrementAndGet()
-        totalCollectionTimeNs.addAndGet(elapsed)
-        updateMinMax(elapsed)
+            totalCollectionTimeNs.addAndGet(elapsed)
+            updateMinMax(elapsed)
         } catch (e: Exception) {
             errorCount.incrementAndGet()
-        logger.warn("Metrics collection failed", e)
+            logger.warn("Metrics collection failed", e)
         }
     }
-        private fun collectMetricsNow(): SystemMetrics {
+
+    private fun collectMetricsNow(): SystemMetrics {
         val heap = memoryBean.heapMemoryUsage
         val nonHeap = memoryBean.nonHeapMemoryUsage
         val gcCount = ManagementFactory.getGarbageCollectorMXBeans().sumOf { it.collectionCount }
         val gcTime = ManagementFactory.getGarbageCollectorMXBeans().sumOf { it.collectionTime.toLong() }
+
         val processCpu = try {
-        val method = osBean.javaClass.getMethod("getProcessCpuLoad")
+            val method = osBean.javaClass.getMethod("getProcessCpuLoad")
             (method.invoke(osBean) as? Double) ?: -1.0
         } catch (e: Exception) { -1.0 }
+
         val openFds = try {
-        val method = osBean.javaClass.getMethod("getOpenFileDescriptorCount")
+            val method = osBean.javaClass.getMethod("getOpenFileDescriptorCount")
             (method.invoke(osBean) as? Long) ?: -1L
         } catch (e: Exception) { -1L }
+
         return SystemMetrics(
             timestamp = System.currentTimeMillis(),
             cpuUsagePercent = processCpu.coerceAtLeast(0.0) * 100,
@@ -189,7 +210,8 @@ class MetricsCollector private constructor(
             nonHeapUsedBytes = nonHeap.used
         )
     }
-        private fun updateMinMax(elapsed: Long) {
+
+    private fun updateMinMax(elapsed: Long) {
         var min = minCollectionTimeNs.get()
         while (elapsed < min && !minCollectionTimeNs.compareAndSet(min, elapsed)) {
             min = minCollectionTimeNs.get()
@@ -199,7 +221,8 @@ class MetricsCollector private constructor(
             max = maxCollectionTimeNs.get()
         }
     }
-        data class MeasuredResult<T>(
+
+    data class MeasuredResult<T>(
         val success: Boolean,
         val result: T?,
         val durationNs: Long,
@@ -208,11 +231,14 @@ class MetricsCollector private constructor(
     ) {
         val durationMs: Double get() = durationNs / 1_000_000.0
     }
-        companion object {
+
+    companion object {
         private val instances = ConcurrentHashMap<String, MetricsCollector>()
+
         fun getInstance(name: String = "default", intervalMs: Long = 5000L): MetricsCollector {
             return instances.getOrPut(name) { MetricsCollector(name, intervalMs) }
         }
+
         fun getAllMetrics(): Map<String, CollectorMetrics> {
             return instances.mapValues { it.value.getCollectorMetrics() }
         }
@@ -221,12 +247,15 @@ class MetricsCollector private constructor(
 
 class OperationTimer(private val name: String) {
     private val startTime = System.nanoTime()
-        private var laps = mutableListOf<Lap>()
-        data class Lap(val name: String, val elapsedNs: Long)
-        fun lap(lapName: String) {
+    private var laps = mutableListOf<Lap>()
+
+    data class Lap(val name: String, val elapsedNs: Long)
+
+    fun lap(lapName: String) {
         laps.add(Lap(lapName, System.nanoTime() - startTime))
     }
-        fun elapsedNs(): Long = System.nanoTime() - startTime
+
+    fun elapsedNs(): Long = System.nanoTime() - startTime
     fun elapsedMs(): Double = elapsedNs() / 1_000_000.0
 
     fun report(): String {
@@ -240,38 +269,45 @@ class OperationTimer(private val name: String) {
         }
         return sb.toString()
     }
-        companion object {
+
+    companion object {
         fun start(name: String): OperationTimer = OperationTimer(name)
     }
 }
 
 class ThroughputTracker(private val name: String, private val windowSizeMs: Long = 1000L) {
     private val timestamps = ConcurrentLinkedQueue<Long>()
-        private val totalProcessed = AtomicLong(0)
-        private val peakThroughput = AtomicLong(0)
-        fun record(count: Int = 1) {
+    private val totalProcessed = AtomicLong(0)
+    private val peakThroughput = AtomicLong(0)
+
+    fun record(count: Int = 1) {
         val now = System.currentTimeMillis()
         repeat(count) { timestamps.add(now) }
         totalProcessed.addAndGet(count.toLong())
         cleanup()
     }
-        fun getCurrentThroughput(): Double {
+
+    fun getCurrentThroughput(): Double {
         cleanup()
         val windowStart = System.currentTimeMillis() - windowSizeMs
         val count = timestamps.count { it >= windowStart }
         return count.toDouble() / (windowSizeMs / 1000.0)
     }
-        fun getPeakThroughput(): Double {
+
+    fun getPeakThroughput(): Double {
         return peakThroughput.get().toDouble() / (windowSizeMs / 1000.0)
     }
-        fun getTotalProcessed(): Long = totalProcessed.get()
-        fun getStats(): Map<String, Any> = mapOf(
+
+    fun getTotalProcessed(): Long = totalProcessed.get()
+
+    fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "currentTps" to getCurrentThroughput(),
         "peakTps" to getPeakThroughput(),
         "totalProcessed" to totalProcessed.get()
     )
-        private fun cleanup() {
+
+    private fun cleanup() {
         val cutoff = System.currentTimeMillis() - windowSizeMs * 2
         while (timestamps.peek() != null && timestamps.peek() < cutoff) {
             timestamps.poll()
@@ -286,10 +322,11 @@ class ThroughputTracker(private val name: String, private val windowSizeMs: Long
 
 class LatencyTracker(private val name: String) {
     private val latencies = ConcurrentLinkedQueue<Long>()
-        private val maxSamples = 10000
+    private val maxSamples = 10000
     private val totalSamples = AtomicLong(0)
-        private val sumLatency = AtomicLong(0)
-        data class LatencyStats(
+    private val sumLatency = AtomicLong(0)
+
+    data class LatencyStats(
         val name: String,
         val count: Long,
         val avgUs: Double,
@@ -301,14 +338,16 @@ class LatencyTracker(private val name: String) {
         val p99Us: Double,
         val p999Us: Double
     )
-        fun record(durationNs: Long) {
+
+    fun record(durationNs: Long) {
         val us = durationNs / 1000
         latencies.add(us)
         sumLatency.addAndGet(us)
         totalSamples.incrementAndGet()
         while (latencies.size > maxSamples) { latencies.poll() }
     }
-        fun getStats(): LatencyStats {
+
+    fun getStats(): LatencyStats {
         val sorted = latencies.sorted()
         val count = totalSamples.get()
         val avg = if (count > 0) sumLatency.get().toDouble() / count else 0.0
@@ -325,7 +364,8 @@ class LatencyTracker(private val name: String) {
             p999Us = percentile(sorted, 99.9)
         )
     }
-        private fun percentile(sorted: List<Long>, pct: Double): Double {
+
+    private fun percentile(sorted: List<Long>, pct: Double): Double {
         if (sorted.isEmpty()) return 0.0
         val index = ((sorted.size - 1) * pct / 100.0).roundToLong().toInt()
         return sorted[index.coerceIn(0, sorted.lastIndex)].toDouble()
@@ -340,24 +380,28 @@ class HealthChecker(private val name: String = "health") {
         val lastCheckTime: Long,
         val uptimeMs: Long
     )
-        data class CheckResult(
+
+    data class CheckResult(
         val checkName: String,
         val passed: Boolean,
         val message: String,
         val responseTimeMs: Long
     )
-        private val checks = CopyOnWriteArrayList<HealthCheck>()
-        private val startTime = System.currentTimeMillis()
-        private val failedChecks = AtomicLong(0)
-        private val totalChecks = AtomicLong(0)
-        interface HealthCheck {
+
+    private val checks = CopyOnWriteArrayList<HealthCheck>()
+    private val startTime = System.currentTimeMillis()
+    private val failedChecks = AtomicLong(0)
+    private val totalChecks = AtomicLong(0)
+
+    interface HealthCheck {
         val name: String
         suspend fun check(): CheckResult
     }
-        abstract class AbstractHealthCheck(override val name: String) : HealthCheck {
+
+    abstract class AbstractHealthCheck(override val name: String) : HealthCheck {
         override suspend fun check(): CheckResult {
             val start = System.currentTimeMillis()
-        return try {
+            return try {
                 doCheck().let { ok ->
                     CheckResult(name, ok, if (ok) "OK" else "Failed", System.currentTimeMillis() - start)
                 }
@@ -367,11 +411,14 @@ class HealthChecker(private val name: String = "health") {
         }
         protected abstract suspend fun doCheck(): Boolean
     }
-        fun registerCheck(check: HealthCheck) { checks.add(check) }
-        fun unregisterCheck(name: String) {
+
+    fun registerCheck(check: HealthCheck) { checks.add(check) }
+
+    fun unregisterCheck(name: String) {
         checks.removeAll { it.name == name }
     }
-        suspend fun performHealthCheck(): HealthStatus {
+
+    suspend fun performHealthCheck(): HealthStatus {
         val results = checks.map { it.check() }
         val allHealthy = results.all { it.passed }
         val failed = results.count { !it.passed }
@@ -385,7 +432,8 @@ class HealthChecker(private val name: String = "health") {
             uptimeMs = System.currentTimeMillis() - startTime
         )
     }
-        data class HealthSummary(
+
+    data class HealthSummary(
         val isHealthy: Boolean,
         val totalChecks: Long,
         val passedChecks: Long,
@@ -393,7 +441,8 @@ class HealthChecker(private val name: String = "health") {
         val uptimeSeconds: Long,
         val checkDetails: Map<String, Boolean>
     )
-        suspend fun getSummary(): HealthSummary {
+
+    suspend fun getSummary(): HealthSummary {
         val status = performHealthCheck()
         return HealthSummary(
             isHealthy = status.isHealthy,
@@ -404,7 +453,8 @@ class HealthChecker(private val name: String = "health") {
             checkDetails = status.checks.associate { it.checkName to it.passed }
         )
     }
-        fun getUptimeSeconds(): Long = (System.currentTimeMillis() - startTime) / 1000
+
+    fun getUptimeSeconds(): Long = (System.currentTimeMillis() - startTime) / 1000
 }
 
 class ResourceMonitor(private val name: String = "resource-monitor") {
@@ -415,33 +465,38 @@ class ResourceMonitor(private val name: String = "resource-monitor") {
         val gcLoadPercent: Double,
         val ioWaitEstimate: Double
     )
-        private val runtime = Runtime.getRuntime()
-        private val memoryBean = ManagementFactory.getMemoryMXBean()
-        private val osBean = ManagementFactory.getOperatingSystemMXBean()
-        private val threadBean = ManagementFactory.getThreadMXBean()
-        private val gcBeans = ManagementFactory.getGarbageCollectorMXBeans()
-        private val previousGcTime = AtomicLong(0)
-        private val previousGcCount = AtomicLong(0)
-        private val sampleCount = AtomicInteger(0)
-        fun getCurrentUsage(): ResourceUsage {
+
+    private val runtime = Runtime.getRuntime()
+    private val memoryBean = ManagementFactory.getMemoryMXBean()
+    private val osBean = ManagementFactory.getOperatingSystemMXBean()
+    private val threadBean = ManagementFactory.getThreadMXBean()
+    private val gcBeans = ManagementFactory.getGarbageCollectorMXBeans()
+    private val previousGcTime = AtomicLong(0)
+    private val previousGcCount = AtomicLong(0)
+    private val sampleCount = AtomicInteger(0)
+
+    fun getCurrentUsage(): ResourceUsage {
         val heap = memoryBean.heapMemoryUsage
         val maxMemory = heap.max.coerceAtLeast(1)
         val usedMemory = heap.used
         val memoryPercent = usedMemory.toDouble() / maxMemory * 100.0
 
         val cpu = try {
-        val method = osBean.javaClass.getMethod("getProcessCpuLoad")
+            val method = osBean.javaClass.getMethod("getProcessCpuLoad")
             ((method.invoke(osBean) as? Double) ?: 0.0).coerceAtLeast(0.0) * 100.0
         } catch (e: Exception) { 0.0 }
+
         val gcTime = gcBeans.sumOf { it.collectionTime }
         val gcCount = gcBeans.sumOf { it.collectionCount }
         val prevGcTime = previousGcTime.getAndSet(gcTime)
         val prevGcCount = previousGcCount.getAndSet(gcCount)
+
         val gcLoadPercent = if (sampleCount.get() > 0 && prevGcTime > 0) {
             ((gcTime - prevGcTime).toDouble() / 100.0).coerceIn(0.0, 100.0)
         } else 0.0
 
         sampleCount.incrementAndGet()
+
         return ResourceUsage(
             cpuPercent = cpu,
             memoryPercent = memoryPercent,
@@ -450,11 +505,13 @@ class ResourceMonitor(private val name: String = "resource-monitor") {
             ioWaitEstimate = 0.0
         )
     }
-        fun isHealthy(): Boolean {
+
+    fun isHealthy(): Boolean {
         val usage = getCurrentUsage()
         return usage.cpuPercent < 90 && usage.memoryPercent < 90 && usage.threadCount < 500
     }
-        fun getStats(): Map<String, Any> = mapOf(
+
+    fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "cpuPercent" to getCurrentUsage().cpuPercent,
         "memoryPercent" to getCurrentUsage().memoryPercent,
@@ -465,10 +522,11 @@ class ResourceMonitor(private val name: String = "resource-monitor") {
 
 class JvmProfiler(private val name: String = "jvm-profiler") {
     private val threadBean = ManagementFactory.getThreadMXBean()
-        private val memoryBean = ManagementFactory.getMemoryMXBean()
-        private val classBean = ManagementFactory.getClassLoadingMXBean()
-        private val compilBean = ManagementFactory.getCompilationMXBean()
-        data class JvmSnapshot(
+    private val memoryBean = ManagementFactory.getMemoryMXBean()
+    private val classBean = ManagementFactory.getClassLoadingMXBean()
+    private val compilBean = ManagementFactory.getCompilationMXBean()
+
+    data class JvmSnapshot(
         val timestamp: Long,
         val threadCount: Int,
         val daemonThreadCount: Int,
@@ -485,7 +543,8 @@ class JvmProfiler(private val name: String = "jvm-profiler") {
         val currentCpuTime: Long,
         val currentUserTime: Long
     )
-        fun takeSnapshot(): JvmSnapshot {
+
+    fun takeSnapshot(): JvmSnapshot {
         return JvmSnapshot(
             timestamp = System.currentTimeMillis(),
             threadCount = threadBean.threadCount,
@@ -508,31 +567,37 @@ class JvmProfiler(private val name: String = "jvm-profiler") {
 
 class PerformanceReport(private val name: String = "report") {
     private val sections = mutableListOf<ReportSection>()
-        data class ReportSection(
+
+    data class ReportSection(
         val title: String,
         val metrics: Map<String, Any>
     )
-        fun addSection(title: String, metrics: Map<String, Any>) {
+
+    fun addSection(title: String, metrics: Map<String, Any>) {
         sections.add(ReportSection(title, metrics))
     }
-        fun generate(): String {
+
+    fun generate(): String {
         val sb = StringBuilder()
         sb.appendLine("=================================================================")
         sb.appendLine("  Performance Report: $name")
         sb.appendLine("  Generated: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())}")
         sb.appendLine("=================================================================")
         sb.appendLine()
+
         for ((index, section) in sections.withIndex()) {
             sb.appendLine("--- ${index + 1}. ${section.title} ---")
-        for ((key, value) in section.metrics) {
+            for ((key, value) in section.metrics) {
                 sb.appendLine("  $key: $value")
             }
-        sb.appendLine()
+            sb.appendLine()
         }
+
         sb.appendLine("=================================================================")
         return sb.toString()
     }
-        fun generateJson(): String {
+
+    fun generateJson(): String {
         val json = StringBuilder()
         json.appendLine("{")
         json.appendLine("  \"report\": \"$name\",")
@@ -540,57 +605,59 @@ class PerformanceReport(private val name: String = "report") {
         json.appendLine("  \"sections\": [")
         for ((index, section) in sections.withIndex()) {
             json.appendLine("    {")
-        json.appendLine("      \"title\": \"${section.title}\",")
-        json.appendLine("      \"metrics\": {")
-        val entries = section.metrics.entries.toList()
-        for ((i, entry) in entries.withIndex()) {
+            json.appendLine("      \"title\": \"${section.title}\",")
+            json.appendLine("      \"metrics\": {")
+            val entries = section.metrics.entries.toList()
+            for ((i, entry) in entries.withIndex()) {
                 val comma = if (i < entries.lastIndex) "," else ""
-        json.appendLine("        \"${entry.key}\": ${entry.value}$comma")
+                json.appendLine("        \"${entry.key}\": ${entry.value}$comma")
             }
-        json.appendLine("      }")
-        val comma = if (index < sections.lastIndex) "," else ""
-        json.appendLine("    }$comma")
+            json.appendLine("      }")
+            val comma = if (index < sections.lastIndex) "," else ""
+            json.appendLine("    }$comma")
         }
         json.appendLine("  ]")
         json.appendLine("}")
         return json.toString()
     }
-        companion object {
+
+    companion object {
         fun fromCollector(
             collector: MetricsCollector,
             metricName: String = "system"
         ): PerformanceReport {
             val report = PerformanceReport(metricName)
-        val metrics = collector.getLatestMetrics()
-        if (metrics != null) {
+            val metrics = collector.getLatestMetrics()
+            if (metrics != null) {
                 report.addSection("CPU", mapOf(
                     "usage" to "${"%.1f".format(metrics.cpuUsagePercent)}%",
                     "load" to "${"%.2f".format(metrics.systemLoadAverage)}",
                     "processLoad" to "${"%.2f".format(metrics.processCpuLoad)}"
                 ))
-        report.addSection("Memory", mapOf(
+                report.addSection("Memory", mapOf(
                     "heapUsed" to formatBytes(metrics.heapUsedBytes),
                     "heapMax" to formatBytes(metrics.heapMaxBytes),
                     "heapUsage" to "${"%.1f".format(metrics.heapUsedBytes.toDouble() / metrics.heapMaxBytes.coerceAtLeast(1) * 100)}%",
                     "nonHeapUsed" to formatBytes(metrics.nonHeapUsedBytes)
                 ))
-        report.addSection("Threads", mapOf(
+                report.addSection("Threads", mapOf(
                     "active" to metrics.threadCount,
                     "peak" to metrics.peakThreadCount
                 ))
-        report.addSection("GC", mapOf(
+                report.addSection("GC", mapOf(
                     "totalCollections" to metrics.gcCount,
                     "totalTimeMs" to metrics.gcTimeMs
                 ))
             }
-        return report
+            return report
         }
+
         private fun formatBytes(bytes: Long): String {
             return when {
                 bytes < 1024 -> "$bytes B"
-        bytes < 1024 * 1024 -> "${"%.1f".format(bytes / 1024.0)} KB"
-        bytes < 1024 * 1024 * 1024 -> "${"%.1f".format(bytes / (1024.0 * 1024.0))} MB"
-        else -> "${"%.2f".format(bytes / (1024.0 * 1024.0 * 1024.0))} GB"
+                bytes < 1024 * 1024 -> "${"%.1f".format(bytes / 1024.0)} KB"
+                bytes < 1024 * 1024 * 1024 -> "${"%.1f".format(bytes / (1024.0 * 1024.0))} MB"
+                else -> "${"%.2f".format(bytes / (1024.0 * 1024.0 * 1024.0))} GB"
             }
         }
     }

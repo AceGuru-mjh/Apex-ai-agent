@@ -20,7 +20,8 @@ class ShowerBinderReceiver : BroadcastReceiver() {
         AppLogger.d(TAG, "onReceive: service=${service} alive=${alive}")
         ShowerBinderRegistry.setService(service)
     }
-        companion object {
+
+    companion object {
         private const val TAG = "ShowerBinderReceiver"
         const val ACTION_SHOWER_BINDER_READY = "com.apex.action.SHOWER_BINDER_READY"
         const val EXTRA_BINDER_CONTAINER = "binder_container"

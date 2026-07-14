@@ -54,18 +54,18 @@ data class RenderTree(
 class StreamingMarkdownRenderer {
 
     private val buffer = StringBuilder()
-        private val root = RenderNode(RenderNodeType.TEXT)
-        private var currentNode: RenderNode = root
+    private val root = RenderNode(RenderNodeType.TEXT)
+    private var currentNode: RenderNode = root
 
     // 解析状态
-        private var inCodeBlock = false
+    private var inCodeBlock = false
     private var codeBlockLang = ""
-        private var codeBlockBuffer = StringBuilder()
-        private var inTable = false
+    private var codeBlockBuffer = StringBuilder()
+    private var inTable = false
     private var tableRows = mutableListOf<List<String>>()
-        private var inThinkingBlock = false
+    private var inThinkingBlock = false
     private var thinkingBuffer = StringBuilder()
-        private var inList = false
+    private var inList = false
     private var listItems = mutableListOf<String>()
 
     /**
@@ -77,9 +77,11 @@ class StreamingMarkdownRenderer {
         // 按行处理（保留最后不完整的行）
         val lines = buffer.toString().split("\n")
         val completeLines = if (buffer.endsWith("\n")) lines.dropLast(1) else lines.dropLast(1)
+
         for (line in completeLines) {
             processLine(line)
         }
+
         return buildRenderTree()
     }
 
@@ -90,10 +92,10 @@ class StreamingMarkdownRenderer {
         // 处理缓冲区剩余内容
         if (buffer.isNotEmpty()) {
             val remaining = buffer.toString().split("\n")
-        for (line in remaining) {
+            for (line in remaining) {
                 processLine(line)
             }
-        buffer.clear()
+            buffer.clear()
         }
 
         // 关闭所有未闭合的结构
@@ -104,8 +106,8 @@ class StreamingMarkdownRenderer {
                 attributes = mapOf("lang" to codeBlockLang),
                 complete = true
             ))
-        codeBlockBuffer.clear()
-        inCodeBlock = false
+            codeBlockBuffer.clear()
+            inCodeBlock = false
         }
         if (inTable) {
             finalizeTable()
@@ -119,84 +121,86 @@ class StreamingMarkdownRenderer {
                 content = thinkingBuffer.toString(),
                 complete = true
             ))
-        thinkingBuffer.clear()
-        inThinkingBlock = false
+            thinkingBuffer.clear()
+            inThinkingBlock = false
         }
+
         return buildRenderTree().copy(streamingNode = null)
     }
 
     // ============ 内部方法 ============
-        private fun processLine(line: String) {
+
+    private fun processLine(line: String) {
         when {
             // 代码块开始/结束
-        line.trimStart().startsWith("```") -> {
+            line.trimStart().startsWith("```") -> {
                 if (inCodeBlock) {
                     // 结束代码块
-        root.children.add(RenderNode(
+                    root.children.add(RenderNode(
                         type = RenderNodeType.CODE_BLOCK,
                         content = codeBlockBuffer.toString(),
                         attributes = mapOf("lang" to codeBlockLang),
                         complete = true
                     ))
-        codeBlockBuffer.clear()
-        codeBlockLang = ""
-        inCodeBlock = false
+                    codeBlockBuffer.clear()
+                    codeBlockLang = ""
+                    inCodeBlock = false
                 } else {
                     // 开始代码块
-        codeBlockLang = line.trimStart().removePrefix("```").trim()
-        inCodeBlock = true
+                    codeBlockLang = line.trimStart().removePrefix("```").trim()
+                    inCodeBlock = true
                 }
             }
-        inCodeBlock -> {
+            inCodeBlock -> {
                 codeBlockBuffer.appendLine(line)
             }
             // 思考块 <think>
-        line.trim() == "<think>" -> {
+            line.trim() == "<think>" -> {
                 inThinkingBlock = true
             }
-        line.trim() == "</think>" -> {
+            line.trim() == "</think>" -> {
                 root.children.add(RenderNode(
                     type = RenderNodeType.THINKING_BLOCK,
                     content = thinkingBuffer.toString(),
                     complete = true
                 ))
-        thinkingBuffer.clear()
-        inThinkingBlock = false
+                thinkingBuffer.clear()
+                inThinkingBlock = false
             }
-        inThinkingBlock -> {
+            inThinkingBlock -> {
                 thinkingBuffer.appendLine(line)
             }
             // 表格行（含 |）
-        line.contains("|") && line.trim().startsWith("|") -> {
+            line.contains("|") && line.trim().startsWith("|") -> {
                 if (!inTable) inTable = true
                 val cells = line.trim().trim('|').split("|").map { it.trim() }
                 // 跳过分隔行 |---|---|
-        if (!cells.all { it.matches(Regex("[-:]+")) }) {
+                if (!cells.all { it.matches(Regex("[-:]+")) }) {
                     tableRows.add(cells)
                 }
             }
-        inTable && !line.contains("|") -> {
+            inTable && !line.contains("|") -> {
                 // 表格结束
-        finalizeTable()
-        processLine(line)  // 递归处理当前行
+                finalizeTable()
+                processLine(line)  // 递归处理当前行
             }
             // 列表
-        line.matches(Regex("^\\s*[-*+]\\s+.+")) -> {
+            line.matches(Regex("^\\s*[-*+]\\s+.+")) -> {
                 if (!inList) inList = true
                 listItems.add(line.trim().removePrefix("-").removePrefix("*").removePrefix("+").trim())
             }
-        line.matches(Regex("^\\s*\\d+\\.\\s+.+")) -> {
+            line.matches(Regex("^\\s*\\d+\\.\\s+.+")) -> {
                 if (!inList) inList = true
                 listItems.add(line.trim().replace(Regex("^\\d+\\.\\s+"), ""))
             }
-        inList && line.isBlank() -> {
+            inList && line.isBlank() -> {
                 finalizeList()
             }
             // 标题
-        line.matches(Regex("^#{1,6}\\s+.+")) -> {
+            line.matches(Regex("^#{1,6}\\s+.+")) -> {
                 val level = line.takeWhile { it == '#' }.length
-        val content = line.dropWhile { it == '#' }.trim()
-        root.children.add(RenderNode(
+                val content = line.dropWhile { it == '#' }.trim()
+                root.children.add(RenderNode(
                     type = RenderNodeType.HEADING,
                     content = content,
                     attributes = mapOf("level" to level.toString()),
@@ -204,7 +208,7 @@ class StreamingMarkdownRenderer {
                 ))
             }
             // 引用
-        line.startsWith("> ") -> {
+            line.startsWith("> ") -> {
                 root.children.add(RenderNode(
                     type = RenderNodeType.BLOCKQUOTE,
                     content = line.removePrefix("> ").trim(),
@@ -212,16 +216,16 @@ class StreamingMarkdownRenderer {
                 ))
             }
             // 分割线
-        line.matches(Regex("^[-*_]{3,}$")) -> {
+            line.matches(Regex("^[-*_]{3,}$")) -> {
                 root.children.add(RenderNode(
                     type = RenderNodeType.HORIZONTAL_RULE,
                     complete = true
                 ))
             }
             // 空行
-        line.isBlank() -> { /* 忽略 */ }
+            line.isBlank() -> { /* 忽略 */ }
             // 普通段落
-        else -> {
+            else -> {
                 root.children.add(RenderNode(
                     type = RenderNodeType.PARAGRAPH,
                     content = line,
@@ -230,7 +234,8 @@ class StreamingMarkdownRenderer {
             }
         }
     }
-        private fun finalizeTable() {
+
+    private fun finalizeTable() {
         if (tableRows.isNotEmpty()) {
             root.children.add(RenderNode(
                 type = RenderNodeType.TABLE,
@@ -248,7 +253,8 @@ class StreamingMarkdownRenderer {
         tableRows.clear()
         inTable = false
     }
-        private fun finalizeList() {
+
+    private fun finalizeList() {
         if (listItems.isNotEmpty()) {
             root.children.add(RenderNode(
                 type = RenderNodeType.LIST,
@@ -261,7 +267,8 @@ class StreamingMarkdownRenderer {
         listItems.clear()
         inList = false
     }
-        private fun buildRenderTree(): RenderTree {
+
+    private fun buildRenderTree(): RenderTree {
         val completed = root.children.filter { it.complete }
         val streaming = root.children.lastOrNull { !it.complete }
         return RenderTree(

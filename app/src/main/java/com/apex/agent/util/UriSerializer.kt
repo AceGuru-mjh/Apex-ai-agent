@@ -10,10 +10,12 @@ import kotlinx.serialization.encoding.Encoder
 
 object UriSerializer : KSerializer<Uri?> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Uri", PrimitiveKind.STRING)
-        override fun serialize(encoder: Encoder, value: Uri) {
+
+    override fun serialize(encoder: Encoder, value: Uri) {
         encoder.encodeString(value?.toString() ?: "")
     }
-        override fun deserialize(decoder: Decoder): Uri? {
+
+    override fun deserialize(decoder: Decoder): Uri? {
         val string = decoder.decodeString()
         return if (string.isEmpty()) null else Uri.parse(string)
     }

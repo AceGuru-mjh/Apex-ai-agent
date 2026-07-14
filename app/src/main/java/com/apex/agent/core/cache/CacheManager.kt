@@ -76,21 +76,21 @@ class CacheManager<V>(
         // L1
         memoryStore.get(key)?.let { entry ->
             recordAccess(key)
-        return entry.value
+            return entry.value
         }
         // L2
         diskStore?.get(key)?.let { entry ->
             memoryStore.put(CacheEntry(key, entry.value))
-        recordAccess(key)
-        return entry.value
+            recordAccess(key)
+            return entry.value
         }
         // L3
         distributedStore?.get(key)?.let { entry ->
             val v = entry.value
             memoryStore.put(CacheEntry(key, v))
-        diskStore?.put(CacheEntry(key, v.toString()))
-        recordAccess(key)
-        return v
+            diskStore?.put(CacheEntry(key, v.toString()))
+            recordAccess(key)
+            return v
         }
         return null
     }
@@ -200,7 +200,7 @@ class CacheManager<V>(
                 val entry = memoryStore.get(key) ?: return false
                 policy.isExpired(entry)
             }
-        else -> true
+            else -> true
         }
         if (result) {
             remove(key)
@@ -225,16 +225,16 @@ class CacheManager<V>(
                 loaded++
                 continue
             }
-        val fromDisk = diskStore?.get(key)
-        if (fromDisk != null) {
+            val fromDisk = diskStore?.get(key)
+            if (fromDisk != null) {
                 memoryStore.put(CacheEntry(key, fromDisk.value as V))
-        loaded++
+                loaded++
                 continue
             }
-        val fromRemote = distributedStore?.get(key)
-        if (fromRemote != null) {
+            val fromRemote = distributedStore?.get(key)
+            if (fromRemote != null) {
                 memoryStore.put(CacheEntry(key, fromRemote.value))
-        loaded++
+                loaded++
                 continue
             }
         }
@@ -246,8 +246,8 @@ class CacheManager<V>(
     fun close() {
         if (closed.compareAndSet(false, true)) {
             flushWriteBack()
-        writeBackScheduler?.shutdown()
-        try {
+            writeBackScheduler?.shutdown()
+            try {
                 writeBackScheduler?.awaitTermination(5, TimeUnit.SECONDS)
             } catch (_: InterruptedException) {
                 writeBackScheduler?.shutdownNow()
@@ -262,10 +262,10 @@ class CacheManager<V>(
             diskStore?.get(key)?.let { entry ->
                 memoryStore.put(CacheEntry(key, entry.value as V))
             }
-        distributedStore?.get(key)?.let { entry ->
+            distributedStore?.get(key)?.let { entry ->
                 memoryStore.put(CacheEntry(key, entry.value))
             }
-        accessCounters[key]?.set(0)
+            accessCounters[key]?.set(0)
         }
     }
 
@@ -296,7 +296,7 @@ class CacheManager<V>(
                 diskStore?.put(CacheEntry(entry.key, entry.value.toString()))
             } catch (e: Exception) {
                 log.warn("flushWriteBack failed for key '{}': {}", entry.key, e.message)
-        writeBackQueue[entry.key] = entry
+                writeBackQueue[entry.key] = entry
             }
         }
     }

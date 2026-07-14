@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * 聊天服务核心，* 
+ * 聊天服务核心�?* 
  * 整合所有聊天业务逻辑，可的FloatingChatService ，ChatViewModel 使用
  * 生命周期独立，ViewModel，绑定到传入，CoroutineScope
  */
@@ -37,11 +37,10 @@ class ChatServiceCore(
         private const val TAG = "ChatServiceCore"
     }
 
-    // EnhancedAIService 实例（全局单例，
-        private var enhancedAiService: EnhancedAIService? = null
+    // EnhancedAIService 实例（全局单例�?   private var enhancedAiService: EnhancedAIService? = null
 
     // 委托实例
-        private lateinit var messageProcessingDelegate: MessageProcessingDelegate
+    private lateinit var messageProcessingDelegate: MessageProcessingDelegate
     private lateinit var chatHistoryDelegate: ChatHistoryDelegate
     private lateinit var apiConfigDelegate: ApiConfigDelegate
     private lateinit var tokenStatisticsDelegate: TokenStatisticsDelegate
@@ -49,23 +48,21 @@ class ChatServiceCore(
     private lateinit var uiStateDelegate: UiStateDelegate
     private lateinit var messageCoordinationDelegate: MessageCoordinationDelegate
 
-    // 初始化状态
-        private var initialized = false
+    // 初始化状�?   private var initialized = false
 
-    // 回调：当 EnhancedAIService 初始化或更新，
-        private var onEnhancedAiServiceReady: ((EnhancedAIService) -> Unit)? = null
+    // 回调：当 EnhancedAIService 初始化或更新�?   private var onEnhancedAiServiceReady: ((EnhancedAIService) -> Unit)? = null
     
     // 额外，onTurnComplete 回调（用于悬浮窗通知应用等场景）
-        private var additionalOnTurnComplete: ((String?, Int, Int, Int) -> Unit)? = null
+    private var additionalOnTurnComplete: ((String?, Int, Int, Int) -> Unit)? = null
     private var uiBridge: ChatServiceUiBridge = EmptyChatServiceUiBridge
 
     init {
-        AppLogger.d(TAG, "ChatServiceCore 初始，"
+        AppLogger.d(TAG, "ChatServiceCore 初始�?
         initializeDelegates()
     }
-        private fun initializeDelegates() {
-        // 初始，UI 状态委，
-        uiStateDelegate = UiStateDelegate()
+    
+    private fun initializeDelegates() {
+        // 初始，UI 状态委�?       uiStateDelegate = UiStateDelegate()
         
         // 初始，API 配置委托
         apiConfigDelegate = ApiConfigDelegate(
@@ -73,11 +70,9 @@ class ChatServiceCore(
             coroutineScope = coroutineScope,
             onConfigChanged = { service ->
                 enhancedAiService = service
-                // 当服务初始化后，设置 token 统计收集后
-        tokenStatisticsDelegate.setupCollectors()
-                // 通知外部监听于
-        onEnhancedAiServiceReady?.invoke(service)
-        AppLogger.d(TAG, "EnhancedAIService 已更新）"
+                // 当服务初始化后，设置 token 统计收集�?               tokenStatisticsDelegate.setupCollectors()
+                // 通知外部监听�?               onEnhancedAiServiceReady?.invoke(service)
+                AppLogger.d(TAG, "EnhancedAIService 已更新）
             }
         )
 
@@ -87,41 +82,40 @@ class ChatServiceCore(
             getEnhancedAiService = { enhancedAiService }
         )
 
-        // 初始化附件委，
-        attachmentDelegate = AttachmentDelegate(
+        // 初始化附件委�?       attachmentDelegate = AttachmentDelegate(
             context = context,
             toolHandler = AIToolHandler.getInstance(context)
         )
 
-        // 初始化聊天历史委，
-        chatHistoryDelegate = ChatHistoryDelegate(
+        // 初始化聊天历史委�?       chatHistoryDelegate = ChatHistoryDelegate(
             context = context,
             coroutineScope = coroutineScope,
             selectionMode = selectionMode,
             onTokenStatisticsLoaded = { chatId, inputTokens, outputTokens, windowSize ->
                 tokenStatisticsDelegate.setActiveChatId(chatId)
-        tokenStatisticsDelegate.setTokenCounts(chatId, inputTokens, outputTokens, windowSize)
+                tokenStatisticsDelegate.setTokenCounts(chatId, inputTokens, outputTokens, windowSize)
             },
             getEnhancedAiService = { enhancedAiService },
             ensureAiServiceAvailable = {
                 // 确保 AI 服务可用
-        if (enhancedAiService == null) {
+                if (enhancedAiService == null) {
                     enhancedAiService = EnhancedAIService.getInstance(context)
                 }
             },
             getChatStatistics = {
                 val (inputTokens, outputTokens) = tokenStatisticsDelegate.getCumulativeTokenCounts()
-        val windowSize = tokenStatisticsDelegate.getLastCurrentWindowSize()
-        Triple(inputTokens, outputTokens, windowSize)
+                val windowSize = tokenStatisticsDelegate.getLastCurrentWindowSize()
+                Triple(inputTokens, outputTokens, windowSize)
             },
             onScrollToBottom = {
                 messageProcessingDelegate.scrollToBottom()
             }
         )
+
         coroutineScope.launch {
             chatHistoryDelegate.currentChatId.collect { chatId ->
                 tokenStatisticsDelegate.setActiveChatId(chatId)
-        if (chatId != null) {
+                if (chatId != null) {
                     tokenStatisticsDelegate.bindChatService(
                         chatId,
                         EnhancedAIService.getChatInstance(context, chatId)
@@ -130,8 +124,7 @@ class ChatServiceCore(
             }
         }
 
-        // 初始化消息处理委，
-        messageProcessingDelegate = MessageProcessingDelegate(
+        // 初始化消息处理委�?       messageProcessingDelegate = MessageProcessingDelegate(
             context = context,
             coroutineScope = coroutineScope,
             getEnhancedAiService = { enhancedAiService },
@@ -141,8 +134,8 @@ class ChatServiceCore(
             },
             saveCurrentChat = {
                 val (inputTokens, outputTokens) = tokenStatisticsDelegate.getCumulativeTokenCounts()
-        val windowSize = tokenStatisticsDelegate.getLastCurrentWindowSize()
-        chatHistoryDelegate.saveCurrentChat(inputTokens, outputTokens, windowSize)
+                val windowSize = tokenStatisticsDelegate.getLastCurrentWindowSize()
+                chatHistoryDelegate.saveCurrentChat(inputTokens, outputTokens, windowSize)
             },
             showErrorMessage = { error ->
                 AppLogger.e(TAG, "错误: ${error}")
@@ -153,11 +146,11 @@ class ChatServiceCore(
             },
             onTurnComplete = { chatId, service, nextWindowSize ->
                 tokenStatisticsDelegate.updateCumulativeStatistics(chatId, service)
-        val (inputTokens, outputTokens) = tokenStatisticsDelegate.getCumulativeTokenCounts(chatId)
-        val windowSize = nextWindowSize ?: tokenStatisticsDelegate.getLastCurrentWindowSize(chatId)
-        tokenStatisticsDelegate.setTokenCounts(chatId, inputTokens, outputTokens, windowSize)
-        chatHistoryDelegate.saveCurrentChat(inputTokens, outputTokens, windowSize, chatIdOverride = chatId)
-        additionalOnTurnComplete?.invoke(chatId, inputTokens, outputTokens, windowSize)
+                val (inputTokens, outputTokens) = tokenStatisticsDelegate.getCumulativeTokenCounts(chatId)
+                val windowSize = nextWindowSize ?: tokenStatisticsDelegate.getLastCurrentWindowSize(chatId)
+                tokenStatisticsDelegate.setTokenCounts(chatId, inputTokens, outputTokens, windowSize)
+                chatHistoryDelegate.saveCurrentChat(inputTokens, outputTokens, windowSize, chatIdOverride = chatId)
+                additionalOnTurnComplete?.invoke(chatId, inputTokens, outputTokens, windowSize)
             },
             getIsAutoReadEnabled = {
                 apiConfigDelegate.enableAutoRead.value
@@ -175,8 +168,7 @@ class ChatServiceCore(
             }
         )
 
-        // 初始化消息协调委，
-        messageCoordinationDelegate = MessageCoordinationDelegate(
+        // 初始化消息协调委�?       messageCoordinationDelegate = MessageCoordinationDelegate(
             context = context,
             coroutineScope = coroutineScope,
             chatHistoryDelegate = chatHistoryDelegate,
@@ -188,20 +180,22 @@ class ChatServiceCore(
             getEnhancedAiService = { enhancedAiService },
             uiBridge = uiBridge
         )
+
         chatHistoryDelegate.setBeforeDestructiveHistoryMutation { chatId ->
             messageCoordinationDelegate.cancelSummaryForDestructiveMutation(chatId)
-        messageProcessingDelegate.cancelMessageForDestructiveMutation(chatId)
+            messageProcessingDelegate.cancelMessageForDestructiveMutation(chatId)
         }
         chatHistoryDelegate.setAfterDestructiveHistoryMutation { chatId ->
             messageCoordinationDelegate.refreshStableContextWindow(chatId = chatId)
         }
+
         initialized = true
-        AppLogger.d(TAG, "所有委托已初始，"
+        AppLogger.d(TAG, "所有委托已初始�?
     }
 
     // ========== 消息处理相关 ==========
 
-    /** 发送用户消息（使用 MessageCoordinationDelegate，包含总结逻辑，/
+    /** 发送用户消息（使用 MessageCoordinationDelegate，包含总结逻辑�?/
     fun sendUserMessage(
         promptFunctionType: PromptFunctionType = PromptFunctionType.CHAT,
         roleCardIdOverride: String? = null,
@@ -232,7 +226,8 @@ class ChatServiceCore(
             messageProcessingDelegate.cancelMessage(chatId)
         }
     }
-        fun cancelMessage(chatId: String) {
+
+    fun cancelMessage(chatId: String) {
         messageCoordinationDelegate.cancelSummaryForChat(chatId)
         messageProcessingDelegate.cancelMessage(chatId)
     }
@@ -241,7 +236,8 @@ class ChatServiceCore(
     fun updateUserMessage(message: String) {
         messageProcessingDelegate.updateUserMessage(message)
     }
-        fun getResponseStream(chatId: String): SharedStream<String>? {
+
+    fun getResponseStream(chatId: String): SharedStream<String>? {
         return messageProcessingDelegate.getResponseStream(chatId)
     }
 
@@ -270,15 +266,13 @@ class ChatServiceCore(
     }
 
     /**
-     * 切换聊天（仅切换本地状态，不写回全局 currentChatId），     * 悬浮窗可用此方法在窗口内切换会话，但不影响主界面，
-    */
+     * 切换聊天（仅切换本地状态，不写回全局 currentChatId），     * 悬浮窗可用此方法在窗口内切换会话，但不影响主界面�?    */
     fun switchChatLocal(chatId: String) {
         chatHistoryDelegate.switchChat(chatId, syncToGlobal = false)
     }
 
     /**
-     * 将当前本，chatId 写回全局 currentChatId，用于“返回主应用”时同步，
-    */
+     * 将当前本，chatId 写回全局 currentChatId，用于“返回主应用”时同步�?    */
     fun syncCurrentChatIdToGlobal() {
         val chatId = chatHistoryDelegate.currentChatId.value ?: return
         chatHistoryDelegate.switchChat(chatId, syncToGlobal = true)
@@ -331,7 +325,7 @@ class ChatServiceCore(
         attachmentDelegate.removeAttachment(filePath)
     }
 
-    /** 清空所有附，/
+    /** 清空所有附�?/
     fun clearAttachments() {
         attachmentDelegate.clearAttachments()
     }
@@ -339,7 +333,7 @@ class ChatServiceCore(
     // ========== StateFlow 暴露 ==========
 
     // 消息处理相关
-        val userMessage: StateFlow<TextFieldValue>
+    val userMessage: StateFlow<TextFieldValue>
         get() = messageProcessingDelegate.userMessage
 
     val isLoading: StateFlow<Boolean>
@@ -364,7 +358,7 @@ class ChatServiceCore(
         get() = messageCoordinationDelegate.isSummarizing
 
     // 聊天历史相关
-        val chatHistory: StateFlow<List<ChatMessage>>
+    val chatHistory: StateFlow<List<ChatMessage>>
         get() = chatHistoryDelegate.chatHistory
 
     val currentChatId: StateFlow<String?>
@@ -377,7 +371,7 @@ class ChatServiceCore(
         get() = chatHistoryDelegate.showChatHistorySelector
 
     // API 配置相关
-        val enableThinkingMode: StateFlow<Boolean>
+    val enableThinkingMode: StateFlow<Boolean>
         get() = apiConfigDelegate.enableThinkingMode
 
     val enableThinkingGuidance: StateFlow<Boolean>
@@ -402,7 +396,7 @@ class ChatServiceCore(
         get() = apiConfigDelegate.enableTools
 
     // Token 统计相关
-        val cumulativeInputTokensFlow: StateFlow<Int>
+    val cumulativeInputTokensFlow: StateFlow<Int>
         get() = tokenStatisticsDelegate.cumulativeInputTokensFlow
 
     val cumulativeOutputTokensFlow: StateFlow<Int>
@@ -415,7 +409,7 @@ class ChatServiceCore(
         get() = tokenStatisticsDelegate.perRequestTokenCountFlow
 
     // 附件相关
-        val attachments: StateFlow<List<AttachmentInfo>>
+    val attachments: StateFlow<List<AttachmentInfo>>
         get() = attachmentDelegate.attachments
 
     val attachmentToastEvent: SharedFlow<String>
@@ -439,7 +433,7 @@ class ChatServiceCore(
     /** 获取 EnhancedAIService 实例 */
     fun getEnhancedAiService(): EnhancedAIService? = enhancedAiService
 
-    /** 检查是否已初始，/
+    /** 检查是否已初始�?/
     fun isInitialized(): Boolean = initialized
     
     /** 设置 EnhancedAIService 就绪回调 */
@@ -453,13 +447,15 @@ class ChatServiceCore(
     fun setAdditionalOnTurnComplete(callback: ((chatId: String?, inputTokens: Int, outputTokens: Int, windowSize: Int) -> Unit)) {
         additionalOnTurnComplete = callback
     }
-        fun setUiBridge(uiBridge: ChatServiceUiBridge) {
+
+    fun setUiBridge(uiBridge: ChatServiceUiBridge) {
         this.uiBridge = uiBridge
         if (::messageCoordinationDelegate.isInitialized) {
             messageCoordinationDelegate.setUiBridge(uiBridge)
         }
     }
-        fun setSpeakMessageHandler(handler: (String, Boolean) -> Unit) {
+
+    fun setSpeakMessageHandler(handler: (String, Boolean) -> Unit) {
         if (::messageProcessingDelegate.isInitialized) {
             messageProcessingDelegate.setSpeakMessageHandler(handler)
         }

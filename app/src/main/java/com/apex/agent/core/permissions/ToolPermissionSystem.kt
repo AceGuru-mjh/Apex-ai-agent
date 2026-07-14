@@ -32,9 +32,10 @@ private val Context.toolPermissionsDataStore: DataStore<Preferences> by preferen
  */
 enum class PermissionLevel {
     ALLOW,      // Allow automatically without asking
-        ASK,        // Always ask
-        FORBID;     // Never allow
-        companion object {
+    ASK,        // Always ask
+    FORBID;     // Never allow
+
+    companion object {
         fun fromString(value: String): PermissionLevel {
             return when (value) {
                 "ALLOW" -> ALLOW
@@ -72,32 +73,31 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         }
     }
     
-    // 工具权限存储：使，tool_permission_<tool_name>" 作为key"
-        private fun toolPermissionKey(toolName: String) = stringPreferencesKey("tool_permission_${toolName}")
+    // 工具权限存储：使�?tool_permission_<tool_name>" 作为key
+    private fun toolPermissionKey(toolName: String) = stringPreferencesKey("tool_permission_${toolName}")
     
     // Permission request management
-        private val mainHandler = Handler(Looper.getMainLooper())
-        private val permissionRequestOverlay = PermissionRequestOverlay(context)
-        private var currentPermissionCallback: ((PermissionRequestResult) -> Unit)? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val permissionRequestOverlay = PermissionRequestOverlay(context)
+    private var currentPermissionCallback: ((PermissionRequestResult) -> Unit)? = null
     private var permissionRequestInfo: Pair<AITool, String>? = null
     
     // 存储当前颜色方案
-        private var currentColorScheme: ColorScheme? = null
+    private var currentColorScheme: ColorScheme? = null
     
     /**
-     * 设置当前使用的颜色方，
-    */
+     * 设置当前使用的颜色方�?    */
     fun setColorScheme(colorScheme: ColorScheme) {
         this.currentColorScheme = colorScheme
         permissionRequestOverlay.setColorScheme(colorScheme)
     }
     
     // Permission request state flow
-        private val _permissionRequestState = MutableStateFlow<Pair<AITool, String>?>(null)
-        val permissionRequestState = _permissionRequestState.asStateFlow()
+    private val _permissionRequestState = MutableStateFlow<Pair<AITool, String>?>(null)
+    val permissionRequestState = _permissionRequestState.asStateFlow()
     
     // Permission level flows
-        val masterSwitchFlow: Flow<PermissionLevel> = context.toolPermissionsDataStore.data.map { preferences ->
+    val masterSwitchFlow: Flow<PermissionLevel> = context.toolPermissionsDataStore.data.map { preferences ->
         PermissionLevel.fromString(preferences[MASTER_SWITCH] ?: DEFAULT_MASTER_SWITCH)
     }
     
@@ -108,12 +108,12 @@ class ToolPermissionSystem private constructor(private val context: Context) {
     fun getToolPermissionFlow(toolName: String): Flow<PermissionLevel> {
         return context.toolPermissionsDataStore.data.map { preferences ->
             val key = toolPermissionKey(toolName)
-        PermissionLevel.fromString(preferences[key] ?: PermissionLevel.ASK.name)
+            PermissionLevel.fromString(preferences[key] ?: PermissionLevel.ASK.name)
         }
     }
     
     // Registry of operation descriptions by tool name
-        private val operationDescriptionRegistry = mutableMapOf<String, (AITool) -> String>()
+    private val operationDescriptionRegistry = mutableMapOf<String, (AITool) -> String>()
     
     /**
      * Register a description generator for a tool
@@ -137,13 +137,14 @@ class ToolPermissionSystem private constructor(private val context: Context) {
     suspend fun saveToolPermission(toolName: String, level: PermissionLevel) {
         context.toolPermissionsDataStore.edit { preferences ->
             val key = toolPermissionKey(toolName)
-        preferences[key] = level.name
+            preferences[key] = level.name
         }
     }
-        suspend fun clearToolPermission(toolName: String) {
+    
+    suspend fun clearToolPermission(toolName: String) {
         context.toolPermissionsDataStore.edit { preferences ->
             val key = toolPermissionKey(toolName)
-        preferences.remove(key)
+            preferences.remove(key)
         }
     }
     
@@ -154,7 +155,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         context.toolPermissionsDataStore.edit { preferences ->
             toolPermissions.forEach { (toolName, level) ->
                 val key = toolPermissionKey(toolName)
-        preferences[key] = level.name
+                preferences[key] = level.name
             }
         }
     }
@@ -168,7 +169,8 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         val key = toolPermissionKey(toolName)
         return PermissionLevel.fromString(preferences[key] ?: PermissionLevel.ASK.name)
     }
-        suspend fun getToolPermissionOverride(toolName: String): PermissionLevel? {
+    
+    suspend fun getToolPermissionOverride(toolName: String): PermissionLevel? {
         val preferences = context.toolPermissionsDataStore.data.first()
         val key = toolPermissionKey(toolName)
         val stored = preferences[key]
@@ -187,16 +189,18 @@ class ToolPermissionSystem private constructor(private val context: Context) {
      */
     suspend fun checkToolPermission(tool: AITool): Boolean {
         AppLogger.d(TAG, "Starting permission check: ${tool.name}")
+        
         val preferences = context.toolPermissionsDataStore.data.first()
         val masterSwitch = PermissionLevel.fromString(preferences[MASTER_SWITCH] ?: DEFAULT_MASTER_SWITCH)
         val key = toolPermissionKey(tool.name)
         val overrideLevel = preferences[key]?.let { PermissionLevel.fromString(it) }
+        
         val permissionLevel = overrideLevel ?: masterSwitch
         
         return when (permissionLevel) {
             PermissionLevel.ALLOW -> true
             PermissionLevel.ASK -> requestPermission(tool)
-        PermissionLevel.FORBID -> false
+            PermissionLevel.FORBID -> false
         }
     }
     
@@ -206,6 +210,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
     private suspend fun requestPermission(tool: AITool): Boolean {
         // Get operation description
         val operationDescription = getOperationDescription(tool)
+        
         AppLogger.d(TAG, "Requesting permission: ${tool.name}")
         
         // Clear existing request
@@ -219,40 +224,41 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         _permissionRequestState.value = requestInfo
         
         AppLogger.d(TAG, "Permission request state updated: ${tool.name}")
+        
         return withTimeoutOrNull(PERMISSION_REQUEST_TIMEOUT_MS) {
             suspendCancellableCoroutine { continuation ->
                 // Set callback
-        currentPermissionCallback = { result ->
+                currentPermissionCallback = { result ->
                     AppLogger.d(TAG, "Permission result received: ${result} for ${tool.name}")
                     // Clean up state
-        currentPermissionCallback = null
+                    currentPermissionCallback = null
                     permissionRequestInfo = null
                     _permissionRequestState.value = null
                     
                     // Handle result
-        when (result) {
+                    when (result) {
                         PermissionRequestResult.ALLOW -> continuation.resume(true)
-        PermissionRequestResult.DENY -> continuation.resume(false)
-        PermissionRequestResult.ALWAYS_ALLOW -> {
+                        PermissionRequestResult.DENY -> continuation.resume(false)
+                        PermissionRequestResult.ALWAYS_ALLOW -> {
                             // Save the permission and resume
-        tool.let {
+                            tool.let {
                                 val toolScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO)
-        toolScope.launch {
+                                toolScope.launch {
                                     saveToolPermission(it.name, PermissionLevel.ALLOW)
                                 }
                             }
-        continuation.resume(true)
+                            continuation.resume(true)
                         }
                     }
                 }
                 
                 // Start permission request on main thread
-        mainHandler.post {
+                mainHandler.post {
                     // Use overlay to show permission request
-        if (!permissionRequestOverlay.hasOverlayPermission()) {
+                    if (!permissionRequestOverlay.hasOverlayPermission()) {
                         AppLogger.w(TAG, "No overlay permission, requesting...")
-        permissionRequestOverlay.requestOverlayPermission()
-        currentPermissionCallback?.invoke(PermissionRequestResult.DENY)
+                        permissionRequestOverlay.requestOverlayPermission()
+                        currentPermissionCallback?.invoke(PermissionRequestResult.DENY)
                     } else {
                         permissionRequestOverlay.show(tool, operationDescription) { result ->
                             handlePermissionResult(result)
@@ -262,8 +268,8 @@ class ToolPermissionSystem private constructor(private val context: Context) {
             }
         } ?: run {
             // Timeout handling
-        AppLogger.d(TAG, "Permission request timed out: ${tool.name}")
-        currentPermissionCallback = null
+            AppLogger.d(TAG, "Permission request timed out: ${tool.name}")
+            currentPermissionCallback = null
             permissionRequestInfo = null
             _permissionRequestState.value = null
             false

@@ -9,8 +9,8 @@ import java.util.UUID
 /**
  * WorkerRegistry - Worker 插件发现系统
  *
- * 从插件系统发现可用的 Worker，支持
- * - 动态Worker 注册
+ * 从插件系统发现可用的 Worker，支�?
+ * - 动�?Worker 注册
  * - 基于能力和角色的匹配
  * - 负载均衡
  */
@@ -49,24 +49,23 @@ class WorkerRegistry private constructor() {
     }
 
     /**
-     * 任务执行上下文
-     */
+     * 任务执行上下�?     */
     data class TaskExecutionContext(
         val board: KanbanBoard,
         val column: KanbanColumn,
         val collaborationFramework: com.apex.agent.core.collaboration.AgentCollaborationFramework? = null,
         val additionalData: Map<String, Any> = emptyMap()
     )
-        private val registeredWorkers = mutableMapOf<String, Worker>()
-        private val workerListeners = mutableListOf<WorkerChangeListener>()
+
+    private val registeredWorkers = mutableMapOf<String, Worker>()
+    private val workerListeners = mutableListOf<WorkerChangeListener>()
 
     /**
-     * 注册 Worker (使用 PLUGIN 级别，
-     */
+     * 注册 Worker (使用 PLUGIN 级别�?     */
     fun registerWorker(worker: Worker): RegistrationResult {
         if (registeredWorkers.containsKey(worker.id)) {
             AppLogger.w(TAG, "Worker ${worker.id} already registered")
-        return RegistrationResult.ALREADY_EXISTS
+            return RegistrationResult.ALREADY_EXISTS
         }
 
         // 使用 PLUGIN 级别进行能力声明
@@ -77,9 +76,11 @@ class WorkerRegistry private constructor() {
             dependencies = worker.capabilities,
             isOptional = true
         )
+
         registeredWorkers[worker.id] = worker
         notifyListeners(worker, ChangeType.REGISTERED)
         AppLogger.d(TAG, "Registered worker: ${worker.name} (${worker.id})")
+
         return RegistrationResult.SUCCESS
     }
 
@@ -90,8 +91,8 @@ class WorkerRegistry private constructor() {
         val worker = registeredWorkers.remove(workerId)
         if (worker != null) {
             notifyListeners(worker, ChangeType.UNREGISTERED)
-        AppLogger.d(TAG, "Unregistered worker: ${workerId}")
-        return true
+            AppLogger.d(TAG, "Unregistered worker: ${workerId}")
+            return true
         }
         return false
     }
@@ -142,16 +143,15 @@ class WorkerRegistry private constructor() {
     }
 
     /**
-     * 为任务找到最作Worker (负载均衡，
-     */
+     * 为任务找到最�?Worker (负载均衡�?     */
     fun findBestWorker(task: KanbanTask, preferredRole: AgentRole? = null): Worker? {
         val candidates = when {
             preferredRole != null -> findWorkersByRole(preferredRole)
-        task.assignedRole != null -> findWorkersByRole(task.assignedRole!!)
-        else -> {
+            task.assignedRole != null -> findWorkersByRole(task.assignedRole!!)
+            else -> {
                 // 尝试基于任务类型
-        val byType = findWorkersByTaskType(task.taskType)
-        if (byType.isNotEmpty()) byType
+                val byType = findWorkersByTaskType(task.taskType)
+                if (byType.isNotEmpty()) byType
                 else getActiveWorkers()
             }
         }
@@ -180,7 +180,7 @@ class WorkerRegistry private constructor() {
         if (column.requiredAgentRoles.isNotEmpty()) {
             for (role in column.requiredAgentRoles) {
                 val workers = findWorkersByRole(role)
-        if (workers.isNotEmpty()) {
+                if (workers.isNotEmpty()) {
                     return workers.first()
                 }
             }
@@ -189,10 +189,11 @@ class WorkerRegistry private constructor() {
         // 根据列要求的能力查找
         if (column.requiredCapabilities.isNotEmpty()) {
             val workers = findWorkersByCapabilities(column.requiredCapabilities)
-        if (workers.isNotEmpty()) {
+            if (workers.isNotEmpty()) {
                 return workers.first()
             }
         }
+
         return getActiveWorkers().minByOrNull { it.getWorkload() }
     }
 
@@ -206,8 +207,7 @@ class WorkerRegistry private constructor() {
     }
 
     /**
-     * 获取所有Worker 的统计信息
-     */
+     * 获取所�?Worker 的统计信�?     */
     fun getStatistics(): WorkerStatistics {
         val workers = registeredWorkers.values.toList()
         return WorkerStatistics(
@@ -221,48 +221,51 @@ class WorkerRegistry private constructor() {
     }
 
     /**
-     * 添加 Worker 变化监听器
-     */
+     * 添加 Worker 变化监听�?     */
     fun addListener(listener: WorkerChangeListener) {
         workerListeners.add(listener)
     }
 
     /**
-     * 移除 Worker 变化监听器
-     */
+     * 移除 Worker 变化监听�?     */
     fun removeListener(listener: WorkerChangeListener) {
         workerListeners.remove(listener)
     }
-        private fun notifyListeners(worker: Worker, changeType: ChangeType) {
+
+    private fun notifyListeners(worker: Worker, changeType: ChangeType) {
         workerListeners.forEach { listener ->
             try {
                 when (changeType) {
                     ChangeType.REGISTERED -> listener.onWorkerRegistered(worker)
-        ChangeType.UNREGISTERED -> listener.onWorkerUnregistered(worker)
-        ChangeType.LOAD_CHANGED -> listener.onWorkerLoadChanged(worker.id, worker.currentLoad)
+                    ChangeType.UNREGISTERED -> listener.onWorkerUnregistered(worker)
+                    ChangeType.LOAD_CHANGED -> listener.onWorkerLoadChanged(worker.id, worker.currentLoad)
                 }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error notifying listener", e)
             }
         }
     }
-        enum class RegistrationResult {
+
+    enum class RegistrationResult {
         SUCCESS,
         ALREADY_EXISTS,
         INVALID_CONFIGURATION,
         DEPENDENCY_MISSING
     }
-        enum class ChangeType {
+
+    enum class ChangeType {
         REGISTERED,
         UNREGISTERED,
         LOAD_CHANGED
     }
-        interface WorkerChangeListener {
+
+    interface WorkerChangeListener {
         fun onWorkerRegistered(worker: Worker)
         fun onWorkerUnregistered(worker: Worker)
         fun onWorkerLoadChanged(workerId: String, newLoad: Int)
     }
-        data class WorkerStatistics(
+
+    data class WorkerStatistics(
         val totalWorkers: Int,
         val activeWorkers: Int,
         val averageLoad: Float,
@@ -271,7 +274,7 @@ class WorkerRegistry private constructor() {
 }
 
 /**
- * 简单Worker 实现模板
+ * 简�?Worker 实现模板
  */
 abstract class BaseWorker(
     override val id: String = UUID.randomUUID().toString(),

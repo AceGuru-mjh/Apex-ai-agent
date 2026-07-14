@@ -15,59 +15,68 @@ data class WorkflowNode(
 ) {
     companion object {
         private const val TAG = "WorkflowNode"
+
         fun generateNodeId(): String = "node_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
+
         fun fromJson(json: String): WorkflowNode? {
             return try {
                 Json.decodeFromString<WorkflowNode>(json)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to parse WorkflowNode from JSON", e)
-        null
+                null
             }
         }
     }
-        fun toJson(): String = Json.encodeToString(this)
-        fun validate(): ValidationResult {
+
+    fun toJson(): String = Json.encodeToString(this)
+
+    fun validate(): ValidationResult {
         val errors = mutableListOf<String>()
+
         if (id.isBlank()) {
             errors.add("Node ID cannot be blank")
         }
+
         if (name.isBlank()) {
             errors.add("Node name cannot be blank")
         }
+
         when (type) {
             NodeType.TRIGGER -> {
                 if (config.triggerConfig == null) {
                     errors.add("Trigger node requires triggerConfig")
                 }
             }
-        NodeType.EXECUTE -> {
+            NodeType.EXECUTE -> {
                 if (config.actionType.isNullOrBlank()) {
                     errors.add("Execute node requires actionType")
                 }
             }
-        NodeType.CONDITION -> {
+            NodeType.CONDITION -> {
                 if (config.left == null || config.operator == null) {
                     errors.add("Condition node requires left/right values and operator")
                 }
             }
-        NodeType.LOGIC -> {
+            NodeType.LOGIC -> {
                 if (config.operator == null) {
                     errors.add("Logic node requires operator (AND/OR)")
                 }
             }
-        NodeType.EXTRACT -> {
+            NodeType.EXTRACT -> {
                 if (config.mode == null) {
                     errors.add("Extract node requires mode")
                 }
             }
         }
+
         return if (errors.isEmpty()) {
             ValidationResult.Valid
         } else {
             ValidationResult.Invalid(errors)
         }
     }
-        sealed class ValidationResult {
+
+    sealed class ValidationResult {
         data object Valid : ValidationResult()
         data class Invalid(val errors: List<String>) : ValidationResult()
     }
@@ -184,15 +193,17 @@ sealed class ParameterValue {
 
     @Serializable
     data class NodeReference(val nodeId: String) : ParameterValue()
-        companion object {
+
+    companion object {
         fun static(value: String): ParameterValue = StaticValue(value)
         fun ref(nodeId: String): ParameterValue = NodeReference(nodeId)
+
         fun fromAny(value: Any): ParameterValue? {
             return when (value) {
                 is String -> StaticValue(value)
-        is Number -> StaticValue(value.toString())
-        is Boolean -> StaticValue(value.toString())
-        is Map<*, *> -> {
+                is Number -> StaticValue(value.toString())
+                is Boolean -> StaticValue(value.toString())
+                is Map<*, *> -> {
                     val nodeId = value["nodeId"] ?: value["ref"] ?: value["refNodeId"]
                     if (nodeId != null) {
                         NodeReference(nodeId.toString())
@@ -200,11 +211,12 @@ sealed class ParameterValue {
                         StaticValue(value.toString())
                     }
                 }
-        else -> null
+                else -> null
             }
         }
     }
-        fun getStringValue(context: Map<String, Any> = emptyMap()): String {
+
+    fun getStringValue(context: Map<String, Any> = emptyMap()): String {
         return when (this) {
             is StaticValue -> value
             is NodeReference -> {
@@ -213,7 +225,8 @@ sealed class ParameterValue {
             }
         }
     }
-        fun isReference(): Boolean = this is NodeReference
+
+    fun isReference(): Boolean = this is NodeReference
 }
 
 @Serializable
@@ -225,16 +238,18 @@ data class WorkflowConnection(
 ) {
     companion object {
         fun generateConnectionId(): String = "conn_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
+
         fun fromJson(json: String): WorkflowConnection? {
             return try {
                 Json.decodeFromString<WorkflowConnection>(json)
             } catch (e: Exception) {
                 AppLogger.e("WorkflowConnection", "Failed to parse from JSON", e)
-        null
+                null
             }
         }
     }
-        fun toJson(): String = Json.encodeToString(this)
+
+    fun toJson(): String = Json.encodeToString(this)
 }
 
 @Serializable
@@ -243,7 +258,8 @@ enum class ConnectionCondition {
     ON_ERROR,
     TRUE,
     FALSE;
-        companion object {
+
+    companion object {
         fun fromString(value: String): ConnectionCondition {
             if (value == null) return ON_SUCCESS
 
@@ -271,66 +287,81 @@ data class WorkflowDefinition(
 ) {
     companion object {
         private const val TAG = "WorkflowDefinition"
+
         fun generateWorkflowId(): String = "wf_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
+
         fun fromJson(json: String): WorkflowDefinition? {
             return try {
                 Json.decodeFromString<WorkflowDefinition>(json)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to parse WorkflowDefinition from JSON", e)
-        null
+                null
             }
         }
     }
-        fun toJson(): String = Json.encodeToString(this)
-        fun validate(): WorkflowValidationResult {
+
+    fun toJson(): String = Json.encodeToString(this)
+
+    fun validate(): WorkflowValidationResult {
         val errors = mutableListOf<String>()
         val warnings = mutableListOf<String>()
+
         if (id.isBlank()) errors.add("Workflow ID cannot be blank")
         if (name.isBlank()) errors.add("Workflow name cannot be blank")
         if (nodes.isEmpty()) errors.add("Workflow must have at least one node")
+
         val nodeIds = nodes.map { it.id }.toSet()
         if (nodeIds.size != nodes.size) {
             errors.add("Duplicate node IDs found")
         }
+
         val triggerNodes = nodes.filter { it.type == NodeType.TRIGGER }
         if (triggerNodes.isEmpty()) {
             warnings.add("No trigger node found - workflow cannot be automatically triggered")
         } else if (triggerNodes.size > 1) {
             warnings.add("Multiple trigger nodes found - only one will be used as entry point")
         }
+
         for (connection in connections) {
             if (connection.sourceNodeId !in nodeIds) {
                 errors.add("Connection ${connection.id} has invalid source node: ${connection.sourceNodeId}")
             }
-        if (connection.targetNodeId !in nodeIds) {
+            if (connection.targetNodeId !in nodeIds) {
                 errors.add("Connection ${connection.id} has invalid target node: ${connection.targetNodeId}")
             }
         }
+
         for (node in nodes) {
             val nodeValidation = node.validate()
-        if (nodeValidation is WorkflowNode.ValidationResult.Invalid) {
+            if (nodeValidation is WorkflowNode.ValidationResult.Invalid) {
                 errors.addAll(nodeValidation.errors.map { "Node ${node.id} (${node.name}): ${it}" })
             }
         }
+
         val danglingNodes = nodes.filter { node ->
-        val isSource = connections.any { it.sourceNodeId == node.id }
-        val isTrigger = node.type == NodeType.TRIGGER
+            val isSource = connections.any { it.sourceNodeId == node.id }
+            val isTrigger = node.type == NodeType.TRIGGER
             !isSource && !isTrigger
         }
         if (danglingNodes.isNotEmpty() && danglingNodes.size != nodes.size) {
             warnings.add("Some nodes are not connected: ${danglingNodes.map { it.name }}")
         }
+
         return WorkflowValidationResult(
             isValid = errors.isEmpty(),
             errors = errors,
             warnings = warnings
         )
     }
-        fun getTriggerNodes(): List<WorkflowNode> = nodes.filter { it.type == NodeType.TRIGGER }
-        fun getNodeById(nodeId: String): WorkflowNode? = nodes.find { it.id == nodeId }
-        fun getOutgoingConnections(nodeId: String): List<WorkflowConnection> =
+
+    fun getTriggerNodes(): List<WorkflowNode> = nodes.filter { it.type == NodeType.TRIGGER }
+
+    fun getNodeById(nodeId: String): WorkflowNode? = nodes.find { it.id == nodeId }
+
+    fun getOutgoingConnections(nodeId: String): List<WorkflowConnection> =
         connections.filter { it.sourceNodeId == nodeId }
-        fun getIncomingConnections(nodeId: String): List<WorkflowConnection> =
+
+    fun getIncomingConnections(nodeId: String): List<WorkflowConnection> =
         connections.filter { it.targetNodeId == nodeId }
 }
 

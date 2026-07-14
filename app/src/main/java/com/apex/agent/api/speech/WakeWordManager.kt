@@ -50,13 +50,17 @@ class WakeWordManager(
 ) {
     private val dataStore = context.wakeWordDataStore
     private val json = Json { ignoreUnknownKeys = true }
-        private val _config = MutableStateFlow(WakeWordConfig())
-        val config: StateFlow<WakeWordConfig> = _config.asStateFlow()
-        private val _isListening = MutableStateFlow(false)
-        val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
-        private val _lastDetectedWakeWord = MutableStateFlow<WakeWord?>(null)
-        val lastDetectedWakeWord: StateFlow<WakeWord?> = _lastDetectedWakeWord.asStateFlow()
-        private var onWakeWordDetected: ((WakeWord) -> Unit)? = null
+
+    private val _config = MutableStateFlow(WakeWordConfig())
+    val config: StateFlow<WakeWordConfig> = _config.asStateFlow()
+
+    private val _isListening = MutableStateFlow(false)
+    val isListening: StateFlow<Boolean> = _isListening.asStateFlow()
+
+    private val _lastDetectedWakeWord = MutableStateFlow<WakeWord?>(null)
+    val lastDetectedWakeWord: StateFlow<WakeWord?> = _lastDetectedWakeWord.asStateFlow()
+
+    private var onWakeWordDetected: ((WakeWord) -> Unit)? = null
 
     companion object {
         private val WAKE_WORDS_CONFIG = stringPreferencesKey("wake_words_config")
@@ -66,27 +70,30 @@ class WakeWordManager(
         private val USE_ONLINE = booleanPreferencesKey("use_online")
         private val DETECTION_THRESHOLD = floatPreferencesKey("detection_threshold")
         private val CUSTOM_WAKE_WORDS = stringSetPreferencesKey("custom_wake_words")
+
         const val DEFAULT_WAKE_WORD_PHRASE = "hey assistant"
         const val DEFAULT_SENSITIVITY = 0.7f
         const val MIN_SENSITIVITY = 0.3f
         const val MAX_SENSITIVITY = 1.0f
         const val MAX_WAKE_WORDS = 5
     }
-        init {
+
+    init {
         loadConfig()
     }
-        private fun loadConfig() {
+
+    private fun loadConfig() {
         coroutineScope.launch {
             dataStore.data.collect { prefs ->
                 val configJson = prefs[WAKE_WORDS_CONFIG]
-        val wakeWordsJson = prefs[CUSTOM_WAKE_WORDS]
+                val wakeWordsJson = prefs[CUSTOM_WAKE_WORDS]
 
                 val wakeWords = if (configJson != null) {
                     try {
                         json.decodeFromString<WakeWordConfig>(configJson).wakeWords
                     } catch (e: Exception) {
                         AppLogger.e(TAG, "Failed to parse wake words config", e)
-        emptyList()
+                        emptyList()
                     }
                 } else if (wakeWordsJson != null) {
                     wakeWordsJson.map { phrase ->
@@ -105,7 +112,8 @@ class WakeWordManager(
                         )
                     )
                 }
-        _config.value = WakeWordConfig(
+
+                _config.value = WakeWordConfig(
                     wakeWords = wakeWords,
                     globalEnabled = prefs[GLOBAL_ENABLED] ?: true,
                     globalSensitivity = prefs[GLOBAL_SENSITIVITY] ?: DEFAULT_SENSITIVITY,
@@ -116,29 +124,35 @@ class WakeWordManager(
             }
         }
     }
-        fun setOnWakeWordDetected(callback: (WakeWord) -> Unit) {
+
+    fun setOnWakeWordDetected(callback: (WakeWord) -> Unit) {
         onWakeWordDetected = callback
     }
-        suspend fun addWakeWord(phrase: String, isRegex: Boolean = false): Boolean {
+
+    suspend fun addWakeWord(phrase: String, isRegex: Boolean = false): Boolean {
         if (_config.value.wakeWords.size >= MAX_WAKE_WORDS) {
             AppLogger.w(TAG, "Maximum number of wake words reached")
-        return false
+            return false
         }
+
         val newWakeWord = WakeWord(
             id = System.currentTimeMillis().toString(),
             phrase = phrase.trim(),
             isRegex = isRegex,
             sensitivity = _config.value.globalSensitivity
         )
+
         val updatedWakeWords = _config.value.wakeWords + newWakeWord
         saveWakeWords(updatedWakeWords)
         return true
     }
-        suspend fun removeWakeWord(id: String) {
+
+    suspend fun removeWakeWord(id: String) {
         val updatedWakeWords = _config.value.wakeWords.filter { it.id != id }
         saveWakeWords(updatedWakeWords)
     }
-        suspend fun updateWakeWord(id: String, phrase: String? = null, isRegex: Boolean? = null, sensitivity: Float? = null, isEnabled: Boolean? = null) {
+
+    suspend fun updateWakeWord(id: String, phrase: String? = null, isRegex: Boolean? = null, sensitivity: Float? = null, isEnabled: Boolean? = null) {
         val updatedWakeWords = _config.value.wakeWords.map { ww ->
             if (ww.id == id) {
                 ww.copy(
@@ -153,7 +167,8 @@ class WakeWordManager(
         }
         saveWakeWords(updatedWakeWords)
     }
-        private suspend fun saveWakeWords(wakeWords: List<WakeWord>) {
+
+    private suspend fun saveWakeWords(wakeWords: List<WakeWord>) {
         val updatedConfig = _config.value.copy(wakeWords = wakeWords)
         _config.value = updatedConfig
 
@@ -161,38 +176,44 @@ class WakeWordManager(
             prefs[WAKE_WORDS_CONFIG] = json.encodeToString(updatedConfig)
         }
     }
-        suspend fun setGlobalEnabled(enabled: Boolean) {
+
+    suspend fun setGlobalEnabled(enabled: Boolean) {
         _config.value = _config.value.copy(globalEnabled = enabled)
         dataStore.edit { prefs ->
             prefs[GLOBAL_ENABLED] = enabled
         }
     }
-        suspend fun setGlobalSensitivity(sensitivity: Float) {
+
+    suspend fun setGlobalSensitivity(sensitivity: Float) {
         val clampedSensitivity = sensitivity.coerceIn(MIN_SENSITIVITY, MAX_SENSITIVITY)
         _config.value = _config.value.copy(globalSensitivity = clampedSensitivity)
         dataStore.edit { prefs ->
             prefs[GLOBAL_SENSITIVITY] = clampedSensitivity
         }
     }
-        suspend fun setUseOffline(enabled: Boolean) {
+
+    suspend fun setUseOffline(enabled: Boolean) {
         _config.value = _config.value.copy(useOffline = enabled)
         dataStore.edit { prefs ->
             prefs[USE_OFFLINE] = enabled
         }
     }
-        suspend fun setUseOnline(enabled: Boolean) {
+
+    suspend fun setUseOnline(enabled: Boolean) {
         _config.value = _config.value.copy(useOnline = enabled)
         dataStore.edit { prefs ->
             prefs[USE_ONLINE] = enabled
         }
     }
-        suspend fun setDetectionThreshold(threshold: Float) {
+
+    suspend fun setDetectionThreshold(threshold: Float) {
         _config.value = _config.value.copy(detectionThreshold = threshold.coerceIn(0.3f, 0.9f))
         dataStore.edit { prefs ->
             prefs[DETECTION_THRESHOLD] = threshold
         }
     }
-        fun detectWakeWord(text: String): WakeWord? {
+
+    fun detectWakeWord(text: String): WakeWord? {
         if (!_config.value.globalEnabled) return null
 
         for (wakeWord in _config.value.wakeWords) {
@@ -203,26 +224,30 @@ class WakeWordManager(
                     Regex(wakeWord.phrase).containsMatchIn(text.lowercase())
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Invalid regex: ${wakeWord.phrase}", e)
-        false
+                    false
                 }
             } else {
                 text.lowercase().contains(wakeWord.phrase.lowercase())
             }
-        if (match) {
+
+            if (match) {
                 _lastDetectedWakeWord.value = wakeWord
                 onWakeWordDetected?.invoke(wakeWord)
-        return wakeWord
+                return wakeWord
             }
         }
         return null
     }
-        fun startListening() {
+
+    fun startListening() {
         _isListening.value = true
     }
-        fun stopListening() {
+
+    fun stopListening() {
         _isListening.value = false
     }
-        fun resetLastDetectedWakeWord() {
+
+    fun resetLastDetectedWakeWord() {
         _lastDetectedWakeWord.value = null
     }
 }

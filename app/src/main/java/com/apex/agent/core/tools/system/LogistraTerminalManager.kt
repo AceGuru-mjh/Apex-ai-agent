@@ -13,31 +13,35 @@ import java.io.IOException
 
 object LogistraTerminalManager {
     const val PACKAGE_NAME = "com.apex.agent.terminal"
-        private const val REPO_OWNER = "AAswordman"
-        private const val REPO_NAME = "Apex-AgentTerminal"
-        private const val TAG = "LogistraTerminalManager"
-        data class ReleaseInfo(
+    private const val REPO_OWNER = "AAswordman"
+    private const val REPO_NAME = "Apex-AgentTerminal"
+    private const val TAG = "LogistraTerminalManager"
+
+    data class ReleaseInfo(
         val version: String,
         val downloadUrl: String,
         val releaseNotes: String
     )
-        fun isInstalled(context: Context): Boolean {
+
+    fun isInstalled(context: Context): Boolean {
         return try {
             context.packageManager.getPackageInfo(PACKAGE_NAME, 0)
-        true
+            true
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
     }
-        fun getInstalledVersion(context: Context): String? {
+
+    fun getInstalledVersion(context: Context): String? {
         return try {
             val packageInfo = context.packageManager.getPackageInfo(PACKAGE_NAME, 0)
-        packageInfo.versionName
+            packageInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
     }
-        suspend fun fetchLatestReleaseInfo(context: Context): ReleaseInfo? = withContext(Dispatchers.IO) {
+
+    suspend fun fetchLatestReleaseInfo(context: Context): ReleaseInfo? = withContext(Dispatchers.IO) {
         val githubReleaseUtil = GithubReleaseUtil(context)
         val releaseInfo = githubReleaseUtil.fetchLatestReleaseInfo(REPO_OWNER, REPO_NAME)
         releaseInfo?.let {

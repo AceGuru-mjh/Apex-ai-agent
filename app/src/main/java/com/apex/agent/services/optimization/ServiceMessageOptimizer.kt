@@ -93,19 +93,20 @@ data class DeliveryReport(
 class ServiceMessageOptimizer private constructor() {
 
     private val messageQueue = Channel<MessageEnvelope>(Channel.UNLIMITED)
-        private val subscribers = ConcurrentHashMap<String, SubscriptionConfig>()
-        private val subscriberChannels = ConcurrentHashMap<String, Channel<MessageEnvelope>>()
-        private val batchedOutputs = ConcurrentHashMap<String, Channel<List<MessageEnvelope>>>()
-        private val processedCount = AtomicLong(0)
-        private val failedCount = AtomicLong(0)
-        private val enqueuedCount = AtomicLong(0)
-        private val processingTimes = CopyOnWriteArrayList<Long>()
-        private val typeCounts = ConcurrentHashMap<MessageType, AtomicInteger>()
-        private val backpressureEvents = AtomicLong(0)
-        private var isRunning = false
+    private val subscribers = ConcurrentHashMap<String, SubscriptionConfig>()
+    private val subscriberChannels = ConcurrentHashMap<String, Channel<MessageEnvelope>>()
+    private val batchedOutputs = ConcurrentHashMap<String, Channel<List<MessageEnvelope>>>()
+    private val processedCount = AtomicLong(0)
+    private val failedCount = AtomicLong(0)
+    private val enqueuedCount = AtomicLong(0)
+    private val processingTimes = CopyOnWriteArrayList<Long>()
+    private val typeCounts = ConcurrentHashMap<MessageType, AtomicInteger>()
+    private val backpressureEvents = AtomicLong(0)
+    private var isRunning = false
     private var scope: CoroutineScope? = null
     private val config = ServiceMessageConfig()
-        companion object {
+
+    companion object {
         @Volatile
         private var instance: ServiceMessageOptimizer? = null
 
@@ -114,10 +115,12 @@ class ServiceMessageOptimizer private constructor() {
                 instance ?: ServiceMessageOptimizer().also { instance = it }
             }
         }
+
         private const val METRICS_HISTORY = 500
         private const val DEFAULT_CHANNEL_CAPACITY = 100
     }
-        fun initialize(coroutineScope: CoroutineScope) {
+
+    fun initialize(coroutineScope: CoroutineScope) {
         scope = coroutineScope
         isRunning = true
         coroutineScope.launch(Dispatchers.Default) { messageProcessorLoop() }
@@ -128,7 +131,8 @@ class ServiceMessageOptimizer private constructor() {
             coroutineScope.launch(Dispatchers.Default) { metricsCollectorLoop() }
         }
     }
-        fun shutdown() {
+
+    fun shutdown() {
         isRunning = false
         messageQueue.close()
         subscriberChannels.values.forEach { it.close() }
@@ -137,23 +141,28 @@ class ServiceMessageOptimizer private constructor() {
         batchedOutputs.clear()
         subscribers.clear()
     }
-        suspend fun publish(message: MessageEnvelope) {
+
+    suspend fun publish(message: MessageEnvelope) {
         enqueuedCount.incrementAndGet()
         typeCounts.computeIfAbsent(message.type) { AtomicInteger(0) }.incrementAndGet()
+
         if (config.enableBackpressure) {
             val queueSize = messageQueue.onSendOrNull?.let { 0 } ?: 0
             if (queueSize >= config.backpressureThreshold) {
                 backpressureEvents.incrementAndGet()
             }
         }
+
         messageQueue.send(message)
     }
-        suspend fun publishBatch(messages: List<MessageEnvelope>) {
+
+    suspend fun publishBatch(messages: List<MessageEnvelope>) {
         for (msg in messages) {
             publish(msg)
         }
     }
-        suspend fun publishWithPriority(type: MessageType, payload: Any, priority: MessagePriority, senderId: String) {
+
+    suspend fun publishWithPriority(type: MessageType, payload: Any, priority: MessagePriority, senderId: String) {
         val msg = MessageEnvelope(
             id = "msg_${System.currentTimeMillis()}_${type.name}",
             type = type,
@@ -164,61 +173,74 @@ class ServiceMessageOptimizer private constructor() {
         )
         publish(msg)
     }
-        fun subscribe(config: SubscriptionConfig) {
+
+    fun subscribe(config: SubscriptionConfig) {
         subscribers[config.subscriberId] = config
         val channel = Channel<MessageEnvelope>(DEFAULT_CHANNEL_CAPACITY)
         subscriberChannels[config.subscriberId] = channel
     }
-        fun unsubscribe(subscriberId: String) {
+
+    fun unsubscribe(subscriberId: String) {
         subscribers.remove(subscriberId)
         subscriberChannels.remove(subscriberId)?.close()
         batchedOutputs.remove(subscriberId)?.close()
     }
-        fun getSubscriberChannel(subscriberId: String): Channel<MessageEnvelope>? {
+
+    fun getSubscriberChannel(subscriberId: String): Channel<MessageEnvelope>? {
         return subscriberChannels[subscriberId]
     }
-        fun getSubscriberFlow(subscriberId: String): Flow<MessageEnvelope>? {
+
+    fun getSubscriberFlow(subscriberId: String): Flow<MessageEnvelope>? {
         return subscriberChannels[subscriberId]?.receiveAsFlow()
     }
-        fun getBatchedFlow(subscriberId: String): Flow<List<MessageEnvelope>>? {
+
+    fun getBatchedFlow(subscriberId: String): Flow<List<MessageEnvelope>>? {
         return batchedOutputs[subscriberId]?.receiveAsFlow()
     }
-        suspend fun processMessage(message: MessageEnvelope): MessageProcessingResult {
+
+    suspend fun processMessage(message: MessageEnvelope): MessageProcessingResult {
         val startTime = System.nanoTime()
+
         try {
             val targetSubscribers = subscribers.filter { (_, config) ->
                 config.messageTypes.contains(message.type) &&
                     (config.priorityFilter == null || message.priority.level >= config.priorityFilter.level) &&
                     (config.correlationId == null || message.correlationId == config.correlationId)
             }
-        for ((subscriberId, _) in targetSubscribers) {
+
+            for ((subscriberId, _) in targetSubscribers) {
                 val channel = subscriberChannels[subscriberId]
                 if (channel != null && !channel.isClosedForSend) {
                     if (config.enableBatching) {
                         val batchChannel = batchedOutputs.computeIfAbsent(subscriberId) {
                             Channel(DEFAULT_CHANNEL_CAPACITY)
                         }
-        batchChannel.trySend(listOf(message))
+                        batchChannel.trySend(listOf(message))
                     } else {
                         channel.trySend(message)
                     }
                 }
             }
-        val durationMs = (System.nanoTime() - startTime) / 1_000_000
+
+            val durationMs = (System.nanoTime() - startTime) / 1_000_000
             processingTimes.add(durationMs)
-        if (processingTimes.size > METRICS_HISTORY) processingTimes.removeAt(0)
-        processedCount.incrementAndGet()
-        MessageProcessingResult(message.id, true, durationMs)
+            if (processingTimes.size > METRICS_HISTORY) processingTimes.removeAt(0)
+            processedCount.incrementAndGet()
+
+            MessageProcessingResult(message.id, true, durationMs)
         } catch (e: Exception) {
             failedCount.incrementAndGet()
-        MessageProcessingResult(message.id, false, (System.nanoTime() - startTime) / 1_000_000, e.message)
+            MessageProcessingResult(message.id, false, (System.nanoTime() - startTime) / 1_000_000, e.message)
         }
     }
-        suspend fun processBatch(messages: List<MessageEnvelope>): List<MessageProcessingResult> {
+
+    suspend fun processBatch(messages: List<MessageEnvelope>): List<MessageProcessingResult> {
         messages.map { processMessage(it) }
     }
-        fun acknowledge(subscriberId: String, messageIds: List<String>) {}
-        fun getQueueDepth(): Int = 0
+
+    fun acknowledge(subscriberId: String, messageIds: List<String>) {}
+
+    fun getQueueDepth(): Int = 0
 
     fun getActiveSubscribers(): Int = subscribers.size
 
@@ -230,7 +252,7 @@ class ServiceMessageOptimizer private constructor() {
         val processed = processedCount.get()
         val rate = if (processed > 0 && processingTimes.isNotEmpty()) {
             val totalTime = processingTimes.sum()
-        if (totalTime > 0) processed.toDouble() / totalTime * 1000 else 0.0
+            if (totalTime > 0) processed.toDouble() / totalTime * 1000 else 0.0
         } else 0.0
         val typeDist = typeCounts.entries.associate { it.key to it.value.get() }
         MessageQueueMetrics(
@@ -247,7 +269,8 @@ class ServiceMessageOptimizer private constructor() {
             messageTypeDistribution = typeDist
         )
     }
-        fun getMetricsReport(): String {
+
+    fun getMetricsReport(): String {
         val m = getMetrics()
         """
         |Message Queue Metrics:
@@ -258,8 +281,10 @@ class ServiceMessageOptimizer private constructor() {
         |  Channel Utilization: ${"%.0f".format(m.channelUtilization * 100)}%
         """.trimMargin()
     }
-        fun updateConfig(newConfig: ServiceMessageConfig): ServiceMessageConfig { newConfig }
-        fun resetMetrics() {
+
+    fun updateConfig(newConfig: ServiceMessageConfig): ServiceMessageConfig { newConfig }
+
+    fun resetMetrics() {
         processedCount.set(0)
         failedCount.set(0)
         enqueuedCount.set(0)
@@ -267,16 +292,18 @@ class ServiceMessageOptimizer private constructor() {
         typeCounts.clear()
         backpressureEvents.set(0)
     }
-        private suspend fun messageProcessorLoop() {
+
+    private suspend fun messageProcessorLoop() {
         while (isRunning) {
             val message = messageQueue.receiveCatching().getOrNull() ?: continue
             processMessage(message)
         }
     }
-        private suspend fun batchProcessorLoop() {
+
+    private suspend fun batchProcessorLoop() {
         while (isRunning) {
             val batch = mutableListOf<MessageEnvelope>()
-        val deadline = System.currentTimeMillis() + config.batchMaxWaitMs
+            val deadline = System.currentTimeMillis() + config.batchMaxWaitMs
 
             while (batch.size < config.batchMaxSize && System.currentTimeMillis() < deadline) {
                 val msg = withTimeoutOrNull(config.batchMaxWaitMs) {
@@ -284,17 +311,19 @@ class ServiceMessageOptimizer private constructor() {
                 } ?: break
                 if (msg != null) batch.add(msg)
             }
-        if (batch.isNotEmpty()) {
+
+            if (batch.isNotEmpty()) {
                 val results = processBatch(batch)
-        results
+                results
             }
-        delay(1)
+            delay(1)
         }
     }
-        private suspend fun metricsCollectorLoop() {
+
+    private suspend fun metricsCollectorLoop() {
         while (isRunning) {
             delay(60000L)
-        getMetrics()
+            getMetrics()
         }
     }
 }

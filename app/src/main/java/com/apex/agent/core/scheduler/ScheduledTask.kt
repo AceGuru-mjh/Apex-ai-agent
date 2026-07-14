@@ -5,8 +5,7 @@ import java.util.UUID
 /**
  * 定时任务模型
  * 
- * 定义定时任务的数据结果支持多种任务类型和调度配置
- */
+ * 定义定时任务的数据结�?支持多种任务类型和调度配�? */
 data class ScheduledTask(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
@@ -28,23 +27,22 @@ data class ScheduledTask(
     enum class TaskType(val displayName: String, val description: String) {
         DAILY_REPORT("日报生成", "生成每日工作报告"),
         BACKUP("数据备份", "自动备份重要数据"),
-        AUDIT("系统审计", "执行安全审计检查"),
+        AUDIT("系统审计", "执行安全审计检�?),
         AUTO_REPORT("自动报告", "定时生成各类报告"),
-        HEALTH_CHECK("健康检查, "系统健康状态检查),
+        HEALTH_CHECK("健康检�?, "系统健康状态检�?),
         NOTIFICATION("通知提醒", "发送定时通知"),
-        CUSTOM("自定义, "用户自定义任务)
+        CUSTOM("自定�?, "用户自定义任�?)
     }
     
     /**
-     * 投递平台枚为
-     */
+     * 投递平台枚�?     */
     enum class DeliveryPlatform(val displayName: String) {
         IN_APP("应用内通知"),
         TELEGRAM("Telegram"),
         DISCORD("Discord"),
         EMAIL("Email"),
         WECHAT("微信"),
-        PUSH("系统推通")
+        PUSH("系统推�?)
     }
     
     /**
@@ -74,8 +72,7 @@ data class ScheduledTask(
     )
     
     /**
-     * 任务执行状态
-     */
+     * 任务执行状�?     */
     enum class ExecutionStatus {
         PENDING,
         RUNNING,
@@ -109,31 +106,31 @@ data class ScheduledTask(
     }
     
     /**
-     * 获取任务状态摘要
-     */
+     * 获取任务状态摘�?     */
     fun getStatusSummary(): String {
         val lastExec = lastExecutedAt?.let { formatTime(it) } ?: "从未执行"
         val nextExec = nextExecutionTime?.let { formatTime(it) } ?: "未知"
         val errorInfo = lastError?.let { " (错误: ${it})" } ?: ""
+        
         return """
             任务: ${name}
             类型: ${taskType.displayName}
-            状态 ${if (enabled) "已启用 else "已禁用}${errorInfo}
+            状�? ${if (enabled) "已启�? else "已禁�?}${errorInfo}
             执行次数: ${executionCount}
             上次执行: ${lastExec}
             下次执行: ${nextExec}
-            投递平取 ${platforms.joinToString { it.displayName }}
+            投递平�? ${platforms.joinToString { it.displayName }}
         """.trimIndent()
     }
     
     /**
-     * 格式化时间
-     */
+     * 格式化时�?     */
     private fun formatTime(timestamp: Long): String {
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
         return sdf.format(java.util.Date(timestamp))
     }
-        companion object {
+    
+    companion object {
         /**
          * 创建日报任务
          */

@@ -42,6 +42,7 @@ data class ExecutionConfig(
             enableCircuitBreaker = true,
             circuitBreakerThreshold = 3
         )
+
         val MULTI_AGENT = ExecutionConfig(
             maxParallelism = 6,
             defaultTimeoutMs = 60000,
@@ -49,6 +50,7 @@ data class ExecutionConfig(
             enableCircuitBreaker = true,
             circuitBreakerThreshold = 5
         )
+
         val BERSERK = ExecutionConfig(
             maxParallelism = Int.MAX_VALUE,
             defaultTimeoutMs = Long.MAX_VALUE,
@@ -64,6 +66,7 @@ data class ExecutionConfig(
             speculativeExecution = true,
             infiniteRetry = true
         )
+
         fun forMode(mode: AgentMode): ExecutionConfig = when (mode) {
             AgentMode.NORMAL -> NORMAL
             AgentMode.MULTI_AGENT -> MULTI_AGENT
@@ -101,8 +104,8 @@ data class ExecutionSummary(
 class DependencyAnalyzer {
     fun analyze(calls: List<ParsedToolCall>): ExecutionDAG {
         val nodes = calls.mapIndexed { index, call ->
-        val deps = findDependencies(call, calls)
-        ExecutionNode(call = call, order = index, dependsOn = deps)
+            val deps = findDependencies(call, calls)
+            ExecutionNode(call = call, order = index, dependsOn = deps)
         }
         val edges = mutableListOf<ExecutionEdge>()
         for (node in nodes) {
@@ -112,33 +115,37 @@ class DependencyAnalyzer {
         }
         return ExecutionDAG(nodes, edges)
     }
-        private fun findDependencies(
+
+    private fun findDependencies(
         call: ParsedToolCall,
         allCalls: List<ParsedToolCall>
     ): List<String> {
         val deps = mutableListOf<String>()
         val args = call.arguments.values.map { it?.toString()?.lowercase() ?: "" }
+
         for (other in allCalls) {
             if (other.toolCallId == call.toolCallId) continue
             val otherIdx = allCalls.indexOf(other)
-        val thisIdx = allCalls.indexOf(call)
-        if (otherIdx >= thisIdx) continue
+            val thisIdx = allCalls.indexOf(call)
+            if (otherIdx >= thisIdx) continue
 
             if (isWriteTool(other.toolSpec) && isReadTool(call.toolSpec)) {
                 deps.add(other.rawName)
             }
-        val outputMatches = args.any { arg ->
+
+            val outputMatches = args.any { arg ->
                 other.toolSpec.outputDescription?.let { desc ->
                     desc.lowercase().split(" ").any { arg.contains(it) }
                 } ?: false
             }
-        if (outputMatches) {
+            if (outputMatches) {
                 deps.add(other.rawName)
             }
         }
         return deps.distinct()
     }
-        private fun isWriteTool(spec: ToolSpec): Boolean = when (spec.name) {
+
+    private fun isWriteTool(spec: ToolSpec): Boolean = when (spec.name) {
         "write_file", "write_file_binary", "delete_file", "move_file", "copy_file",
         "apply_file", "set_input_text", "modify_system_setting", "install_app",
         "uninstall_app", "send_broadcast", "execute_intent", "create_memory",
@@ -147,7 +154,8 @@ class DependencyAnalyzer {
         "set_sandbox_package_enabled", "write_environment_variable" -> true
         else -> false
     }
-        private fun isReadTool(spec: ToolSpec): Boolean = when (spec.name) {
+
+    private fun isReadTool(spec: ToolSpec): Boolean = when (spec.name) {
         "read_file", "read_file_part", "read_file_full", "list_files",
         "file_exists", "file_info", "find_files", "grep_code", "grep_context",
         "device_info", "get_system_setting", "query_memory",
@@ -155,12 +163,14 @@ class DependencyAnalyzer {
         "browser_snapshot", "capture_screenshot" -> true
         else -> false
     }
-        fun findParallelizable(calls: List<ParsedToolCall>): Set<String> {
+
+    fun findParallelizable(calls: List<ParsedToolCall>): Set<String> {
         val dag = analyze(calls)
         val nameCount = mutableMapOf<String, Int>()
         for (node in dag.nodes) {
             nameCount[node.call.rawName] = (nameCount[node.call.rawName] ?: 0) + 1
         }
+
         return dag.nodes
             .filter { node ->
                 node.dependsOn.isEmpty() &&
@@ -180,13 +190,14 @@ class CircuitBreaker(
         this.threshold = threshold
         this.resetMs = resetMs
     }
-        private data class BreakerState(
+    private data class BreakerState(
         var failureCount: Int = 0,
         var lastFailureTime: Long = 0,
         var isOpen: Boolean = false
     )
-        private val breakers = ConcurrentHashMap<String, BreakerState>()
-        fun allowCall(toolName: String): Boolean {
+    private val breakers = ConcurrentHashMap<String, BreakerState>()
+
+    fun allowCall(toolName: String): Boolean {
         val state = breakers.getOrPut(toolName) { BreakerState() }
         if (state.isOpen) {
             if (System.currentTimeMillis() - state.lastFailureTime > resetMs) {
@@ -194,11 +205,12 @@ class CircuitBreaker(
                 state.failureCount = 0
                 return true
             }
-        return false
+            return false
         }
         return true
     }
-        fun recordFailure(toolName: String) {
+
+    fun recordFailure(toolName: String) {
         val state = breakers.getOrPut(toolName) { BreakerState() }
         state.failureCount++
         state.lastFailureTime = System.currentTimeMillis()
@@ -206,7 +218,8 @@ class CircuitBreaker(
             state.isOpen = true
         }
     }
-        fun recordSuccess(toolName: String) {
+
+    fun recordSuccess(toolName: String) {
         val state = breakers.getOrPut(toolName) { BreakerState() }
         state.failureCount = 0
     }
@@ -218,27 +231,31 @@ class SmartExecutor(
     private val defaultConfig: ExecutionConfig = ExecutionConfig.NORMAL
 ) {
     private val analyzer = DependencyAnalyzer()
-        private var activeConfig: ExecutionConfig = defaultConfig
+    private var activeConfig: ExecutionConfig = defaultConfig
     private val circuitBreaker = CircuitBreaker()
-        private val semaphore = Semaphore()
-        private class Semaphore {
+    private val semaphore = Semaphore()
+
+    private class Semaphore {
         private val current = AtomicInteger(0)
+
         suspend fun acquire(max: Int) {
             if (max == Int.MAX_VALUE) return
             while (true) {
                 val c = current.get()
-        if (c >= max) {
+                if (c >= max) {
                     delay(1)
-        continue
+                    continue
                 }
-        if (current.compareAndSet(c, c + 1)) return
+                if (current.compareAndSet(c, c + 1)) return
             }
         }
+
         fun release() {
             current.decrementAndGet()
         }
     }
-        suspend fun execute(
+
+    suspend fun execute(
         calls: List<ParsedToolCall>,
         context: ExecutionContext = ExecutionContext()
     ): ExecutionSummary {
@@ -247,6 +264,7 @@ class SmartExecutor(
         val startTime = System.currentTimeMillis()
         val results = ConcurrentHashMap<String, ExecutionResult>()
         val errors = ConcurrentHashMap<String, String>()
+
         val isBerserk = context.agentMode == AgentMode.BERSERK
 
         val dag = if (activeConfig.enableDependencyAnalysis && !isBerserk) {
@@ -257,8 +275,10 @@ class SmartExecutor(
                 emptyList()
             )
         }
+
         val completed = ConcurrentHashMap.newKeySet<String>()
         val inFlight = ConcurrentHashMap.newKeySet<String>()
+
         coroutineScope {
             val jobs = if (isBerserk) {
                 launchBerserk(dag, completed, inFlight, results, errors, context)
@@ -271,14 +291,16 @@ class SmartExecutor(
                     }
                 }
             }
-        if (jobs is List) {
+            if (jobs is List) {
                 jobs.forEach { it.await() }
             }
         }
+
         val duration = System.currentTimeMillis() - startTime
         val resultList = dag.nodes.mapNotNull { node ->
             results[node.call.toolCallId]
         }
+
         return ExecutionSummary(
             totalCalls = calls.size,
             succeeded = resultList.count { it.outcome is ToolOutcome.Success },
@@ -289,10 +311,12 @@ class SmartExecutor(
             errors = errors.toMap()
         )
     }
-        private fun coroutineScope(block: suspend CoroutineScope.() -> List<Job>): List<Job> {
+
+    private fun coroutineScope(block: suspend CoroutineScope.() -> List<Job>): List<Job> {
         return kotlinx.coroutines.coroutineScope { block() }
     }
-        private fun CoroutineScope.launchBerserk(
+
+    private fun CoroutineScope.launchBerserk(
         dag: ExecutionDAG,
         completed: MutableSet<String>,
         inFlight: MutableSet<String>,
@@ -304,28 +328,31 @@ class SmartExecutor(
             launch {
                 try {
                     val toolName = node.call.rawName
-        val toolSpec = node.call.toolSpec
+                    val toolSpec = node.call.toolSpec
 
                     inFlight.add(toolName)
-        val result = if (activeConfig.enableRacing && isReadOperation(toolSpec)) {
+
+                    val result = if (activeConfig.enableRacing && isReadOperation(toolSpec)) {
                         executeRacing(node.call, toolSpec, context)
                     } else {
                         executeWithRetry(node.call, toolSpec, context)
                     }
-        results[node.call.toolCallId] = result
+
+                    results[node.call.toolCallId] = result
 
                     if (result.outcome is ToolOutcome.Failure && activeConfig.enableToolFusion) {
                         val fusionResult = executeToolFusion(node.call, toolSpec, context)
-        if (fusionResult != null) {
+                        if (fusionResult != null) {
                             results[node.call.toolCallId] = fusionResult
                         }
                     }
-        if (result.outcome is ToolOutcome.Success) {
+
+                    if (result.outcome is ToolOutcome.Success) {
                         circuitBreaker.recordSuccess(toolName)
                     }
                 } catch (e: Exception) {
                     val errorMsg = e.message ?: "Berserk execution error"
-        errors[node.call.toolCallId] = errorMsg
+                    errors[node.call.toolCallId] = errorMsg
                     results[node.call.toolCallId] = ExecutionResult(
                         toolCallId = node.call.toolCallId,
                         toolName = node.call.rawName,
@@ -334,19 +361,21 @@ class SmartExecutor(
                     )
                 } finally {
                     inFlight.remove(node.call.rawName)
-        completed.add(node.call.toolCallId)
+                    completed.add(node.call.toolCallId)
                 }
             }
         }
     }
-        private fun isReadOperation(spec: ToolSpec): Boolean {
+
+    private fun isReadOperation(spec: ToolSpec): Boolean {
         return spec.name in setOf(
             "read_file", "list_files", "find_files", "grep_code", "grep_context",
             "visit_web", "http_request", "query_memory", "device_info",
             "browser_snapshot", "capture_screenshot"
         )
     }
-        private suspend fun executeRacing(
+
+    private suspend fun executeRacing(
         call: ParsedToolCall,
         spec: ToolSpec,
         context: ExecutionContext
@@ -356,14 +385,16 @@ class SmartExecutor(
         if (competitors.isEmpty()) {
             return executeWithRetry(call, spec, context)
         }
+
         val allAttempts = listOf(spec) + competitors
         val results = mutableMapOf<String, ToolOutcome>()
+
         coroutineScope {
             val jobs = allAttempts.map { attempt ->
                 async {
                     try {
                         val outcome = invoker.invoke(attempt, call.arguments)
-        synchronized(results) {
+                        synchronized(results) {
                             if (results.values.none { it is ToolOutcome.Success }) {
                                 results[attempt.name] = outcome
                             }
@@ -371,12 +402,13 @@ class SmartExecutor(
                     } catch (_: Exception) { }
                 }
             }
-        jobs.forEach {
+            jobs.forEach {
                 try {
                     withTimeout(5000) { it.await() }
                 } catch (_: Exception) { }
             }
         }
+
         val winner = results.entries.firstOrNull { it.value is ToolOutcome.Success }
         if (winner != null) {
             return ExecutionResult(
@@ -386,9 +418,11 @@ class SmartExecutor(
                 durationMs = System.currentTimeMillis() - startTime
             )
         }
+
         return executeWithRetry(call, spec, context)
     }
-        private fun findRacingCompetitors(spec: ToolSpec): List<ToolSpec> {
+
+    private fun findRacingCompetitors(spec: ToolSpec): List<ToolSpec> {
         return when (spec.name) {
             "read_file" -> listOfNotNull(
                 registry.getByName("read_file_part"),
@@ -413,10 +447,11 @@ class SmartExecutor(
             "ffmpeg_execute" -> listOfNotNull(
                 registry.getByName("ffmpeg_convert")
             )
-        else -> emptyList()
+            else -> emptyList()
         }
     }
-        private suspend fun executeToolFusion(
+
+    private suspend fun executeToolFusion(
         call: ParsedToolCall,
         spec: ToolSpec,
         context: ExecutionContext
@@ -432,7 +467,7 @@ class SmartExecutor(
                 async {
                     try {
                         val outcome = invoker.invoke(fallback, call.arguments)
-        if (outcome is ToolOutcome.Success) {
+                        if (outcome is ToolOutcome.Success) {
                             firstResult = ExecutionResult(
                                 toolCallId = call.toolCallId,
                                 toolName = "${spec.name}>>${fallback.name}",
@@ -443,15 +478,17 @@ class SmartExecutor(
                     } catch (_: Exception) { }
                 }
             }
-        jobs.forEach {
+            jobs.forEach {
                 try {
                     withTimeout(30000) { it.await() }
                 } catch (_: Exception) { }
             }
         }
+
         return if (::firstResult.isInitialized) firstResult else null
     }
-        private fun findAllFallbacks(spec: ToolSpec): List<ToolSpec> {
+
+    private fun findAllFallbacks(spec: ToolSpec): List<ToolSpec> {
         val fallbackMap = mapOf(
             "read_file" to listOf("read_file_part", "read_file_full", "read_file_binary", "file_info"),
             "write_file" to listOf("apply_file"),
@@ -473,7 +510,8 @@ class SmartExecutor(
         )
         return fallbackMap[spec.name]?.mapNotNull { registry.getByName(it) } ?: emptyList()
     }
-        private fun executeWithDependencies(
+
+    private fun executeWithDependencies(
         node: ExecutionNode,
         dag: ExecutionDAG,
         completed: MutableSet<String>,
@@ -483,7 +521,8 @@ class SmartExecutor(
         context: ExecutionContext
     ) {
     }
-        private fun CoroutineScope.asyncExecuteWithDependencies(
+
+    private fun CoroutineScope.asyncExecuteWithDependencies(
         node: ExecutionNode,
         dag: ExecutionDAG,
         completed: MutableSet<String>,
@@ -494,31 +533,33 @@ class SmartExecutor(
     ): kotlinx.coroutines.Deferred<Unit> {
         return async {
             val toolName = node.call.rawName
-        val toolSpec = node.call.toolSpec
+            val toolSpec = node.call.toolSpec
 
             for (dep in node.dependsOn) {
                 val depNode = dag.nodes.find { it.call.rawName == dep }
-        if (depNode != null && completed.contains(depNode.call.toolCallId).not()) {
+                if (depNode != null && completed.contains(depNode.call.toolCallId).not()) {
                     asyncExecuteWithDependencies(
                         depNode, dag, completed, inFlight, results, errors, context
                     ).await()
                 }
             }
-        if (inFlight.contains(toolName)) {
+
+            if (inFlight.contains(toolName)) {
                 results[node.call.toolCallId] = ExecutionResult(
                     toolCallId = node.call.toolCallId,
                     toolName = toolName,
                     outcome = ToolOutcome.Failure("Skipped: another call to '$toolName' is in flight"),
                     durationMs = 0
                 )
-        return@async
+                return@async
             }
-        inFlight.add(toolName)
-        try {
+
+            inFlight.add(toolName)
+            try {
                 semaphore.acquire(activeConfig.maxParallelism)
-        try {
+                try {
                     val result = executeWithRetry(node.call, toolSpec, context)
-        results[node.call.toolCallId] = result
+                    results[node.call.toolCallId] = result
                     if (result.outcome is ToolOutcome.Success) {
                         circuitBreaker.recordSuccess(toolName)
                     } else {
@@ -529,21 +570,22 @@ class SmartExecutor(
                 }
             } catch (e: Exception) {
                 val errorMsg = e.message ?: "Unknown error"
-        errors[node.call.toolCallId] = errorMsg
+                errors[node.call.toolCallId] = errorMsg
                 results[node.call.toolCallId] = ExecutionResult(
                     toolCallId = node.call.toolCallId,
                     toolName = toolName,
                     outcome = ToolOutcome.Failure(errorMsg, recoverable = false),
                     durationMs = 0
                 )
-        circuitBreaker.recordFailure(toolName)
+                circuitBreaker.recordFailure(toolName)
             } finally {
                 inFlight.remove(toolName)
-        completed.add(node.call.toolCallId)
+                completed.add(node.call.toolCallId)
             }
         }
     }
-        private suspend fun executeWithRetry(
+
+    private suspend fun executeWithRetry(
         call: ParsedToolCall,
         spec: ToolSpec,
         context: ExecutionContext
@@ -563,6 +605,7 @@ class SmartExecutor(
                 durationMs = System.currentTimeMillis() - startTime
             )
         }
+
         val timeout = if (isBerserk) {
             Long.MAX_VALUE
         } else {
@@ -571,16 +614,17 @@ class SmartExecutor(
         val maxAttempts = if (isBerserk || activeConfig.infiniteRetry) Int.MAX_VALUE
             else if (spec.errorRecovery == FailureStrategy.FAIL_FAST) 1
             else (activeConfig.maxRetries + 1)
+
         var lastError: Throwable? = null
         var attempt = 1
         while (attempt <= maxAttempts) {
             try {
                 semaphore.acquire(activeConfig.maxParallelism)
-        try {
+                try {
                     val outcome = withTimeout(timeout) {
                         invoker.invoke(spec, call.arguments)
                     }
-        return ExecutionResult(
+                    return ExecutionResult(
                         toolCallId = call.toolCallId,
                         toolName = spec.name,
                         outcome = outcome,
@@ -607,15 +651,17 @@ class SmartExecutor(
                 } else {
                     min(500L * attempt, 10000L)
                 }
-        delay(delayMs)
+                delay(delayMs)
             }
-        attempt++
+            attempt++
         }
+
         val recoveryResult = if (isBerserk) {
             attemptBerserkRecovery(call, spec, lastError, context)
         } else {
             attemptRecovery(call, spec, lastError)
         }
+
         return recoveryResult ?: ExecutionResult(
             toolCallId = call.toolCallId,
             toolName = spec.name,
@@ -627,7 +673,8 @@ class SmartExecutor(
             retryCount = attempt - 1
         )
     }
-        private suspend fun attemptBerserkRecovery(
+
+    private suspend fun attemptBerserkRecovery(
         call: ParsedToolCall,
         spec: ToolSpec,
         error: Throwable?,
@@ -642,7 +689,7 @@ class SmartExecutor(
                 val outcome = withTimeout(30000) {
                     invoker.invoke(recoveryStep, call.arguments)
                 }
-        if (outcome is ToolOutcome.Success) {
+                if (outcome is ToolOutcome.Success) {
                     firstSuccess = ExecutionResult(
                         toolCallId = call.toolCallId,
                         toolName = "${spec.name}>>>${recoveryStep.name}",
@@ -653,10 +700,13 @@ class SmartExecutor(
                 }
             } catch (_: Exception) { }
         }
+
         return firstSuccess
     }
-        private fun buildBerserkRecoveryChain(failed: ToolSpec): List<ToolSpec> {
+
+    private fun buildBerserkRecoveryChain(failed: ToolSpec): List<ToolSpec> {
         val chain = mutableListOf<ToolSpec>()
+
         when (failed.name) {
             "click_element" -> {
                 listOf("tap", "long_press", "press_key").forEach { name ->
@@ -723,13 +773,15 @@ class SmartExecutor(
                     registry.getByName(name)?.let { chain.add(it) }
                 }
             }
-        else -> {
+            else -> {
                 findAllFallbacks(failed).forEach { chain.add(it) }
             }
         }
+
         return chain.distinct()
     }
-        private suspend fun attemptRecovery(
+
+    private suspend fun attemptRecovery(
         call: ParsedToolCall,
         spec: ToolSpec,
         error: Throwable?
@@ -737,9 +789,9 @@ class SmartExecutor(
         return when (spec.errorRecovery) {
             FailureStrategy.FALLBACK_CHAIN -> {
                 val fallback = findFallbackTool(spec)
-        if (fallback != null) {
+                if (fallback != null) {
                     val outcome = invoker.invoke(fallback, call.arguments)
-        ExecutionResult(
+                    ExecutionResult(
                         toolCallId = call.toolCallId,
                         toolName = "${spec.name}->${fallback.name}",
                         outcome = outcome,
@@ -748,10 +800,11 @@ class SmartExecutor(
                     )
                 } else null
             }
-        else -> null
+            else -> null
         }
     }
-        private fun findFallbackTool(failed: ToolSpec): ToolSpec? {
+
+    private fun findFallbackTool(failed: ToolSpec): ToolSpec? {
         val fallbackMap = mapOf(
             "read_file" to listOf("read_file_part", "read_file_full"),
             "browser_navigate" to listOf("visit_web"),
@@ -762,7 +815,8 @@ class SmartExecutor(
         )
         return fallbackMap[failed.name]?.mapNotNull { registry.getByName(it) }?.firstOrNull()
     }
-        private fun isRetryable(e: Throwable): Boolean {
+
+    private fun isRetryable(e: Throwable): Boolean {
         val msg = e.message?.lowercase() ?: ""
         return msg.contains("timeout") || msg.contains("network") ||
             msg.contains("unavailable") || msg.contains("busy") ||
@@ -781,7 +835,7 @@ fun List<ParsedToolCall>.toExecutionFlow(
     context: ExecutionContext = ExecutionContext()
 ): Flow<ExecutionResult> = flow {
     val summary = executor.execute(this@toExecutionFlow, context)
-        for (result in summary.results) {
+    for (result in summary.results) {
         emit(result)
     }
 }

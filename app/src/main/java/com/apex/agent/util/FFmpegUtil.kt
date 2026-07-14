@@ -24,22 +24,22 @@ object FFmpegUtil {
     fun executeCommand(command: String): Boolean {
         try {
             AppLogger.d(TAG, "Executing FFmpeg command: ${command}")
-        val session = FFmpegKit.execute(command)
-        val returnCode = session.returnCode
+            val session = FFmpegKit.execute(command)
+            val returnCode = session.returnCode
 
             if (ReturnCode.isSuccess(returnCode)) {
                 AppLogger.d(TAG, "FFmpeg command executed successfully")
-        return true
+                return true
             } else {
                 AppLogger.e(
                     TAG,
                     "FFmpeg failed with return code: ${returnCode.value}, output: ${session.output}"
                 )
-        return false
+                return false
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error executing FFmpeg command", e)
-        return false
+            return false
         }
     }
 
@@ -49,10 +49,10 @@ object FFmpegUtil {
     fun getMediaInfo(filePath: String): MediaInformation? {
         return try {
             val mediaInfoSession = FFprobeKit.getMediaInformation(filePath)
-        mediaInfoSession.mediaInformation
+            mediaInfoSession.mediaInformation
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error getting media info: ${e.message}")
-        null
+            null
         }
     }
 } 

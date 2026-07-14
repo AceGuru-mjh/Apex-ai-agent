@@ -62,8 +62,10 @@ class BurstCollaborationAdapter(
         val frameworkTaskIds: MutableList<String> = mutableListOf(),
         val createdAt: Long = System.currentTimeMillis()
     )
-        private val sessions = ConcurrentHashMap<String, SwarmSessionState>()
-        override suspend fun registerSwarmAgents(
+
+    private val sessions = ConcurrentHashMap<String, SwarmSessionState>()
+
+    override suspend fun registerSwarmAgents(
         sessionId: String,
         taskId: String,
         agentCount: Int
@@ -77,22 +79,23 @@ class BurstCollaborationAdapter(
                 agents = emptyList()  // agents 在 registerAgent 后通过 activeAgents 关联
             )
         }.getOrNull()
+
         if (session == null) {
             Log.w(TAG, "registerSwarmAgents: createSession failed, using local-only mode")
             // 降级：仍然返回本地虚拟 agentId，dispatchToAgent 走纯本地路径
-        val fallbackIds = (1..agentCount.coerceAtLeast(1)).map { "local-$sessionId-$it" }
-        sessions[sessionId] = SwarmSessionState(
+            val fallbackIds = (1..agentCount.coerceAtLeast(1)).map { "local-$sessionId-$it" }
+            sessions[sessionId] = SwarmSessionState(
                 sessionId = sessionId,
                 taskId = taskId,
                 agentIds = fallbackIds
             )
-        return@withContext fallbackIds
+            return@withContext fallbackIds
         }
 
         // 2) 在 framework 侧注册 N 个虚拟 agent
         val agentIds = (1..agentCount.coerceAtLeast(1)).map { idx ->
-        val agentId = "swarm-$sessionId-$idx"
-        val agent = AgentCollaborationFramework.Agent(
+            val agentId = "swarm-$sessionId-$idx"
+            val agent = AgentCollaborationFramework.Agent(
                 id = agentId,
                 name = "Burst Swarm Agent #$idx",
                 role = AgentCollaborationFramework.AgentRole.SPECIALIST,
@@ -101,19 +104,22 @@ class BurstCollaborationAdapter(
                 isActive = true,
                 taskLoad = 0f
             )
-        runCatching { framework.registerAgent(agent) }
+            runCatching { framework.registerAgent(agent) }
                 .onFailure { Log.w(TAG, "registerAgent $agentId failed: ${it.message}") }
-        agentId
+            agentId
         }
+
         sessions[sessionId] = SwarmSessionState(
             sessionId = sessionId,
             taskId = taskId,
             agentIds = agentIds
         )
+
         Log.d(TAG, "registerSwarmAgents: session=$sessionId agents=${agentIds.size} fwSession=${session.id}")
         agentIds
     }
-        override suspend fun dispatchToAgent(
+
+    override suspend fun dispatchToAgent(
         sessionId: String,
         agentId: String,
         chunk: String,
@@ -125,7 +131,7 @@ class BurstCollaborationAdapter(
                 senderAgent = SYSTEM_AGENT_ID,
                 recipientAgent = agentId,
                 content = chunk.take(2000),  // 防止超长消息
-        messageType = AgentCollaborationFramework.MessageType.REQUEST,
+                messageType = AgentCollaborationFramework.MessageType.REQUEST,
                 attachments = emptyList()
             )
         }.onFailure { Log.w(TAG, "dispatch sendMessage REQUEST failed: ${it.message}") }
@@ -145,13 +151,15 @@ class BurstCollaborationAdapter(
                 attachments = emptyList()
             )
         }.onFailure { Log.w(TAG, "dispatch sendMessage RESPONSE failed: ${it.message}") }
+
         output
     }
-        override suspend fun releaseSwarm(sessionId: String) = withContext(Dispatchers.IO) {
+
+    override suspend fun releaseSwarm(sessionId: String) = withContext(Dispatchers.IO) {
         val state = sessions.remove(sessionId)
         if (state == null) {
             Log.d(TAG, "releaseSwarm: session=$sessionId not found (idempotent)")
-        return@withContext
+            return@withContext
         }
 
         // 把所有 framework task 标记为 COMPLETED（兜底清理）
@@ -168,6 +176,7 @@ class BurstCollaborationAdapter(
         // 注意：framework 没有 endSession/releaseSession API，只能通过 executeSession 兜底
         runCatching { framework.executeSession(sessionId) }
             .onFailure { Log.w(TAG, "executeSession $sessionId failed: ${it.message}") }
+
         Log.d(TAG, "releaseSwarm: session=$sessionId released, agents=${state.agentIds.size}")
     }
 }

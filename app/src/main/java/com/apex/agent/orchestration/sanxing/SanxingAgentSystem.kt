@@ -20,12 +20,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow
-import kotlinx.coroutines.Dispatchers.firstOrNull
+import kotlinx.coroutines.flow.firstOrNull
 
 /**
- * 三星分Agent 系统的编排入口，管理三省六部一台的全部角色。
- */
+ * 三星�?Agent 系统的编排入口，管理三省六部一台的全部角色�? */
 @Singleton
 class SanxingAgentSystem @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -55,18 +53,24 @@ class SanxingAgentSystem @Inject constructor(
             yushitai
         )
     }
-        fun getRoles(): List<SanxingRole> = allRoles
+
+    fun getRoles(): List<SanxingRole> = allRoles
 
     fun getAgents(): List<Agent> = allRoles.map { it.getAgent() }
-        fun createStandardAgents(): List<SanxingAgent> = allRoles.map { createAgent(it) }
-        fun getThreeProvinceAgents(): List<SanxingAgent> = listOf(
+
+    fun createStandardAgents(): List<SanxingAgent> = allRoles.map { createAgent(it) }
+
+    fun getThreeProvinceAgents(): List<SanxingAgent> = listOf(
         createAgent(zhongshuSheng),
         createAgent(menxiaSheng),
         createAgent(shangshuSheng)
     )
-        fun findRole(roleId: String): SanxingRole? = allRoles.find { it.roleId == roleId }
-        fun findAgent(roleId: String): Agent? = findRole(roleId)?.getAgent()
-        fun createAgent(role: SanxingRole): SanxingAgent {
+
+    fun findRole(roleId: String): SanxingRole? = allRoles.find { it.roleId == roleId }
+
+    fun findAgent(roleId: String): Agent? = findRole(roleId)?.getAgent()
+
+    fun createAgent(role: SanxingRole): SanxingAgent {
         val agent = role.getAgent()
         return SanxingAgent(
             agent = agent,
@@ -80,7 +84,8 @@ class SanxingAgentSystem @Inject constructor(
             )
         )
     }
-        fun createAgentWithGlobalConfig(
+
+    fun createAgentWithGlobalConfig(
         role: SanxingRole,
         useGlobalConfig: Boolean = true,
         configId: String? = null
@@ -98,17 +103,17 @@ class SanxingAgentSystem @Inject constructor(
             )
         )
     }
-        fun getAvailableProviders(): List<com.apex.data.model.ApiProviderType> {
+
+    fun getAvailableProviders(): List<com.apex.data.model.ApiProviderType> {
         return com.apex.data.model.ApiProviderType.values().toList()
     }
-        fun getAvailableConfigs(): List<com.apex.core.config.ModelConfigService.ModelConfigTemplate> {
+
+    fun getAvailableConfigs(): List<com.apex.core.config.ModelConfigService.ModelConfigTemplate> {
         return com.apex.core.config.ModelConfigService.getInstance(context).getConfigTemplates()
     }
 
     /**
-     * 激活三星制系统并处理用户输入。
-     * 当前为最小占位实现，将输入路由给中书省角色处理。
-     */
+     * 激活三星制系统并处理用户输入�?     * 当前为最小占位实现，将输入路由给中书省角色处理�?     */
     suspend fun activate(input: String): Result<String> {
         val message = AgentMessage(
             id = UUID.randomUUID().toString(),
@@ -120,44 +125,47 @@ class SanxingAgentSystem @Inject constructor(
         val response = zhongshuSheng.handleMessage(message).firstOrNull()
         return when (response) {
             is Result.Success -> Result.Success(response.data.content)
-        else -> Result.Success("三星制系统已激活")
+            else -> Result.Success("三星制系统已激�?)
         }
     }
-        fun createAgentForUser(
+
+    fun createAgentForUser(
         role: SanxingRole,
         userId: Long,
         rbacManager: RbacManager
     ): SanxingAgent {
         val rbacPerms = SanxingRbacBridge.toRbacPermissions(role.permissions)
         val missing = rbacPerms.filter { permName ->
-            kotlinx.coroutines.runBlocking(Dispatchers.IO) { !rbacManager.hasPermission(userId, permName) }
+            kotlinx.coroutines.runBlocking { !rbacManager.hasPermission(userId, permName) }
         }
         if (missing.isNotEmpty()) {
             throw PermissionDeniedException(
-                "用户缺少创建 ${role.roleName} Agent 所需的权限 ${missing.joinToString(", ")}"
+                "用户缺少创建 ${role.roleName} Agent 所需的权�? ${missing.joinToString(", ")}"
             )
         }
         return createAgent(role)
     }
-        suspend fun validateUserPermissions(
+
+    suspend fun validateUserPermissions(
         userId: Long,
         rbacManager: RbacManager
     ): Map<String, List<String>> {
         val result = mutableMapOf<String, List<String>>()
         for (role in allRoles) {
             val missing = SanxingRbacBridge.getMissingPermissions(rbacManager, userId, role)
-        if (missing.isNotEmpty()) {
+            if (missing.isNotEmpty()) {
                 result[role.roleId] = missing
             }
         }
         return result
     }
-        private fun getEndpointForRole(role: SanxingRole): String {
+
+    private fun getEndpointForRole(role: SanxingRole): String {
         return when (role.roleId) {
             "sanxing_menxia" -> "https://api.anthropic.com/v1/messages"
             "sanxing_xingbu" -> "https://api.anthropic.com/v1/messages"
             "sanxing_bingbu" -> "https://api.deepseek.com/v1/chat/completions"
-        else -> "https://api.openai.com/v1/chat/completions"
+            else -> "https://api.openai.com/v1/chat/completions"
         }
     }
 }
@@ -171,7 +179,7 @@ data class SanxingAgent(
 
 data class ApiEndpointConfig(
     var endpoint: String = "https://api.openai.com/v1/chat/completions",
-        var apiKey: String = "",
+    var apiKey: String = "",
     var timeout: Int = 60,
     var retryCount: Int = 3,
     var rateLimit: Int = 100

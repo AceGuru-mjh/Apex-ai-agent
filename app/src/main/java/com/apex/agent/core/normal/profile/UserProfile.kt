@@ -83,7 +83,7 @@ data class UserProfile(
 data class LanguageStyle(
     val formality: Formality = Formality.NEUTRAL,
     val preferredLanguage: String = "",  // "中文" / "English" / "中英混合"
-        val tone: Tone = Tone.FRIENDLY,
+    val tone: Tone = Tone.FRIENDLY,
     val verbosity: Verbosity = Verbosity.MODERATE
 )
 
@@ -105,8 +105,8 @@ data class TechStack(
 
 data class ResponsePreference(
     val depth: String = "standard",  // brief/standard/detailed/comprehensive
-        val style: String = "balanced",  // balanced/technical/conversational/academic
-        val useEmoji: Boolean = false,
+    val style: String = "balanced",  // balanced/technical/conversational/academic
+    val useEmoji: Boolean = false,
     val includeExamples: Boolean = true,
     val preferBulletPoints: Boolean = false,
     val codeStyle: CodeStyle = CodeStyle.WITH_COMMENTS
@@ -114,8 +114,8 @@ data class ResponsePreference(
 
 enum class CodeStyle {
     MINIMAL,           // 仅代码
-        WITH_COMMENTS,     // 带注释
-        FULLY_DOCUMENTED   // 详细文档
+    WITH_COMMENTS,     // 带注释
+    FULLY_DOCUMENTED   // 详细文档
 }
 
 /**
@@ -151,9 +151,10 @@ class UserProfileManager {
     fun learnFromMessage(userId: String, userMessage: String, assistantResponse: String) {
         update(userId) { profile ->
             val newLanguages = detectLanguages(userMessage, profile.techStack.languages)
-        val newFrameworks = detectFrameworks(userMessage, profile.techStack.frameworks)
-        val newTraits = learnTraits(userMessage, profile.learnedTraits)
-        profile.copy(
+            val newFrameworks = detectFrameworks(userMessage, profile.techStack.frameworks)
+            val newTraits = learnTraits(userMessage, profile.learnedTraits)
+
+            profile.copy(
                 techStack = profile.techStack.copy(
                     languages = (profile.techStack.languages + newLanguages).distinct().take(10),
                     frameworks = (profile.techStack.frameworks + newFrameworks).distinct().take(10)
@@ -179,7 +180,7 @@ class UserProfileManager {
                 "style" -> profile.copy(responsePreference = profile.responsePreference.copy(style = value))
                 "emoji" -> profile.copy(responsePreference = profile.responsePreference.copy(useEmoji = value == "true"))
                 "examples" -> profile.copy(responsePreference = profile.responsePreference.copy(includeExamples = value == "true"))
-        else -> profile.copy(learnedTraits = profile.learnedTraits + (key to value))
+                else -> profile.copy(learnedTraits = profile.learnedTraits + (key to value))
             }
         }
     }
@@ -208,11 +209,12 @@ class UserProfileManager {
     fun generatePromptSnippet(userId: String): String {
         val profile = get(userId)
         return if (profile.interactionCount == 0 && profile.displayName.isBlank()) ""
-        else profile.toPromptSnippet()
+               else profile.toPromptSnippet()
     }
 
     // ============ 学习方法 ============
-        private fun detectLanguages(message: String, known: List<String>): List<String> {
+
+    private fun detectLanguages(message: String, known: List<String>): List<String> {
         val patterns = mapOf(
             "Python" to Regex("\\b(python|django|flask|pandas|numpy)\\b", RegexOption.IGNORE_CASE),
             "Kotlin" to Regex("\\b(kotlin|jetpack|compose)\\b", RegexOption.IGNORE_CASE),
@@ -227,7 +229,8 @@ class UserProfileManager {
             .map { it.key }
             .filter { it !in known }
     }
-        private fun detectFrameworks(message: String, known: List<String>): List<String> {
+
+    private fun detectFrameworks(message: String, known: List<String>): List<String> {
         val patterns = mapOf(
             "Android" to Regex("\\b(android|jetpack|compose|room|hilt)\\b", RegexOption.IGNORE_CASE),
             "React" to Regex("\\b(react|jsx|hooks|redux)\\b", RegexOption.IGNORE_CASE),
@@ -240,7 +243,8 @@ class UserProfileManager {
             .map { it.key }
             .filter { it !in known }
     }
-        private fun learnTraits(message: String, known: Map<String, String>): Map<String, String> {
+
+    private fun learnTraits(message: String, known: Map<String, String>): Map<String, String> {
         val traits = known.toMutableMap()
         // 检测时间偏好
         if (message.contains("早上|上午|morning", true) && !"morning_person" in traits) {
@@ -252,29 +256,30 @@ class UserProfileManager {
         }
         return traits
     }
-        private fun inferLanguageStyle(message: String, current: LanguageStyle): LanguageStyle {
+
+    private fun inferLanguageStyle(message: String, current: LanguageStyle): LanguageStyle {
         var style = current
         // 推断正式度
         if (current.formality == Formality.NEUTRAL) {
             val casualMarkers = listOf("哈", "呀", "呢", "嘛", "lol", "btw", "haha")
-        val formalMarkers = listOf("请问", "烦请", "敬请", "恳请", "respectfully")
-        style = when {
+            val formalMarkers = listOf("请问", "烦请", "敬请", "恳请", "respectfully")
+            style = when {
                 casualMarkers.any { message.contains(it, ignoreCase = true) } ->
                     style.copy(formality = Formality.CASUAL)
-        formalMarkers.any { message.contains(it, ignoreCase = true) } ->
+                formalMarkers.any { message.contains(it, ignoreCase = true) } ->
                     style.copy(formality = Formality.FORMAL)
-        else -> style
+                else -> style
             }
         }
         // 推断偏好语言
         if (current.preferredLanguage.isBlank()) {
             val hasChinese = message.any { it.code in 0x4e00..0x9fff }
-        val hasEnglish = message.any { it in 'a'..'z' || it in 'A'..'Z' }
-        style = when {
+            val hasEnglish = message.any { it in 'a'..'z' || it in 'A'..'Z' }
+            style = when {
                 hasChinese && hasEnglish -> style.copy(preferredLanguage = "中英混合")
-        hasChinese -> style.copy(preferredLanguage = "中文")
-        hasEnglish -> style.copy(preferredLanguage = "English")
-        else -> style
+                hasChinese -> style.copy(preferredLanguage = "中文")
+                hasEnglish -> style.copy(preferredLanguage = "English")
+                else -> style
             }
         }
         return style

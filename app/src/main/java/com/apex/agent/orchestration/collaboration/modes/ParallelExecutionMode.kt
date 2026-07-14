@@ -22,40 +22,49 @@ class ParallelExecutionMode @Inject constructor(
         val maxRounds: Int = 3
         val results = mutableMapOf<String, String>()
     }
-        override fun createState(task: Task, agents: List<Agent>): ParallelState {
+
+    override fun createState(task: Task, agents: List<Agent>): ParallelState {
         return ParallelState(task, agents)
     }
-        override suspend fun runStep(state: ParallelState) {
+
+    override suspend fun runStep(state: ParallelState) {
         val agents = state.agents
         if (agents.isEmpty()) {
             state.running.set(false)
-        return
+            return
         }
+
         agents.forEach { agent ->
             updateAgentStatus(state, agent.id, AgentStatus.WORKING)
-        val result = executeBranch(agent, state.executionRound)
-        state.results[agent.id] = result
+
+            val result = executeBranch(agent, state.executionRound)
+            state.results[agent.id] = result
 
             updateAgentProgress(state, agent.id, (state.executionRound + 1).toFloat() / state.maxRounds)
         }
+
         agents.forEach { agent ->
             updateAgentStatus(state, agent.id, AgentStatus.FINISHED)
         }
+
         state.executionRound++
 
         if (state.executionRound >= state.maxRounds) {
             aggregateResults(state)
         }
     }
-        private fun executeBranch(agent: Agent, round: Int): String {
+
+    private fun executeBranch(agent: Agent, round: Int): String {
         return context.getString(R.string.parallel_branch_execution_format, agent.name, round + 1)
     }
-        private fun aggregateResults(state: ParallelState) {
+
+    private fun aggregateResults(state: ParallelState) {
         val summary = state.results.entries.joinToString("\n") { "${it.key}: ${it.value}" }
         state.results.clear()
         state.running.set(false)
     }
-        override suspend fun onMessage(state: ParallelState, message: AgentMessage) {
+
+    override suspend fun onMessage(state: ParallelState, message: AgentMessage) {
         state.results[message.senderId] = message.content
     }
 }

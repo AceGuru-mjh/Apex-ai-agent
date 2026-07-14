@@ -62,11 +62,12 @@ object NetworkUtils {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return context.getString(R.string.not_connected)
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return context.getString(R.string.not_connected)
+
         return when {
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "WiFi"
-        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> context.getString(R.string.mobile_data)
-        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> context.getString(R.string.ethernet)
-        else -> context.getString(R.string.other_network)
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> context.getString(R.string.mobile_data)
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> context.getString(R.string.ethernet)
+            else -> context.getString(R.string.other_network)
         }
     }
 
@@ -110,7 +111,7 @@ object NetworkUtils {
         val network = connectivityManager.activeNetwork
         if (network != null) {
             val capabilities = connectivityManager.getNetworkCapabilities(network)
-        if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+            if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
                 return true
             }
         }
@@ -118,11 +119,11 @@ object NetworkUtils {
         // 方法二：通过检查系统网络接口中的 VPN 接口作为补充
         return try {
             val interfaces = NetworkInterface.getNetworkInterfaces()
-        while (interfaces.hasMoreElements()) {
+            while (interfaces.hasMoreElements()) {
                 val networkInterface = interfaces.nextElement()
-        if (networkInterface.isUp) {
+                if (networkInterface.isUp) {
                     val name = networkInterface.displayName.lowercase()
-        if (name.contains("tun") || name.contains("pptp") ||
+                    if (name.contains("tun") || name.contains("pptp") ||
                         name.contains("ppp") || name.contains("tap") ||
                         name.contains("vpn")
                     ) {
@@ -130,7 +131,7 @@ object NetworkUtils {
                     }
                 }
             }
-        false
+            false
         } catch (e: Exception) {
             false
         }
@@ -146,23 +147,23 @@ object NetworkUtils {
         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         return when (telephonyManager.dataNetworkType) {
             TelephonyManager.NETWORK_TYPE_NR -> "5G"
-        TelephonyManager.NETWORK_TYPE_LTE -> "4G"
-        TelephonyManager.NETWORK_TYPE_LTE_CA -> "4G+"
-        TelephonyManager.NETWORK_TYPE_UMTS -> "3G"
-        TelephonyManager.NETWORK_TYPE_HSDPA -> "H"
-        TelephonyManager.NETWORK_TYPE_HSUPA -> "H"
-        TelephonyManager.NETWORK_TYPE_HSPA -> "H"
-        TelephonyManager.NETWORK_TYPE_HSPAP -> "H+"
-        TelephonyManager.NETWORK_TYPE_EDGE -> "E"
-        TelephonyManager.NETWORK_TYPE_GPRS -> "GPRS"
-        TelephonyManager.NETWORK_TYPE_CDMA -> "CDMA"
-        TelephonyManager.NETWORK_TYPE_EVDO_0 -> "EVDO"
-        TelephonyManager.NETWORK_TYPE_EVDO_A -> "EVDO"
-        TelephonyManager.NETWORK_TYPE_EVDO_B -> "EVDO"
-        TelephonyManager.NETWORK_TYPE_1xRTT -> "1xRTT"
-        TelephonyManager.NETWORK_TYPE_IDEN -> "IDEN"
-        TelephonyManager.NETWORK_TYPE_TD_SCDMA -> "TD-SCDMA"
-        else -> "Unknown"
+            TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+            TelephonyManager.NETWORK_TYPE_LTE_CA -> "4G+"
+            TelephonyManager.NETWORK_TYPE_UMTS -> "3G"
+            TelephonyManager.NETWORK_TYPE_HSDPA -> "H"
+            TelephonyManager.NETWORK_TYPE_HSUPA -> "H"
+            TelephonyManager.NETWORK_TYPE_HSPA -> "H"
+            TelephonyManager.NETWORK_TYPE_HSPAP -> "H+"
+            TelephonyManager.NETWORK_TYPE_EDGE -> "E"
+            TelephonyManager.NETWORK_TYPE_GPRS -> "GPRS"
+            TelephonyManager.NETWORK_TYPE_CDMA -> "CDMA"
+            TelephonyManager.NETWORK_TYPE_EVDO_0 -> "EVDO"
+            TelephonyManager.NETWORK_TYPE_EVDO_A -> "EVDO"
+            TelephonyManager.NETWORK_TYPE_EVDO_B -> "EVDO"
+            TelephonyManager.NETWORK_TYPE_1xRTT -> "1xRTT"
+            TelephonyManager.NETWORK_TYPE_IDEN -> "IDEN"
+            TelephonyManager.NETWORK_TYPE_TD_SCDMA -> "TD-SCDMA"
+            else -> "Unknown"
         }
     }
 
@@ -175,10 +176,10 @@ object NetworkUtils {
     fun getWifiSsid(context: Context): String? {
         return try {
             val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val connectionInfo = wifiManager.connectionInfo
+            val connectionInfo = wifiManager.connectionInfo
             val ssid = connectionInfo.ssid
             // 去除可能的引号
-        if (ssid != null && ssid != WifiInfo.UNKNOWN_SSID) {
+            if (ssid != null && ssid != WifiInfo.UNKNOWN_SSID) {
                 ssid.removeSurrounding("\"")
             } else {
                 null
@@ -214,8 +215,8 @@ object NetworkUtils {
     fun getIpAddress(context: Context): String? {
         return try {
             // 优先通过 WiFiManager 获取
-        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val wifiInfo = wifiManager.connectionInfo
+            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wifiInfo = wifiManager.connectionInfo
             val ipInt = wifiInfo.ipAddress
             if (ipInt != 0) {
                 return String.format(
@@ -228,22 +229,22 @@ object NetworkUtils {
             }
 
             // 备用：遍历网络接口获取 IPv4 地址
-        val interfaces = NetworkInterface.getNetworkInterfaces()
-        val addresses = mutableListOf<InetAddress>()
-        while (interfaces.hasMoreElements()) {
+            val interfaces = NetworkInterface.getNetworkInterfaces()
+            val addresses = mutableListOf<InetAddress>()
+            while (interfaces.hasMoreElements()) {
                 val networkInterface = interfaces.nextElement()
-        if (networkInterface.isUp && !networkInterface.isLoopback) {
+                if (networkInterface.isUp && !networkInterface.isLoopback) {
                     val interfaceAddresses = networkInterface.inetAddresses
                     while (interfaceAddresses.hasMoreElements()) {
                         val addr = interfaceAddresses.nextElement()
-        if (addr is Inet4Address && !addr.isLoopbackAddress) {
+                        if (addr is Inet4Address && !addr.isLoopbackAddress) {
                             addresses.add(addr)
                         }
                     }
                 }
             }
             // 优先返回非本地链接地址
-        addresses.firstOrNull { !it.isLinkLocalAddress }?.hostAddress
+            addresses.firstOrNull { !it.isLinkLocalAddress }?.hostAddress
                 ?: addresses.firstOrNull()?.hostAddress
         } catch (e: Exception) {
             null
@@ -277,14 +278,14 @@ object NetworkUtils {
         return when {
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
                 val rssi = getWifiSignalStrength(context)
-        when {
+                when {
                     rssi >= -50 -> NetworkSpeed.VERY_HIGH
                     rssi >= -65 -> NetworkSpeed.HIGH
                     rssi >= -80 -> NetworkSpeed.MEDIUM
                     else -> NetworkSpeed.LOW
                 }
             }
-        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> NetworkSpeed.VERY_HIGH
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> NetworkSpeed.VERY_HIGH
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
                 when (getConnectionSubtype(context)) {
                     "5G" -> NetworkSpeed.VERY_HIGH
@@ -293,7 +294,7 @@ object NetworkUtils {
                     else -> NetworkSpeed.LOW
                 }
             }
-        else -> NetworkSpeed.LOW
+            else -> NetworkSpeed.LOW
         }
     }
 

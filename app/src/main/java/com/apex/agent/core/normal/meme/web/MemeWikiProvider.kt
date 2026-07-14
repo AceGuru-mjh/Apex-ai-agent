@@ -27,10 +27,12 @@ class MemeWikiProvider {
         if (jikipedia.success) {
             return jikipedia.copy(searchTimeMs = System.currentTimeMillis() - start)
         }
+
         val baidu = tryBaiduBaike(query)
         if (baidu.success) {
             return baidu.copy(searchTimeMs = System.currentTimeMillis() - start)
         }
+
         return MemeWikiResult(
             query = query,
             success = false,
@@ -46,9 +48,10 @@ class MemeWikiProvider {
     private suspend fun tryJikipedia(query: String): MemeWikiResult {
         return withContext(Dispatchers.IO) {
             // 小鸡词典搜索 API（公开页面）
-        val searchUrl = "https://jikipedia.com/search?phrase=${MemeHttpUtil.encode(query)}"
-        val result = MemeHttpUtil.get(searchUrl)
-        if (!result.success) {
+            val searchUrl = "https://jikipedia.com/search?phrase=${MemeHttpUtil.encode(query)}"
+            val result = MemeHttpUtil.get(searchUrl)
+
+            if (!result.success) {
                 return@withContext MemeWikiResult(
                     query = query, success = false,
                     error = "小鸡词典请求失败: ${result.error}"
@@ -56,16 +59,16 @@ class MemeWikiProvider {
             }
 
             // 解析页面内容，提取梗的定义
-        val html = result.body
+            val html = result.body
 
             // 尝试提取 JSON-LD 数据
-        val jsonLdPattern = Regex("""<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
-        jsonLdPattern.find(html)?.let { match ->
+            val jsonLdPattern = Regex("""<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
+            jsonLdPattern.find(html)?.let { match ->
                 val json = MemeJsonUtil.parseObject(match.groupValues[1])
-        if (json != null) {
+                if (json != null) {
                     val name = json.optString("name", query)
-        val description = json.optString("description", "")
-        if (description.isNotBlank()) {
+                    val description = json.optString("description", "")
+                    if (description.isNotBlank()) {
                         return@withContext MemeWikiResult(
                             query = query,
                             success = true,
@@ -79,10 +82,10 @@ class MemeWikiProvider {
             }
 
             // 尝试从 HTML 提取定义
-        val defPattern = Regex("""<div[^>]*class="[^"]*definition[^"]*"[^>]*>(.*?)</div>""", RegexOption.DOT_MATCHES_ALL)
-        defPattern.find(html)?.let { match ->
+            val defPattern = Regex("""<div[^>]*class="[^"]*definition[^"]*"[^>]*>(.*?)</div>""", RegexOption.DOT_MATCHES_ALL)
+            defPattern.find(html)?.let { match ->
                 val definition = cleanHtml(match.groupValues[1])
-        if (definition.isNotBlank() && definition.length > 10) {
+                if (definition.isNotBlank() && definition.length > 10) {
                     return@withContext MemeWikiResult(
                         query = query,
                         success = true,
@@ -95,8 +98,8 @@ class MemeWikiProvider {
             }
 
             // 尝试提取 content 描述
-        val contentPattern = Regex("""<meta[^>]*name="description"[^>]*content="([^"]+)"""")
-        contentPattern.find(html)?.let { match ->
+            val contentPattern = Regex("""<meta[^>]*name="description"[^>]*content="([^"]+)"""")
+            contentPattern.find(html)?.let { match ->
                 val content = match.groupValues[1]
                 if (content.length > 20) {
                     return@withContext MemeWikiResult(
@@ -109,7 +112,8 @@ class MemeWikiProvider {
                     )
                 }
             }
-        MemeWikiResult(query = query, success = false, error = "小鸡词典未找到结果")
+
+            MemeWikiResult(query = query, success = false, error = "小鸡词典未找到结果")
         }
     }
 
@@ -119,19 +123,21 @@ class MemeWikiProvider {
     private suspend fun tryBaiduBaike(query: String): MemeWikiResult {
         return withContext(Dispatchers.IO) {
             val enhancedQuery = "${query}梗"
-        val url = "https://baike.baidu.com/item/${MemeHttpUtil.encode(enhancedQuery)}"
-        val result = MemeHttpUtil.get(url)
-        if (!result.success) {
+            val url = "https://baike.baidu.com/item/${MemeHttpUtil.encode(enhancedQuery)}"
+            val result = MemeHttpUtil.get(url)
+
+            if (!result.success) {
                 return@withContext MemeWikiResult(
                     query = query, success = false,
                     error = "百度百科请求失败"
                 )
             }
-        val html = result.body
+
+            val html = result.body
 
             // 提取百度百科摘要
-        val summaryPattern = Regex("""<meta[^>]*name="description"[^>]*content="([^"]+)"""")
-        summaryPattern.find(html)?.let { match ->
+            val summaryPattern = Regex("""<meta[^>]*name="description"[^>]*content="([^"]+)"""")
+            summaryPattern.find(html)?.let { match ->
                 val summary = match.groupValues[1]
                 if (summary.length > 20) {
                     return@withContext MemeWikiResult(
@@ -146,10 +152,10 @@ class MemeWikiProvider {
             }
 
             // 提取正文内容
-        val contentPattern = Regex("""<div[^>]*class="[^"]*lemma-summary[^"]*"[^>]*>(.*?)</div>""", RegexOption.DOT_MATCHES_ALL)
-        contentPattern.find(html)?.let { match ->
+            val contentPattern = Regex("""<div[^>]*class="[^"]*lemma-summary[^"]*"[^>]*>(.*?)</div>""", RegexOption.DOT_MATCHES_ALL)
+            contentPattern.find(html)?.let { match ->
                 val content = cleanHtml(match.groupValues[1])
-        if (content.length > 20) {
+                if (content.length > 20) {
                     return@withContext MemeWikiResult(
                         query = query,
                         success = true,
@@ -160,7 +166,8 @@ class MemeWikiProvider {
                     )
                 }
             }
-        MemeWikiResult(query = query, success = false, error = "百度百科未找到结果")
+
+            MemeWikiResult(query = query, success = false, error = "百度百科未找到结果")
         }
     }
 }

@@ -7,22 +7,22 @@ import com.apex.core.tools.adapters.ExternalApiToolAdapter
 import com.apex.core.tools.adapters.QuickSearchToolAdapter
 
 /**
- * 工具适配器管理器，用于管理所有的工具适配置* 增强版本：添加工具执行历史、状态跟踪、性能统计等功能*/
+ * 工具适配器管理器，用于管理所有的工具适配�?* 增强版本：添加工具执行历史、状态跟踪、性能统计等功�?*/
 object ToolAdapterManager {
 
     // 工具执行历史
-        private val executionHistory = mutableListOf<ToolExecutionRecord>()
-        private val MAX_HISTORY_SIZE = 100
+    private val executionHistory = mutableListOf<ToolExecutionRecord>()
+    private val MAX_HISTORY_SIZE = 100
     
     // 工具使用统计
-        private val usageStats = mutableMapOf<String, ToolUsageStat>()
-        init {
-        // 初始化时注册默认工具适配置
-        registerDefaultAdapters()
+    private val usageStats = mutableMapOf<String, ToolUsageStat>()
+
+    init {
+        // 初始化时注册默认工具适配�?       registerDefaultAdapters()
     }
 
     /**
-     * 初始化工具适配器（需要在 Application 中调用，传入应用 Context，
+     * 初始化工具适配器（需要在 Application 中调用，传入应用 Context�?
      * @param context 应用 Context
      */
     fun initialize(context: android.content.Context) {
@@ -31,20 +31,15 @@ object ToolAdapterManager {
     }
 
     /**
-     * 注册默认工具适配置
-    */
+     * 注册默认工具适配�?    */
     private fun registerDefaultAdapters() {
-        // 注册数据库工具适配置
-        ToolRegistry.register(DatabaseToolAdapter())
-        // 注册外部API工具适配置
-        ToolRegistry.register(ExternalApiToolAdapter())
-        // 注册快捷搜索工具适配置
-        ToolRegistry.register(QuickSearchToolAdapter())
+        // 注册数据库工具适配�?       ToolRegistry.register(DatabaseToolAdapter())
+        // 注册外部API工具适配�?       ToolRegistry.register(ExternalApiToolAdapter())
+        // 注册快捷搜索工具适配�?       ToolRegistry.register(QuickSearchToolAdapter())
     }
 
     /**
-     * 注册工具适配置
-    */
+     * 注册工具适配�?    */
     fun registerAdapter(adapter: ToolAdapter) {
         ToolRegistry.register(adapter)
     }
@@ -54,24 +49,27 @@ object ToolAdapterManager {
      */
     suspend fun executeTool(toolName: String, parameters: Map<String, Any>): ToolResultData {
         val startTime = System.currentTimeMillis()
+        
         val tool = ToolRegistry.getTool(toolName)
         if (tool == null) {
-            recordExecution(toolName, parameters, false, startTime, "工具不存，"
-        return StringResultData("错误：工具不存在，toolName")
+            recordExecution(toolName, parameters, false, startTime, "工具不存�?
+            return StringResultData("错误：工具不存在，toolName")
         }
+
         if (!tool.isAvailable()) {
-            recordExecution(toolName, parameters, false, startTime, "工具不可的）"
-        return StringResultData("错误：工具不可用了toolName")
+            recordExecution(toolName, parameters, false, startTime, "工具不可的）
+            return StringResultData("错误：工具不可用了toolName")
         }
+
         return try {
             val result = tool.execute(parameters)
-        recordExecution(toolName, parameters, true, startTime)
-        updateUsageStats(toolName, true)
-        result
+            recordExecution(toolName, parameters, true, startTime)
+            updateUsageStats(toolName, true)
+            result
         } catch (e: Exception) {
             recordExecution(toolName, parameters, false, startTime, e.message ?: "未知错误")
-        updateUsageStats(toolName, false)
-        StringResultData("工具执行失败，{e.message}")
+            updateUsageStats(toolName, false)
+            StringResultData("工具执行失败，{e.message}")
         }
     }
 
@@ -97,6 +95,7 @@ object ToolAdapterManager {
         if (tool == null) {
             return null
         }
+
         val stat = usageStats[toolName]
         
         return mapOf(
@@ -110,8 +109,7 @@ object ToolAdapterManager {
     }
 
     /**
-     * 获取所有工具信，
-    */
+     * 获取所有工具信�?    */
     fun getAllToolInfo(): List<Map<String, Any>> {
         return ToolRegistry.getAllTools().map { tool ->
             val stat = usageStats[tool.getName()]
@@ -148,13 +146,12 @@ object ToolAdapterManager {
     }
 
     /**
-     * 清除所有缓字
-    */
+     * 清除所有缓�?    */
     fun clearAllCache() {
-        // 目前缓存主要在各个工具适配器内定
-       // 这里可以添加清除各个工具缓存的逻辑
+        // 目前缓存主要在各个工具适配器内�?       // 这里可以添加清除各个工具缓存的逻辑
     }
-        private fun recordExecution(
+
+    private fun recordExecution(
         toolName: String,
         parameters: Map<String, Any>,
         success: Boolean,
@@ -172,6 +169,7 @@ object ToolAdapterManager {
             durationMs = duration,
             timestamp = startTime
         )
+        
         executionHistory.add(record)
         
         // 限制历史记录大小
@@ -179,7 +177,8 @@ object ToolAdapterManager {
             executionHistory.removeAt(0)
         }
     }
-        private fun updateUsageStats(toolName: String, success: Boolean) {
+
+    private fun updateUsageStats(toolName: String, success: Boolean) {
         val stat = usageStats.getOrPut(toolName) {
             ToolUsageStat(
                 toolName = toolName,
@@ -188,6 +187,7 @@ object ToolAdapterManager {
                 totalDurationMs = 0
             )
         }
+        
         stat.totalCount++
         if (success) {
             stat.successCount++
@@ -217,6 +217,7 @@ object ToolAdapterManager {
     ) {
         val successRate: Double
             get() = if (totalCount == 0) 0.0 else successCount.toDouble() / totalCount.toDouble()
+        
         val avgDurationMs: Double
             get() = if (totalCount == 0) 0.0 else totalDurationMs.toDouble() / totalCount.toDouble()
     }

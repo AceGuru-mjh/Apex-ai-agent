@@ -47,8 +47,8 @@ fun <T> LifecycleOwner.flowWithLifecycle(flow: Flow<T>): Flow<T> = callbackFlow 
             }
         }
     }
-        job.invokeOnCompletion { close(it) }
-        awaitClose { job.cancel() }
+    job.invokeOnCompletion { close(it) }
+    awaitClose { job.cancel() }
 }
 
 /**

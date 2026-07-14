@@ -7,8 +7,7 @@ import com.apex.data.model.ModelParameter
 import com.apex.data.model.ToolPrompt
 import com.apex.data.preferences.ApiPreferences
 import com.apex.util.AppLogger
-import kotlinx.coroutines.flow
-import kotlinx.coroutines.Dispatchers.first
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
@@ -69,16 +68,18 @@ class OpenRouterProvider(
             preserveThinkInHistory
         )
         val jsonObject = JSONObject(baseRequestBodyJson)
+
         applyOpenRouterReasoning(
             context = context,
             requestJson = jsonObject,
             modelParameters = modelParameters,
             enableThinking = enableThinking
         )
+
         val logJson = JSONObject(jsonObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
-        logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")
+            logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")
         }
         val sanitizedLogJson = sanitizeImageDataForLogging(logJson)
         logLargeString(
@@ -86,9 +87,11 @@ class OpenRouterProvider(
             sanitizedLogJson.toString(4),
             "Final OpenRouter request body: "
         )
+
         return createJsonRequestBody(jsonObject.toString())
     }
-        private fun applyOpenRouterReasoning(
+
+    private fun applyOpenRouterReasoning(
         context: Context,
         requestJson: JSONObject,
         modelParameters: List<ModelParameter<*>>,
@@ -107,21 +110,23 @@ class OpenRouterProvider(
                     "Skipping OpenRouter reasoning adaptation because reasoning is not an object"
                 )
             }
-        existingHasExplicitReasoningControl -> {
+
+            existingHasExplicitReasoningControl -> {
                 AppLogger.d(
                     "OpenRouterProvider",
                     "Preserving caller-supplied OpenRouter reasoning object"
                 )
             }
-        else -> {
+
+            else -> {
                 val finalReasoningObject = reasoningObject ?: JSONObject()
-        if (enableThinking) {
+                if (enableThinking) {
                     val budgetTokens = resolveReasoningBudget(context, requestJson, modelParameters)
-        if (budgetTokens != null && budgetTokens > 0) {
+                    if (budgetTokens != null && budgetTokens > 0) {
                         finalReasoningObject.put("max_tokens", budgetTokens)
                     }
-        requestJson.put("reasoning", finalReasoningObject)
-        AppLogger.d(
+                    requestJson.put("reasoning", finalReasoningObject)
+                    AppLogger.d(
                         "OpenRouterProvider",
                         if (budgetTokens != null) {
                             "OpenRouter thinking enabled via reasoning.max_tokens=${budgetTokens}"
@@ -131,9 +136,9 @@ class OpenRouterProvider(
                     )
                 } else {
                     finalReasoningObject.put("enabled", false)
-        finalReasoningObject.put("max_tokens", 0)
-        requestJson.put("reasoning", finalReasoningObject)
-        AppLogger.d(
+                    finalReasoningObject.put("max_tokens", 0)
+                    requestJson.put("reasoning", finalReasoningObject)
+                    AppLogger.d(
                         "OpenRouterProvider",
                         "OpenRouter thinking disabled via reasoning.enabled=false and max_tokens=0"
                     )
@@ -141,13 +146,14 @@ class OpenRouterProvider(
             }
         }
     }
-        private fun resolveReasoningBudget(
+
+    private fun resolveReasoningBudget(
         context: Context,
         requestJson: JSONObject,
         modelParameters: List<ModelParameter<*>>
     ): Int? {
         val qualityLevel = runCatching {
-            runBlocking(Dispatchers.IO) {
+            runBlocking {
                 ApiPreferences.getInstance(context).thinkingQualityLevelFlow.first()
             }
         }.getOrElse {
@@ -156,8 +162,9 @@ class OpenRouterProvider(
                 "Failed to read thinking quality level, falling back to auto reasoning",
                 it
             )
-        return null
+            return null
         }
+
         val requestedBudget =
             when (qualityLevel.coerceIn(1, 4)) {
                 1 -> null
@@ -166,33 +173,41 @@ class OpenRouterProvider(
                 4 -> 32_000
                 else -> null
             }
+
         if (requestedBudget == null) {
             return null
         }
+
         val modelMaxTokens =
             (modelParameters.firstOrNull { it.apiName == "max_tokens" && it.isEnabled }?.currentValue as? Number)
                 ?.toInt()
                 ?.takeIf { it > 1 }
                 ?: requestJson.optInt("max_tokens", 0).takeIf { it > 1 }
+
         if (modelMaxTokens == null) {
             return requestedBudget
         }
+
         val cappedBudget = minOf(requestedBudget, modelMaxTokens - 1)
         return if (cappedBudget > 0) cappedBudget else null
     }
-        companion object {
+
+    companion object {
         private const val DEFAULT_HTTP_REFERER = "ai.assistance.Apex"
         private const val DEFAULT_X_TITLE = "Assistance App"
+
         private fun mergeOpenRouterHeaders(customHeaders: Map<String, String>): Map<String, String> {
             val merged = linkedMapOf<String, String>()
-        if (customHeaders.keys.none { it.equals("HTTP-Referer", ignoreCase = true) }) {
+
+            if (customHeaders.keys.none { it.equals("HTTP-Referer", ignoreCase = true) }) {
                 merged["HTTP-Referer"] = DEFAULT_HTTP_REFERER
             }
-        if (customHeaders.keys.none { it.equals("X-Title", ignoreCase = true) }) {
+            if (customHeaders.keys.none { it.equals("X-Title", ignoreCase = true) }) {
                 merged["X-Title"] = DEFAULT_X_TITLE
             }
-        merged.putAll(customHeaders)
-        return merged
+
+            merged.putAll(customHeaders)
+            return merged
         }
     }
 }

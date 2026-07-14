@@ -20,14 +20,14 @@ import java.util.concurrent.ConcurrentHashMap
 data class BranchMessage(
     val id: String,
     val parentId: String?,       // 父消息 ID（null = 根）
-        val chatId: String,
+    val chatId: String,
     val role: Role,
     val content: String,
     val timestamp: Long = System.currentTimeMillis(),
     val childrenIds: MutableList<String> = mutableListOf(),
     val isActive: Boolean = false,  // 是否在当前活跃路径上
-        val branchLabel: String? = null,  // 分支标签
-        val metadata: Map<String, Any> = emptyMap()
+    val branchLabel: String? = null,  // 分支标签
+    val metadata: Map<String, Any> = emptyMap()
 ) {
     enum class Role { USER, ASSISTANT, SYSTEM }
 }
@@ -39,7 +39,7 @@ data class ConversationBranch(
     val id: String,
     val chatId: String,
     val fromMessageId: String,   // 从哪条消息分叉
-        val label: String,
+    val label: String,
     val createdAt: Long = System.currentTimeMillis(),
     val messageIds: List<String> = emptyList()
 )
@@ -61,8 +61,8 @@ data class BranchTree(
 class ConversationBranching {
 
     private val messages = ConcurrentHashMap<String, MutableMap<String, BranchMessage>>()  // chatId -> (msgId -> msg)
-        private val branches = ConcurrentHashMap<String, MutableList<ConversationBranch>>()     // chatId -> branches
-        private val activeTips = ConcurrentHashMap<String, String>()                            // chatId -> 当前活跃消息 ID
+    private val branches = ConcurrentHashMap<String, MutableList<ConversationBranch>>()     // chatId -> branches
+    private val activeTips = ConcurrentHashMap<String, String>()                            // chatId -> 当前活跃消息 ID
 
     /**
      * 添加消息（默认追加到当前活跃路径末尾）
@@ -71,6 +71,7 @@ class ConversationBranching {
         val chatMessages = messages.computeIfAbsent(chatId) { mutableMapOf() }
         val parentId = activeTips[chatId]
         val msgId = "msg_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
+
         val message = BranchMessage(
             id = msgId,
             parentId = parentId,
@@ -80,6 +81,7 @@ class ConversationBranching {
             isActive = true,
             branchLabel = branchLabel
         )
+
         chatMessages[msgId] = message
 
         // 更新父消息的 children
@@ -88,6 +90,7 @@ class ConversationBranching {
                 chatMessages[pid] = parent.copy(childrenIds = (parent.childrenIds + msgId).toMutableList())
             }
         }
+
         activeTips[chatId] = msgId
         return message
     }
@@ -153,9 +156,10 @@ class ConversationBranching {
         var current: BranchMessage? = branchStartMsg
         while (current != null) {
             path.add(current.id)
-        chatMessages[current.id] = current.copy(isActive = true)
-        current = current.childrenIds.lastOrNull()?.let { chatMessages[it] }
+            chatMessages[current.id] = current.copy(isActive = true)
+            current = current.childrenIds.lastOrNull()?.let { chatMessages[it] }
         }
+
         activeTips[chatId] = path.lastOrNull() ?: branch.fromMessageId
         return true
     }
@@ -172,7 +176,7 @@ class ConversationBranching {
         while (currentId != null) {
             val msg = chatMessages[currentId] ?: break
             path.add(0, msg)
-        currentId = msg.parentId
+            currentId = msg.parentId
         }
         return path
     }
@@ -185,6 +189,7 @@ class ConversationBranching {
         val roots = chatMessages.values.filter { it.parentId == null }.sortedBy { it.timestamp }
         val chatBranches = branches[chatId]?.toList() ?: emptyList()
         val activePath = getActivePath(chatId).map { it.id }
+
         return BranchTree(
             chatId = chatId,
             rootMessages = roots,
@@ -219,18 +224,21 @@ class ConversationBranching {
         val tree = getBranchTree(chatId)
         val sb = StringBuilder()
         sb.appendLine("═══ 对话分支树 ═══")
+
         fun render(msg: BranchMessage, indent: String, isLast: Boolean) {
             val prefix = if (indent.isEmpty()) "" else if (isLast) "└─ " else "├─ "
-        val activeMark = if (msg.isActive) " ★" else ""
-        val branchMark = msg.branchLabel?.let { "  [$it]" } ?: ""
-        val contentPreview = msg.content.take(40).replace("\n", " ")
-        sb.appendLine("$indent$prefix[${msg.role}] $contentPreview$branchMark$activeMark")
-        val children = msg.childrenIds.mapNotNull { tree.allMessages[it] }
-        children.forEachIndexed { i, child ->
+            val activeMark = if (msg.isActive) " ★" else ""
+            val branchMark = msg.branchLabel?.let { "  [$it]" } ?: ""
+            val contentPreview = msg.content.take(40).replace("\n", " ")
+            sb.appendLine("$indent$prefix[${msg.role}] $contentPreview$branchMark$activeMark")
+
+            val children = msg.childrenIds.mapNotNull { tree.allMessages[it] }
+            children.forEachIndexed { i, child ->
                 val newIndent = if (indent.isEmpty()) "" else if (isLast) "   " else "│  "
-        render(child, indent + newIndent, i == children.size - 1)
+                render(child, indent + newIndent, i == children.size - 1)
             }
         }
+
         tree.rootMessages.forEach { root ->
             render(root, "", true)
         }
@@ -249,19 +257,21 @@ class ConversationBranching {
     }
 
     // ============ 内部方法 ============
-        private fun deactivateSubtree(chatId: String, fromMessageId: String) {
+
+    private fun deactivateSubtree(chatId: String, fromMessageId: String) {
         val chatMessages = messages[chatId] ?: return
         val from = chatMessages[fromMessageId] ?: return
         // 把 from 之后的所有消息标记为非活跃
         val queue: ArrayDeque<String> = ArrayDeque(from.childrenIds)
         while (queue.isNotEmpty()) {
             val id = queue.removeFirst()
-        val msg = chatMessages[id] ?: continue
+            val msg = chatMessages[id] ?: continue
             chatMessages[id] = msg.copy(isActive = false)
-        queue.addAll(msg.childrenIds)
+            queue.addAll(msg.childrenIds)
         }
     }
-        data class BranchOption(
+
+    data class BranchOption(
         val messageId: String,
         val label: String,
         val content: String,

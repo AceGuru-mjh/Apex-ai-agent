@@ -1,7 +1,5 @@
 package com.apex.agent.core.normal
 
-import kotlinx.coroutines.Dispatchers
-
 import com.apex.agent.core.normal.branching.ConversationBranching
 import com.apex.agent.core.normal.clarification.ProactiveClarification
 import com.apex.agent.core.normal.context.SmartContextCompressor
@@ -55,25 +53,25 @@ class NormalAgentOrchestrator(
     val config: NormalAgentConfig = NormalAgentConfig()
 ) {
     // ===== v1 组件 (F1-F15) =====
-        val intentStateMachine = ConversationIntentStateMachine()
-        val adaptiveDepth = AdaptiveResponseDepth()
-        val contextCompressor = SmartContextCompressor(
+    val intentStateMachine = ConversationIntentStateMachine()
+    val adaptiveDepth = AdaptiveResponseDepth()
+    val contextCompressor = SmartContextCompressor(
         maxTokens = config.maxContextTokens,
         maxHistoryMessages = config.maxHistoryMessages
     )
-        val userProfileManager = UserProfileManager()
-        val crossSessionMemory = CrossSessionMemoryRAG()
-        val markdownRenderer = StreamingMarkdownRenderer()
-        val toolPreviewGenerator = ToolPreviewGenerator()
-        val toolConfirmationGateway = ToolConfirmationGateway()
-        val toolMacroRegistry = ToolMacroRegistry().apply { registerBuiltinMacros() }
-        val conversationBranching = ConversationBranching()
-        val thinkingChainParser = ThinkingChainParser()
-        val proactiveClarification = ProactiveClarification()
-        val personalToolRegistry = PersonalToolRegistry()
-        val sceneTemplateRegistry = SceneTemplateRegistry()
-        val sensitiveRedactor = SensitiveDataRedactor()
-        val healthCollector = ConversationHealthCollector()
+    val userProfileManager = UserProfileManager()
+    val crossSessionMemory = CrossSessionMemoryRAG()
+    val markdownRenderer = StreamingMarkdownRenderer()
+    val toolPreviewGenerator = ToolPreviewGenerator()
+    val toolConfirmationGateway = ToolConfirmationGateway()
+    val toolMacroRegistry = ToolMacroRegistry().apply { registerBuiltinMacros() }
+    val conversationBranching = ConversationBranching()
+    val thinkingChainParser = ThinkingChainParser()
+    val proactiveClarification = ProactiveClarification()
+    val personalToolRegistry = PersonalToolRegistry()
+    val sceneTemplateRegistry = SceneTemplateRegistry()
+    val sensitiveRedactor = SensitiveDataRedactor()
+    val healthCollector = ConversationHealthCollector()
 
     // ===== v2 新增组件 (F16-F30) =====
     /** F16: 对话摘要生成器 */
@@ -149,6 +147,7 @@ class NormalAgentOrchestrator(
     ): EnhancedInputProcessResult {
         // 先执行 v1 基础处理
         val baseResult = processInput(userMessage, context)
+
         val additionalInjections = mutableListOf<String>()
         val additionalActions = mutableListOf<NormalAction>()
 
@@ -156,7 +155,7 @@ class NormalAgentOrchestrator(
         val emotionAnalysis = emotionEngine.analyze(userMessage, context.chatId)
         if (emotionAnalysis.primaryEmotion.name != "NEUTRAL") {
             additionalInjections.add(emotionEngine.generateEmpathyPrompt(emotionAnalysis))
-        additionalActions.add(NormalAction.EmotionDetected(emotionAnalysis.primaryEmotion))
+            additionalActions.add(NormalAction.EmotionDetected(emotionAnalysis.primaryEmotion))
         }
 
         // F27: 多语言检测
@@ -169,11 +168,11 @@ class NormalAgentOrchestrator(
         val extraction = knowledgeGraph.extractFromText(userMessage, context.chatId)
         if (extraction.extractedNodes.isNotEmpty()) {
             val knowledgePrompt = knowledgeGraph.generateKnowledgePrompt(userMessage)
-        if (knowledgePrompt.isNotBlank()) additionalInjections.add(knowledgePrompt)
+            if (knowledgePrompt.isNotBlank()) additionalInjections.add(knowledgePrompt)
         }
 
         // F25: 提醒提取
-        val reminders = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
+        val reminders = kotlinx.coroutines.runBlocking {
             reminderManager.extractFromMessage(userMessage, context.chatId, "current")
         }
 
@@ -190,6 +189,7 @@ class NormalAgentOrchestrator(
             userId = context.userId
         )
         val suggestions = suggestionEngine.suggest(suggestionContext)
+
         return EnhancedInputProcessResult(
             base = baseResult,
             emotionAnalysis = emotionAnalysis,
@@ -235,7 +235,7 @@ class NormalAgentOrchestrator(
         var summary: com.apex.agent.core.normal.summary.ConversationSummary? = null
         if (roundIndex > 0 && roundIndex % 5 == 0) {
             // 实际应传入完整历史，这里简化
-        summary = summaryGenerator.generate(
+            summary = summaryGenerator.generate(
                 chatId = context.chatId,
                 messages = listOf(
                     com.apex.agent.core.normal.context.ConversationMessage(
@@ -247,6 +247,7 @@ class NormalAgentOrchestrator(
                 strategy = com.apex.agent.core.normal.summary.SummaryStrategy.HYBRID
             )
         }
+
         return EnhancedOutputProcessResult(
             base = baseResult,
             quality = quality,
@@ -300,7 +301,7 @@ class NormalAgentOrchestrator(
         // 健康度
         healthCollector.getHealth(context.chatId)?.let {
             sb.appendLine(it.format())
-        sb.appendLine()
+            sb.appendLine()
         }
 
         // 质量评估
@@ -332,11 +333,12 @@ class NormalAgentOrchestrator(
         val insights = feedbackLearning.getInsights(context.userId)
         if (insights.isNotEmpty()) {
             sb.appendLine("═══ 学习洞察 ═══")
-        insights.take(5).forEach { insight ->
+            insights.take(5).forEach { insight ->
                 sb.appendLine("- [${insight.type}] ${insight.description}")
             }
-        sb.appendLine()
+            sb.appendLine()
         }
+
         sb.appendLine("═══════════════════════════════════")
         return sb.toString()
     }
@@ -351,6 +353,7 @@ class NormalAgentOrchestrator(
     ): V3InputProcessResult {
         // 先执行 v2 增强
         val v2Result = processInputEnhanced(userMessage, context, recentMessages)
+
         val additionalInjections = mutableListOf<String>()
         val actions = mutableListOf<NormalAction>()
 
@@ -358,16 +361,16 @@ class NormalAgentOrchestrator(
         val memeDetection = memeEngine.detect(userMessage)
         if (memeDetection.totalMemes > 0) {
             val memePrompt = memeEngine.generateMemePrompt(userMessage, "casual")
-        if (memePrompt.isNotBlank()) additionalInjections.add(memePrompt)
-        actions.add(NormalAction.MemeDetected(memeDetection.totalMemes))
-        achievementSystem.recordMetric(context.userId, "memes_used", memeDetection.totalMemes.toLong())
+            if (memePrompt.isNotBlank()) additionalInjections.add(memePrompt)
+            actions.add(NormalAction.MemeDetected(memeDetection.totalMemes))
+            achievementSystem.recordMetric(context.userId, "memes_used", memeDetection.totalMemes.toLong())
         }
 
         // F39: 彩蛋检测
         val easterEgg = easterEggSystem.check(userMessage, context.userId)
         if (easterEgg != null) {
             additionalInjections.add("[彩蛋触发] ${easterEgg.egg.emoji} ${easterEgg.message}")
-        actions.add(NormalAction.EasterEggTriggered(easterEgg.egg.id))
+            actions.add(NormalAction.EasterEggTriggered(easterEgg.egg.id))
         }
 
         // F43: 节日感知
@@ -377,7 +380,7 @@ class NormalAgentOrchestrator(
         // F36: 每日问候（首次对话）
         if (recentMessages.isEmpty()) {
             val greetingPrompt = greetingSystem.generateGreetingPrompt(context.userId)
-        if (greetingPrompt.isNotBlank()) additionalInjections.add(greetingPrompt)
+            if (greetingPrompt.isNotBlank()) additionalInjections.add(greetingPrompt)
         }
 
         // F45: 昵称关系
@@ -395,6 +398,7 @@ class NormalAgentOrchestrator(
         // F38: 表情包建议
         val stickerPrompt = stickerSystem.generateStickerPrompt(userMessage, v2Result.emotionAnalysis.primaryEmotion.name)
         if (stickerPrompt.isNotBlank()) additionalInjections.add(stickerPrompt)
+
         return V3InputProcessResult(
             v2 = v2Result,
             memeDetection = memeDetection,
@@ -419,12 +423,13 @@ class NormalAgentOrchestrator(
     ): V3InputProcessResult {
         // 先执行 v3 基础处理
         val result = processInputV3(userMessage, context, recentMessages)
+
         val webInjections = mutableListOf<String>()
 
         // F31 增强: 网络搜梗 - 自动识别未知梗并查询解释
         if (memeEngine.isWebSearchEnabled()) {
             val webMemePrompt = memeEngine.generateWebMemeLookupPrompt(userMessage)
-        if (webMemePrompt.isNotBlank()) {
+            if (webMemePrompt.isNotBlank()) {
                 webInjections.add(webMemePrompt)
             }
         }
@@ -433,6 +438,7 @@ class NormalAgentOrchestrator(
         if (result.memeDetection.totalMemes == 0 && webInjections.isNotEmpty()) {
             // 网络发现了梗
         }
+
         return result.copy(
             additionalInjections = result.additionalInjections + webInjections
         )
@@ -497,6 +503,7 @@ class NormalAgentOrchestrator(
         // F35: 记录成就指标
         achievementSystem.recordMetric(context.userId, "messages", 1)
         if (roundIndex == 0) achievementSystem.recordMetric(context.userId, "daily_chat", 1)
+
         return V3OutputProcessResult(
             v2 = v2Result,
             memeEnhancedResponse = memeResult.content,
@@ -521,7 +528,7 @@ class NormalAgentOrchestrator(
         val usedMemes = memeEngine.getMostUsedMemes(3)
         if (usedMemes.isNotEmpty()) {
             sb.appendLine("你常用的梗:")
-        usedMemes.forEach { sb.appendLine("  ${it.name}") }
+            usedMemes.forEach { sb.appendLine("  ${it.name}") }
         }
 
         // 成就系统
@@ -544,6 +551,7 @@ class NormalAgentOrchestrator(
         profile.relationship?.let { sb.appendLine("关系: ${it.type}") }
         sb.appendLine("共同记忆: ${profile.memoryCount} 条")
         sb.appendLine("里程碑: ${profile.milestoneCount} 个")
+
         return sb.toString()
     }
 
@@ -561,25 +569,25 @@ class NormalAgentOrchestrator(
 
         // 1. 敏感信息脱敏
         val redactedMessage = if (config.enableSensitiveRedaction) {
-        val redacted = sensitiveRedactor.redact(userMessage, context.sessionId)
-        if (redacted.detectedTypes.isNotEmpty()) {
+            val redacted = sensitiveRedactor.redact(userMessage, context.sessionId)
+            if (redacted.detectedTypes.isNotEmpty()) {
                 actions.add(NormalAction.SensitiveDetected(redacted.detectedTypes))
             }
-        redacted.redacted
+            redacted.redacted
         } else userMessage
 
         // 2. 用户偏好画像
         if (config.enableUserProfile) {
             val profileSnippet = userProfileManager.generatePromptSnippet(userId)
-        if (profileSnippet.isNotBlank()) injections.add(profileSnippet)
+            if (profileSnippet.isNotBlank()) injections.add(profileSnippet)
             // 学习用户偏好
-        userProfileManager.learnFromMessage(userId, userMessage, "")
+            userProfileManager.learnFromMessage(userId, userMessage, "")
         }
 
         // 3. 场景模板
         if (config.enableSceneTemplates) {
             val scenePrompt = sceneTemplateRegistry.generateScenePrompt(chatId)
-        if (scenePrompt.isNotBlank()) injections.add(scenePrompt)
+            if (scenePrompt.isNotBlank()) injections.add(scenePrompt)
         }
 
         // 4. 跨会话记忆检索
@@ -587,46 +595,47 @@ class NormalAgentOrchestrator(
             val memoryPrompt = crossSessionMemory.generateRelatedHistoryPrompt(
                 userMessage, excludeSessionId = context.sessionId
             )
-        if (memoryPrompt.isNotBlank()) injections.add(memoryPrompt)
+            if (memoryPrompt.isNotBlank()) injections.add(memoryPrompt)
         }
 
         // 5. 对话意图状态机
         if (config.enableIntentTracking) {
             val intentState = intentStateMachine.detect(chatId, userMessage, emptyList())
-        val intentPrompt = intentStateMachine.getIntentPrompt(chatId)
-        if (intentPrompt.isNotBlank()) injections.add(intentPrompt)
-        actions.add(NormalAction.IntentDetected(intentState.currentIntent))
+            val intentPrompt = intentStateMachine.getIntentPrompt(chatId)
+            if (intentPrompt.isNotBlank()) injections.add(intentPrompt)
+            actions.add(NormalAction.IntentDetected(intentState.currentIntent))
         }
 
         // 6. 主动澄清检测
         if (config.enableProactiveClarification) {
             val clarification = proactiveClarification.detect(userMessage, mapOf())
-        if (clarification.needed) {
+            if (clarification.needed) {
                 val clarPrompt = proactiveClarification.generateClarificationPrompt(clarification)
-        injections.add(clarPrompt)
-        actions.add(NormalAction.ClarificationNeeded(clarification.combinedQuestion))
-        healthCollector.onClarification(chatId)
+                injections.add(clarPrompt)
+                actions.add(NormalAction.ClarificationNeeded(clarification.combinedQuestion))
+                healthCollector.onClarification(chatId)
             }
         }
 
         // 7. 回答深度自适应
         if (config.enableAdaptiveDepth) {
             val userPref = userProfileManager.get(userId).responsePreference.depth
-        val depth = adaptiveDepth.resolve(
+            val depth = adaptiveDepth.resolve(
                 userMessage,
                 userPreference = runCatching { ResponseDepth.valueOf(userPref.uppercase()) }.getOrNull(),
                 isFollowUp = intentStateMachine.getCurrentState(chatId)?.currentIntent?.name == "FOLLOW_UP"
             )
-        val depthPrompt = adaptiveDepth.generateDepthPrompt(depth)
-        injections.add(depthPrompt)
-        actions.add(NormalAction.DepthResolved(depth))
+            val depthPrompt = adaptiveDepth.generateDepthPrompt(depth)
+            injections.add(depthPrompt)
+            actions.add(NormalAction.DepthResolved(depth))
         }
 
         // 8. 个人工具集
         if (config.enablePersonalTools) {
             val toolsPrompt = personalToolRegistry.generateToolsPrompt()
-        if (toolsPrompt.isNotBlank()) injections.add(toolsPrompt)
+            if (toolsPrompt.isNotBlank()) injections.add(toolsPrompt)
         }
+
         return InputProcessResult(
             originalMessage = userMessage,
             redactedMessage = redactedMessage,
@@ -650,8 +659,8 @@ class NormalAgentOrchestrator(
         // 10. 流式渲染（这里处理完整响应）
         val renderTree = if (config.enableStreamingRendering) {
             markdownRenderer.reset()
-        response.split("\n").forEach { markdownRenderer.feed(it + "\n") }
-        markdownRenderer.finalize()
+            response.split("\n").forEach { markdownRenderer.feed(it + "\n") }
+            markdownRenderer.finalize()
         } else null
 
         // 11. 思考链解析
@@ -685,6 +694,7 @@ class NormalAgentOrchestrator(
                 contextTokensMax = config.maxContextTokens
             )
         }
+
         return OutputProcessResult(
             originalResponse = response,
             restoredResponse = restoredResponse,
@@ -714,17 +724,19 @@ class NormalAgentOrchestrator(
 
         // 请求确认
         val result = toolConfirmationGateway.requestConfirmation(preview)
+
         val approved = when (result) {
             is com.apex.agent.core.normal.toolpreview.ConfirmationResult.Approved -> {
                 healthCollector.onToolCall(chatId, true)
-        true
+                true
             }
-        is com.apex.agent.core.normal.toolpreview.ConfirmationResult.Rejected -> {
+            is com.apex.agent.core.normal.toolpreview.ConfirmationResult.Rejected -> {
                 healthCollector.onToolCall(chatId, false)
-        false
+                false
             }
-        is com.apex.agent.core.normal.toolpreview.ConfirmationResult.TimedOut -> false
+            is com.apex.agent.core.normal.toolpreview.ConfirmationResult.TimedOut -> false
         }
+
         return ToolCallProcessResult(
             approved = approved,
             preview = preview,
@@ -752,7 +764,7 @@ class NormalAgentOrchestrator(
     fun forkConversation(context: NormalAgentContext, fromMessageId: String, label: String) {
         if (config.enableConversationBranching) {
             conversationBranching.fork(context.chatId, fromMessageId, label)
-        healthCollector.onBranch(context.chatId)
+            healthCollector.onBranch(context.chatId)
         }
     }
 
@@ -817,12 +829,12 @@ data class ToolCallProcessResult(
  */
 sealed class NormalAction {
     data class IntentDetected(val intent: com.apex.agent.core.normal.intent.ConversationIntent) : NormalAction()
-        data class DepthResolved(val depth: ResponseDepth) : NormalAction()
-        data class ClarificationNeeded(val question: String) : NormalAction()
-        data class SensitiveDetected(val types: Set<com.apex.agent.core.normal.redactor.SensitiveType>) : NormalAction()
-        data class EmotionDetected(val emotion: com.apex.agent.core.normal.emotion.Emotion) : NormalAction()
-        data class MemeDetected(val count: Int) : NormalAction()
-        data class EasterEggTriggered(val eggId: String) : NormalAction()
+    data class DepthResolved(val depth: ResponseDepth) : NormalAction()
+    data class ClarificationNeeded(val question: String) : NormalAction()
+    data class SensitiveDetected(val types: Set<com.apex.agent.core.normal.redactor.SensitiveType>) : NormalAction()
+    data class EmotionDetected(val emotion: com.apex.agent.core.normal.emotion.Emotion) : NormalAction()
+    data class MemeDetected(val count: Int) : NormalAction()
+    data class EasterEggTriggered(val eggId: String) : NormalAction()
 }
 
 /**

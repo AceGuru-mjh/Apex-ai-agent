@@ -56,13 +56,15 @@ class ConfigManager(
 
     /** 等待合并的变更 */
     private val pendingChanges = ConcurrentHashMap<String, PendingChange>()
-        private data class PendingChange(
+
+    private data class PendingChange(
         val key: ConfigKey,
         val oldValue: String?,
         val newValue: String?,
         val source: String
     )
-        init {
+
+    init {
         defaultProvider.priority // 确保初始化
         addProvider(0, defaultProvider)
     }
@@ -91,7 +93,7 @@ class ConfigManager(
                 secret = key.secret,
                 validator = key.validator
             )
-        setWithSource(defaultKey, key.defaultValue, "default")
+            setWithSource(defaultKey, key.defaultValue, "default")
         }
     }
 
@@ -154,7 +156,7 @@ class ConfigManager(
         val value = requireNotNull(getString(key)) { "配置项 [${key.path}] 未设置" }
         return when {
             value.endsWith("ns") -> value.dropLast(2).toLong()
-        value.endsWith("us") -> value.dropLast(2).toLong() * 1_000
+            value.endsWith("us") -> value.dropLast(2).toLong() * 1_000
             value.endsWith("ms") -> value.dropLast(2).toLong() * 1_000_000
             value.endsWith("s") -> value.dropLast(1).toLong() * 1_000_000_000
             value.endsWith("m") -> value.dropLast(1).toLong() * 60_000_000_000
@@ -173,7 +175,7 @@ class ConfigManager(
         return when {
             upper.endsWith("B") && !upper.endsWith("KB") && !upper.endsWith("MB") && !upper.endsWith("GB") && !upper.endsWith("TB") ->
                 value.dropLast(1).toLong()
-        upper.endsWith("KB") -> value.dropLast(2).toLong() * 1024
+            upper.endsWith("KB") -> value.dropLast(2).toLong() * 1024
             upper.endsWith("MB") -> value.dropLast(2).toLong() * 1024 * 1024
             upper.endsWith("GB") -> value.dropLast(2).toLong() * 1024 * 1024 * 1024
             upper.endsWith("TB") -> value.dropLast(2).toLong() * 1024L * 1024 * 1024 * 1024
@@ -185,7 +187,7 @@ class ConfigManager(
      * 泛型类型的配置读取（自动类型转换）
      */
     @Suppress("UNCHECKED_CAST")
-        fun <T> get(key: ConfigKey, type: Class<T>): T? {
+    fun <T> get(key: ConfigKey, type: Class<T>): T? {
         val value = getString(key) ?: return null
         return when (type) {
             String::class.java -> value as T
@@ -210,17 +212,17 @@ class ConfigManager(
     fun getKeysByPrefix(prefix: String): Map<String, String> {
         lock.read {
             val result = mutableMapOf<String, String>()
-        for ((priority, sourceList) in providers) {
+            for ((priority, sourceList) in providers) {
                 for (source in sourceList) {
                     val entries = source.getAll()
-        for ((path, value) in entries) {
+                    for ((path, value) in entries) {
                         if (path.startsWith(prefix) && !result.containsKey(path)) {
                             result[path] = value
                         }
                     }
                 }
             }
-        return result
+            return result
         }
     }
 
@@ -241,7 +243,7 @@ class ConfigManager(
     fun setAll(map: Map<String, String>, source: String = "runtime") {
         for ((path, value) in map) {
             val key = registeredKeys[path] ?: ConfigKey(path = path)
-        set(key, value, source)
+            set(key, value, source)
         }
     }
 
@@ -260,7 +262,7 @@ class ConfigManager(
             "json" -> JsonConfigSerializer()
             "yaml" -> YamlConfigSerializer()
             "flat" -> FlatConfigSerializer()
-        else -> throw IllegalArgumentException("不支持的导出格式: $format")
+            else -> throw IllegalArgumentException("不支持的导出格式: $format")
         }
         return serializer.serialize(filtered)
     }
@@ -274,7 +276,7 @@ class ConfigManager(
             "json" -> JsonConfigSerializer()
             "yaml" -> YamlConfigSerializer()
             "flat" -> FlatConfigSerializer()
-        else -> throw IllegalArgumentException("不支持的导入格式: $format")
+            else -> throw IllegalArgumentException("不支持的导入格式: $format")
         }
         val parsed = serializer.deserialize(content)
         setAll(parsed, source)
@@ -299,12 +301,12 @@ class ConfigManager(
         val snapshot = snapshot()
         for (path in snapshot.keys) {
             val configKey = registeredKeys[path] ?: ConfigKey(path = path)
-        val defaultValue = configKey.defaultValue
+            val defaultValue = configKey.defaultValue
             setWithSource(configKey, defaultValue, "reset")
         }
         for ((path, _) in snapshot) {
             val configKey = registeredKeys[path] ?: ConfigKey(path = path)
-        notifyChange(configKey, snapshot[path], configKey.defaultValue, "reset")
+            notifyChange(configKey, snapshot[path], configKey.defaultValue, "reset")
         }
     }
 
@@ -364,7 +366,7 @@ class ConfigManager(
         val results = mutableMapOf<String, ValidationResult>()
         for ((path, key) in registeredKeys) {
             val currentValue = getString(key) ?: key.defaultValue ?: ""
-        results[path] = validationEngine.validate(key, currentValue)
+            results[path] = validationEngine.validate(key, currentValue)
         }
         return results
     }
@@ -393,7 +395,7 @@ class ConfigManager(
     fun restore(snapshot: Map<String, String?>, source: String = "restore") {
         for ((path, value) in snapshot) {
             val key = registeredKeys[path] ?: ConfigKey(path = path)
-        if (value != null) {
+            if (value != null) {
                 set(key, value, source)
             }
         }
@@ -408,7 +410,7 @@ class ConfigManager(
         val result = mutableMapOf<String, Pair<String?, String?>>()
         for (path in allKeys) {
             val currentVal = current[path]
-        val otherVal = otherSnapshot[path]
+            val otherVal = otherSnapshot[path]
             if (currentVal != otherVal) {
                 result[path] = Pair(currentVal, otherVal)
             }
@@ -422,7 +424,8 @@ class ConfigManager(
     fun setCoalesceWindow(ms: Long) {
         coalesceWindowMs = ms
     }
-        override fun close() {
+
+    override fun close() {
         listeners.clear()
         patternListeners.clear()
         registeredKeys.clear()
@@ -435,36 +438,40 @@ class ConfigManager(
     }
 
     // ==================== 内部实现 ====================
-        private fun getValue(key: ConfigKey): String? {
+
+    private fun getValue(key: ConfigKey): String? {
         lock.read {
             for ((_, sourceList) in providers) {
                 for (source in sourceList) {
                     val value = source.get(key)
-        if (value != null) return value
+                    if (value != null) return value
                 }
             }
-        return key.defaultValue
+            return key.defaultValue
         }
     }
-        private fun setWithSource(key: ConfigKey, value: String?, source: String) {
+
+    private fun setWithSource(key: ConfigKey, value: String?, source: String) {
         lock.write {
             if (value != null) {
                 val runtimeProvider = providers.values.flatten()
                     .filterIsInstance<MemoryConfigProvider>()
                     .maxByOrNull { it.priority }
-        if (runtimeProvider != null) {
+                if (runtimeProvider != null) {
                     runtimeProvider.set(key, value)
                 }
             }
         }
     }
-        private fun getDefaultValue(key: ConfigKey): String? {
+
+    private fun getDefaultValue(key: ConfigKey): String? {
         return key.defaultValue
     }
-        private fun getAllConfigValues(): Map<String, String> {
+
+    private fun getAllConfigValues(): Map<String, String> {
         lock.read {
             val result = mutableMapOf<String, String>()
-        for ((_, sourceList) in providers) {
+            for ((_, sourceList) in providers) {
                 for (source in sourceList) {
                     for ((path, value) in source.getAll()) {
                         if (!result.containsKey(path)) {
@@ -473,18 +480,20 @@ class ConfigManager(
                     }
                 }
             }
-        return result
+            return result
         }
     }
-        private fun notifyChange(key: ConfigKey, oldValue: String?, newValue: String?, source: String) {
+
+    private fun notifyChange(key: ConfigKey, oldValue: String?, newValue: String?, source: String) {
         val now = System.currentTimeMillis()
         val lastChange = lastChangeTimes[key.path] ?: 0
         if (now - lastChange < coalesceWindowMs) {
             pendingChanges[key.path] = PendingChange(key, oldValue, newValue, source)
-        return
+            return
         }
         lastChangeTimes[key.path] = now
         flushPendingChanges()
+
         val event = ConfigChangeEvent(
             key = key,
             oldValue = oldValue,
@@ -494,7 +503,7 @@ class ConfigManager(
         for (listener in listeners) {
             try {
                 listener.onConfigChanged(key, oldValue, newValue, source)
-        listener.onEvent(event)
+                listener.onEvent(event)
             } catch (_: Exception) {
             }
         }
@@ -502,13 +511,14 @@ class ConfigManager(
             if (regex.matches(key.path)) {
                 try {
                     listener.onConfigChanged(key, oldValue, newValue, source)
-        listener.onEvent(event)
+                    listener.onEvent(event)
                 } catch (_: Exception) {
                 }
             }
         }
     }
-        private fun flushPendingChanges() {
+
+    private fun flushPendingChanges() {
         val changes = pendingChanges.toMap()
         pendingChanges.clear()
         for ((_, change) in changes) {
@@ -518,25 +528,26 @@ class ConfigManager(
                 newValue = change.newValue,
                 source = change.source
             )
-        for (listener in listeners) {
+            for (listener in listeners) {
                 try {
                     listener.onConfigChanged(change.key, change.oldValue, change.newValue, change.source)
-        listener.onEvent(event)
+                    listener.onEvent(event)
                 } catch (_: Exception) {
                 }
             }
-        for ((regex, listener) in patternListeners) {
+            for ((regex, listener) in patternListeners) {
                 if (regex.matches(change.key.path)) {
                     try {
                         listener.onConfigChanged(change.key, change.oldValue, change.newValue, change.source)
-        listener.onEvent(event)
+                        listener.onEvent(event)
                     } catch (_: Exception) {
                     }
                 }
             }
         }
     }
-        private fun globToRegex(glob: String): Regex {
+
+    private fun globToRegex(glob: String): Regex {
         val regexStr = StringBuilder("^")
         var i = 0
         while (i < glob.length) {
@@ -545,7 +556,7 @@ class ConfigManager(
                 '*' -> {
                     if (i + 1 < glob.length && glob[i + 1] == '*') {
                         regexStr.append(".*")
-        i++
+                        i++
                     } else {
                         regexStr.append("[^.]*")
                     }
@@ -554,19 +565,19 @@ class ConfigManager(
                 '.' -> regexStr.append("\\.")
                 '{' -> {
                     val end = glob.indexOf('}', i)
-        if (end > i) {
+                    if (end > i) {
                         regexStr.append('(')
-        val parts = glob.substring(i + 1, end).split(",")
-        regexStr.append(parts.joinToString("|") { Regex.escape(it) })
-        regexStr.append(')')
-        i = end
+                        val parts = glob.substring(i + 1, end).split(",")
+                        regexStr.append(parts.joinToString("|") { Regex.escape(it) })
+                        regexStr.append(')')
+                        i = end
                     } else {
                         regexStr.append(c)
                     }
                 }
-        else -> regexStr.append(Regex.escape(c.toString()))
+                else -> regexStr.append(Regex.escape(c.toString()))
             }
-        i++
+            i++
         }
         regexStr.append('$')
         return Regex(regexStr.toString())
@@ -578,8 +589,8 @@ class ConfigManager(
  */
 private fun <K, V> sortedMapOf(comparator: Comparator<K>, vararg pairs: Pair<K, V>): java.util.SortedMap<K, MutableList<V>> {
     val map = java.util.TreeMap<K, MutableList<V>>(comparator)
-        for ((key, value) in pairs) {
+    for ((key, value) in pairs) {
         map.getOrPut(key) { mutableListOf() }.add(value)
     }
-        return map
+    return map
 }

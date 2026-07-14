@@ -24,7 +24,7 @@ enum class MessageRole {
 @Parcelize
 data class AgentConversation(
     val id: String = UUID.randomUUID().toString(),
-    val title: String = "新对试",
+    val title: String = "新对�?,
     val agentId: String? = null,
     val templateId: String? = null,
     val messages: MutableList<ConversationMessage> = mutableListOf(),
@@ -40,19 +40,22 @@ data class AgentConversation(
         messages.add(message)
         lastActivity = System.currentTimeMillis()
     }
-        fun toJson(): String = Gson().toJson(this)
-        fun getFormattedHistory(): String {
+
+    fun toJson(): String = Gson().toJson(this)
+
+    fun getFormattedHistory(): String {
         return messages.joinToString("\n\n") { msg ->
             val rolePrefix = when (msg.role) {
                 MessageRole.USER -> "?? 用户"
-        MessageRole.ASSISTANT -> "?? 助手"
-        MessageRole.SYSTEM -> "?? 系统"
-        MessageRole.TOOL -> "?? 工具"
+                MessageRole.ASSISTANT -> "?? 助手"
+                MessageRole.SYSTEM -> "?? 系统"
+                MessageRole.TOOL -> "?? 工具"
             }
             "${rolePrefix}:\n${msg.content}"
         }
     }
-        companion object {
+
+    companion object {
         fun fromJson(json: String): AgentConversation? = try { Gson().fromJson(json, AgentConversation::class.java) } catch (e: Exception) { null }
     }
 }

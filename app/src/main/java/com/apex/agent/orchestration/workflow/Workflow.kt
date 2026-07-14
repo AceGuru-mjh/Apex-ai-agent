@@ -22,28 +22,35 @@ data class Workflow(
     val category: String = "通用"
 ) : Parcelable {
     fun toJson(): String = Gson().toJson(this)
-        fun addNode(node: WorkflowNodeEntity) {
+
+    fun addNode(node: WorkflowNodeEntity) {
         nodes.add(node)
         updated = System.currentTimeMillis()
     }
-        fun addEdge(edge: WorkflowEdge) {
+
+    fun addEdge(edge: WorkflowEdge) {
         edges.add(edge)
         updated = System.currentTimeMillis()
     }
-        fun removeNode(nodeId: String) {
+
+    fun removeNode(nodeId: String) {
         nodes.removeAll { it.id == nodeId }
         edges.removeAll { it.fromNodeId == nodeId || it.toNodeId == nodeId }
         updated = System.currentTimeMillis()
     }
-        fun getNode(nodeId: String): WorkflowNodeEntity? = nodes.find { it.id == nodeId }
-        fun getNextNodes(nodeId: String): List<WorkflowNodeEntity> {
+
+    fun getNode(nodeId: String): WorkflowNodeEntity? = nodes.find { it.id == nodeId }
+
+    fun getNextNodes(nodeId: String): List<WorkflowNodeEntity> {
         return edges.filter { it.fromNodeId == nodeId }.mapNotNull { getNode(it.toNodeId) }
     }
-        fun getInputNodes(): List<WorkflowNodeEntity> {
+
+    fun getInputNodes(): List<WorkflowNodeEntity> {
         val allToNodeIds = edges.map { it.toNodeId }.toSet()
         return nodes.filter { it.id !in allToNodeIds }
     }
-        companion object {
+
+    companion object {
         fun fromJson(json: String): Workflow? = try {
             Gson().fromJson(json, Workflow::class.java)
         } catch (e: Exception) {
@@ -68,7 +75,7 @@ data class WorkflowNodeEntity(
 ) : Parcelable
 
 enum class NodeType(val displayName: String) {
-    START("开始"),
+    START("开�?),
     AGENT("Agent"),
     CONDITION("条件判断"),
     PARALLEL("并行执行"),
@@ -76,7 +83,7 @@ enum class NodeType(val displayName: String) {
     DELAY("延迟"),
     LOOP("循环"),
     END("结束"),
-    CUSTOM("自定义")
+    CUSTOM("自定�?)
 }
 
 @Parcelize

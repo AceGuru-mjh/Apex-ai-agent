@@ -19,7 +19,8 @@ class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
     companion object {
         private const val TAG = "ShizukuShellExecutor"
     }
-        private var isInitialized = false
+
+    private var isInitialized = false
     private var cachedPermissionStatus: ShellExecutor.PermissionStatus? = null
     private var lastPermissionCheckTime = 0L
     private const val PERMISSION_CACHE_TTL = 10000L
@@ -30,44 +31,52 @@ class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
     override fun isAvailable(): Boolean = try {
         ShizukuAuthorizer.isShizukuServiceRunning()
     } catch (e: Exception) {
-        AppLogger.e(TAG, "检查Shizuku 可用性失败", e)
+        AppLogger.e(TAG, "检�?Shizuku 可用性失�?, e)
         false
     }
-        override fun hasPermission(): ShellExecutor.PermissionStatus {
+
+    override fun hasPermission(): ShellExecutor.PermissionStatus {
         val now = System.currentTimeMillis()
+
         if (now - lastPermissionCheckTime < PERMISSION_CACHE_TTL && cachedPermissionStatus != null) {
-            return requireNotNull(cachedPermissionStatus)
+            return cachedPermissionStatus!!
         }
+
         val status = try {
             when {
-                !isAvailable() -> ShellExecutor.PermissionStatus.denied("Shizuku 服务未运行")
-                !ShizukuAuthorizer.hasShizukuPermission() -> ShellExecutor.PermissionStatus.denied("未获取Shizuku 权限")
-        else -> ShellExecutor.PermissionStatus.granted()
+                !isAvailable() -> ShellExecutor.PermissionStatus.denied("Shizuku 服务未运�?)
+                !ShizukuAuthorizer.hasShizukuPermission() -> ShellExecutor.PermissionStatus.denied("未获�?Shizuku 权限")
+                else -> ShellExecutor.PermissionStatus.granted()
             }
         } catch (e: Exception) {
-            ShellExecutor.PermissionStatus.denied("检查权限失败 ${e.message}")
+            ShellExecutor.PermissionStatus.denied("检查权限失�? ${e.message}")
         }
+
         cachedPermissionStatus = status
         lastPermissionCheckTime = now
         return status
     }
-        override fun initialize() {
+
+    override fun initialize() {
         if (isInitialized) return
 
-        AppLogger.d(TAG, "初始化Shizuku Shell 执行器..")
+        AppLogger.d(TAG, "初始�?Shizuku Shell 执行�?..")
         isInitialized = true
     }
-        override fun requestPermission(onResult: (Boolean) -> Unit) {
+
+    override fun requestPermission(onResult: (Boolean) -> Unit) {
         AppLogger.d(TAG, "请求 Shizuku 权限...")
         ShizukuAuthorizer.requestShizukuPermission(onResult)
     }
-        override suspend fun executeCommand(
+
+    override suspend fun executeCommand(
         command: String,
         identity: ShellIdentity
     ): ShellExecutor.CommandResult = withContext(Dispatchers.IO) {
             AppLogger.d(TAG, "执行 Shizuku 命令: ${command}")
-        val permStatus = hasPermission()
-        if (!permStatus.granted) {
+
+            val permStatus = hasPermission()
+            if (!permStatus.granted) {
                 return@withContext ShellExecutor.CommandResult(
                     success = false,
                     stdout = "",
@@ -75,13 +84,14 @@ class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
                     exitCode = -1
                 )
             }
-        try {
+
+            try {
                 val result = executeShizukuCommand(command)
-        AppLogger.d(TAG, "Shizuku 命令执行完成: exitCode=${result.exitCode}")
-        result
+                AppLogger.d(TAG, "Shizuku 命令执行完成: exitCode=${result.exitCode}")
+                result
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Shizuku 命令执行失败", e)
-        ShellExecutor.CommandResult(
+                ShellExecutor.CommandResult(
                     success = false,
                     stdout = "",
                     stderr = "执行失败: ${e.message}",
@@ -89,14 +99,17 @@ class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
                 )
             }
         }
-        private fun executeShizukuCommand(command: String): ShellExecutor.CommandResult {
+
+    private fun executeShizukuCommand(command: String): ShellExecutor.CommandResult {
         return try {
             val builder = Shizuku.newProcessBuilder(arrayOf("sh", "-c", command))
-        val process = builder.start()
-        val stdout = process.inputStream.bufferedReader().readText()
-        val stderr = process.errorStream.bufferedReader().readText()
-        val exitCode = process.waitFor()
-        ShellExecutor.CommandResult(
+            val process = builder.start()
+
+            val stdout = process.inputStream.bufferedReader().readText()
+            val stderr = process.errorStream.bufferedReader().readText()
+            val exitCode = process.waitFor()
+
+            ShellExecutor.CommandResult(
                 success = exitCode == 0,
                 stdout = stdout,
                 stderr = stderr,
@@ -104,7 +117,7 @@ class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "执行 Shizuku 命令失败", e)
-        ShellExecutor.CommandResult(
+            ShellExecutor.CommandResult(
                 success = false,
                 stdout = "",
                 stderr = e.message ?: "Unknown error",
@@ -112,7 +125,8 @@ class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
             )
         }
     }
-        override suspend fun startProcess(command: String): ShellProcess {
+
+    override suspend fun startProcess(command: String): ShellProcess {
         return ShizukuShellProcess(command)
     }
 }
@@ -124,27 +138,30 @@ private class ShizukuShellProcess(
     companion object {
         private const val TAG = "ShizukuShellProcess"
     }
-        private var process: Process? = null
+
+    private var process: Process? = null
     private var destroyed = false
 
     init {
         startProcess()
     }
-        private fun startProcess() {
+
+    private fun startProcess() {
         try {
             val builder = Shizuku.newProcessBuilder(arrayOf("sh", "-c", command))
-        process = builder.start()
+            process = builder.start()
         } catch (e: Exception) {
             AppLogger.e(TAG, "启动 Shizuku 进程失败", e)
         }
     }
-        override val stdout: Flow<String> = flow {
+
+    override val stdout: Flow<String> = flow {
         try {
             process?.inputStream?.let { inputStream ->
                 BufferedReader(InputStreamReader(inputStream)).use { reader ->
                     var line: String?
                     while (reader.readLine().also { line = it } != null && !destroyed) {
-                        emit(requireNotNull(line))
+                        emit(line!!)
                     }
                 }
             }
@@ -152,13 +169,14 @@ private class ShizukuShellProcess(
             AppLogger.e(TAG, "读取 stdout 失败", e)
         }
     }.flowOn(Dispatchers.IO)
-        override val stderr: Flow<String> = flow {
+
+    override val stderr: Flow<String> = flow {
         try {
             process?.errorStream?.let { errorStream ->
                 BufferedReader(InputStreamReader(errorStream)).use { reader ->
                     var line: String?
                     while (reader.readLine().also { line = it } != null && !destroyed) {
-                        emit(requireNotNull(line))
+                        emit(line!!)
                     }
                 }
             }
@@ -166,7 +184,8 @@ private class ShizukuShellProcess(
             AppLogger.e(TAG, "读取 stderr 失败", e)
         }
     }.flowOn(Dispatchers.IO)
-        override val isAlive: Boolean
+
+    override val isAlive: Boolean
         get() = process?.isAlive == true && !destroyed
 
     override fun destroy() {
@@ -174,7 +193,8 @@ private class ShizukuShellProcess(
         process?.destroy()
         process = null
     }
-        override suspend fun waitFor(): Int = withContext(Dispatchers.IO) {
+
+    override suspend fun waitFor(): Int = withContext(Dispatchers.IO) {
         try {
             process?.waitFor() ?: -1
         } catch (e: Exception) {

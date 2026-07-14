@@ -72,6 +72,7 @@ class SmartContextCompressor(
         if (history.isEmpty()) {
             return CompressionResult(emptyList(), 0, 0, 1.0f, emptyMap())
         }
+
         val originalTokens = history.sumOf { it.tokenCount }
         if (originalTokens <= maxTokens) {
             return CompressionResult(
@@ -82,47 +83,50 @@ class SmartContextCompressor(
                 tiers = history.associate { it.id to CompressionTier.FULL }
             )
         }
+
         val tiers = mutableMapOf<String, CompressionTier>()
         val total = history.size
 
         // 分层策略
         val result = mutableListOf<ConversationMessage>()
+
         history.forEachIndexed { index, msg ->
             val fromEnd = total - index
-        val tier = when {
+            val tier = when {
                 fromEnd <= recentKeepCount -> CompressionTier.FULL
                 fromEnd <= summaryThreshold -> CompressionTier.SUMMARY
                 fromEnd <= factsThreshold -> CompressionTier.FACTS_ONLY
                 else -> {
                     // 远段：按重要性决定
-        if (msg.importance > 0.7f) CompressionTier.FACTS_ONLY
+                    if (msg.importance > 0.7f) CompressionTier.FACTS_ONLY
                     else CompressionTier.DISCARD
                 }
             }
-        tiers[msg.id] = tier
+            tiers[msg.id] = tier
 
             when (tier) {
                 CompressionTier.FULL -> result.add(msg)
-        CompressionTier.SUMMARY -> {
+                CompressionTier.SUMMARY -> {
                     val summary = msg.summary ?: generateSummary(msg)
-        result.add(msg.copy(
+                    result.add(msg.copy(
                         content = "[摘要] $summary",
                         tokenCount = estimateTokens(summary) + 10
                     ))
                 }
-        CompressionTier.FACTS_ONLY -> {
+                CompressionTier.FACTS_ONLY -> {
                     val facts = msg.extractedFacts.ifEmpty { extractFacts(msg.content) }
-        if (facts.isNotEmpty()) {
+                    if (facts.isNotEmpty()) {
                         val factsText = facts.joinToString("; ")
-        result.add(msg.copy(
+                        result.add(msg.copy(
                             content = "[关键事实] $factsText",
                             tokenCount = estimateTokens(factsText) + 15
                         ))
                     }
                 }
-        CompressionTier.DISCARD -> { /* 跳过 */ }
+                CompressionTier.DISCARD -> { /* 跳过 */ }
             }
         }
+
         val compressedTokens = result.sumOf { it.tokenCount }
 
         // 如果仍超限，递归压缩
@@ -221,18 +225,20 @@ class SmartContextCompressor(
         for ((pattern, label) in decisionPatterns) {
             if (content.contains(pattern, ignoreCase = true)) {
                 facts.add("决策:$label")
-        break
+                break
             }
         }
+
         return facts.take(5)
     }
-        companion object {
+
+    companion object {
         /**
          * 估算 token 数（简化：1 字 ≈ 1.5 token，1 英文单词 ≈ 1.3 token）
          */
         fun estimateTokens(text: String): Int {
             val chineseChars = text.count { it.code in 0x4e00..0x9fff }
-        val englishWords = text.split(Regex("[\\s\\p{Punct}]+"))
+            val englishWords = text.split(Regex("[\\s\\p{Punct}]+"))
                 .filter { it.isNotEmpty() && it.all { c -> c.code !in 0x4e00..0x9fff } }
                 .size
             return (chineseChars * 1.5 + englishWords * 1.3).toInt()

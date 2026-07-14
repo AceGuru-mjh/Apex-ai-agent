@@ -24,7 +24,8 @@ class LogistraAgentEvolutionEngineV2(
         private const val TAG = "LogistraEvolutionV2"
         private const val EVOLUTION_THRESHOLD = 8.0f
     }
-        private var iterationCount = 0
+
+    private var iterationCount = 0
 
     suspend fun runEvolutionPipeline(
         currentSkill: LogistraSkillSpecV2,
@@ -59,26 +60,27 @@ class LogistraAgentEvolutionEngineV2(
         // Step 3: 如果评分低于阈值，触发 LLM 变异
         val evolvedSkill = if (evaluation.score < EVOLUTION_THRESHOLD) {
             AppLogger.d(TAG, "Step 3: Score below threshold (${EVOLUTION_THRESHOLD}), triggering LLM mutation...")
-        val newSkill = llmEngine.evolveSkill(
+            val newSkill = llmEngine.evolveSkill(
                 currentSkill = currentSkill,
                 taskGoal = taskGoal,
                 executionLogs = executionLogs,
                 finalOutput = finalOutput,
                 evaluationResult = evaluation
             )
-        versionManager.saveSkillVersion(newSkill)
-        newSkill
+            versionManager.saveSkillVersion(newSkill)
+            newSkill
         } else {
             AppLogger.d(TAG, "Step 3: Score above threshold, keeping current version")
-        currentSkill
+            currentSkill
         }
 
-        // Step 4: 多版本晋的降级
+        // Step 4: 多版本晋的降�?
         AppLogger.d(TAG, "Step 4: Running multi-version promotion analysis...")
         versionManager.promoteVersions(currentSkill.skillId)
 
         // Step 5: 输出迭代信息（此处简化，实际应更新RL策略权重等）
         AppLogger.d(TAG, "=== Evolution Cycle #${iterationCount} Complete ===")
+
         return EvolutionResultV2(
             evolvedSkill = evolvedSkill,
             evaluationScore = evaluation.score,
@@ -87,8 +89,7 @@ class LogistraAgentEvolutionEngineV2(
     }
 
     /**
-     * 便捷方法：从任务目标和工具序列创建初始技能
-     */
+     * 便捷方法：从任务目标和工具序列创建初始技�?     */
     fun createInitialSkill(
         skillId: String,
         name: String,
@@ -104,6 +105,7 @@ class LogistraAgentEvolutionEngineV2(
                 parameters = params
             )
         }
+
         return LogistraSkillSpecV2(
             skillId = skillId,
             name = name,
@@ -124,7 +126,8 @@ class LogistraAgentEvolutionEngineV2(
             tags = listOf("initial", taskType)
         )
     }
-        fun getVersionForExecution(skillId: String): LogistraSkillSpecV2? {
+
+    fun getVersionForExecution(skillId: String): LogistraSkillSpecV2? {
         return versionManager.routeToVersion(skillId)
     }
 }

@@ -28,8 +28,8 @@ interface Plugin : ApexPlugin {
 
 object PluginRegistry {
     private const val TAG = "PluginRegistry"
-        private val plugins = CopyOnWriteArrayList<ApexPlugin>()
-        private val installedPluginIds = ConcurrentHashMap.newKeySet<String>()
+    private val plugins = CopyOnWriteArrayList<ApexPlugin>()
+    private val installedPluginIds = ConcurrentHashMap.newKeySet<String>()
 
     @Volatile
     private var builtinsInitialized = false
@@ -59,7 +59,7 @@ object PluginRegistry {
             if (installedPluginIds.add(plugin.id)) {
                 try {
                     plugin.register()
-        AppLogger.d(TAG, "已安装插件: ${plugin.id}")
+                    AppLogger.d(TAG, "已安装插件: ${plugin.id}")
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "插件安装失败: ${plugin.javaClass.simpleName} (${plugin.id})", e)
                 }
@@ -73,7 +73,7 @@ object PluginRegistry {
         register(plugin)
         if (installedPluginIds.add(plugin.id)) {
             plugin.register()
-        AppLogger.d(TAG, "已安装插件: ${plugin.id}")
+            AppLogger.d(TAG, "已安装插件: ${plugin.id}")
         }
         Result.success(true)
     } catch (e: Exception) {
@@ -92,11 +92,14 @@ object PluginRegistry {
         AppLogger.d(TAG, "已卸载插件: $pluginId")
         return true
     }
-        fun isInstalled(pluginId: String): Boolean = installedPluginIds.contains(pluginId)
-        fun pluginCount(): Int = installedPluginIds.size
+
+    fun isInstalled(pluginId: String): Boolean = installedPluginIds.contains(pluginId)
+
+    fun pluginCount(): Int = installedPluginIds.size
 
     fun getAllPlugins(): List<ApexPlugin> = plugins.toList()
-        fun getPlugin(id: String): ApexPlugin? = plugins.find { it.id == id }
+
+    fun getPlugin(id: String): ApexPlugin? = plugins.find { it.id == id }
 
     @Synchronized
     fun clear() {

@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 object AppLogger {
 
     // Mirror com.apex.util.AppLogger priority constants
-        const val VERBOSE: Int = Log.VERBOSE
+    const val VERBOSE: Int = Log.VERBOSE
     const val DEBUG: Int = Log.DEBUG
     const val INFO: Int = Log.INFO
     const val WARN: Int = Log.WARN
@@ -28,27 +28,27 @@ object AppLogger {
     const val ASSERT: Int = Log.ASSERT
 
     // Log file configuration
-        private const val LOG_DIR_NAME = "logs"
-        private const val LOG_FILE_NAME = "Apex.log"
-        private const val PACKAGE_LOG_DIR_NAME = "packageLogs"
-        private const val TOOLPKG_LOG_TAG = "ToolPkg"
+    private const val LOG_DIR_NAME = "logs"
+    private const val LOG_FILE_NAME = "Apex.log"
+    private const val PACKAGE_LOG_DIR_NAME = "packageLogs"
+    private const val TOOLPKG_LOG_TAG = "ToolPkg"
 
     // Simple date formatter for log lines
-        private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
-        private val startupFileDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US)
-        private val packageIdRegexes = listOf(
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
+    private val startupFileDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US)
+    private val packageIdRegexes = listOf(
         Pattern.compile("""\btoolPkgId=([A-Za-z0-9._:-]+)\b"""),
         Pattern.compile("""\bpackage(?:/subpackage)?=([A-Za-z0-9._:-]+)\b"""),
         Pattern.compile("""\bcontainer=([A-Za-z0-9._:-]+)\b"""),
         Pattern.compile("""\btarget=([A-Za-z0-9._:-]+)\b""")
     )
-        private val scriptRegexes = listOf(
+    private val scriptRegexes = listOf(
         Pattern.compile("""\bscript=([^\s,]+)"""),
         Pattern.compile("""\bpath=([^\s,]+)"""),
         Pattern.compile("""\bscreen=([^\s,]+)"""),
         Pattern.compile("""\bfunction=([A-Za-z0-9_.$:-]+)\b""")
     )
-        private val pluginRegexes = listOf(
+    private val pluginRegexes = listOf(
         Pattern.compile("""\bplugin=([A-Za-z0-9._:-]+)\b"""),
         Pattern.compile("""\bpluginId=([A-Za-z0-9._:-]+)\b"""),
         Pattern.compile("""\bhookId=([A-Za-z0-9._:-]+)\b""")
@@ -75,7 +75,8 @@ object AppLogger {
             boundContext = context.applicationContext
         }
     }
-        private fun resolveLogFile(): File? {
+
+    private fun resolveLogFile(): File? {
         val existing = logFile
         if (existing != null) return existing
 
@@ -85,18 +86,19 @@ object AppLogger {
             } catch (_: Throwable) {
                 boundContext ?: return null
             }
-        val dir = File(appContext.filesDir, LOG_DIR_NAME)
-        if (!dir.exists()) {
+            val dir = File(appContext.filesDir, LOG_DIR_NAME)
+            if (!dir.exists()) {
                 dir.mkdirs()
             }
-        File(dir, LOG_FILE_NAME).also { file ->
+            File(dir, LOG_FILE_NAME).also { file ->
                 logFile = file
             }
         } catch (e: Throwable) {
             null
         }
     }
-        private fun resolvePackageLogFile(): File? {
+
+    private fun resolvePackageLogFile(): File? {
         val existing = packageLogFile
         if (existing != null) return existing
 
@@ -106,13 +108,13 @@ object AppLogger {
             } catch (_: Throwable) {
                 boundContext ?: return null
             }
-        val dir = File(ApexPaths.ApexRootDir(), PACKAGE_LOG_DIR_NAME)
-        if (!dir.exists()) {
+            val dir = File(ApexPaths.ApexRootDir(), PACKAGE_LOG_DIR_NAME)
+            if (!dir.exists()) {
                 dir.mkdirs()
             }
-        val startupMs = ApexApplication.appStartupTimeMs.takeIf { it > 0L } ?: System.currentTimeMillis()
-        val fileName = startupFileDateFormat.format(Date(startupMs)) + ".log"
-        File(dir, fileName).also { file ->
+            val startupMs = ApexApplication.appStartupTimeMs.takeIf { it > 0L } ?: System.currentTimeMillis()
+            val fileName = startupFileDateFormat.format(Date(startupMs)) + ".log"
+            File(dir, fileName).also { file ->
                 packageLogFile = file
             }
         } catch (_: Throwable) {
@@ -234,7 +236,7 @@ object AppLogger {
         // Ensure log directory exists
         try {
             val dir = File(context.filesDir, LOG_DIR_NAME)
-        if (!dir.exists()) {
+            if (!dir.exists()) {
                 dir.mkdirs()
             }
         } catch (e: Exception) {
@@ -260,7 +262,7 @@ object AppLogger {
         val cutoff = System.currentTimeMillis() - maxDays * 24L * 60L * 60L * 1000L
         try {
             val logDir = File(context.filesDir, LOG_DIR_NAME)
-        if (logDir.exists()) {
+            if (logDir.exists()) {
                 logDir.listFiles()?.forEach { file ->
                     if (file.lastModified() < cutoff) {
                         file.delete()
@@ -277,11 +279,11 @@ object AppLogger {
         try {
             val appContext: Context = ApexApplication.instance.applicationContext
             val dir = File(appContext.filesDir, LOG_DIR_NAME)
-        val file = File(dir, LOG_FILE_NAME)
-        if (file.exists()) {
+            val file = File(dir, LOG_FILE_NAME)
+            if (file.exists()) {
                 file.delete()
             }
-        logFile = null
+            logFile = null
             packageLogFile = null
         } catch (e: Throwable) {
             // Ignore errors during reset to avoid crashing on startup
@@ -289,10 +291,12 @@ object AppLogger {
     }
 
     // --- Internal helpers ---
-        private fun writeToFile(priority: Int, tag: String, msg: String, tr: Throwable) {
+
+    private fun writeToFile(priority: Int, tag: String, msg: String, tr: Throwable) {
         if (!enableFileLogging) return
 
         val file = resolveLogFile() ?: return
+
         val time = dateFormat.format(Date())
         val levelChar = when (priority) {
             VERBOSE -> 'V'
@@ -303,6 +307,7 @@ object AppLogger {
             ASSERT -> 'A'
             else -> '?'
         }
+
         val builder = StringBuilder()
         builder.append(time)
             .append(" ")
@@ -311,10 +316,13 @@ object AppLogger {
             .append(tag)
             .append(": ")
             .append(msg)
+
         if (tr != null) {
             builder.append("\n").append(Log.getStackTraceString(tr))
         }
+
         builder.append('\n')
+
         try {
             FileWriter(file, true).use { writer ->
                 writer.write(builder.toString())
@@ -322,6 +330,7 @@ object AppLogger {
         } catch (e: IOException) {
             // Avoid recursive logging here; swallow to prevent crashes
         }
+
         writeToPackageLogIfNeeded(
             tag = tag,
             msg = msg,
@@ -330,7 +339,8 @@ object AppLogger {
             levelChar = levelChar
         )
     }
-        private fun writeToPackageLogIfNeeded(
+
+    private fun writeToPackageLogIfNeeded(
         tag: String,
         msg: String,
         tr: Throwable?,
@@ -344,6 +354,7 @@ object AppLogger {
         val packageId = extractFirstMatch(msg, packageIdRegexes)
         val scriptId = extractFirstMatch(msg, scriptRegexes)
         val pluginId = extractFirstMatch(msg, pluginRegexes)
+
         val builder = StringBuilder()
         builder.append(time)
             .append(" ")
@@ -351,6 +362,7 @@ object AppLogger {
             .append("/")
             .append(TOOLPKG_LOG_TAG)
             .append(" ")
+
         if (!packageId.isNullOrBlank()) {
             builder.append("[PKG:")
                 .append(packageId)
@@ -371,10 +383,12 @@ object AppLogger {
         }
         builder
             .append(msg)
+
         if (tr != null) {
             builder.append("\n").append(Log.getStackTraceString(tr))
         }
         builder.append('\n')
+
         try {
             FileWriter(file, true).use { writer ->
                 writer.write(builder.toString())
@@ -382,18 +396,20 @@ object AppLogger {
         } catch (_: IOException) {
         }
     }
-        private fun shouldMirrorToPackageLog(tag: String, msg: String): Boolean {
+
+    private fun shouldMirrorToPackageLog(tag: String, msg: String): Boolean {
         if (!tag.equals(TOOLPKG_LOG_TAG, ignoreCase = true)) {
             return false
         }
         return true
     }
-        private fun extractFirstMatch(text: String, patterns: List<Pattern>): String? {
+
+    private fun extractFirstMatch(text: String, patterns: List<Pattern>): String? {
         for (pattern in patterns) {
             val matcher = pattern.matcher(text)
-        if (matcher.find()) {
+            if (matcher.find()) {
                 val value = matcher.group(1)?.trim().orEmpty()
-        if (value.isNotEmpty()) {
+                if (value.isNotEmpty()) {
                     return value
                 }
             }

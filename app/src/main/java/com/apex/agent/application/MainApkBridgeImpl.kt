@@ -7,7 +7,6 @@ import com.apex.sdk.bridge.TypedServiceRegistry
 import com.apex.sdk.common.ApexLog
 import com.apex.sdk.common.ApexSuite
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -27,153 +26,161 @@ import kotlinx.serialization.json.put
 class MainApkBridgeImpl : IApkBridgeInternal {
 
     private val json = Json { ignoreUnknownKeys = true }
-        private fun facade(): DiagnosticsServiceFacade? =
+
+    private fun facade(): DiagnosticsServiceFacade? =
         TypedServiceRegistry.get<DiagnosticsServiceFacade>()
-        override fun invoke(method: String, argsJson: String): String {
+
+    override fun invoke(method: String, argsJson: String): String {
         ApexLog.d(ApexSuite.ApkId.MAIN, "[MainBridge] invoke: $method")
         val args = try {
             json.parseToJsonElement(argsJson) as? JsonObject ?: JsonObject(emptyMap())
         } catch (_: Throwable) { JsonObject(emptyMap()) }
+
         val f = facade() ?: return buildJsonObject {
             put("success", false)
-        put("errorMessage", "DiagnosticsServiceFacade not initialized")
+            put("errorMessage", "DiagnosticsServiceFacade not initialized")
         }.toString()
+
         return runCatching {
-            runBlocking(Dispatchers.IO) {
+            runBlocking {
                 when (method) {
                     "diagnostics/startLogCapture" -> buildOk { f.startLogCapture() }
                     "diagnostics/getRecentLogs" -> {
                         val max = args["maxLines"]?.jsonPrimitive?.content?.toIntOrNull() ?: 500
-        val r = f.getRecentLogs(max)
-        buildResult(r) { list ->
+                        val r = f.getRecentLogs(max)
+                        buildResult(r) { list ->
                             buildJsonObject {
                                 put("count", list.size)
-        put("logs", list.joinToString("\n") { "${it.timestamp} [${it.tag}] ${it.message}" })
+                                put("logs", list.joinToString("\n") { "${it.timestamp} [${it.tag}] ${it.message}" })
                             }
                         }
                     }
                     "diagnostics/listLogFiles" -> {
                         val r = f.listLogFiles()
-        buildResult(r) { list ->
+                        buildResult(r) { list ->
                             buildJsonObject {
                                 put("count", list.size)
-        put("files", list.joinToString("\n") { "${it.name} (${it.sizeBytes}B)" })
+                                put("files", list.joinToString("\n") { "${it.name} (${it.sizeBytes}B)" })
                             }
                         }
                     }
                     "diagnostics/readLogFile" -> {
                         val name = args["fileName"]?.jsonPrimitive?.content ?: ""
-        val max = args["maxLines"]?.jsonPrimitive?.content?.toIntOrNull() ?: 1000
+                        val max = args["maxLines"]?.jsonPrimitive?.content?.toIntOrNull() ?: 1000
                         buildResult(f.readLogFile(name, max)) { JsonPrimitive(it) }
                     }
                     "diagnostics/deleteLogFile" -> {
                         val name = args["fileName"]?.jsonPrimitive?.content ?: ""
-        buildResult(f.deleteLogFile(name)) { JsonPrimitive(it) }
+                        buildResult(f.deleteLogFile(name)) { JsonPrimitive(it) }
                     }
                     "diagnostics/clearAllLogs" -> buildResult(f.clearAllLogs()) { JsonPrimitive(it) }
                     "diagnostics/listCrashReports" -> {
                         buildResult(f.listCrashReports()) { list ->
                             buildJsonObject {
                                 put("count", list.size)
-        put("files", list.joinToString("\n") { "${it.name} (${it.sizeBytes}B)" })
+                                put("files", list.joinToString("\n") { "${it.name} (${it.sizeBytes}B)" })
                             }
                         }
                     }
                     "diagnostics/readCrashReport" -> {
                         val name = args["fileName"]?.jsonPrimitive?.content ?: ""
-        buildResult(f.readCrashReport(name)) { JsonPrimitive(it) }
+                        buildResult(f.readCrashReport(name)) { JsonPrimitive(it) }
                     }
                     "diagnostics/deleteCrashReport" -> {
                         val name = args["fileName"]?.jsonPrimitive?.content ?: ""
-        buildResult(f.deleteCrashReport(name)) { JsonPrimitive(it) }
+                        buildResult(f.deleteCrashReport(name)) { JsonPrimitive(it) }
                     }
                     "diagnostics/getMemoryStats" -> {
                         val m = f.getMemoryStats()
-        buildJsonObject {
+                        buildJsonObject {
                             put("success", true)
-        put("usedMb", m.usedMb)
-        put("totalMb", m.totalMb)
-        put("maxMb", m.maxMb)
+                            put("usedMb", m.usedMb)
+                            put("totalMb", m.totalMb)
+                            put("maxMb", m.maxMb)
                         }.toString()
                     }
                     "diagnostics/getNativeMemory" -> {
                         val m = f.getNativeMemory()
-        buildJsonObject {
+                        buildJsonObject {
                             put("success", true)
-        put("totalMb", m.totalMb)
-        put("freeMb", m.freeMb)
-        put("allocatedMb", m.allocatedMb)
+                            put("totalMb", m.totalMb)
+                            put("freeMb", m.freeMb)
+                            put("allocatedMb", m.allocatedMb)
                         }.toString()
                     }
                     "diagnostics/getApkHealthList" -> {
                         val list = f.getApkHealthList()
-        buildJsonObject {
+                        buildJsonObject {
                             put("success", true)
-        put("count", list.size)
-        put("items", list.joinToString("\n") {
+                            put("count", list.size)
+                            put("items", list.joinToString("\n") {
                                 "${it.apkId}: healthy=${it.healthy} (${it.lastHeartbeatAgoMs}ms ago)"
                             })
                         }.toString()
                     }
                     "diagnostics/getSystemInfo" -> {
                         val info = f.getSystemInfo()
-        buildJsonObject {
+                        buildJsonObject {
                             put("success", true)
-        put("brand", info.brand)
-        put("model", info.model)
-        put("manufacturer", info.manufacturer)
-        put("sdkInt", info.sdkInt)
-        put("release", info.release)
-        put("pid", info.pid)
-        put("uid", info.uid)
-        put("processName", info.processName)
-        put("abis", info.abis.joinToString(","))
+                            put("brand", info.brand)
+                            put("model", info.model)
+                            put("manufacturer", info.manufacturer)
+                            put("sdkInt", info.sdkInt)
+                            put("release", info.release)
+                            put("pid", info.pid)
+                            put("uid", info.uid)
+                            put("processName", info.processName)
+                            put("abis", info.abis.joinToString(","))
                         }.toString()
                     }
                     "diagnostics/forceGc" -> {
                         f.forceGc()
-        buildJsonObject { put("success", true) }.toString()
+                        buildJsonObject { put("success", true) }.toString()
                     }
                     "diagnostics/dumpHeap" -> {
                         val name = args["fileName"]?.jsonPrimitive?.content ?: "apex-heap.hprof"
-        val path = f.dumpHeap(name)
-        buildJsonObject { put("success", true); put("path", path) }.toString()
+                        val path = f.dumpHeap(name)
+                        buildJsonObject { put("success", true); put("path", path) }.toString()
                     }
-        else -> buildJsonObject {
+                    else -> buildJsonObject {
                         put("success", false)
-        put("errorMessage", "unknown method: $method")
+                        put("errorMessage", "unknown method: $method")
                     }.toString()
                 }
             }
         }.getOrElse { t ->
             buildJsonObject {
                 put("success", false)
-        put("errorMessage", t.message ?: t.javaClass.simpleName)
+                put("errorMessage", t.message ?: t.javaClass.simpleName)
             }.toString()
         }
     }
-        override fun invokeAsync(method: String, argsJson: String, onProgress: (Int, String) -> Unit): String {
+
+    override fun invokeAsync(method: String, argsJson: String, onProgress: (Int, String) -> Unit): String {
         onProgress(50, "executing")
         return invoke(method, argsJson)
     }
-        override fun openStream(channelName: String): String = channelName
+
+    override fun openStream(channelName: String): String = channelName
     override fun closeStream(channelName: String) {}
-        private inline fun buildOk(block: () -> Unit): String = try {
+
+    private inline fun buildOk(block: () -> Unit): String = try {
         block()
         buildJsonObject { put("success", true) }.toString()
     } catch (t: Throwable) {
         buildJsonObject { put("success", false); put("errorMessage", t.message ?: "") }.toString()
     }
-        private fun <T> buildResult(result: com.apex.sdk.common.BridgeResult<T>, transform: (T) -> JsonObject): String =
+
+    private fun <T> buildResult(result: com.apex.sdk.common.BridgeResult<T>, transform: (T) -> JsonObject): String =
         when (result) {
             is com.apex.sdk.common.BridgeResult.Success -> buildJsonObject {
                 put("success", true)
-        put("data", transform(result.value))
+                put("data", transform(result.value))
             }.toString()
-        is com.apex.sdk.common.BridgeResult.Failure -> buildJsonObject {
+            is com.apex.sdk.common.BridgeResult.Failure -> buildJsonObject {
                 put("success", false)
-        put("errorCode", result.error.code)
-        put("errorMessage", result.error.message)
+                put("errorCode", result.error.code)
+                put("errorMessage", result.error.message)
             }.toString()
         }
 }

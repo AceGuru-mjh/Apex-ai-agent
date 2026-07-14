@@ -35,13 +35,16 @@ private class DelegatingRevisableTextStream(
     override suspend fun lock() {
         upstream.lock()
     }
-        override suspend fun unlock() {
+
+    override suspend fun unlock() {
         upstream.unlock()
     }
-        override fun clearBuffer() {
+
+    override fun clearBuffer() {
         upstream.clearBuffer()
     }
-        override suspend fun collect(collector: StreamCollector<String>) {
+
+    override suspend fun collect(collector: StreamCollector<String>) {
         upstream.collect(collector)
     }
 }
@@ -65,13 +68,16 @@ private class DelegatingRevisableSharedTextStream(
     override suspend fun lock() {
         upstream.lock()
     }
-        override suspend fun unlock() {
+
+    override suspend fun unlock() {
         upstream.unlock()
     }
-        override fun clearBuffer() {
+
+    override fun clearBuffer() {
         upstream.clearBuffer()
     }
-        override suspend fun collect(collector: StreamCollector<String>) {
+
+    override suspend fun collect(collector: StreamCollector<String>) {
         upstream.collect(collector)
     }
 }
@@ -89,13 +95,16 @@ private class DelegatingRevisableCharStream(
     override suspend fun lock() {
         upstream.lock()
     }
-        override suspend fun unlock() {
+
+    override suspend fun unlock() {
         upstream.unlock()
     }
-        override fun clearBuffer() {
+
+    override fun clearBuffer() {
         upstream.clearBuffer()
     }
-        override suspend fun collect(collector: StreamCollector<Char>) {
+
+    override suspend fun collect(collector: StreamCollector<Char>) {
         upstream.collect(collector)
     }
 }
@@ -104,7 +113,7 @@ fun Stream<String>.withEventChannel(eventChannel: SharedStream<TextStreamEvent>)
     if (this is RevisableTextStream && this.eventChannel === eventChannel) {
         return this
     }
-        return DelegatingRevisableTextStream(this, eventChannel)
+    return DelegatingRevisableTextStream(this, eventChannel)
 }
 
 fun SharedStream<String>.withEventChannel(
@@ -113,14 +122,14 @@ fun SharedStream<String>.withEventChannel(
     if (this is RevisableSharedTextStream && this.eventChannel === eventChannel) {
         return this
     }
-        return DelegatingRevisableSharedTextStream(this, eventChannel)
+    return DelegatingRevisableSharedTextStream(this, eventChannel)
 }
 
 fun Stream<Char>.withTextEventChannel(eventChannel: SharedStream<TextStreamEvent>): Stream<Char> {
     if (this is RevisableCharStream && this.eventChannel === eventChannel) {
         return this
     }
-        return DelegatingRevisableCharStream(this, eventChannel)
+    return DelegatingRevisableCharStream(this, eventChannel)
 }
 
 fun Stream<String>.shareRevisable(
@@ -130,8 +139,8 @@ fun Stream<String>.shareRevisable(
     onComplete: suspend () -> Unit = {}
 ): SharedStream<String> {
     val sharedTextStream = share(scope = scope, replay = replay, started = started, onComplete = onComplete)
-        val carrier = this as? TextStreamEventCarrier ?: return sharedTextStream
+    val carrier = this as? TextStreamEventCarrier ?: return sharedTextStream
     val sharedEventStream =
         carrier.eventChannel.share(scope = scope, replay = Int.MAX_VALUE, started = started)
-        return sharedTextStream.withEventChannel(sharedEventStream)
+    return sharedTextStream.withEventChannel(sharedEventStream)
 }

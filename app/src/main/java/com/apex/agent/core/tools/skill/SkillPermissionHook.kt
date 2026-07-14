@@ -33,61 +33,78 @@ class SkillPermissionHook private constructor(private val context: Context) {
             }
         }
     }
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-        private val skillPermissionManager = SkillPermissionManager.getInstance(context)
-        private val _permissionRequest = MutableStateFlow<SkillPermissionRequest?>(null)
-        val permissionRequest: MutableStateFlow<SkillPermissionRequest?> = _permissionRequest
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    private val skillPermissionManager = SkillPermissionManager.getInstance(context)
+
+    private val _permissionRequest = MutableStateFlow<SkillPermissionRequest?>(null)
+    val permissionRequest: MutableStateFlow<SkillPermissionRequest?> = _permissionRequest
 
     private val _pendingSkillPermissions = MutableStateFlow<Map<String, List<PackagePermission>>>(emptyMap())
-        val pendingSkillPermissions = _pendingSkillPermissions.asStateFlow()
-        private var onPermissionRequestListener: ((String, List<PackagePermission>, (Boolean) -> Unit) -> Unit)? = null
+    val pendingSkillPermissions = _pendingSkillPermissions.asStateFlow()
+
+    private var onPermissionRequestListener: ((String, List<PackagePermission>, (Boolean) -> Unit) -> Unit)? = null
 
     fun registerPermissionRequestListener(
         listener: (String, List<PackagePermission>, (Boolean) -> Unit) -> Unit
     ) {
         onPermissionRequestListener = listener
     }
-        fun unregisterPermissionRequestListener() {
+
+    fun unregisterPermissionRequestListener() {
         onPermissionRequestListener = null
     }
-        fun setSkillPermissions(skillName: String, permissions: List<PackagePermission>) {
+
+    fun setSkillPermissions(skillName: String, permissions: List<PackagePermission>) {
         _pendingSkillPermissions.value = _pendingSkillPermissions.value.toMutableMap().apply {
             put(skillName, permissions)
         }
     }
-        fun clearSkillPermissions(skillName: String) {
+
+    fun clearSkillPermissions(skillName: String) {
         _pendingSkillPermissions.value = _pendingSkillPermissions.value.toMutableMap().apply {
             remove(skillName)
         }
     }
-        fun getSkillPermissions(skillName: String): List<PackagePermission> {
+
+    fun getSkillPermissions(skillName: String): List<PackagePermission> {
         return _pendingSkillPermissions.value[skillName] ?: emptyList()
     }
-        fun hasSkillPermissions(skillName: String): Boolean {
+
+    fun hasSkillPermissions(skillName: String): Boolean {
         val permissions = _pendingSkillPermissions.value[skillName]
         return !permissions.isNullOrEmpty()
     }
-        suspend fun checkAndRequestPermission(
+
+    suspend fun checkAndRequestPermission(
         skillName: String,
         permissions: List<PackagePermission>
     ): Boolean {
         if (permissions.isEmpty()) {
             return true
         }
+
         val result = skillPermissionManager.checkSkillPermissions(skillName, permissions)
+
         if (result.allGranted) {
             AppLogger.d(TAG, "All permissions granted for skill: ${skillName}")
-        return true
+            return true
         }
+
         val missingRequired = result.missingRequired
         if (missingRequired.isEmpty()) {
             return true
         }
+
         AppLogger.d(TAG, "Missing required permissions for skill ${skillName}: ${missingRequired.map { it.name }}")
+
         val granted = requestPermissions(skillName, permissions)
+
         return granted
     }
-        private suspend fun requestPermissions(
+
+    private suspend fun requestPermissions(
         skillName: String,
         permissions: List<PackagePermission>
     ): Boolean {
@@ -98,9 +115,10 @@ class SkillPermissionHook private constructor(private val context: Context) {
                         skillPermissionManager.setSkillAlwaysAllow(skillName, false)
                     }
                 }
-        continuation.resume(granted)
+                continuation.resume(granted)
             }
-        _permissionRequest.value = request
+
+            _permissionRequest.value = request
 
             onPermissionRequestListener?.invoke(skillName, permissions) { granted ->
                 scope.launch {
@@ -114,30 +132,36 @@ class SkillPermissionHook private constructor(private val context: Context) {
                         }
                     }
                 }
-        _permissionRequest.value = null
+                _permissionRequest.value = null
                 request.onResult(granted)
             }
         }
     }
-        fun cancelPermissionRequest() {
+
+    fun cancelPermissionRequest() {
         _permissionRequest.value?.let { request ->
             request.onResult(false)
-        _permissionRequest.value = null
+            _permissionRequest.value = null
         }
     }
-        fun hasPendingRequest(): Boolean {
+
+    fun hasPendingRequest(): Boolean {
         return _permissionRequest.value != null
     }
-        fun getPendingRequest(): SkillPermissionRequest? {
+
+    fun getPendingRequest(): SkillPermissionRequest? {
         return _permissionRequest.value
     }
-        suspend fun isSkillAlwaysAllowed(skillName: String): Boolean {
+
+    suspend fun isSkillAlwaysAllowed(skillName: String): Boolean {
         return skillPermissionManager.isSkillAlwaysAllowed(skillName)
     }
-        suspend fun setSkillAlwaysAllowed(skillName: String, alwaysAllow: Boolean) {
+
+    suspend fun setSkillAlwaysAllowed(skillName: String, alwaysAllow: Boolean) {
         skillPermissionManager.setSkillAlwaysAllow(skillName, alwaysAllow)
     }
-        suspend fun clearSkillPermission(skillName: String) {
+
+    suspend fun clearSkillPermission(skillName: String) {
         val permissions = _pendingSkillPermissions.value[skillName] ?: emptyList()
         skillPermissionManager.clearAllPermissions(skillName, permissions)
         clearSkillPermissions(skillName)

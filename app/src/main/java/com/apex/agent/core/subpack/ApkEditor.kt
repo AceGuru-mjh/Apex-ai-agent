@@ -9,7 +9,7 @@ import com.apex.util.AssetCopyUtils
 import java.io.File
 import java.io.InputStream
 
-/** APK编辑， 提供链式调用API 支持修改包名、应用名、图标和重新签名等操作/
+/** APK编辑�? 提供链式调用API 支持修改包名、应用名、图标和重新签名等操�?/
 class ApkEditor
 private constructor(
         private val context: Context,
@@ -20,52 +20,42 @@ private constructor(
         private const val TAG = "ApkEditor"
 
         /**
-         * 从资产文件创建APK编辑，
-        * @param context 上下，
-        * @param assetPath 资产路径
-         * @return APK编辑器实例
-        */
+         * 从资产文件创建APK编辑�?        * @param context 上下�?        * @param assetPath 资产路径
+         * @return APK编辑器实�?        */
         @JvmStatic
         fun fromAsset(context: Context, assetPath: String): ApkEditor {
             val fileName = assetPath.substringAfterLast('/')
-        val outputFile = File(context.cacheDir, "apk_editor_${fileName}")
-        val apkFile = AssetCopyUtils.copyAssetToFile(context, assetPath, outputFile, overwrite = true)
-        val apkReverseEngineer = ApkReverseEngineer(context)
-        return ApkEditor(context, apkFile, apkReverseEngineer)
+            val outputFile = File(context.cacheDir, "apk_editor_${fileName}")
+            val apkFile = AssetCopyUtils.copyAssetToFile(context, assetPath, outputFile, overwrite = true)
+            val apkReverseEngineer = ApkReverseEngineer(context)
+            return ApkEditor(context, apkFile, apkReverseEngineer)
         }
 
         /**
-         * 从文件创建APK编辑，
-        * @param context 上下，
-        * @param apkFile APK文件
-         * @return APK编辑器实例
-        */
+         * 从文件创建APK编辑�?        * @param context 上下�?        * @param apkFile APK文件
+         * @return APK编辑器实�?        */
         @JvmStatic
         fun fromFile(context: Context, apkFile: File): ApkEditor {
             val apkReverseEngineer = ApkReverseEngineer(context)
-        return ApkEditor(context, apkFile, apkReverseEngineer)
+            return ApkEditor(context, apkFile, apkReverseEngineer)
         }
 
         /**
-         * 从文件路径创建APK编辑，
-        * @param context 上下，
-        * @param apkFilePath APK文件路径
-         * @return APK编辑器实例
-        */
+         * 从文件路径创建APK编辑�?        * @param context 上下�?        * @param apkFilePath APK文件路径
+         * @return APK编辑器实�?        */
         @JvmStatic
         fun fromPath(context: Context, apkFilePath: String): ApkEditor {
             val apkFile = File(apkFilePath)
-        return fromFile(context, apkFile)
+            return fromFile(context, apkFile)
         }
 
         /**
-         * 复制资产文件到缓存目当
-        * @param context 上下，
-        * @param assetPath 资产路径
+         * 复制资产文件到缓存目�?        * @param context 上下�?        * @param assetPath 资产路径
          * @return 缓存文件
          */
     }
-        private var newPackageName: String? = null
+
+    private var newPackageName: String? = null
     private var newAppName: String? = null
     private var newVersionName: String? = null
     private var newVersionCode: String? = null
@@ -80,9 +70,7 @@ private constructor(
 
     /**
      * 修改包名
-     * @param packageName 新包后
-    * @return 当前APK编辑器实例
-    */
+     * @param packageName 新包�?    * @return 当前APK编辑器实�?    */
     fun changePackageName(packageName: String): ApkEditor {
         this.newPackageName = packageName
         return this
@@ -90,39 +78,31 @@ private constructor(
 
     /**
      * 修改应用名称
-     * @param appName 新应用名，
-    * @return 当前APK编辑器实例
-    */
+     * @param appName 新应用名�?    * @return 当前APK编辑器实�?    */
     fun changeAppName(appName: String): ApkEditor {
         this.newAppName = appName
         return this
     }
 
     /**
-     * 修改版本，
-    * @param versionName 新版本名
-     * @return 当前APK编辑器实例
-    */
+     * 修改版本�?    * @param versionName 新版本名
+     * @return 当前APK编辑器实�?    */
     fun changeVersionName(versionName: String): ApkEditor {
         this.newVersionName = versionName
         return this
     }
 
     /**
-     * 修改版本，
-    * @param versionCode 新版本号
-     * @return 当前APK编辑器实例
-    */
+     * 修改版本�?    * @param versionCode 新版本号
+     * @return 当前APK编辑器实�?    */
     fun changeVersionCode(versionCode: String): ApkEditor {
         this.newVersionCode = versionCode
         return this
     }
 
     /**
-     * 更改图标（从位图版
-    * @param iconBitmap 图标位图
-     * @return 当前APK编辑器实例
-    */
+     * 更改图标（从位图�?    * @param iconBitmap 图标位图
+     * @return 当前APK编辑器实�?    */
     fun changeIcon(iconBitmap: Bitmap): ApkEditor {
         this.newIconBitmap = iconBitmap
         return this
@@ -130,19 +110,15 @@ private constructor(
 
     /**
      * 更改图标（从输入流）
-     * @param iconInputStream 图标输入具
-    * @return 当前APK编辑器实例
-    */
+     * @param iconInputStream 图标输入�?    * @return 当前APK编辑器实�?    */
     fun changeIcon(iconInputStream: InputStream): ApkEditor {
         val bitmap = BitmapFactory.decodeStream(iconInputStream)
         return changeIcon(bitmap)
     }
 
     /**
-     * 更改图标（从资产文件失
-    * @param iconAssetPath 图标资产路径
-     * @return 当前APK编辑器实例
-    */
+     * 更改图标（从资产文件�?    * @param iconAssetPath 图标资产路径
+     * @return 当前APK编辑器实�?    */
     fun changeIconFromAsset(iconAssetPath: String): ApkEditor {
         context.assets.open(iconAssetPath).use { input ->
             return changeIcon(input)
@@ -151,12 +127,9 @@ private constructor(
 
     /**
      * 设置签名信息
-     * @param keyStoreFile 密钥库文件
-    * @param keyStorePassword 密钥库密，
-    * @param keyAlias 密钥别名
+     * @param keyStoreFile 密钥库文�?    * @param keyStorePassword 密钥库密�?    * @param keyAlias 密钥别名
      * @param keyPassword 密钥密码
-     * @return 当前APK编辑器实例
-    */
+     * @return 当前APK编辑器实�?    */
     fun withSignature(
             keyStoreFile: File,
             keyStorePassword: String,
@@ -173,8 +146,7 @@ private constructor(
     /**
      * 设置输出文件
      * @param outputFile 输出文件
-     * @return 当前APK编辑器实例
-    */
+     * @return 当前APK编辑器实�?    */
     fun setOutput(outputFile: File): ApkEditor {
         this.outputFile = outputFile
         return this
@@ -183,8 +155,7 @@ private constructor(
     /**
      * 设置输出文件路径
      * @param outputPath 输出文件路径
-     * @return 当前APK编辑器实例
-    */
+     * @return 当前APK编辑器实�?    */
     fun setOutput(outputPath: String): ApkEditor {
         return setOutput(File(outputPath))
     }
@@ -192,18 +163,19 @@ private constructor(
     /**
      * 仅替换Web内容并更新清单信息的快速打包（不落地解压）
      * @param webContentDir 网页内容目录
-     * @return 重新打包后的APK文件（未签名，
-    */
+     * @return 重新打包后的APK文件（未签名�?    */
     fun repackWithWebContent(webContentDir: File): File {
         if (!webContentDir.exists() || !webContentDir.isDirectory) {
             throw IllegalArgumentException("webContentDir is missing or not a directory: ${webContentDir.absolutePath}")
         }
+
         val unsignedOutputFile =
                 if (outputFile != null) {
-                    requireNotNull(outputFile) { "outputFile must not be null" }
+                    outputFile!!
                 } else {
                     File(context.cacheDir, "unsigned_${apkFile.name}")
                 }
+
         if (!apkReverseEngineer.repackageApkWithWebContent(
                         apkFile,
                         unsignedOutputFile,
@@ -217,6 +189,7 @@ private constructor(
         ) {
             throw RuntimeException(context.getString(R.string.apk_editor_repack_failed))
         }
+
         return unsignedOutputFile
     }
 
@@ -227,10 +200,13 @@ private constructor(
      */
     fun repackAndSignWithWebContent(webContentDir: File): File {
         val unsignedApk = repackWithWebContent(webContentDir)
+
         AppLogger.d(TAG, "未签名APK生成成功: ${unsignedApk.absolutePath}, 文件大小: ${unsignedApk.length()}")
+
         if (!unsignedApk.exists() || unsignedApk.length() == 0L) {
             throw RuntimeException(context.getString(R.string.apk_editor_unsigned_apk_not_found, unsignedApk.absolutePath))
         }
+
         if (keyStoreFile == null ||
                         keyStorePassword == null ||
                         keyAlias == null ||
@@ -238,38 +214,48 @@ private constructor(
         ) {
             throw IllegalStateException(context.getString(R.string.apk_editor_signature_incomplete))
         }
+
         val signedOutputFile = if (outputFile != null) {
             File(unsignedApk.parentFile, "to_sign_${System.currentTimeMillis()}_${unsignedApk.name}")
         } else {
             File(context.cacheDir, "signed_${apkFile.name}")
         }
-        AppLogger.d(TAG, "开始签名APK，输出${unsignedApk.absolutePath}, 输出，${signedOutputFile.absolutePath}")
+
+        AppLogger.d(TAG, "开始签名APK，输�?${unsignedApk.absolutePath}, 输出�?${signedOutputFile.absolutePath}")
+
         val signResult = apkReverseEngineer.signApk(
                 unsignedApk,
-                requireNotNull(keyStoreFile) { "keyStoreFile must not be null" },
-                requireNotNull(keyStorePassword) { "keyStorePassword must not be null" },
-                requireNotNull(keyAlias) { "keyAlias must not be null" },
-                requireNotNull(keyPassword) { "keyPassword must not be null" },
+                keyStoreFile!!,
+                keyStorePassword!!,
+                keyAlias!!,
+                keyPassword!!,
                 signedOutputFile
         )
+
         if (!signResult.first) {
             val errorMessage = signResult.second ?: context.getString(R.string.apk_editor_unknown_sign_error)
-        throw RuntimeException(context.getString(R.string.apk_editor_sign_failed, errorMessage))
+            throw RuntimeException(context.getString(R.string.apk_editor_sign_failed, errorMessage))
         }
+
         val finalOutputFile = if (outputFile != null && signedOutputFile.exists()) {
-            requireNotNull(outputFile) { "outputFile must not be null" }.parentFile?.mkdirs()
-        if (requireNotNull(outputFile) { "outputFile must not be null" }.exists()) {
-                requireNotNull(outputFile) { "outputFile must not be null" }.delete()
+            outputFile!!.parentFile?.mkdirs()
+
+            if (outputFile!!.exists()) {
+                outputFile!!.delete()
             }
-        signedOutputFile.inputStream().use { input ->
-                requireNotNull(outputFile) { "outputFile must not be null" }.outputStream().use { output -> input.copyTo(output) }
+
+            signedOutputFile.inputStream().use { input ->
+                outputFile!!.outputStream().use { output -> input.copyTo(output) }
             }
-        signedOutputFile.delete()
-        AppLogger.d(TAG, "已将签名后的APK从临时文件复制到指定输出位置: ${requireNotNull(outputFile) { "outputFile must not be null" }.absolutePath}")
-        requireNotNull(outputFile) { "outputFile must not be null" }
+
+            signedOutputFile.delete()
+
+            AppLogger.d(TAG, "已将签名后的APK从临时文件复制到指定输出位置: ${outputFile!!.absolutePath}")
+            outputFile!!
         } else {
             signedOutputFile
         }
+
         AppLogger.d(TAG, "APK签名完成: ${finalOutputFile.absolutePath}, 文件大小: ${finalOutputFile.length()}字节")
         return finalOutputFile
     }

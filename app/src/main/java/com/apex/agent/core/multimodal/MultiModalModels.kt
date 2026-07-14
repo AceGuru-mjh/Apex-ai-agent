@@ -43,7 +43,8 @@ data class FusionResult(
         other as FusionResult
         return fusedEmbedding.contentEquals(other.fusedEmbedding)
     }
-        override fun hashCode(): Int {
+
+    override fun hashCode(): Int {
         return fusedEmbedding.contentHashCode()
     }
 }
@@ -98,7 +99,8 @@ data class ModalEmbedding(
         other as ModalEmbedding
         return embedding.contentEquals(other.embedding)
     }
-        override fun hashCode(): Int {
+
+    override fun hashCode(): Int {
         return embedding.contentHashCode()
     }
 }

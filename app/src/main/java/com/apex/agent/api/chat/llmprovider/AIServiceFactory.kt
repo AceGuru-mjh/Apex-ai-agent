@@ -47,35 +47,40 @@ private object ServiceCache {
     fun fingerprint(config: ModelConfigData): String {
         return buildString {
             append(config.apiProviderType)
-        append('|').append(config.apiEndpoint)
-        append('|').append(config.modelName)
-        append('|').append(config.apiKey)
-        append('|').append(config.useMultipleApiKeys)
-        append('|').append(config.customHeaders)
-        append('|').append(config.enableDirectImageProcessing)
-        append('|').append(config.enableDirectAudioProcessing)
-        append('|').append(config.enableDirectVideoProcessing)
-        append('|').append(config.enableToolCall)
-        append('|').append(config.enableGoogleSearch)
-        append('|').append(config.llamaThreadCount)
-        append('|').append(config.llamaContextSize)
-        append('|').append(config.llamaGpuLayers)
+            append('|').append(config.apiEndpoint)
+            append('|').append(config.modelName)
+            append('|').append(config.apiKey)
+            append('|').append(config.useMultipleApiKeys)
+            append('|').append(config.customHeaders)
+            append('|').append(config.enableDirectImageProcessing)
+            append('|').append(config.enableDirectAudioProcessing)
+            append('|').append(config.enableDirectVideoProcessing)
+            append('|').append(config.enableToolCall)
+            append('|').append(config.enableGoogleSearch)
+            append('|').append(config.llamaThreadCount)
+            append('|').append(config.llamaContextSize)
+            append('|').append(config.llamaGpuLayers)
         }
     }
-        fun get(configId: String, expectedFingerprint: String): AIService? {
+
+    fun get(configId: String, expectedFingerprint: String): AIService? {
         val cached = cache[configId] ?: return null
         return if (cached.first == expectedFingerprint) cached.second else null
     }
-        fun put(configId: String, fingerprint: String, service: AIService) {
+
+    fun put(configId: String, fingerprint: String, service: AIService) {
         cache[configId] = fingerprint to service
     }
-        fun invalidate(configId: String) {
+
+    fun invalidate(configId: String) {
         cache.remove(configId)
     }
-        fun clearAll() {
+
+    fun clearAll() {
         cache.clear()
     }
-        fun size(): Int = cache.size
+
+    fun size(): Int = cache.size
 }
 
 /** AI服务工厂，根据提供商类型创建相应的AIService实例 */
@@ -89,16 +94,16 @@ object AIServiceFactory {
     private fun parseCustomHeaders(customHeadersJson: String): Map<String, String> {
         return try {
             val headers = mutableMapOf<String, String>()
-        if (customHeadersJson.isNotEmpty() && customHeadersJson != "{}") {
+            if (customHeadersJson.isNotEmpty() && customHeadersJson != "{}") {
                 val jsonObject = JSONObject(customHeadersJson)
-        for (key in jsonObject.keys()) {
+                for (key in jsonObject.keys()) {
                     headers[key] = jsonObject.getString(key)
                 }
             }
-        headers
+            headers
         } catch (e: Exception) {
             AppLogger.e(TAG, "解析自定义请求头失败", e)
-        emptyMap()
+            emptyMap()
         }
     }
 
@@ -111,7 +116,7 @@ object AIServiceFactory {
     /** 清空全部缓存（切换账�?/ 重置场景�?*/
     fun clearAllCaches() {
         ServiceCache.clearAll()
-        AppLogger.d(TAG, "全部缓存已清�?)"
+        AppLogger.d(TAG, "全部缓存已清�?)
     }
 
     /**
@@ -128,8 +133,9 @@ object AIServiceFactory {
         val cached = ServiceCache.get(config.id, fingerprint)
         if (cached != null) {
             reportCacheEvent(context, isHit = true)
-        return cached
+            return cached
         }
+
         reportCacheEvent(context, isHit = false)
         AppLogger.d(TAG, "缓存 miss，构造新 Provider (id=${config.id}, type=${config.apiProviderType})")
         val service = buildServiceInternal(config, modelConfigManager, context)
@@ -144,11 +150,11 @@ object AIServiceFactory {
     private fun reportCacheEvent(context: Context, isHit: Boolean) {
         try {
             val healthClass = Class.forName("com.apex.agent.core.application.ArchitectureHealthCheck")
-        val healthInstance = healthClass.getMethod("getInstance", Context::class.java)
+            val healthInstance = healthClass.getMethod("getInstance", Context::class.java)
                 .invoke(null, context.applicationContext)
-        val methodName = if (isHit) "recordCacheHit" else "recordCacheMiss"
-        healthClass.getMethod(methodName).invoke(healthInstance)
-        if (!isHit) {
+            val methodName = if (isHit) "recordCacheHit" else "recordCacheMiss"
+            healthClass.getMethod(methodName).invoke(healthInstance)
+            if (!isHit) {
                 healthClass.getMethod("updateCacheSize", Int::class.javaPrimitiveType)
                     .invoke(healthInstance, ServiceCache.size())
             }
@@ -167,11 +173,13 @@ object AIServiceFactory {
     ): AIService {
         val httpClient = SharedHttpClient.instance
         val customHeaders = parseCustomHeaders(config.customHeaders)
+
         val apiKeyProvider = if (config.useMultipleApiKeys) {
             MultiApiKeyProvider(config.id, modelConfigManager)
         } else {
             SingleApiKeyProvider(config.apiKey)
         }
+
         val supportsVision = config.enableDirectImageProcessing
         val supportsAudio = config.enableDirectAudioProcessing
         val supportsVideo = config.enableDirectVideoProcessing
@@ -179,7 +187,7 @@ object AIServiceFactory {
 
         return when (config.apiProviderType) {
             // OpenAI 系列
-        ApiProviderType.OPENAI,
+            ApiProviderType.OPENAI,
             ApiProviderType.OPENAI_GENERIC ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
@@ -195,7 +203,7 @@ object AIServiceFactory {
                 )
 
             // OpenAI Responses API
-        ApiProviderType.OPENAI_RESPONSES,
+            ApiProviderType.OPENAI_RESPONSES,
             ApiProviderType.OPENAI_RESPONSES_GENERIC ->
                 OpenAIResponsesProvider(
                     responsesApiEndpoint = config.apiEndpoint,
@@ -211,15 +219,15 @@ object AIServiceFactory {
                 )
 
             // Claude 系列
-        ApiProviderType.ANTHROPIC,
+            ApiProviderType.ANTHROPIC,
             ApiProviderType.ANTHROPIC_GENERIC -> ClaudeProvider(config.apiEndpoint, apiKeyProvider, config.modelName, httpClient, customHeaders, config.apiProviderType, enableToolCall)
 
             // Gemini 系列
-        ApiProviderType.GOOGLE,
+            ApiProviderType.GOOGLE,
             ApiProviderType.GEMINI_GENERIC -> GeminiProvider(config.apiEndpoint, apiKeyProvider, config.modelName, httpClient, customHeaders, config.apiProviderType, config.enableGoogleSearch, enableToolCall)
 
             // 国内厂商
-        ApiProviderType.BAIDU,
+            ApiProviderType.BAIDU,
             ApiProviderType.XUNFEI,
             ApiProviderType.ZHIPU,
             ApiProviderType.BAICHUAN ->
@@ -237,7 +245,7 @@ object AIServiceFactory {
                 )
 
             // 阿里�?
-        ApiProviderType.ALIYUN ->
+            ApiProviderType.ALIYUN ->
                 QwenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -252,7 +260,7 @@ object AIServiceFactory {
                 )
 
             // 月之暗面 (Moonshot)
-        ApiProviderType.MOONSHOT ->
+            ApiProviderType.MOONSHOT ->
                 KimiProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -267,7 +275,7 @@ object AIServiceFactory {
                 )
 
             // DeepSeek
-        ApiProviderType.DEEPSEEK ->
+            ApiProviderType.DEEPSEEK ->
                 DeepseekProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -282,7 +290,7 @@ object AIServiceFactory {
                 )
 
             // Mistral
-        ApiProviderType.MISTRAL ->
+            ApiProviderType.MISTRAL ->
                 MistralProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -297,7 +305,7 @@ object AIServiceFactory {
                 )
 
             // 硅基流动
-        ApiProviderType.SILICONFLOW ->
+            ApiProviderType.SILICONFLOW ->
                 QwenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -312,7 +320,7 @@ object AIServiceFactory {
                 )
 
             // iFlow
-        ApiProviderType.IFLOW ->
+            ApiProviderType.IFLOW ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -327,7 +335,7 @@ object AIServiceFactory {
                 )
 
             // OpenRouter
-        ApiProviderType.OPENROUTER ->
+            ApiProviderType.OPENROUTER ->
                 OpenRouterProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -342,7 +350,7 @@ object AIServiceFactory {
                 )
 
             // 无问芯穹
-        ApiProviderType.INFINIAI ->
+            ApiProviderType.INFINIAI ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -357,7 +365,7 @@ object AIServiceFactory {
                 )
 
             // 支付宝百�?
-        ApiProviderType.ALIPAY_BAILING ->
+            ApiProviderType.ALIPAY_BAILING ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -372,7 +380,7 @@ object AIServiceFactory {
                 )
 
             // 豆包
-        ApiProviderType.DOUBAO ->
+            ApiProviderType.DOUBAO ->
                 DoubaoAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -387,7 +395,7 @@ object AIServiceFactory {
                 )
 
             // NVIDIA
-        ApiProviderType.NVIDIA ->
+            ApiProviderType.NVIDIA ->
                 NvidiaAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -402,7 +410,7 @@ object AIServiceFactory {
                 )
 
             // 派欧�?
-        ApiProviderType.PPINFRA ->
+            ApiProviderType.PPINFRA ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -417,7 +425,7 @@ object AIServiceFactory {
                 )
 
             // Novita AI
-        ApiProviderType.NOVITA ->
+            ApiProviderType.NOVITA ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -432,7 +440,7 @@ object AIServiceFactory {
                 )
 
             // AWS Bedrock - 使用专用Provider处理AWS签名
-        ApiProviderType.AWS_BEDROCK ->
+            ApiProviderType.AWS_BEDROCK ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -447,7 +455,7 @@ object AIServiceFactory {
                 )
 
             // Azure OpenAI - 使用专用Provider处理Azure认证
-        ApiProviderType.AZURE_OPENAI ->
+            ApiProviderType.AZURE_OPENAI ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -462,7 +470,7 @@ object AIServiceFactory {
                 )
 
             // 国际厂商 - 大部分使用OpenAI兼容格式
-        ApiProviderType.COHERE,
+            ApiProviderType.COHERE,
             ApiProviderType.REPLICATE,
             ApiProviderType.TOGETHER_AI,
             ApiProviderType.PERPLEXITY,
@@ -490,7 +498,7 @@ object AIServiceFactory {
                 )
 
             // 本地部署 - OpenAI兼容格式
-        ApiProviderType.LMSTUDIO,
+            ApiProviderType.LMSTUDIO,
             ApiProviderType.LOCALAI,
             ApiProviderType.VLLM,
             ApiProviderType.TEXT_GENERATION_WEBUI,
@@ -510,7 +518,7 @@ object AIServiceFactory {
                 )
 
             // Ollama - 使用专用Provider
-        ApiProviderType.OLLAMA ->
+            ApiProviderType.OLLAMA ->
                 OllamaProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -525,7 +533,7 @@ object AIServiceFactory {
                 )
 
             // Tabby - 代码补全专用
-        ApiProviderType.TABBY ->
+            ApiProviderType.TABBY ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,
@@ -540,7 +548,7 @@ object AIServiceFactory {
                 )
 
             // Coding专用模型 - 通过OpenAI兼容格式
-        ApiProviderType.CODECLLAMA,
+            ApiProviderType.CODECLLAMA,
             ApiProviderType.STARCODER,
             ApiProviderType.WIZARDCODER,
             ApiProviderType.PHICODER ->
@@ -558,7 +566,7 @@ object AIServiceFactory {
                 )
 
             // 其他提供商（自定义端点）
-        ApiProviderType.OTHER ->
+            ApiProviderType.OTHER ->
                 OpenAIProvider(
                     apiEndpoint = config.apiEndpoint,
                     apiKeyProvider = apiKeyProvider,

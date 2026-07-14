@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
 /**
- * FTS5搜索管理器- 实现全文搜索虚拟行
- */
+ * FTS5搜索管理�?- 实现全文搜索虚拟�? */
 class FTSSearch(context: Context) : SQLiteOpenHelper(
     context.applicationContext,
     FTS_DATABASE_NAME,
@@ -29,7 +28,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         /** 搜索结果表名 */
         const val FTS_CONTENT_TABLE = "messages_fts_content"
         
-        /** FTS元数据表后*/
+        /** FTS元数据表�?*/
         const val FTS_METADATA_TABLE = "messages_fts_metadata"
         
         @Volatile
@@ -41,10 +40,10 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
             }
         }
     }
-        override fun onCreate(db: SQLiteDatabase) {
-        // 创建FTS5虚拟行
-        db.execSQL("""
-        CREATE VIRTUAL TABLE IF NOT EXISTS ${FTS_TABLE_NAME} USING fts5(
+    
+    override fun onCreate(db: SQLiteDatabase) {
+        // 创建FTS5虚拟�?        db.execSQL("""
+            CREATE VIRTUAL TABLE IF NOT EXISTS ${FTS_TABLE_NAME} USING fts5(
                 message_id,
                 session_id,
                 content,
@@ -54,9 +53,8 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
             )
         """.trimIndent())
         
-        // 创建FTS内容表用于存储完整内定
-        db.execSQL("""
-        CREATE TABLE IF NOT EXISTS ${FTS_CONTENT_TABLE}(
+        // 创建FTS内容表用于存储完整内�?        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS ${FTS_CONTENT_TABLE}(
                 message_id TEXT PRIMARY KEY,
                 session_id TEXT NOT NULL,
                 content TEXT NOT NULL,
@@ -67,7 +65,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         
         // 创建元数据表
         db.execSQL("""
-        CREATE TABLE IF NOT EXISTS ${FTS_METADATA_TABLE}(
+            CREATE TABLE IF NOT EXISTS ${FTS_METADATA_TABLE}(
                 message_id TEXT PRIMARY KEY,
                 session_title TEXT,
                 summary TEXT
@@ -78,13 +76,15 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_fts_content_session ON ${FTS_CONTENT_TABLE}(session_id)")
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_fts_content_created ON ${FTS_CONTENT_TABLE}(created_at)")
     }
-        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+    
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS ${FTS_TABLE_NAME}")
         db.execSQL("DROP TABLE IF EXISTS ${FTS_CONTENT_TABLE}")
         db.execSQL("DROP TABLE IF EXISTS ${FTS_METADATA_TABLE}")
         onCreate(db)
     }
-        override fun onConfigure(db: SQLiteDatabase) {
+    
+    override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)
         // 启用WAL模式
         db.setForeignKeyConstraintsEnabled(true)
@@ -97,11 +97,10 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         withContext(Dispatchers.IO) {
             writableDatabase.use { db ->
                 db.beginTransaction()
-        try {
-                    // 插入FTS虚拟行
-        db.execSQL("""
-        INSERT INTO ${FTS_TABLE_NAME}(message_id, session_id, content, role, created_at)
-        VALUES (?, ?, ?, ?, ?)
+                try {
+                    // 插入FTS虚拟�?                    db.execSQL("""
+                        INSERT INTO ${FTS_TABLE_NAME}(message_id, session_id, content, role, created_at)
+                        VALUES (?, ?, ?, ?, ?)
                     """.trimIndent(), arrayOf(
                         message.id,
                         message.sessionId,
@@ -110,10 +109,9 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                         message.createdAt
                     ))
                     
-                    // 插入完整内容行
-        db.execSQL("""
-        INSERT OR REPLACE INTO ${FTS_CONTENT_TABLE}(message_id, session_id, content, role, created_at)
-        VALUES (?, ?, ?, ?, ?)
+                    // 插入完整内容�?                    db.execSQL("""
+                        INSERT OR REPLACE INTO ${FTS_CONTENT_TABLE}(message_id, session_id, content, role, created_at)
+                        VALUES (?, ?, ?, ?, ?)
                     """.trimIndent(), arrayOf(
                         message.id,
                         message.sessionId,
@@ -122,14 +120,14 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                         message.createdAt
                     ))
                     
-                    // 更新元数据
-        if (sessionTitle != null) {
+                    // 更新元数�?                    if (sessionTitle != null) {
                         db.execSQL("""
-        INSERT OR REPLACE INTO ${FTS_METADATA_TABLE}(message_id, session_title)
-        VALUES (?, ?)
+                            INSERT OR REPLACE INTO ${FTS_METADATA_TABLE}(message_id, session_title)
+                            VALUES (?, ?)
                         """.trimIndent(), arrayOf(message.id, sessionTitle))
                     }
-        db.setTransactionSuccessful()
+                    
+                    db.setTransactionSuccessful()
                 } finally {
                     db.endTransaction()
                 }
@@ -144,11 +142,11 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         withContext(Dispatchers.IO) {
             writableDatabase.use { db ->
                 db.beginTransaction()
-        try {
+                try {
                     messages.forEach { message ->
                         db.execSQL("""
-        INSERT INTO ${FTS_TABLE_NAME}(message_id, session_id, content, role, created_at)
-        VALUES (?, ?, ?, ?, ?)
+                            INSERT INTO ${FTS_TABLE_NAME}(message_id, session_id, content, role, created_at)
+                            VALUES (?, ?, ?, ?, ?)
                         """.trimIndent(), arrayOf(
                             message.id,
                             message.sessionId,
@@ -156,9 +154,10 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                             message.role,
                             message.createdAt
                         ))
-        db.execSQL("""
-        INSERT OR REPLACE INTO ${FTS_CONTENT_TABLE}(message_id, session_id, content, role, created_at)
-        VALUES (?, ?, ?, ?, ?)
+                        
+                        db.execSQL("""
+                            INSERT OR REPLACE INTO ${FTS_CONTENT_TABLE}(message_id, session_id, content, role, created_at)
+                            VALUES (?, ?, ?, ?, ?)
                         """.trimIndent(), arrayOf(
                             message.id,
                             message.sessionId,
@@ -167,15 +166,17 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                             message.createdAt
                         ))
                     }
-        if (sessionTitle != null) {
+                    
+                    if (sessionTitle != null) {
                         messages.forEach { message ->
                             db.execSQL("""
-        INSERT OR REPLACE INTO ${FTS_METADATA_TABLE}(message_id, session_title)
-        VALUES (?, ?)
+                                INSERT OR REPLACE INTO ${FTS_METADATA_TABLE}(message_id, session_title)
+                                VALUES (?, ?)
                             """.trimIndent(), arrayOf(message.id, sessionTitle))
                         }
                     }
-        db.setTransactionSuccessful()
+                    
+                    db.setTransactionSuccessful()
                 } finally {
                     db.endTransaction()
                 }
@@ -185,8 +186,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
     
     /**
      * 全文搜索
-     * @param query 搜索关键试
-     * @param limit 返回结果数量限制
+     * @param query 搜索关键�?     * @param limit 返回结果数量限制
      * @param sessionIdFilter 可选的会话ID过滤
      */
     suspend fun search(
@@ -197,7 +197,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         readableDatabase.use { db ->
             val sql = if (sessionIdFilter != null) {
                 """
-        SELECT m.message_id, m.session_id, c.content, m.rank, mt.session_title, c.created_at
+                    SELECT m.message_id, m.session_id, c.content, m.rank, mt.session_title, c.created_at
                     FROM ${FTS_TABLE_NAME} m
                     INNER JOIN ${FTS_CONTENT_TABLE} c ON m.message_id = c.message_id
                     LEFT JOIN ${FTS_METADATA_TABLE} mt ON m.message_id = mt.message_id
@@ -207,7 +207,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                 """.trimIndent()
             } else {
                 """
-        SELECT m.message_id, m.session_id, c.content, m.rank, mt.session_title, c.created_at
+                    SELECT m.message_id, m.session_id, c.content, m.rank, mt.session_title, c.created_at
                     FROM ${FTS_TABLE_NAME} m
                     INNER JOIN ${FTS_CONTENT_TABLE} c ON m.message_id = c.message_id
                     LEFT JOIN ${FTS_METADATA_TABLE} mt ON m.message_id = mt.message_id
@@ -216,14 +216,16 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                     LIMIT ?
                 """.trimIndent()
             }
-        val args = if (sessionIdFilter != null) {
+            
+            val args = if (sessionIdFilter != null) {
                 arrayOf(query, sessionIdFilter, limit)
             } else {
                 arrayOf(query, limit)
             }
-        db.rawQuery(sql, args).use { cursor ->
+            
+            db.rawQuery(sql, args).use { cursor ->
                 val results = mutableListOf<FTSSearchResult>()
-        while (cursor.moveToNext()) {
+                while (cursor.moveToNext()) {
                     results.add(FTSSearchResult(
                         messageId = cursor.getString(0),
                         sessionId = cursor.getString(1),
@@ -233,15 +235,14 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                         createdAt = cursor.getLong(5)
                     ))
                 }
-        results
+                results
             }
         }
     }
     
     /**
      * 跨会话LLM摘要召回搜索
-     * @param query 搜索关键试
-     * @param limit 返回结果数量限制
+     * @param query 搜索关键�?     * @param limit 返回结果数量限制
      */
     suspend fun semanticSearch(query: String, limit: Int = 20): List<FTSSearchResult> {
         // 使用FTS5的BM25排序进行语义相似搜索
@@ -255,21 +256,20 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         withContext(Dispatchers.IO) {
             writableDatabase.use { db ->
                 db.execSQL("DELETE FROM ${FTS_TABLE_NAME} WHERE message_id = ?", arrayOf(messageId))
-        db.execSQL("DELETE FROM ${FTS_CONTENT_TABLE} WHERE message_id = ?", arrayOf(messageId))
-        db.execSQL("DELETE FROM ${FTS_METADATA_TABLE} WHERE message_id = ?", arrayOf(messageId))
+                db.execSQL("DELETE FROM ${FTS_CONTENT_TABLE} WHERE message_id = ?", arrayOf(messageId))
+                db.execSQL("DELETE FROM ${FTS_METADATA_TABLE} WHERE message_id = ?", arrayOf(messageId))
             }
         }
     }
     
     /**
-     * 删除会话的所有索式
-     */
+     * 删除会话的所有索�?     */
     suspend fun deleteSessionIndexes(sessionId: String) {
         withContext(Dispatchers.IO) {
             writableDatabase.use { db ->
                 db.execSQL("DELETE FROM ${FTS_TABLE_NAME} WHERE session_id = ?", arrayOf(sessionId))
-        db.execSQL("DELETE FROM ${FTS_CONTENT_TABLE} WHERE session_id = ?", arrayOf(sessionId))
-        db.execSQL("DELETE FROM ${FTS_METADATA_TABLE} WHERE message_id IN (SELECT message_id FROM ${FTS_CONTENT_TABLE} WHERE session_id = ?)", arrayOf(sessionId))
+                db.execSQL("DELETE FROM ${FTS_CONTENT_TABLE} WHERE session_id = ?", arrayOf(sessionId))
+                db.execSQL("DELETE FROM ${FTS_METADATA_TABLE} WHERE message_id IN (SELECT message_id FROM ${FTS_CONTENT_TABLE} WHERE session_id = ?)", arrayOf(sessionId))
             }
         }
     }
@@ -281,8 +281,8 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         withContext(Dispatchers.IO) {
             writableDatabase.use { db ->
                 db.execSQL("""
-        UPDATE ${FTS_METADATA_TABLE}
-        SET session_title = ?
+                    UPDATE ${FTS_METADATA_TABLE} 
+                    SET session_title = ?
                     WHERE message_id IN (SELECT message_id FROM ${FTS_CONTENT_TABLE} WHERE session_id = ?)
                 """.trimIndent(), arrayOf(title, sessionId))
             }
@@ -307,17 +307,17 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         return withContext(Dispatchers.IO) {
             readableDatabase.use { db ->
                 // 使用prefix search
-        val query = "${prefix}*"
-        db.rawQuery("""
-        SELECT DISTINCT content FROM ${FTS_CONTENT_TABLE}
-        WHERE content LIKE ?
+                val query = "${prefix}*"
+                db.rawQuery("""
+                    SELECT DISTINCT content FROM ${FTS_CONTENT_TABLE}
+                    WHERE content LIKE ?
                     LIMIT ?
                 """.trimIndent(), arrayOf("${prefix}%", limit)).use { cursor ->
                     val suggestions = mutableListOf<String>()
-        while (cursor.moveToNext()) {
+                    while (cursor.moveToNext()) {
                         suggestions.add(cursor.getString(0))
                     }
-        suggestions
+                    suggestions
                 }
             }
         }

@@ -16,22 +16,28 @@ class MultiAgentWorkspaceViewModel(
 ) : ViewModel() {
 
     private val collaborationFramework = AgentCollaborationFramework(context)
-        private val multiAgentManager = MultiAgentManager(context)
-        private val _uiState = MutableStateFlow(WorkspaceUiState())
-        val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
-        private val _events = MutableSharedFlow<WorkspaceEvent>()
-        val events: SharedFlow<WorkspaceEvent> = _events.asSharedFlow()
-        init {
+    private val multiAgentManager = MultiAgentManager(context)
+
+    private val _uiState = MutableStateFlow(WorkspaceUiState())
+    val uiState: StateFlow<WorkspaceUiState> = _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<WorkspaceEvent>()
+    val events: SharedFlow<WorkspaceEvent> = _events.asSharedFlow()
+
+    init {
         loadInitialData()
     }
-        private fun loadInitialData() {
+
+    private fun loadInitialData() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-        try {
+            
+            try {
                 val agents = collaborationFramework.getAgents()
-        val sessions = collaborationFramework.getSessions()
-        val tasks = collaborationFramework.getTasks()
-        _uiState.update { state ->
+                val sessions = collaborationFramework.getSessions()
+                val tasks = collaborationFramework.getTasks()
+                
+                _uiState.update { state ->
                     state.copy(
                         agents = agents.map { it.toAgentModel() },
                         sessions = sessions.map { it.toSessionModel() },
@@ -44,20 +50,23 @@ class MultiAgentWorkspaceViewModel(
             }
         }
     }
-        fun setViewMode(mode: ViewMode) {
+
+    fun setViewMode(mode: ViewMode) {
         _uiState.update { it.copy(viewMode = mode) }
     }
-        fun selectSession(session: SessionModel) {
+
+    fun selectSession(session: SessionModel) {
         _uiState.update { it.copy(currentSession = session) }
         if (session != null) {
             loadSessionData(session.id)
         }
     }
-        private fun loadSessionData(sessionId: String) {
+
+    private fun loadSessionData(sessionId: String) {
         viewModelScope.launch {
             try {
                 val messages = collaborationFramework.getMessages(sessionId)
-        _uiState.update { state ->
+                _uiState.update { state ->
                     state.copy(messages = messages.map { it.toMessageModel() })
                 }
             } catch (e: Exception) {
@@ -65,7 +74,8 @@ class MultiAgentWorkspaceViewModel(
             }
         }
     }
-        fun createAgent(name: String, role: String, capabilities: List<String>) {
+
+    fun createAgent(name: String, role: String, capabilities: List<String>) {
         viewModelScope.launch {
             try {
                 val agent = collaborationFramework.Agent(
@@ -76,30 +86,33 @@ class MultiAgentWorkspaceViewModel(
                     specialties = capabilities,
                     isActive = true
                 )
-        val success = collaborationFramework.registerAgent(agent)
-        if (success) {
+                
+                val success = collaborationFramework.registerAgent(agent)
+                if (success) {
                     _uiState.update { state ->
                         state.copy(agents = state.agents + agent.toAgentModel())
                     }
-        _events.emit(WorkspaceEvent.AgentCreated(agent.toAgentModel()))
+                    _events.emit(WorkspaceEvent.AgentCreated(agent.toAgentModel()))
                 }
             } catch (e: Exception) {
                 _events.emit(WorkspaceEvent.Error(e.message ?: "创建Agent失败"))
             }
         }
     }
-        fun deleteAgent(agentId: String) {
+
+    fun deleteAgent(agentId: String) {
         viewModelScope.launch {
             try {
                 val updatedAgents = _uiState.value.agents.filter { it.id != agentId }
-        _uiState.update { it.copy(agents = updatedAgents) }
-        _events.emit(WorkspaceEvent.AgentDeleted(agentId))
+                _uiState.update { it.copy(agents = updatedAgents) }
+                _events.emit(WorkspaceEvent.AgentDeleted(agentId))
             } catch (e: Exception) {
                 _events.emit(WorkspaceEvent.Error(e.message ?: "删除Agent失败"))
             }
         }
     }
-        fun updateAgentStatus(agentId: String, status: AgentStatus) {
+
+    fun updateAgentStatus(agentId: String, status: AgentStatus) {
         _uiState.update { state ->
             state.copy(
                 agents = state.agents.map { agent ->
@@ -108,7 +121,8 @@ class MultiAgentWorkspaceViewModel(
             )
         }
     }
-        fun createTask(
+
+    fun createTask(
         title: String,
         description: String,
         priority: Int,
@@ -122,36 +136,39 @@ class MultiAgentWorkspaceViewModel(
                     priority = priority,
                     dependencies = dependencies
                 )
-        _uiState.update { state ->
+                
+                _uiState.update { state ->
                     state.copy(tasks = state.tasks + task.toTaskModel())
                 }
-        _events.emit(WorkspaceEvent.TaskCreated(task.toTaskModel()))
+                _events.emit(WorkspaceEvent.TaskCreated(task.toTaskModel()))
             } catch (e: Exception) {
                 _events.emit(WorkspaceEvent.Error(e.message ?: "创建任务失败"))
             }
         }
     }
-        fun assignTask(taskId: String, agentId: String) {
+
+    fun assignTask(taskId: String, agentId: String) {
         viewModelScope.launch {
             try {
                 val success = collaborationFramework.assignTask(taskId, agentId)
-        if (success) {
+                if (success) {
                     val agent = _uiState.value.agents.find { it.id == agentId }
-        _uiState.update { state ->
+                    _uiState.update { state ->
                         state.copy(
                             tasks = state.tasks.map { task ->
                                 if (task.id == taskId) task.copy(assignedAgent = agent) else task
                             }
                         )
                     }
-        _events.emit(WorkspaceEvent.TaskAssigned(taskId, agentId))
+                    _events.emit(WorkspaceEvent.TaskAssigned(taskId, agentId))
                 }
             } catch (e: Exception) {
                 _events.emit(WorkspaceEvent.Error(e.message ?: "分配任务失败"))
             }
         }
     }
-        fun updateTaskStatus(taskId: String, status: TaskStatus) {
+
+    fun updateTaskStatus(taskId: String, status: TaskStatus) {
         viewModelScope.launch {
             try {
                 val frameworkStatus = when (status) {
@@ -160,8 +177,9 @@ class MultiAgentWorkspaceViewModel(
                     TaskStatus.BLOCKED -> AgentCollaborationFramework.TaskStatus.BLOCKED
                     TaskStatus.COMPLETED -> AgentCollaborationFramework.TaskStatus.COMPLETED
                 }
-        val success = collaborationFramework.updateTaskStatus(taskId, frameworkStatus)
-        if (success) {
+                
+                val success = collaborationFramework.updateTaskStatus(taskId, frameworkStatus)
+                if (success) {
                     _uiState.update { state ->
                         state.copy(
                             tasks = state.tasks.map { task ->
@@ -171,62 +189,75 @@ class MultiAgentWorkspaceViewModel(
                     }
                 }
             } catch (e: Exception) {
-                _events.emit(WorkspaceEvent.Error(e.message ?: "更新任务状态失败"))
+                _events.emit(WorkspaceEvent.Error(e.message ?: "更新任务状态失�?))
             }
         }
     }
-        fun sendMessage(content: String) {
+
+    fun sendMessage(content: String) {
         viewModelScope.launch {
             try {
                 val currentSession = _uiState.value.currentSession ?: return@launch
-        val message = collaborationFramework.sendMessage(
+                
+                val message = collaborationFramework.sendMessage(
                     senderAgent = "USER",
                     recipientAgent = null,
                     content = content,
                     messageType = AgentCollaborationFramework.MessageType.REQUEST
                 )
-        _uiState.update { state ->
+                
+                _uiState.update { state ->
                     state.copy(messages = state.messages + message.toMessageModel())
                 }
-        _events.emit(WorkspaceEvent.MessageSent(message.toMessageModel()))
-        processAgentResponse(content)
+                _events.emit(WorkspaceEvent.MessageSent(message.toMessageModel()))
+                
+                processAgentResponse(content)
             } catch (e: Exception) {
-                _events.emit(WorkspaceEvent.Error(e.message ?: "发送消息失败"))
+                _events.emit(WorkspaceEvent.Error(e.message ?: "发送消息失�?))
             }
         }
     }
-        private fun processAgentResponse(userMessage: String) {
+
+    private fun processAgentResponse(userMessage: String) {
         viewModelScope.launch {
             val activeAgents = _uiState.value.agents.filter { it.status == AgentStatus.ACTIVE }
-        activeAgents.forEach { agent ->
+            
+            activeAgents.forEach { agent ->
                 updateAgentStatus(agent.id, AgentStatus.BUSY)
-        delay((500..1500).random().toLong())
-        val response = generateAgentResponse(agent, userMessage)
-        val message = collaborationFramework.sendMessage(
+                
+                delay((500..1500).random().toLong())
+                
+                val response = generateAgentResponse(agent, userMessage)
+                
+                val message = collaborationFramework.sendMessage(
                     senderAgent = agent.id,
                     recipientAgent = "USER",
                     content = response,
                     messageType = AgentCollaborationFramework.MessageType.RESPONSE
                 )
-        _uiState.update { state ->
+                
+                _uiState.update { state ->
                     state.copy(messages = state.messages + message.toMessageModel())
                 }
-        _events.emit(WorkspaceEvent.MessageReceived(message.toMessageModel()))
-        updateAgentStatus(agent.id, AgentStatus.ACTIVE)
+                _events.emit(WorkspaceEvent.MessageReceived(message.toMessageModel()))
+                
+                updateAgentStatus(agent.id, AgentStatus.ACTIVE)
             }
         }
     }
-        private fun generateAgentResponse(agent: Agent, userMessage: String): String {
+
+    private fun generateAgentResponse(agent: Agent, userMessage: String): String {
         return when (agent.role.uppercase()) {
             "COORDINATOR" -> "我已经收到您的请求，正在协调团队处理..."
             "ANALYST" -> "${userMessage}"
-            "DEVELOPER" -> "我来帮您实现这个功能。"
+            "DEVELOPER" -> "我来帮您实现这个功能�?
             "DESIGNER" -> "基于您的需求，我有以下设计方案..."
-            "TESTER" -> "我来测试一下这个功能的边界情况。"
-        else -> "收到您的消息，我会尽力帮助您。"
+            "TESTER" -> "我来测试一下这个功能的边界情况�?
+            else -> "收到您的消息，我会尽力帮助您�?
         }
     }
-        fun createSession(name: String, type: CollaborationType, goal: String) {
+
+    fun createSession(name: String, type: CollaborationType, goal: String) {
         viewModelScope.launch {
             try {
                 val frameworkType = when (type) {
@@ -237,27 +268,33 @@ class MultiAgentWorkspaceViewModel(
                     CollaborationType.MASTER_SLAVE -> AgentCollaborationFramework.CollaborationType.MASTER_SLAVE
                     CollaborationType.PEER_TO_PEER -> AgentCollaborationFramework.CollaborationType.PEER_TO_PEER
                 }
-        val agentIds = _uiState.value.agents.map { it.id }
-        val session = collaborationFramework.createSession(name, frameworkType, goal, agentIds)
-        _uiState.update { state ->
+                
+                val agentIds = _uiState.value.agents.map { it.id }
+                val session = collaborationFramework.createSession(name, frameworkType, goal, agentIds)
+                
+                _uiState.update { state ->
                     state.copy(sessions = state.sessions + session.toSessionModel())
                 }
-        _events.emit(WorkspaceEvent.SessionCreated(session.toSessionModel()))
+                _events.emit(WorkspaceEvent.SessionCreated(session.toSessionModel()))
             } catch (e: Exception) {
                 _events.emit(WorkspaceEvent.Error(e.message ?: "创建会话失败"))
             }
         }
     }
-        fun updateInputText(text: String) {
+
+    fun updateInputText(text: String) {
         _uiState.update { it.copy(inputText = text) }
     }
-        fun toggleConfigPanel() {
+
+    fun toggleConfigPanel() {
         _uiState.update { it.copy(showConfigPanel = !it.showConfigPanel) }
     }
-        fun clearError() {
+
+    fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
-        private suspend fun delay(timeMillis: Long) {
+
+    private suspend fun delay(timeMillis: Long) {
         withContext(Dispatchers.Default) {
             kotlinx.coroutines.delay(timeMillis)
         }
@@ -281,13 +318,13 @@ data class WorkspaceUiState(
 
 sealed class WorkspaceEvent {
     data class AgentCreated(val agent: Agent) : WorkspaceEvent()
-        data class AgentDeleted(val agentId: String) : WorkspaceEvent()
-        data class TaskCreated(val task: Task) : WorkspaceEvent()
-        data class TaskAssigned(val taskId: String, val agentId: String) : WorkspaceEvent()
-        data class MessageSent(val message: MessageModel) : WorkspaceEvent()
-        data class MessageReceived(val message: MessageModel) : WorkspaceEvent()
-        data class SessionCreated(val session: SessionModel) : WorkspaceEvent()
-        data class Error(val message: String) : WorkspaceEvent()
+    data class AgentDeleted(val agentId: String) : WorkspaceEvent()
+    data class TaskCreated(val task: Task) : WorkspaceEvent()
+    data class TaskAssigned(val taskId: String, val agentId: String) : WorkspaceEvent()
+    data class MessageSent(val message: MessageModel) : WorkspaceEvent()
+    data class MessageReceived(val message: MessageModel) : WorkspaceEvent()
+    data class SessionCreated(val session: SessionModel) : WorkspaceEvent()
+    data class Error(val message: String) : WorkspaceEvent()
 }
 
 enum class ViewMode {
@@ -384,7 +421,7 @@ class MultiAgentWorkspaceViewModelFactory(
     private val context: Context
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MultiAgentWorkspaceViewModel::class.java)) {
             return MultiAgentWorkspaceViewModel(context.applicationContext) as T
         }

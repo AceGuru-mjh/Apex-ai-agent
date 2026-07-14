@@ -32,8 +32,9 @@ class WorkflowValidator {
         // 1. 基础结构校验
         if (workflow.nodes.isEmpty()) {
             errors.add(ValidationError.NoNodes)
-        return ValidationResult(errors, warnings, emptyList())
+            return ValidationResult(errors, warnings, emptyList())
         }
+
         val nodeIds = workflow.nodes.map { it.id }.toSet()
 
         // 2. 边的端点校验
@@ -41,7 +42,7 @@ class WorkflowValidator {
             if (conn.sourceNodeId !in nodeIds) {
                 errors.add(ValidationError.DanglingEdge(conn.id, conn.sourceNodeId, isSource = true))
             }
-        if (conn.targetNodeId !in nodeIds) {
+            if (conn.targetNodeId !in nodeIds) {
                 errors.add(ValidationError.DanglingEdge(conn.id, conn.targetNodeId, isSource = false))
             }
         }
@@ -51,7 +52,7 @@ class WorkflowValidator {
         when {
             triggerNodes.isEmpty() -> {
                 errors.add(ValidationError.NoStartNode)
-        return ValidationResult(errors, warnings, emptyList())
+                return ValidationResult(errors, warnings, emptyList())
             }
         }
 
@@ -79,7 +80,7 @@ class WorkflowValidator {
         val fanInNodes = workflow.nodes.filter { it.type == EnhancedNodeType.FAN_IN }.map { it.id }.toSet()
         fanOutNodes.forEach { fo ->
             val downstream = findAllDownstream(workflow, fo.id)
-        if (downstream.none { it in fanInNodes }) {
+            if (downstream.none { it in fanInNodes }) {
                 warnings.add(ValidationWarning.MissingFanIn(fo.id, fo.name))
             }
         }
@@ -93,6 +94,7 @@ class WorkflowValidator {
 
         // 9. 拓扑排序（Kahn 算法）
         val topologicalOrder = if (errors.isEmpty()) topologicalSort(workflow) else emptyList()
+
         return ValidationResult(errors, warnings, topologicalOrder)
     }
 
@@ -108,40 +110,42 @@ class WorkflowValidator {
         val color = workflow.nodes.associate { it.id to 0 }.toMutableMap()
         val parent = mutableMapOf<String, String?>()
         val adj = workflow.getAdjacencyList()
+
         var cycleStart: String? = null
         var cycleEnd: String? = null
 
         fun dfs(u: String): Boolean {
             color[u] = 1
             val neighbors = adj[u] ?: emptyList()
-        for (v in neighbors) {
+            for (v in neighbors) {
                 if (color[v] == 0) {
                     parent[v] = u
                     if (dfs(v)) return true
                 } else if (color[v] == 1) {
                     // 找到回边 u -> v，环为 v ... -> u -> v
-        cycleStart = v
+                    cycleStart = v
                     cycleEnd = u
                     return true
                 }
             }
-        color[u] = 2
+            color[u] = 2
             return false
         }
+
         for (node in workflow.nodes) {
             if (color[node.id] == 0) {
                 if (dfs(node.id)) {
                     // 重建环路径
-        val cycle = mutableListOf<String>()
-        var cur: String? = cycleEnd
+                    val cycle = mutableListOf<String>()
+                    var cur: String? = cycleEnd
                     while (cur != null && cur != cycleStart) {
                         cycle.add(cur)
-        cur = parent[cur]
+                        cur = parent[cur]
                     }
-        cycle.add(cycleStart!!)
-        cycle.reverse()
-        cycle.add(cycleStart!!)
-        return cycle
+                    cycle.add(cycleStart!!)
+                    cycle.reverse()
+                    cycle.add(cycleStart!!)
+                    return cycle
                 }
             }
         }
@@ -156,12 +160,13 @@ class WorkflowValidator {
         val queue: ArrayDeque<String> = ArrayDeque(startIds)
         visited.addAll(startIds)
         val adj = workflow.getAdjacencyList()
+
         while (queue.isNotEmpty()) {
             val u = queue.removeFirst()
-        adj[u]?.forEach { v ->
+            adj[u]?.forEach { v ->
                 if (v !in visited) {
                     visited.add(v)
-        queue.addLast(v)
+                    queue.addLast(v)
                 }
             }
         }
@@ -183,16 +188,19 @@ class WorkflowValidator {
         val inDegree = workflow.getInDegreeMap().toMutableMap()
         val adj = workflow.getAdjacencyList()
         val queue: ArrayDeque<String> = ArrayDeque()
+
         inDegree.filter { it.value == 0 }.keys.forEach { queue.addLast(it) }
+
         val result = mutableListOf<String>()
         while (queue.isNotEmpty()) {
             val u = queue.removeFirst()
-        result.add(u)
-        adj[u]?.forEach { v ->
+            result.add(u)
+            adj[u]?.forEach { v ->
                 inDegree[v] = (inDegree[v] ?: 1) - 1
                 if (inDegree[v] == 0) queue.addLast(v)
             }
         }
+
         return if (result.size == workflow.nodes.size) result else emptyList()
     }
 }
@@ -206,7 +214,7 @@ data class ValidationResult(
     val topologicalOrder: List<String>
 ) {
     val isValid: Boolean get() = errors.isEmpty()
-        val hasWarnings: Boolean get() = warnings.isNotEmpty()
+    val hasWarnings: Boolean get() = warnings.isNotEmpty()
 }
 
 /**
@@ -214,18 +222,18 @@ data class ValidationResult(
  */
 sealed class ValidationError {
     data object NoStartNode : ValidationError()
-        data object NoNodes : ValidationError()
-        data class CycleDetected(val cycle: List<String>) : ValidationError()
-        data class DanglingEdge(val edgeId: String, val nodeId: String, val isSource: Boolean) : ValidationError()
-        data class DuplicateNodeId(val nodeId: String, val count: Int) : ValidationError()
-        data class MultipleStartNodes(val ids: List<String>) : ValidationError()
-        data class MissingJoin(val fanOutNodeId: String) : ValidationError()
-        override fun toString(): String = when (this) {
+    data object NoNodes : ValidationError()
+    data class CycleDetected(val cycle: List<String>) : ValidationError()
+    data class DanglingEdge(val edgeId: String, val nodeId: String, val isSource: Boolean) : ValidationError()
+    data class DuplicateNodeId(val nodeId: String, val count: Int) : ValidationError()
+    data class MultipleStartNodes(val ids: List<String>) : ValidationError()
+    data class MissingJoin(val fanOutNodeId: String) : ValidationError()
+
+    override fun toString(): String = when (this) {
         is NoStartNode -> "未找到触发节点"
         is NoNodes -> "工作流没有任何节点"
         is CycleDetected -> "检测到环: ${cycle.joinToString(" -> ")}"
-        val _kaptFix11 = if (isSource) "源" else "目标"
-        is DanglingEdge -> "边 $edgeId 的${_kaptFix11}节点 $nodeId 不存在"
+        is DanglingEdge -> "边 $edgeId 的${if (isSource) "源" else "目标"}节点 $nodeId 不存在"
         is DuplicateNodeId -> "节点 ID $nodeId 重复 $count 次"
         is MultipleStartNodes -> "存在多个触发节点: ${ids.joinToString()}"
         is MissingJoin -> "FAN_OUT 节点 $fanOutNodeId 缺少配对的 JOIN"
@@ -237,9 +245,10 @@ sealed class ValidationError {
  */
 sealed class ValidationWarning {
     data class UnreachableNode(val nodeId: String, val nodeName: String) : ValidationWarning()
-        data class DanglingNode(val nodeId: String, val nodeName: String) : ValidationWarning()
-        data class MissingFanIn(val fanOutNodeId: String, val fanOutNodeName: String) : ValidationWarning()
-        override fun toString(): String = when (this) {
+    data class DanglingNode(val nodeId: String, val nodeName: String) : ValidationWarning()
+    data class MissingFanIn(val fanOutNodeId: String, val fanOutNodeName: String) : ValidationWarning()
+
+    override fun toString(): String = when (this) {
         is UnreachableNode -> "节点 $nodeName ($nodeId) 从入口不可达"
         is DanglingNode -> "节点 $nodeName ($nodeId) 没有入边（悬空）"
         is MissingFanIn -> "FAN_OUT 节点 $fanOutNodeName 缺少配对的 FAN_IN"

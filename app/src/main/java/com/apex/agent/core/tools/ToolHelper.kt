@@ -13,11 +13,13 @@ object ToolHelper {
         requiredParams: List<String>
     ): ValidationResult {
         val missingParams = mutableListOf<String>()
+        
         requiredParams.forEach { paramName ->
             if (!parameters.containsKey(paramName) || parameters[paramName] == null) {
                 missingParams.add(paramName)
             }
         }
+        
         return if (missingParams.isEmpty()) {
             ValidationResult(success = true)
         } else {
@@ -54,8 +56,7 @@ object ToolHelper {
     }
 
     /**
-     * 格式化错误信，
-    */
+     * 格式化错误信�?    */
     fun formatError(
         toolName: String,
         errorType: String,
@@ -65,31 +66,36 @@ object ToolHelper {
         val sb = StringBuilder()
         sb.appendLine("[${toolName}] ${errorType}")
         sb.appendLine("错误信息，errorMessage")
+        
         if (details != null && details.isNotEmpty()) {
-            sb.appendLine("详细信息，"
-        details.forEach { (key, value) ->
+            sb.appendLine("详细信息�?
+            details.forEach { (key, value) ->
                 sb.appendLine("  ${key}: ${value}")
             }
         }
+        
         return sb.toString()
     }
 
     /**
-     * 创建友好的工具使用说是
-    */
+     * 创建友好的工具使用说�?    */
     fun createUsageGuide(toolName: String, parameters: List<ToolParameter>): String {
         val sb = StringBuilder()
         sb.appendLine("=== ${toolName} 使用说明 ===")
         sb.appendLine()
-        sb.appendLine("参数列表，"
+        
+        sb.appendLine("参数列表�?
         parameters.forEach { param ->
             val required = if (param.required) "[必需]" else "[可选]"
-        val defaultValue = if (param.defaultValue != null) "(默认，{param.defaultValue})" else ""
-        sb.appendLine("  ${required} ${param.name} (${param.type}): ${param.description} ${defaultValue}")
+            val defaultValue = if (param.defaultValue != null) "(默认，{param.defaultValue})" else ""
+            
+            sb.appendLine("  ${required} ${param.name} (${param.type}): ${param.description} ${defaultValue}")
         }
+        
         sb.appendLine()
-        sb.appendLine("示例用法，"
-        sb.appendLine("  请根据具体工具查看示，"
+        sb.appendLine("示例用法�?
+        sb.appendLine("  请根据具体工具查看示�?
+        
         return sb.toString()
     }
 
@@ -112,18 +118,19 @@ object ToolHelper {
         fun put(key: String, value: Any) {
             metadata[key] = value
         }
+        
         fun <T> get(key: String, clazz: Class<T>): T? {
             @Suppress("UNCHECKED_CAST")
-        return metadata[key] as? T
+            return metadata[key] as? T
         }
+        
         fun has(key: String): Boolean {
             return metadata.containsKey(key)
         }
     }
 
     /**
-     * 工具执行状态
-    */
+     * 工具执行状�?    */
     enum class ExecutionStatus {
         PENDING,
         RUNNING,

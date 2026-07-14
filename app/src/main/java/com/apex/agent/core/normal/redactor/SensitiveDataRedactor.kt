@@ -20,14 +20,14 @@ enum class SensitiveType {
     API_KEY,
     PASSWORD,
     ID_CARD,         // 身份证
-        PHONE_NUMBER,    // 手机号
-        EMAIL,
+    PHONE_NUMBER,    // 手机号
+    EMAIL,
     BANK_CARD,       // 银行卡
-        JWT_TOKEN,
+    JWT_TOKEN,
     PRIVATE_KEY,     // 私钥
-        OAUTH_TOKEN,
+    OAUTH_TOKEN,
     SSN,             // 社会安全号
-        IP_ADDRESS,
+    IP_ADDRESS,
     CREDIT_CARD
 }
 
@@ -64,7 +64,7 @@ data class RedactedText(
     val original: String,
     val redacted: String,
     val mappings: Map<String, String>,  // placeholder -> original
-        val detectedTypes: Set<SensitiveType>
+    val detectedTypes: Set<SensitiveType>
 )
 
 /**
@@ -73,9 +73,10 @@ data class RedactedText(
 class SensitiveDataRedactor {
 
     private val patterns = mutableListOf<SensitivePattern>()
-        private val sessionMappings = ConcurrentHashMap<String, MutableMap<String, String>>()
-        private val counter = java.util.concurrent.atomic.AtomicInteger(0)
-        init {
+    private val sessionMappings = ConcurrentHashMap<String, MutableMap<String, String>>()
+    private val counter = java.util.concurrent.atomic.AtomicInteger(0)
+
+    init {
         registerBuiltinPatterns()
     }
 
@@ -99,15 +100,15 @@ class SensitiveDataRedactor {
 
         for (pattern in patterns) {
             val matches = pattern.regex.findAll(result).toList()
-        if (matches.isEmpty()) continue
+            if (matches.isEmpty()) continue
 
             detectedTypes.add(pattern.type)
 
             // 从后向前替换，避免索引偏移
-        for (match in matches.reversed()) {
+            for (match in matches.reversed()) {
                 val original = match.value
-        val placeholder = generatePlaceholder(pattern.type, original, sessionId, mappings)
-        mappings[placeholder] = original
+                val placeholder = generatePlaceholder(pattern.type, original, sessionId, mappings)
+                mappings[placeholder] = original
                 result = result.substring(0, match.range.first) + placeholder + result.substring(match.range.last + 1)
             }
         }
@@ -116,6 +117,7 @@ class SensitiveDataRedactor {
         if (sessionId != null && mappings.isNotEmpty()) {
             sessionMappings.computeIfAbsent(sessionId) { mutableMapOf() }.putAll(mappings)
         }
+
         return RedactedText(
             original = text,
             redacted = result,
@@ -177,7 +179,8 @@ class SensitiveDataRedactor {
     }
 
     // ============ 内部方法 ============
-        private fun generatePlaceholder(
+
+    private fun generatePlaceholder(
         type: SensitiveType,
         original: String,
         sessionId: String?,
@@ -190,37 +193,38 @@ class SensitiveDataRedactor {
         val seq = counter.incrementAndGet()
         return when (type) {
             SensitiveType.API_KEY -> "[API_KEY_$seq]"
-        SensitiveType.PASSWORD -> "[PASSWORD_$seq]"
-        SensitiveType.ID_CARD -> "[ID_CARD_$seq]"
-        SensitiveType.PHONE_NUMBER -> "[PHONE_$seq]"
-        SensitiveType.EMAIL -> {
+            SensitiveType.PASSWORD -> "[PASSWORD_$seq]"
+            SensitiveType.ID_CARD -> "[ID_CARD_$seq]"
+            SensitiveType.PHONE_NUMBER -> "[PHONE_$seq]"
+            SensitiveType.EMAIL -> {
                 // 邮箱部分脱敏：保留首字符和域名
-        val parts = original.split("@")
-        if (parts.size == 2) {
+                val parts = original.split("@")
+                if (parts.size == 2) {
                     val masked = parts[0].firstOrNull() + "***@" + parts[1]
                     return masked
                 }
                 "[EMAIL_$seq]"
             }
-        SensitiveType.BANK_CARD -> "[BANK_CARD_$seq]"
-        SensitiveType.JWT_TOKEN -> "[JWT_$seq]"
-        SensitiveType.PRIVATE_KEY -> "[PRIVATE_KEY_$seq]"
-        SensitiveType.OAUTH_TOKEN -> "[OAUTH_TOKEN_$seq]"
-        SensitiveType.SSN -> "[SSN_$seq]"
-        SensitiveType.IP_ADDRESS -> {
+            SensitiveType.BANK_CARD -> "[BANK_CARD_$seq]"
+            SensitiveType.JWT_TOKEN -> "[JWT_$seq]"
+            SensitiveType.PRIVATE_KEY -> "[PRIVATE_KEY_$seq]"
+            SensitiveType.OAUTH_TOKEN -> "[OAUTH_TOKEN_$seq]"
+            SensitiveType.SSN -> "[SSN_$seq]"
+            SensitiveType.IP_ADDRESS -> {
                 // IP 部分脱敏：保留前两段
-        val parts = original.split(".")
-        if (parts.size == 4) "${parts[0]}.${parts[1]}.***.***"
-        else "[IP_$seq]"
+                val parts = original.split(".")
+                if (parts.size == 4) "${parts[0]}.${parts[1]}.***.***"
+                else "[IP_$seq]"
             }
-        SensitiveType.CREDIT_CARD -> {
+            SensitiveType.CREDIT_CARD -> {
                 // 保留后4位
-        if (original.length >= 4) "****" + original.takeLast(4)
-        else "[CARD_$seq]"
+                if (original.length >= 4) "****" + original.takeLast(4)
+                else "[CARD_$seq]"
             }
         }
     }
-        private fun registerBuiltinPatterns() {
+
+    private fun registerBuiltinPatterns() {
         // API Key 模式（通用）
         patterns.add(SensitivePattern(
             type = SensitiveType.API_KEY,
@@ -323,7 +327,8 @@ class SensitiveDataRedactor {
             description = "密码赋值"
         ))
     }
-        data class DetectionResult(
+
+    data class DetectionResult(
         val type: SensitiveType,
         val name: String,
         val value: String,

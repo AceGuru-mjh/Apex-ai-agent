@@ -8,7 +8,8 @@ import java.io.File
 class LoRATuner(private val context: Context) {
 
     private const val TAG = "LoRATuner"
-        data class LoRAConfig(
+
+    data class LoRAConfig(
         val name: String,
         val baseModelId: String,
         val rank: Int = 4,
@@ -18,7 +19,8 @@ class LoRATuner(private val context: Context) {
         val learningRate: Float = 0.0001f,
         val outputPath: String
     )
-        data class LoRAModel(
+
+    data class LoRAModel(
         val id: String,
         val name: String,
         val baseModelId: String,
@@ -30,11 +32,12 @@ class LoRATuner(private val context: Context) {
         val displaySize: String
             get() = when {
                 sizeBytes < 1024 * 1024 -> "${sizeBytes / 1024} KB"
-        sizeBytes < 1024 * 1024 * 1024 -> "${sizeBytes / (1024 * 1024)} MB"
-        else -> String.format("%.2f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0))
+                sizeBytes < 1024 * 1024 * 1024 -> "${sizeBytes / (1024 * 1024)} MB"
+                else -> String.format("%.2f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0))
             }
     }
-        enum class TrainingStatus {
+
+    enum class TrainingStatus {
         NOT_STARTED,
         PREPARING_DATA,
         TRAINING,
@@ -42,7 +45,8 @@ class LoRATuner(private val context: Context) {
         COMPLETED,
         FAILED
     }
-        data class TrainingProgress(
+
+    data class TrainingProgress(
         val status: TrainingStatus,
         val currentStep: Int,
         val totalSteps: Int,
@@ -52,29 +56,34 @@ class LoRATuner(private val context: Context) {
         val progressPercent: Int
             get() = if (totalSteps > 0) ((currentStep.toFloat() / totalSteps) * 100).toInt() else 0
     }
-        interface TrainingCallback {
+
+    interface TrainingCallback {
         fun onProgress(progress: TrainingProgress)
         fun onComplete(outputPath: String)
         fun onError(error: String)
     }
-        private val loraDir: File
+
+    private val loraDir: File
         get() = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             "Apex/models/lora"
         )
-        fun getLoRAModels(): List<LoRAModel> {
+
+    fun getLoRAModels(): List<LoRAModel> {
         val models = mutableListOf<LoRAModel>()
+
         if (!loraDir.exists()) {
-            AppLogger.w(TAG, "LoRA目录不存在 ${loraDir.absolutePath}")
-        return models
+            AppLogger.w(TAG, "LoRA目录不存�? ${loraDir.absolutePath}")
+            return models
         }
+
         loraDir.listFiles { file -> file.isDirectory }
             ?.forEach { folder ->
                 val metadataFile = File(folder, "lora_metadata.json")
-        if (metadataFile.exists()) {
+                if (metadataFile.exists()) {
                     try {
                         val metadata = org.json.JSONObject(metadataFile.readText())
-        models.add(
+                        models.add(
                             LoRAModel(
                                 id = folder.name,
                                 name = metadata.optString("name", folder.name),
@@ -86,69 +95,79 @@ class LoRATuner(private val context: Context) {
                             )
                         )
                     } catch (e: Exception) {
-                        AppLogger.w(TAG, "解析LoRA元数据失败 ${folder.name}, ${e.message}")
+                        AppLogger.w(TAG, "解析LoRA元数据失�? ${folder.name}, ${e.message}")
                     }
                 }
             }
+
         AppLogger.d(TAG, "找到 ${models.size} 个LoRA模型")
         return models.sortedByDescending { it.createdAt }
     }
-        fun createTrainingConfig(config: LoRAConfig): File? {
+
+    fun createTrainingConfig(config: LoRAConfig): File? {
         return try {
             if (!loraDir.exists()) {
                 loraDir.mkdirs()
             }
-        val configDir = File(loraDir, config.name.replace(" ", "_").lowercase())
-        if (!configDir.exists()) {
+
+            val configDir = File(loraDir, config.name.replace(" ", "_").lowercase())
+            if (!configDir.exists()) {
                 configDir.mkdirs()
             }
-        val configFile = File(configDir, "training_config.json")
-        val metadata = org.json.JSONObject().apply {
+
+            val configFile = File(configDir, "training_config.json")
+            val metadata = org.json.JSONObject().apply {
                 put("name", config.name)
-        put("base_model", config.baseModelId)
-        put("rank", config.rank)
-        put("alpha", config.alpha)
-        put("target_modules", org.json.JSONArray(config.targetModules))
-        put("training_steps", config.trainingSteps)
-        put("learning_rate", config.learningRate.toDouble())
-        put("created_at", System.currentTimeMillis())
+                put("base_model", config.baseModelId)
+                put("rank", config.rank)
+                put("alpha", config.alpha)
+                put("target_modules", org.json.JSONArray(config.targetModules))
+                put("training_steps", config.trainingSteps)
+                put("learning_rate", config.learningRate.toDouble())
+                put("created_at", System.currentTimeMillis())
             }
-        configFile.writeText(metadata.toString(2))
-        AppLogger.d(TAG, "创建LoRA训练配置: ${configFile.absolutePath}")
-        configFile
+
+            configFile.writeText(metadata.toString(2))
+            AppLogger.d(TAG, "创建LoRA训练配置: ${configFile.absolutePath}")
+            configFile
         } catch (e: Exception) {
             AppLogger.e(TAG, "创建LoRA训练配置失败", e)
-        null
+            null
         }
     }
-        fun prepareTrainingData(
+
+    fun prepareTrainingData(
         sourceTexts: List<String>,
         taskType: String,
         config: LoRAConfig
     ): Boolean {
         return try {
             val configDir = File(config.outputPath)
-        val dataDir = File(configDir, "training_data")
-        if (!dataDir.exists()) {
+            val dataDir = File(configDir, "training_data")
+            if (!dataDir.exists()) {
                 dataDir.mkdirs()
             }
-        val trainingData = org.json.JSONArray()
-        sourceTexts.forEach { text ->
+
+            val trainingData = org.json.JSONArray()
+            sourceTexts.forEach { text ->
                 trainingData.put(org.json.JSONObject().apply {
                     put("text", text)
-        put("task_type", taskType)
+                    put("task_type", taskType)
                 })
             }
-        val dataFile = File(dataDir, "training_data.json")
-        dataFile.writeText(trainingData.toString(2))
-        AppLogger.d(TAG, "准备训练数据: ${trainingData.length()} 条样有")
-        true
+
+            val dataFile = File(dataDir, "training_data.json")
+            dataFile.writeText(trainingData.toString(2))
+
+            AppLogger.d(TAG, "准备训练数据: ${trainingData.length()} 条样�?)
+            true
         } catch (e: Exception) {
             AppLogger.e(TAG, "准备训练数据失败", e)
-        false
+            false
         }
     }
-        fun startTraining(
+
+    fun startTraining(
         config: LoRAConfig,
         callback: TrainingCallback
     ) {
@@ -163,13 +182,16 @@ class LoRATuner(private val context: Context) {
                         estimatedTimeRemaining = config.trainingSteps * 100L
                     )
                 )
-        for (step in 0 until config.trainingSteps) {
+
+                for (step in 0 until config.trainingSteps) {
                     if (Thread.currentThread().isInterrupted) {
-                        callback.onError("训练被中文")
-        return@Thread
+                        callback.onError("训练被中�?)
+                        return@Thread
                     }
-        val simulatedLoss = 1.0f / (1.0f + step * 0.1f) + (Math.random() * 0.1f).toFloat()
-        callback.onProgress(
+
+                    val simulatedLoss = 1.0f / (1.0f + step * 0.1f) + (Math.random() * 0.1f).toFloat()
+
+                    callback.onProgress(
                         TrainingProgress(
                             status = TrainingStatus.TRAINING,
                             currentStep = step + 1,
@@ -178,9 +200,11 @@ class LoRATuner(private val context: Context) {
                             estimatedTimeRemaining = ((config.trainingSteps - step - 1) * 100L)
                         )
                     )
-        Thread.sleep(50)
+
+                    Thread.sleep(50)
                 }
-        callback.onProgress(
+
+                callback.onProgress(
                     TrainingProgress(
                         status = TrainingStatus.MERGING,
                         currentStep = config.trainingSteps,
@@ -189,17 +213,20 @@ class LoRATuner(private val context: Context) {
                         estimatedTimeRemaining = 0L
                     )
                 )
-        val outputFile = File(config.outputPath, "${config.name}.safetensors")
-        outputFile.createNewFile()
-        callback.onComplete(outputFile.absolutePath)
+
+                val outputFile = File(config.outputPath, "${config.name}.safetensors")
+                outputFile.createNewFile()
+
+                callback.onComplete(outputFile.absolutePath)
 
             } catch (e: Exception) {
                 AppLogger.e(TAG, "训练失败", e)
-        callback.onError(e.message ?: "未知错误")
+                callback.onError(e.message ?: "未知错误")
             }
         }.start()
     }
-        fun mergeLoRAWithBase(
+
+    fun mergeLoRAWithBase(
         baseModelPath: String,
         loraPath: String,
         outputPath: String,
@@ -216,19 +243,23 @@ class LoRATuner(private val context: Context) {
                         estimatedTimeRemaining = 10000L
                     )
                 )
-        Thread.sleep(1000)
-        val outputFile = File(outputPath)
-        outputFile.parentFile?.mkdirs()
-        outputFile.createNewFile()
-        callback.onComplete(outputPath)
+
+                Thread.sleep(1000)
+
+                val outputFile = File(outputPath)
+                outputFile.parentFile?.mkdirs()
+                outputFile.createNewFile()
+
+                callback.onComplete(outputPath)
 
             } catch (e: Exception) {
                 AppLogger.e(TAG, "合并失败", e)
-        callback.onError(e.message ?: "未知错误")
+                callback.onError(e.message ?: "未知错误")
             }
         }.start()
     }
-        fun getSuggestedRankForModel(baseModelSize: Long): Int {
+
+    fun getSuggestedRankForModel(baseModelSize: Long): Int {
         return when {
             baseModelSize < 1024 * 1024 * 1024 -> 4
             baseModelSize < 3 * 1024 * 1024 * 1024 -> 8
@@ -236,7 +267,8 @@ class LoRATuner(private val context: Context) {
             else -> 32
         }
     }
-        fun estimateLoRASize(baseModelSize: Long, rank: Int, layers: Int = 4): Long {
+
+    fun estimateLoRASize(baseModelSize: Long, rank: Int, layers: Int = 4): Long {
         val parameterCount = layers * 2 * rank * 4096
         return (parameterCount * 4L).coerceAtMost(baseModelSize / 10)
     }

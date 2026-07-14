@@ -30,7 +30,8 @@ class VirtualDisplayOverlay private constructor(
             }
         }
     }
-        fun show(displayId: Int): VirtualDisplayOverlay = this
+
+    fun show(displayId: Int): VirtualDisplayOverlay = this
     fun hide(): VirtualDisplayOverlay = this
     fun release() {
         synchronized(instances) {

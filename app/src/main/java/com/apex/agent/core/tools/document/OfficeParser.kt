@@ -10,16 +10,17 @@ import java.io.InputStream
 
 class OfficeParser : DocumentParser {
     override val supportedTypes: List<DocumentType> = listOf(DocumentType.DOCX, DocumentType.XLSX, DocumentType.PPTX)
-        override fun canParse(type: DocumentType): Boolean = type in supportedTypes
+
+    override fun canParse(type: DocumentType): Boolean = type in supportedTypes
 
     override suspend fun parse(inputStream: InputStream, fileName: String): DocumentParseResult {
         return try {
             val extension = fileName.substringAfterLast('.', "").lowercase()
-        when (extension) {
+            when (extension) {
                 "docx" -> parseDocx(inputStream, fileName)
                 "xlsx", "xls" -> parseXlsx(inputStream, fileName)
                 "pptx", "ppt" -> parsePptx(inputStream, fileName)
-        else -> DocumentParseResult(
+                else -> DocumentParseResult(
                     type = DocumentType.DOCX,
                     success = false,
                     errorMessage = "Unsupported file type"
@@ -33,20 +34,22 @@ class OfficeParser : DocumentParser {
             )
         }
     }
-        override suspend fun extractText(inputStream: InputStream, fileName: String): String {
+
+    override suspend fun extractText(inputStream: InputStream, fileName: String): String {
         return try {
             val extension = fileName.substringAfterLast('.', "").lowercase()
-        when (extension) {
+            when (extension) {
                 "docx" -> extractDocxText(inputStream)
                 "xlsx", "xls" -> extractXlsxText(inputStream)
                 "pptx", "ppt" -> extractPptxText(inputStream)
-        else -> ""
+                else -> ""
             }
         } catch (e: Exception) {
             ""
         }
     }
-        private fun parseDocx(inputStream: InputStream, fileName: String): DocumentParseResult {
+
+    private fun parseDocx(inputStream: InputStream, fileName: String): DocumentParseResult {
         val document = XWPFDocument(inputStream)
         val extractor = XWPFWordExtractor(document)
         val textContent = extractor.text
@@ -58,7 +61,8 @@ class OfficeParser : DocumentParser {
             success = true
         )
     }
-        private fun parseXlsx(inputStream: InputStream, fileName: String): DocumentParseResult {
+
+    private fun parseXlsx(inputStream: InputStream, fileName: String): DocumentParseResult {
         val workbook = XSSFWorkbook(inputStream)
         val extractor = XSSFExcelExtractor(workbook)
         extractor.formulaTextPreference = true
@@ -71,7 +75,8 @@ class OfficeParser : DocumentParser {
             success = true
         )
     }
-        private fun parsePptx(inputStream: InputStream, fileName: String): DocumentParseResult {
+
+    private fun parsePptx(inputStream: InputStream, fileName: String): DocumentParseResult {
         val slideShow = XMLSlideShow(inputStream)
         val extractor = XSLFPowerPointExtractor(slideShow)
         val textContent = extractor.text
@@ -83,14 +88,16 @@ class OfficeParser : DocumentParser {
             success = true
         )
     }
-        private fun extractDocxText(inputStream: InputStream): String {
+
+    private fun extractDocxText(inputStream: InputStream): String {
         val document = XWPFDocument(inputStream)
         val extractor = XWPFWordExtractor(document)
         val text = extractor.text
         document.close()
         return text
     }
-        private fun extractXlsxText(inputStream: InputStream): String {
+
+    private fun extractXlsxText(inputStream: InputStream): String {
         val workbook = XSSFWorkbook(inputStream)
         val extractor = XSSFExcelExtractor(workbook)
         extractor.formulaTextPreference = true
@@ -98,7 +105,8 @@ class OfficeParser : DocumentParser {
         workbook.close()
         return text
     }
-        private fun extractPptxText(inputStream: InputStream): String {
+
+    private fun extractPptxText(inputStream: InputStream): String {
         val slideShow = XMLSlideShow(inputStream)
         val extractor = XSLFPowerPointExtractor(slideShow)
         val text = extractor.text

@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * 兴趣分析的* 分析用户的兴趣偏好*/
+ * 兴趣分析�?* 分析用户的兴趣偏�?*/
 class InterestAnalyzer(private val context: Context) {
     private val TAG = "InterestAnalyzer"
     
@@ -17,6 +17,7 @@ class InterestAnalyzer(private val context: Context) {
      */
     suspend fun analyzeInterests(messages: List<ChatMessage>, userProfile: HonzonUserProfile? = null): InterestProfile = withContext(Dispatchers.IO) {
         AppLogger.d(TAG, "开始分析用户兴趣，消息数量: ${messages.size}")
+        
         val interestProfile = InterestProfile()
         
         // 分析兴趣主题
@@ -32,6 +33,7 @@ class InterestAnalyzer(private val context: Context) {
         if (userProfile != null) {
             extractInterestsFromProfile(userProfile, interestProfile)
         }
+        
         AppLogger.d(TAG, "用户兴趣分析完成: ${interestProfile}")
         interestProfile
     }
@@ -42,14 +44,13 @@ class InterestAnalyzer(private val context: Context) {
     private fun analyzeInterestTopics(messages: List<ChatMessage>, profile: InterestProfile) {
         val interestScores = mutableMapOf<String, Int>()
         
-        // 兴趣主题关键的
-        val interestKeywords = mapOf(
-            "技能to listOf("
-                "技能 "编程", "软件", "硬件", "开忆 "代码", "算法", "数据库， "网络", "安全","
+        // 兴趣主题关键�?      val interestKeywords = mapOf(
+            "技�?to listOf(
+                "技�? "编程", "软件", "硬件", "开�? "代码", "算法", "数据库， "网络", "安全",
                 "python", "java", "kotlin", "javascript", "c++", "go", "rust", "swift", "php", "ruby"
             ),
             "科技" to listOf(
-                "科技", "人工智能", "AI", "机器学习", "深度学习", "大数据， "云计的 "区块的 "元宇的 "虚拟现实"
+                "科技", "人工智能", "AI", "机器学习", "深度学习", "大数据， "云计�? "区块�? "元宇�? "虚拟现实"
             ),
             "娱乐" to listOf(
                 "娱乐", "电影", "音乐", "游戏", "体育", "旅游", "美食", "购物", "时尚", "艺术"
@@ -75,7 +76,8 @@ class InterestAnalyzer(private val context: Context) {
         val userMessages = messages.filter { it.sender == "user" }
         for (message in userMessages) {
             val content = message.content.lowercase()
-        for ((interest, keywords) in interestKeywords) {
+            
+            for ((interest, keywords) in interestKeywords) {
                 for (keyword in keywords) {
                     if (content.contains(keyword.lowercase())) {
                         interestScores[interest] = interestScores.getOrDefault(interest, 0) + 1
@@ -84,12 +86,14 @@ class InterestAnalyzer(private val context: Context) {
                 }
             }
         }
+        
         if (interestScores.isNotEmpty()) {
             val topInterests = interestScores.entries
                 .sortedByDescending { it.value }
                 .take(3)
                 .map { it.key }
-        profile.topInterests = topInterests
+            
+            profile.topInterests = topInterests
             profile.interestScores = interestScores
             profile.primaryInterest = topInterests.firstOrNull()
         }
@@ -100,21 +104,22 @@ class InterestAnalyzer(private val context: Context) {
      */
     private fun analyzeInterestIntensity(messages: List<ChatMessage>, profile: InterestProfile) {
         val userMessages = messages.filter { it.sender == "user" }
+        
         for ((interest, score) in profile.interestScores) {
             val intensity = when {
-                score > 10 -> "的"
-        score > 5 -> "的"
-        else -> "的"
+                score > 10 -> "�?
+                score > 5 -> "�?
+                else -> "�?
             }
-        profile.interestIntensities[interest] = intensity
+            profile.interestIntensities[interest] = intensity
         }
         
         // 计算总体兴趣强度
         val totalScore = profile.interestScores.values.sum()
         profile.overallInterestLevel = when {
-            totalScore > 30 -> "的"
-        totalScore > 15 -> "的"
-        else -> "的"
+            totalScore > 30 -> "�?
+            totalScore > 15 -> "�?
+            else -> "�?
         }
     }
     
@@ -124,8 +129,7 @@ class InterestAnalyzer(private val context: Context) {
     private fun analyzeInterestTrend(messages: List<ChatMessage>, profile: InterestProfile) {
         if (messages.size < 10) return
         
-        // 按时间分割消的
-        val midPoint = messages.size / 2
+        // 按时间分割消�?       val midPoint = messages.size / 2
         val earlyMessages = messages.subList(0, midPoint)
         val recentMessages = messages.subList(midPoint, messages.size)
         
@@ -138,13 +142,15 @@ class InterestAnalyzer(private val context: Context) {
         // 计算兴趣变化
         for (interest in profile.topInterests) {
             val earlyScore = earlyInterests.getOrDefault(interest, 0)
-        val recentScore = recentInterests.getOrDefault(interest, 0)
-        val trend = when {
+            val recentScore = recentInterests.getOrDefault(interest, 0)
+            
+            val trend = when {
                 recentScore > earlyScore * 1.5 -> "上升"
-        recentScore < earlyScore * 0.5 -> "下降"
-        else -> "稳定"
+                recentScore < earlyScore * 0.5 -> "下降"
+                else -> "稳定"
             }
-        profile.interestTrends[interest] = trend
+            
+            profile.interestTrends[interest] = trend
         }
     }
     
@@ -153,8 +159,9 @@ class InterestAnalyzer(private val context: Context) {
      */
     private fun analyzeInterestTopics(messages: List<ChatMessage>): Map<String, Int> {
         val interestScores = mutableMapOf<String, Int>()
+        
         val interestKeywords = mapOf(
-            "技能to listOf("技能 "编程", "软件", "硬件", "开忆 "代码"),"
+            "技�?to listOf("技�? "编程", "软件", "硬件", "开�? "代码"),
             "科技" to listOf("科技", "人工智能", "AI", "机器学习"),
             "娱乐" to listOf("娱乐", "电影", "音乐", "游戏"),
             "学习" to listOf("学习", "教育", "知识", "课程"),
@@ -163,10 +170,12 @@ class InterestAnalyzer(private val context: Context) {
             "新闻" to listOf("新闻", "时事", "政治", "经济"),
             "创意" to listOf("创意", "设计", "艺术", "写作")
         )
+        
         val userMessages = messages.filter { it.sender == "user" }
         for (message in userMessages) {
             val content = message.content.lowercase()
-        for ((interest, keywords) in interestKeywords) {
+            
+            for ((interest, keywords) in interestKeywords) {
                 for (keyword in keywords) {
                     if (content.contains(keyword.lowercase())) {
                         interestScores[interest] = interestScores.getOrDefault(interest, 0) + 1
@@ -175,6 +184,7 @@ class InterestAnalyzer(private val context: Context) {
                 }
             }
         }
+        
         return interestScores
     }
     
@@ -183,9 +193,9 @@ class InterestAnalyzer(private val context: Context) {
      */
     private fun extractInterestsFromProfile(profile: HonzonUserProfile, interestProfile: InterestProfile) {
         // 从需求偏好中提取兴趣
-        profile.getDimension("需求偏的）?.let { preference ->"
-        val interests = preference.split("的）"
-        for (interest in interests) {
+        profile.getDimension("需求偏的）?.let { preference ->
+            val interests = preference.split("的）
+            for (interest in interests) {
                 if (interest.isNotBlank()) {
                     interestProfile.interestScores[interest] = interestProfile.interestScores.getOrDefault(interest, 0) + 5
                 }
@@ -195,13 +205,14 @@ class InterestAnalyzer(private val context: Context) {
         // 从职业场景中提取兴趣
         profile.getDimension("职业场景")?.let { occupation ->
             val occupationInterests = mapOf(
-                "程顺序to listOf("技能 "科技"),
-                "设计的to listOf("创意", "设计"),"
+                "程顺序to listOf("技�? "科技"),
+                "设计�?to listOf("创意", "设计"),
                 "教师" to listOf("学习", "教育"),
                 "医生" to listOf("健康", "医学"),
                 "学生" to listOf("学习", "教育")
             )
-        for ((job, interests) in occupationInterests) {
+            
+            for ((job, interests) in occupationInterests) {
                 if (occupation.contains(job)) {
                     for (interest in interests) {
                         interestProfile.interestScores[interest] = interestProfile.interestScores.getOrDefault(interest, 0) + 3
@@ -216,7 +227,8 @@ class InterestAnalyzer(private val context: Context) {
                 .sortedByDescending { it.value }
                 .take(3)
                 .map { it.key }
-        interestProfile.topInterests = topInterests
+            
+            interestProfile.topInterests = topInterests
             interestProfile.primaryInterest = topInterests.firstOrNull()
         }
     }
@@ -226,21 +238,24 @@ class InterestAnalyzer(private val context: Context) {
      */
     suspend fun generateInterestReport(messages: List<ChatMessage>, userProfile: HonzonUserProfile? = null): String = withContext(Dispatchers.IO) {
         val profile = analyzeInterests(messages, userProfile)
+        
         buildString {
             appendLine("# 用户兴趣分析报告")
-        appendLine()
-        appendLine("## 兴趣概览")
-        appendLine("- 主要兴趣: ${profile.primaryInterest ?: "未知"}")
-        appendLine("- 兴趣水平: ${profile.overallInterestLevel}")
-        appendLine("- 兴趣分布: ${profile.topInterests.joinToString("的）}")"
-        appendLine()
-        appendLine("## 兴趣强度")
-        profile.interestIntensities.forEach { (interest, intensity) ->
+            appendLine()
+            appendLine("## 兴趣概览")
+            appendLine("- 主要兴趣: ${profile.primaryInterest ?: "未知"}")
+            appendLine("- 兴趣水平: ${profile.overallInterestLevel}")
+            appendLine("- 兴趣分布: ${profile.topInterests.joinToString("的）}")
+            appendLine()
+            
+            appendLine("## 兴趣强度")
+            profile.interestIntensities.forEach { (interest, intensity) ->
                 appendLine("- ${interest}: ${intensity}")
             }
-        appendLine()
-        appendLine("## 兴趣趋势")
-        profile.interestTrends.forEach { (interest, trend) ->
+            appendLine()
+            
+            appendLine("## 兴趣趋势")
+            profile.interestTrends.forEach { (interest, trend) ->
                 appendLine("- ${interest}: ${trend}")
             }
         }

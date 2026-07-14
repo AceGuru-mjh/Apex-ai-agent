@@ -11,6 +11,8 @@ object ShowerBinderRegistry {
     fun setService(newService: IShowerService) {
         CoreShowerBinderRegistry.setService(newService)
     }
-        fun getService(): IShowerService? = CoreShowerBinderRegistry.getService()
-        fun hasAliveService(): Boolean = CoreShowerBinderRegistry.hasAliveService()
+
+    fun getService(): IShowerService? = CoreShowerBinderRegistry.getService()
+
+    fun hasAliveService(): Boolean = CoreShowerBinderRegistry.hasAliveService()
 }

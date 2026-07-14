@@ -20,7 +20,8 @@ class ExecutionTracer private constructor(private val context: Context) {
             }
         }
     }
-        data class TraceEntry(
+
+    data class TraceEntry(
         val id: String = java.util.UUID.randomUUID().toString(),
         val sessionId: String,
         val skillName: String,
@@ -33,7 +34,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         val timestamp: Long = System.currentTimeMillis(),
         val durationMs: Long? = null
     )
-        enum class EventType {
+
+    enum class EventType {
         SESSION_START,
         SESSION_END,
         TOOL_CALL_START,
@@ -47,7 +49,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         STEP_START,
         STEP_END
     }
-        data class ExecutionFlow(
+
+    data class ExecutionFlow(
         val sessionId: String,
         val skillName: String,
         val startTime: Long,
@@ -57,7 +60,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         val errors: List<ErrorInfo>,
         val flowGraph: List<FlowNode>
     )
-        data class ToolCallInfo(
+
+    data class ToolCallInfo(
         val id: String,
         val toolName: String,
         val input: Map<String, Any?>,
@@ -68,13 +72,15 @@ class ExecutionTracer private constructor(private val context: Context) {
         val durationMs: Long?,
         val sequenceNumber: Int
     )
-        data class ErrorInfo(
+
+    data class ErrorInfo(
         val toolName: String?,
         val error: String,
         val timestamp: Long,
         val lineNumber: Int?
     )
-        data class FlowNode(
+
+    data class FlowNode(
         val id: String,
         val type: FlowNodeType,
         val toolName: String? = null,
@@ -85,7 +91,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         val durationMs: Long? = null,
         val children: List<FlowNode> = emptyList()
     )
-        enum class FlowNodeType {
+
+    enum class FlowNodeType {
         ROOT,
         SESSION,
         TOOL_CALL,
@@ -96,31 +103,40 @@ class ExecutionTracer private constructor(private val context: Context) {
         ERROR,
         END
     }
-        private val traceLog = CopyOnWriteArrayList<TraceEntry>()
-        private val sessionTraces = ConcurrentHashMap<String, CopyOnWriteArrayList<TraceEntry>>()
-        private val completedFlows = CopyOnWriteArrayList<ExecutionFlow>()
-        private val traceListeners = CopyOnWriteArrayList<TraceListener>()
-        interface TraceListener {
+
+    private val traceLog = CopyOnWriteArrayList<TraceEntry>()
+    private val sessionTraces = ConcurrentHashMap<String, CopyOnWriteArrayList<TraceEntry>>()
+    private val completedFlows = CopyOnWriteArrayList<ExecutionFlow>()
+
+    private val traceListeners = CopyOnWriteArrayList<TraceListener>()
+
+    interface TraceListener {
         fun onTraceEntry(entry: TraceEntry)
         fun onFlowCompleted(flow: ExecutionFlow)
     }
-        fun addTraceListener(listener: TraceListener) {
+
+    fun addTraceListener(listener: TraceListener) {
         if (!traceListeners.contains(listener)) {
             traceListeners.add(listener)
         }
     }
-        fun removeTraceListener(listener: TraceListener) {
+
+    fun removeTraceListener(listener: TraceListener) {
         traceListeners.remove(listener)
     }
-        fun recordEntry(entry: TraceEntry) {
+
+    fun recordEntry(entry: TraceEntry) {
         if (traceLog.size >= MAX_TRACED_SESSIONS * 100) {
             traceLog.removeAt(0)
         }
         traceLog.add(entry)
+
         sessionTraces.getOrPut(entry.sessionId) { CopyOnWriteArrayList() }.add(entry)
+
         notifyTraceEntry(entry)
     }
-        fun recordSessionStart(sessionId: String, skillName: String) {
+
+    fun recordSessionStart(sessionId: String, skillName: String) {
         val entry = TraceEntry(
             sessionId = sessionId,
             skillName = skillName,
@@ -129,7 +145,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         )
         recordEntry(entry)
     }
-        fun recordSessionEnd(sessionId: String, skillName: String) {
+
+    fun recordSessionEnd(sessionId: String, skillName: String) {
         val entry = TraceEntry(
             sessionId = sessionId,
             skillName = skillName,
@@ -137,16 +154,18 @@ class ExecutionTracer private constructor(private val context: Context) {
             timestamp = System.currentTimeMillis()
         )
         recordEntry(entry)
+
         val flow = buildExecutionFlow(sessionId)
         if (flow != null) {
             completedFlows.add(flow)
-        if (completedFlows.size > MAX_TRACED_SESSIONS) {
+            if (completedFlows.size > MAX_TRACED_SESSIONS) {
                 completedFlows.removeAt(0)
             }
-        notifyFlowCompleted(flow)
+            notifyFlowCompleted(flow)
         }
     }
-        fun recordToolCallStart(sessionId: String, skillName: String, toolName: String, input: Map<String, Any?>) {
+
+    fun recordToolCallStart(sessionId: String, skillName: String, toolName: String, input: Map<String, Any?>) {
         val entry = TraceEntry(
             sessionId = sessionId,
             skillName = skillName,
@@ -157,7 +176,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         )
         recordEntry(entry)
     }
-        fun recordToolCallEnd(sessionId: String, skillName: String, toolName: String, output: Any?, error: String?, durationMs: Long) {
+
+    fun recordToolCallEnd(sessionId: String, skillName: String, toolName: String, output: Any?, error: String?, durationMs: Long) {
         val entry = TraceEntry(
             sessionId = sessionId,
             skillName = skillName,
@@ -170,7 +190,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         )
         recordEntry(entry)
     }
-        fun recordBreakpointHit(sessionId: String, skillName: String, toolName: String?, lineNumber: Int) {
+
+    fun recordBreakpointHit(sessionId: String, skillName: String, toolName: String?, lineNumber: Int) {
         val entry = TraceEntry(
             sessionId = sessionId,
             skillName = skillName,
@@ -181,7 +202,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         )
         recordEntry(entry)
     }
-        fun recordVariableChange(sessionId: String, skillName: String, varName: String, oldValue: Any?, newValue: Any) {
+
+    fun recordVariableChange(sessionId: String, skillName: String, varName: String, oldValue: Any?, newValue: Any) {
         val entry = TraceEntry(
             sessionId = sessionId,
             skillName = skillName,
@@ -191,7 +213,8 @@ class ExecutionTracer private constructor(private val context: Context) {
         )
         recordEntry(entry)
     }
-        fun recordError(sessionId: String, skillName: String, error: String, toolName: String? = null, lineNumber: Int? = null) {
+
+    fun recordError(sessionId: String, skillName: String, error: String, toolName: String? = null, lineNumber: Int? = null) {
         val entry = TraceEntry(
             sessionId = sessionId,
             skillName = skillName,
@@ -203,10 +226,11 @@ class ExecutionTracer private constructor(private val context: Context) {
         )
         recordEntry(entry)
     }
-        fun recordSession(session: SkillDebugger.DebugSession) {
+
+    fun recordSession(session: SkillDebugger.DebugSession) {
         session.toolCalls.forEach { toolCall ->
             val eventType = if (toolCall.error != null) EventType.TOOL_CALL_ERROR else EventType.TOOL_CALL_END
-        val entry = TraceEntry(
+            val entry = TraceEntry(
                 sessionId = session.id,
                 skillName = session.skillName,
                 eventType = eventType,
@@ -217,21 +241,26 @@ class ExecutionTracer private constructor(private val context: Context) {
                 timestamp = toolCall.startTime,
                 durationMs = toolCall.durationMs
             )
-        recordEntry(entry)
+            recordEntry(entry)
         }
     }
-        fun getTraceLog(): List<TraceEntry> = traceLog.toList()
-        fun getSessionTrace(sessionId: String): List<TraceEntry> {
+
+    fun getTraceLog(): List<TraceEntry> = traceLog.toList()
+
+    fun getSessionTrace(sessionId: String): List<TraceEntry> {
         return sessionTraces[sessionId]?.toList() ?: emptyList()
     }
-        fun getCompletedFlows(): List<ExecutionFlow> = completedFlows.toList()
-        fun getTraceStats(): TraceStats {
+
+    fun getCompletedFlows(): List<ExecutionFlow> = completedFlows.toList()
+
+    fun getTraceStats(): TraceStats {
         val toolCallEvents = traceLog.filter {
             it.eventType == EventType.TOOL_CALL_START ||
             it.eventType == EventType.TOOL_CALL_END ||
             it.eventType == EventType.TOOL_CALL_ERROR
         }
         val errorEvents = traceLog.filter { it.eventType == EventType.ERROR || it.eventType == EventType.TOOL_CALL_ERROR }
+
         return TraceStats(
             totalEntries = traceLog.size,
             totalSessions = sessionTraces.size,
@@ -240,12 +269,14 @@ class ExecutionTracer private constructor(private val context: Context) {
             completedFlows = completedFlows.size
         )
     }
-        fun buildExecutionFlow(sessionId: String): ExecutionFlow? {
+
+    fun buildExecutionFlow(sessionId: String): ExecutionFlow? {
         val entries = sessionTraces[sessionId] ?: return null
         if (entries.isEmpty()) return null
 
         val sessionStart = entries.firstOrNull { it.eventType == EventType.SESSION_START }
         val sessionEnd = entries.lastOrNull { it.eventType == EventType.SESSION_END }
+
         if (sessionStart == null) return null
 
         val toolCallEntries = entries.filter {
@@ -253,6 +284,7 @@ class ExecutionTracer private constructor(private val context: Context) {
             it.eventType == EventType.TOOL_CALL_END ||
             it.eventType == EventType.TOOL_CALL_ERROR
         }
+
         val toolCalls = mutableListOf<ToolCallInfo>()
         val errors = mutableListOf<ErrorInfo>()
         var sequenceNumber = 0
@@ -262,7 +294,7 @@ class ExecutionTracer private constructor(private val context: Context) {
             val entry = toolCallEntries[i]
             if (entry.eventType == EventType.TOOL_CALL_START) {
                 val endEntry = toolCallEntries.getOrNull(i + 1)
-        val toolCallInfo = ToolCallInfo(
+                val toolCallInfo = ToolCallInfo(
                     id = java.util.UUID.randomUUID().toString(),
                     toolName = entry.toolName ?: "unknown",
                     input = entry.input ?: emptyMap(),
@@ -273,8 +305,8 @@ class ExecutionTracer private constructor(private val context: Context) {
                     durationMs = endEntry?.durationMs,
                     sequenceNumber = sequenceNumber++
                 )
-        toolCalls.add(toolCallInfo)
-        if (endEntry?.error != null) {
+                toolCalls.add(toolCallInfo)
+                if (endEntry?.error != null) {
                     errors.add(ErrorInfo(
                         toolName = entry.toolName,
                         error = endEntry.error,
@@ -283,9 +315,11 @@ class ExecutionTracer private constructor(private val context: Context) {
                     ))
                 }
             }
-        i++
+            i++
         }
+
         val flowGraph = buildFlowGraph(toolCalls)
+
         val totalDuration = if (sessionEnd != null && sessionStart != null) {
             sessionEnd.timestamp - sessionStart.timestamp
         } else null
@@ -301,9 +335,12 @@ class ExecutionTracer private constructor(private val context: Context) {
             flowGraph = flowGraph
         )
     }
-        private fun buildFlowGraph(toolCalls: List<ToolCallInfo>): List<FlowNode> {
+
+    private fun buildFlowGraph(toolCalls: List<ToolCallInfo>): List<FlowNode> {
         if (toolCalls.isEmpty()) return emptyList()
+
         val nodes = mutableListOf<FlowNode>()
+
         toolCalls.forEachIndexed { index, toolCall ->
             val node = FlowNode(
                 id = "node_${index}",
@@ -315,12 +352,15 @@ class ExecutionTracer private constructor(private val context: Context) {
                 endTime = toolCall.endTime,
                 durationMs = toolCall.durationMs
             )
-        nodes.add(node)
+            nodes.add(node)
         }
+
         return nodes
     }
-        fun generateFlowDiagram(sessionId: String): String {
+
+    fun generateFlowDiagram(sessionId: String): String {
         val flow = buildExecutionFlow(sessionId) ?: return "No flow data available"
+
         val sb = StringBuilder()
         sb.appendLine("Execution Flow for Session: ${flow.sessionId}")
         sb.appendLine("Skill: ${flow.skillName}")
@@ -334,62 +374,73 @@ class ExecutionTracer private constructor(private val context: Context) {
         sb.appendLine()
         sb.appendLine("Tool Call Sequence:")
         sb.appendLine("─".repeat(60))
+
         flow.toolCalls.forEachIndexed { index, toolCall ->
             val statusIcon = when {
-                toolCall.error != null -> "✓"
-        toolCall.durationMs != null -> "✓"
-        else -> "●"
+                toolCall.error != null -> "�?
+                toolCall.durationMs != null -> "�?
+                else -> "�?
             }
-        val duration = toolCall.durationMs?.let { "${it}ms" } ?: "N/A"
-        sb.appendLine("${index + 1}. ${statusIcon} ${toolCall.toolName} [${duration}]")
-        if (toolCall.error != null) {
+            val duration = toolCall.durationMs?.let { "${it}ms" } ?: "N/A"
+            sb.appendLine("${index + 1}. ${statusIcon} ${toolCall.toolName} [${duration}]")
+            if (toolCall.error != null) {
                 sb.appendLine("   Error: ${toolCall.error}")
             }
         }
+
         if (flow.errors.isNotEmpty()) {
             sb.appendLine()
-        sb.appendLine("Errors (${flow.errors.size}):")
-        sb.appendLine("─".repeat(60))
-        flow.errors.forEach { error ->
-                sb.appendLine("—${error.toolName ?: "Unknown"}: ${error.error}")
+            sb.appendLine("Errors (${flow.errors.size}):")
+            sb.appendLine("─".repeat(60))
+            flow.errors.forEach { error ->
+                sb.appendLine("�?${error.toolName ?: "Unknown"}: ${error.error}")
             }
         }
+
         return sb.toString()
     }
-        fun generateMermaidFlowChart(sessionId: String): String {
+
+    fun generateMermaidFlowChart(sessionId: String): String {
         val flow = buildExecutionFlow(sessionId) ?: return "No flow data available"
+
         val sb = StringBuilder()
         sb.appendLine("graph TD")
-        sb.appendLine("Start((Session Start))")
-        sb.appendLine("Skill_${flow.skillName}[${flow.skillName}]")
+        sb.appendLine("    Start((Session Start))")
+        sb.appendLine("    Skill_${flow.skillName}[${flow.skillName}]")
+
         var prevNodeId = "Start"
         var nodeIndex = 0
 
         flow.toolCalls.forEach { toolCall ->
             nodeIndex++
             val nodeId = "Tool${nodeIndex}"
-        val statusClass = if (toolCall.error != null) "error" else "success"
-        sb.appendLine("    ${nodeId}(${nodeId}: ${toolCall.toolName}):::${statusClass}")
-        sb.appendLine("    ${prevNodeId} --> ${nodeId}")
-        prevNodeId = nodeId
+            val statusClass = if (toolCall.error != null) "error" else "success"
+            sb.appendLine("    ${nodeId}(${nodeId}: ${toolCall.toolName}):::${statusClass}")
+            sb.appendLine("    ${prevNodeId} --> ${nodeId}")
+            prevNodeId = nodeId
         }
-        sb.appendLine("End${nodeIndex}((Session End))")
+
+        sb.appendLine("    End${nodeIndex}((Session End))")
         sb.appendLine("    ${prevNodeId} --> End${nodeIndex}")
         sb.appendLine()
-        sb.appendLine("classDef success fill:#90EE90")
-        sb.appendLine("classDef error fill:#FFB6C1")
+        sb.appendLine("    classDef success fill:#90EE90")
+        sb.appendLine("    classDef error fill:#FFB6C1")
+
         return sb.toString()
     }
-        fun clearTrace() {
+
+    fun clearTrace() {
         traceLog.clear()
         sessionTraces.clear()
         AppLogger.d(TAG, "Trace cleared")
     }
-        fun clearSessionTrace(sessionId: String) {
+
+    fun clearSessionTrace(sessionId: String) {
         sessionTraces.remove(sessionId)
         AppLogger.d(TAG, "Session trace cleared: ${sessionId}")
     }
-        private fun notifyTraceEntry(entry: TraceEntry) {
+
+    private fun notifyTraceEntry(entry: TraceEntry) {
         traceListeners.forEach { listener ->
             runCatching {
                 listener.onTraceEntry(entry)
@@ -398,7 +449,8 @@ class ExecutionTracer private constructor(private val context: Context) {
             }
         }
     }
-        private fun notifyFlowCompleted(flow: ExecutionFlow) {
+
+    private fun notifyFlowCompleted(flow: ExecutionFlow) {
         traceListeners.forEach { listener ->
             runCatching {
                 listener.onFlowCompleted(flow)
@@ -407,7 +459,8 @@ class ExecutionTracer private constructor(private val context: Context) {
             }
         }
     }
-        data class TraceStats(
+
+    data class TraceStats(
         val totalEntries: Int,
         val totalSessions: Int,
         val totalToolCalls: Int,

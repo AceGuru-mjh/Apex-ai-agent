@@ -6,8 +6,7 @@ import com.apex.agent.core.chat.hooks.PromptTurnKind
 /**
  * 轨迹数据 - 表示一个完整的对话轨迹
  * 
- * 用于强化学习训练和轨迹压缩系结
- */
+ * 用于强化学习训练和轨迹压缩系�? */
 data class TrajectoryData(
     val id: String,
     val sessionId: String,
@@ -17,7 +16,7 @@ data class TrajectoryData(
 ) {
     companion object {
         /**
-         * 件PromptTurn 列表创建 TrajectoryData
+         * �?PromptTurn 列表创建 TrajectoryData
          */
         fun fromPromptTurns(
             sessionId: String,
@@ -34,8 +33,8 @@ data class TrajectoryData(
                     tokenCount = tokenCounter(turn.content)
                 )
             }
-        val totalTokens = trajectoryTurns.sumOf { it.tokenCount }
-        return TrajectoryData(
+            val totalTokens = trajectoryTurns.sumOf { it.tokenCount }
+            return TrajectoryData(
                 id = "traj_${System.currentTimeMillis()}_${(0..9999).random()}",
                 sessionId = sessionId,
                 turns = trajectoryTurns,
@@ -45,7 +44,7 @@ data class TrajectoryData(
     }
 
     /**
-     * 转换为PromptTurn 列表
+     * 转换�?PromptTurn 列表
      */
     fun toPromptTurns(): List<PromptTurn> {
         return turns.map { turn ->
@@ -71,26 +70,22 @@ data class TrajectoryTurn(
     val tokenCount: Int = 0
 ) {
     /**
-     * 是否是工具调用轮次
-     */
+     * 是否是工具调用轮�?     */
     val isToolCall: Boolean
         get() = kind == PromptTurnKind.TOOL_CALL
 
     /**
-     * 是否是工具结果轮次
-     */
+     * 是否是工具结果轮�?     */
     val isToolResult: Boolean
         get() = kind == PromptTurnKind.TOOL_RESULT
 
     /**
-     * 是否是系统轮次
-     */
+     * 是否是系统轮�?     */
     val isSystem: Boolean
         get() = kind == PromptTurnKind.SYSTEM
 
     /**
-     * 是否是人类轮次
-     */
+     * 是否是人类轮�?     */
     val isHuman: Boolean
         get() = kind == PromptTurnKind.USER
 }
@@ -125,8 +120,7 @@ data class CompressionResult(
 }
 
 /**
- * 轨迹分区 - 将轨迹分为头部、中间、尾部
- */
+ * 轨迹分区 - 将轨迹分为头部、中间、尾�? */
 data class TrajectoryPartition(
     val headTurns: List<TrajectoryTurn>,
     val middleTurns: List<TrajectoryTurn>,

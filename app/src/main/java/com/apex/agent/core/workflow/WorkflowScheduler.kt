@@ -42,7 +42,8 @@ class WorkflowScheduler(private val context: Context) {
         // WorkManager data keys
         const val KEY_TRIGGER_NODE_ID = "trigger_node_id"
     }
-        private val workManager: WorkManager by lazy { 
+
+    private val workManager: WorkManager by lazy { 
         WorkManager.getInstance(context.applicationContext)
     }
 
@@ -53,25 +54,28 @@ class WorkflowScheduler(private val context: Context) {
         // Find the trigger node
         val triggerNode = workflow.nodes.filterIsInstance<TriggerNode>()
             .firstOrNull { it.triggerType == "schedule" }
+
         if (triggerNode == null) {
             AppLogger.d(TAG, "No schedule trigger found for workflow: ${workflow.id}")
-        return false
+            return false
         }
+
         val config = triggerNode.triggerConfig
         val scheduleType = config[CONFIG_SCHEDULE_TYPE] ?: return false
         val enabled = config[CONFIG_ENABLED]?.toBoolean() ?: true
 
         if (!enabled) {
             AppLogger.d(TAG, "Schedule is disabled for workflow: ${workflow.id}")
-        return false
+            return false
         }
+
         return when (scheduleType) {
             SCHEDULE_TYPE_INTERVAL -> scheduleIntervalWorkflow(workflow.id, triggerNode.id, config)
-        SCHEDULE_TYPE_SPECIFIC_TIME -> scheduleOneTimeWorkflow(workflow.id, triggerNode.id, config)
-        SCHEDULE_TYPE_CRON -> scheduleCronWorkflow(workflow.id, triggerNode.id, config)
-        else -> {
+            SCHEDULE_TYPE_SPECIFIC_TIME -> scheduleOneTimeWorkflow(workflow.id, triggerNode.id, config)
+            SCHEDULE_TYPE_CRON -> scheduleCronWorkflow(workflow.id, triggerNode.id, config)
+            else -> {
                 AppLogger.e(TAG, "Unknown schedule type: ${scheduleType}")
-        false
+                false
             }
         }
     }
@@ -85,14 +89,16 @@ class WorkflowScheduler(private val context: Context) {
 
         if (!repeat) {
             AppLogger.w(TAG, "Interval scheduling requires repeat=true")
-        return false
+            return false
         }
 
         // Minimum interval is 15 minutes per WorkManager restrictions
         val intervalMinutes = (intervalMs / 60000).coerceAtLeast(15)
+
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
             .build()
+
         val workRequest = PeriodicWorkRequestBuilder<WorkflowWorker>(
             intervalMinutes, TimeUnit.MINUTES
         )
@@ -105,11 +111,13 @@ class WorkflowScheduler(private val context: Context) {
             )
             .addTag(workflowId)
             .build()
+
         workManager.enqueueUniquePeriodicWork(
             getWorkName(workflowId),
             ExistingPeriodicWorkPolicy.REPLACE,
             workRequest
         )
+
         AppLogger.d(TAG, "Scheduled interval workflow: ${workflowId}, trigger: ${triggerNodeId}, interval: ${intervalMinutes} minutes")
         return true
     }
@@ -125,18 +133,21 @@ class WorkflowScheduler(private val context: Context) {
             parseDateTime(specificTimeStr)
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to parse specific_time: ${specificTimeStr}", e)
-        return false
+            return false
         }
+
         val currentTime = System.currentTimeMillis()
         val delay = targetTime - currentTime
 
         if (delay < 0) {
             AppLogger.w(TAG, "Specific time is in the past: ${specificTimeStr}")
-        return false
+            return false
         }
+
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
             .build()
+
         val workRequest = OneTimeWorkRequestBuilder<WorkflowWorker>()
             .setConstraints(constraints)
             .setInputData(
@@ -148,11 +159,13 @@ class WorkflowScheduler(private val context: Context) {
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .addTag(workflowId)
             .build()
+
         workManager.enqueueUniqueWork(
             getWorkName(workflowId),
             ExistingWorkPolicy.REPLACE,
             workRequest
         )
+
         AppLogger.d(TAG, "Scheduled one-time workflow: ${workflowId}, trigger: ${triggerNodeId}, time: ${specificTimeStr}, delay: ${delay}ms")
         return true
     }
@@ -169,25 +182,28 @@ class WorkflowScheduler(private val context: Context) {
         val nextExecutionTime = calculateNextCronTime(cronExpression)
         if (nextExecutionTime == null) {
             AppLogger.e(TAG, "Failed to calculate next cron time for: ${cronExpression}")
-        return false
+            return false
         }
+
         val currentTime = System.currentTimeMillis()
         val delay = nextExecutionTime - currentTime
 
         if (delay < 0) {
             AppLogger.w(TAG, "Calculated cron time is in the past")
-        return false
+            return false
         }
+
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
             .build()
+
         if (repeat) {
             // For repeated cron, we use the interval between executions
             // This is a simplified approach - ideally we'd reschedule after each execution
-        val intervalMs = calculateCronInterval(cronExpression)
-        if (intervalMs != null && intervalMs >= 15 * 60 * 1000) {
+            val intervalMs = calculateCronInterval(cronExpression)
+            if (intervalMs != null && intervalMs >= 15 * 60 * 1000) {
                 val intervalMinutes = intervalMs / 60000
-        val workRequest = PeriodicWorkRequestBuilder<WorkflowWorker>(
+                val workRequest = PeriodicWorkRequestBuilder<WorkflowWorker>(
                     intervalMinutes, TimeUnit.MINUTES
                 )
                     .setConstraints(constraints)
@@ -200,21 +216,23 @@ class WorkflowScheduler(private val context: Context) {
                     .setInitialDelay(delay, TimeUnit.MILLISECONDS)
                     .addTag(workflowId)
                     .build()
-        workManager.enqueueUniquePeriodicWork(
+
+                workManager.enqueueUniquePeriodicWork(
                     getWorkName(workflowId),
                     ExistingPeriodicWorkPolicy.REPLACE,
                     workRequest
                 )
-        AppLogger.d(TAG, "Scheduled cron workflow (periodic): ${workflowId}, trigger: ${triggerNodeId}, expression: ${cronExpression}")
+                AppLogger.d(TAG, "Scheduled cron workflow (periodic): ${workflowId}, trigger: ${triggerNodeId}, expression: ${cronExpression}")
             } else {
                 // Fallback to one-time for complex cron patterns
-        scheduleOneTimeWorkflowWithDelay(workflowId, triggerNodeId, delay)
-        AppLogger.d(TAG, "Scheduled cron workflow (one-time): ${workflowId}, trigger: ${triggerNodeId}, expression: ${cronExpression}")
+                scheduleOneTimeWorkflowWithDelay(workflowId, triggerNodeId, delay)
+                AppLogger.d(TAG, "Scheduled cron workflow (one-time): ${workflowId}, trigger: ${triggerNodeId}, expression: ${cronExpression}")
             }
         } else {
             scheduleOneTimeWorkflowWithDelay(workflowId, triggerNodeId, delay)
-        AppLogger.d(TAG, "Scheduled cron workflow (one-time): ${workflowId}, trigger: ${triggerNodeId}, expression: ${cronExpression}")
+            AppLogger.d(TAG, "Scheduled cron workflow (one-time): ${workflowId}, trigger: ${triggerNodeId}, expression: ${cronExpression}")
         }
+
         return true
     }
 
@@ -225,6 +243,7 @@ class WorkflowScheduler(private val context: Context) {
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
             .build()
+
         val workRequest = OneTimeWorkRequestBuilder<WorkflowWorker>()
             .setConstraints(constraints)
             .setInputData(
@@ -236,6 +255,7 @@ class WorkflowScheduler(private val context: Context) {
             .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
             .addTag(workflowId)
             .build()
+
         workManager.enqueueUniqueWork(
             getWorkName(workflowId),
             ExistingWorkPolicy.REPLACE,
@@ -257,10 +277,10 @@ class WorkflowScheduler(private val context: Context) {
     suspend fun isWorkflowScheduled(workflowId: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val workInfos = workManager.getWorkInfosForUniqueWork(getWorkName(workflowId)).await()
-        workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
+            workInfos.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error checking workflow schedule status", e)
-        false
+            false
         }
     }
 
@@ -281,17 +301,19 @@ class WorkflowScheduler(private val context: Context) {
             "yyyy-MM-dd HH:mm",
             "yyyy-MM-dd"
         )
+
         for (format in formats) {
             try {
                 val sdf = SimpleDateFormat(format, Locale.getDefault())
-        val date = sdf.parse(dateTimeStr)
-        if (date != null) {
+                val date = sdf.parse(dateTimeStr)
+                if (date != null) {
                     return date.time
                 }
             } catch (e: Exception) {
                 // Try next format
             }
         }
+
         throw IllegalArgumentException("Unsupported datetime format: ${dateTimeStr}")
     }
 
@@ -307,45 +329,47 @@ class WorkflowScheduler(private val context: Context) {
         val parts = cronExpression.trim().split("\\s+".toRegex())
         if (parts.size < 5) {
             AppLogger.e(TAG, "Invalid cron expression: ${cronExpression}")
-        return null
+            return null
         }
+
         val minute = parts[0]
         val hour = parts[1]
         val dayOfMonth = parts[2]
         val month = parts[3]
         val dayOfWeek = parts[4]
+
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.MINUTE, 1) // Start from next minute
 
         // Simple cron pattern matching
         return when {
             // Daily at specific time: "0 0 * * *"
-        minute.matches("\\d+".toRegex()) && hour.matches("\\d+".toRegex()) && 
+            minute.matches("\\d+".toRegex()) && hour.matches("\\d+".toRegex()) && 
             dayOfMonth == "*" && month == "*" && dayOfWeek == "*" -> {
                 calculateDailyTime(minute.toInt(), hour.toInt())
             }
             // Every N hours: "0 */N * * *"
-        minute == "0" && hour.startsWith("*/") && 
+            minute == "0" && hour.startsWith("*/") && 
             dayOfMonth == "*" && month == "*" && dayOfWeek == "*" -> {
                 val hourInterval = hour.substring(2).toIntOrNull() ?: return null
-        val nextTime = Calendar.getInstance()
-        nextTime.add(Calendar.HOUR_OF_DAY, hourInterval)
-        nextTime.set(Calendar.MINUTE, 0)
-        nextTime.set(Calendar.SECOND, 0)
-        nextTime.timeInMillis
+                val nextTime = Calendar.getInstance()
+                nextTime.add(Calendar.HOUR_OF_DAY, hourInterval)
+                nextTime.set(Calendar.MINUTE, 0)
+                nextTime.set(Calendar.SECOND, 0)
+                nextTime.timeInMillis
             }
             // Every N minutes: "*/N * * * *"
-        minute.startsWith("*/") && hour == "*" && 
+            minute.startsWith("*/") && hour == "*" && 
             dayOfMonth == "*" && month == "*" && dayOfWeek == "*" -> {
                 val minuteInterval = minute.substring(2).toIntOrNull() ?: return null
-        val nextTime = Calendar.getInstance()
-        nextTime.add(Calendar.MINUTE, minuteInterval)
-        nextTime.set(Calendar.SECOND, 0)
-        nextTime.timeInMillis
+                val nextTime = Calendar.getInstance()
+                nextTime.add(Calendar.MINUTE, minuteInterval)
+                nextTime.set(Calendar.SECOND, 0)
+                nextTime.timeInMillis
             }
-        else -> {
+            else -> {
                 AppLogger.w(TAG, "Unsupported cron pattern: ${cronExpression}")
-        null
+                null
             }
         }
     }
@@ -364,6 +388,7 @@ class WorkflowScheduler(private val context: Context) {
         if (calendar.timeInMillis <= System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
+
         return calendar.timeInMillis
     }
 
@@ -380,20 +405,20 @@ class WorkflowScheduler(private val context: Context) {
 
         return when {
             // Daily
-        minute.matches("\\d+".toRegex()) && hour.matches("\\d+".toRegex()) -> {
+            minute.matches("\\d+".toRegex()) && hour.matches("\\d+".toRegex()) -> {
                 24 * 60 * 60 * 1000L
             }
             // Every N hours
-        minute == "0" && hour.startsWith("*/") -> {
+            minute == "0" && hour.startsWith("*/") -> {
                 val hourInterval = hour.substring(2).toLongOrNull() ?: return null
                 hourInterval * 60 * 60 * 1000
             }
             // Every N minutes
-        minute.startsWith("*/") && hour == "*" -> {
+            minute.startsWith("*/") && hour == "*" -> {
                 val minuteInterval = minute.substring(2).toLongOrNull() ?: return null
                 minuteInterval * 60 * 1000
             }
-        else -> null
+            else -> null
         }
     }
 
@@ -412,15 +437,15 @@ class WorkflowScheduler(private val context: Context) {
             SCHEDULE_TYPE_SPECIFIC_TIME -> {
                 config[CONFIG_SPECIFIC_TIME]?.let { parseDateTime(it) }
             }
-        SCHEDULE_TYPE_CRON -> {
+            SCHEDULE_TYPE_CRON -> {
                 config[CONFIG_CRON_EXPRESSION]?.let { calculateNextCronTime(it) }
             }
-        SCHEDULE_TYPE_INTERVAL -> {
+            SCHEDULE_TYPE_INTERVAL -> {
                 // For interval, next execution is interval from now
-        val intervalMs = config[CONFIG_INTERVAL_MS]?.toLongOrNull() ?: return null
+                val intervalMs = config[CONFIG_INTERVAL_MS]?.toLongOrNull() ?: return null
                 System.currentTimeMillis() + intervalMs
             }
-        else -> null
+            else -> null
         }
     }
 }

@@ -20,16 +20,16 @@ import java.util.concurrent.ConcurrentHashMap
 @Serializable
 data class Checkpoint(
     val threadId: String,                 // 一次工作流执行的唯一标识
-        val checkpointId: String,             // 检查点唯一 ID
-        val parentCheckpointId: String?,      // 父检查点（链式）
-        val workflowId: String,
+    val checkpointId: String,             // 检查点唯一 ID
+    val parentCheckpointId: String?,      // 父检查点（链式）
+    val workflowId: String,
     val workflowVersion: Int,
     val nodeId: String,                   // 当前执行到的节点
-        val nodeState: CheckpointNodeState,   // 节点状态
-        val variables: Map<String, String>,   // 序列化后的上下文变量
-        val pendingInterrupts: List<String>,  // 待处理的 interrupt ID（HITL）
-        val executionPath: List<String>,      // 已执行的节点路径
-        val createdAt: Long = System.currentTimeMillis(),
+    val nodeState: CheckpointNodeState,   // 节点状态
+    val variables: Map<String, String>,   // 序列化后的上下文变量
+    val pendingInterrupts: List<String>,  // 待处理的 interrupt ID（HITL）
+    val executionPath: List<String>,      // 已执行的节点路径
+    val createdAt: Long = System.currentTimeMillis(),
     val metadata: Map<String, String> = emptyMap()
 )
 
@@ -73,29 +73,35 @@ class InMemoryCheckpointer(
 ) : Checkpointer {
 
     private val storage = ConcurrentHashMap<String, MutableList<Checkpoint>>()
-        override suspend fun save(checkpoint: Checkpoint) {
+
+    override suspend fun save(checkpoint: Checkpoint) {
         val list = storage.computeIfAbsent(checkpoint.threadId) { mutableListOf() }
         synchronized(list) {
             list.add(checkpoint)
-        while (list.size > maxCheckpointsPerThread) list.removeAt(0)
+            while (list.size > maxCheckpointsPerThread) list.removeAt(0)
         }
     }
-        override suspend fun latest(threadId: String): Checkpoint? {
+
+    override suspend fun latest(threadId: String): Checkpoint? {
         val list = storage[threadId] ?: return null
         return synchronized(list) { list.maxByOrNull { it.createdAt } }
     }
-        override suspend fun load(threadId: String, checkpointId: String): Checkpoint? {
+
+    override suspend fun load(threadId: String, checkpointId: String): Checkpoint? {
         val list = storage[threadId] ?: return null
         return synchronized(list) { list.find { it.checkpointId == checkpointId } }
     }
-        override suspend fun list(threadId: String): List<Checkpoint> {
+
+    override suspend fun list(threadId: String): List<Checkpoint> {
         val list = storage[threadId] ?: return emptyList()
         return synchronized(list) { list.toList().sortedBy { it.createdAt } }
     }
-        override suspend fun delete(threadId: String) {
+
+    override suspend fun delete(threadId: String) {
         storage.remove(threadId)
     }
-        override suspend fun activeThreads(): List<String> {
+
+    override suspend fun activeThreads(): List<String> {
         return storage.filter { (_, list) ->
             list.any { it.nodeState in setOf(
                 CheckpointNodeState.RUNNING,
@@ -105,13 +111,14 @@ class InMemoryCheckpointer(
             )}
         }.keys.toList()
     }
-        override suspend fun cleanup(maxAgeMs: Long) {
+
+    override suspend fun cleanup(maxAgeMs: Long) {
         val threshold = System.currentTimeMillis() - maxAgeMs
         storage.forEach { (tid, list) ->
             synchronized(list) {
                 list.removeAll { it.createdAt < threshold }
             }
-        if (list.isEmpty()) storage.remove(tid)
+            if (list.isEmpty()) storage.remove(tid)
         }
     }
 }
@@ -145,11 +152,12 @@ class CheckpointManager(
             when (v) {
                 is String -> v
                 is Number, is Boolean -> v.toString()
-        else -> json.encodeToString(JsonElementSerializer, v)
+                else -> json.encodeToString(JsonElementSerializer, v)
             }
         }
     }
-        suspend fun saveCheckpoint(
+
+    suspend fun saveCheckpoint(
         threadId: String,
         parentCheckpointId: String?,
         workflow: EnhancedWorkflow,

@@ -28,20 +28,23 @@ class SupervisorExecutionMode @Inject constructor(
         val assignedTasks = ConcurrentHashMap<String, String>()
         var analysisResult: String = ""
     }
-        override fun createState(task: Task, agents: List<Agent>): SupervisorState {
+
+    override fun createState(task: Task, agents: List<Agent>): SupervisorState {
         return SupervisorState(task, agents)
     }
-        override suspend fun runStep(state: SupervisorState) {
+
+    override suspend fun runStep(state: SupervisorState) {
         when (state.phase) {
             SupervisorPhase.TASK_ANALYSIS -> executeTaskAnalysis(state)
-        SupervisorPhase.TASK_DECOMPOSITION -> executeTaskDecomposition(state)
-        SupervisorPhase.TASK_ASSIGNMENT -> executeTaskAssignment(state)
-        SupervisorPhase.EXECUTION_MONITORING -> executeExecutionMonitoring(state)
-        SupervisorPhase.RESULT_AGGREGATION -> executeResultAggregation(state)
-        SupervisorPhase.FINAL_REVIEW -> executeFinalReview(state)
+            SupervisorPhase.TASK_DECOMPOSITION -> executeTaskDecomposition(state)
+            SupervisorPhase.TASK_ASSIGNMENT -> executeTaskAssignment(state)
+            SupervisorPhase.EXECUTION_MONITORING -> executeExecutionMonitoring(state)
+            SupervisorPhase.RESULT_AGGREGATION -> executeResultAggregation(state)
+            SupervisorPhase.FINAL_REVIEW -> executeFinalReview(state)
         }
     }
-        private suspend fun executeTaskAnalysis(state: SupervisorState) {
+
+    private suspend fun executeTaskAnalysis(state: SupervisorState) {
         val supervisor = getSupervisorAgent(state) ?: return
         updateAgentStatus(state, supervisor.id, AgentStatus.WORKING)
         val report = complexityQuantifier.quantifyTask(state.task.description)
@@ -50,7 +53,8 @@ class SupervisorExecutionMode @Inject constructor(
         broadcastMessage(state, "$analysisContent\n[Analysis: ${report.reasoning}]", "system")
         state.phase = SupervisorPhase.TASK_DECOMPOSITION
     }
-        private suspend fun executeTaskDecomposition(state: SupervisorState) {
+
+    private suspend fun executeTaskDecomposition(state: SupervisorState) {
         val supervisor = getSupervisorAgent(state) ?: return
         val report = complexityQuantifier.quantifyTask(state.task.description)
         val subTasks = decomposeTask(state.task.description, report)
@@ -60,9 +64,11 @@ class SupervisorExecutionMode @Inject constructor(
         updateAgentProgress(state, supervisor.id, 0.3f)
         state.phase = SupervisorPhase.TASK_ASSIGNMENT
     }
-        private suspend fun executeTaskAssignment(state: SupervisorState) {
+
+    private suspend fun executeTaskAssignment(state: SupervisorState) {
         val supervisor = getSupervisorAgent(state) ?: return
         val report = complexityQuantifier.quantifyTask(state.task.description)
+
         state.assignedTasks.forEach { (taskKey, subTask) ->
             val allocationResult = taskAllocator.allocate(
                 AllocationRequest(
@@ -71,40 +77,46 @@ class SupervisorExecutionMode @Inject constructor(
                     complexityReport = report
                 )
             )
-        val availableAgent = allocationResult?.let {
-        val agentId = it.selectedAgentId
+            val availableAgent = allocationResult?.let {
+                val agentId = it.selectedAgentId
                 state.agents.find { a -> a.id == agentId }
             } ?: getNextAgent(state)
-        if (availableAgent != null) {
+
+            if (availableAgent != null) {
                 sendToAgent(
                     state = state,
                     agentId = availableAgent.id,
                     content = context.getString(R.string.task_assignment_prefix, subTask),
                     senderId = supervisor.id
                 )
-        updateAgentStatus(state, availableAgent.id, AgentStatus.WORKING)
+                updateAgentStatus(state, availableAgent.id, AgentStatus.WORKING)
             }
         }
+
         updateAgentProgress(state, supervisor.id, 0.5f)
         state.phase = SupervisorPhase.EXECUTION_MONITORING
     }
-        private fun executeExecutionMonitoring(state: SupervisorState) {
+
+    private fun executeExecutionMonitoring(state: SupervisorState) {
         if (areAllAgentsFinished(state)) {
             state.phase = SupervisorPhase.RESULT_AGGREGATION
         }
     }
-        private fun executeResultAggregation(state: SupervisorState) {
+
+    private fun executeResultAggregation(state: SupervisorState) {
         val supervisor = getSupervisorAgent(state) ?: return
         updateAgentProgress(state, supervisor.id, 0.9f)
         state.phase = SupervisorPhase.FINAL_REVIEW
     }
-        private fun executeFinalReview(state: SupervisorState) {
+
+    private fun executeFinalReview(state: SupervisorState) {
         val supervisor = getSupervisorAgent(state) ?: return
         updateAgentProgress(state, supervisor.id, 1.0f)
         updateAgentStatus(state, supervisor.id, AgentStatus.FINISHED)
         state.running.set(false)
     }
-        private fun decomposeTask(taskDescription: String, report: com.apex.agent.orchestration.core.AllocationModels.ComplexityReport): List<String> {
+
+    private fun decomposeTask(taskDescription: String, report: com.apex.agent.orchestration.core.AllocationModels.ComplexityReport): List<String> {
         val difficulty = report.difficulty
         val category = report.category
         val subtaskCount = when {
@@ -112,6 +124,7 @@ class SupervisorExecutionMode @Inject constructor(
             difficulty <= 6 -> 5
             else -> 7
         }
+
         return when (category) {
             "coding" -> buildCodingSubtasks(taskDescription, subtaskCount)
             "debugging" -> buildDebuggingSubtasks(taskDescription, subtaskCount)
@@ -123,12 +136,13 @@ class SupervisorExecutionMode @Inject constructor(
             "planning" -> buildPlanningSubtasks(taskDescription, subtaskCount)
             "devops" -> buildDevopsSubtasks(taskDescription, subtaskCount)
             "security" -> buildSecuritySubtasks(taskDescription, subtaskCount)
-        else -> buildGeneralSubtasks(taskDescription, subtaskCount)
+            else -> buildGeneralSubtasks(taskDescription, subtaskCount)
         }
     }
-        private fun buildCodingSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildCodingSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
-            "需求分果 $task",
+            "需求分�? $task",
             "核心实现: $task",
             "测试验证: $task"
         )
@@ -136,79 +150,84 @@ class SupervisorExecutionMode @Inject constructor(
             "需求与架构分析: $task",
             "数据模型设计",
             "核心功能实现: $task",
-            "错误处理与边界情内",
-            "测试与文案"
+            "错误处理与边界情�?,
+            "测试与文�?
         )
         else -> listOf(
-            "需求分果 $task",
+            "需求分�? $task",
             "系统架构设计",
-            "数据模型与接口设计",
+            "数据模型与接口设�?,
             "核心模块实现: $task",
             "辅助功能实现",
             "集成测试",
-            "性能优化与文案"
+            "性能优化与文�?
         )
     }
-        private fun buildDebuggingSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildDebuggingSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
-            "问题复现与日志分果 $task",
-            "根因定位与修失 $task",
+            "问题复现与日志分�? $task",
+            "根因定位与修�? $task",
             "回归验证: $task"
         )
         else -> listOf(
             "环境检查与问题复现: $task",
-            "日志与堆栈分果",
+            "日志与堆栈分�?,
             "根因定位: $task",
-            "修复方案设计与实文",
-            "单元测试与回归验试"
+            "修复方案设计与实�?,
+            "单元测试与回归验�?
         )
     }
-        private fun buildTestingSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildTestingSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "测试计划制定: $task",
-            "测试用例编写与执行",
+            "测试用例编写与执�?,
             "测试报告生成: $task"
         )
         else -> listOf(
             "需求分析与测试计划: $task",
             "单元测试编写",
             "集成测试场景设计",
-            "测试执行与缺陷跟踪",
-            "测试报告与质量评会"
+            "测试执行与缺陷跟�?,
+            "测试报告与质量评�?
         )
     }
-        private fun buildWritingSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildWritingSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "内容大纲规划: $task",
             "内容撰写: $task",
-            "编辑与润色"
+            "编辑与润�?
         )
         else -> listOf(
-            "主题调研与大级 $task",
+            "主题调研与大�? $task",
             "初稿撰写: $task",
-            "配图与排版设计",
-            "内容审核与修计",
-            "最终定程"
+            "配图与排版设�?,
+            "内容审核与修�?,
+            "最终定�?
         )
     }
-        private fun buildResearchSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildResearchSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "信息收集: $task",
-            "分析与综后 $task",
-            "结论与建计"
+            "分析与综�? $task",
+            "结论与建�?
         )
         else -> listOf(
             "研究范围确定: $task",
             "文献/信息收集",
-            "数据分析与整理",
+            "数据分析与整�?,
             "洞察提炼",
             "研究报告撰写"
         )
     }
-        private fun buildDataSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildDataSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
-            "数据理解与探查 $task",
-            "数据清洗与转据",
+            "数据理解与探�? $task",
+            "数据清洗与转�?,
             "数据处理实施: $task"
         )
         else -> listOf(
@@ -216,38 +235,41 @@ class SupervisorExecutionMode @Inject constructor(
             "数据清洗规则制定",
             "ETL管道实现",
             "数据质量验证",
-            "结果输出与文案"
+            "结果输出与文�?
         )
     }
-        private fun buildDesignSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildDesignSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "需求分析与设计思路: $task",
             "原型设计: $task",
-            "设计评审与交件"
+            "设计评审与交�?
         )
         else -> listOf(
             "需求梳理与用户研究: $task",
             "信息架构设计",
             "交互流程设计",
             "视觉设计: $task",
-            "设计规范与交件"
+            "设计规范与交�?
         )
     }
-        private fun buildPlanningSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildPlanningSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "现状分析: $task",
             "计划制定: $task",
             "风险评估"
         )
         else -> listOf(
-            "背景与现状调码 $task",
-            "目标与关键结果设定",
+            "背景与现状调�? $task",
+            "目标与关键结果设�?,
             "执行计划制定: $task",
             "资源配置规划",
             "风险预案制定"
         )
     }
-        private fun buildDevopsSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildDevopsSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "环境评估: $task",
             "部署实施: $task",
@@ -256,48 +278,52 @@ class SupervisorExecutionMode @Inject constructor(
         else -> listOf(
             "基础设施评估: $task",
             "CI/CD管道配置",
-            "容器化部署实施",
-            "监控与告警设置",
-            "运维文档与交接"
+            "容器�?部署实施",
+            "监控与告警设�?,
+            "运维文档与交�?
         )
     }
-        private fun buildSecuritySubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildSecuritySubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "安全评估范围界定: $task",
             "安全审计执行: $task",
             "修复建议报告"
         )
         else -> listOf(
-            "资产盘点与范围界定 $task",
+            "资产盘点与范围界�? $task",
             "威胁建模分析",
             "安全测试执行: $task",
             "漏洞评估与优先级排序",
-            "修复方案与安全加固建计"
+            "修复方案与安全加固建�?
         )
     }
-        private fun buildGeneralSubtasks(task: String, count: Int): List<String> = when {
+
+    private fun buildGeneralSubtasks(task: String, count: Int): List<String> = when {
         count <= 3 -> listOf(
             "任务分析: $task",
             "执行实施: $task",
             "结果验证"
         )
         else -> listOf(
-            "任务拆解与分果 $task",
+            "任务拆解与分�? $task",
             "实施方案设计",
             "分步实施: $task",
-            "质量检查",
+            "质量检�?,
             "结果汇总与交付"
         )
     }
-        override suspend fun onMessage(state: SupervisorState, message: AgentMessage) {
+
+    override suspend fun onMessage(state: SupervisorState, message: AgentMessage) {
         when (state.phase) {
             SupervisorPhase.EXECUTION_MONITORING -> {
                 updateAgentStatus(state, message.senderId, AgentStatus.IDLE)
             }
-        else -> {}
+            else -> {}
         }
     }
-        enum class SupervisorPhase {
+
+    enum class SupervisorPhase {
         TASK_ANALYSIS,
         TASK_DECOMPOSITION,
         TASK_ASSIGNMENT,

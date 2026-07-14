@@ -117,11 +117,12 @@ object CostTracker {
     private const val TAG = "CostTracker"
 
     // 默认模型单价表（每千 Token，单位美元）
-        private val DEFAULT_PRICING = DefaultPricing.PRESET_2024
+    private val DEFAULT_PRICING = DefaultPricing.PRESET_2024
 
     // 用户自定义单价表（优先级高于默认值）
-        private val customPricing = ConcurrentHashMap<String, ModelPricing>()
-        private var dao: CostRecordDao? = null
+    private val customPricing = ConcurrentHashMap<String, ModelPricing>()
+
+    private var dao: CostRecordDao? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
@@ -130,8 +131,8 @@ object CostTracker {
     fun initialize(context: Context) {
         try {
             val database = ApexAgentDatabase.getInstance(context)
-        dao = database.costRecordDao()
-        AppLogger.i(TAG, "CostTracker initialized successfully")
+            dao = database.costRecordDao()
+            AppLogger.i(TAG, "CostTracker initialized successfully")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to initialize CostTracker", e)
         }
@@ -155,7 +156,7 @@ object CostTracker {
         customPricing.clear()
         pricingList.forEach { pricing ->
             val key = "${pricing.provider}:${pricing.model}"
-        customPricing[key] = pricing
+            customPricing[key] = pricing
         }
         AppLogger.i(TAG, "Custom pricing updated: ${pricingList.size} models")
     }
@@ -197,7 +198,7 @@ object CostTracker {
     fun calculateCost(model: String, provider: String, inputTokens: Int, outputTokens: Int): Float {
         val pricing = getPricing(model, provider) ?: run {
             AppLogger.w(TAG, "No pricing found for model=${model}, provider=${provider}, cost set to 0")
-        return 0f
+            return 0f
         }
         val inputCost = (inputTokens.toFloat() / 1000f) * pricing.inputPricePerKToken
         val outputCost = (outputTokens.toFloat() / 1000f) * pricing.outputPricePerKToken
@@ -237,8 +238,8 @@ object CostTracker {
                     agentId = record.agentId,
                     skillId = record.skillId
                 )
-        dao?.insert(entity)
-        AppLogger.d(
+                dao?.insert(entity)
+                AppLogger.d(
                     TAG,
                     "Recorded API call: model=${record.model}, cost=${record.cost}, " +
                         "inputTokens=${record.inputTokens}, outputTokens=${record.outputTokens}"
@@ -255,21 +256,28 @@ object CostTracker {
     suspend fun getSummary(period: CostPeriod): CostSummary = withContext(Dispatchers.IO) {
         val dao = dao ?: run {
             AppLogger.w(TAG, "CostTracker not initialized, returning empty summary")
-        return@withContext CostSummary(0f, 0, emptyMap(), emptyMap(), emptyMap(), emptyMap(), period)
+            return@withContext CostSummary(0f, 0, emptyMap(), emptyMap(), emptyMap(), emptyMap(), period)
         }
+
         val (startTime, endTime) = getTimeRange(period)
+
         try {
             val totalCost = dao.getTotalCostByTimeRange(startTime, endTime) ?: 0f
-        val totalCalls = dao.getCallCountByTimeRange(startTime, endTime)
-        val byModel = dao.getCostByModel(startTime, endTime)
+            val totalCalls = dao.getCallCountByTimeRange(startTime, endTime)
+
+            val byModel = dao.getCostByModel(startTime, endTime)
                 .associate { it.model to it.cost }
-        val byTask = dao.getCostByTask(startTime, endTime)
+
+            val byTask = dao.getCostByTask(startTime, endTime)
                 .associate { it.taskId to it.cost }
-        val byAgent = dao.getCostByAgent(startTime, endTime)
+
+            val byAgent = dao.getCostByAgent(startTime, endTime)
                 .associate { it.agentId to it.cost }
-        val bySkill = dao.getCostBySkill(startTime, endTime)
+
+            val bySkill = dao.getCostBySkill(startTime, endTime)
                 .associate { it.skillId to it.cost }
-        CostSummary(
+
+            CostSummary(
                 totalCost = totalCost,
                 totalCalls = totalCalls,
                 byModel = byModel,
@@ -280,7 +288,7 @@ object CostTracker {
             )
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to get cost summary for period=${period}", e)
-        CostSummary(0f, 0, emptyMap(), emptyMap(), emptyMap(), emptyMap(), period)
+            CostSummary(0f, 0, emptyMap(), emptyMap(), emptyMap(), emptyMap(), period)
         }
     }
 
@@ -289,16 +297,17 @@ object CostTracker {
      */
     suspend fun getOptimizationSuggestions(): List<String> = withContext(Dispatchers.IO) {
         val dao = dao ?: return@withContext listOf("CostTracker 未初始化，请先调用 initialize()")
+
         try {
             val suggestions = mutableListOf<String>()
-        val (startTime, endTime) = getTimeRange(CostPeriod.DAILY)
+            val (startTime, endTime) = getTimeRange(CostPeriod.DAILY)
 
             // 1. 分析模型成本分布
-        val modelCosts = dao.getCostByModel(startTime, endTime)
-        if (modelCosts.isNotEmpty()) {
+            val modelCosts = dao.getCostByModel(startTime, endTime)
+            if (modelCosts.isNotEmpty()) {
                 val totalCost = modelCosts.sumOf { it.cost.toDouble() }.toFloat()
-        val mostExpensive = modelCosts.maxByOrNull { it.cost }
-        if (mostExpensive != null && totalCost > 0) {
+                val mostExpensive = modelCosts.maxByOrNull { it.cost }
+                if (mostExpensive != null && totalCost > 0) {
                     val ratio = mostExpensive.cost / totalCost
                     if (ratio > 0.7f) {
                         suggestions.add(
@@ -310,12 +319,12 @@ object CostTracker {
             }
 
             // 2. 分析调用次数
-        val callCounts = dao.getCallCountByModel(startTime, endTime)
-        if (callCounts.isNotEmpty()) {
+            val callCounts = dao.getCallCountByModel(startTime, endTime)
+            if (callCounts.isNotEmpty()) {
                 val highFreqModel = callCounts.maxByOrNull { it.count }
-        if (highFreqModel != null && highFreqModel.count > 100) {
+                if (highFreqModel != null && highFreqModel.count > 100) {
                     val pricing = getPricing(highFreqModel.model, "")
-        if (pricing != null && (pricing.inputPricePerKToken + pricing.outputPricePerKToken) > 0.01f) {
+                    if (pricing != null && (pricing.inputPricePerKToken + pricing.outputPricePerKToken) > 0.01f) {
                         suggestions.add(
                             "模型 ${highFreqModel.model} 今日调用 ${highFreqModel.count} 次，" +
                                 "属于高频调用，建议考虑使用缓存或批处理减少调用次数"
@@ -325,12 +334,12 @@ object CostTracker {
             }
 
             // 3. 分析 Agent 成本
-        val agentCosts = dao.getCostByAgent(startTime, endTime)
-        if (agentCosts.size > 1) {
+            val agentCosts = dao.getCostByAgent(startTime, endTime)
+            if (agentCosts.size > 1) {
                 val sorted = agentCosts.sortedByDescending { it.cost }
-        val topAgent = sorted.first()
-        val totalAgentCost = sorted.sumOf { it.cost.toDouble() }.toFloat()
-        if (totalAgentCost > 0 && topAgent.cost / totalAgentCost > 0.5f) {
+                val topAgent = sorted.first()
+                val totalAgentCost = sorted.sumOf { it.cost.toDouble() }.toFloat()
+                if (totalAgentCost > 0 && topAgent.cost / totalAgentCost > 0.5f) {
                     suggestions.add(
                         "Agent ${topAgent.agentId} 消耗了 ${String.format("%.1f", topAgent.cost / totalAgentCost * 100)}% 的 Agent 成本，" +
                             "建议检查其任务逻辑是否高效"
@@ -339,10 +348,10 @@ object CostTracker {
             }
 
             // 4. 分析 Skill 成本
-        val skillCosts = dao.getCostBySkill(startTime, endTime)
-        if (skillCosts.isNotEmpty()) {
+            val skillCosts = dao.getCostBySkill(startTime, endTime)
+            if (skillCosts.isNotEmpty()) {
                 val topSkill = skillCosts.maxByOrNull { it.cost }
-        if (topSkill != null && topSkill.cost > totalCost(dao, startTime, endTime) * 0.3f) {
+                if (topSkill != null && topSkill.cost > totalCost(dao, startTime, endTime) * 0.3f) {
                     suggestions.add(
                         "Skill ${topSkill.skillId} 成本较高，建议优化其 prompt 长度或调用频率"
                     )
@@ -350,16 +359,18 @@ object CostTracker {
             }
 
             // 5. 通用建议
-        if (modelCosts.any { it.model.contains("gpt-4", ignoreCase = true) }) {
+            if (modelCosts.any { it.model.contains("gpt-4", ignoreCase = true) }) {
                 suggestions.add("检测到使用了 GPT-4 系列模型，对于简单任务建议使用 GPT-4o-mini 或 GPT-3.5-turbo 以降低成本")
             }
-        if (suggestions.isEmpty()) {
+
+            if (suggestions.isEmpty()) {
                 suggestions.add("当前成本分布正常，暂无优化建议")
             }
-        suggestions
+
+            suggestions
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to generate optimization suggestions", e)
-        listOf("生成优化建议时发生错误: ${e.message}")
+            listOf("生成优化建议时发生错误: ${e.message}")
         }
     }
 
@@ -371,7 +382,7 @@ object CostTracker {
             try {
                 val cutoff = System.currentTimeMillis() - olderThanMs
                 dao?.deleteOlderThan(cutoff)
-        AppLogger.i(TAG, "Cleaned up records older than ${olderThanMs} ms")
+                AppLogger.i(TAG, "Cleaned up records older than ${olderThanMs} ms")
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to cleanup old records", e)
             }
@@ -379,7 +390,8 @@ object CostTracker {
     }
 
     // ---- 内部辅助方法 ----
-        private suspend fun totalCost(dao: CostRecordDao, startTime: Long, endTime: Long): Float {
+
+    private suspend fun totalCost(dao: CostRecordDao, startTime: Long, endTime: Long): Float {
         return dao.getTotalCostByTimeRange(startTime, endTime) ?: 0f
     }
 
@@ -389,34 +401,36 @@ object CostTracker {
     private fun getTimeRange(period: CostPeriod): Pair<Long, Long> {
         val now = System.currentTimeMillis()
         val calendar = Calendar.getInstance()
+
         val startTime = when (period) {
             CostPeriod.DAILY -> {
                 calendar.timeInMillis = now
                 calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        calendar.timeInMillis
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
+                calendar.timeInMillis
             }
-        CostPeriod.WEEKLY -> {
+            CostPeriod.WEEKLY -> {
                 calendar.timeInMillis = now
                 calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        calendar.timeInMillis
+                calendar.set(Calendar.HOUR_OF_DAY, 0)
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
+                calendar.timeInMillis
             }
-        CostPeriod.MONTHLY -> {
+            CostPeriod.MONTHLY -> {
                 calendar.timeInMillis = now
                 calendar.set(Calendar.DAY_OF_MONTH, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        calendar.timeInMillis
+                calendar.set(Calendar.HOUR_OF_DAY, 0)
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
+                calendar.timeInMillis
             }
         }
+
         return startTime to now
     }
 }

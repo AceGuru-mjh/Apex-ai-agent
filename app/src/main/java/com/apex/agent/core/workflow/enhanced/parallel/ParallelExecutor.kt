@@ -15,10 +15,10 @@ import java.util.concurrent.ConcurrentHashMap
  */
 sealed class ParallelExecutionEvent {
     data class BranchStarted(val branchIndex: Int, val totalBranches: Int, val input: Any?) : ParallelExecutionEvent()
-        data class BranchCompleted(val branchIndex: Int, val output: Any?) : ParallelExecutionEvent()
-        data class BranchFailed(val branchIndex: Int, val error: Throwable) : ParallelExecutionEvent()
-        data class AllCompleted(val outputs: Map<Int, Any?>, val failures: Map<Int, Throwable>) : ParallelExecutionEvent()
-        data class BarrierReached(val nodeId: String, val arrivedCount: Int, val expectedCount: Int) : ParallelExecutionEvent()
+    data class BranchCompleted(val branchIndex: Int, val output: Any?) : ParallelExecutionEvent()
+    data class BranchFailed(val branchIndex: Int, val error: Throwable) : ParallelExecutionEvent()
+    data class AllCompleted(val outputs: Map<Int, Any?>, val failures: Map<Int, Throwable>) : ParallelExecutionEvent()
+    data class BarrierReached(val nodeId: String, val arrivedCount: Int, val expectedCount: Int) : ParallelExecutionEvent()
 }
 
 /**
@@ -54,11 +54,11 @@ object Aggregators {
     val MergeByKey: Aggregator = object : Aggregator {
         override fun merge(branchOutputs: Map<Int, Any?>): Any {
             val result = mutableMapOf<String, Any?>()
-        branchOutputs.values.forEach { v ->
+            branchOutputs.values.forEach { v ->
                 if (v is Map<*, *>) @Suppress("UNCHECKED_CAST")
-        result.putAll(v as Map<String, Any?>)
+                    result.putAll(v as Map<String, Any?>)
             }
-        return result
+            return result
         }
     }
 
@@ -77,7 +77,7 @@ object Aggregators {
 class ParallelExecutor {
 
     private val _events = MutableSharedFlow<ParallelExecutionEvent>(extraBufferCapacity = 64)
-        val events: SharedFlow<ParallelExecutionEvent> = _events.asSharedFlow()
+    val events: SharedFlow<ParallelExecutionEvent> = _events.asSharedFlow()
 
     /**
      * Fan-out：将 items 列表分裂成 N 个并行执行
@@ -97,24 +97,26 @@ class ParallelExecutor {
         val semaphore = Semaphore(maxConcurrency.coerceAtLeast(1))
         val results = ConcurrentHashMap<Int, R>()
         val failures = ConcurrentHashMap<Int, Throwable>()
+
         val deferred = items.mapIndexed { idx, item ->
             async {
                 semaphore.withPermit {
                     _events.emit(ParallelExecutionEvent.BranchStarted(idx, items.size, item))
-        try {
+                    try {
                         val r = block(idx, item)
-        results[idx] = r
+                        results[idx] = r
                         _events.emit(ParallelExecutionEvent.BranchCompleted(idx, r))
-        r
+                        r
                     } catch (e: Throwable) {
                         failures[idx] = e
                         _events.emit(ParallelExecutionEvent.BranchFailed(idx, e))
-        if (failFast) throw e
+                        if (failFast) throw e
                         null
                     }
                 }
             }
         }
+
         if (failFast) {
             try {
                 deferred.awaitAll()
@@ -124,6 +126,7 @@ class ParallelExecutor {
         } else {
             deferred.awaitAll()
         }
+
         val finalResult = FanOutResult(results.toSortedMap(), failures.toSortedMap())
         _events.emit(
             ParallelExecutionEvent.AllCompleted(
@@ -162,13 +165,16 @@ class ParallelExecutor {
         @Suppress("UNCHECKED_CAST")
         return aggregator.merge(result.outputs as Map<Int, Any?>)
     }
-        fun resetBarrier(barrierId: String) {
+
+    fun resetBarrier(barrierId: String) {
         barriers.remove(barrierId)
     }
-        fun clearAllBarriers() {
+
+    fun clearAllBarriers() {
         barriers.clear()
     }
-        private val barriers = ConcurrentHashMap<String, BarrierState>()
+
+    private val barriers = ConcurrentHashMap<String, BarrierState>()
 }
 
 /**
@@ -179,7 +185,7 @@ data class FanOutResult<R>(
     val failures: Map<Int, Throwable>
 ) {
     val isFullSuccess: Boolean get() = failures.isEmpty()
-        val successCount: Int get() = outputs.size
+    val successCount: Int get() = outputs.size
     val failureCount: Int get() = failures.size
 }
 
@@ -188,27 +194,29 @@ data class FanOutResult<R>(
  */
 sealed class BarrierResult {
     data object Reached : BarrierResult()
-        data class TimedOut(val arrivedCount: Int, val expectedCount: Int) : BarrierResult()
-        data class Cancelled(val reason: String) : BarrierResult()
+    data class TimedOut(val arrivedCount: Int, val expectedCount: Int) : BarrierResult()
+    data class Cancelled(val reason: String) : BarrierResult()
 }
 
 private class BarrierState(private val expectedCount: Int) {
     private val arrivedCount = java.util.concurrent.atomic.AtomicInteger(0)
-        private val latch = java.util.concurrent.CountDownLatch(expectedCount)
-        private val allArrived = java.util.concurrent.atomic.AtomicBoolean(false)
-        fun incrementArrived(): Int {
+    private val latch = java.util.concurrent.CountDownLatch(expectedCount)
+    private val allArrived = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    fun incrementArrived(): Int {
         val n = arrivedCount.incrementAndGet()
         if (n >= expectedCount) allArrived.set(true)
         latch.countDown()
         return n
     }
-        suspend fun awaitAll(timeoutMs: Long): BarrierResult {
+
+    suspend fun awaitAll(timeoutMs: Long): BarrierResult {
         return if (timeoutMs <= 0) {
             latch.await()
-        BarrierResult.Reached
+            BarrierResult.Reached
         } else {
             val reached = latch.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
-        if (reached) BarrierResult.Reached
+            if (reached) BarrierResult.Reached
             else BarrierResult.TimedOut(arrivedCount.get(), expectedCount)
         }
     }

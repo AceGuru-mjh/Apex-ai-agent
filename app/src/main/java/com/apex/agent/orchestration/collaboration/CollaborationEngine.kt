@@ -37,49 +37,61 @@ class CollaborationEngine @Inject constructor(
             status = TaskState.PENDING.name,
             updatedAt = System.currentTimeMillis()
         )
+
         return when (val result = taskRepository.save(newTask)) {
             is Result.Success -> {
                 eventBus.publish(CollaborationEvent.TaskCreated(taskId))
-        Result.Success(taskId)
+                Result.Success(taskId)
             }
-        is Result.Failure -> result
+            is Result.Failure -> result
         }
     }
-        suspend fun startTask(taskId: String): Result<Unit> {
+
+    suspend fun startTask(taskId: String): Result<Unit> {
         val taskResult = taskRepository.getById(taskId)
         val task = when (taskResult) {
             is Result.Success -> taskResult.data
             is Result.Failure -> return Result.Failure(taskResult.error)
         }
+
         val executor = resolveExecutor(task.collaborationMode)
             ?: return Result.Failure(IllegalArgumentException("Unknown collaboration mode: ${task.collaborationMode}"))
+
         return lifecycleManager.start(taskId, executor)
     }
-        suspend fun pauseTask(taskId: String): Result<Unit> {
+
+    suspend fun pauseTask(taskId: String): Result<Unit> {
         return lifecycleManager.pause(taskId)
     }
-        suspend fun resumeTask(taskId: String): Result<Unit> {
+
+    suspend fun resumeTask(taskId: String): Result<Unit> {
         return lifecycleManager.resume(taskId)
     }
-        suspend fun stopTask(taskId: String): Result<Unit> {
+
+    suspend fun stopTask(taskId: String): Result<Unit> {
         return lifecycleManager.cancel(taskId)
     }
-        suspend fun getTask(taskId: String): Result<Task> {
+
+    suspend fun getTask(taskId: String): Result<Task> {
         return taskRepository.getById(taskId)
     }
-        suspend fun getAllTasks(): Result<List<Task>> {
+
+    suspend fun getAllTasks(): Result<List<Task>> {
         return taskRepository.list()
     }
-        suspend fun submitMessage(taskId: String, message: AgentMessage): Result<Unit> {
+
+    suspend fun submitMessage(taskId: String, message: AgentMessage): Result<Unit> {
         eventBus.publish(CollaborationEvent.MessageSubmitted(taskId, message))
         val executor = resolveExecutorForTask(taskId)
         executor?.onMessageReceived(taskId, message)
         return Result.Success(Unit)
     }
-        fun observeEvents(): Flow<CollaborationEvent> {
+
+    fun observeEvents(): Flow<CollaborationEvent> {
         return eventBus.subscribe(CollaborationEvent::class.java).filterIsInstance<CollaborationEvent>()
     }
-        private fun resolveExecutor(mode: String): TaskExecutor? {
+
+    private fun resolveExecutor(mode: String): TaskExecutor? {
         return when (mode.lowercase()) {
             "supervisor", "supervisor_execution" -> supervisorExecutor
             "serial", "serial_pipeline" -> serialExecutor
@@ -89,12 +101,14 @@ class CollaborationEngine @Inject constructor(
             else -> null
         }
     }
-        private suspend fun resolveExecutorForTask(taskId: String): TaskExecutor? {
+
+    private suspend fun resolveExecutorForTask(taskId: String): TaskExecutor? {
         val taskResult = taskRepository.getById(taskId)
         val task = taskResult as? Result.Success<Task> ?: return null
         return resolveExecutor(task.data.collaborationMode)
     }
-        suspend fun autoAllocateAgents(taskDescription: String, excludedAgentIds: List<String> = emptyList()): Result<com.apex.agent.orchestration.core.AllocationModels.AllocationResult> {
+
+    suspend fun autoAllocateAgents(taskDescription: String, excludedAgentIds: List<String> = emptyList()): Result<com.apex.agent.orchestration.core.AllocationModels.AllocationResult> {
         val complexity = complexityQuantifier.quantifyTask(taskDescription)
         return taskAllocator.allocate(
             AllocationRequest(
@@ -105,7 +119,8 @@ class CollaborationEngine @Inject constructor(
             )
         )
     }
-        suspend fun createTaskWithAllocation(task: Task, description: String): Result<String> {
+
+    suspend fun createTaskWithAllocation(task: Task, description: String): Result<String> {
         val taskResult = createTask(task)
         if (taskResult is Result.Failure) return taskResult
         val taskId = when (taskResult) {
@@ -127,7 +142,8 @@ class CollaborationEngine @Inject constructor(
         }
         return taskResult
     }
-        private fun generateUniqueId(): String {
+
+    private fun generateUniqueId(): String {
         return "task_" + System.currentTimeMillis() + "_" + (Math.random() * 1000).toInt()
     }
 }

@@ -85,7 +85,7 @@ object IntentUtils {
     fun sendSms(context: Context, phoneNumber: String, message: String? = null) {
         val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$phoneNumber")).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (message != null) {
+            if (message != null) {
                 putExtra("sms_body", message)
             }
         }
@@ -105,8 +105,8 @@ object IntentUtils {
     fun sendEmail(context: Context, to: String, subject: String? = null, body: String? = null) {
         val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$to")).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (subject != null) putExtra(Intent.EXTRA_SUBJECT, subject)
-        if (body != null) putExtra(Intent.EXTRA_TEXT, body)
+            if (subject != null) putExtra(Intent.EXTRA_SUBJECT, subject)
+            if (body != null) putExtra(Intent.EXTRA_TEXT, body)
         }
         if (isIntentAvailable(context, intent)) {
             context.startActivity(intent)
@@ -123,7 +123,7 @@ object IntentUtils {
     fun openAppSettings(context: Context) {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.parse("package:${context.packageName}")
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
     }
@@ -181,7 +181,7 @@ object IntentUtils {
     fun openAppInMarket(context: Context, packageName: String? = null) {
         val pkg = packageName ?: context.packageName
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$pkg")).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         if (isIntentAvailable(context, intent)) {
             context.startActivity(intent)
@@ -202,7 +202,7 @@ object IntentUtils {
     fun shareText(context: Context, text: String, title: String? = null) {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-        putExtra(Intent.EXTRA_TEXT, text)
+            putExtra(Intent.EXTRA_TEXT, text)
         }
         context.startActivity(createChooser(intent, title ?: "分享"))
     }
@@ -221,7 +221,7 @@ object IntentUtils {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = mimeType
             putExtra(Intent.EXTRA_STREAM, uri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(createChooser(intent, "分享文件"))
     }
@@ -238,9 +238,9 @@ object IntentUtils {
     fun openCamera(context: Context, uri: Uri? = null) {
         val intent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (uri != null) {
+            if (uri != null) {
                 putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri)
-        addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             }
         }
         if (isIntentAvailable(context, intent)) {

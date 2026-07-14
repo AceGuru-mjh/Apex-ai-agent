@@ -29,7 +29,6 @@ import com.itextpdf.text.FontFactory
 import com.itextpdf.text.Paragraph
 import com.itextpdf.text.pdf.PdfWriter
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.Dispatchers
 import java.io.IOException
 
 /** Utility class for document conversion operations */
@@ -40,28 +39,30 @@ object DocumentConversionUtil {
     fun convertTextToPdf(context: Context, sourceFile: File, targetFile: File): Boolean {
         return try {
             val document = PDDocument()
-        val page = PDPage()
-        document.addPage(page)
-        PDPageContentStream(document, page).use { contentStream ->
+            val page = PDPage()
+            document.addPage(page)
+
+            PDPageContentStream(document, page).use { contentStream ->
                 BufferedReader(FileReader(sourceFile)).use { reader ->
                     contentStream.beginText()
-        contentStream.setFont(PDType1Font.HELVETICA, 12f)
-        contentStream.setLeading(14.5f)
-        contentStream.newLineAtOffset(25f, 725f)
-        var line: String?
+                    contentStream.setFont(PDType1Font.HELVETICA, 12f)
+                    contentStream.setLeading(14.5f)
+                    contentStream.newLineAtOffset(25f, 725f)
+
+                    var line: String?
                     while (reader.readLine().also { line = it } != null) {
                         contentStream.showText(line)
-        contentStream.newLine()
+                        contentStream.newLine()
                     }
-        contentStream.endText()
+                    contentStream.endText()
                 }
             }
-        document.save(targetFile)
-        document.close()
-        true
+            document.save(targetFile)
+            document.close()
+            true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to convert text to PDF", e)
-        false
+            false
         }
     }
 
@@ -76,7 +77,7 @@ object DocumentConversionUtil {
     fun extractTextFromPdf(context: Context, sourceFile: File, targetFile: File): Boolean {
         try {
             // Step 1: Attempt direct text extraction with PDFBox
-        val extractedText = PDDocument.load(sourceFile).use { document ->
+            val extractedText = PDDocument.load(sourceFile).use { document ->
                 if (document.isEncrypted) {
                     try {
                         document.setAllSecurityToBeRemoved(true)
@@ -84,27 +85,27 @@ object DocumentConversionUtil {
                         AppLogger.e(TAG, "Failed to decrypt PDF, text extraction may fail.", e)
                     }
                 }
-        PDFTextStripper().getText(document)
+                PDFTextStripper().getText(document)
             }
 
             // Step 2: Check if the extracted text is meaningful. If not, trigger OCR.
-        if (extractedText.trim().length > 20) { // Threshold for meaningful text
+            if (extractedText.trim().length > 20) { // Threshold for meaningful text
                 // Success with direct extraction
-        FileOutputStream(targetFile).bufferedWriter().use { it.write(extractedText) }
-        return true
+                FileOutputStream(targetFile).bufferedWriter().use { it.write(extractedText) }
+                return true
             } else {
                 // Fallback to OCR
-        AppLogger.d(TAG, "Direct text extraction yielded little or no text. Falling back to OCR.")
-        return runBlocking(Dispatchers.IO) {
+                AppLogger.d(TAG, "Direct text extraction yielded little or no text. Falling back to OCR.")
+                return runBlocking {
                     convertPdfToTextWithOcr(context, sourceFile, targetFile)
                 }
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error during PDF text extraction process", e)
             // If even the initial loading fails, try OCR as a last resort
-        return runBlocking(Dispatchers.IO) {
+            return runBlocking {
                 AppLogger.d(TAG, "Initial PDF load failed. Attempting OCR as last resort.")
-        convertPdfToTextWithOcr(context, sourceFile, targetFile)
+                convertPdfToTextWithOcr(context, sourceFile, targetFile)
             }
         }
     }
@@ -119,41 +120,43 @@ object DocumentConversionUtil {
 
         try {
             fileDescriptor = ParcelFileDescriptor.open(sourceFile, ParcelFileDescriptor.MODE_READ_ONLY)
-        pdfRenderer = PdfRenderer(fileDescriptor)
-        val pageCount = pdfRenderer.pageCount
+            pdfRenderer = PdfRenderer(fileDescriptor)
+            
+            val pageCount = pdfRenderer.pageCount
             if (pageCount == 0) {
                 AppLogger.w(TAG, "PDF has no pages, OCR cannot proceed.")
-        return false
+                return false
             }
-        for (i in 0 until pageCount) {
+
+            for (i in 0 until pageCount) {
                 val page = pdfRenderer.openPage(i)
                 
                 // Render page to bitmap
-        val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
-        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 
                 // Recognize text from bitmap using OCRUtils in high quality
-        val recognizedText =
+                val recognizedText =
                         OCRUtils.recognizeText(context, bitmap, OCRUtils.Quality.HIGH)
-        fullText.append(recognizedText).append("\n\n")
+                fullText.append(recognizedText).append("\n\n")
 
                 // Clean up resources for the current page
-        page.close()
-        bitmap.recycle()
+                page.close()
+                bitmap.recycle()
             }
 
             // Write the aggregated text to the target file
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+            FileOutputStream(targetFile).bufferedWriter().use { writer ->
                 writer.write(fullText.toString())
             }
-        return true
+            return true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error during OCR PDF conversion", e)
-        return false
+            return false
         } finally {
             try {
                 pdfRenderer?.close()
-        fileDescriptor?.close()
+                fileDescriptor?.close()
             } catch (e: IOException) {
                 AppLogger.e(TAG, "Error closing PDF resources in OCR fallback", e)
             }
@@ -164,16 +167,16 @@ object DocumentConversionUtil {
     fun convertPdfToImage(sourceFile: File, targetFile: File, targetExt: String): Boolean {
         try {
             // Use Android's PdfRenderer to render PDF to Bitmap
-        val fileDescriptor =
+            val fileDescriptor =
                     ParcelFileDescriptor.open(sourceFile, ParcelFileDescriptor.MODE_READ_ONLY)
-        val pdfRenderer = PdfRenderer(fileDescriptor)
+            val pdfRenderer = PdfRenderer(fileDescriptor)
 
             // Get the first page of the PDF
-        val page = pdfRenderer.openPage(0)
+            val page = pdfRenderer.openPage(0)
 
             // Create a bitmap with the appropriate dimensions
-        val scale = 2 // Scale for higher quality
-        val bitmap =
+            val scale = 2 // Scale for higher quality
+            val bitmap =
                     Bitmap.createBitmap(
                             page.width * scale,
                             page.height * scale,
@@ -181,11 +184,11 @@ object DocumentConversionUtil {
                     )
 
             // Render the page to the bitmap
-        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-        page.close()
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            page.close()
 
             // Save the bitmap to the target file in the requested format
-        val format =
+            val format =
                     when (targetExt.lowercase()) {
                         "jpg", "jpeg" -> Bitmap.CompressFormat.JPEG
                         "png" -> Bitmap.CompressFormat.PNG
@@ -194,7 +197,7 @@ object DocumentConversionUtil {
                     }
 
             // Determine quality based on format
-        val quality =
+            val quality =
                     when (format) {
                         Bitmap.CompressFormat.JPEG -> 95
                         Bitmap.CompressFormat.WEBP -> 95
@@ -202,18 +205,19 @@ object DocumentConversionUtil {
                     }
 
             // Write the bitmap to the target file (no PDFToImage reference here)
-        FileOutputStream(targetFile).use { outputStream ->
+            FileOutputStream(targetFile).use { outputStream ->
                 bitmap.compress(format, quality, outputStream)
             }
 
             // Clean up
-        bitmap.recycle()
-        pdfRenderer.close()
-        fileDescriptor.close()
-        return true
+            bitmap.recycle()
+            pdfRenderer.close()
+            fileDescriptor.close()
+
+            return true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error converting PDF to image", e)
-        return false
+            return false
         }
     }
 
@@ -228,47 +232,48 @@ object DocumentConversionUtil {
         try {
             when {
                 // Convert DOC to DOCX
-        sourceExt == "doc" && targetExt == "docx" -> {
+                sourceExt == "doc" && targetExt == "docx" -> {
                     AppLogger.d(TAG, "Converting DOC to DOCX")
-        FileInputStream(sourceFile).use { fis ->
+                    FileInputStream(sourceFile).use { fis ->
                         // Load the DOC file
-        val doc = HWPFDocument(fis)
+                        val doc = HWPFDocument(fis)
 
                         // Create a new DOCX document
-        val docx = XWPFDocument()
+                        val docx = XWPFDocument()
 
                         // Get document's paragraphs
-        val range = doc.range
-        val paragraphCount = range.numParagraphs()
+                        val range = doc.range
+                        val paragraphCount = range.numParagraphs()
 
                         // Add title based on filename
-        val title = docx.createParagraph()
-        title.alignment = org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER
+                        val title = docx.createParagraph()
+                        title.alignment = org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER
                         val titleRun = title.createRun()
-        titleRun.setText(sourceFile.nameWithoutExtension)
-        titleRun.isBold = true
+                        titleRun.setText(sourceFile.nameWithoutExtension)
+                        titleRun.isBold = true
                         titleRun.fontSize = 16
                         titleRun.fontFamily = "Calibri"
 
                         // Add a blank line
-        docx.createParagraph()
+                        docx.createParagraph()
 
                         // Transfer paragraphs with basic formatting
-        for (i in 0 until paragraphCount) {
+                        for (i in 0 until paragraphCount) {
                             val paragraph = range.getParagraph(i)
-        val text = paragraph.text()
-        if (text.trim().isNotEmpty()) {
+                            val text = paragraph.text()
+
+                            if (text.trim().isNotEmpty()) {
                                 val para = docx.createParagraph()
-        val run = para.createRun()
-        run.setText(text)
+                                val run = para.createRun()
+                                run.setText(text)
 
                                 // Set some basic formatting based on what we can detect
-        if (text.trim().length < 100 && text.trim().endsWith(":")) {
+                                if (text.trim().length < 100 && text.trim().endsWith(":")) {
                                     run.isBold = true
                                 }
 
                                 // Detect heading based on length and terminal punctuation
-        if (text.trim().length < 60 && !text.contains(".")) {
+                                if (text.trim().length < 60 && !text.contains(".")) {
                                     run.isBold = true
                                     run.fontSize = 14
                                 }
@@ -276,46 +281,49 @@ object DocumentConversionUtil {
                         }
 
                         // Save the DOCX document
-        FileOutputStream(targetFile).use { fos -> docx.write(fos) }
+                        FileOutputStream(targetFile).use { fos -> docx.write(fos) }
                     }
-        return true
+                    return true
                 }
 
                 // Convert DOCX to DOC (RTF-based conversion)
-        sourceExt == "docx" && targetExt == "doc" -> {
+                sourceExt == "docx" && targetExt == "doc" -> {
                     AppLogger.d(TAG, "Converting DOCX to DOC (RTF conversion)")
-        FileInputStream(sourceFile).use { fis ->
+                    FileInputStream(sourceFile).use { fis ->
                         val docx = XWPFDocument(fis)
-        val rtfBody = StringBuilder()
-        rtfBody.append("{\\rtf1\\ansi\\deff0")
-        rtfBody.append("{\\fonttbl{\\f0\\fnil\\fcharset0 Calibri;}}")
-        rtfBody.append("\\viewkind4\\uc1\\pard\\sa100\\sl276\\slmult1\\f0\\fs22")
-        rtfBody.append("\\b\\fs28\\qc ").append(escapeRtf(sourceFile.nameWithoutExtension)).append("\\b0\\par\\par")
-        for (para in docx.paragraphs) {
+
+                        val rtfBody = StringBuilder()
+                        rtfBody.append("{\\rtf1\\ansi\\deff0")
+                        rtfBody.append("{\\fonttbl{\\f0\\fnil\\fcharset0 Calibri;}}")
+                        rtfBody.append("\\viewkind4\\uc1\\pard\\sa100\\sl276\\slmult1\\f0\\fs22")
+                        rtfBody.append("\\b\\fs28\\qc ").append(escapeRtf(sourceFile.nameWithoutExtension)).append("\\b0\\par\\par")
+
+                        for (para in docx.paragraphs) {
                             val text = para.text
                             if (text.trim().isNotEmpty()) {
                                 val isBold = para.runs.any { it.isBold }
-        val fontSize = para.runs.firstOrNull()?.fontSize?.toInt() ?: 22
+                                val fontSize = para.runs.firstOrNull()?.fontSize?.toInt() ?: 22
                                 rtfBody.append("\\pard\\sa60\\sl276\\slmult1")
-        if (isBold) rtfBody.append("\\b")
-        rtfBody.append("\\fs$fontSize ")
-        rtfBody.append(escapeRtf(text))
-        if (isBold) rtfBody.append("\\b0")
-        rtfBody.append("\\par")
+                                if (isBold) rtfBody.append("\\b")
+                                rtfBody.append("\\fs$fontSize ")
+                                rtfBody.append(escapeRtf(text))
+                                if (isBold) rtfBody.append("\\b0")
+                                rtfBody.append("\\par")
                             }
                         }
-        rtfBody.append("}")
-        FileOutputStream(targetFile).bufferedWriter(Charsets.UTF_8).use { writer ->
+
+                        rtfBody.append("}")
+                        FileOutputStream(targetFile).bufferedWriter(Charsets.UTF_8).use { writer ->
                             writer.write(rtfBody.toString())
                         }
-        return true
+                        return true
                     }
                 }
-        else -> return false
+                else -> return false
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error converting between DOC formats", e)
-        return false
+            return false
         }
     }
 
@@ -330,83 +338,86 @@ object DocumentConversionUtil {
             val content = FileInputStream(sourceFile).bufferedReader().use { it.readText() }
 
             // Basic HTML tag removal
-        val textContent =
+            val textContent =
                     content.replace(Regex("<[^>]*>"), "") // Remove HTML tags
                             .replace(Regex("&[a-zA-Z]+;"), " ") // Replace HTML entities with space
                             .replace(Regex("\\s+"), " ") // Normalize whitespace
                             .trim()
-        when (targetExt) {
+
+            when (targetExt) {
                 "txt" -> {
                     FileOutputStream(targetFile).bufferedWriter().use { writer ->
                         writer.write(textContent)
                     }
-        return true
+                    return true
                 }
                 "doc" -> {
                     // For HTML to DOC, we create a text file first (which is easier to convert)
-        val tempFile = File(context.cacheDir, "temp_${System.currentTimeMillis()}.txt")
-        FileOutputStream(tempFile).use { it.write(textContent.toByteArray()) }
+                    val tempFile = File(context.cacheDir, "temp_${System.currentTimeMillis()}.txt")
+                    FileOutputStream(tempFile).use { it.write(textContent.toByteArray()) }
 
                     // Instead of using FFmpeg, just rename the text file to .doc
                     // This won't preserve formatting but is more reliable than the FFmpeg approach
-        try {
+                    try {
                         tempFile.copyTo(targetFile, overwrite = true)
-        tempFile.delete()
-        return true
+                        tempFile.delete()
+                        return true
                     } catch (e: Exception) {
                         AppLogger.e(TAG, "Error during HTML to DOC conversion", e)
-        tempFile.delete()
-        return false
+                        tempFile.delete()
+                        return false
                     }
                 }
                 "docx" -> {
                     // Convert HTML to DOCX using Apache POI
-        val docx = XWPFDocument()
+                    val docx = XWPFDocument()
 
                     // Split by paragraphs (may need improvement for complex HTML)
-        val paragraphs = textContent.split(Regex("\n\n|\r\n\r\n"))
-        for (paragraph in paragraphs) {
+                    val paragraphs = textContent.split(Regex("\n\n|\r\n\r\n"))
+
+                    for (paragraph in paragraphs) {
                         if (paragraph.isNotBlank()) {
                             val para = docx.createParagraph()
-        val run = para.createRun()
-        run.setText(paragraph)
+                            val run = para.createRun()
+                            run.setText(paragraph)
                         }
                     }
 
                     // Save the document
-        FileOutputStream(targetFile).use { fos -> docx.write(fos) }
-        return true
+                    FileOutputStream(targetFile).use { fos -> docx.write(fos) }
+                    return true
                 }
                 "pdf" -> {
                     // Convert HTML to PDF using iText
-        val document = Document()
-        PdfWriter.getInstance(document, FileOutputStream(targetFile))
-        document.open()
+                    val document = Document()
+                    PdfWriter.getInstance(document, FileOutputStream(targetFile))
+                    document.open()
 
                     // Add title based on the filename
-        val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f)
-        document.add(Paragraph(sourceFile.nameWithoutExtension, titleFont))
-        document.add(Paragraph(" ")) // Empty line
+                    val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f)
+                    document.add(Paragraph(sourceFile.nameWithoutExtension, titleFont))
+                    document.add(Paragraph(" ")) // Empty line
 
                     // Parse the content for paragraphs and add them to the PDF
-        val contentFont = FontFactory.getFont(FontFactory.HELVETICA, 12f)
-        val contentParagraphs = textContent.split("\n\n")
-        contentParagraphs.forEach { para ->
+                    val contentFont = FontFactory.getFont(FontFactory.HELVETICA, 12f)
+                    val contentParagraphs = textContent.split("\n\n")
+                    contentParagraphs.forEach { para ->
                         if (para.trim().isNotEmpty()) {
                             document.add(Paragraph(para, contentFont))
                         }
                     }
-        document.close()
-        return true
+
+                    document.close()
+                    return true
                 }
-        else -> {
+                else -> {
                     AppLogger.w(TAG, "Conversion from HTML to " + targetExt + " not implemented")
-        return false
+                    return false
                 }
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error converting from HTML", e)
-        return false
+            return false
         }
     }
 
@@ -421,7 +432,7 @@ object DocumentConversionUtil {
             when (sourceExt) {
                 "txt" -> {
                     val content = FileInputStream(sourceFile).bufferedReader().use { it.readText() }
-        val htmlContent =
+                    val htmlContent =
                             StringBuilder()
                                     .append(
                                             "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>"
@@ -435,7 +446,7 @@ object DocumentConversionUtil {
                                     .append("</style></head><body>\n")
 
                     // Convert line breaks to <p> tags
-        content.split("\n").forEach { line ->
+                    content.split("\n").forEach { line ->
                         if (line.isNotBlank()) {
                             htmlContent
                                     .append("<p>")
@@ -445,21 +456,23 @@ object DocumentConversionUtil {
                             htmlContent.append("<br>\n")
                         }
                     }
-        htmlContent.append("</body></html>")
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+
+                    htmlContent.append("</body></html>")
+
+                    FileOutputStream(targetFile).bufferedWriter().use { writer ->
                         writer.write(htmlContent.toString())
                     }
-        return true
+                    return true
                 }
                 "doc" -> {
                     // Convert DOC to HTML using Apache POI
-        FileInputStream(sourceFile).use { fis ->
+                    FileInputStream(sourceFile).use { fis ->
                         val doc = HWPFDocument(fis)
-        val extractor = WordExtractor(doc)
-        val text = extractor.text
+                        val extractor = WordExtractor(doc)
+                        val text = extractor.text
 
                         // Create HTML structure
-        val htmlContent =
+                        val htmlContent =
                                 StringBuilder()
                                         .append(
                                                 "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>"
@@ -472,7 +485,7 @@ object DocumentConversionUtil {
                                         .append("</style></head><body>\n")
 
                         // Convert paragraphs to HTML
-        text.split("\n").forEach { para ->
+                        text.split("\n").forEach { para ->
                             if (para.isNotBlank()) {
                                 htmlContent
                                         .append("<p>")
@@ -480,22 +493,24 @@ object DocumentConversionUtil {
                                         .append("</p>\n")
                             }
                         }
-        htmlContent.append("</body></html>")
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+
+                        htmlContent.append("</body></html>")
+
+                        FileOutputStream(targetFile).bufferedWriter().use { writer ->
                             writer.write(htmlContent.toString())
                         }
                     }
-        return true
+                    return true
                 }
                 "docx" -> {
                     // Convert DOCX to HTML using Apache POI
-        FileInputStream(sourceFile).use { fis ->
+                    FileInputStream(sourceFile).use { fis ->
                         val docx = XWPFDocument(fis)
-        val extractor = XWPFWordExtractor(docx)
-        val text = extractor.text
+                        val extractor = XWPFWordExtractor(docx)
+                        val text = extractor.text
 
                         // Create HTML structure
-        val htmlContent =
+                        val htmlContent =
                                 StringBuilder()
                                         .append(
                                                 "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>"
@@ -508,44 +523,48 @@ object DocumentConversionUtil {
                                         .append("</style></head><body>\n")
 
                         // Add document content with formatting
-        docx.paragraphs.forEach { para ->
+                        docx.paragraphs.forEach { para ->
                             if (para.text.isNotBlank()) {
                                 htmlContent.append("<p>")
 
                                 // Check for basic formatting
-        var currentText =
+                                var currentText =
                                         para.text.replace("<", "&lt;").replace(">", "&gt;")
 
                                 // Check for any runs with formatting
-        val hasBold = para.runs.any { it.isBold }
-        val hasItalic = para.runs.any { it.isItalic }
-        if (hasBold) {
+                                val hasBold = para.runs.any { it.isBold }
+                                val hasItalic = para.runs.any { it.isItalic }
+
+                                if (hasBold) {
                                     currentText = "<strong>${currentText}</strong>"
                                 }
-        if (hasItalic) {
+                                if (hasItalic) {
                                     currentText = "<em>${currentText}</em>"
                                 }
-        htmlContent.append(currentText)
-        htmlContent.append("</p>\n")
+
+                                htmlContent.append(currentText)
+                                htmlContent.append("</p>\n")
                             }
                         }
-        htmlContent.append("</body></html>")
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+
+                        htmlContent.append("</body></html>")
+
+                        FileOutputStream(targetFile).bufferedWriter().use { writer ->
                             writer.write(htmlContent.toString())
                         }
                     }
-        return true
+                    return true
                 }
                 "pdf" -> {
                     // For PDF to HTML, extract text and create simple HTML
                     // Create a temporary text file
-        val tempTextFile =
+                    val tempTextFile =
                             File(context.cacheDir, "temp_${System.currentTimeMillis()}.txt")
-        if (extractTextFromPdf(context, sourceFile, tempTextFile)) {
+                    if (extractTextFromPdf(context, sourceFile, tempTextFile)) {
                         // Now convert the text to HTML
-        val content =
+                        val content =
                                 FileInputStream(tempTextFile).bufferedReader().use { it.readText() }
-        val htmlContent =
+                        val htmlContent =
                                 StringBuilder()
                                         .append(
                                                 "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>"
@@ -561,7 +580,7 @@ object DocumentConversionUtil {
                                         .append("</h1>")
 
                         // Convert paragraphs to HTML
-        content.split("\n\n").forEach { para ->
+                        content.split("\n\n").forEach { para ->
                             if (para.isNotBlank()) {
                                 htmlContent
                                         .append("<p>")
@@ -569,25 +588,27 @@ object DocumentConversionUtil {
                                         .append("</p>\n")
                             }
                         }
-        htmlContent.append("</body></html>")
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+
+                        htmlContent.append("</body></html>")
+
+                        FileOutputStream(targetFile).bufferedWriter().use { writer ->
                             writer.write(htmlContent.toString())
                         }
 
                         // Delete temporary file
-        tempTextFile.delete()
-        return true
+                        tempTextFile.delete()
+                        return true
                     }
-        return false
+                    return false
                 }
-        else -> {
+                else -> {
                     AppLogger.w(TAG, "HTML conversion not implemented for " + sourceExt)
-        return false
+                    return false
                 }
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error converting to HTML", e)
-        return false
+            return false
         }
     }
 
@@ -597,8 +618,8 @@ object DocumentConversionUtil {
             FileInputStream(sourceFile).use { fis ->
                 WorkbookFactory.create(fis).use { workbook ->
                     val dataFormatter = DataFormatter()
-        val evaluator = workbook.creationHelper.createFormulaEvaluator()
-        val html =
+                    val evaluator = workbook.creationHelper.createFormulaEvaluator()
+                    val html =
                         StringBuilder()
                             .append("<!DOCTYPE html><html><head><meta charset=\"UTF-8\">")
                             .append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
@@ -607,16 +628,16 @@ object DocumentConversionUtil {
                             .append("</title><style>")
                             .append(
                                 """
-        body { font-family: sans-serif; margin: 16px; color: #1f2937; background: #f8fafc; }
-        h1 { margin: 0 0 16px; font-size: 20px; }
+                                body { font-family: sans-serif; margin: 16px; color: #1f2937; background: #f8fafc; }
+                                h1 { margin: 0 0 16px; font-size: 20px; }
                                 .sheet-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
                                 .sheet-tab { border: 1px solid #cbd5e1; background: white; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
                                 .sheet-tab.active { background: #111827; color: white; border-color: #111827; }
                                 .sheet-panel { display: none; overflow: auto; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; }
                                 .sheet-panel.active { display: block; }
-        table { border-collapse: collapse; min-width: 100%; }
-        th, td { border: 1px solid #dbe4ee; padding: 8px 10px; text-align: left; vertical-align: top; white-space: pre-wrap; }
-        th { background: #eef2ff; position: sticky; top: 0; }
+                                table { border-collapse: collapse; min-width: 100%; }
+                                th, td { border: 1px solid #dbe4ee; padding: 8px 10px; text-align: left; vertical-align: top; white-space: pre-wrap; }
+                                th { background: #eef2ff; position: sticky; top: 0; }
                                 .empty { color: #94a3b8; padding: 24px 0; }
                                 """.trimIndent()
                             )
@@ -624,24 +645,26 @@ object DocumentConversionUtil {
                             .append("<h1>")
                             .append(TextUtils.htmlEncode(sourceFile.name))
                             .append("</h1>")
-        if (workbook.numberOfSheets > 1) {
+
+                    if (workbook.numberOfSheets > 1) {
                         html.append("<div class=\"sheet-tabs\">")
-        for (sheetIndex in 0 until workbook.numberOfSheets) {
+                        for (sheetIndex in 0 until workbook.numberOfSheets) {
                             html.append("<button class=\"sheet-tab")
-        if (sheetIndex == 0) {
+                            if (sheetIndex == 0) {
                                 html.append(" active")
                             }
-        html.append("\" onclick=\"showSheet(")
-        html.append(sheetIndex)
-        html.append(")\">")
-        html.append(TextUtils.htmlEncode(workbook.getSheetAt(sheetIndex).sheetName))
-        html.append("</button>")
+                            html.append("\" onclick=\"showSheet(")
+                            html.append(sheetIndex)
+                            html.append(")\">")
+                            html.append(TextUtils.htmlEncode(workbook.getSheetAt(sheetIndex).sheetName))
+                            html.append("</button>")
                         }
-        html.append("</div>")
+                        html.append("</div>")
                     }
-        for (sheetIndex in 0 until workbook.numberOfSheets) {
+
+                    for (sheetIndex in 0 until workbook.numberOfSheets) {
                         val sheet = workbook.getSheetAt(sheetIndex)
-        val maxColumns =
+                        val maxColumns =
                             sheet.asSequence()
                                 .map { row -> row.lastCellNum.toInt().coerceAtLeast(0) }
                                 .maxOrNull()
@@ -649,41 +672,46 @@ object DocumentConversionUtil {
                                 ?: 0
 
                         html.append("<section class=\"sheet-panel")
-        if (sheetIndex == 0) {
+                        if (sheetIndex == 0) {
                             html.append(" active")
                         }
-        html.append("\" data-sheet-index=\"")
-        html.append(sheetIndex)
-        html.append("\">")
-        html.append("<h2>")
-        html.append(TextUtils.htmlEncode(sheet.sheetName))
-        html.append("</h2>")
-        if (sheet.physicalNumberOfRows == 0 || maxColumns == 0) {
+                        html.append("\" data-sheet-index=\"")
+                        html.append(sheetIndex)
+                        html.append("\">")
+                        html.append("<h2>")
+                        html.append(TextUtils.htmlEncode(sheet.sheetName))
+                        html.append("</h2>")
+
+                        if (sheet.physicalNumberOfRows == 0 || maxColumns == 0) {
                             html.append("<div class=\"empty\">Empty sheet</div></section>")
-        continue
+                            continue
                         }
-        html.append("<table><thead><tr>")
-        for (columnIndex in 0 until maxColumns) {
+
+                        html.append("<table><thead><tr>")
+                        for (columnIndex in 0 until maxColumns) {
                             html.append("<th>")
-        html.append(columnName(columnIndex))
-        html.append("</th>")
+                            html.append(columnName(columnIndex))
+                            html.append("</th>")
                         }
-        html.append("</tr></thead><tbody>")
-        sheet.forEach { row ->
+                        html.append("</tr></thead><tbody>")
+
+                        sheet.forEach { row ->
                             html.append("<tr>")
-        for (columnIndex in 0 until maxColumns) {
+                            for (columnIndex in 0 until maxColumns) {
                                 val cell = row.getCell(columnIndex)
-        val formattedValue =
+                                val formattedValue =
                                     cell?.let { dataFormatter.formatCellValue(it, evaluator) }.orEmpty()
-        html.append("<td>")
-        html.append(TextUtils.htmlEncode(formattedValue).replace("\n", "<br>"))
-        html.append("</td>")
+                                html.append("<td>")
+                                html.append(TextUtils.htmlEncode(formattedValue).replace("\n", "<br>"))
+                                html.append("</td>")
                             }
-        html.append("</tr>")
+                            html.append("</tr>")
                         }
-        html.append("</tbody></table></section>")
+
+                        html.append("</tbody></table></section>")
                     }
-        if (workbook.numberOfSheets > 1) {
+
+                    if (workbook.numberOfSheets > 1) {
                         html.append(
                             """
                             <script>
@@ -691,7 +719,7 @@ object DocumentConversionUtil {
                               document.querySelectorAll('.sheet-panel').forEach((panel, panelIndex) => {
                                 panel.classList.toggle('active', panelIndex === index);
                               });
-        document.querySelectorAll('.sheet-tab').forEach((tab, tabIndex) => {
+                              document.querySelectorAll('.sheet-tab').forEach((tab, tabIndex) => {
                                 tab.classList.toggle('active', tabIndex === index);
                               });
                             }
@@ -699,16 +727,17 @@ object DocumentConversionUtil {
                             """.trimIndent()
                         )
                     }
-        html.append("</body></html>")
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+
+                    html.append("</body></html>")
+                    FileOutputStream(targetFile).bufferedWriter().use { writer ->
                         writer.write(html.toString())
                     }
                 }
             }
-        true
+            true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error converting spreadsheet to HTML", e)
-        false
+            false
         }
     }
 
@@ -716,11 +745,11 @@ object DocumentConversionUtil {
     fun copyTextFile(sourceFile: File, targetFile: File): Boolean {
         try {
             // Simple copy for text files
-        sourceFile.copyTo(targetFile, overwrite = true)
-        return true
+            sourceFile.copyTo(targetFile, overwrite = true)
+            return true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error copying text file", e)
-        return false
+            return false
         }
     }
 
@@ -729,21 +758,20 @@ object DocumentConversionUtil {
         return try {
             FileInputStream(sourceFile).use { fis ->
                 val doc = HWPFDocument(fis)
-        val extractor = WordExtractor(doc)
-        var text = extractor.text
+                val extractor = WordExtractor(doc)
+                var text = extractor.text
                 
-                // 优化文本格式：压缩连续空
-        text = optimizeTextFormat(text)
+                // 优化文本格式：压缩连续空               text = optimizeTextFormat(text)
                 
                 // Write extracted text to target file
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+                FileOutputStream(targetFile).bufferedWriter().use { writer ->
                     writer.write(text)
                 }
             }
-        true
+            true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error extracting text from DOC file", e)
-        false
+            false
         }
     }
 
@@ -752,50 +780,46 @@ object DocumentConversionUtil {
         return try {
             FileInputStream(sourceFile).use { fis ->
                 val docx = XWPFDocument(fis)
-        val extractor = XWPFWordExtractor(docx)
-        var text = extractor.text
+                val extractor = XWPFWordExtractor(docx)
+                var text = extractor.text
                 
-                // 优化文本格式：压缩连续空
-        text = optimizeTextFormat(text)
+                // 优化文本格式：压缩连续空               text = optimizeTextFormat(text)
                 
                 // Write extracted text to target file
-        FileOutputStream(targetFile).bufferedWriter().use { writer ->
+                FileOutputStream(targetFile).bufferedWriter().use { writer ->
                     writer.write(text)
                 }
             }
-        true
+            true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error extracting text from DOCX file", e)
-        false
+            false
         }
     }
     
     /** 优化提取出的文本格式，压缩连续空/
     private fun optimizeTextFormat(text: String): String {
-        // 将文本按行分
-        val lines = text.split("\n")
+        // 将文本按行分       val lines = text.split("\n")
         val optimizedLines = mutableListOf<String>()
         var consecutiveEmptyLines = 0
         
         for (line in lines) {
             val trimmedLine = line.trim()
-        if (trimmedLine.isEmpty()) {
+            
+            if (trimmedLine.isEmpty()) {
                 // 处理空行
-        consecutiveEmptyLines++
+                consecutiveEmptyLines++
                 
-                // 两行空行压缩为一行，多行空行压缩为两
-        if (consecutiveEmptyLines <= 2) {
+                // 两行空行压缩为一行，多行空行压缩为两               if (consecutiveEmptyLines <= 2) {
                     optimizedLines.add("")
                 }
             } else {
-                // 非空行正常添
-        optimizedLines.add(line)
-        consecutiveEmptyLines = 0
+                // 非空行正常添               optimizedLines.add(line)
+                consecutiveEmptyLines = 0
             }
         }
         
-        // 合并为单个字符串并返
-        return optimizedLines.joinToString("\n")
+        // 合并为单个字符串并返       return optimizedLines.joinToString("\n")
     }
 
     /** General method to convert Word documents to text */
@@ -803,7 +827,7 @@ object DocumentConversionUtil {
         return when (sourceExt.lowercase()) {
             "doc" -> extractTextFromDoc(sourceFile, targetFile)
             "docx" -> extractTextFromDocx(sourceFile, targetFile)
-        else -> false
+            else -> false
         }
     }
 
@@ -814,41 +838,44 @@ object DocumentConversionUtil {
 
             // Step 1: Extract text from PDF.
             // We create a temporary text file to store the extracted content.
-        val tempTextFile = File(context.cacheDir, "temp_pdf_to_docx_${System.currentTimeMillis()}.txt")
-        val textExtractionSuccess = extractTextFromPdf(context, sourceFile, tempTextFile)
-        if (!textExtractionSuccess) {
+            val tempTextFile = File(context.cacheDir, "temp_pdf_to_docx_${System.currentTimeMillis()}.txt")
+            val textExtractionSuccess = extractTextFromPdf(context, sourceFile, tempTextFile)
+
+            if (!textExtractionSuccess) {
                 AppLogger.e(TAG, "Failed to extract text from PDF, aborting DOCX conversion.")
-        tempTextFile.delete()
-        return false
+                tempTextFile.delete()
+                return false
             }
 
             // Step 2: Read the extracted text from the temporary file.
-        val content = tempTextFile.readText()
-        tempTextFile.delete() // Clean up the temp file immediately after reading.
+            val content = tempTextFile.readText()
+            tempTextFile.delete() // Clean up the temp file immediately after reading.
 
             // Step 3: Create a new DOCX document and write the content.
-        XWPFDocument().use { docx ->
+            XWPFDocument().use { docx ->
                 // Split the content into paragraphs. We can split by one or more newlines.
-        val paragraphs = content.split(Regex("(\\r\\n|\\n){2,}"))
-        for (paraText in paragraphs) {
+                val paragraphs = content.split(Regex("(\\r\\n|\\n){2,}"))
+                
+                for (paraText in paragraphs) {
                     if (paraText.isNotBlank()) {
                         // Create a paragraph in the DOCX document.
-        val docxParagraph = docx.createParagraph()
-        val run = docxParagraph.createRun()
-        run.setText(paraText.trim())
+                        val docxParagraph = docx.createParagraph()
+                        val run = docxParagraph.createRun()
+                        run.setText(paraText.trim())
                     }
                 }
 
                 // Step 4: Save the new DOCX document.
-        FileOutputStream(targetFile).use { fos ->
+                FileOutputStream(targetFile).use { fos ->
                     docx.write(fos)
                 }
             }
-        AppLogger.d(TAG, "Successfully converted PDF to DOCX: ${targetFile.name}")
-        true
+            
+            AppLogger.d(TAG, "Successfully converted PDF to DOCX: ${targetFile.name}")
+            true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error converting PDF to DOCX", e)
-        false
+            false
         }
     }
 
@@ -858,28 +885,30 @@ object DocumentConversionUtil {
             AppLogger.d(TAG, "Starting Word to PDF conversion for ${sourceFile.name}")
 
             // Step 1: Extract text from the Word document into a temporary file.
-        val tempTextFile = File(context.cacheDir, "temp_word_to_pdf_${System.currentTimeMillis()}.txt")
-        val textExtractionSuccess = extractTextFromWord(sourceFile, tempTextFile, sourceExt)
-        if (!textExtractionSuccess) {
+            val tempTextFile = File(context.cacheDir, "temp_word_to_pdf_${System.currentTimeMillis()}.txt")
+            val textExtractionSuccess = extractTextFromWord(sourceFile, tempTextFile, sourceExt)
+
+            if (!textExtractionSuccess) {
                 AppLogger.e(TAG, "Failed to extract text from Word file, aborting PDF conversion.")
-        tempTextFile.delete()
-        return false
+                tempTextFile.delete()
+                return false
             }
 
             // Step 2: Convert the extracted text file to PDF.
-        val pdfConversionSuccess = convertTextToPdf(context, tempTextFile, targetFile)
+            val pdfConversionSuccess = convertTextToPdf(context, tempTextFile, targetFile)
 
             // Step 3: Clean up the temporary file.tempTextFile.delete()
-        if (pdfConversionSuccess) {
+
+            if (pdfConversionSuccess) {
                 AppLogger.d(TAG, "Successfully converted Word to PDF: ${targetFile.name}")
-        true
+                true
             } else {
                 AppLogger.e(TAG, "Failed to convert extracted text to PDF.")
-        false
+                false
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error converting Word to PDF", e)
-        false
+            false
         }
     }
 
@@ -892,12 +921,13 @@ object DocumentConversionUtil {
             .replace("\n", "\\par ")
             .replace("\r", "")
     }
-        private fun columnName(index: Int): String {
+
+    private fun columnName(index: Int): String {
         var current = index
         val result = StringBuilder()
         do {
             result.insert(0, ('A'.code + (current % 26)).toChar())
-        current = current / 26 - 1
+            current = current / 26 - 1
         } while (current >= 0)
         return result.toString()
     }

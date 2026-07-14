@@ -248,7 +248,7 @@ sealed class OutputBlock {
                 val confidence: Float = 0f,
                 val status: BlockStatus = BlockStatus.PENDING,
             )
-        enum class SelectionStrategy(val displayName: String) {
+            enum class SelectionStrategy(val displayName: String) {
                 BEST_OF_ALL("择优"), RACING("竞速"), VOTING("投票"),
                 ADVERSARIAL("对抗"), CONSENSUS("共识"),
             }

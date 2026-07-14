@@ -10,6 +10,7 @@ class DevServerConfig private constructor(private val context: Context) {
 
     companion object {
         private const val TAG = "DevServerConfig"
+
         const val DEFAULT_PORT = 8765
         const val DEFAULT_WS_PORT = 8766
         const val DEFAULT_HOT_RELOAD_DEBOUNCE_MS = 300L
@@ -23,7 +24,8 @@ class DevServerConfig private constructor(private val context: Context) {
             }
         }
     }
-        data class ServerSettings(
+
+    data class ServerSettings(
         val port: Int = DEFAULT_PORT,
         val wsPort: Int = DEFAULT_WS_PORT,
         val host: String = "localhost",
@@ -32,14 +34,16 @@ class DevServerConfig private constructor(private val context: Context) {
         val requestTimeoutMs: Long = 30000L,
         val maxConnections: Int = 50
     )
-        data class HotReloadSettings(
+
+    data class HotReloadSettings(
         val enabled: Boolean = true,
         val debounceDelayMs: Long = DEFAULT_HOT_RELOAD_DEBOUNCE_MS,
         val watchExtensions: Set<String> = setOf(".js", ".ts", ".json", ".md", ".yaml", ".yml"),
         val ignorePatterns: Set<String> = setOf("node_modules", ".git", "dist", "build", ".gradle"),
         val watchDirectory: String = ""
     )
-        data class EditorSettings(
+
+    data class EditorSettings(
         val theme: String = "vs-dark",
         val fontSize: Int = 14,
         val tabSize: Int = 2,
@@ -50,32 +54,39 @@ class DevServerConfig private constructor(private val context: Context) {
         val minimapEnabled: Boolean = true,
         val lineNumbers: Boolean = true
     )
-        data class PreviewSettings(
+
+    data class PreviewSettings(
         val enableRealTimePreview: Boolean = true,
         val refreshDelayMs: Long = 500L,
         val defaultViewport: String = "mobile",
         val userAgent: String = "SkillDevAssistant/1.0"
     )
-        private var serverSettings = ServerSettings()
-        private var hotReloadSettings = HotReloadSettings()
-        private var editorSettings = EditorSettings()
-        private var previewSettings = PreviewSettings()
-        private val configListeners = CopyOnWriteArrayList<ConfigListener>()
-        interface ConfigListener {
+
+    private var serverSettings = ServerSettings()
+    private var hotReloadSettings = HotReloadSettings()
+    private var editorSettings = EditorSettings()
+    private var previewSettings = PreviewSettings()
+
+    private val configListeners = CopyOnWriteArrayList<ConfigListener>()
+
+    interface ConfigListener {
         fun onServerSettingsChanged(settings: ServerSettings)
         fun onHotReloadSettingsChanged(settings: HotReloadSettings)
         fun onEditorSettingsChanged(settings: EditorSettings)
         fun onPreviewSettingsChanged(settings: PreviewSettings)
     }
-        fun addConfigListener(listener: ConfigListener) {
+
+    fun addConfigListener(listener: ConfigListener) {
         if (!configListeners.contains(listener)) {
             configListeners.add(listener)
         }
     }
-        fun removeConfigListener(listener: ConfigListener) {
+
+    fun removeConfigListener(listener: ConfigListener) {
         configListeners.remove(listener)
     }
-        fun getServerSettings(): ServerSettings = serverSettings
+
+    fun getServerSettings(): ServerSettings = serverSettings
 
     fun updateServerSettings(settings: ServerSettings) {
         val old = serverSettings
@@ -83,7 +94,8 @@ class DevServerConfig private constructor(private val context: Context) {
         AppLogger.d(TAG, "Server settings updated: port=${settings.port}, host=${settings.host}")
         notifyServerSettingsChanged(settings)
     }
-        fun getHotReloadSettings(): HotReloadSettings = hotReloadSettings
+
+    fun getHotReloadSettings(): HotReloadSettings = hotReloadSettings
 
     fun updateHotReloadSettings(settings: HotReloadSettings) {
         val old = hotReloadSettings
@@ -91,7 +103,8 @@ class DevServerConfig private constructor(private val context: Context) {
         AppLogger.d(TAG, "HotReload settings updated: enabled=${settings.enabled}, debounce=${settings.debounceDelayMs}ms")
         notifyHotReloadSettingsChanged(settings)
     }
-        fun getEditorSettings(): EditorSettings = editorSettings
+
+    fun getEditorSettings(): EditorSettings = editorSettings
 
     fun updateEditorSettings(settings: EditorSettings) {
         val old = editorSettings
@@ -99,7 +112,8 @@ class DevServerConfig private constructor(private val context: Context) {
         AppLogger.d(TAG, "Editor settings updated: theme=${settings.theme}, fontSize=${settings.fontSize}")
         notifyEditorSettingsChanged(settings)
     }
-        fun getPreviewSettings(): PreviewSettings = previewSettings
+
+    fun getPreviewSettings(): PreviewSettings = previewSettings
 
     fun updatePreviewSettings(settings: PreviewSettings) {
         val old = previewSettings
@@ -107,7 +121,8 @@ class DevServerConfig private constructor(private val context: Context) {
         AppLogger.d(TAG, "Preview settings updated: realtime=${settings.enableRealTimePreview}")
         notifyPreviewSettingsChanged(settings)
     }
-        fun getSkillsRootDirectory(): File {
+
+    fun getSkillsRootDirectory(): File {
         val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val apexDir = File(downloadsDir, "logistra")
         val skillsDir = File(apexDir, "skills")
@@ -116,28 +131,32 @@ class DevServerConfig private constructor(private val context: Context) {
         }
         return skillsDir
     }
-        fun getDevWorkspaceDirectory(): File {
+
+    fun getDevWorkspaceDirectory(): File {
         val workspaceDir = File(context.filesDir, "skill_dev_workspace")
         if (!workspaceDir.exists()) {
             workspaceDir.mkdirs()
         }
         return workspaceDir
     }
-        fun getTempDirectory(): File {
+
+    fun getTempDirectory(): File {
         val tempDir = File(context.cacheDir, "skill_dev_temp")
         if (!tempDir.exists()) {
             tempDir.mkdirs()
         }
         return tempDir
     }
-        fun resetToDefaults() {
+
+    fun resetToDefaults() {
         serverSettings = ServerSettings()
         hotReloadSettings = HotReloadSettings()
         editorSettings = EditorSettings()
         previewSettings = PreviewSettings()
         AppLogger.d(TAG, "All settings reset to defaults")
     }
-        private fun notifyServerSettingsChanged(settings: ServerSettings) {
+
+    private fun notifyServerSettingsChanged(settings: ServerSettings) {
         configListeners.forEach { listener ->
             runCatching {
                 listener.onServerSettingsChanged(settings)
@@ -146,7 +165,8 @@ class DevServerConfig private constructor(private val context: Context) {
             }
         }
     }
-        private fun notifyHotReloadSettingsChanged(settings: HotReloadSettings) {
+
+    private fun notifyHotReloadSettingsChanged(settings: HotReloadSettings) {
         configListeners.forEach { listener ->
             runCatching {
                 listener.onHotReloadSettingsChanged(settings)
@@ -155,7 +175,8 @@ class DevServerConfig private constructor(private val context: Context) {
             }
         }
     }
-        private fun notifyEditorSettingsChanged(settings: EditorSettings) {
+
+    private fun notifyEditorSettingsChanged(settings: EditorSettings) {
         configListeners.forEach { listener ->
             runCatching {
                 listener.onEditorSettingsChanged(settings)
@@ -164,7 +185,8 @@ class DevServerConfig private constructor(private val context: Context) {
             }
         }
     }
-        private fun notifyPreviewSettingsChanged(settings: PreviewSettings) {
+
+    private fun notifyPreviewSettingsChanged(settings: PreviewSettings) {
         configListeners.forEach { listener ->
             runCatching {
                 listener.onPreviewSettingsChanged(settings)

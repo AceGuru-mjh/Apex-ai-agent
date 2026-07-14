@@ -101,10 +101,12 @@ object CacheSerialization {
 private object StringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("CacheString", PrimitiveKind.STRING)
-        override fun serialize(encoder: Encoder, value: String) {
+
+    override fun serialize(encoder: Encoder, value: String) {
         encoder.encodeString(value)
     }
-        override fun deserialize(decoder: Decoder): String {
+
+    override fun deserialize(decoder: Decoder): String {
         return decoder.decodeString()
     }
 }

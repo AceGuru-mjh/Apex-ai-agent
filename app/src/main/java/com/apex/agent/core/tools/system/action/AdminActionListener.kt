@@ -11,121 +11,134 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** 基于设备管理员的UI操作监听了实现ADMIN权限级别的操作监，/
+/** 基于设备管理员的UI操作监听了实现ADMIN权限级别的操作监�?/
 class AdminActionListener(private val context: Context) : ActionListener {
     companion object {
         private const val TAG = "AdminActionListener"
         private var adminComponentName: ComponentName? = null
 
         /**
-         * 设置设备管理员组件名，
-        * @param componentName 设备管理员组件名，
-        */
+         * 设置设备管理员组件名�?        * @param componentName 设备管理员组件名�?        */
         fun setAdminComponentName(componentName: ComponentName) {
             adminComponentName = componentName
         }
     }
-        private val devicePolicyManager =
+
+    private val devicePolicyManager =
         context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
     private val isListening = AtomicBoolean(false)
-        private var actionCallback: ((ActionListener.ActionEvent) -> Unit)? = null
+    private var actionCallback: ((ActionListener.ActionEvent) -> Unit)? = null
 
     override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.ADMIN
 
     override suspend fun isAvailable(): Boolean {
         return adminComponentName != null && isDeviceAdminActive()
     }
-        override suspend fun hasPermission(): ActionListener.PermissionStatus {
+
+    override suspend fun hasPermission(): ActionListener.PermissionStatus {
         if (adminComponentName == null) {
             return ActionListener.PermissionStatus.denied(context.getString(R.string.admin_device_admin_component_name_not_set))
         }
+
         return if (isDeviceAdminActive()) {
             ActionListener.PermissionStatus.granted()
         } else {
             ActionListener.PermissionStatus.denied(context.getString(R.string.admin_device_admin_permission_not_activated))
         }
     }
-        override fun initialize() {
+
+    override fun initialize() {
         AppLogger.d(TAG, "设备管理员UI操作监听器初始化完成")
     }
-        override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
+
+    override suspend fun requestPermission(onResult: (Boolean) -> Unit) {
         if (isAvailable()) {
             onResult(true)
-        return
+            return
         }
+
         if (adminComponentName == null) {
             AppLogger.e(TAG, "管理员组件名称未设置")
-        onResult(false)
-        return
+            onResult(false)
+            return
         }
 
         // 引导用户激活设备管理员
         try {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
-        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, context.getString(R.string.admin_need_device_admin_permission))
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, context.getString(R.string.admin_need_device_admin_permission))
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
-        onResult(false)
+
+            onResult(false)
         } catch (e: Exception) {
-            AppLogger.e(TAG, "打开设备管理员设置失败：${e.message})"
-        onResult(false)
+            AppLogger.e(TAG, "打开设备管理员设置失败：${e.message})
+            onResult(false)
         }
     }
-        override fun isListening(): Boolean = isListening.get()
-        override suspend fun startListening(onAction: (ActionListener.ActionEvent) -> Unit): ActionListener.ListeningResult =
+
+    override fun isListening(): Boolean = isListening.get()
+
+    override suspend fun startListening(onAction: (ActionListener.ActionEvent) -> Unit): ActionListener.ListeningResult =
         withContext(Dispatchers.IO) {
             try {
                 val permStatus = hasPermission()
-        if (!permStatus.granted) {
+                if (!permStatus.granted) {
                     return@withContext ActionListener.ListeningResult.failure(permStatus.reason)
                 }
-        if (isListening.get()) {
+
+                if (isListening.get()) {
                     return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_already_listening))
                 }
-        actionCallback = onAction
+
+                actionCallback = onAction
                 isListening.set(true)
-        AppLogger.d(TAG, "开始设备管理员级别的UI操作监听")
+
+                AppLogger.d(TAG, "开始设备管理员级别的UI操作监听")
 
                 // 启动管理员级别的事件监控
-        startAdminEventMonitoring()
-        return@withContext ActionListener.ListeningResult.success(context.getString(R.string.admin_ui_listener_started))
+                startAdminEventMonitoring()
+
+                return@withContext ActionListener.ListeningResult.success(context.getString(R.string.admin_ui_listener_started))
             } catch (e: Exception) {
                 AppLogger.e(TAG, "启动设备管理员UI操作监听失败", e)
-        isListening.set(false)
-        return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_start_failed, e.message ?: "Unknown error"))
+                isListening.set(false)
+                return@withContext ActionListener.ListeningResult.failure(context.getString(R.string.admin_start_failed, e.message ?: "Unknown error"))
             }
         }
-        override suspend fun stopListening(): Boolean = withContext(Dispatchers.IO) {
+
+    override suspend fun stopListening(): Boolean = withContext(Dispatchers.IO) {
         try {
             if (!isListening.get()) {
                 return@withContext true
             }
-        isListening.set(false)
-        actionCallback = null
+
+            isListening.set(false)
+            actionCallback = null
 
             stopAdminEventMonitoring()
-        AppLogger.d(TAG, "设备管理员UI操作监听已停止）"
-        return@withContext true
+
+            AppLogger.d(TAG, "设备管理员UI操作监听已停止）
+            return@withContext true
         } catch (e: Exception) {
             AppLogger.e(TAG, "停止设备管理员UI操作监听失败", e)
-        return@withContext false
+            return@withContext false
         }
     }
 
-    /** 检查设备管理员是否已激，/
+    /** 检查设备管理员是否已激�?/
     private fun isDeviceAdminActive(): Boolean {
         return try {
             adminComponentName?.let { devicePolicyManager.isAdminActive(it) } ?: false
         } catch (e: Exception) {
-            AppLogger.e(TAG, "检查设备管理员状态出， e)"
-        false
+            AppLogger.e(TAG, "检查设备管理员状态出�? e)
+            false
         }
     }
 
     /**
-     * 开始管理员级别的事件监，
-    * 设备管理员可以监听系统状态变化、锁屏事件等
+     * 开始管理员级别的事件监�?    * 设备管理员可以监听系统状态变化、锁屏事件等
      */
     private fun startAdminEventMonitoring() {
         AppLogger.d(TAG, "开始管理员级别事件监控 - 可监听系统状态和安全事件")
@@ -141,7 +154,7 @@ class AdminActionListener(private val context: Context) : ActionListener {
      * 停止管理员级别的事件监控
      */
     private fun stopAdminEventMonitoring() {
-        AppLogger.d(TAG, "停止管理员级别事件监，"
+        AppLogger.d(TAG, "停止管理员级别事件监�?
     }
 
     /**
@@ -157,13 +170,12 @@ class AdminActionListener(private val context: Context) : ActionListener {
                     "source" to "device_admin"
                 )
             )
-        actionCallback?.invoke(event)
+            actionCallback?.invoke(event)
         }
     }
 
     /**
-     * 处理应用状态变化事，
-    * @param packageName 应用包名
+     * 处理应用状态变化事�?    * @param packageName 应用包名
      * @param event 事件类型
      */
     fun handleAppStateChange(packageName: String, event: String) {
@@ -177,7 +189,7 @@ class AdminActionListener(private val context: Context) : ActionListener {
                     "source" to "device_admin"
                 )
             )
-        actionCallback?.invoke(actionEvent)
+            actionCallback?.invoke(actionEvent)
         }
     }
 } 

@@ -77,10 +77,12 @@ class NvidiaAIProvider(
         if (appliedGptOssDefaultEffort) {
             jsonObject.put("reasoning_effort", "medium")
         }
+
         AppLogger.d(
             "NvidiaAIProvider",
             "NVIDIA thinking params applied: enable_thinking=${enableThinking}, gpt_oss_default_effort=${appliedGptOssDefaultEffort}"
         )
+
         return createJsonRequestBody(jsonObject.toString())
     }
 }

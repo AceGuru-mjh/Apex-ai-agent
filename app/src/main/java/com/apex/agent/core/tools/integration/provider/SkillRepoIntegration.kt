@@ -14,27 +14,28 @@ import kotlinx.coroutines.withContext
 class SkillRepoIntegration : IntegrationProvider {
 
     private val repoClient = SkillRepoClient.getInstance()
-        private val source = IntegrationSource.SKILL_REPO
+    private val source = IntegrationSource.SKILL_REPO
 
     override fun getInfo(): IntegrationInfo = IntegrationInfo(
         id = source.id,
         name = source.name,
-        description = "官方技能仓应—浏览、搜索和安装技能",
+        description = "官方技能仓�?�?浏览、搜索和安装技�?,
         version = "1.0.0",
         author = "Logistra AI",
         homepage = "https://skill-repo.logistra.ai",
         enabled = true,
         capabilities = listOf(
-            IntegrationCapability("browse", "浏览技能, "浏览技能仓应, CapabilityType.BROWSE),
-            IntegrationCapability("search", "搜索技能, "搜索技能仓应, CapabilityType.SEARCH),
-            IntegrationCapability("install", "安装技能, "从仓库安装技能, CapabilityType.INSTALL),
-            IntegrationCapability("detail", "技能详情, "查看技能详细信息, CapabilityType.DETAIL),
-            IntegrationCapability("categories", "分类浏览", "按分类浏解", CapabilityType.CATEGORIES)
+            IntegrationCapability("browse", "浏览技�?, "浏览技能仓�?, CapabilityType.BROWSE),
+            IntegrationCapability("search", "搜索技�?, "搜索技能仓�?, CapabilityType.SEARCH),
+            IntegrationCapability("install", "安装技�?, "从仓库安装技�?, CapabilityType.INSTALL),
+            IntegrationCapability("detail", "技能详�?, "查看技能详细信�?, CapabilityType.DETAIL),
+            IntegrationCapability("categories", "分类浏览", "按分类浏�?, CapabilityType.CATEGORIES)
         ),
         itemCount = 0,
         installedCount = 0
     )
-        override fun isAvailable(): Boolean = true
+
+    override fun isAvailable(): Boolean = true
 
     override suspend fun list(tag: String?, page: Int, pageSize: Int): Result<List<UnifiedItem>> {
         return withContext(Dispatchers.IO) {
@@ -46,7 +47,8 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-        override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
+
+    override suspend fun search(query: String, filters: Map<String, String>): Result<List<UnifiedItem>> {
         val category = filters["category"]
         val sortBy = filters["sort"]
         return withContext(Dispatchers.IO) {
@@ -58,7 +60,8 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-        override suspend fun getDetail(id: String): Result<UnifiedItem> {
+
+    override suspend fun getDetail(id: String): Result<UnifiedItem> {
         return withContext(Dispatchers.IO) {
             repoClient.getSkillDetail(id).fold(
                 onSuccess = { detail ->
@@ -79,26 +82,29 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-        override suspend fun install(item: UnifiedItem): Result<String> {
+
+    override suspend fun install(item: UnifiedItem): Result<String> {
         return withContext(Dispatchers.IO) {
             val outputFile = java.io.File(
                 android.os.Environment.getExternalStoragePublicDirectory(
                     android.os.Environment.DIRECTORY_DOWNLOADS
                 ), "Apex/skills/repo/${item.sourceId}.zip"
             )
-        outputFile.parentFile?.mkdirs()
-        repoClient.downloadSkill(item.sourceId, item.version, outputFile).fold(
+            outputFile.parentFile?.mkdirs()
+            repoClient.downloadSkill(item.sourceId, item.version, outputFile).fold(
                 onSuccess = { file ->
-                    Result.success("成功安装 ${item.name} 分${file.absolutePath}")
+                    Result.success("成功安装 ${item.name} �?${file.absolutePath}")
                 },
                 onFailure = { Result.failure(it) }
             )
         }
     }
-        override suspend fun uninstall(installedId: String): Result<String> {
-        return Result.success("卸载功能待实现 $installedId")
+
+    override suspend fun uninstall(installedId: String): Result<String> {
+        return Result.success("卸载功能待实�? $installedId")
     }
-        override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
+
+    override suspend fun checkUpdate(item: UnifiedItem): Result<UnifiedItem?> {
         return withContext(Dispatchers.IO) {
             repoClient.checkForUpdate(item.sourceId, item.version).fold(
                 onSuccess = { update ->
@@ -112,10 +118,12 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-        override suspend fun listInstalled(): Result<List<UnifiedItem>> {
+
+    override suspend fun listInstalled(): Result<List<UnifiedItem>> {
         return Result.success(emptyList())
     }
-        override suspend fun getCategories(): Result<List<String>> {
+
+    override suspend fun getCategories(): Result<List<String>> {
         return withContext(Dispatchers.IO) {
             repoClient.getCategories().fold(
                 onSuccess = { Result.success(it) },
@@ -123,7 +131,8 @@ class SkillRepoIntegration : IntegrationProvider {
             )
         }
     }
-        private fun SkillRepoClient.SkillInfo.toUnifiedItem() = UnifiedItem(
+
+    private fun SkillRepoClient.SkillInfo.toUnifiedItem() = UnifiedItem(
         source = source,
         sourceId = id,
         name = name,

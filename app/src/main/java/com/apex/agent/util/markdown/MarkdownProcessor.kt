@@ -20,22 +20,20 @@ class StringCollectorProcessor : StreamProcessor<String, String> {
     }
 }
 
-/** Markdown处理器类型枚为/
+/** Markdown处理器类型枚�?/
 enum class MarkdownProcessorType {
-    // 块级处理器
-        HEADER,
-                BLOCK_QUOTE,
+    // 块级处理�?   HEADER,
+    BLOCK_QUOTE,
     CODE_BLOCK,
     ORDERED_LIST,
     UNORDERED_LIST,
     HORIZONTAL_RULE,
     BLOCK_LATEX, // LaTeX块级公式
-        TABLE, // 表格支持
-        XML_BLOCK, // XML块级元素
+    TABLE, // 表格支持
+    XML_BLOCK, // XML块级元素
  
-    // 内联处理器
-        BOLD,
-                ITALIC,
+    // 内联处理�?   BOLD,
+    ITALIC,
     INLINE_CODE,
     LINK,
     IMAGE,
@@ -43,9 +41,8 @@ enum class MarkdownProcessorType {
     UNDERLINE,
     INLINE_LATEX, // LaTeX行内公式
 
-    // 纯文件
-        PLAIN_TEXT,
-                HTML_BREAK
+    // 纯文�?   PLAIN_TEXT,
+    HTML_BREAK
 }
 
 /** 
@@ -54,7 +51,7 @@ enum class MarkdownProcessorType {
  */
 class MarkdownNode(val type: MarkdownProcessorType, initialContent: String = "") {
     val content: SmartString = SmartString(initialContent)
-        val children: SnapshotStateList<MarkdownNode> = mutableStateListOf()
+    val children: SnapshotStateList<MarkdownNode> = mutableStateListOf()
 }
 
 @Stable
@@ -73,7 +70,7 @@ fun String.toCharStream(): Stream<Char> {
     }
 }
 
-/** 将字符串流转换为字符为/
+/** 将字符串流转换为字符�?/
 fun Stream<String>.toCharStream(): Stream<Char> {
     val charStream = stream {
         this@toCharStream.collect { str ->
@@ -82,22 +79,22 @@ fun Stream<String>.toCharStream(): Stream<Char> {
             }
         }
     }
-        val carrier = this as? TextStreamEventCarrier ?: return charStream
+    val carrier = this as? TextStreamEventCarrier ?: return charStream
     return charStream.withTextEventChannel(carrier.eventChannel)
 }
 
-/** Markdown结果处理器 生成MarkdownNode模型 */
+/** Markdown结果处理�? 生成MarkdownNode模型 */
 class MarkdownNodeProcessor(private val type: MarkdownProcessorType) :
         StreamProcessor<String, MarkdownNode> {
     override suspend fun process(stream: Stream<String>): MarkdownNode =
             withContext(Dispatchers.Default) {
                 val contentBuilder = StringBuilder()
-        stream.collect { contentBuilder.append(it) }
-        MarkdownNode(type, initialContent = contentBuilder.toString())
+                stream.collect { contentBuilder.append(it) }
+                MarkdownNode(type, initialContent = contentBuilder.toString())
             }
 }
 
-/** 递归Markdown处理器 在各级嵌套中应用不同的处理逻辑 */
+/** 递归Markdown处理�? 在各级嵌套中应用不同的处理逻辑 */
 object NestedMarkdownProcessor {
 
     /** 块级插件列表 */
@@ -109,11 +106,9 @@ object NestedMarkdownProcessor {
                     StreamMarkdownOrderedListPlugin(),
                     StreamMarkdownUnorderedListPlugin(includeMarker = false),
                     StreamMarkdownHorizontalRulePlugin(),
-                    // LaTeX 块级公式：同时支，$...$$ ，\\[...\\]
-        StreamMarkdownBlockLaTeXPlugin(includeDelimiters = false),
-                    // ，\[...\] 保留分隔符，避免在结束匹配失败分支吞掉反斜杠，
-                   // 渲染阶段会通过 extractLatexContent 移除分隔符号
-        StreamMarkdownBlockBracketLaTeXPlugin(includeDelimiters = true),
+                    // LaTeX 块级公式：同时支�?$...$$ ，\\[...\\]
+                    StreamMarkdownBlockLaTeXPlugin(includeDelimiters = false),
+                    // ，\[...\] 保留分隔符，避免在结束匹配失败分支吞掉反斜杠�?                   // 渲染阶段会通过 extractLatexContent 移除分隔符号                    StreamMarkdownBlockBracketLaTeXPlugin(includeDelimiters = true),
                     StreamMarkdownTablePlugin(),
                     StreamMarkdownImagePlugin(),
                     StreamXmlPlugin(includeTagsInOutput = true) // 使用现有的StreamXmlPlugin
@@ -128,14 +123,12 @@ object NestedMarkdownProcessor {
                     StreamMarkdownLinkPlugin(),
                     StreamMarkdownStrikethroughPlugin(includeDelimiters = false),
                     StreamMarkdownUnderlinePlugin(),
-                    // LaTeX 行内公式：支，...$ ，\\(...\\)
-        StreamMarkdownInlineLaTeXPlugin(includeDelimiters = false),
-                    // ，\(...\) 保留分隔符，避免在结束匹配失败分支吞掉反斜杠，
-                   // 渲染阶段会通过 extractLatexContent 移除分隔符号
-        StreamMarkdownInlineParenLaTeXPlugin(includeDelimiters = true)
+                    // LaTeX 行内公式：支�?...$ ，\\(...\\)
+                    StreamMarkdownInlineLaTeXPlugin(includeDelimiters = false),
+                    // ，\(...\) 保留分隔符，避免在结束匹配失败分支吞掉反斜杠�?                   // 渲染阶段会通过 extractLatexContent 移除分隔符号                    StreamMarkdownInlineParenLaTeXPlugin(includeDelimiters = true)
             )
 
-    /** 根据插件获取对应的Markdown处理器类型/
+    /** 根据插件获取对应的Markdown处理器类�?/
     internal fun getTypeForPlugin(plugin: StreamPlugin): MarkdownProcessorType {
         return when (plugin) {
             is StreamMarkdownHeaderPlugin -> MarkdownProcessorType.HEADER
@@ -162,7 +155,7 @@ object NestedMarkdownProcessor {
     }
 }
 
-/** UI绑定义 将处理后的StreamGroup绑定到UI渲染组件 这里使用抽象类型T表示UI组件，你可以实现具体的渲染逻辑 */
+/** UI绑定�? 将处理后的StreamGroup绑定到UI渲染组件 这里使用抽象类型T表示UI组件，你可以实现具体的渲染逻辑 */
 class MarkdownUIBinder<T>(
         private val component: T,
         private val renderStrategy: suspend (T, MarkdownNode) -> Unit
@@ -174,21 +167,22 @@ class MarkdownUIBinder<T>(
         renderStrategy(component, nodes)
     }
 
-    /** 将StreamGroup转换为MarkdownNode，/
+    /** 将StreamGroup转换为MarkdownNode�?/
     private suspend fun processGroupToNodes(
             group: StreamGroup<MarkdownProcessorType>
     ): MarkdownNode {
-        // 处理当前，
-        val content = StringBuilder()
+        // 处理当前�?       val content = StringBuilder()
         group.stream.collect { content.append(it) }
+
         val node = MarkdownNode(group.tag, initialContent = content.toString())
 
         // 递归处理子组
         for (child in group.children) {
             @Suppress("UNCHECKED_CAST") val childGroup = child as StreamGroup<MarkdownProcessorType>
-        val childNode = processGroupToNodes(childGroup)
-        node.children.add(childNode)
+            val childNode = processGroupToNodes(childGroup)
+            node.children.add(childNode)
         }
+
         return node
     }
 }

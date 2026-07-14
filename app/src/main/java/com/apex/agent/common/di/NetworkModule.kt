@@ -57,7 +57,7 @@ object NetworkModule {
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .build()
-        chain.proceed(request)
+            chain.proceed(request)
         }
     }
 

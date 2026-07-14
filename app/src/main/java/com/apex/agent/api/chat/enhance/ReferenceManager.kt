@@ -16,6 +16,7 @@ object ReferenceManager {
         // Use a Markdown link format: [title](url)
         val regex = "\\[([^\\]]+)\\]\\((https?://[^\\)]+)\\)".toRegex()
         val matches = regex.findAll(content)
+        
         return matches.map { match ->
             val (title, url) = match.destructured
             AiReference(title, url)

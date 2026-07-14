@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 /**
- * 权限模式枚举 - 定义系统支持的所有权限模式
+ * 权限模式枚举 - 定义系统支持的所有权限模�?
  */
 enum class PermissionMode(
     val id: String,
@@ -25,8 +25,8 @@ enum class PermissionMode(
     
     ACCESSIBILITY(
         id = "accessibility",
-        displayName = "无障碍模式",
-        description = "使用无障碍服务权限，提供更强大的自动化能务",
+        displayName = "无障碍模�?,
+        description = "使用无障碍服务权限，提供更强大的自动化能�?,
         level = 1,
         requiresAccessibility = true
     ),
@@ -40,8 +40,8 @@ enum class PermissionMode(
     
     ADMIN(
         id = "admin",
-        displayName = "管理员模式",
-        description = "使用设备管理员权限，提供系统级控制能务",
+        displayName = "管理员模�?,
+        description = "使用设备管理员权限，提供系统级控制能�?,
         level = 3,
         requiresAdmin = true
     ),
@@ -49,7 +49,7 @@ enum class PermissionMode(
     SHIZUKU(
         id = "shizuku",
         displayName = "Shizuku模式",
-        description = "使用 Shizuku/Sui 服务，无需 Root 即可获得系统级权限",
+        description = "使用 Shizuku/Sui 服务，无需 Root 即可获得系统级权�?,
         level = 4,
         requiresShizuku = true
     ),
@@ -61,7 +61,8 @@ enum class PermissionMode(
         level = 5,
         requiresRoot = true
     );
-        companion object {
+
+    companion object {
         fun fromId(id: String): PermissionMode =
             values().find { it.id == id } ?: STANDARD
 
@@ -69,15 +70,17 @@ enum class PermissionMode(
             values().find { it.level == level } ?: STANDARD
 
         fun sortedByLevel(): List<PermissionMode> = values().sortedBy { it.level }
+
         fun sortedByLevelDesc(): List<PermissionMode> = values().sortedByDescending { it.level }
     }
-        fun isHigherOrEqualThan(other: PermissionMode): Boolean = this.level >= other.level
+
+    fun isHigherOrEqualThan(other: PermissionMode): Boolean = this.level >= other.level
 
     fun isHigherThan(other: PermissionMode): Boolean = this.level > other.level
 }
 
 /**
- * 权限模式状态- 包含模式的检测状态
+ * 权限模式状�?- 包含模式的检测状�?
  */
 @Parcelize
 data class PermissionModeState(
@@ -108,7 +111,7 @@ enum class RootExecutionMode(
     FORCE_LIBSU(
         id = "force_libsu",
         displayName = "Libsu模式",
-        description = "强制使用 Libsu 库执行Root 命令"
+        description = "强制使用 Libsu 库执�?Root 命令"
     ),
     
     FORCE_EXEC(
@@ -122,7 +125,8 @@ enum class RootExecutionMode(
         displayName = "KernelSU模式",
         description = "强制使用 KernelSU 方式执行命令"
     );
-        companion object {
+
+    companion object {
         fun fromId(id: String): RootExecutionMode =
             values().find { it.id == id } ?: AUTO
 
@@ -133,7 +137,8 @@ enum class RootExecutionMode(
                 com.apex.agent.data.preferences.RootCommandExecutionMode.FORCE_EXEC -> FORCE_EXEC
             }
     }
-        fun toLegacyMode(): com.apex.agent.data.preferences.RootCommandExecutionMode =
+
+    fun toLegacyMode(): com.apex.agent.data.preferences.RootCommandExecutionMode =
         when (this) {
             AUTO -> com.apex.agent.data.preferences.RootCommandExecutionMode.AUTO
             FORCE_LIBSU -> com.apex.agent.data.preferences.RootCommandExecutionMode.FORCE_LIBSU
@@ -143,7 +148,7 @@ enum class RootExecutionMode(
 }
 
 /**
- * Root 检测结果- 包含 Root 方案的详细信息
+ * Root 检测结�?- 包含 Root 方案的详细信�?
  */
 @Parcelize
 data class RootDetectionResult(
@@ -183,21 +188,23 @@ enum class RootScheme(
     LINEAGE_SU("LineageOS SU", "org.lineageos.su"),
     SUI("Sui (Shizuku)", "rikka.sui"),
     OTHER("其他Root方案");
-        companion object {
+
+    companion object {
         fun fromPackageName(packageName: String): RootScheme =
             values().find { it.packageName == packageName } ?: OTHER
     }
 }
 
 /**
- * SELinux 状态
+ * SELinux 状�?
  */
 enum class SELinuxStatus(val displayName: String) {
     ENFORCING("强制模式"),
     PERMISSIVE("宽容模式"),
-    DISABLED("已禁用"),
-    UNKNOWN("未知状态");
-        companion object {
+    DISABLED("已禁�?),
+    UNKNOWN("未知状�?);
+
+    companion object {
         fun fromString(status: String): SELinuxStatus =
             when (status?.lowercase()) {
                 "enforcing" -> ENFORCING
@@ -209,7 +216,7 @@ enum class SELinuxStatus(val displayName: String) {
 }
 
 /**
- * Shizuku 检测结果
+ * Shizuku 检测结�?
  */
 @Parcelize
 data class ShizukuDetectionResult(

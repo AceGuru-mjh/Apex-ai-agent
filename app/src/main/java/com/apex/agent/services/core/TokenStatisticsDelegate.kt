@@ -22,32 +22,38 @@ class TokenStatisticsDelegate(
     }
 
     // --- UI State Flows ---
-        private val _cumulativeInputTokens = MutableStateFlow(0)
-        val cumulativeInputTokensFlow: StateFlow<Int> = _cumulativeInputTokens.asStateFlow()
-        private val _cumulativeOutputTokens = MutableStateFlow(0)
-        val cumulativeOutputTokensFlow: StateFlow<Int> = _cumulativeOutputTokens.asStateFlow()
-        private val _currentWindowSize = MutableStateFlow(0)
-        val currentWindowSizeFlow: StateFlow<Int> = _currentWindowSize.asStateFlow()
-        private val _perRequestTokenCount = MutableStateFlow<Pair<Int, Int>?>(null)
-        val perRequestTokenCountFlow: StateFlow<Pair<Int, Int>?> = _perRequestTokenCount.asStateFlow()
+    private val _cumulativeInputTokens = MutableStateFlow(0)
+    val cumulativeInputTokensFlow: StateFlow<Int> = _cumulativeInputTokens.asStateFlow()
+
+    private val _cumulativeOutputTokens = MutableStateFlow(0)
+    val cumulativeOutputTokensFlow: StateFlow<Int> = _cumulativeOutputTokens.asStateFlow()
+
+    private val _currentWindowSize = MutableStateFlow(0)
+    val currentWindowSizeFlow: StateFlow<Int> = _currentWindowSize.asStateFlow()
+
+    private val _perRequestTokenCount = MutableStateFlow<Pair<Int, Int>?>(null)
+    val perRequestTokenCountFlow: StateFlow<Pair<Int, Int>?> = _perRequestTokenCount.asStateFlow()
 
     // --- Internal State ---
-        private var lastCurrentWindowSize = 0
+    private var lastCurrentWindowSize = 0
     private var tokenCollectorJob: Job? = null
 
     private val tokenCollectorJobsByChatKey = ConcurrentHashMap<String, Job>()
-        private val boundServicesByChatKey = ConcurrentHashMap<String, EnhancedAIService>()
-        private val cumulativeInputTokensByChatKey = ConcurrentHashMap<String, Int>()
-        private val cumulativeOutputTokensByChatKey = ConcurrentHashMap<String, Int>()
-        private val lastWindowSizeByChatKey = ConcurrentHashMap<String, Int>()
-        private val perRequestTokenCountByChatKey =
+    private val boundServicesByChatKey = ConcurrentHashMap<String, EnhancedAIService>()
+
+    private val cumulativeInputTokensByChatKey = ConcurrentHashMap<String, Int>()
+    private val cumulativeOutputTokensByChatKey = ConcurrentHashMap<String, Int>()
+    private val lastWindowSizeByChatKey = ConcurrentHashMap<String, Int>()
+    private val perRequestTokenCountByChatKey =
         ConcurrentHashMap<String, Pair<Int, Int>?>()
 
     @Volatile private var activeChatId: String? = null
 
     private fun chatKey(chatId: String): String = chatId ?: "__DEFAULT_CHAT__"
-        private fun isActiveKey(key: String): Boolean = key == chatKey(activeChatId)
-        private fun refreshActiveFromCache() {
+
+    private fun isActiveKey(key: String): Boolean = key == chatKey(activeChatId)
+
+    private fun refreshActiveFromCache() {
         val key = chatKey(activeChatId)
         val input = cumulativeInputTokensByChatKey[key] ?: 0
         val output = cumulativeOutputTokensByChatKey[key] ?: 0
@@ -60,7 +66,8 @@ class TokenStatisticsDelegate(
         _perRequestTokenCount.value = perRequest
         lastCurrentWindowSize = window
     }
-        private fun handlePerRequestCounts(
+
+    private fun handlePerRequestCounts(
         key: String,
         counts: Pair<Int, Int>?
     ) {
@@ -69,17 +76,20 @@ class TokenStatisticsDelegate(
         } else {
             perRequestTokenCountByChatKey[key] = counts
         }
+
         if (isActiveKey(key)) {
             _perRequestTokenCount.value = counts
         }
     }
-        private fun handleRequestWindowEstimate(
+
+    private fun handleRequestWindowEstimate(
         key: String,
         windowSize: Int?
     ) {
         if (windowSize == null) {
             return
         }
+
         lastWindowSizeByChatKey[key] = windowSize
 
         if (isActiveKey(key)) {
@@ -87,7 +97,8 @@ class TokenStatisticsDelegate(
             lastCurrentWindowSize = windowSize
         }
     }
-        fun setupCollectors() {
+
+    fun setupCollectors() {
         tokenCollectorJob?.cancel() // Cancel previous collector if any
         val service = getEnhancedAiService() ?: return // Service not ready
         tokenCollectorJob = coroutineScope.launch(Dispatchers.IO) {
@@ -99,7 +110,7 @@ class TokenStatisticsDelegate(
                     )
                 }
             }
-        launch {
+            launch {
                 service.requestWindowEstimateFlow.collect { windowSize ->
                     handleRequestWindowEstimate(
                         key = chatKey(null),
@@ -109,11 +120,13 @@ class TokenStatisticsDelegate(
             }
         }
     }
-        fun setActiveChatId(chatId: String) {
+
+    fun setActiveChatId(chatId: String) {
         activeChatId = chatId
         refreshActiveFromCache()
     }
-        fun bindChatService(chatId: String?, service: EnhancedAIService) {
+
+    fun bindChatService(chatId: String?, service: EnhancedAIService) {
         val key = chatKey(chatId)
         boundServicesByChatKey[key] = service
 
@@ -128,7 +141,7 @@ class TokenStatisticsDelegate(
                         )
                     }
                 }
-        launch {
+                launch {
                     service.requestWindowEstimateFlow.collect { windowSize ->
                         handleRequestWindowEstimate(
                             key = key,
@@ -137,6 +150,7 @@ class TokenStatisticsDelegate(
                     }
                 }
             }
+
         if (isActiveKey(key)) {
             refreshActiveFromCache()
         }
@@ -158,10 +172,10 @@ class TokenStatisticsDelegate(
         // 同时重置服务中的token计数
         val services = buildSet {
             getEnhancedAiService()?.let { add(it) }
-        addAll(boundServicesByChatKey.values)
+            addAll(boundServicesByChatKey.values)
         }
         services.forEach { it.resetTokenCounters() }
-        AppLogger.d(TAG, "token统计已重，"
+        AppLogger.d(TAG, "token统计已重�?
     }
 
     /** 更新累计的token统计信息 */
@@ -171,12 +185,11 @@ class TokenStatisticsDelegate(
         service?.let {
             try {
                 // 从AI服务获取最新的token统计
-        val currentInputTokens = it.getCurrentInputTokenCount()
-        val currentOutputTokens = it.getCurrentOutputTokenCount()
+                val currentInputTokens = it.getCurrentInputTokenCount()
+                val currentOutputTokens = it.getCurrentOutputTokenCount()
 
-                // 更新累计token，
-        val newInput = (cumulativeInputTokensByChatKey[key] ?: 0) + currentInputTokens
-        val newOutput = (cumulativeOutputTokensByChatKey[key] ?: 0) + currentOutputTokens
+                // 更新累计token�?               val newInput = (cumulativeInputTokensByChatKey[key] ?: 0) + currentInputTokens
+                val newOutput = (cumulativeOutputTokensByChatKey[key] ?: 0) + currentOutputTokens
                 cumulativeInputTokensByChatKey[key] = newInput
                 cumulativeOutputTokensByChatKey[key] = newOutput
 
@@ -184,13 +197,14 @@ class TokenStatisticsDelegate(
                     _cumulativeInputTokens.value = newInput
                     _cumulativeOutputTokens.value = newOutput
                 }
-        AppLogger.d(
+
+                AppLogger.d(
                         TAG,
                     "Cumulative token stats updated - " +
                             "Input: ${newInput}, Output: ${newOutput}"
                 )
             } catch (e: Exception) {
-                AppLogger.e(TAG, "获取累计token计数时出，${e.message}", e)
+                AppLogger.e(TAG, "获取累计token计数时出�?${e.message}", e)
             }
         }
     }
@@ -209,7 +223,8 @@ class TokenStatisticsDelegate(
             lastCurrentWindowSize = windowSize
         }
     }
-        fun setTokenCounts(inputTokens: Int, outputTokens: Int, windowSize: Int) {
+
+    fun setTokenCounts(inputTokens: Int, outputTokens: Int, windowSize: Int) {
         setTokenCounts(activeChatId, inputTokens, outputTokens, windowSize)
     }
 
@@ -222,7 +237,7 @@ class TokenStatisticsDelegate(
         )
     }
 
-    /** 获取最近一次的实际上下文窗口大，/
+    /** 获取最近一次的实际上下文窗口大�?/
     fun getLastCurrentWindowSize(chatId: String? = activeChatId): Int {
         val key = chatKey(chatId)
         return lastWindowSizeByChatKey[key] ?: 0

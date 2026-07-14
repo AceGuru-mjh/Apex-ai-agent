@@ -28,22 +28,24 @@ private data class ToolLifecycleDispatch(
 
 internal object ToolPkgToolLifecycleBridge : AIToolHook {
     private val installed = AtomicBoolean(false)
-        private val dispatchScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        private val dispatchChannel = Channel<ToolLifecycleDispatch>(Channel.UNLIMITED)
+    private val dispatchScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val dispatchChannel = Channel<ToolLifecycleDispatch>(Channel.UNLIMITED)
     @Volatile
     private var hooks: List<ToolPkgToolLifecycleHookRegistration> = emptyList()
-        private val runtimeChangeListener =
+    private val runtimeChangeListener =
         PackageManager.ToolPkgRuntimeChangeListener {
             syncToolPkgRegistrations(toolPkgPackageManager().getImportedToolPkgContainerRuntimes())
         }
-        init {
+
+    init {
         dispatchScope.launch {
             for (dispatch in dispatchChannel) {
                 deliver(dispatch)
             }
         }
     }
-        fun register() {
+
+    fun register() {
         if (!installed.compareAndSet(false, true)) {
             return
         }
@@ -52,13 +54,15 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
         val manager = toolPkgPackageManager()
         manager.addToolPkgRuntimeChangeListener(runtimeChangeListener)
     }
-        override fun onToolCallRequested(tool: AITool) {
+
+    override fun onToolCallRequested(tool: AITool) {
         enqueue(
             eventName = "tool_call_requested",
             eventPayload = buildBasePayload(tool)
         )
     }
-        override fun onToolPermissionChecked(tool: AITool, granted: Boolean, reason: String) {
+
+    override fun onToolPermissionChecked(tool: AITool, granted: Boolean, reason: String) {
         enqueue(
             eventName = "tool_permission_checked",
             eventPayload = buildBasePayload(tool) + mapOf(
@@ -67,13 +71,15 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
             )
         )
     }
-        override fun onToolExecutionStarted(tool: AITool) {
+
+    override fun onToolExecutionStarted(tool: AITool) {
         enqueue(
             eventName = "tool_execution_started",
             eventPayload = buildBasePayload(tool)
         )
     }
-        override fun onToolExecutionResult(tool: AITool, result: ToolResult) {
+
+    override fun onToolExecutionResult(tool: AITool, result: ToolResult) {
         enqueue(
             eventName = "tool_execution_result",
             eventPayload = buildBasePayload(tool) + mapOf(
@@ -84,7 +90,8 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
             )
         )
     }
-        override fun onToolExecutionError(tool: AITool, throwable: Throwable) {
+
+    override fun onToolExecutionError(tool: AITool, throwable: Throwable) {
         enqueue(
             eventName = "tool_execution_error",
             eventPayload = buildBasePayload(tool) + mapOf(
@@ -93,13 +100,15 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
             )
         )
     }
-        override fun onToolExecutionFinished(tool: AITool) {
+
+    override fun onToolExecutionFinished(tool: AITool) {
         enqueue(
             eventName = "tool_execution_finished",
             eventPayload = buildBasePayload(tool)
         )
     }
-        private fun enqueue(eventName: String, eventPayload: Map<String, Any?>) {
+
+    private fun enqueue(eventName: String, eventPayload: Map<String, Any?>) {
         val result = dispatchChannel.trySend(
             ToolLifecycleDispatch(
                 eventName = eventName,
@@ -110,7 +119,8 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
             AppLogger.w(TAG, "Tool lifecycle event dropped: ${eventName}")
         }
     }
-        private fun deliver(dispatch: ToolLifecycleDispatch) {
+
+    private fun deliver(dispatch: ToolLifecycleDispatch) {
         val manager = toolPkgPackageManager()
         hooks.forEach { hook ->
             val result =
@@ -123,7 +133,7 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
                     inlineFunctionSource = hook.functionSource,
                     eventPayload = dispatch.eventPayload
                 )
-        result.onFailure { error ->
+            result.onFailure { error ->
                 AppLogger.e(
                     TAG,
                     "ToolPkg tool lifecycle hook failed: ${hook.containerPackageName}:${hook.hookId}",
@@ -132,14 +142,16 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
             }
         }
     }
-        private fun buildBasePayload(tool: AITool): Map<String, Any?> {
+
+    private fun buildBasePayload(tool: AITool): Map<String, Any?> {
         return buildMap {
             put("toolName", tool.name)
-        put("parameters", tool.parameters.associate { parameter -> parameter.name to parameter.value })
-        put("description", tool.description)
+            put("parameters", tool.parameters.associate { parameter -> parameter.name to parameter.value })
+            put("description", tool.description)
         }
     }
-        private fun parseToolResultJson(result: ToolResult): Any? {
+
+    private fun parseToolResultJson(result: ToolResult): Any? {
         val text = result.result.toJson().trim()
         if (text.isEmpty()) {
             return null
@@ -147,11 +159,12 @@ internal object ToolPkgToolLifecycleBridge : AIToolHook {
         val parsed = runCatching { JSONTokener(text).nextValue() }.getOrNull()
         return when (parsed) {
             is JSONObject -> jsonObjectToMap(parsed)
-        is JSONArray -> jsonArrayToList(parsed)
-        else -> null
+            is JSONArray -> jsonArrayToList(parsed)
+            else -> null
         }
     }
-        private fun syncToolPkgRegistrations(activeContainers: List<ToolPkgContainerRuntime>) {
+
+    private fun syncToolPkgRegistrations(activeContainers: List<ToolPkgContainerRuntime>) {
         hooks =
             activeContainers.flatMap { runtime ->
                 runtime.toolLifecycleHooks.map { hook ->

@@ -4,9 +4,8 @@ import com.apex.agent.core.collaboration.AgentCollaborationFramework.AgentRole
 import java.util.UUID
 
 /**
- * KanbanColumn - 列定义
- *
- * 看板中的每一列代表一个工作阶段，可配置
+ * KanbanColumn - 列定�? *
+ * 看板中的每一列代表一个工作阶段，可配�?
  * - 专业 Agent 角色
  * - 入口/出口条件
  * - 自动处理规则
@@ -18,20 +17,18 @@ class KanbanColumn(
     val order: Int = 0,
     val tasks: MutableList<KanbanTask> = mutableListOf(),
     // Worker 配置
-        var assignedWorker: String? = null,  // Worker ID
-        var requiredAgentRoles: List<AgentRole> = emptyList(),  // 要求的Agent 角色
-        var requiredCapabilities: List<String> = emptyList(),     // 要求的能务
-    // 流转规则
-        var entryConditions: List<ColumnCondition> = emptyList(),  // 进入条件
-        var exitConditions: List<ColumnCondition> = emptyList(),   // 离开条件
+    var assignedWorker: String? = null,  // Worker ID
+    var requiredAgentRoles: List<AgentRole> = emptyList(),  // 要求�?Agent 角色
+    var requiredCapabilities: List<String> = emptyList(),     // 要求的能�?    // 流转规则
+    var entryConditions: List<ColumnCondition> = emptyList(),  // 进入条件
+    var exitConditions: List<ColumnCondition> = emptyList(),   // 离开条件
     // 自动处理
-        var autoProcessEnabled: Boolean = false,
+    var autoProcessEnabled: Boolean = false,
     var autoAssignEnabled: Boolean = false,
     var createdAt: Long = System.currentTimeMillis()
 ) {
     /**
-     * 检查任务是否满足进入条件
-     */
+     * 检查任务是否满足进入条�?     */
     fun canEnter(task: KanbanTask): Boolean {
         if (entryConditions.isEmpty()) return true
         return entryConditions.all { condition ->
@@ -62,40 +59,39 @@ class KanbanColumn(
     }
 
     /**
-     * 检查是否需要特定角色
-     */
+     * 检查是否需要特定角�?     */
     fun requiresRole(role: AgentRole): Boolean {
         return requiredAgentRoles.contains(role)
     }
 
     /**
-     * 检查是否需要特定能务
-     */
+     * 检查是否需要特定能�?     */
     fun requiresCapability(capability: String): Boolean {
         return requiredCapabilities.any {
             it.equals(capability, ignoreCase = true)
         }
     }
-        companion object {
+
+    companion object {
         /**
          * 创建标准开发流程列
          */
         fun createStandardColumns(): List<KanbanColumn> {
             return listOf(
                 KanbanColumn(
-                    name = "需求",
-                    description = "收集和分析需求",
+                    name = "需�?,
+                    description = "收集和分析需�?,
                     order = 0,
                     requiredAgentRoles = listOf(AgentRole.ANALYST, AgentRole.RESEARCHER)
                 ),
                 KanbanColumn(
                     name = "设计",
-                    description = "系统设计和方案制定",
+                    description = "系统设计和方案制�?,
                     order = 1,
                     requiredAgentRoles = listOf(AgentRole.DESIGNER)
                 ),
                 KanbanColumn(
-                    name = "开取",
+                    name = "开�?,
                     description = "代码实现",
                     order = 2,
                     requiredAgentRoles = listOf(AgentRole.DEVELOPER),
@@ -119,8 +115,7 @@ class KanbanColumn(
 }
 
 /**
- * 列流转条件
- */
+ * 列流转条�? */
 sealed class ColumnCondition {
     abstract fun evaluate(task: KanbanTask): Boolean
 
@@ -143,15 +138,14 @@ sealed class ColumnCondition {
     }
 
     /**
-     * 基于任务标签的条件
-     */
+     * 基于任务标签的条�?     */
     data class TagCondition(
         val tag: String,
         val mustHave: Boolean = true
     ) : ColumnCondition() {
         override fun evaluate(task: KanbanTask): Boolean {
             val hasTag = task.tags.any { it.equals(tag, ignoreCase = true) }
-        return mustHave == hasTag
+            return mustHave == hasTag
         }
     }
 
@@ -167,15 +161,14 @@ sealed class ColumnCondition {
     }
 
     /**
-     * 基于描述关键试
-     */
+     * 基于描述关键�?     */
     data class DescriptionKeywordCondition(
         val keywords: List<String>,
         val matchAll: Boolean = false
     ) : ColumnCondition() {
         override fun evaluate(task: KanbanTask): Boolean {
             val description = task.description.lowercase()
-        return if (matchAll) {
+            return if (matchAll) {
                 keywords.all { description.contains(it.lowercase()) }
             } else {
                 keywords.any { description.contains(it.lowercase()) }
@@ -185,8 +178,7 @@ sealed class ColumnCondition {
 }
 
 /**
-     * 条件操作符
-     */
+     * 条件操作�?     */
 enum class ConditionOperator {
     GREATER_THAN,
     LESS_THAN,

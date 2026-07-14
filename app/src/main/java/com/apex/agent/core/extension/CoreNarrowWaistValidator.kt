@@ -87,7 +87,7 @@ class CoreNarrowWaistValidator {
         // Check 2: Verify core tool additions are necessary
         if (capability.level == FootprintLevel.NEW_CORE_TOOL) {
             val coreCheck = validateCoreAddition(capability)
-        if (coreCheck !is ValidationResult.Accepted) {
+            if (coreCheck !is ValidationResult.Accepted) {
                 return coreCheck
             }
         }
@@ -121,6 +121,7 @@ class CoreNarrowWaistValidator {
                 )
             )
         }
+
         return ValidationResult.Accepted(capability)
     }
 
@@ -132,6 +133,7 @@ class CoreNarrowWaistValidator {
 
         // Check if capability belongs to core tools and is trying to use higher level
         val isCoreTool = CORE_TOOLS.any { name.contains(it.lowercase()) }
+
         if (isCoreTool && capability.level.level > FootprintLevel.CLI_COMMAND_SKILL.level) {
             return ValidationResult.NeedsReview(
                 reasons = listOf(
@@ -162,6 +164,7 @@ class CoreNarrowWaistValidator {
                 )
             )
         }
+
         return ValidationResult.Accepted(capability)
     }
 
@@ -175,6 +178,7 @@ class CoreNarrowWaistValidator {
         val similarCoreTool = CORE_TOOLS.find { coreTool ->
             name.contains(coreTool.lowercase()) || coreTool.lowercase().contains(name)
         }
+
         if (similarCoreTool != null) {
             return ValidationResult.Rejected(
                 reason = "Core already contains similar functionality: ${similarCoreTool}",
@@ -212,6 +216,7 @@ class CoreNarrowWaistValidator {
                 )
             )
         }
+
         return ValidationResult.Accepted(capability)
     }
 
@@ -238,7 +243,7 @@ class CoreNarrowWaistValidator {
         // Check dependency levels are appropriate
         for (dep in capability.dependencies) {
             val depLevel = getDependencyLevel(dep)
-        if (depLevel > capability.level.level) {
+            if (depLevel > capability.level.level) {
                 return ValidationResult.Rejected(
                     reason = "Dependency ${dep} has higher footprint level than capability",
                     suggestedLevel = capability.level,
@@ -249,6 +254,7 @@ class CoreNarrowWaistValidator {
                 )
             }
         }
+
         return ValidationResult.Accepted(capability)
     }
 
@@ -263,15 +269,18 @@ class CoreNarrowWaistValidator {
         if (capabilityName in visited) {
             return true
         }
+
         val newVisited = visited + capabilityName
 
         for (dep in dependencies) {
             val registry = CapabilityRegistry.getInstance()
-        val depCap = registry.getCapability(dep)
-        if (depCap != null && hasCircularDependency(dep, depCap.dependencies.toSet(), newVisited)) {
+            val depCap = registry.getCapability(dep)
+
+            if (depCap != null && hasCircularDependency(dep, depCap.dependencies.toSet(), newVisited)) {
                 return true
             }
         }
+
         return false
     }
 
@@ -289,28 +298,30 @@ class CoreNarrowWaistValidator {
      */
     fun getAlternativeApproaches(capability: CapabilityDeclaration): List<String> {
         val alternatives = mutableListOf<String>()
+
         when (capability.level) {
             FootprintLevel.NEW_CORE_TOOL -> {
                 alternatives.add("Implement as MCP Server (Level 5) for better isolation")
-        alternatives.add("Implement as Plugin (Level 4) for third-party integration")
-        alternatives.add("Consider if this can extend existing functionality (Level 1)")
+                alternatives.add("Implement as Plugin (Level 4) for third-party integration")
+                alternatives.add("Consider if this can extend existing functionality (Level 1)")
             }
-        FootprintLevel.MCP_SERVER -> {
+            FootprintLevel.MCP_SERVER -> {
                 alternatives.add("Implement as Plugin (Level 4) for simpler integration")
-        alternatives.add("Consider if this can be a service-gated tool (Level 3)")
+                alternatives.add("Consider if this can be a service-gated tool (Level 3)")
             }
-        FootprintLevel.PLUGIN -> {
+            FootprintLevel.PLUGIN -> {
                 alternatives.add("Consider implementing as service-gated tool (Level 3)")
-        alternatives.add("Check if this can be a CLI command + skill (Level 2)")
+                alternatives.add("Check if this can be a CLI command + skill (Level 2)")
             }
-        FootprintLevel.SERVICE_GATED_TOOL -> {
+            FootprintLevel.SERVICE_GATED_TOOL -> {
                 alternatives.add("Ensure check_fn is provided for conditional availability")
-        alternatives.add("Consider CLI command + skill (Level 2) for simpler approach")
+                alternatives.add("Consider CLI command + skill (Level 2) for simpler approach")
             }
-        else -> {
+            else -> {
                 // Lower levels are generally acceptable
             }
         }
+
         return alternatives
     }
 
@@ -319,11 +330,13 @@ class CoreNarrowWaistValidator {
      */
     sealed class ValidationResult {
         data class Accepted(val capability: CapabilityDeclaration) : ValidationResult()
+
         data class Rejected(
             val reason: String,
             val suggestedLevel: FootprintLevel?,
             val alternativeApproaches: List<String> = emptyList()
         ) : ValidationResult()
+
         data class NeedsReview(
             val capability: CapabilityDeclaration,
             val reasons: List<String>

@@ -28,25 +28,28 @@ class WorkflowTaskerReceiver : BroadcastReceiver() {
         fun createTriggerIntent(context: Context, extras: Bundle? = null): Intent {
             return Intent(ACTION_TRIGGER_WORKFLOW).apply {
                 setPackage(context.packageName)
-        extras?.let { putExtras(it) }
+                extras?.let { putExtras(it) }
             }
         }
     }
-        override fun onReceive(context: Context, intent: Intent) {
+
+    override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         if (action.isNullOrBlank()) {
             return
         }
+
         AppLogger.d(TAG, "Received workflow trigger broadcast for action: ${action}. Checking for matching workflows.")
 
         // Use goAsync to allow async work
         val pendingResult = goAsync()
+        
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val repository = WorkflowRepository(context.applicationContext)
                 // New method to find and trigger workflows based on the intent's content (action, extras, etc.)
-        repository.triggerWorkflowsByIntentEvent(intent)
-        AppLogger.d(TAG, "Finished processing intent trigger.")
+                repository.triggerWorkflowsByIntentEvent(intent)
+                AppLogger.d(TAG, "Finished processing intent trigger.")
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error processing intent trigger for workflows", e)
             } finally {
@@ -66,22 +69,26 @@ class WorkflowBootReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "WorkflowBootReceiver"
     }
-        override fun onReceive(context: Context, intent: Intent) {
+
+    override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) {
             return
         }
+
         AppLogger.d(TAG, "Device booted, rescheduling workflows")
 
         // Use goAsync to allow async work
         val pendingResult = goAsync()
+        
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val repository = WorkflowRepository(context.applicationContext)
-        val result = repository.getAllWorkflows()
-        result.getOrNull()?.forEach { workflow ->
+                val result = repository.getAllWorkflows()
+                
+                result.getOrNull()?.forEach { workflow ->
                     if (workflow.enabled) {
                         repository.scheduleWorkflow(workflow.id)
-        AppLogger.d(TAG, "Rescheduled workflow: ${workflow.name}")
+                        AppLogger.d(TAG, "Rescheduled workflow: ${workflow.name}")
                     }
                 }
             } catch (e: Exception) {

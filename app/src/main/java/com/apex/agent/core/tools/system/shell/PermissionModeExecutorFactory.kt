@@ -18,7 +18,7 @@ import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * 权限模式执行器工原- 根据 PermissionMode 创建对应的Shell 执行器
+ * 权限模式执行器工�?- 根据 PermissionMode 创建对应�?Shell 执行�?
  */
 class PermissionModeExecutorFactory private constructor(private val context: Context) {
 
@@ -36,16 +36,22 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
                 }
             }
     }
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        private val mutex = Mutex()
-        private val _executorCache = MutableStateFlow<Map<PermissionMode, ShellExecutor>>(emptyMap())
-        val executorCache: StateFlow<Map<PermissionMode, ShellExecutor>> = _executorCache.asStateFlow()
-        private val _currentExecutor = MutableStateFlow<ShellExecutor?>(null)
-        val currentExecutor: StateFlow<ShellExecutor?> = _currentExecutor.asStateFlow()
-        private val _isInitializing = MutableStateFlow(false)
-        val isInitializing: StateFlow<Boolean> = _isInitializing.asStateFlow()
-        private val executorCreationTime = ConcurrentHashMap<PermissionMode, Long>()
-        private val modeManager by lazy { PermissionModeManager.getInstance(context) }
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val mutex = Mutex()
+
+    private val _executorCache = MutableStateFlow<Map<PermissionMode, ShellExecutor>>(emptyMap())
+    val executorCache: StateFlow<Map<PermissionMode, ShellExecutor>> = _executorCache.asStateFlow()
+
+    private val _currentExecutor = MutableStateFlow<ShellExecutor?>(null)
+    val currentExecutor: StateFlow<ShellExecutor?> = _currentExecutor.asStateFlow()
+
+    private val _isInitializing = MutableStateFlow(false)
+    val isInitializing: StateFlow<Boolean> = _isInitializing.asStateFlow()
+
+    private val executorCreationTime = ConcurrentHashMap<PermissionMode, Long>()
+
+    private val modeManager by lazy { PermissionModeManager.getInstance(context) }
 
     /**
      * 获取指定权限模式的执行器
@@ -54,17 +60,20 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
         val cached = _executorCache.value[mode]
         val now = System.currentTimeMillis()
 
-        // 检查缓存是否有数
+        // 检查缓存是否有�?
         if (cached != null) {
             val creationTime = executorCreationTime[mode] ?: 0L
             if (now - creationTime < CACHE_TTL && cached.isAvailable()) {
-                AppLogger.v(TAG, "使用缓存的${mode.displayName} 执行器")
-        return cached
+                AppLogger.v(TAG, "使用缓存�?${mode.displayName} 执行�?)
+                return cached
             }
         }
-        AppLogger.d(TAG, "创建 ${mode.displayName} 执行器..")
+
+        AppLogger.d(TAG, "创建 ${mode.displayName} 执行�?..")
+
         val executor = createExecutor(mode)
         executor.initialize()
+
         _executorCache.update { current ->
             current.toMutableMap().apply { put(mode, executor) }
         }
@@ -72,14 +81,15 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
 
         return executor
     }
-        private fun createExecutor(mode: PermissionMode): ShellExecutor =
+
+    private fun createExecutor(mode: PermissionMode): ShellExecutor =
         when (mode) {
             PermissionMode.STANDARD -> StandardShellExecutor(context)
-        PermissionMode.ACCESSIBILITY -> AccessibilityShellExecutor(context)
-        PermissionMode.DEBUGGER -> DebuggerShellExecutor(context)
-        PermissionMode.ADMIN -> AdminShellExecutor(context)
-        PermissionMode.SHIZUKU -> ShizukuShellExecutor(context)
-        PermissionMode.ROOT -> RootShellExecutor(context)
+            PermissionMode.ACCESSIBILITY -> AccessibilityShellExecutor(context)
+            PermissionMode.DEBUGGER -> DebuggerShellExecutor(context)
+            PermissionMode.ADMIN -> AdminShellExecutor(context)
+            PermissionMode.SHIZUKU -> ShizukuShellExecutor(context)
+            PermissionMode.ROOT -> RootShellExecutor(context)
         }
 
     /**
@@ -117,7 +127,7 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
     }
 
     /**
-     * 尝试按优先级顺序获取执行器
+     * 尝试按优先级顺序获取执行�?
      */
     suspend fun tryGetExecutor(
         preferredModes: List<PermissionMode> = PermissionMode.sortedByLevelDesc()
@@ -125,15 +135,16 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
         for (mode in preferredModes) {
             try {
                 val executor = getExecutor(mode)
-        if (executor.isAvailable() && executor.hasPermission().granted) {
-                    AppLogger.d(TAG, "使用 ${mode.displayName} 执行器")
-        return executor
+                if (executor.isAvailable() && executor.hasPermission().granted) {
+                    AppLogger.d(TAG, "使用 ${mode.displayName} 执行�?)
+                    return executor
                 }
             } catch (e: Exception) {
-                AppLogger.w(TAG, "获取 ${mode.displayName} 执行器失败", e)
+                AppLogger.w(TAG, "获取 ${mode.displayName} 执行器失�?, e)
             }
         }
-        AppLogger.w(TAG, "所有高级执行器不可用，回退到标准模式")
+
+        AppLogger.w(TAG, "所有高级执行器不可用，回退到标准模�?)
         return getExecutor(PermissionMode.STANDARD)
     }
 
@@ -148,33 +159,33 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
         _isInitializing.value = true
         try {
             AppLogger.d(TAG, "预加载执行器...")
-        modes.forEach { mode ->
+            modes.forEach { mode ->
                 try {
                     getExecutor(mode)
                 } catch (e: Exception) {
-                    AppLogger.w(TAG, "预加转${mode.displayName} 执行器失败", e)
+                    AppLogger.w(TAG, "预加�?${mode.displayName} 执行器失�?, e)
                 }
             }
-        AppLogger.d(TAG, "执行器预加载完成")
+            AppLogger.d(TAG, "执行器预加载完成")
         } finally {
             _isInitializing.value = false
         }
     }
 
     /**
-     * 清除指定模式的缓字
+     * 清除指定模式的缓�?
      */
     fun clearCache(mode: PermissionMode? = null) {
         if (mode != null) {
             _executorCache.update { current ->
                 current.toMutableMap().apply { remove(mode) }
             }
-        executorCreationTime.remove(mode)
-        AppLogger.d(TAG, "已清限${mode.displayName} 执行器缓字")
+            executorCreationTime.remove(mode)
+            AppLogger.d(TAG, "已清�?${mode.displayName} 执行器缓�?)
         } else {
             _executorCache.update { emptyMap() }
-        executorCreationTime.clear()
-        AppLogger.d(TAG, "已清除所有执行器缓存")
+            executorCreationTime.clear()
+            AppLogger.d(TAG, "已清除所有执行器缓存")
         }
     }
 
@@ -187,19 +198,21 @@ class PermissionModeExecutorFactory private constructor(private val context: Con
     }
 
     /**
-     * 获取所有可用执行器及其状态
+     * 获取所有可用执行器及其状�?
      */
     suspend fun getAvailableExecutors(): Map<PermissionMode, Pair<ShellExecutor, ShellExecutor.PermissionStatus>> {
         val result = mutableMapOf<PermissionMode, Pair<ShellExecutor, ShellExecutor.PermissionStatus>>()
+
         for (mode in PermissionMode.values()) {
             try {
                 val executor = getExecutor(mode)
-        val status = executor.hasPermission()
-        result[mode] = executor to status
+                val status = executor.hasPermission()
+                result[mode] = executor to status
             } catch (e: Exception) {
-                AppLogger.w(TAG, "获取 ${mode.displayName} 执行器状态失败", e)
+                AppLogger.w(TAG, "获取 ${mode.displayName} 执行器状态失�?, e)
             }
         }
+
         return result
     }
 }

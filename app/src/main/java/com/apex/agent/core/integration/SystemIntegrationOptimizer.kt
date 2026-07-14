@@ -19,13 +19,16 @@ class SystemIntegrationOptimizer(private val name: String = "sys-integration") {
         val throughput: Double = 0.0,
         val lastChecked: Long = System.currentTimeMillis()
     )
-        enum class IntegrationType {
+
+    enum class IntegrationType {
         API, DATABASE, FILE_SYSTEM, NETWORK, IPC, SERVICE, EXTERNAL_TOOL
     }
-        enum class IntegrationStatus {
+
+    enum class IntegrationStatus {
         HEALTHY, DEGRADED, UNHEALTHY, DISCONNECTED
     }
-        data class IntegrationMetrics(
+
+    data class IntegrationMetrics(
         val totalIntegrations: Int,
         val healthyCount: Int,
         val degradedCount: Int,
@@ -34,65 +37,75 @@ class SystemIntegrationOptimizer(private val name: String = "sys-integration") {
         val totalThroughput: Double,
         val averageErrorRate: Double
     )
-        private val logger = LoggerFactory.getLogger("SystemIntegrationOptimizer-$name")
-        private val integrations = ConcurrentHashMap<String, IntegrationPoint>()
-        private val healthHistory = ConcurrentHashMap<String, CopyOnWriteArrayList<IntegrationStatus>>()
-        private val latencyHistory = ConcurrentHashMap<String, CopyOnWriteArrayList<Long>>()
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        private val healthCheckIntervalMs = 15000L
+
+    private val logger = LoggerFactory.getLogger("SystemIntegrationOptimizer-$name")
+    private val integrations = ConcurrentHashMap<String, IntegrationPoint>()
+    private val healthHistory = ConcurrentHashMap<String, CopyOnWriteArrayList<IntegrationStatus>>()
+    private val latencyHistory = ConcurrentHashMap<String, CopyOnWriteArrayList<Long>>()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val healthCheckIntervalMs = 15000L
     private val maxHistorySize = 100
 
     init {
         scope.launch {
             while (true) {
                 delay(healthCheckIntervalMs)
-        performHealthChecks()
+                performHealthChecks()
             }
         }
     }
-        fun registerIntegration(point: IntegrationPoint) {
+
+    fun registerIntegration(point: IntegrationPoint) {
         integrations[point.id] = point
         healthHistory[point.id] = CopyOnWriteArrayList()
         latencyHistory[point.id] = CopyOnWriteArrayList()
         logger.info("Registered integration: {} ({})", point.name, point.type)
     }
-        fun unregisterIntegration(id: String) {
+
+    fun unregisterIntegration(id: String) {
         integrations.remove(id)
         healthHistory.remove(id)
         latencyHistory.remove(id)
     }
-        fun recordLatency(integrationId: String, latencyMs: Long) {
+
+    fun recordLatency(integrationId: String, latencyMs: Long) {
         val history = latencyHistory[integrationId]
         if (history != null) {
             history.add(latencyMs)
-        while (history.size > maxHistorySize) history.removeAt(0)
+            while (history.size > maxHistorySize) history.removeAt(0)
         }
         integrations.computeIfPresent(integrationId) { _, point ->
             point.copy(latencyMs = latencyMs)
         }
     }
-        fun recordError(integrationId: String) {
+
+    fun recordError(integrationId: String) {
         integrations.computeIfPresent(integrationId) { _, point ->
             val newErrorRate = point.errorRate * 0.9 + 0.1
             point.copy(errorRate = newErrorRate)
         }
     }
-        fun recordSuccess(integrationId: String) {
+
+    fun recordSuccess(integrationId: String) {
         integrations.computeIfPresent(integrationId) { _, point ->
             val newErrorRate = point.errorRate * 0.95
             point.copy(errorRate = newErrorRate)
         }
     }
-        fun getIntegration(id: String): IntegrationPoint? = integrations[id]
+
+    fun getIntegration(id: String): IntegrationPoint? = integrations[id]
 
     fun getAllIntegrations(): List<IntegrationPoint> = integrations.values.toList()
-        fun getIntegrationsByType(type: IntegrationType): List<IntegrationPoint> {
+
+    fun getIntegrationsByType(type: IntegrationType): List<IntegrationPoint> {
         return integrations.values.filter { it.type == type }
     }
-        fun getUnhealthyIntegrations(): List<IntegrationPoint> {
+
+    fun getUnhealthyIntegrations(): List<IntegrationPoint> {
         return integrations.values.filter { it.status == IntegrationStatus.UNHEALTHY || it.status == IntegrationStatus.DISCONNECTED }
     }
-        fun getMetrics(): IntegrationMetrics {
+
+    fun getMetrics(): IntegrationMetrics {
         val all = integrations.values
         return IntegrationMetrics(
             totalIntegrations = all.size,
@@ -104,7 +117,8 @@ class SystemIntegrationOptimizer(private val name: String = "sys-integration") {
             averageErrorRate = all.map { it.errorRate }.average()
         )
     }
-        fun getLatencyStats(integrationId: String): Map<String, Any> {
+
+    fun getLatencyStats(integrationId: String): Map<String, Any> {
         val history = latencyHistory[integrationId] ?: return emptyMap()
         val sorted = history.sorted()
         return mapOf(
@@ -116,7 +130,8 @@ class SystemIntegrationOptimizer(private val name: String = "sys-integration") {
             "p99" to (sorted.getOrNull((sorted.size * 0.99).toInt()) ?: 0).toDouble()
         )
     }
-        fun getStats(): Map<String, Any> {
+
+    fun getStats(): Map<String, Any> {
         val metrics = getMetrics()
         return mapOf(
             "name" to name,
@@ -128,22 +143,27 @@ class SystemIntegrationOptimizer(private val name: String = "sys-integration") {
             "avgErrorRate" to metrics.averageErrorRate
         )
     }
-        fun shutdown() { scope.cancel() }
-        private suspend fun performHealthChecks() {
+
+    fun shutdown() { scope.cancel() }
+
+    private suspend fun performHealthChecks() {
         for ((id, point) in integrations) {
             val status = checkHealth(point)
-        val history = healthHistory[id]
+            val history = healthHistory[id]
             history?.add(status)
-        while (history != null && history.size > maxHistorySize) history.removeAt(0)
-        integrations.computeIfPresent(id) { _, p ->
+            while (history != null && history.size > maxHistorySize) history.removeAt(0)
+
+            integrations.computeIfPresent(id) { _, p ->
                 p.copy(status = status, lastChecked = System.currentTimeMillis())
             }
-        if (status != IntegrationStatus.HEALTHY) {
+
+            if (status != IntegrationStatus.HEALTHY) {
                 logger.warn("Integration {} ({}) is {}", point.name, point.type, status)
             }
         }
     }
-        private fun checkHealth(point: IntegrationPoint): IntegrationStatus {
+
+    private fun checkHealth(point: IntegrationPoint): IntegrationStatus {
         return when {
             point.errorRate > 0.5 -> IntegrationStatus.UNHEALTHY
             point.errorRate > 0.2 -> IntegrationStatus.DEGRADED
@@ -165,7 +185,8 @@ class ApiCallOptimizer(private val name: String = "api-optimizer") {
         val retryCount: Int = 3,
         val circuitBreakerState: String = "CLOSED"
     )
-        data class ApiMetrics(
+
+    data class ApiMetrics(
         val totalEndpoints: Int,
         val totalCalls: Long,
         val totalErrors: Long,
@@ -173,32 +194,37 @@ class ApiCallOptimizer(private val name: String = "api-optimizer") {
         val overallErrorRate: Double,
         val callsPerSecond: Double
     )
-        private val logger = LoggerFactory.getLogger("ApiCallOptimizer-$name")
-        private val endpoints = ConcurrentHashMap<String, ApiEndpoint>()
-        private val latencySamples = ConcurrentHashMap<String, ConcurrentLinkedQueue<Long>>()
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        private val maxSamples = 1000
+
+    private val logger = LoggerFactory.getLogger("ApiCallOptimizer-$name")
+    private val endpoints = ConcurrentHashMap<String, ApiEndpoint>()
+    private val latencySamples = ConcurrentHashMap<String, ConcurrentLinkedQueue<Long>>()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val maxSamples = 1000
     private val totalCalls = AtomicLong(0)
-        private val totalErrors = AtomicLong(0)
-        fun registerEndpoint(url: String, method: String = "GET", timeoutMs: Long = 30000L, retryCount: Int = 3) {
+    private val totalErrors = AtomicLong(0)
+
+    fun registerEndpoint(url: String, method: String = "GET", timeoutMs: Long = 30000L, retryCount: Int = 3) {
         endpoints[url] = ApiEndpoint(url = url, method = method, timeoutMs = timeoutMs, retryCount = retryCount)
         latencySamples[url] = ConcurrentLinkedQueue()
         logger.info("Registered API endpoint: {} {}", method, url)
     }
-        fun recordCall(url: String, latencyMs: Long, success: Boolean) {
+
+    fun recordCall(url: String, latencyMs: Long, success: Boolean) {
         totalCalls.incrementAndGet()
         if (!success) totalErrors.incrementAndGet()
+
         val samples = latencySamples[url]
         if (samples != null) {
             samples.add(latencyMs)
-        while (samples.size > maxSamples) samples.poll()
+            while (samples.size > maxSamples) samples.poll()
         }
+
         endpoints.computeIfPresent(url) { _, endpoint ->
             val sorted = latencySamples[url]?.sorted() ?: emptyList()
-        val p95 = sorted.getOrNull((sorted.size * 0.95).toInt()) ?: latencyMs
+            val p95 = sorted.getOrNull((sorted.size * 0.95).toInt()) ?: latencyMs
             val errorRate = if (endpoint.callCount > 0)
                 (endpoint.errorRate * 0.95 + (if (success) 0.0 else 0.05)) else (if (success) 0.0 else 1.0)
-        endpoint.copy(
+            endpoint.copy(
                 averageLatencyMs = if (sorted.isNotEmpty()) sorted.average().toLong() else latencyMs,
                 p95LatencyMs = p95,
                 errorRate = errorRate.coerceIn(0.0, 1.0),
@@ -206,15 +232,18 @@ class ApiCallOptimizer(private val name: String = "api-optimizer") {
             )
         }
     }
-        fun getEndpoint(url: String): ApiEndpoint? = endpoints[url]
+
+    fun getEndpoint(url: String): ApiEndpoint? = endpoints[url]
 
     fun getSlowEndpoints(thresholdMs: Long = 5000): List<ApiEndpoint> {
         return endpoints.values.filter { it.p95LatencyMs > thresholdMs }
     }
-        fun getErrorProneEndpoints(errorThreshold: Double = 0.1): List<ApiEndpoint> {
+
+    fun getErrorProneEndpoints(errorThreshold: Double = 0.1): List<ApiEndpoint> {
         return endpoints.values.filter { it.errorRate > errorThreshold }
     }
-        fun getMetrics(): ApiMetrics {
+
+    fun getMetrics(): ApiMetrics {
         val calls = totalCalls.get()
         val errors = totalErrors.get()
         return ApiMetrics(
@@ -226,7 +255,8 @@ class ApiCallOptimizer(private val name: String = "api-optimizer") {
             callsPerSecond = if (calls > 0) calls.toDouble() / (System.currentTimeMillis() / 1000.0).coerceAtLeast(1.0) else 0.0
         )
     }
-        fun getStats(): Map<String, Any> = mapOf(
+
+    fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "endpoints" to endpoints.size,
         "totalCalls" to totalCalls.get(),
@@ -246,7 +276,8 @@ class DataMigrationOptimizer(private val name: String = "data-migration") {
         val validateAfterMigrate: Boolean = true,
         val enableProgressReporting: Boolean = true
     )
-        data class MigrationProgress(
+
+    data class MigrationProgress(
         val totalItems: Long,
         val processedItems: Long,
         val failedItems: Long,
@@ -255,22 +286,26 @@ class DataMigrationOptimizer(private val name: String = "data-migration") {
         val currentBatchSize: Int,
         val throughputPerSecond: Double
     )
-        private val logger = LoggerFactory.getLogger("DataMigrationOptimizer-$name")
-        private val config = MigrationConfig()
-        private val progressMap = ConcurrentHashMap<String, MigrationProgress>()
-        private val migrationTimes = ConcurrentLinkedQueue<Long>()
-        fun createMigrationPlan(sourceTable: String, destTable: String, totalItems: Long): MigrationConfig {
+
+    private val logger = LoggerFactory.getLogger("DataMigrationOptimizer-$name")
+    private val config = MigrationConfig()
+    private val progressMap = ConcurrentHashMap<String, MigrationProgress>()
+    private val migrationTimes = ConcurrentLinkedQueue<Long>()
+
+    fun createMigrationPlan(sourceTable: String, destTable: String, totalItems: Long): MigrationConfig {
         val batchSize = calculateOptimalBatchSize(totalItems)
         val concurrency = calculateOptimalConcurrency(totalItems)
         logger.info("Migration plan: {} -> {} ({} items, batch={}, concurrency={})",
             sourceTable, destTable, totalItems, batchSize, concurrency)
         return config.copy(batchSize = batchSize, maxConcurrency = concurrency)
     }
-        fun updateProgress(migrationId: String, processed: Long, total: Long, failed: Long = 0) {
+
+    fun updateProgress(migrationId: String, processed: Long, total: Long, failed: Long = 0) {
         val startTime = System.currentTimeMillis()
         val elapsed = startTime - (progressMap[migrationId]?.let {
             startTime - (it.totalItems * it.averageItemTimeMs().toLong())
         } ?: startTime)
+
         val pct = if (total > 0) processed.toDouble() / total * 100.0 else 0.0
         val throughput = if (elapsed > 0) processed.toDouble() / (elapsed / 1000.0) else 0.0
         val remaining = if (throughput > 0) ((total - processed) / throughput * 1000).toLong() else 0L
@@ -285,21 +320,25 @@ class DataMigrationOptimizer(private val name: String = "data-migration") {
             throughputPerSecond = throughput
         )
     }
-        fun getProgress(migrationId: String): MigrationProgress? = progressMap[migrationId]
+
+    fun getProgress(migrationId: String): MigrationProgress? = progressMap[migrationId]
 
     fun recordMigrationTime(durationMs: Long) {
         migrationTimes.add(durationMs)
         while (migrationTimes.size > 100) migrationTimes.poll()
     }
-        fun getAverageMigrationTime(): Double {
+
+    fun getAverageMigrationTime(): Double {
         return if (migrationTimes.isNotEmpty()) migrationTimes.average() else 0.0
     }
-        fun getEstimatedTimeForSize(itemCount: Long): Long {
+
+    fun getEstimatedTimeForSize(itemCount: Long): Long {
         val avgTime = getAverageMigrationTime()
         val avgItemsPerMigration = progressMap.values.map { it.totalItems }.average().coerceAtLeast(1.0)
         return (avgTime / avgItemsPerMigration * itemCount).toLong()
     }
-        fun getStats(): Map<String, Any> = mapOf(
+
+    fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "activeMigrations" to progressMap.size,
         "averageMigrationTimeMs" to getAverageMigrationTime(),
@@ -309,7 +348,8 @@ class DataMigrationOptimizer(private val name: String = "data-migration") {
             "retryCount" to config.retryCount
         )
     )
-        private fun calculateOptimalBatchSize(totalItems: Long): Int {
+
+    private fun calculateOptimalBatchSize(totalItems: Long): Int {
         return when {
             totalItems > 1000000 -> 5000
             totalItems > 100000 -> 1000
@@ -317,14 +357,16 @@ class DataMigrationOptimizer(private val name: String = "data-migration") {
             else -> 100
         }.coerceIn(10, 10000)
     }
-        private fun calculateOptimalConcurrency(totalItems: Long): Int {
+
+    private fun calculateOptimalConcurrency(totalItems: Long): Int {
         return when {
             totalItems > 1000000 -> 8
             totalItems > 100000 -> 4
             else -> 2
         }.coerceIn(1, 16)
     }
-        private fun MigrationProgress.averageItemTimeMs(): Double = 0.0
+
+    private fun MigrationProgress.averageItemTimeMs(): Double = 0.0
 }
 
 class EventBusOptimizer(private val name: String = "event-bus") {
@@ -336,7 +378,8 @@ class EventBusOptimizer(private val name: String = "event-bus") {
         val averageLatencyUs: Double,
         val peakThroughput: Double
     )
-        data class EventBusMetrics(
+
+    data class EventBusMetrics(
         val totalEvents: Long,
         val totalSubscribers: Int,
         val activeChannels: Int,
@@ -345,61 +388,70 @@ class EventBusOptimizer(private val name: String = "event-bus") {
         val backpressureRatio: Double,
         val droppedEvents: Long
     )
-        private val logger = LoggerFactory.getLogger("EventBusOptimizer-$name")
-        private val eventCounts = ConcurrentHashMap<String, AtomicLong>()
-        private val subscriberCounts = ConcurrentHashMap<String, AtomicInteger>()
-        private val eventLatencies = ConcurrentHashMap<String, ConcurrentLinkedQueue<Long>>()
-        private val totalEvents = AtomicLong(0)
-        private val droppedEvents = AtomicLong(0)
-        private val peakThroughput = AtomicLong(0)
-        private val latencyHistory = ConcurrentLinkedQueue<Long>()
-        private val maxSamples = 10000
+
+    private val logger = LoggerFactory.getLogger("EventBusOptimizer-$name")
+    private val eventCounts = ConcurrentHashMap<String, AtomicLong>()
+    private val subscriberCounts = ConcurrentHashMap<String, AtomicInteger>()
+    private val eventLatencies = ConcurrentHashMap<String, ConcurrentLinkedQueue<Long>>()
+    private val totalEvents = AtomicLong(0)
+    private val droppedEvents = AtomicLong(0)
+    private val peakThroughput = AtomicLong(0)
+    private val latencyHistory = ConcurrentLinkedQueue<Long>()
+    private val maxSamples = 10000
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        private val throughputWindow = AtomicLong(System.nanoTime())
-        private val throughputCount = AtomicLong(0)
-        init {
+    private val throughputWindow = AtomicLong(System.nanoTime())
+    private val throughputCount = AtomicLong(0)
+
+    init {
         scope.launch {
             while (true) {
                 delay(1000)
-        trackThroughput()
+                trackThroughput()
             }
         }
     }
-        fun registerEventType(eventType: String, initialSubscribers: Int = 0) {
+
+    fun registerEventType(eventType: String, initialSubscribers: Int = 0) {
         eventCounts[eventType] = AtomicLong(0)
         subscriberCounts[eventType] = AtomicInteger(initialSubscribers)
         eventLatencies[eventType] = ConcurrentLinkedQueue()
         logger.info("Registered event type: {} (subscribers: {})", eventType, initialSubscribers)
     }
-        fun recordEventPublished(eventType: String) {
+
+    fun recordEventPublished(eventType: String) {
         eventCounts.computeIfAbsent(eventType) { AtomicLong(0) }.incrementAndGet()
         totalEvents.incrementAndGet()
         throughputCount.incrementAndGet()
     }
-        fun recordEventConsumed(eventType: String, latencyUs: Long) {
+
+    fun recordEventConsumed(eventType: String, latencyUs: Long) {
         val latencies = eventLatencies[eventType]
         if (latencies != null) {
             latencies.add(latencyUs)
-        while (latencies.size > maxSamples) latencies.poll()
+            while (latencies.size > maxSamples) latencies.poll()
         }
         latencyHistory.add(latencyUs)
         while (latencyHistory.size > maxSamples) latencyHistory.poll()
     }
-        fun recordDroppedEvent() {
+
+    fun recordDroppedEvent() {
         droppedEvents.incrementAndGet()
     }
-        fun registerSubscriber(eventType: String) {
+
+    fun registerSubscriber(eventType: String) {
         subscriberCounts.computeIfAbsent(eventType) { AtomicInteger(0) }.incrementAndGet()
     }
-        fun unregisterSubscriber(eventType: String) {
+
+    fun unregisterSubscriber(eventType: String) {
         subscriberCounts[eventType]?.decrementAndGet()
     }
-        fun getEventStats(eventType: String): EventStats? {
+
+    fun getEventStats(eventType: String): EventStats? {
         val count = eventCounts[eventType]?.get() ?: return null
         val subscribers = subscriberCounts[eventType]?.get() ?: 0
         val latencies = eventLatencies[eventType]
         val avgLatency = if (latencies != null && latencies.isNotEmpty())
-        latencies.average() else 0.0
+            latencies.average() else 0.0
         return EventStats(
             eventType = eventType,
             publishedCount = count,
@@ -409,7 +461,8 @@ class EventBusOptimizer(private val name: String = "event-bus") {
             peakThroughput = peakThroughput.get().toDouble()
         )
     }
-        fun getMetrics(): EventBusMetrics {
+
+    fun getMetrics(): EventBusMetrics {
         val total = totalEvents.get()
         val dropped = droppedEvents.get()
         val allLatencies = latencyHistory.toList()
@@ -424,7 +477,8 @@ class EventBusOptimizer(private val name: String = "event-bus") {
             droppedEvents = dropped
         )
     }
-        fun getStats(): Map<String, Any> = mapOf(
+
+    fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "totalEvents" to totalEvents.get(),
         "activeChannels" to eventCounts.size,
@@ -432,8 +486,10 @@ class EventBusOptimizer(private val name: String = "event-bus") {
         "droppedEvents" to droppedEvents.get(),
         "avgLatencyUs" to (latencyHistory.toList().average())
     )
-        fun shutdown() { scope.cancel() }
-        private fun trackThroughput() {
+
+    fun shutdown() { scope.cancel() }
+
+    private fun trackThroughput() {
         val count = throughputCount.getAndSet(0)
         var peak = peakThroughput.get()
         while (count > peak && !peakThroughput.compareAndSet(peak, count)) {
@@ -455,92 +511,107 @@ class ServiceMeshOptimizer(private val name: String = "service-mesh") {
         val errorRate: Double,
         val lastHeartbeat: Long
     )
-        enum class HealthStatus {
+
+    enum class HealthStatus {
         HEALTHY, DEGRADED, UNHEALTHY, DOWN
     }
-        data class RoutingRule(
+
+    data class RoutingRule(
         val serviceName: String,
         val strategy: RoutingStrategy,
         val targets: List<String>,
         val weight: Map<String, Int> = emptyMap(),
         val fallbackTargets: List<String> = emptyList()
     )
-        enum class RoutingStrategy {
+
+    enum class RoutingStrategy {
         ROUND_ROBIN, LEAST_CONNECTIONS, WEIGHTED, LATENCY_BASED, RANDOM
     }
-        private val logger = LoggerFactory.getLogger("ServiceMeshOptimizer-$name")
-        private val services = ConcurrentHashMap<String, ServiceNode>()
-        private val routingRules = ConcurrentHashMap<String, RoutingRule>()
-        private val roundRobinCounters = ConcurrentHashMap<String, AtomicInteger>()
-        private val healthHistory = ConcurrentHashMap<String, CopyOnWriteArrayList<HealthStatus>>()
-        fun registerService(node: ServiceNode) {
+
+    private val logger = LoggerFactory.getLogger("ServiceMeshOptimizer-$name")
+    private val services = ConcurrentHashMap<String, ServiceNode>()
+    private val routingRules = ConcurrentHashMap<String, RoutingRule>()
+    private val roundRobinCounters = ConcurrentHashMap<String, AtomicInteger>()
+    private val healthHistory = ConcurrentHashMap<String, CopyOnWriteArrayList<HealthStatus>>()
+
+    fun registerService(node: ServiceNode) {
         services[node.serviceId] = node
         healthHistory[node.serviceId] = CopyOnWriteArrayList()
         logger.info("Registered service: {} at {}:{}", node.serviceName, node.host, node.port)
     }
-        fun unregisterService(serviceId: String) {
+
+    fun unregisterService(serviceId: String) {
         services.remove(serviceId)
         healthHistory.remove(serviceId)
     }
-        fun registerRoutingRule(rule: RoutingRule) {
+
+    fun registerRoutingRule(rule: RoutingRule) {
         routingRules[rule.serviceName] = rule
         roundRobinCounters[rule.serviceName] = AtomicInteger(0)
     }
-        fun getNextTarget(serviceName: String): ServiceNode? {
+
+    fun getNextTarget(serviceName: String): ServiceNode? {
         val rule = routingRules[serviceName] ?: return null
         val healthyTargets = rule.targets.mapNotNull { services[it] }
             .filter { it.healthStatus == HealthStatus.HEALTHY || it.healthStatus == HealthStatus.DEGRADED }
         if (healthyTargets.isEmpty()) {
             return rule.fallbackTargets.mapNotNull { services[it] }.firstOrNull()
         }
+
         return when (rule.strategy) {
             RoutingStrategy.ROUND_ROBIN -> {
                 val counter = roundRobinCounters.getOrPut(serviceName) { AtomicInteger(0) }
-        val index = counter.getAndIncrement() % healthyTargets.size
+                val index = counter.getAndIncrement() % healthyTargets.size
                 healthyTargets[index.coerceIn(0, healthyTargets.lastIndex)]
             }
-        RoutingStrategy.LEAST_CONNECTIONS -> healthyTargets.minByOrNull { it.activeConnections }
-        RoutingStrategy.LATENCY_BASED -> healthyTargets.minByOrNull { it.latencyMs }
-        RoutingStrategy.RANDOM -> healthyTargets.randomOrNull()
-        RoutingStrategy.WEIGHTED -> {
+            RoutingStrategy.LEAST_CONNECTIONS -> healthyTargets.minByOrNull { it.activeConnections }
+            RoutingStrategy.LATENCY_BASED -> healthyTargets.minByOrNull { it.latencyMs }
+            RoutingStrategy.RANDOM -> healthyTargets.randomOrNull()
+            RoutingStrategy.WEIGHTED -> {
                 val weights = rule.weight
-        val totalWeight = healthyTargets.sumOf { weights[it.serviceId] ?: 1 }
-        var random = (0 until totalWeight).random()
-        healthyTargets.firstOrNull {
+                val totalWeight = healthyTargets.sumOf { weights[it.serviceId] ?: 1 }
+                var random = (0 until totalWeight).random()
+                healthyTargets.firstOrNull {
                     random -= weights[it.serviceId] ?: 1
                     random < 0
                 }
             }
         }
     }
-        fun recordHeartbeat(serviceId: String) {
+
+    fun recordHeartbeat(serviceId: String) {
         services.computeIfPresent(serviceId) { _, node ->
             node.copy(lastHeartbeat = System.currentTimeMillis(), healthStatus = HealthStatus.HEALTHY)
         }
     }
-        fun recordLatency(serviceId: String, latencyMs: Long) {
+
+    fun recordLatency(serviceId: String, latencyMs: Long) {
         services.computeIfPresent(serviceId) { _, node ->
             node.copy(latencyMs = (node.latencyMs * 0.9 + latencyMs * 0.1).toLong())
         }
     }
-        fun recordError(serviceId: String) {
+
+    fun recordError(serviceId: String) {
         services.computeIfPresent(serviceId) { _, node ->
             val newErrorRate = node.errorRate * 0.9 + 0.1
-        val newStatus = when {
+            val newStatus = when {
                 newErrorRate > 0.5 -> HealthStatus.UNHEALTHY
                 newErrorRate > 0.2 -> HealthStatus.DEGRADED
                 else -> node.healthStatus
             }
-        node.copy(errorRate = newErrorRate, healthStatus = newStatus)
+            node.copy(errorRate = newErrorRate, healthStatus = newStatus)
         }
     }
-        fun getHealthyServices(): List<ServiceNode> {
+
+    fun getHealthyServices(): List<ServiceNode> {
         return services.values.filter { it.healthStatus == HealthStatus.HEALTHY }
     }
-        fun getUnhealthyServices(): List<ServiceNode> {
+
+    fun getUnhealthyServices(): List<ServiceNode> {
         return services.values.filter { it.healthStatus != HealthStatus.HEALTHY }
     }
-        fun getStats(): Map<String, Any> = mapOf(
+
+    fun getStats(): Map<String, Any> = mapOf(
         "name" to name,
         "totalServices" to services.size,
         "healthyServices" to getHealthyServices().size,

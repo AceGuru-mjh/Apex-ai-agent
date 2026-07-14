@@ -29,9 +29,11 @@ class UpdateNotifier private constructor(private val context: Context) {
 
     companion object {
         private const val TAG = "UpdateNotifier"
+
         const val CHANNEL_AVAILABLE = "apex.update.available"
         const val CHANNEL_PROGRESS = "apex.update.progress"
         const val CHANNEL_RESULT = "apex.update.result"
+
         const val NOTIF_ID_AVAILABLE = 0xA001
         const val NOTIF_ID_PROGRESS = 0xA002
         const val NOTIF_ID_RESULT = 0xA003
@@ -43,13 +45,16 @@ class UpdateNotifier private constructor(private val context: Context) {
             }
         }
     }
-        private val notificationManager by lazy {
+
+    private val notificationManager by lazy {
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
-        init {
+
+    init {
         createChannels()
     }
-        private fun createChannels() {
+
+    private fun createChannels() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val channels = listOf(
             NotificationChannel(
@@ -58,7 +63,7 @@ class UpdateNotifier private constructor(private val context: Context) {
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "Apex 检测到 GitHub 上有新版本时通知"
-        enableVibration(true)
+                enableVibration(true)
             },
             NotificationChannel(
                 CHANNEL_PROGRESS,
@@ -66,7 +71,7 @@ class UpdateNotifier private constructor(private val context: Context) {
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Apex APK 下载进度（静默）"
-        setShowBadge(false)
+                setShowBadge(false)
             },
             NotificationChannel(
                 CHANNEL_RESULT,
@@ -83,7 +88,7 @@ class UpdateNotifier private constructor(private val context: Context) {
     fun notifyUpdateAvailable(version: String, sizeText: String, htmlUrl: String?) {
         if (!hasNotificationPermission()) {
             AppLogger.w(TAG, "无通知权限，跳过 UpdateAvailable 通知")
-        return
+            return
         }
         val tapIntent = if (htmlUrl != null) {
             Intent(Intent.ACTION_VIEW, Uri.parse(htmlUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -173,12 +178,14 @@ class UpdateNotifier private constructor(private val context: Context) {
     fun cancelProgress() {
         cancel(NOTIF_ID_PROGRESS)
     }
-        private fun cancel(id: Int) {
+
+    private fun cancel(id: Int) {
         try {
             NotificationManagerCompat.from(context).cancel(id)
         } catch (_: Throwable) {}
     }
-        private fun hasNotificationPermission(): Boolean {
+
+    private fun hasNotificationPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
                 android.content.pm.PackageManager.PERMISSION_GRANTED

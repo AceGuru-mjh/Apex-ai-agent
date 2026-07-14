@@ -23,42 +23,52 @@ class FreeDialogMode @Inject constructor(
         val dialogHistory = mutableListOf<AgentMessage>()
         val agentMessageCount = mutableMapOf<String, Int>()
     }
-        override fun createState(task: Task, agents: List<Agent>): DialogState {
+
+    override fun createState(task: Task, agents: List<Agent>): DialogState {
         return DialogState(task, agents)
     }
-        override suspend fun runStep(state: DialogState) {
+
+    override suspend fun runStep(state: DialogState) {
         if (state.messageCount >= state.maxMessages) {
             finishDialog(state)
-        return
+            return
         }
+
         val activeAgents = state.agents.filter { agent ->
-        val count = state.agentMessageCount.getOrDefault(agent.id, 0)
-        count < 3
+            val count = state.agentMessageCount.getOrDefault(agent.id, 0)
+            count < 3
         }
+
         if (activeAgents.isEmpty()) {
             finishDialog(state)
-        return
+            return
         }
+
         val speaker = selectNextSpeaker(state, activeAgents)
         if (speaker != null) {
             updateAgentStatus(state, speaker.id, AgentStatus.WORKING)
-        val response = generateFreeResponse(speaker)
-        val message = createAgentMessage(speaker.id, "", response)
-        state.dialogHistory.add(message)
-        state.agentMessageCount[speaker.id] = state.agentMessageCount.getOrDefault(speaker.id, 0) + 1
+
+            val response = generateFreeResponse(speaker)
+            val message = createAgentMessage(speaker.id, "", response)
+
+            state.dialogHistory.add(message)
+            state.agentMessageCount[speaker.id] = state.agentMessageCount.getOrDefault(speaker.id, 0) + 1
             state.messageCount++
 
             updateAgentProgress(state, speaker.id, state.messageCount.toFloat() / state.maxMessages)
-        updateAgentStatus(state, speaker.id, AgentStatus.IDLE)
+            updateAgentStatus(state, speaker.id, AgentStatus.IDLE)
         }
     }
-        private fun selectNextSpeaker(state: DialogState, activeAgents: List<Agent>): Agent? {
+
+    private fun selectNextSpeaker(state: DialogState, activeAgents: List<Agent>): Agent? {
         return activeAgents.minByOrNull { state.agentMessageCount.getOrDefault(it.id, 0) }
     }
-        private fun generateFreeResponse(agent: Agent): String {
+
+    private fun generateFreeResponse(agent: Agent): String {
         return context.getString(R.string.free_dialog_response_format, agent.name)
     }
-        private fun finishDialog(state: DialogState) {
+
+    private fun finishDialog(state: DialogState) {
         state.agents.forEach { agent ->
             updateAgentStatus(state, agent.id, AgentStatus.FINISHED)
         }
@@ -66,7 +76,8 @@ class FreeDialogMode @Inject constructor(
         state.agentMessageCount.clear()
         state.running.set(false)
     }
-        override suspend fun onMessage(state: DialogState, message: AgentMessage) {
+
+    override suspend fun onMessage(state: DialogState, message: AgentMessage) {
         state.dialogHistory.add(message)
         state.agentMessageCount[message.senderId] = state.agentMessageCount.getOrDefault(message.senderId, 0) + 1
         state.messageCount++

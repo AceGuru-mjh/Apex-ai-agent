@@ -22,54 +22,55 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
     override fun invoke(tool: AITool): ToolResult {
         return try {
             // Get basic device information
-        val deviceId =
+            val deviceId =
                     Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
             // Get device model and manufacturer
-        val model = Build.MODEL
-        val manufacturer = Build.MANUFACTURER
+            val model = Build.MODEL
+            val manufacturer = Build.MANUFACTURER
 
             // Get Android version
-        val androidVersion = Build.VERSION.RELEASE
-        val sdkVersion = Build.VERSION.SDK_INT
+            val androidVersion = Build.VERSION.RELEASE
+            val sdkVersion = Build.VERSION.SDK_INT
 
             // Get screen information
-        val displayMetrics = context.resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
+            val displayMetrics = context.resources.displayMetrics
+            val screenWidth = displayMetrics.widthPixels
             val screenHeight = displayMetrics.heightPixels
-        val screenResolution = "${screenWidth}x${screenHeight}"
-        val screenDensity = displayMetrics.density
+            val screenResolution = "${screenWidth}x${screenHeight}"
+            val screenDensity = displayMetrics.density
 
             // Get memory information
-        val activityManager =
+            val activityManager =
                     context.getSystemService(Context.ACTIVITY_SERVICE) as
                             android.app.ActivityManager
             val memoryInfo = android.app.ActivityManager.MemoryInfo()
-        activityManager.getMemoryInfo(memoryInfo)
-        val availableMemory = formatSize(memoryInfo.availMem)
-        val totalMemory = formatSize(memoryInfo.totalMem)
+            activityManager.getMemoryInfo(memoryInfo)
+            val availableMemory = formatSize(memoryInfo.availMem)
+            val totalMemory = formatSize(memoryInfo.totalMem)
 
             // Get storage information
-        val statFs = StatFs(Environment.getExternalStorageDirectory().path)
-        val availableBlocks = statFs.availableBlocksLong
+            val statFs = StatFs(Environment.getExternalStorageDirectory().path)
+            val availableBlocks = statFs.availableBlocksLong
             val blockSize = statFs.blockSizeLong
-        val totalBlocks = statFs.blockCountLong
+            val totalBlocks = statFs.blockCountLong
             val availableStorage = formatSize(availableBlocks * blockSize)
-        val totalStorage = formatSize(totalBlocks * blockSize)
+            val totalStorage = formatSize(totalBlocks * blockSize)
 
             // Get battery information
-        var batteryLevel = 0
+            var batteryLevel = 0
             var isCharging = false
 
             try {
                 val batteryIntent =
                         context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        if (batteryIntent != null) {
+                if (batteryIntent != null) {
                     val level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-        val scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-        batteryLevel = (level * 100 / scale.toFloat()).toInt()
-        val status = batteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-        isCharging =
+                    val scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                    batteryLevel = (level * 100 / scale.toFloat()).toInt()
+
+                    val status = batteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+                    isCharging =
                             status == BatteryManager.BATTERY_STATUS_CHARGING ||
                                     status == BatteryManager.BATTERY_STATUS_FULL
                 }
@@ -78,56 +79,57 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
             }
 
             // Get CPU information
-        val cpuInfo =
+            val cpuInfo =
                     try {
                         val processBuilder = ProcessBuilder("getprop", "ro.product.cpu.abi")
-        val process = processBuilder.start()
-        val reader =
+                        val process = processBuilder.start()
+                        val reader =
                                 java.io.BufferedReader(
                                         java.io.InputStreamReader(process.inputStream)
                                 )
-        val cpuAbi = reader.readLine() ?: "Unknown"
-        process.waitFor()
-        reader.close()
-        cpuAbi
+                        val cpuAbi = reader.readLine() ?: "Unknown"
+                        process.waitFor()
+                        reader.close()
+                        cpuAbi
                     } catch (e: Exception) {
                         "Unknown"
                     }
 
             // Get network information
-        val connectivityManager =
+            val connectivityManager =
                     context.getSystemService(Context.CONNECTIVITY_SERVICE) as
                             android.net.ConnectivityManager
             val activeNetwork = connectivityManager.activeNetwork
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-        val networkType =
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+
+            val networkType =
                     when {
                         networkCapabilities == null -> "No connection"
-        networkCapabilities.hasTransport(
+                        networkCapabilities.hasTransport(
                                 android.net.NetworkCapabilities.TRANSPORT_WIFI
                         ) -> "WiFi"
-        networkCapabilities.hasTransport(
+                        networkCapabilities.hasTransport(
                                 android.net.NetworkCapabilities.TRANSPORT_CELLULAR
                         ) -> "Mobile data"
-        networkCapabilities.hasTransport(
+                        networkCapabilities.hasTransport(
                                 android.net.NetworkCapabilities.TRANSPORT_BLUETOOTH
                         ) -> "Bluetooth"
-        networkCapabilities.hasTransport(
+                        networkCapabilities.hasTransport(
                                 android.net.NetworkCapabilities.TRANSPORT_ETHERNET
                         ) -> "Ethernet"
-        else -> "Other"
+                        else -> "Other"
                     }
 
             // Collect additional system properties
-        val additionalInfo = mutableMapOf<String, String>()
-        additionalInfo["Device name"] = Build.DEVICE
+            val additionalInfo = mutableMapOf<String, String>()
+            additionalInfo["Device name"] = Build.DEVICE
             additionalInfo["Product name"] = Build.PRODUCT
             additionalInfo["Hardware name"] = Build.HARDWARE
             additionalInfo["Build fingerprint"] = Build.FINGERPRINT
             additionalInfo["Build time"] = java.util.Date(Build.TIME).toString()
 
             // Create result data object
-        val deviceInfoResult =
+            val deviceInfoResult =
                     DeviceInfoResultData(
                             deviceId = deviceId,
                             model = model,
@@ -146,7 +148,8 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
                             networkType = networkType,
                             additionalInfo = additionalInfo
                     )
-        ToolResult(toolName = tool.name, success = true, result = deviceInfoResult)
+
+            ToolResult(toolName = tool.name, success = true, result = deviceInfoResult)
         } catch (e: Exception) {
             ToolResult(
                     toolName = tool.name,
@@ -166,10 +169,10 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
 
         return when {
             size < kb -> "${size} B"
-        size < mb -> String.format("%.2f KB", size / kb)
-        size < gb -> String.format("%.2f MB", size / mb)
-        size < tb -> String.format("%.2f GB", size / gb)
-        else -> String.format("%.2f TB", size / tb)
+            size < mb -> String.format("%.2f KB", size / kb)
+            size < gb -> String.format("%.2f MB", size / mb)
+            size < tb -> String.format("%.2f GB", size / gb)
+            else -> String.format("%.2f TB", size / tb)
         }
     }
 }

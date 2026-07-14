@@ -56,6 +56,7 @@ object ModelConfigConnectionTester {
         val testedModelName = getModelByIndex(config.modelName, actualModelIndex)
         val configForTest = config.copy(modelName = testedModelName)
         val items = mutableListOf<ModelConnectionTestItem>()
+
         val service =
             AIServiceFactory.createService(
                 config = configForTest,
@@ -63,19 +64,21 @@ object ModelConfigConnectionTester {
                 context = context
             )
         onActiveServiceChanged(service)
+
         try {
             val parameters = modelConfigManager.getModelParametersForConfig(configForTest.id)
-        suspend fun runCase(type: ModelConnectionTestType, block: suspend () -> Unit) {
+
+            suspend fun runCase(type: ModelConnectionTestType, block: suspend () -> Unit) {
                 val result =
                     try {
                         block()
-        Result.success(Unit)
+                        Result.success(Unit)
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
                         Result.failure(e)
                     }
-        items.add(
+                items.add(
                     ModelConnectionTestItem(
                         type = type,
                         success = result.isSuccess,
@@ -83,7 +86,8 @@ object ModelConfigConnectionTester {
                     )
                 )
             }
-        runCase(ModelConnectionTestType.CHAT) {
+
+            runCase(ModelConnectionTestType.CHAT) {
                 service.sendMessage(
                     context,
                     listOf(PromptTurn(kind = PromptTurnKind.USER, content = "Hi")),
@@ -92,7 +96,8 @@ object ModelConfigConnectionTester {
                     enableRetry = false
                 ).collect { }
             }
-        if (configForTest.enableToolCall) {
+
+            if (configForTest.enableToolCall) {
                 runCase(ModelConnectionTestType.TOOL_CALL) {
                     val availableTools =
                         listOf(
@@ -110,19 +115,20 @@ object ModelConfigConnectionTester {
                                     )
                             )
                         )
-        suspend fun runToolCallTest(toolName: String) {
+
+                    suspend fun runToolCallTest(toolName: String) {
                         val toolTagName = ChatMarkupRegex.generateRandomToolTagName()
-        val toolResultTagName = ChatMarkupRegex.generateRandomToolResultTagName()
-        val testHistory = mutableListOf("system" to "You are a helpful assistant.")
-        testHistory.add(
+                        val toolResultTagName = ChatMarkupRegex.generateRandomToolResultTagName()
+                        val testHistory = mutableListOf("system" to "You are a helpful assistant.")
+                        testHistory.add(
                             "assistant" to
                                 "<${toolTagName} name=\"${toolName}\"><param name=\"text\">ping</param></${toolTagName}>"
                         )
-        testHistory.add(
+                        testHistory.add(
                             "user" to
                                 "<${toolResultTagName} name=\"${toolName}\" status=\"success\"><content>pong</content></${toolResultTagName}>"
                         )
-        service.sendMessage(
+                        service.sendMessage(
                             context,
                             testHistory.toPromptTurns(),
                             parameters,
@@ -131,24 +137,26 @@ object ModelConfigConnectionTester {
                             enableRetry = false
                         ).collect { }
                     }
-        runToolCallTest("echo")
+
+                    runToolCallTest("echo")
                 }
             }
-        if (configForTest.enableDirectImageProcessing) {
+
+            if (configForTest.enableDirectImageProcessing) {
                 runCase(ModelConnectionTestType.IMAGE) {
                     val imageFile = AssetCopyUtils.copyAssetToCache(context, "test/1.jpg")
-        val imageId = ImagePoolManager.addImage(imageFile.absolutePath)
-        if (imageId == "error") {
+                    val imageId = ImagePoolManager.addImage(imageFile.absolutePath)
+                    if (imageId == "error") {
                         throw IllegalStateException("Failed to create test image")
                     }
-        try {
+                    try {
                         val prompt =
                             buildString {
                                 append(MediaLinkBuilder.image(context, imageId))
-        append("\n")
-        append(context.getString(R.string.conversation_analyze_image_prompt))
+                                append("\n")
+                                append(context.getString(R.string.conversation_analyze_image_prompt))
                             }
-        service.sendMessage(
+                        service.sendMessage(
                             context,
                             listOf(PromptTurn(kind = PromptTurnKind.USER, content = prompt)),
                             parameters,
@@ -157,25 +165,26 @@ object ModelConfigConnectionTester {
                         ).collect { }
                     } finally {
                         ImagePoolManager.removeImage(imageId)
-        runCatching { imageFile.delete() }
+                        runCatching { imageFile.delete() }
                     }
                 }
             }
-        if (configForTest.enableDirectAudioProcessing) {
+
+            if (configForTest.enableDirectAudioProcessing) {
                 runCase(ModelConnectionTestType.AUDIO) {
                     val audioFile = AssetCopyUtils.copyAssetToCache(context, "test/1.mp3")
-        val audioId = MediaPoolManager.addMedia(audioFile.absolutePath, "audio/mpeg")
-        if (audioId == "error") {
+                    val audioId = MediaPoolManager.addMedia(audioFile.absolutePath, "audio/mpeg")
+                    if (audioId == "error") {
                         throw IllegalStateException("Failed to create test audio")
                     }
-        try {
+                    try {
                         val prompt =
                             buildString {
                                 append(MediaLinkBuilder.audio(context, audioId))
-        append("\n")
-        append(context.getString(R.string.conversation_analyze_audio_prompt))
+                                append("\n")
+                                append(context.getString(R.string.conversation_analyze_audio_prompt))
                             }
-        service.sendMessage(
+                        service.sendMessage(
                             context,
                             listOf(PromptTurn(kind = PromptTurnKind.USER, content = prompt)),
                             parameters,
@@ -184,25 +193,26 @@ object ModelConfigConnectionTester {
                         ).collect { }
                     } finally {
                         MediaPoolManager.removeMedia(audioId)
-        runCatching { audioFile.delete() }
+                        runCatching { audioFile.delete() }
                     }
                 }
             }
-        if (configForTest.enableDirectVideoProcessing) {
+
+            if (configForTest.enableDirectVideoProcessing) {
                 runCase(ModelConnectionTestType.VIDEO) {
                     val videoFile = AssetCopyUtils.copyAssetToCache(context, "test/1.mp4")
-        val videoId = MediaPoolManager.addMedia(videoFile.absolutePath, "video/mp4")
-        if (videoId == "error") {
+                    val videoId = MediaPoolManager.addMedia(videoFile.absolutePath, "video/mp4")
+                    if (videoId == "error") {
                         throw IllegalStateException("Failed to create test video")
                     }
-        try {
+                    try {
                         val prompt =
                             buildString {
                                 append(MediaLinkBuilder.video(context, videoId))
-        append("\n")
-        append(context.getString(R.string.conversation_analyze_video_prompt))
+                                append("\n")
+                                append(context.getString(R.string.conversation_analyze_video_prompt))
                             }
-        service.sendMessage(
+                        service.sendMessage(
                             context,
                             listOf(PromptTurn(kind = PromptTurnKind.USER, content = prompt)),
                             parameters,
@@ -211,13 +221,13 @@ object ModelConfigConnectionTester {
                         ).collect { }
                     } finally {
                         MediaPoolManager.removeMedia(videoId)
-        runCatching { videoFile.delete() }
+                        runCatching { videoFile.delete() }
                     }
                 }
             }
         } catch (e: CancellationException) {
             runCatching { service.cancelStreaming() }
-        throw e
+            throw e
         } catch (e: Exception) {
             if (items.none { it.type == ModelConnectionTestType.CHAT }) {
                 items.add(
@@ -230,8 +240,9 @@ object ModelConfigConnectionTester {
             }
         } finally {
             onActiveServiceChanged(null)
-        service.release()
+            service.release()
         }
+
         return ModelConnectionTestReport(
             configId = configForTest.id,
             configName = configForTest.name,

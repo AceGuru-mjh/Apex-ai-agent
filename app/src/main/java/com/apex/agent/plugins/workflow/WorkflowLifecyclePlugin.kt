@@ -14,7 +14,8 @@ private object WorkflowAppLifecycleHookPlugin : AppLifecycleHookPlugin {
     private var firstActivityStartHandled = false
 
     override val id: String = "builtin.workflow.app-lifecycle"
-        override suspend fun onEvent(
+
+    override suspend fun onEvent(
         event: AppLifecycleEvent,
         params: AppLifecycleHookParams
     ) {
@@ -23,11 +24,12 @@ private object WorkflowAppLifecycleHookPlugin : AppLifecycleHookPlugin {
                 AppLifecycleEvent.APPLICATION_CREATE -> {
                     firstActivityStartHandled = false
                 }
-        AppLifecycleEvent.ACTIVITY_START -> {
+
+                AppLifecycleEvent.ACTIVITY_START -> {
                     if (firstActivityStartHandled) {
                         return
                     }
-        firstActivityStartHandled = true
+                    firstActivityStartHandled = true
                     WorkflowRepository(params.context.applicationContext)
                         .triggerWorkflowsByColdStartAppOpen(
                             extras =
@@ -36,7 +38,8 @@ private object WorkflowAppLifecycleHookPlugin : AppLifecycleHookPlugin {
                                 }
                         )
                 }
-        else -> Unit
+
+                else -> Unit
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to process workflow app-open trigger: ${event.wireName}", e)
@@ -46,7 +49,8 @@ private object WorkflowAppLifecycleHookPlugin : AppLifecycleHookPlugin {
 
 object WorkflowLifecyclePlugin : ApexPlugin {
     override val id: String = "builtin.workflow.lifecycle"
-        override fun register() {
+
+    override fun register() {
         AppLifecycleHookPluginRegistry.register(WorkflowAppLifecycleHookPlugin)
     }
 }

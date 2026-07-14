@@ -35,49 +35,51 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) {
     val context = LocalContext.current
-        val scope = rememberCoroutineScope()
-        val themeManager = remember { ThemeManager }
-        var dynamicColor by remember { mutableStateOf(themeManager.getCurrentTheme() == ThemeManager.ThemeType.MATERIAL_YOU) }
-        var darkMode by remember { mutableStateOf(themeManager.getCurrentDarkMode() == ThemeManager.DarkMode.DARK) }
+    val scope = rememberCoroutineScope()
+    val themeManager = remember { ThemeManager }
+    var dynamicColor by remember { mutableStateOf(themeManager.getCurrentTheme() == ThemeManager.ThemeType.MATERIAL_YOU) }
+    var darkMode by remember { mutableStateOf(themeManager.getCurrentDarkMode() == ThemeManager.DarkMode.DARK) }
 
     // 权限状态
-        val storageGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        val micGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    val storageGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    val micGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     val locationGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        val cameraGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    val cameraGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
     val manageStorage = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) android.os.Environment.isExternalStorageManager() else true
 
     // Shizuku 状态
-        var shizukuAvailable by remember { mutableStateOf(false) }
-        var shizukuVersion by remember { mutableStateOf(0) }
-        var shizukuGranted by remember { mutableStateOf(false) }
+    var shizukuAvailable by remember { mutableStateOf(false) }
+    var shizukuVersion by remember { mutableStateOf(0) }
+    var shizukuGranted by remember { mutableStateOf(false) }
 
     // 套件安装状态
-        var suiteInstalled by remember { mutableStateOf(0) }
-        var suiteTotal by remember { mutableStateOf(0) }
+    var suiteInstalled by remember { mutableStateOf(0) }
+    var suiteTotal by remember { mutableStateOf(0) }
 
     // 热更新
-        val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
-        val updateState by hotUpdateManager.state.collectAsState()
-        var showUpdateDialog by remember { mutableStateOf(false) }
-        var showUpdateSettings by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
+    val hotUpdateManager = remember { HotUpdateManager.getInstance(context) }
+    val updateState by hotUpdateManager.state.collectAsState()
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    var showUpdateSettings by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             // Shizuku
-        try {
+            try {
                 val sm = com.ai.assistance.apex.engine.shizuku.ShizukuManager.getInstance(context)
-        shizukuAvailable = sm.isAvailable()
-        shizukuVersion = sm.getVersion()
-        shizukuGranted = sm.isPermissionGranted()
+                shizukuAvailable = sm.isAvailable()
+                shizukuVersion = sm.getVersion()
+                shizukuGranted = sm.isPermissionGranted()
             } catch (_: Throwable) {}
             // 套件
-        suiteTotal = com.apex.sdk.common.ApkDescriptors.ALL.size
+            suiteTotal = com.apex.sdk.common.ApkDescriptors.ALL.size
             suiteInstalled = com.apex.sdk.common.ApkDescriptors.ALL.count { ApkDependencyManager.isApkInstalled(context, it.apkId) }
             // 镜像源
-        MirrorSourceRegistry.getInstance(context).load()
+            MirrorSourceRegistry.getInstance(context).load()
         }
     }
-        Scaffold(
+
+    Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
@@ -89,8 +91,8 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
     ) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             // 外观
-        item { SectionHeader("外观") }
-        item {
+            item { SectionHeader("外观") }
+            item {
                 SettingsCard(Icons.Default.Palette, "动态取色", "跟随系统壁纸自动配色（Android 12+）") {
                     Switch(checked = dynamicColor, onCheckedChange = {
                         dynamicColor = it
@@ -98,7 +100,7 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
                     })
                 }
             }
-        item {
+            item {
                 SettingsCard(Icons.Default.DarkMode, "深色模式", "跟随系统 / 浅色 / 深色") {
                     Switch(checked = darkMode, onCheckedChange = {
                         darkMode = it
@@ -108,52 +110,51 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
             }
 
             // 权限管理
-        item { SectionHeader("权限管理") }
-        item { SettingsCard(Icons.Default.Storage, "存储权限", if (storageGranted) "已授予" else "未授予") { PermissionIndicator(storageGranted) } }
-        item { SettingsCard(Icons.defaultStorageAccess(manageStorage), "所有文件访问", if (manageStorage) "已授予" else "未授予") { PermissionIndicator(manageStorage) } }
-        item { SettingsCard(Icons.Default.Mic, "麦克风权限", if (micGranted) "已授予" else "未授予") { PermissionIndicator(micGranted) } }
-        item { SettingsCard(Icons.Default.LocationOn, "位置权限", if (locationGranted) "已授予" else "未授予") { PermissionIndicator(locationGranted) } }
-        item { SettingsCard(Icons.Default.Camera, "相机权限", if (cameraGranted) "已授予" else "未授予") { PermissionIndicator(cameraGranted) } }
+            item { SectionHeader("权限管理") }
+            item { SettingsCard(Icons.Default.Storage, "存储权限", if (storageGranted) "已授予" else "未授予") { PermissionIndicator(storageGranted) } }
+            item { SettingsCard(Icons.defaultStorageAccess(manageStorage), "所有文件访问", if (manageStorage) "已授予" else "未授予") { PermissionIndicator(manageStorage) } }
+            item { SettingsCard(Icons.Default.Mic, "麦克风权限", if (micGranted) "已授予" else "未授予") { PermissionIndicator(micGranted) } }
+            item { SettingsCard(Icons.Default.LocationOn, "位置权限", if (locationGranted) "已授予" else "未授予") { PermissionIndicator(locationGranted) } }
+            item { SettingsCard(Icons.Default.Camera, "相机权限", if (cameraGranted) "已授予" else "未授予") { PermissionIndicator(cameraGranted) } }
 
             // 高级
-        item { SectionHeader("高级") }
-        item {
+            item { SectionHeader("高级") }
+            item {
                 SettingsCard(Icons.Default.Bolt, "Shizuku",
-                    val _kaptFix1 = if (shizukuGranted) " · 已授权" else " · 未授权"
-                    if (shizukuAvailable) "已连接（v$shizukuVersion${_kaptFix1}）" else "未连接") {
+                    if (shizukuAvailable) "已连接（v$shizukuVersion${if (shizukuGranted) " · 已授权" else " · 未授权"}）" else "未连接") {
                     if (!shizukuAvailable) TextButton(onClick = {
                         try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://shizuku.rikka.app/")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {}
                     }) { Text("安装") }
-        else if (!shizukuGranted) TextButton(onClick = {
+                    else if (!shizukuGranted) TextButton(onClick = {
                         try { com.rikka.shizuku.Shizuku.requestPermission(0) } catch (_: Throwable) {}
                     }) { Text("授权") }
-        else Text("✓", color = MaterialTheme.colorScheme.primary)
+                    else Text("✓", color = MaterialTheme.colorScheme.primary)
                 }
             }
-        item { SettingsCard(Icons.Default.Accessibility, "无障碍服务", "在系统设置中启用") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
-        item { SettingsCard(Icons.Default.Apps, "套件状态", "$suiteInstalled / $suiteTotal 个 APK 已安装") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
+            item { SettingsCard(Icons.Default.Accessibility, "无障碍服务", "在系统设置中启用") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
+            item { SettingsCard(Icons.Default.Apps, "套件状态", "$suiteInstalled / $suiteTotal 个 APK 已安装") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
 
             // 软件更新（热更新）
-        item { SectionHeader("软件更新") }
-        item {
+            item { SectionHeader("软件更新") }
+            item {
                 val updateSubtitle = when (updateState) {
                     is UpdateState.UpdateAvailable ->
                         "发现新版本 ${(updateState as UpdateState.UpdateAvailable).latestVersion}，点击更新"
-        is UpdateState.Downloading -> {
+                    is UpdateState.Downloading -> {
                         val p = (updateState as UpdateState.Downloading).progress
                         "下载中 ${p.percent}%"
                     }
-        UpdateState.Checking -> "正在检查更新..."
-        else -> "当前版本 ${hotUpdateManager.currentVersionName()} · 来自 GitHub Releases"
+                    UpdateState.Checking -> "正在检查更新..."
+                    else -> "当前版本 ${hotUpdateManager.currentVersionName()} · 来自 GitHub Releases"
                 }
-        SettingsCard(Icons.Default.SystemUpdate, "检查更新", updateSubtitle) {
+                SettingsCard(Icons.Default.SystemUpdate, "检查更新", updateSubtitle) {
                     TextButton(onClick = {
                         showUpdateDialog = true
                         scope.launch { hotUpdateManager.checkForUpdate(force = true, notifyOnAvailable = false) }
                     }) { Text("检查") }
                 }
             }
-        item {
+            item {
                 SettingsCard(
                     Icons.Default.Cloud,
                     "镜像源管理",
@@ -164,25 +165,24 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
             }
 
             // 关于
-        item { SectionHeader("关于") }
-        item { SettingsCard(Icons.Default.Info, "关于 Apex", "版本 1.0.0 · 开发者 MJH") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
-        item { SettingsCard(Icons.Default.Person, "联系方式", "QQ: 2544240258 · 微信: meng4117222") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
+            item { SectionHeader("关于") }
+            item { SettingsCard(Icons.Default.Info, "关于 Apex", "版本 1.0.0 · 开发者 MJH") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
+            item { SettingsCard(Icons.Default.Person, "联系方式", "QQ: 2544240258 · 微信: meng4117222") { Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant) } }
         }
     }
 
     // 更新对话框
-        if (showUpdateDialog) {
+    if (showUpdateDialog) {
         UpdateDialog(
             state = updateState,
             onDismiss = { showUpdateDialog = false },
             onCheck = {
-                scope.launch { hotUpdateManager.checkForUpdate(force = true, notifyOnAvailable = false) }
+                scope.launch { hotUpdateManager.checkForUpdate(force = true) }
             },
             onDownload = {
                 val s = updateState
                 if (s is UpdateState.UpdateAvailable && s.release != null && s.asset != null) {
-                    // 启动前台服务下载，App 被杀也能继续
-        com.apex.agent.update.UpdateDownloadService.start(context)
+                    hotUpdateManager.startDownload()
                 } else {
                     hotUpdateManager.notifyFailed("当前无可下载的更新，请先检查")
                 }
@@ -190,27 +190,13 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
             onCancel = { hotUpdateManager.cancelDownload() },
             onIgnore = { v ->
                 scope.launch { hotUpdateManager.ignoreVersion(v) }
-        showUpdateDialog = false
-            },
-            onRetryInstall = { hotUpdateManager.retryInstall() },
-            onRetryDownload = {
-                // 重新触发：恢复到 UpdateAvailable 状态后启动前台服务
-        scope.launch {
-                    val result = hotUpdateManager.checkForUpdate(force = true, notifyOnAvailable = false)
-        if (result is com.apex.agent.update.CheckResult.UpdateAvailable) {
-                        com.apex.agent.update.UpdateDownloadService.start(context)
-                    } else {
-                        hotUpdateManager.notifyFailed(
-                            "无法重试：${(result as? com.apex.agent.update.CheckResult.Failed)?.reason ?: "检查失败"}"
-                        )
-                    }
-                }
+                showUpdateDialog = false
             }
         )
     }
 
     // 镜像源管理弹层
-        if (showUpdateSettings) {
+    if (showUpdateSettings) {
         ModalBottomSheet(onDismissRequest = { showUpdateSettings = false }) {
             UpdateSettingsSection(
                 onCheckNow = {
@@ -237,12 +223,12 @@ private fun SettingsCard(icon: androidx.compose.ui.graphics.vector.ImageVector, 
     Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.width(16.dp))
-        Column(Modifier.weight(1f)) {
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-        Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-        trailing()
+            trailing()
         }
     }
 }

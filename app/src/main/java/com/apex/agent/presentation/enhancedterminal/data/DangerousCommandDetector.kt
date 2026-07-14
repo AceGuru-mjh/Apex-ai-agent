@@ -52,34 +52,36 @@ object DangerousCommandDetector {
         DangerPattern("git clean -fd", "删除未跟踪的文件和目录", DangerLevel.MEDIUM),
         DangerPattern("git branch -D", "强制删除分支", DangerLevel.LOW),
     )
-        enum class DangerLevel(val label: String, val color: Long) {
+
+    enum class DangerLevel(val label: String, val color: Long) {
         CRITICAL("极其危险", 0xFFEF4444),
         HIGH("高危", 0xFFF97316),
         MEDIUM("中等风险", 0xFFFBBF24),
         LOW("低风险", 0xFF60A5FA),
     }
-        data class DangerPattern(val regex: String, val description: String, val level: DangerLevel)
-        data class DetectionResult(val isDangerous: Boolean, val description: String, val level: DangerLevel)
+
+    data class DangerPattern(val regex: String, val description: String, val level: DangerLevel)
+    data class DetectionResult(val isDangerous: Boolean, val description: String, val level: DangerLevel)
 
     /** 检测命令是否危险 */
     fun check(command: String): DetectionResult {
         val lower = command.trim().lowercase()
         for (p in patterns) {
             // 构建正则:允许中间有空格变化
-        val regexStr = p.regex
+            val regexStr = p.regex
                 .replace(" ", "\\s+")
                 .replace(".", "\\.")
                 .replace("*", ".*")
                 .replace("~", System.getProperty("user.home") ?: "~")
-        try {
+            try {
                 val regex = Regex(regexStr, RegexOption.IGNORE_CASE)
-        if (regex.containsMatchIn(lower)) {
+                if (regex.containsMatchIn(lower)) {
                     return DetectionResult(true, p.description, p.level)
                 }
             } catch (e: Exception) {
                 // 正则构建失败,用简单 contains 匹配
-        if (lower.contains(p.regex.lowercase().replace("\\", ""))) {"
-        return DetectionResult(true, p.description, p.level)
+                if (lower.contains(p.regex.lowercase().replace("\\", ""))) {
+                    return DetectionResult(true, p.description, p.level)
                 }
             }
         }

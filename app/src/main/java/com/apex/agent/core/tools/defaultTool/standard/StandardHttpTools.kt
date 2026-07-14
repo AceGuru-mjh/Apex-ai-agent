@@ -32,7 +32,7 @@ import okhttp3.ResponseBody
 import org.json.JSONArray
 import org.json.JSONObject
 
-/** HTTP网络请求工具 提供直接访问网页和发送HTTP请求的能务
+/** HTTP网络请求工具 提供直接访问网页和发送HTTP请求的能�?
 class StandardHttpTools(private val context: Context) {
 
     companion object {
@@ -42,21 +42,22 @@ class StandardHttpTools(private val context: Context) {
     }
 
     // 内存中的Cookie存储
-        private val cookieStore = mutableMapOf<String, List<Cookie>>()
+    private val cookieStore = mutableMapOf<String, List<Cookie>>()
 
     // 自定义CookieJar实现
-        private val cookieJar =
+    private val cookieJar =
             object : CookieJar {
                 override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                     cookieStore[url.host] = cookies
                 }
-        override fun loadForRequest(url: HttpUrl): List<Cookie> {
+
+                override fun loadForRequest(url: HttpUrl): List<Cookie> {
                     return cookieStore[url.host] ?: emptyList()
                 }
             }
 
     // 默认OkHttpClient实例，配置基本超时和Cookie支持
-        private val defaultClient =
+    private val defaultClient =
             OkHttpClient.Builder()
                     .connectTimeout(15, TimeUnit.SECONDS)
                     .readTimeout(20, TimeUnit.SECONDS)
@@ -65,7 +66,7 @@ class StandardHttpTools(private val context: Context) {
                     .build()
 
     // 创建可配置的OkHttpClient
-        private fun buildConfigurableClient(
+    private fun buildConfigurableClient(
             connectTimeout: Long = 15,
             readTimeout: Long = 20,
             writeTimeout: Long = 15,
@@ -92,28 +93,35 @@ class StandardHttpTools(private val context: Context) {
         // 配置代理
         if (!proxyHost.isNullOrBlank() && proxyPort > 0) {
             val proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress(proxyHost, proxyPort))
-        builder.proxy(proxy)
+            builder.proxy(proxy)
         }
+
         if (ignoreSsl) {
             applyUnsafeSsl(builder)
         }
+
         return builder.build()
     }
-        private fun applyUnsafeSsl(builder: OkHttpClient.Builder) {
+
+    private fun applyUnsafeSsl(builder: OkHttpClient.Builder) {
         val trustManager =
                 object : X509TrustManager {
                     override fun checkClientTrusted(
                             chain: Array<out X509Certificate>?,
                             authType: String?
                     ) {}
-        override fun checkServerTrusted(
+
+                    override fun checkServerTrusted(
                             chain: Array<out X509Certificate>?,
                             authType: String?
                     ) {}
-        override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
+
+                    override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
                 }
+
         val sslContext = SSLContext.getInstance("TLS")
         sslContext.init(null, arrayOf<TrustManager>(trustManager), SecureRandom())
+
         builder.sslSocketFactory(sslContext.socketFactory, trustManager)
         builder.hostnameVerifier { _, _ -> true }
     }
@@ -122,7 +130,7 @@ class StandardHttpTools(private val context: Context) {
     private fun readResponseBody(responseBody: ResponseBody, contentType: String): String {
         return try {
             AppLogger.d(TAG, "使用OkHttp内置string()方法读取响应内容")
-        responseBody.string()
+            responseBody.string()
         } catch (e: Exception) {
             AppLogger.e(TAG, "读取响应体时发生错误", e)
             ""
@@ -133,9 +141,9 @@ class StandardHttpTools(private val context: Context) {
     private fun readResponseBodyAsBase64(responseBody: ResponseBody): String {
         return try {
             val bytes = responseBody.bytes()
-        android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+            android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
         } catch (e: Exception) {
-            AppLogger.e(TAG, "读取响应体为Base64时发生错误， e)"
+            AppLogger.e(TAG, "读取响应体为Base64时发生错误， e)
             ""
         }
     }
@@ -190,18 +198,17 @@ class StandardHttpTools(private val context: Context) {
                     error = "Unsupported HTTP method: ${method}"
             )
         }
+
         return try {
-            // 解析请请求
-        val headers = parseHeaders(headersParam)
+            // 解析请请�?           val headers = parseHeaders(headersParam)
 
             // 解析自定义Cookie
-        val customCookies =
+            val customCookies =
                     if (!customCookiesParam.isNullOrBlank()) {
                         parseCookies(customCookiesParam, url)
                     } else null
 
-            // 配置客户的
-        val client =
+            // 配置客户�?           val client =
                     buildConfigurableClient(
                             connectTimeout = connectTimeoutParam?.toLongOrNull() ?: 15,
                             readTimeout = readTimeoutParam?.toLongOrNull() ?: 20,
@@ -215,38 +222,38 @@ class StandardHttpTools(private val context: Context) {
                     )
 
             // 如果有自定义Cookie，添加到cookieStore
-        if (customCookies != null) {
+            if (customCookies != null) {
                 val requestCookieUrl = url.toHttpUrlOrNull()
-        if (requestCookieUrl != null && useCookiesParam?.lowercase() != "false") {
+                if (requestCookieUrl != null && useCookiesParam?.lowercase() != "false") {
                     cookieStore[requestCookieUrl.host] = customCookies
                 }
             }
 
             // 构建请求
-        val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
+            val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
 
             // 添加自定义请求头
-        headers.forEach { (name, value) -> requestBuilder.header(name, value) }
+            headers.forEach { (name, value) -> requestBuilder.header(name, value) }
 
             // 如果是非GET请求，添加请求体
-        if (method != "GET" && method != "HEAD" && bodyParam.isNotBlank()) {
+            if (method != "GET" && method != "HEAD" && bodyParam.isNotBlank()) {
                 val requestBody =
                         when (bodyType) {
                             "json" -> {
                                 val mediaType =
                                         "application/json; charset=utf-8".toMediaTypeOrNull()
-        bodyParam.toRequestBody(mediaType)
+                                bodyParam.toRequestBody(mediaType)
                             }
                             "form" -> {
                                 try {
                                     val formBodyBuilder = FormBody.Builder()
-        val jsonObj = JSONObject(bodyParam)
-        val keys = jsonObj.keys()
-        while (keys.hasNext()) {
+                                    val jsonObj = JSONObject(bodyParam)
+                                    val keys = jsonObj.keys()
+                                    while (keys.hasNext()) {
                                         val key = keys.next()
-        formBodyBuilder.add(key, jsonObj.getString(key))
+                                        formBodyBuilder.add(key, jsonObj.getString(key))
                                     }
-        formBodyBuilder.build()
+                                    formBodyBuilder.build()
                                 } catch (e: Exception) {
                                     return ToolResult(
                                             toolName = tool.name,
@@ -258,22 +265,21 @@ class StandardHttpTools(private val context: Context) {
                             }
                             "text" -> {
                                 val mediaType = "text/plain; charset=utf-8".toMediaTypeOrNull()
-        bodyParam.toRequestBody(mediaType)
+                                bodyParam.toRequestBody(mediaType)
                             }
                             "xml" -> {
                                 val mediaType = "application/xml; charset=utf-8".toMediaTypeOrNull()
-        bodyParam.toRequestBody(mediaType)
+                                bodyParam.toRequestBody(mediaType)
                             }
                             "multipart" -> {
-                                // 这里简化处理，实际使用multipart应该更复分
-        return ToolResult(
+                                // 这里简化处理，实际使用multipart应该更复�?                               return ToolResult(
                                         toolName = tool.name,
                                         success = false,
                                         result = StringResultData(""),
                                         error = "multipart request body type requires dedicated multipart_request tool"
                                 )
                             }
-        else -> {
+                            else -> {
                                 return ToolResult(
                                         toolName = tool.name,
                                         success = false,
@@ -282,33 +288,34 @@ class StandardHttpTools(private val context: Context) {
                                 )
                             }
                         }
-        requestBuilder.method(method, requestBody)
+
+                requestBuilder.method(method, requestBody)
             } else {
                 requestBuilder.method(method, null)
             }
 
             // 执行请求
-        val request = requestBuilder.build()
+            val request = requestBuilder.build()
 
             // 详细记录请求信息
-        val logSB = StringBuilder("\n====== HTTP Request Details Start ======")
-        logSB.append("\nURL: ${url}")
-        logSB.append("\nMethod: ${method}")
-        logSB.append("\nRequest headers:")
-        request.headers.forEach { header ->
+            val logSB = StringBuilder("\n====== HTTP Request Details Start ======")
+            logSB.append("\nURL: ${url}")
+            logSB.append("\nMethod: ${method}")
+            logSB.append("\nRequest headers:")
+            request.headers.forEach { header ->
                 logSB.append("\n  ${header.first}: ${header.second}")
             }
-        if (method != "GET" && method != "HEAD" && bodyParam.isNotBlank()) {
+            if (method != "GET" && method != "HEAD" && bodyParam.isNotBlank()) {
                 logSB.append("\nRequest body type: ${bodyType}")
-        logSB.append("\nRequest body content: ${bodyParam}")
+                logSB.append("\nRequest body content: ${bodyParam}")
             }
 
             // 记录Cookie存储情况
-        val requestCookieUrl = url.toHttpUrlOrNull()
-        if (requestCookieUrl != null && useCookiesParam?.lowercase() != "false") {
+            val requestCookieUrl = url.toHttpUrlOrNull()
+            if (requestCookieUrl != null && useCookiesParam?.lowercase() != "false") {
                 logSB.append("\nCookies:")
-        val cookies = cookieJar.loadForRequest(requestCookieUrl)
-        if (cookies.isEmpty()) {
+                val cookies = cookieJar.loadForRequest(requestCookieUrl)
+                if (cookies.isEmpty()) {
                     logSB.append("\n  No Cookie")
                 } else {
                     cookies.forEach { cookie ->
@@ -316,25 +323,27 @@ class StandardHttpTools(private val context: Context) {
                     }
                 }
             }
-        logSB.append("\n====== HTTP Request Details End ======")
-        AppLogger.d(TAG, logSB.toString())
-        val response = client.newCall(request).execute()
 
-            // 检查响应类的
-        val contentType = response.header("Content-Type") ?: ""
+            logSB.append("\n====== HTTP Request Details End ======")
+            AppLogger.d(TAG, logSB.toString())
+
+            val response = client.newCall(request).execute()
+
+            // 检查响应类�?          val contentType = response.header("Content-Type") ?: ""
 
             // 处理响应
-        val responseHeadersMap =
+            val responseHeadersMap =
                     response.headers.names().associateWith { name ->
                         response.headers.get(name) ?: ""
                     }
 
             // 提取响应的Cookie
-        val responseCookieUrl =
+            val responseCookieUrl =
                     url.toHttpUrlOrNull() ?: throw IllegalArgumentException("Invalid URL: ${url}")
-        val responseCookies = cookieJar.loadForRequest(responseCookieUrl)
-        val cookiesMap = responseCookies.associate { it.name to it.value }
-        val responseBody =
+            val responseCookies = cookieJar.loadForRequest(responseCookieUrl)
+            val cookiesMap = responseCookies.associate { it.name to it.value }
+
+            val responseBody =
                     response.body
                             ?: return ToolResult(
                                     toolName = tool.name,
@@ -342,22 +351,24 @@ class StandardHttpTools(private val context: Context) {
                                     result = StringResultData(""),
                                     error = "Response body is empty"
                             )
-        var responseBodyString: String? = null
+
+            var responseBodyString: String? = null
             var responseBodyBase64: String?
 
             val bodyBytes = responseBody.bytes()
-        responseBodyBase64 = android.util.Base64.encodeToString(bodyBytes, android.util.Base64.NO_WRAP)
-        try {
+            responseBodyBase64 = android.util.Base64.encodeToString(bodyBytes, android.util.Base64.NO_WRAP)
+
+            try {
                 val charset = response.body?.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
                 responseBodyString = String(bodyBytes, charset)
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Failed to decode response body as text for content-type ${contentType}", e)
-        responseBodyString = "[Binary Content, decoding failed]"
+                responseBodyString = "[Binary Content, decoding failed]"
             }
-        AppLogger.i(TAG, "responseBodyString: ${responseBodyString}")
+            AppLogger.i(TAG, "responseBodyString: ${responseBodyString}")
 
             // 返回原始内容
-        val httpResponseData =
+            val httpResponseData =
                     HttpResponseData(
                             url = url,
                             statusCode = response.code,
@@ -369,10 +380,11 @@ class StandardHttpTools(private val context: Context) {
                             size = bodyBytes.size,
                             cookies = cookiesMap
                     )
-        ToolResult(toolName = tool.name, success = true, result = httpResponseData, error = "")
+
+            ToolResult(toolName = tool.name, success = true, result = httpResponseData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "执行HTTP请求时出的 e)"
-        ToolResult(
+            AppLogger.e(TAG, "执行HTTP请求时出�? e)
+            ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),
@@ -385,102 +397,107 @@ class StandardHttpTools(private val context: Context) {
     private fun isValidUrl(urlString: String): Boolean {
         return try {
             val url = URL(urlString)
-        val protocol = url.protocol.lowercase()
-        protocol == "http" || protocol == "https"
+            val protocol = url.protocol.lowercase()
+            protocol == "http" || protocol == "https"
         } catch (e: Exception) {
             false
         }
     }
 
-    /** 解析请请求/
+    /** 解析请请�?/
     private fun parseHeaders(headersJson: String): Map<String, String> {
         return try {
             val result = mutableMapOf<String, String>()
-        val jsonObj = JSONObject(headersJson)
-        val keys = jsonObj.keys()
-        while (keys.hasNext()) {
+            val jsonObj = JSONObject(headersJson)
+            val keys = jsonObj.keys()
+            while (keys.hasNext()) {
                 val key = keys.next()
-        result[key] = jsonObj.getString(key)
+                result[key] = jsonObj.getString(key)
             }
-        result
+            result
         } catch (e: Exception) {
             AppLogger.e(TAG, "解析请求头时出错", e)
-        emptyMap()
+            emptyMap()
         }
     }
 
-    /** 解析Cookie字符取
+    /** 解析Cookie字符�?
     private fun parseCookies(cookiesJson: String, urlString: String): List<Cookie>? {
         return try {
             val cookieList = mutableListOf<Cookie>()
-        val jsonObj = JSONObject(cookiesJson)
-        val keys = jsonObj.keys()
-        val requestCookieUrl =
+            val jsonObj = JSONObject(cookiesJson)
+            val keys = jsonObj.keys()
+
+            val requestCookieUrl =
                     urlString.toHttpUrlOrNull()
                             ?: throw IllegalArgumentException("Invalid URL: ${urlString}")
-        while (keys.hasNext()) {
+
+            while (keys.hasNext()) {
                 val name = keys.next()
-        val value = jsonObj.get(name)
+                val value = jsonObj.get(name)
 
                 // 支持简单的name=value格式
-        if (value is String) {
+                if (value is String) {
                     val cookie =
                             Cookie.Builder()
                                     .name(name)
                                     .value(value)
                                     .domain(requestCookieUrl.host)
                                     .build()
-        cookieList.add(cookie)
+                    cookieList.add(cookie)
                 }
                 // 支持复杂的Cookie对象格式
-        else if (value is JSONObject) {
+                else if (value is JSONObject) {
                     val cookieBuilder =
                             Cookie.Builder().name(name).value(value.optString("value", ""))
 
                     // 如果有设置domain，使用指定值，否则使用URL的host
-        val domain = value.optString("domain", "")
-        if (domain.isNotBlank()) {
+                    val domain = value.optString("domain", "")
+                    if (domain.isNotBlank()) {
                         cookieBuilder.domain(domain)
                     } else {
                         cookieBuilder.domain(requestCookieUrl.host)
                     }
 
-                    // 其他可选属的
-        val path = value.optString("path", "")
-        if (path.isNotBlank()) cookieBuilder.path(path)
-        val expiresAt = value.optLong("expiresAt", 0)
-        if (expiresAt > 0) cookieBuilder.expiresAt(expiresAt)
-        if (value.optBoolean("secure", false)) cookieBuilder.secure()
-        if (value.optBoolean("httpOnly", false)) cookieBuilder.httpOnly()
-        cookieList.add(cookieBuilder.build())
+                    // 其他可选属�?                  val path = value.optString("path", "")
+                    if (path.isNotBlank()) cookieBuilder.path(path)
+
+                    val expiresAt = value.optLong("expiresAt", 0)
+                    if (expiresAt > 0) cookieBuilder.expiresAt(expiresAt)
+
+                    if (value.optBoolean("secure", false)) cookieBuilder.secure()
+                    if (value.optBoolean("httpOnly", false)) cookieBuilder.httpOnly()
+
+                    cookieList.add(cookieBuilder.build())
                 }
             }
-        cookieList
+
+            cookieList
         } catch (e: Exception) {
-            AppLogger.e(TAG, "解析Cookie时出的 e)"
-        null
+            AppLogger.e(TAG, "解析Cookie时出�? e)
+            null
         }
     }
 
-    /** 管理Cookie的方式
+    /** 管理Cookie的方�?
     suspend fun manageCookies(tool: AITool): ToolResult {
         val action = tool.parameters.find { it.name == "action" }?.value?.lowercase() ?: "get"
         val domain = tool.parameters.find { it.name == "domain" }?.value ?: ""
         val cookiesJson = tool.parameters.find { it.name == "cookies" }?.value ?: "{}"
+
         return try {
             when (action) {
                 "get" -> {
                     // 获取指定域名的Cookie
-        val cookies =
+                    val cookies =
                             if (domain.isNotBlank()) {
                                 cookieStore[domain] ?: emptyList()
                             } else {
                                 // 获取所有域名的Cookie
-        cookieStore.values.flatten()
+                                cookieStore.values.flatten()
                             }
 
-                    // 转换为可读格式
-        val cookiesMap =
+                    // 转换为可读格�?                   val cookiesMap =
                             cookies.associate {
                                 it.name to
                                         mapOf(
@@ -494,8 +511,9 @@ class StandardHttpTools(private val context: Context) {
                                                 "httpOnly" to it.httpOnly
                                         )
                             }
-        val jsonResult = JSONObject(cookiesMap as Map<*, *>).toString(2)
-        ToolResult(
+
+                    val jsonResult = JSONObject(cookiesMap as Map<*, *>).toString(2)
+                    ToolResult(
                             toolName = tool.name,
                             success = true,
                             result = StringResultData("Current cookie status:\n${jsonResult}")
@@ -512,8 +530,8 @@ class StandardHttpTools(private val context: Context) {
                     }
 
                     // 解析Cookie数据
-        val cookies = parseCookies(cookiesJson, "https://${domain}")
-        if (cookies != null) {
+                    val cookies = parseCookies(cookiesJson, "https://${domain}")
+                    if (cookies != null) {
                         cookieStore[domain] = cookies
                         ToolResult(
                                 toolName = tool.name,
@@ -532,23 +550,23 @@ class StandardHttpTools(private val context: Context) {
                 "clear" -> {
                     if (domain.isBlank()) {
                         // 清除所有Cookie
-        cookieStore.clear()
-        ToolResult(
+                        cookieStore.clear()
+                        ToolResult(
                                 toolName = tool.name,
                                 success = true,
                                 result = StringResultData("Cleared all cookies")
                         )
                     } else {
                         // 清除指定域名的Cookie
-        cookieStore.remove(domain)
-        ToolResult(
+                        cookieStore.remove(domain)
+                        ToolResult(
                                 toolName = tool.name,
                                 success = true,
                                 result = StringResultData("Cleared cookies for domain ${domain}")
                         )
                     }
                 }
-        else -> {
+                else -> {
                     ToolResult(
                             toolName = tool.name,
                             success = false,
@@ -558,8 +576,8 @@ class StandardHttpTools(private val context: Context) {
                 }
             }
         } catch (e: Exception) {
-            AppLogger.e(TAG, "管理Cookie时出的 e)"
-        ToolResult(
+            AppLogger.e(TAG, "管理Cookie时出�? e)
+            ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),
@@ -568,7 +586,7 @@ class StandardHttpTools(private val context: Context) {
         }
     }
 
-    /** 发送包含文件的多部分表单请的/
+    /** 发送包含文件的多部分表单请�?/
     suspend fun multipartRequest(tool: AITool): ToolResult {
         val url = tool.parameters.find { it.name == "url" }?.value ?: ""
         val methodParam = tool.parameters.find { it.name == "method" }?.value
@@ -616,18 +634,17 @@ class StandardHttpTools(private val context: Context) {
                     error = "Multipart form requests only support POST and PUT methods, not supported: ${method}"
             )
         }
+
         return try {
-            // 解析请请求
-        val headers = parseHeaders(headersParam)
+            // 解析请请�?           val headers = parseHeaders(headersParam)
 
             // 解析自定义Cookie
-        val customCookies =
+            val customCookies =
                     if (!customCookiesParam.isNullOrBlank()) {
                         parseCookies(customCookiesParam, url)
                     } else null
 
-            // 配置客户的
-        val client =
+            // 配置客户�?           val client =
                     buildConfigurableClient(
                             connectTimeout = connectTimeoutParam?.toLongOrNull() ?: 15,
                             readTimeout = readTimeoutParam?.toLongOrNull() ?: 20,
@@ -641,24 +658,23 @@ class StandardHttpTools(private val context: Context) {
                     )
 
             // 如果有自定义Cookie，添加到cookieStore
-        if (customCookies != null) {
+            if (customCookies != null) {
                 val requestCookieUrl = url.toHttpUrlOrNull()
-        if (requestCookieUrl != null && useCookiesParam?.lowercase() != "false") {
+                if (requestCookieUrl != null && useCookiesParam?.lowercase() != "false") {
                     cookieStore[requestCookieUrl.host] = customCookies
                 }
             }
 
             // 构建多部分请求体
-        val multipartBodyBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
+            val multipartBodyBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
 
-            // 解析并添加表单数据
-        try {
+            // 解析并添加表单数�?          try {
                 val formData = JSONObject(formDataParam)
-        val formKeys = formData.keys()
-        while (formKeys.hasNext()) {
+                val formKeys = formData.keys()
+                while (formKeys.hasNext()) {
                     val key = formKeys.next()
-        val value = formData.getString(key)
-        multipartBodyBuilder.addFormDataPart(key, value)
+                    val value = formData.getString(key)
+                    multipartBodyBuilder.addFormDataPart(key, value)
                 }
             } catch (e: Exception) {
                 return ToolResult(
@@ -669,17 +685,17 @@ class StandardHttpTools(private val context: Context) {
                 )
             }
 
-            // 解析并添加文件
-        try {
+            // 解析并添加文�?          try {
                 val filesArray = JSONArray(filesParam)
-        for (i in 0 until filesArray.length()) {
+                for (i in 0 until filesArray.length()) {
                     val fileObj = filesArray.getJSONObject(i)
-        val fieldName = fileObj.getString("field_name")
-        val filePath = fileObj.getString("file_path")
-        val contentType = fileObj.optString("content_type", "application/octet-stream")
-        val fileName = fileObj.optString("file_name", File(filePath).name)
-        val file = File(filePath)
-        if (!file.exists() || !file.canRead()) {
+                    val fieldName = fileObj.getString("field_name")
+                    val filePath = fileObj.getString("file_path")
+                    val contentType = fileObj.optString("content_type", "application/octet-stream")
+                    val fileName = fileObj.optString("file_name", File(filePath).name)
+
+                    val file = File(filePath)
+                    if (!file.exists() || !file.canRead()) {
                         return ToolResult(
                                 toolName = tool.name,
                                 success = false,
@@ -688,9 +704,8 @@ class StandardHttpTools(private val context: Context) {
                         )
                     }
 
-                    // 添加文件到多部分表单的
-        val fileBody = file.asRequestBody(contentType.toMediaType())
-        multipartBodyBuilder.addFormDataPart(fieldName, fileName, fileBody)
+                    // 添加文件到多部分表单�?                   val fileBody = file.asRequestBody(contentType.toMediaType())
+                    multipartBodyBuilder.addFormDataPart(fieldName, fileName, fileBody)
                 }
             } catch (e: Exception) {
                 return ToolResult(
@@ -702,34 +717,33 @@ class StandardHttpTools(private val context: Context) {
             }
 
             // 构建请求
-        val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
+            val requestBuilder = Request.Builder().url(url).header("User-Agent", USER_AGENT)
 
             // 添加自定义请求头
-        headers.forEach { (name, value) -> requestBuilder.header(name, value) }
+            headers.forEach { (name, value) -> requestBuilder.header(name, value) }
 
-            // 构建multipart请请求
-        val requestBody = multipartBodyBuilder.build()
-        requestBuilder.method(method, requestBody)
+            // 构建multipart请请�?           val requestBody = multipartBodyBuilder.build()
+            requestBuilder.method(method, requestBody)
 
             // 执行请求
-        val request = requestBuilder.build()
-        val response = client.newCall(request).execute()
+            val request = requestBuilder.build()
+            val response = client.newCall(request).execute()
 
-            // 检查响应类的
-        val contentType = response.header("Content-Type") ?: ""
+            // 检查响应类�?          val contentType = response.header("Content-Type") ?: ""
 
             // 处理响应
-        val responseHeadersMap =
+            val responseHeadersMap =
                     response.headers.names().associateWith { name ->
                         response.headers.get(name) ?: ""
                     }
 
             // 提取响应的Cookie
-        val responseCookieUrl =
+            val responseCookieUrl =
                     url.toHttpUrlOrNull() ?: throw IllegalArgumentException("Invalid URL: ${url}")
-        val responseCookies = cookieJar.loadForRequest(responseCookieUrl)
-        val cookiesMap = responseCookies.associate { it.name to it.value }
-        val responseBody =
+            val responseCookies = cookieJar.loadForRequest(responseCookieUrl)
+            val cookiesMap = responseCookies.associate { it.name to it.value }
+
+            val responseBody =
                     response.body
                             ?: return ToolResult(
                                     toolName = tool.name,
@@ -737,21 +751,22 @@ class StandardHttpTools(private val context: Context) {
                                     result = StringResultData(""),
                                     error = "Response body is empty"
                             )
-        var responseBodyString: String? = null
+
+            var responseBodyString: String? = null
             var responseBodyBase64: String?
 
             val bodyBytes = responseBody.bytes()
-        responseBodyBase64 = android.util.Base64.encodeToString(bodyBytes, android.util.Base64.NO_WRAP)
-        try {
+            responseBodyBase64 = android.util.Base64.encodeToString(bodyBytes, android.util.Base64.NO_WRAP)
+            try {
                 val charset = response.body?.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
                 responseBodyString = String(bodyBytes, charset)
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Failed to decode response body as text for content-type ${contentType}", e)
-        responseBodyString = "[Binary Content, decoding failed]"
+                responseBodyString = "[Binary Content, decoding failed]"
             }
             
             // 返回原始内容
-        val httpResponseData =
+            val httpResponseData =
                     HttpResponseData(
                             url = url,
                             statusCode = response.code,
@@ -763,10 +778,11 @@ class StandardHttpTools(private val context: Context) {
                             size = bodyBytes.size,
                             cookies = cookiesMap
                     )
-        ToolResult(toolName = tool.name, success = true, result = httpResponseData, error = "")
+
+            ToolResult(toolName = tool.name, success = true, result = httpResponseData, error = "")
         } catch (e: Exception) {
             AppLogger.e(TAG, "执行多部分表单请求时出错", e)
-        ToolResult(
+            ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),

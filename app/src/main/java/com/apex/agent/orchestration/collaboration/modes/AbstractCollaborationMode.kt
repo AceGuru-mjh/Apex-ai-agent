@@ -37,13 +37,14 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
 ) : TaskExecutor {
 
     private val sharedMemoryPool: SharedMemoryPool = SharedMemoryPool.getInstance()
-        protected val workingMemory: WorkingMemoryManager = WorkingMemoryManager()
-        protected var memoryBridge: SessionMemoryBridge? = null
+    protected val workingMemory: WorkingMemoryManager = WorkingMemoryManager()
+    protected var memoryBridge: SessionMemoryBridge? = null
 
     fun attachMemoryBridge(bridge: SessionMemoryBridge) {
         memoryBridge = bridge
     }
-        protected open class ExecutionState(
+
+    protected open class ExecutionState(
         open val task: Task,
         open val agents: List<Agent>,
         val agentStates: ConcurrentHashMap<String, AgentExecutionState> = ConcurrentHashMap(),
@@ -51,20 +52,25 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
         val paused: AtomicBoolean = AtomicBoolean(false),
         val currentStep: AtomicInteger = AtomicInteger(0)
     )
-        protected val executions = ConcurrentHashMap<String, State>()
-        protected abstract fun createState(task: Task, agents: List<Agent>): State
+
+    protected val executions = ConcurrentHashMap<String, State>()
+
+    protected abstract fun createState(task: Task, agents: List<Agent>): State
     protected abstract suspend fun runStep(state: State)
-        override suspend fun execute(task: Task): Flow<Result<Task>> = flow {
+
+    override suspend fun execute(task: Task): Flow<Result<Task>> = flow {
         val agentsResult = agentManager.getAllAgents()
         val allAgents = when (agentsResult) {
             is Result.Success -> agentsResult.data
             is Result.Failure -> emptyList()
         }
         val agents = task.agentIds.mapNotNull { id -> allAgents.find { it.id == id } }
+
         if (agents.isEmpty()) {
             emit(Result.Failure(IllegalStateException("No agents available for task ${task.id}")))
-        return@flow
+            return@flow
         }
+
         val state = createState(task, agents)
         initializeAgentStates(state)
         executions[task.id] = state
@@ -72,49 +78,58 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
         workingMemory.createSession(task.id, task.id, task.description)
         agents.forEach { a ->
             workingMemory.registerAgent(task.id, a.id, a.name, a.role)
-        workingMemory.updateAgentStatus(task.id, a.id, "ready")
+            workingMemory.updateAgentStatus(task.id, a.id, "ready")
         }
         memoryBridge?.loadContextForNewSession(task.id, agents.firstOrNull()?.id ?: "", "").let { ctx ->
             if (ctx.isNotEmpty()) {
                 workingMemory.addContext(task.id, "inherited_context", ctx, "system", ContextCategory.FACT)
             }
         }
+
         emit(Result.Success(task.copy(status = TaskState.RUNNING.name, updatedAt = System.currentTimeMillis())))
+
         while (state.running.get() && currentCoroutineContext().isActive) {
             if (state.paused.get()) {
                 delay(100)
-        continue
+                continue
             }
-        try {
+
+            try {
                 pullSharedMemories(state)
-        runStep(state)
-        emit(Result.Success(task.copy(status = TaskState.RUNNING.name, updatedAt = System.currentTimeMillis())))
+                runStep(state)
+                emit(Result.Success(task.copy(status = TaskState.RUNNING.name, updatedAt = System.currentTimeMillis())))
             } catch (e: Exception) {
                 emit(Result.Failure(e))
-        break
+                break
             }
-        delay(100)
+
+            delay(100)
         }
+
         state.agentStates.keys.forEach { agentId ->
             val current = state.agentStates[agentId]
             if (current != null && current.status != AgentStatus.FINISHED && current.status != AgentStatus.ERROR) {
                 state.agentStates[agentId] = current.copy(status = AgentStatus.FINISHED)
-        workingMemory.updateAgentStatus(task.id, agentId, "finished")
+                workingMemory.updateAgentStatus(task.id, agentId, "finished")
             }
         }
+
         memoryBridge?.consolidateSessionToKG(task.id)
         workingMemory.removeSession(task.id)
         executions.remove(task.id)
     }.flowOn(Dispatchers.Default)
-        override suspend fun pause(taskId: String): Result<Unit> {
+
+    override suspend fun pause(taskId: String): Result<Unit> {
         executions[taskId]?.paused?.set(true)
         return Result.Success(Unit)
     }
-        override suspend fun resume(taskId: String): Result<Unit> {
+
+    override suspend fun resume(taskId: String): Result<Unit> {
         executions[taskId]?.paused?.set(false)
         return Result.Success(Unit)
     }
-        override suspend fun cancel(taskId: String): Result<Unit> {
+
+    override suspend fun cancel(taskId: String): Result<Unit> {
         executions[taskId]?.running?.set(false)
         sharedMemoryPool.clearTaskMemory(taskId)
         memoryBridge?.consolidateSessionToKG(taskId)
@@ -122,14 +137,17 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
         executions.remove(taskId)
         return Result.Success(Unit)
     }
-        protected open suspend fun onMessage(state: State, message: AgentMessage) {}
-        override suspend fun onMessageReceived(taskId: String, message: AgentMessage): Result<Unit> {
+
+    protected open suspend fun onMessage(state: State, message: AgentMessage) {}
+
+    override suspend fun onMessageReceived(taskId: String, message: AgentMessage): Result<Unit> {
         val state = executions[taskId]
             ?: return Result.Failure(NoSuchElementException("Task not running: ${taskId}"))
         onMessage(state, message)
         return Result.Success(Unit)
     }
-        protected fun initializeAgentStates(state: State) {
+
+    protected fun initializeAgentStates(state: State) {
         state.agents.forEach { agent ->
             state.agentStates[agent.id] = AgentExecutionState(
                 agentId = agent.id,
@@ -140,7 +158,8 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
             )
         }
     }
-        protected fun updateAgentStatus(state: State, agentId: String, status: AgentStatus) {
+
+    protected fun updateAgentStatus(state: State, agentId: String, status: AgentStatus) {
         val current = state.agentStates[agentId] ?: return
         state.agentStates[agentId] = current.copy(
             status = status,
@@ -148,14 +167,16 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
         )
         workingMemory.updateAgentStatus(state.task.id, agentId, status.name.lowercase())
     }
-        protected fun updateAgentProgress(state: State, agentId: String, progress: Float) {
+
+    protected fun updateAgentProgress(state: State, agentId: String, progress: Float) {
         val current = state.agentStates[agentId] ?: return
         state.agentStates[agentId] = current.copy(
             progress = progress,
             lastUpdateTime = System.currentTimeMillis()
         )
     }
-        protected fun broadcastMessage(state: State, content: String, senderId: String = "") {
+
+    protected fun broadcastMessage(state: State, content: String, senderId: String = "") {
         state.agents.forEach { agent ->
             val current = state.agentStates[agent.id] ?: return@forEach
             if (current.status == AgentStatus.IDLE || current.status == AgentStatus.WAITING) {
@@ -167,6 +188,7 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
                 )
             }
         }
+
         val entry = SharedMemoryEntry(
             entryId = UUID.randomUUID().toString(),
             taskId = state.task.id,
@@ -177,7 +199,8 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
         sharedMemoryPool.writeSharedMemory(entry)
         workingMemory.recordMessage(state.task.id, senderId.ifEmpty { "system" }, null)
     }
-        protected fun sendToAgent(state: State, agentId: String, content: String, senderId: String = "") {
+
+    protected fun sendToAgent(state: State, agentId: String, content: String, senderId: String = "") {
         val current = state.agentStates[agentId] ?: return
         state.agentStates[agentId] = current.copy(
             status = AgentStatus.RECEIVING,
@@ -185,6 +208,7 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
             lastUpdateTime = System.currentTimeMillis(),
             messages = current.messages + createAgentMessage(senderId, agentId, content)
         )
+
         val entry = SharedMemoryEntry(
             entryId = UUID.randomUUID().toString(),
             taskId = state.task.id,
@@ -195,46 +219,59 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
         sharedMemoryPool.writeSharedMemory(entry)
         workingMemory.recordMessage(state.task.id, senderId.ifEmpty { "system" }, agentId)
     }
-        protected fun recordDecision(state: State, description: String, proposedBy: String, reasoning: String = "") {
+
+    protected fun recordDecision(state: State, description: String, proposedBy: String, reasoning: String = "") {
         workingMemory.addDecision(state.task.id, description, proposedBy, reasoning)
     }
-        protected fun recordContext(state: State, key: String, value: String, source: String = "", category: ContextCategory = ContextCategory.GENERAL) {
+
+    protected fun recordContext(state: State, key: String, value: String, source: String = "", category: ContextCategory = ContextCategory.GENERAL) {
         workingMemory.addContext(state.task.id, key, value, source, category)
     }
-        protected fun recordProgress(state: State, agentId: String, taskRef: String, status: String, progress: Float, note: String = "") {
+
+    protected fun recordProgress(state: State, agentId: String, taskRef: String, status: String, progress: Float, note: String = "") {
         workingMemory.recordProgress(state.task.id, agentId, taskRef, status, progress, note)
         updateAgentProgress(state, agentId, progress)
     }
-        protected fun recordArtifact(state: State, name: String, type: ArtifactType, content: String, createdBy: String) {
+
+    protected fun recordArtifact(state: State, name: String, type: ArtifactType, content: String, createdBy: String) {
         workingMemory.addArtifact(state.task.id, name, type, content, createdBy)
     }
-        protected fun getSessionSummary(state: State): String {
+
+    protected fun getSessionSummary(state: State): String {
         return workingMemory.generateSummary(state.task.id)
     }
-        protected fun getNextAgent(state: State, excludeIds: Set<String> = emptySet()): Agent? {
+
+    protected fun getNextAgent(state: State, excludeIds: Set<String> = emptySet()): Agent? {
         return state.agents.firstOrNull { it.id !in excludeIds && state.agentStates[it.id]?.status == AgentStatus.IDLE }
     }
-        protected fun getSupervisorAgent(state: State): Agent? {
+
+    protected fun getSupervisorAgent(state: State): Agent? {
         val supervisorRole = context.getString(R.string.role_supervisor)
         val coordinatorRole = context.getString(R.string.role_coordinator)
         return state.agents.firstOrNull { it.role.contains(supervisorRole) || it.role.contains(coordinatorRole) }
     }
-        protected fun incrementStep(state: State): Int {
+
+    protected fun incrementStep(state: State): Int {
         return state.currentStep.incrementAndGet()
     }
-        protected fun getStep(state: State): Int {
+
+    protected fun getStep(state: State): Int {
         return state.currentStep.get()
     }
-        protected fun getAgentState(state: State, agentId: String): AgentExecutionState? {
+
+    protected fun getAgentState(state: State, agentId: String): AgentExecutionState? {
         return state.agentStates[agentId]
     }
-        protected fun areAllAgentsFinished(state: State): Boolean {
+
+    protected fun areAllAgentsFinished(state: State): Boolean {
         return state.agentStates.values.all { it.status == AgentStatus.IDLE || it.status == AgentStatus.FINISHED }
     }
-        protected fun areAllAgentsWorking(state: State): Boolean {
+
+    protected fun areAllAgentsWorking(state: State): Boolean {
         return state.agentStates.values.all { it.status == AgentStatus.WORKING }
     }
-        protected fun createAgentMessage(senderId: String, receiverId: String, content: String): AgentMessage {
+
+    protected fun createAgentMessage(senderId: String, receiverId: String, content: String): AgentMessage {
         return AgentMessage(
             id = UUID.randomUUID().toString(),
             senderId = senderId,
@@ -243,7 +280,8 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
             timestamp = System.currentTimeMillis()
         )
     }
-        private suspend fun pullSharedMemories(state: State) {
+
+    private suspend fun pullSharedMemories(state: State) {
         val taskMemories = sharedMemoryPool.getUnreadMemoriesForAgent(
             state.task.id, "collaboration_mode"
         )
@@ -252,7 +290,7 @@ abstract class AbstractCollaborationMode<State : AbstractCollaborationMode.Execu
                 it.role.equals(entry.agentRole, ignoreCase = true) ||
                 state.agentStates[it.id]?.status == AgentStatus.IDLE
             }
-        if (targetAgent != null) {
+            if (targetAgent != null) {
                 val current = state.agentStates[targetAgent.id] ?: continue
                 state.agentStates[targetAgent.id] = current.copy(
                     messages = current.messages + createAgentMessage(

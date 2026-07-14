@@ -13,8 +13,9 @@ class TranslationServiceFactory private constructor(
     private var currentProvider: TranslationProvider = TranslationProvider.OPENAI
 
     private val _isInitialized = MutableStateFlow(false)
-        val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
-        companion object {
+    val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
+
+    companion object {
         private const val TAG = "TranslationServiceFactory"
         private var instance: TranslationServiceFactory? = null
 
@@ -26,19 +27,22 @@ class TranslationServiceFactory private constructor(
             }
         }
     }
-        fun getService(): TranslationService? = currentService
+
+    fun getService(): TranslationService? = currentService
 
     suspend fun createService(provider: TranslationProvider, config: TranslationConfig? = null): Boolean {
         try {
             currentService?.shutdown()
-        currentService = when (provider) {
+
+            currentService = when (provider) {
                 TranslationProvider.GOOGLE -> GoogleTranslationService(context, config)
-        TranslationProvider.DEEPL -> DeepLTranslationService(context, config)
-        TranslationProvider.OPENAI -> OpenAITranslationService(context, config)
-        TranslationProvider.MICROSOFT -> MicrosoftTranslationService(context, config)
-        TranslationProvider.CUSTOM -> CustomTranslationService(context, config)
+                TranslationProvider.DEEPL -> DeepLTranslationService(context, config)
+                TranslationProvider.OPENAI -> OpenAITranslationService(context, config)
+                TranslationProvider.MICROSOFT -> MicrosoftTranslationService(context, config)
+                TranslationProvider.CUSTOM -> CustomTranslationService(context, config)
             }
-        currentProvider = provider
+
+            currentProvider = provider
             val success = currentService?.initialize() ?: false
             _isInitialized.value = success
 
@@ -47,14 +51,16 @@ class TranslationServiceFactory private constructor(
             } else {
                 AppLogger.e(TAG, "Failed to initialize translation service: ${provider}")
             }
-        return success
+
+            return success
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error creating translation service: ${provider}", e)
-        _isInitialized.value = false
+            _isInitialized.value = false
             return false
         }
     }
-        fun getCurrentProvider(): TranslationProvider = currentProvider
+
+    fun getCurrentProvider(): TranslationProvider = currentProvider
 
     suspend fun switchProvider(provider: TranslationProvider, config: TranslationConfig? = null): Boolean {
         return createService(provider, config)
@@ -84,7 +90,8 @@ private class GoogleTranslationService(
         _isInitialized = true
         return true
     }
-        override suspend fun translate(
+
+    override suspend fun translate(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
@@ -96,14 +103,18 @@ private class GoogleTranslationService(
             targetLanguage = targetLanguage
         )
     }
-        override fun translateStream(
+
+    override fun translateStream(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
     ) = kotlinx.coroutines.flow.flowOf(translate(text, sourceLanguage, targetLanguage))
-        override suspend fun detectLanguage(text: String): String? = "zh"
-        override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
-        override fun shutdown() { _isInitialized = false }
+
+    override suspend fun detectLanguage(text: String): String? = "zh"
+
+    override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
+
+    override fun shutdown() { _isInitialized = false }
 }
 
 private class DeepLTranslationService(
@@ -119,7 +130,8 @@ private class DeepLTranslationService(
         _isInitialized = true
         return true
     }
-        override suspend fun translate(
+
+    override suspend fun translate(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
@@ -131,14 +143,18 @@ private class DeepLTranslationService(
             targetLanguage = targetLanguage
         )
     }
-        override fun translateStream(
+
+    override fun translateStream(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
     ) = kotlinx.coroutines.flow.flowOf(translate(text, sourceLanguage, targetLanguage))
-        override suspend fun detectLanguage(text: String): String? = "zh"
-        override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
-        override fun shutdown() { _isInitialized = false }
+
+    override suspend fun detectLanguage(text: String): String? = "zh"
+
+    override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
+
+    override fun shutdown() { _isInitialized = false }
 }
 
 private class OpenAITranslationService(
@@ -154,7 +170,8 @@ private class OpenAITranslationService(
         _isInitialized = true
         return true
     }
-        override suspend fun translate(
+
+    override suspend fun translate(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
@@ -166,23 +183,27 @@ private class OpenAITranslationService(
             targetLanguage = targetLanguage
         )
     }
-        override fun translateStream(
+
+    override fun translateStream(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
     ) = kotlinx.coroutines.flow.flowOf(translate(text, sourceLanguage, targetLanguage))
-        override suspend fun detectLanguage(text: String): String? = "zh"
-        override suspend fun getSupportedLanguages() = listOf(
+
+    override suspend fun detectLanguage(text: String): String? = "zh"
+
+    override suspend fun getSupportedLanguages() = listOf(
         LanguageInfo("en", "English", "English"),
         LanguageInfo("zh", "Chinese", "中文"),
-        LanguageInfo("ja", "Japanese", "日本語"),
-        LanguageInfo("ko", "Korean", "한국어),"
+        LanguageInfo("ja", "Japanese", "日本�?),
+        LanguageInfo("ko", "Korean", "한국�?),
         LanguageInfo("fr", "French", "Français"),
         LanguageInfo("de", "German", "Deutsch"),
         LanguageInfo("es", "Spanish", "Español"),
         LanguageInfo("ru", "Russian", "Русский")
     )
-        override fun shutdown() { _isInitialized = false }
+
+    override fun shutdown() { _isInitialized = false }
 }
 
 private class MicrosoftTranslationService(
@@ -198,7 +219,8 @@ private class MicrosoftTranslationService(
         _isInitialized = true
         return true
     }
-        override suspend fun translate(
+
+    override suspend fun translate(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
@@ -210,14 +232,18 @@ private class MicrosoftTranslationService(
             targetLanguage = targetLanguage
         )
     }
-        override fun translateStream(
+
+    override fun translateStream(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
     ) = kotlinx.coroutines.flow.flowOf(translate(text, sourceLanguage, targetLanguage))
-        override suspend fun detectLanguage(text: String): String? = "zh"
-        override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
-        override fun shutdown() { _isInitialized = false }
+
+    override suspend fun detectLanguage(text: String): String? = "zh"
+
+    override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
+
+    override fun shutdown() { _isInitialized = false }
 }
 
 private class CustomTranslationService(
@@ -233,7 +259,8 @@ private class CustomTranslationService(
         _isInitialized = config?.endpoint?.isNotBlank() == true
         return _isInitialized
     }
-        override suspend fun translate(
+
+    override suspend fun translate(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
@@ -245,12 +272,16 @@ private class CustomTranslationService(
             targetLanguage = targetLanguage
         )
     }
-        override fun translateStream(
+
+    override fun translateStream(
         text: String,
         sourceLanguage: String?,
         targetLanguage: String
     ) = kotlinx.coroutines.flow.flowOf(translate(text, sourceLanguage, targetLanguage))
-        override suspend fun detectLanguage(text: String): String? = "zh"
-        override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
-        override fun shutdown() { _isInitialized = false }
+
+    override suspend fun detectLanguage(text: String): String? = "zh"
+
+    override suspend fun getSupportedLanguages() = emptyList<LanguageInfo>()
+
+    override fun shutdown() { _isInitialized = false }
 }

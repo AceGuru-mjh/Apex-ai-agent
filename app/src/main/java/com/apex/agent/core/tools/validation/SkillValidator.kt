@@ -21,19 +21,24 @@ class SkillValidator(context: Context) {
                 }
         }
     }
-        private val securityScanner = SkillSecurityScanner(context)
-        private val benchmark = SkillBenchmark(context)
-        private val compatibilityChecker = SkillCompatibilityChecker(context)
-        private val json = Json {
+
+    private val securityScanner = SkillSecurityScanner(context)
+    private val benchmark = SkillBenchmark(context)
+    private val compatibilityChecker = SkillCompatibilityChecker(context)
+
+    private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-        fun validateComplete(toolPackage: ToolPackage, otherSkills: List<ToolPackage> = emptyList()): ValidationReport {
+
+    fun validateComplete(toolPackage: ToolPackage, otherSkills: List<ToolPackage> = emptyList()): ValidationReport {
         AppLogger.d(TAG, "Starting complete validation for skill: ${toolPackage.name}")
+
         val securityReport = securityScanner.scan(toolPackage)
         val performanceReport = benchmark.benchmark(toolPackage)
         val compatibilityReport = compatibilityChecker.check(toolPackage, otherSkills)
+
         val overallStatus = when {
             !securityReport.isPassed -> ValidationStatus.FAILED
             !compatibilityReport.isPassed -> ValidationStatus.FAILED
@@ -41,8 +46,11 @@ class SkillValidator(context: Context) {
             securityReport.riskLevel == RiskLevel.MEDIUM -> ValidationStatus.WARNING
             else -> ValidationStatus.PASSED
         }
+
         val summary = buildSummary(securityReport, performanceReport, compatibilityReport)
+
         AppLogger.d(TAG, "Validation completed for ${toolPackage.name}: status=${overallStatus}")
+
         return ValidationReport(
             skillName = toolPackage.name,
             skillVersion = toolPackage.version,
@@ -53,14 +61,17 @@ class SkillValidator(context: Context) {
             summary = summary
         )
     }
-        fun validateScript(
+
+    fun validateScript(
         scriptContent: String,
         skillName: String = "unknown",
         skillVersion: String = "1.0.0"
     ): ValidationReport {
         AppLogger.d(TAG, "Starting script validation for: ${skillName}")
+
         val securityReport = securityScanner.scanScript(scriptContent, skillName)
         val performanceReport = benchmark.benchmarkScript(scriptContent, skillName)
+
         val overallStatus = when {
             !securityReport.isPassed -> ValidationStatus.FAILED
             securityReport.riskLevel == RiskLevel.CRITICAL -> ValidationStatus.FAILED
@@ -68,7 +79,9 @@ class SkillValidator(context: Context) {
             !performanceReport.isPassed -> ValidationStatus.WARNING
             else -> ValidationStatus.PASSED
         }
+
         val summary = buildScriptSummary(securityReport, performanceReport)
+
         return ValidationReport(
             skillName = skillName,
             skillVersion = skillVersion,
@@ -78,19 +91,23 @@ class SkillValidator(context: Context) {
             summary = summary
         )
     }
-        fun validateSecurity(toolPackage: ToolPackage): SecurityReport {
+
+    fun validateSecurity(toolPackage: ToolPackage): SecurityReport {
         return securityScanner.scan(toolPackage)
     }
-        fun validatePerformance(toolPackage: ToolPackage): PerformanceReport {
+
+    fun validatePerformance(toolPackage: ToolPackage): PerformanceReport {
         return benchmark.benchmark(toolPackage)
     }
-        fun validateCompatibility(
+
+    fun validateCompatibility(
         toolPackage: ToolPackage,
         otherSkills: List<ToolPackage> = emptyList()
     ): CompatibilityReport {
         return compatibilityChecker.check(toolPackage, otherSkills)
     }
-        fun generateReportJson(report: ValidationReport): String {
+
+    fun generateReportJson(report: ValidationReport): String {
         return try {
             json.encodeToString(report)
         } catch (e: Exception) {
@@ -98,167 +115,166 @@ class SkillValidator(context: Context) {
             "{}"
         }
     }
-        fun generateMarkdownReport(report: ValidationReport): String {
+
+    fun generateMarkdownReport(report: ValidationReport): String {
         return buildMarkdownReport(report)
     }
-        private fun buildSummary(
+
+    private fun buildSummary(
         securityReport: SecurityReport,
         performanceReport: PerformanceReport,
         compatibilityReport: CompatibilityReport
     ): String {
         return buildString {
-            val _kaptFix69 = if (securityReport.isPassed) "PASS" else "FAIL"
-            append("Security: ${_kaptFix69} (${securityReport.riskLevel.name}), ")
-        val _kaptFix68 = if (performanceReport.isPassed) "PASS" else "WARN"
-        append("Performance: ${_kaptFix68} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms), ")
-        val _kaptFix67 = if (compatibilityReport.isPassed) "PASS" else "FAIL"
-        append("Compatibility: ${_kaptFix67}")
+            append("Security: ${if (securityReport.isPassed) "PASS" else "FAIL"} (${securityReport.riskLevel.name}), ")
+            append("Performance: ${if (performanceReport.isPassed) "PASS" else "WARN"} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms), ")
+            append("Compatibility: ${if (compatibilityReport.isPassed) "PASS" else "FAIL"}")
         }
     }
-        private fun buildScriptSummary(
+
+    private fun buildScriptSummary(
         securityReport: SecurityReport,
         performanceReport: PerformanceReport
     ): String {
         return buildString {
-            val _kaptFix66 = if (securityReport.isPassed) "PASS" else "FAIL"
-            append("Security: ${_kaptFix66} (${securityReport.riskLevel.name}), ")
-        val _kaptFix65 = if (performanceReport.isPassed) "PASS" else "WARN"
-        append("Performance: ${_kaptFix65} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms)")
+            append("Security: ${if (securityReport.isPassed) "PASS" else "FAIL"} (${securityReport.riskLevel.name}), ")
+            append("Performance: ${if (performanceReport.isPassed) "PASS" else "WARN"} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms)")
         }
     }
-        private fun buildMarkdownReport(report: ValidationReport): String {
+
+    private fun buildMarkdownReport(report: ValidationReport): String {
         return buildString {
             appendLine("# Skill Validation Report")
-        appendLine()
-        appendLine("**Skill Name:** ${report.skillName}")
-        appendLine("**Version:** ${report.skillVersion}")
-        appendLine("**Timestamp:** ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(report.timestamp))}")
-        appendLine("**Overall Status:** ${report.overallStatus.name}")
-        appendLine()
-        appendLine("---")
-        appendLine()
-        report.securityReport?.let { security ->
+            appendLine()
+            appendLine("**Skill Name:** ${report.skillName}")
+            appendLine("**Version:** ${report.skillVersion}")
+            appendLine("**Timestamp:** ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(report.timestamp))}")
+            appendLine("**Overall Status:** ${report.overallStatus.name}")
+            appendLine()
+            appendLine("---")
+            appendLine()
+
+            report.securityReport?.let { security ->
                 appendLine("## Security Scan")
-        appendLine()
-        val _kaptFix64 = if (security.isPassed) "PASSED" else "FAILED"
-        appendLine("**Status:** ${_kaptFix64}")
-        appendLine("**Risk Level:** ${security.riskLevel.name}")
-        appendLine()
-        if (security.dangerPatterns.isNotEmpty()) {
+                appendLine()
+                appendLine("**Status:** ${if (security.isPassed) "PASSED" else "FAILED"}")
+                appendLine("**Risk Level:** ${security.riskLevel.name}")
+                appendLine()
+                if (security.dangerPatterns.isNotEmpty()) {
                     appendLine("### Danger Patterns Detected (${security.dangerPatterns.size})")
-        security.dangerPatterns.forEach { pattern ->
+                    security.dangerPatterns.forEach { pattern ->
                         appendLine()
-        appendLine("#### ${pattern.type.name}")
-        appendLine("- **Severity:** ${pattern.severity.name}")
-        appendLine("- **Description:** ${pattern.description}")
-        appendLine("- **Line:** ${pattern.lineNumber}")
-        appendLine("- **Code:** `${pattern.codeSnippet.take(50)}...`")
-        appendLine("- **Suggestion:** ${pattern.suggestion}")
+                        appendLine("#### ${pattern.type.name}")
+                        appendLine("- **Severity:** ${pattern.severity.name}")
+                        appendLine("- **Description:** ${pattern.description}")
+                        appendLine("- **Line:** ${pattern.lineNumber}")
+                        appendLine("- **Code:** `${pattern.codeSnippet.take(50)}...`")
+                        appendLine("- **Suggestion:** ${pattern.suggestion}")
                     }
-        appendLine()
+                    appendLine()
                 }
-        if (security.sensitiveApiCalls.isNotEmpty()) {
+                if (security.sensitiveApiCalls.isNotEmpty()) {
                     appendLine("### Sensitive API Calls (${security.sensitiveApiCalls.size})")
-        security.sensitiveApiCalls.forEach { api ->
+                    security.sensitiveApiCalls.forEach { api ->
                         appendLine("- `${api.apiName}` (Line ${api.lineNumber}): ${api.description}")
                     }
-        appendLine()
+                    appendLine()
                 }
-        if (security.networkRequests.isNotEmpty()) {
+                if (security.networkRequests.isNotEmpty()) {
                     appendLine("### Network Requests (${security.networkRequests.size})")
-        security.networkRequests.forEach { req ->
-                        val _kaptFix63 = if (req.isSuspicious) " **[SUSPICIOUS]**" else ""
-                        appendLine("- ${req.url} (Line ${req.lineNumber})${_kaptFix63}")
+                    security.networkRequests.forEach { req ->
+                        appendLine("- ${req.url} (Line ${req.lineNumber})${if (req.isSuspicious) " **[SUSPICIOUS]**" else ""}")
                     }
-        appendLine()
+                    appendLine()
                 }
-        if (security.recommendations.isNotEmpty()) {
+                if (security.recommendations.isNotEmpty()) {
                     appendLine("### Recommendations")
-        security.recommendations.forEach { rec ->
+                    security.recommendations.forEach { rec ->
                         appendLine("- ${rec}")
                     }
-        appendLine()
+                    appendLine()
                 }
             }
-        report.performanceReport?.let { perf ->
+
+            report.performanceReport?.let { perf ->
                 appendLine("## Performance Benchmark")
-        appendLine()
-        val _kaptFix62 = if (perf.isPassed) "PASSED" else "WARNING"
-        appendLine("**Status:** ${_kaptFix62}")
-        appendLine()
-        appendLine("| Metric | Value |")
-        appendLine("|--------|-------|")
-        appendLine("| Load Time | ${perf.loadTimeMs} ms |")
-        appendLine("| Execution Time | ${perf.executionTimeMs} ms |")
-        appendLine("| Memory Usage | ${formatBytes(perf.memoryUsageBytes)} |")
-        appendLine("| Peak Memory | ${formatBytes(perf.memoryUsagePeakBytes)} |")
-        appendLine("| Tool Count | ${perf.toolCount} |")
-        appendLine()
-        appendLine("### Metrics")
-        appendLine()
-        appendLine("| Metric | Avg | Min | Max |")
-        appendLine("|--------|-----|-----|-----|")
-        appendLine("| Load Time (ms) | ${perf.metrics.avgLoadTimeMs} | - | - |")
-        appendLine("| Execution Time (ms) | ${perf.metrics.avgExecutionTimeMs} | ${perf.metrics.minExecutionTimeMs} | ${perf.metrics.maxExecutionTimeMs} |")
-        appendLine()
-        if (perf.recommendations.isNotEmpty()) {
+                appendLine()
+                appendLine("**Status:** ${if (perf.isPassed) "PASSED" else "WARNING"}")
+                appendLine()
+                appendLine("| Metric | Value |")
+                appendLine("|--------|-------|")
+                appendLine("| Load Time | ${perf.loadTimeMs} ms |")
+                appendLine("| Execution Time | ${perf.executionTimeMs} ms |")
+                appendLine("| Memory Usage | ${formatBytes(perf.memoryUsageBytes)} |")
+                appendLine("| Peak Memory | ${formatBytes(perf.memoryUsagePeakBytes)} |")
+                appendLine("| Tool Count | ${perf.toolCount} |")
+                appendLine()
+                appendLine("### Metrics")
+                appendLine()
+                appendLine("| Metric | Avg | Min | Max |")
+                appendLine("|--------|-----|-----|-----|")
+                appendLine("| Load Time (ms) | ${perf.metrics.avgLoadTimeMs} | - | - |")
+                appendLine("| Execution Time (ms) | ${perf.metrics.avgExecutionTimeMs} | ${perf.metrics.minExecutionTimeMs} | ${perf.metrics.maxExecutionTimeMs} |")
+                appendLine()
+                if (perf.recommendations.isNotEmpty()) {
                     appendLine("### Recommendations")
-        perf.recommendations.forEach { rec ->
+                    perf.recommendations.forEach { rec ->
                         appendLine("- ${rec}")
                     }
-        appendLine()
+                    appendLine()
                 }
             }
-        report.compatibilityReport?.let { compat ->
+
+            report.compatibilityReport?.let { compat ->
                 appendLine("## Compatibility Check")
-        appendLine()
-        val _kaptFix61 = if (compat.isPassed) "PASSED" else "FAILED"
-        appendLine("**Status:** ${_kaptFix61}")
-        appendLine()
-        appendLine("### Android Version")
-        appendLine("- **Required:** ${compat.androidVersionCheck.requiredVersion}")
-        appendLine("- **Current Min SDK:** ${compat.androidVersionCheck.currentMinSdk}")
-        appendLine("- **Current Target SDK:** ${compat.androidVersionCheck.currentTargetSdk}")
-        appendLine("- **Message:** ${compat.androidVersionCheck.message}")
-        appendLine()
-        if (compat.permissionChecks.isNotEmpty()) {
+                appendLine()
+                appendLine("**Status:** ${if (compat.isPassed) "PASSED" else "FAILED"}")
+                appendLine()
+                appendLine("### Android Version")
+                appendLine("- **Required:** ${compat.androidVersionCheck.requiredVersion}")
+                appendLine("- **Current Min SDK:** ${compat.androidVersionCheck.currentMinSdk}")
+                appendLine("- **Current Target SDK:** ${compat.androidVersionCheck.currentTargetSdk}")
+                appendLine("- **Message:** ${compat.androidVersionCheck.message}")
+                appendLine()
+                if (compat.permissionChecks.isNotEmpty()) {
                     appendLine("### Permissions (${compat.permissionChecks.count { it.isGranted }}/${compat.permissionChecks.size} granted)")
-        compat.permissionChecks.forEach { check ->
-                        val status = if (check.isGranted) "✓ else "✓
+                    compat.permissionChecks.forEach { check ->
+                        val status = if (check.isGranted) "�? else "�?
                         appendLine("- ${status} ${check.permission.name}: ${check.message}")
                     }
-        appendLine()
+                    appendLine()
                 }
-        if (compat.dependencyChecks.isNotEmpty()) {
+                if (compat.dependencyChecks.isNotEmpty()) {
                     appendLine("### Dependencies (${compat.dependencyChecks.count { it.isMet }}/${compat.dependencyChecks.size} met)")
-        compat.dependencyChecks.forEach { check ->
-                        val status = if (check.isMet) "✓ else "✓
+                    compat.dependencyChecks.forEach { check ->
+                        val status = if (check.isMet) "�? else "�?
                         appendLine("- ${status} ${check.dependencyName}${check.currentVersion?.let { " (${it})" } ?: ""}: ${check.message}")
                     }
-        appendLine()
+                    appendLine()
                 }
-        if (compat.conflictChecks.isNotEmpty()) {
+                if (compat.conflictChecks.isNotEmpty()) {
                     appendLine("### Conflicts (${compat.conflictChecks.size})")
-        compat.conflictChecks.forEach { conflict ->
+                    compat.conflictChecks.forEach { conflict ->
                         appendLine("- **[${conflict.severity.name}]** ${conflict.conflictingSkill}: ${conflict.description}")
                     }
-        appendLine()
+                    appendLine()
                 }
-        if (compat.recommendations.isNotEmpty()) {
+                if (compat.recommendations.isNotEmpty()) {
                     appendLine("### Recommendations")
-        compat.recommendations.forEach { rec ->
+                    compat.recommendations.forEach { rec ->
                         appendLine("- ${rec}")
                     }
-        appendLine()
+                    appendLine()
                 }
             }
         }
     }
-        private fun formatBytes(bytes: Long): String {
+
+    private fun formatBytes(bytes: Long): String {
         return when {
             bytes < 1024 -> "${bytes} B"
-        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-        else -> "${bytes / (1024 * 1024)} MB"
+            bytes < 1024 * 1024 -> "${bytes / 1024} KB"
+            else -> "${bytes / (1024 * 1024)} MB"
         }
     }
 }

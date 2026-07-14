@@ -28,11 +28,13 @@ internal class WebSessionOptimizationStorage private constructor(
     private val prefs: SharedPreferences by lazy {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
-        private val json = Json {
+
+    private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-        companion object {
+
+    companion object {
         private const val PREFS_NAME = "web_ai_optimization"
         private const val KEY_OPTIMIZATION_DATA = "optimization_data"
         
@@ -71,7 +73,7 @@ internal class WebSessionOptimizationStorage private constructor(
             prefs.getString(KEY_OPTIMIZATION_DATA, null)
         } catch (e: Exception) {
             Log.e(TAG, "getOptimizationData failed", e)
-        null
+            null
         }
     }
 
@@ -83,7 +85,7 @@ internal class WebSessionOptimizationStorage private constructor(
     fun saveOptimizationObject(optimizationData: OptimizationData) {
         try {
             val jsonStr = json.encodeToString(optimizationData)
-        saveOptimizationData(jsonStr)
+            saveOptimizationData(jsonStr)
         } catch (e: Exception) {
             Log.e(TAG, "saveOptimizationObject failed", e)
         }
@@ -100,7 +102,7 @@ internal class WebSessionOptimizationStorage private constructor(
             json.decodeFromString<OptimizationData>(jsonStr)
         } catch (e: Exception) {
             Log.e(TAG, "getOptimizationObject failed", e)
-        null
+            null
         }
     }
 

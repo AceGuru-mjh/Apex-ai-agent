@@ -23,104 +23,106 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
     ): AvatarModel? {
         return when (type) {
             // AvatarType.DRAGONBONES -> createDragonBonesModel(id, name, data)
-        AvatarType.WEBP -> createWebPModel(id, name, data)
-        AvatarType.MP4 -> createMp4Model(id, name, data)
-        AvatarType.MMD -> createMmdModel(id, name, data)
-        AvatarType.GLTF -> createGltfModel(id, name, data)
-        AvatarType.FBX -> createFbxModel(id, name, data)
+            AvatarType.WEBP -> createWebPModel(id, name, data)
+            AvatarType.MP4 -> createMp4Model(id, name, data)
+            AvatarType.MMD -> createMmdModel(id, name, data)
+            AvatarType.GLTF -> createGltfModel(id, name, data)
+            AvatarType.FBX -> createFbxModel(id, name, data)
         }
     }
-        override fun createModelFromData(dataModel: Any): AvatarModel? {
+
+    override fun createModelFromData(dataModel: Any): AvatarModel? {
         return when (dataModel) {
             // is DragonBonesModel -> {
-            //
-        DragonBonesAvatarModel(dataModel)
+            //     DragonBonesAvatarModel(dataModel)
             // }
-        else -> {
+            else -> {
                 if (dataModel is Map<*, *>) {
                     val dataMap = dataModel as? Map<String, Any> ?: return null
-        val id = dataMap["id"] as? String ?: return null
+                    val id = dataMap["id"] as? String ?: return null
                     val name = dataMap["name"] as? String ?: return null
-        val typeStr = dataMap["type"] as? String ?: return null
+                    val typeStr = dataMap["type"] as? String ?: return null
                     val type = try {
                         AvatarType.valueOf(typeStr)
                     } catch (e: IllegalArgumentException) {
                         return null
                     }
-        return createModel(id, name, type, dataMap)
+                    return createModel(id, name, type, dataMap)
                 }
-        null
+                null
             }
         }
     }
-        override fun createDefaultModel(type: AvatarType, baseName: String): AvatarModel? {
+
+    override fun createDefaultModel(type: AvatarType, baseName: String): AvatarModel? {
         return when (type) {
             // AvatarType.DRAGONBONES -> {
-            //
-        val defaultData = mapOf(
+            //     val defaultData = mapOf(
             //         "folderPath" to "assets/avatars/default",
             //         "skeletonFile" to "default_ske.json",
             //         "textureJsonFile" to "default_tex.json",
             //         "textureImageFile" to "default_tex.png",
             //         "isBuiltIn" to true
             //     )
-            //
-        createDragonBonesModel("default_dragonbones", baseName, defaultData)
+            //     createDragonBonesModel("default_dragonbones", baseName, defaultData)
             // }
-        AvatarType.WEBP -> {
+            AvatarType.WEBP -> {
                 WebPAvatarModel.createStandard(
                     id = "default_webp",
                     name = baseName,
                     basePath = "assets/avatars/default"
                 )
             }
-        AvatarType.MP4 -> {
+            AvatarType.MP4 -> {
                 Mp4AvatarModel.createStandard(
                     id = "default_mp4",
                     name = baseName,
                     basePath = "assets/avatars/default"
                 )
             }
-        AvatarType.MMD -> {
+            AvatarType.MMD -> {
                 val defaultData = mapOf(
                     "basePath" to "assets/avatars/default",
                     "modelFile" to "default.pmx"
                 )
-        createMmdModel("default_mmd", baseName, defaultData)
+                createMmdModel("default_mmd", baseName, defaultData)
             }
-        AvatarType.GLTF -> {
+            AvatarType.GLTF -> {
                 val defaultData = mapOf(
                     "basePath" to "assets/avatars/default",
                     "modelFile" to "default.glb"
                 )
-        createGltfModel("default_gltf", baseName, defaultData)
+                createGltfModel("default_gltf", baseName, defaultData)
             }
-        AvatarType.FBX -> null
+            AvatarType.FBX -> null
         }
     }
-        override fun validateData(type: AvatarType, data: Map<String, Any>): Boolean {
+
+    override fun validateData(type: AvatarType, data: Map<String, Any>): Boolean {
         return when (type) {
             // AvatarType.DRAGONBONES,
-        AvatarType.WEBP,
+            AvatarType.WEBP,
             AvatarType.MP4,
             AvatarType.MMD,
             AvatarType.GLTF,
             AvatarType.FBX -> {
                 val requiredKeys = getRequiredDataKeys(type)
-        requiredKeys.all { key -> data.containsKey(key) && data[key] != null }
+                requiredKeys.all { key -> data.containsKey(key) && data[key] != null }
             }
         }
     }
-        override val supportedTypes: List<AvatarType>
+
+    override val supportedTypes: List<AvatarType>
         get() = listOf(
             // AvatarType.DRAGONBONES,
-        AvatarType.WEBP,
+            AvatarType.WEBP,
             AvatarType.MP4,
             AvatarType.MMD,
             AvatarType.GLTF,
             AvatarType.FBX
         )
-        override fun getRequiredDataKeys(type: AvatarType): List<String> {
+
+    override fun getRequiredDataKeys(type: AvatarType): List<String> {
         return when (type) {
             // AvatarType.DRAGONBONES -> listOf(
             //     "folderPath",
@@ -128,11 +130,11 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             //     "textureJsonFile",
             //     "textureImageFile"
             // )
-        AvatarType.WEBP -> listOf("basePath")
-        AvatarType.MP4 -> listOf("basePath")
-        AvatarType.MMD -> listOf("basePath", "modelFile")
-        AvatarType.GLTF -> listOf("basePath", "modelFile")
-        AvatarType.FBX -> listOf("basePath", "modelFile")
+            AvatarType.WEBP -> listOf("basePath")
+            AvatarType.MP4 -> listOf("basePath")
+            AvatarType.MMD -> listOf("basePath", "modelFile")
+            AvatarType.GLTF -> listOf("basePath", "modelFile")
+            AvatarType.FBX -> listOf("basePath", "modelFile")
         }
     }
 
@@ -143,6 +145,7 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
     //         val textureJsonFile = data["textureJsonFile"] as? String ?: return null
     //         val textureImageFile = data["textureImageFile"] as? String ?: return null
     //         val isBuiltIn = data["isBuiltIn"] as? Boolean ?: false
+    //
     //         val dataModel = DragonBonesModel(
     //             id = id,
     //             name = name,
@@ -152,20 +155,23 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
     //             textureImageFile = textureImageFile,
     //             isBuiltIn = isBuiltIn
     //         )
+    //
     //         DragonBonesAvatarModel(dataModel)
     //     } catch (e: Exception) {
     //         null
     //     }
     // }
-        private fun createWebPModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
+
+    private fun createWebPModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
         return try {
             val basePath = data["basePath"] as? String ?: return null
-        val availableFiles = extractAvailableMediaFiles(data, "webpFiles", setOf("webp"))
-        val emotionMap =
+            val availableFiles = extractAvailableMediaFiles(data, "webpFiles", setOf("webp"))
+            val emotionMap =
                 parseExplicitEmotionMap(data["emotionToFileMap"] as? Map<*, *>)
                     .ifEmpty { inferEmotionToMediaFileMap(availableFiles) }
                     .ifEmpty { fallbackEmotionMap(availableFiles) }
-        if (emotionMap.isNotEmpty() || availableFiles.isNotEmpty()) {
+
+            if (emotionMap.isNotEmpty() || availableFiles.isNotEmpty()) {
                 WebPAvatarModel(
                     id = id,
                     name = name,
@@ -185,15 +191,17 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             null
         }
     }
-        private fun createMp4Model(id: String, name: String, data: Map<String, Any>): AvatarModel? {
+
+    private fun createMp4Model(id: String, name: String, data: Map<String, Any>): AvatarModel? {
         return try {
             val basePath = data["basePath"] as? String ?: return null
-        val availableFiles = extractAvailableMediaFiles(data, "mp4Files", setOf("mp4"))
-        val emotionMap =
+            val availableFiles = extractAvailableMediaFiles(data, "mp4Files", setOf("mp4"))
+            val emotionMap =
                 parseExplicitEmotionMap(data["emotionToFileMap"] as? Map<*, *>)
                     .ifEmpty { inferEmotionToMediaFileMap(availableFiles) }
                     .ifEmpty { fallbackEmotionMap(availableFiles) }
-        if (emotionMap.isNotEmpty() || availableFiles.isNotEmpty()) {
+
+            if (emotionMap.isNotEmpty() || availableFiles.isNotEmpty()) {
                 Mp4AvatarModel(
                     id = id,
                     name = name,
@@ -213,16 +221,18 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             null
         }
     }
-        private fun createMmdModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
+
+    private fun createMmdModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
         return try {
             val basePath = data["basePath"] as? String ?: return null
-        val modelFile = data["modelFile"] as? String ?: return null
+            val modelFile = data["modelFile"] as? String ?: return null
             val motionFile = data["motionFile"] as? String
-        val motionFiles = (data["motionFiles"] as? List<*>)
+            val motionFiles = (data["motionFiles"] as? List<*>)
                 ?.mapNotNull { it as? String }
                 ?.filter { it.isNotBlank() }
                 .orEmpty()
-        MmdAvatarModel(
+
+            MmdAvatarModel(
                 id = id,
                 name = name,
                 basePath = basePath,
@@ -238,17 +248,19 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             null
         }
     }
-        private fun createGltfModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
+
+    private fun createGltfModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
         return try {
             val basePath = data["basePath"] as? String ?: return null
-        val modelFile = data["modelFile"] as? String ?: return null
+            val modelFile = data["modelFile"] as? String ?: return null
             val defaultAnimation = data["defaultAnimation"] as? String
-        val animationNames = (data["animationNames"] as? List<*>)
+            val animationNames = (data["animationNames"] as? List<*>)
                 ?.mapNotNull { it as? String }
                 ?.map { it.trim() }
                 ?.filter { it.isNotBlank() }
                 .orEmpty()
-        GltfAvatarModel(
+
+            GltfAvatarModel(
                 id = id,
                 name = name,
                 basePath = basePath,
@@ -260,17 +272,19 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             null
         }
     }
-        private fun createFbxModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
+
+    private fun createFbxModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
         return try {
             val basePath = data["basePath"] as? String ?: return null
-        val modelFile = data["modelFile"] as? String ?: return null
+            val modelFile = data["modelFile"] as? String ?: return null
             val defaultAnimation = data["defaultAnimation"] as? String
-        val animationNames = (data["animationNames"] as? List<*>)
+            val animationNames = (data["animationNames"] as? List<*>)
                 ?.mapNotNull { it as? String }
                 ?.map { it.trim() }
                 ?.filter { it.isNotBlank() }
                 .orEmpty()
-        FbxAvatarModel(
+
+            FbxAvatarModel(
                 id = id,
                 name = name,
                 basePath = basePath,
@@ -282,26 +296,31 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             null
         }
     }
-        private fun parseExplicitEmotionMap(raw: Map<*, *>): Map<AvatarEmotion, String> {
+
+    private fun parseExplicitEmotionMap(raw: Map<*, *>): Map<AvatarEmotion, String> {
         if (raw == null) {
             return emptyMap()
         }
+
         return raw.entries.mapNotNull { (rawEmotion, rawFileName) ->
             val emotionName = rawEmotion?.toString()?.trim().orEmpty()
-        val fileName = rawFileName?.toString()?.trim().orEmpty()
-        if (emotionName.isEmpty() || fileName.isEmpty()) {
+            val fileName = rawFileName?.toString()?.trim().orEmpty()
+            if (emotionName.isEmpty() || fileName.isEmpty()) {
                 return@mapNotNull null
             }
-        val emotion = runCatching { AvatarEmotion.valueOf(emotionName.uppercase()) }.getOrNull()
+
+            val emotion = runCatching { AvatarEmotion.valueOf(emotionName.uppercase()) }.getOrNull()
                 ?: return@mapNotNull null
             emotion to fileName
         }.toMap()
     }
-        private fun parseCurrentEmotion(data: Map<String, Any>): AvatarEmotion {
+
+    private fun parseCurrentEmotion(data: Map<String, Any>): AvatarEmotion {
         val raw = data["currentEmotion"]?.toString()?.trim().orEmpty()
         return runCatching { AvatarEmotion.valueOf(raw.uppercase()) }.getOrDefault(AvatarEmotion.IDLE)
     }
-        private fun extractAvailableMediaFiles(
+
+    private fun extractAvailableMediaFiles(
         data: Map<String, Any>,
         listKey: String,
         allowedExtensions: Set<String>
@@ -311,24 +330,28 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             ?.map { it.trim() }
             ?.filter { fileName ->
                 val extension = File(fileName).extension.lowercase()
-        fileName.isNotEmpty() && allowedExtensions.contains(extension)
+                fileName.isNotEmpty() && allowedExtensions.contains(extension)
             }
             ?.distinct()
             .orEmpty()
     }
-        private fun fallbackEmotionMap(availableFiles: List<String>): Map<AvatarEmotion, String> {
+
+    private fun fallbackEmotionMap(availableFiles: List<String>): Map<AvatarEmotion, String> {
         val firstFile = availableFiles.firstOrNull() ?: return emptyMap()
         return mapOf(AvatarEmotion.IDLE to firstFile)
     }
-        private fun inferEmotionToMediaFileMap(fileNames: List<String>): Map<AvatarEmotion, String> {
+
+    private fun inferEmotionToMediaFileMap(fileNames: List<String>): Map<AvatarEmotion, String> {
         if (fileNames.isEmpty()) {
             return emptyMap()
         }
+
         val normalizedByBaseName = LinkedHashMap<String, String>()
         fileNames.forEach { fileName ->
             val baseName = File(fileName).nameWithoutExtension.lowercase()
-        normalizedByBaseName.putIfAbsent(baseName, fileName)
+            normalizedByBaseName.putIfAbsent(baseName, fileName)
         }
+
         val candidates = linkedMapOf(
             AvatarEmotion.IDLE to listOf("idle", "default", "normal", "standby"),
             AvatarEmotion.LISTENING to listOf("listening", "talking", "speak", "speaking", "chat"),
@@ -338,9 +361,10 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
             AvatarEmotion.CONFUSED to listOf("confused", "shy", "aojiao", "embarrassed"),
             AvatarEmotion.SURPRISED to listOf("surprised", "surprise", "wow")
         )
+
         return candidates.mapNotNull { (emotion, aliases) ->
             val matched = aliases.firstNotNullOfOrNull { alias -> normalizedByBaseName[alias] }
-        matched?.let { emotion to it }
+            matched?.let { emotion to it }
         }.toMap()
     }
 }

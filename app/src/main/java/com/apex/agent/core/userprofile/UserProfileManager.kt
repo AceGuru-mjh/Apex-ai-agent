@@ -21,8 +21,9 @@ class UserProfileManager private constructor(
     private val TAG = "UserProfileManager"
     
     // 缓存用户画像
-        private val profileCache = ConcurrentHashMap<String, HonzonUserProfile>()
-        companion object {
+    private val profileCache = ConcurrentHashMap<String, HonzonUserProfile>()
+    
+    companion object {
         @Volatile private var INSTANCE: UserProfileManager? = null
         
         fun getInstance(context: Context, memoryRepository: MemoryRepository): UserProfileManager {
@@ -43,15 +44,13 @@ class UserProfileManager private constructor(
         // 先从缓存获取
         profileCache[userId]?.let { return@withContext it }
         
-        // 从存储获的
-        val profile = memoryRepository.getHonzonProfile(userId)
+        // 从存储获�?      val profile = memoryRepository.getHonzonProfile(userId)
         profileCache[userId] = profile
         profile
     }
     
     /**
-     * 从对话历史构建用户画面
-    */
+     * 从对话历史构建用户画�?    */
     suspend fun buildProfileFromChatHistory(userId: String, chatMessages: List<ChatMessage>): HonzonUserProfile = withContext(Dispatchers.IO) {
         val profile = profileBuilder.buildProfileFromChatHistory(userId, chatMessages)
         profileCache[userId] = profile
@@ -59,13 +58,12 @@ class UserProfileManager private constructor(
     }
     
     /**
-     * 从对话历史更新用户画面
-    */
+     * 从对话历史更新用户画�?    */
     suspend fun updateProfileFromChatHistory(userId: String, chatMessages: List<ChatMessage>): Boolean = withContext(Dispatchers.IO) {
         val success = profileBuilder.updateProfileFromChatHistory(userId, chatMessages)
         if (success) {
             // 清除缓存，下次获取时重新加载
-        profileCache.remove(userId)
+            profileCache.remove(userId)
         }
         success
     }
@@ -77,7 +75,7 @@ class UserProfileManager private constructor(
         val success = memoryRepository.updateHonzonProfile(userId, dimension, value)
         if (success) {
             // 更新缓存
-        val profile = profileCache[userId]
+            val profile = profileCache[userId]
             if (profile != null) {
                 profile.updateDimension(dimension, value)
             }
@@ -86,16 +84,14 @@ class UserProfileManager private constructor(
     }
     
     /**
-     * 获取用户画像的有效维的
-    */
+     * 获取用户画像的有效维�?    */
     suspend fun getNonEmptyDimensions(userId: String): Map<String, String> = withContext(Dispatchers.IO) {
         val profile = getUserProfile(userId)
         profile.getNonEmptyDimensions()
     }
     
     /**
-     * 生成个性化策略提显示
-    */
+     * 生成个性化策略提显�?    */
     suspend fun generatePersonalizedStrategyPrompt(userId: String, taskType: String): String = withContext(Dispatchers.IO) {
         val profile = getUserProfile(userId)
         memoryRepository.generatePersonalizedStrategyPrompt(profile, taskType)
@@ -118,12 +114,11 @@ class UserProfileManager private constructor(
         } else {
             profileCache.clear()
         }
-        AppLogger.d(TAG, "用户画像缓存已清理）"
+        AppLogger.d(TAG, "用户画像缓存已清理）
     }
     
     /**
-     * 获取所有用户画像维的
-    */
+     * 获取所有用户画像维�?    */
     fun getProfileDimensions(): List<String> {
         return HonzonUserProfile.USER_DIMENSIONS
     }

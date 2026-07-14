@@ -10,10 +10,8 @@ import com.apex.agent.util.AppLogger
 import kotlinx.coroutines.delay
 
 /**
- * UI工具类基础抽象的
- * 
- * 定义所有UI工具类的通用接口和辅助方式
- * 提供统一的错误处理、重试机制和日志记录
+ * UI工具类基础抽象�? * 
+ * 定义所有UI工具类的通用接口和辅助方�? * 提供统一的错误处理、重试机制和日志记录
  */
 abstract class BaseUITools(protected val context: Context) : com.apex.agent.core.tools.agent.ToolImplementations {
     
@@ -21,7 +19,7 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
         private const val TAG = "BaseUITools"
     }
     
-    /** 操作日志管理解/
+    /** 操作日志管理�?/
     protected val logger = OperationLogger(UIToolsConfig.MAX_LOG_ENTRIES)
     
     // ==================== 通用辅助方法 ====================
@@ -30,8 +28,7 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
      * 带重试的执行方法
      * 
      * @param operation 要执行的操作
-     * @param maxRetries 最大重试次数
-     * @param delayMs 重试延迟（毫秒）
+     * @param maxRetries 最大重试次�?     * @param delayMs 重试延迟（毫秒）
      * @return 操作结果
      */
     protected suspend fun <T> executeWithRetry(
@@ -44,18 +41,20 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
         repeat(maxRetries) { attempt ->
             try {
                 val result = operation()
-        if (attempt > 0) {
-                    AppLogger.d(TAG, "重试成功，尝试次数${attempt + 1}")
+                if (attempt > 0) {
+                    AppLogger.d(TAG, "重试成功，尝试次�?${attempt + 1}")
                 }
-        return result
+                return result
             } catch (e: Exception) {
                 lastException = e
-                AppLogger.w(TAG, "${{attempt + 1} 次尝试失败${e.message}")
-        if (attempt < maxRetries - 1) {
+                AppLogger.w(TAG, "${{attempt + 1} 次尝试失�?${e.message}")
+                
+                if (attempt < maxRetries - 1) {
                     delay(delayMs)
                 }
             }
         }
+        
         throw lastException ?: IllegalStateException("未知错误")
     }
     
@@ -80,9 +79,9 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
         } else {
             logger.logError(toolName, action, com.apex.agent.core.tools.result.UIToolsErrorCode.OPERATION_FAILED, duration, details)
         }
+        
         if (UIToolsConfig.ENABLE_DETAILED_LOGS) {
-            val _kaptFix72 = if (success) "成功" else "失败"
-            AppLogger.d(TAG, "[${toolName}] ${action}: ${_kaptFix72}${details?.let { " - ${it}" } ?: ""}")
+            AppLogger.d(TAG, "[${toolName}] ${action}: ${if (success) "成功" else "失败"}${details?.let { " - ${it}" } ?: ""}")
         }
     }
     
@@ -97,23 +96,21 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
         val missingParams = requiredParams.filter { paramName ->
             tool.parameters.find { it.name == paramName }?.value.isNullOrBlank()
         }
+        
         if (missingParams.isNotEmpty()) {
             return UIToolsResult.error(
                 errorCode = com.apex.agent.core.tools.result.UIToolsErrorCode.INVALID_PARAMETERS,
                 details = "缺少必需参数: ${missingParams.joinToString(", ")}"
             )
         }
+        
         return null
     }
     
     /**
-     * 获取工具参数据
-     * 
+     * 获取工具参数�?     * 
      * @param tool AITool对象
-     * @param paramName 参数据
-     * @param defaultValue 默认的
-     * @return 参数据
-     */
+     * @param paramName 参数�?     * @param defaultValue 默认�?     * @return 参数�?     */
     protected fun getParameter(tool: AITool, paramName: String, defaultValue: String? = null): String? {
         return tool.parameters.find { it.name == paramName }?.value ?: defaultValue
     }
@@ -122,9 +119,7 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
      * 获取整数类型参数
      * 
      * @param tool AITool对象
-     * @param paramName 参数据
-     * @param defaultValue 默认的
-     * @return 参数值，如果无效返回null
+     * @param paramName 参数�?     * @param defaultValue 默认�?     * @return 参数值，如果无效返回null
      */
     protected fun getIntParameter(tool: AITool, paramName: String, defaultValue: Int? = null): Int? {
         val value = getParameter(tool, paramName) ?: return defaultValue
@@ -135,16 +130,13 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
      * 获取布尔类型参数
      * 
      * @param tool AITool对象
-     * @param paramName 参数据
-     * @param defaultValue 默认的
-     * @return 参数据
-     */
+     * @param paramName 参数�?     * @param defaultValue 默认�?     * @return 参数�?     */
     protected fun getBooleanParameter(tool: AITool, paramName: String, defaultValue: Boolean = false): Boolean {
         val value = getParameter(tool, paramName) ?: return defaultValue
         return value.toBoolean()
     }
     
-    // ==================== 必须实现的方法（来自ToolImplementations接接取==================
+    // ==================== 必须实现的方法（来自ToolImplementations接接�?==================
     
     /**
      * 点击指定坐标
@@ -189,11 +181,9 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
     // ==================== 可选实现的方法 ====================
     
     /**
-     * 截图到文件
-     * 
+     * 截图到文�?     * 
      * @param tool AITool对象
-     * @return 文件路径和尺的
-     */
+     * @return 文件路径和尺�?     */
     open suspend fun captureScreenshotToFile(tool: AITool): Pair<String?, Pair<Int, Int>?> {
         return Pair(null, null)
     }
@@ -202,8 +192,7 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
      * 截图
      * 
      * @param tool AITool对象
-     * @return 文件路径和尺的
-     */
+     * @return 文件路径和尺�?     */
     open suspend fun captureScreenshot(tool: AITool): Pair<String?, Pair<Int, Int>?> {
         return captureScreenshotToFile(tool)
     }
@@ -212,13 +201,13 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
      * 截图为Bitmap
      * 
      * @param tool AITool对象
-     * @return Bitmap和尺的
-     */
+     * @return Bitmap和尺�?     */
     open suspend fun captureScreenshotBitmap(tool: AITool): Pair<android.graphics.Bitmap?, Pair<Int, Int>?> {
         val (filePath, dimensions) = captureScreenshot(tool)
         if (filePath == null) {
             return Pair(null, dimensions)
         }
+        
         val bitmap = android.graphics.BitmapFactory.decodeFile(filePath)
         val resolvedDimensions = dimensions ?: Pair(bitmap?.width ?: 0, bitmap?.height ?: 0)
         return Pair(bitmap, resolvedDimensions)
@@ -235,8 +224,7 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
     }
     
     /**
-     * 导出所有操作日的
-     * 
+     * 导出所有操作日�?     * 
      * @return 日志文本
      */
     fun exportLogs(): String {

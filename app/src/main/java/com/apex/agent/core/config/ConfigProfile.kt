@@ -31,8 +31,9 @@ class ConfigProfileManager(
     private val configManager: ConfigManager
 ) {
     private val profiles = ConcurrentHashMap<String, ConfigProfile>()
-        private val activeProfileName = java.util.concurrent.atomic.AtomicReference<String?>(null)
-        init {
+    private val activeProfileName = java.util.concurrent.atomic.AtomicReference<String?>(null)
+
+    init {
         registerPredefinedProfiles()
     }
 
@@ -66,7 +67,7 @@ class ConfigProfileManager(
         }
         for ((path, value) in profile.overrides) {
             val key = findConfigKey(path)
-        if (key != null) {
+            if (key != null) {
                 configManager.set(key, value, "profile:$name")
             }
         }
@@ -79,11 +80,12 @@ class ConfigProfileManager(
         val name = activeProfileName.getAndSet(null) ?: return
         deactivateProfileInternal(name)
     }
-        private fun deactivateProfileInternal(name: String) {
+
+    private fun deactivateProfileInternal(name: String) {
         val profile = profiles[name] ?: return
         for (path in profile.overrides.keys) {
             val key = findConfigKey(path)
-        if (key != null) {
+            if (key != null) {
                 configManager.reset(key)
             }
         }
@@ -120,7 +122,7 @@ class ConfigProfileManager(
             "json" -> JsonConfigSerializer()
             "yaml" -> YamlConfigSerializer()
             "flat" -> FlatConfigSerializer()
-        else -> throw IllegalArgumentException("不支持的导出格式: $format")
+            else -> throw IllegalArgumentException("不支持的导出格式: $format")
         }
         val header = "# 配置档案: ${profile.name}\n# ${profile.description}\n"
         return header + serializer.serialize(profile.overrides)
@@ -139,7 +141,7 @@ class ConfigProfileManager(
             "json" -> JsonConfigSerializer()
             "yaml" -> YamlConfigSerializer()
             "flat" -> FlatConfigSerializer()
-        else -> throw IllegalArgumentException("不支持的导入格式: $format")
+            else -> throw IllegalArgumentException("不支持的导入格式: $format")
         }
         val overrides = serializer.deserialize(content)
         val profileName = name ?: "imported_${java.util.UUID.randomUUID().toString().take(8)}"
@@ -168,7 +170,7 @@ class ConfigProfileManager(
         val diff = mutableMapOf<String, Pair<String?, String?>>()
         for (key in allKeys) {
             val fromVal = from.overrides[key]
-        val toVal = to.overrides[key]
+            val toVal = to.overrides[key]
             if (fromVal != toVal) {
                 diff[key] = Pair(fromVal, toVal)
             }
@@ -182,10 +184,12 @@ class ConfigProfileManager(
     fun profileToSnapshot(profile: ConfigProfile): Map<String, String?> {
         return profile.overrides.mapValues { (_, v) -> v as String? }
     }
-        private fun findConfigKey(path: String): ConfigKey? {
+
+    private fun findConfigKey(path: String): ConfigKey? {
         return ConfigConstants.allKeysByPath[path] ?: AppConfigKeys.allKeysByPath[path]
     }
-        private fun registerPredefinedProfiles() {
+
+    private fun registerPredefinedProfiles() {
         profiles[ConfigProfile.DEFAULT_PROFILE_NAME] = ConfigProfile(
             name = ConfigProfile.DEFAULT_PROFILE_NAME,
             description = "默认配置档案 - 使用所有配置项的默认值"

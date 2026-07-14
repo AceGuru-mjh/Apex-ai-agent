@@ -10,7 +10,8 @@ fun <T> emptyStream(): Stream<T> = object : AbstractStream<T>() {
     override suspend fun collect(collector: StreamCollector<T>) {
         StreamLogger.d("emptyStream", "收集空Stream")
         // 不发射任何，    }
-        override suspend fun emitBufferedItem(item: T) {
+    
+    override suspend fun emitBufferedItem(item: T) {
         // 空Stream不会有缓冲项
     }
 }
@@ -28,7 +29,8 @@ fun <T> streamOf(value: T): Stream<T> = object : AbstractStream<T>() {
             collector.emit(value)
         }
     }
-        override suspend fun emitBufferedItem(item: T) {
+    
+    override suspend fun emitBufferedItem(item: T) {
         activeCollector?.emit(item)
     }
 }
@@ -44,12 +46,13 @@ fun <T> streamOf(vararg values: T): Stream<T> = object : AbstractStream<T>() {
         activeCollector = collector
         for (value in values) {
             StreamLogger.v("streamOf", "发射元素: ${value}")
-        if (!tryBuffer(value)) {
+            if (!tryBuffer(value)) {
                 collector.emit(value)
             }
         }
     }
-        override suspend fun emitBufferedItem(item: T) {
+    
+    override suspend fun emitBufferedItem(item: T) {
         activeCollector?.emit(item)
     }
 }
@@ -66,12 +69,13 @@ fun <T> Collection<T>.asStream(): Stream<T> = object : AbstractStream<T>() {
         
         for (item in this@asStream) {
             StreamLogger.v("Collection.asStream", "发射元素: ${item}")
-        if (!tryBuffer(item)) {
+            if (!tryBuffer(item)) {
                 collector.emit(item)
             }
         }
     }
-        override suspend fun emitBufferedItem(item: T) {
+    
+    override suspend fun emitBufferedItem(item: T) {
         activeCollector?.emit(item)
     }
 }
@@ -89,13 +93,14 @@ fun <T> Sequence<T>.asStream(): Stream<T> = object : AbstractStream<T>() {
         for (item in this@asStream) {
             count++
             StreamLogger.v("Sequence.asStream", "发射元素[${count}]: ${item}")
-        if (!tryBuffer(item)) {
+            if (!tryBuffer(item)) {
                 collector.emit(item)
             }
         }
-        StreamLogger.d("Sequence.asStream", "序列Stream收集完成, ，count 个元素）"
+        StreamLogger.d("Sequence.asStream", "序列Stream收集完成, ，count 个元素）
     }
-        override suspend fun emitBufferedItem(item: T) {
+    
+    override suspend fun emitBufferedItem(item: T) {
         activeCollector?.emit(item)
     }
 }
@@ -112,27 +117,27 @@ fun <T> stream(block: suspend StreamCollector<T>.() -> Unit): Stream<T> = object
             }
         }
     }
-        override suspend fun collect(collector: StreamCollector<T>) {
+    
+    override suspend fun collect(collector: StreamCollector<T>) {
         try {
             activeCollector = collector
             block(wrappedCollector)
         } catch (e: Exception) {
             // 对于协程取消异常，这是正常流程，应当向上抛出以停止流
-        if (e is kotlinx.coroutines.CancellationException) {
-                StreamLogger.d("stream", "构建器Stream收集被取消）"
-        throw e
+            if (e is kotlinx.coroutines.CancellationException) {
+                StreamLogger.d("stream", "构建器Stream收集被取消）
+                throw e
             }
-        StreamLogger.e("stream", "构建器Stream收集出错", e)
+            StreamLogger.e("stream", "构建器Stream收集出错", e)
             // 其他异常也应该抛出，以便上层可以处理
-        throw e
+            throw e
         } finally {
-            // 流收集完成时标记为关间
-        markClosed()
+            // 流收集完成时标记为关�?           markClosed()
             
             // 如果流在关闭时处于锁定状态，解锁以处理缓冲的数据
-        if (isLocked) {
+            if (isLocked) {
                 StreamLogger.i("stream", "流关闭时处于锁定状态，尝试解锁处理缓冲数据")
-        try {
+                try {
                     unlock()
                 } catch (e: Exception) {
                     StreamLogger.w("stream", "流关闭时解锁失败: ${e.message}")
@@ -140,7 +145,8 @@ fun <T> stream(block: suspend StreamCollector<T>.() -> Unit): Stream<T> = object
             }
         }
     }
-        override suspend fun emitBufferedItem(item: T) {
+    
+    override suspend fun emitBufferedItem(item: T) {
         // 即使流已关闭，也尝试发送缓冲的数据
         activeCollector?.emit(item)
     }
@@ -152,8 +158,8 @@ fun <T> stream(block: suspend StreamCollector<T>.() -> Unit): Stream<T> = object
 fun intervalStream(period: Duration, initialDelay: Duration = Duration.ZERO): Stream<Long> = stream {
     var count = 0L
     StreamLogger.d("intervalStream", "创建间隔Stream, 周期: ${period}, 初始延迟: ${initialDelay}")
-        delay(initialDelay)
-        while (true) {
+    delay(initialDelay)
+    while (true) {
         StreamLogger.v("intervalStream", "发射计数: ${count}")
         emit(count++)
         delay(period)
@@ -165,11 +171,11 @@ fun intervalStream(period: Duration, initialDelay: Duration = Duration.ZERO): St
  */
 fun rangeStream(start: Int, count: Int): Stream<Int> = stream {
     StreamLogger.d("rangeStream", "创建范围Stream, 起始: ${start}, 数量: ${count}")
-        for (i in start until start + count) {
-        StreamLogger.v("rangeStream", "发射，${i}")
+    for (i in start until start + count) {
+        StreamLogger.v("rangeStream", "发射�?${i}")
         emit(i)
     }
-        StreamLogger.d("rangeStream", "范围Stream完成")
+    StreamLogger.d("rangeStream", "范围Stream完成")
 }
 
 /**
@@ -177,5 +183,5 @@ fun rangeStream(start: Int, count: Int): Stream<Int> = stream {
  */
 fun <T> streamError(exception: Throwable): Stream<T> = stream {
     StreamLogger.e("streamError", "创建错误Stream, 异常: ${exception.message}", exception)
-        throw exception
+    throw exception
 } 

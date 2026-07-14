@@ -14,42 +14,48 @@ class MessageBus(private val context: android.content.Context) {
         get() = File(context.filesDir, "message_bus").also {
             if (!it.exists()) it.mkdirs()
         }
-        private val _messages = MutableStateFlow<Map<String, BusMessage>>(emptyMap())
-        val messages: StateFlow<List<BusMessage>> = _messages.map { it.values.toList() }.stateIn(
+
+    private val _messages = MutableStateFlow<Map<String, BusMessage>>(emptyMap())
+    val messages: StateFlow<List<BusMessage>> = _messages.map { it.values.toList() }.stateIn(
         scope, SharingStarted.Eagerly, emptyList()
     )
-        private val _subscribers = ConcurrentHashMap<String, MutableSharedFlow<BusMessage>>()
-        private val _pendingMessages = MutableStateFlow<Map<String, BusMessage>>(emptyMap())
-        val pendingMessages: StateFlow<List<BusMessage>> = _pendingMessages.map { it.values.toList() }
+
+    private val _subscribers = ConcurrentHashMap<String, MutableSharedFlow<BusMessage>>()
+    private val _pendingMessages = MutableStateFlow<Map<String, BusMessage>>(emptyMap())
+    val pendingMessages: StateFlow<List<BusMessage>> = _pendingMessages.map { it.values.toList() }
         .stateIn(scope, SharingStarted.Eagerly, emptyList())
-        private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-        private val batchSaveChannel = Channel<BusMessage>(Channel.BUFFERED)
-        private val batchSize = 20
+
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val batchSaveChannel = Channel<BusMessage>(Channel.BUFFERED)
+    private val batchSize = 20
     private val batchIntervalMs = 1000L
 
     private val cache = object : LinkedHashMap<String, BusMessage>(200, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, BusMessage>): Boolean =
             size > 150
     }
-        init {
+
+    init {
         scope.launch { processBatchSave() }
         scope.launch { loadMessages() }
     }
-        private suspend fun loadMessages() {
+
+    private suspend fun loadMessages() {
         val loaded = withContext(Dispatchers.IO) {
             messagesDir.listFiles { _, name -> name.endsWith(".json") }
                 ?.sortedByDescending { it.lastModified() }
                 ?.take(200)
                 ?.mapNotNull { file ->
                     try { parseMessage(JSONObject(file.readText())) }
-        catch (_: Exception) { null }
+                    catch (_: Exception) { null }
                 } ?: emptyList()
         }
         val map = loaded.associateBy { it.id }
         _messages.value = map
         synchronized(cache) { cache.putAll(map) }
     }
-        suspend fun sendMessage(
+
+    suspend fun sendMessage(
         senderId: String,
         recipientId: String?,
         content: String,
@@ -69,22 +75,24 @@ class MessageBus(private val context: android.content.Context) {
                 timestamp = System.currentTimeMillis(),
                 status = MessageStatus.PENDING
             )
-        addToInMemory(message)
-        batchSaveChannel.send(message)
-        notifyRecipient(message)
-        Result.success(message)
+            addToInMemory(message)
+            batchSaveChannel.send(message)
+            notifyRecipient(message)
+            Result.success(message)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-        private fun addToInMemory(message: BusMessage) {
+
+    private fun addToInMemory(message: BusMessage) {
         synchronized(cache) { cache[message.id] = message }
         _messages.update { it + (message.id to message) }
         if (message.recipientId == null) {
             _pendingMessages.update { it + (message.id to message) }
         }
     }
-        private suspend fun processBatchSave() {
+
+    private suspend fun processBatchSave() {
         val buffer = mutableListOf<BusMessage>()
         while (true) {
             val result = withTimeoutOrNull(batchIntervalMs) {
@@ -92,16 +100,17 @@ class MessageBus(private val context: android.content.Context) {
                     buffer.add(batchSaveChannel.receive())
                 }
             }
-        if (result == null && buffer.isEmpty()) continue
+            if (result == null && buffer.isEmpty()) continue
             saveBatch(buffer.toList())
-        buffer.clear()
+            buffer.clear()
         }
     }
-        private fun saveBatch(messages: List<BusMessage>) {
+
+    private fun saveBatch(messages: List<BusMessage>) {
         try {
             messages.forEach { msg ->
                 val file = File(messagesDir, "${msg.id}.json")
-        if (!file.exists()) {
+                if (!file.exists()) {
                     file.writeText(createMessageJson(msg).toString(2))
                 }
             }
@@ -109,18 +118,21 @@ class MessageBus(private val context: android.content.Context) {
             AppLogger.e("MessageBus", "Batch save failed", e)
         }
     }
-        private fun notifyRecipient(message: BusMessage) {
+
+    private fun notifyRecipient(message: BusMessage) {
         if (message.recipientId != null) {
             _subscribers[message.recipientId]?.tryEmit(message)
         }
         _pendingMessages.update { it - message.senderId }
     }
-        fun subscribe(agentId: String): SharedFlow<BusMessage> {
+
+    fun subscribe(agentId: String): SharedFlow<BusMessage> {
         return _subscribers.getOrPut(agentId) {
             MutableSharedFlow(replay = 10, extraBufferCapacity = 50)
         }
     }
-        suspend fun broadcast(
+
+    suspend fun broadcast(
         senderId: String,
         content: String,
         type: MessageType = MessageType.BROADCAST
@@ -137,15 +149,16 @@ class MessageBus(private val context: android.content.Context) {
                 timestamp = System.currentTimeMillis(),
                 status = MessageStatus.SENT
             )
-        addToInMemory(message)
-        batchSaveChannel.send(message)
-        _subscribers.values.forEach { it.tryEmit(message) }
-        Result.success(listOf(message))
+            addToInMemory(message)
+            batchSaveChannel.send(message)
+            _subscribers.values.forEach { it.tryEmit(message) }
+            Result.success(listOf(message))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-        suspend fun getMessagesForAgent(agentId: String, limit: Int = 50): List<BusMessage> =
+
+    suspend fun getMessagesForAgent(agentId: String, limit: Int = 50): List<BusMessage> =
         withContext(Dispatchers.Default) {
             _messages.value.values
                 .filter { msg ->
@@ -154,61 +167,65 @@ class MessageBus(private val context: android.content.Context) {
                 .sortedByDescending { it.timestamp }
                 .take(limit)
         }
-        suspend fun markAsRead(messageId: String): Result<Unit> {
+
+    suspend fun markAsRead(messageId: String): Result<Unit> {
         return try {
             _messages.update { map ->
                 map[messageId]?.let { msg ->
                     val updated = msg.copy(status = MessageStatus.READ)
-        map + (messageId to updated)
+                    map + (messageId to updated)
                 } ?: map
             }
-        _messages.value[messageId]?.let { msg ->
+            _messages.value[messageId]?.let { msg ->
                 scope.launch(Dispatchers.IO) {
                     val file = File(messagesDir, "${msg.id}.json")
-        if (file.exists()) file.writeText(createMessageJson(msg).toString(2))
+                    if (file.exists()) file.writeText(createMessageJson(msg).toString(2))
                 }
             }
-        Result.success(Unit)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-        suspend fun deleteMessage(messageId: String): Result<Unit> {
+
+    suspend fun deleteMessage(messageId: String): Result<Unit> {
         return try {
             synchronized(cache) { cache.remove(messageId) }
-        _messages.update { it - messageId }
-        _pendingMessages.update { it - messageId }
-        scope.launch(Dispatchers.IO) {
+            _messages.update { it - messageId }
+            _pendingMessages.update { it - messageId }
+            scope.launch(Dispatchers.IO) {
                 val file = File(messagesDir, "${messageId}.json")
-        if (file.exists()) file.delete()
+                if (file.exists()) file.delete()
             }
-        Result.success(Unit)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-        private fun createMessageJson(message: BusMessage): JSONObject {
+
+    private fun createMessageJson(message: BusMessage): JSONObject {
         return JSONObject().apply {
             put("id", message.id)
-        put("senderId", message.senderId)
-        put("recipientId", message.recipientId ?: JSONObject.NULL)
-        put("content", message.content)
-        put("type", message.type.name)
-        put("attachments", JSONArray(message.attachments))
-        val metadataObj = JSONObject()
-        message.metadata.forEach { (key, value) ->
+            put("senderId", message.senderId)
+            put("recipientId", message.recipientId ?: JSONObject.NULL)
+            put("content", message.content)
+            put("type", message.type.name)
+            put("attachments", JSONArray(message.attachments))
+            val metadataObj = JSONObject()
+            message.metadata.forEach { (key, value) ->
                 when (value) {
                     is String -> metadataObj.put(key, value)
-        is Number -> metadataObj.put(key, value)
-        is Boolean -> metadataObj.put(key, value)
+                    is Number -> metadataObj.put(key, value)
+                    is Boolean -> metadataObj.put(key, value)
                 }
             }
-        put("metadata", metadataObj)
-        put("timestamp", message.timestamp)
-        put("status", message.status.name)
+            put("metadata", metadataObj)
+            put("timestamp", message.timestamp)
+            put("status", message.status.name)
         }
     }
-        private fun parseMessage(json: JSONObject): BusMessage {
+
+    private fun parseMessage(json: JSONObject): BusMessage {
         val metadataMap = mutableMapOf<String, Any>()
         json.optJSONObject("metadata")?.let { metadataObj ->
             metadataObj.keys().forEach { key ->
@@ -228,7 +245,8 @@ class MessageBus(private val context: android.content.Context) {
             status = MessageStatus.valueOf(json.getString("status"))
         )
     }
-        fun cleanup() {
+
+    fun cleanup() {
         scope.cancel()
         batchSaveChannel.close()
         _subscribers.clear()

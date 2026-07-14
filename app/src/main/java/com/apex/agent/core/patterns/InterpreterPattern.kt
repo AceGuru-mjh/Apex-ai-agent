@@ -14,8 +14,9 @@ interface Expression {
 /** 脚本上下文 */
 class ScriptContext {
     private val variables = mutableMapOf<String, Any?>()
-        fun setVariable(name: String, value: Any?) { variables[name] = value }
-        fun getVariable(name: String): Any? = variables[name]
+
+    fun setVariable(name: String, value: Any?) { variables[name] = value }
+    fun getVariable(name: String): Any? = variables[name]
     fun hasVariable(name: String): Boolean = name in variables
     fun clear() = variables.clear()
 }
@@ -24,7 +25,7 @@ class ScriptContext {
 class ValueExpression(private val value: Any?) : Expression {
     override fun interpret(context: ScriptContext): Any? = value
     override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitValue(this)
-        fun getValue(): Any? = value
+    fun getValue(): Any? = value
 }
 
 /** 变量表达式（终端） */
@@ -32,8 +33,8 @@ class VariableExpression(private val name: String) : Expression {
     override fun interpret(context: ScriptContext): Any? {
         return context.getVariable(name) ?: throw IllegalStateException("Undefined variable: $name")
     }
-        override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitVariable(this)
-        fun getName(): String = name
+    override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitVariable(this)
+    fun getName(): String = name
 }
 
 /** 函数表达式（终端） */
@@ -46,10 +47,10 @@ class FunctionExpression(private val functionName: String, private val args: Lis
             "lower" -> (resolvedArgs[0] as? String)?.lowercase()
             "concat" -> resolvedArgs.joinToString("")
             "trim" -> (resolvedArgs[0] as? String)?.trim()
-        else -> throw IllegalStateException("Unknown function: $functionName")
+            else -> throw IllegalStateException("Unknown function: $functionName")
         }
     }
-        override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitFunction(this)
+    override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitFunction(this)
 }
 
 /** 二元表达式（非终端） */
@@ -75,7 +76,7 @@ class BinaryExpression(
             else -> throw IllegalStateException("Unknown operator: $operator")
         }
     }
-        override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitBinary(this)
+    override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitBinary(this)
 }
 
 /** 一元表达式（非终端） */
@@ -88,7 +89,7 @@ class UnaryExpression(private val operator: String, private val operand: Express
             else -> throw IllegalStateException("Unknown unary operator: $operator")
         }
     }
-        override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitUnary(this)
+    override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitUnary(this)
 }
 
 /** 条件表达式（非终端） */
@@ -101,7 +102,7 @@ class ConditionalExpression(
         return if (condition.interpret(context) == true) thenBranch.interpret(context)
         else elseBranch?.interpret(context)
     }
-        override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitConditional(this)
+    override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitConditional(this)
 }
 
 /** 复合表达式（非终端） */
@@ -111,7 +112,7 @@ class CompoundExpression(private val expressions: List<Expression>) : Expression
         for (expr in expressions) result = expr.interpret(context)
         return result
     }
-        override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitCompound(this)
+    override fun accept(visitor: ExpressionVisitor): Any? = visitor.visitCompound(this)
 }
 
 /** 表达式访问者 */
@@ -143,121 +144,176 @@ class ExpressionParser(private val input: String) {
     fun parse(): Expression {
         return parseCompound()
     }
-        private fun parseCompound(): CompoundExpression {
+
+    private fun parseCompound(): CompoundExpression {
         val exprs = mutableListOf<Expression>()
         while (pos < input.length) {
             skipWhitespace()
-        if (pos >= input.length) break
+            if (pos >= input.length) break
             exprs.add(parseConditional())
-        skipWhitespace()
-        if (pos < input.length && input[pos] == ';') pos++
+            skipWhitespace()
+            if (pos < input.length && input[pos] == ';') pos++
         }
         return CompoundExpression(exprs)
     }
-        private fun parseConditional(): Expression {
+
+    private fun parseConditional(): Expression {
         val expr = parseOr()
         skipWhitespace()
         if (pos + 2 < input.length && input.substring(pos, pos + 3) == "if ") {
             val condition = parseConditional()
-        return ConditionalExpression(condition, expr)
+            return ConditionalExpression(condition, expr)
         }
         return expr
     }
-        private fun parseOr(): Expression {
+
+    private fun parseOr(): Expression {
         var left = parseAnd()
         skipWhitespace()
         while (pos + 2 < input.length && input.substring(pos, pos + 3) == "or ") {
             pos += 3
             val right = parseAnd()
-        left = BinaryExpression(left, "or", right)
-        skipWhitespace()
+            left = BinaryExpression(left, "or", right)
+            skipWhitespace()
         }
         return left
     }
-        private fun parseAnd(): Expression {
+
+    private fun parseAnd(): Expression {
         var left = parseComparison()
         skipWhitespace()
         while (pos + 3 < input.length && input.substring(pos, pos + 4) == "and ") {
             pos += 4
             val right = parseComparison()
-        left = BinaryExpression(left, "and", right)
-        skipWhitespace()
+            left = BinaryExpression(left, "and", right)
+            skipWhitespace()
         }
         return left
     }
-        private fun parseComparison(): Expression {
+
+    private fun parseComparison(): Expression {
         var left = parseTerm()
         skipWhitespace()
         while (pos < input.length) {
             val op = when {
                 input.substring(pos).startsWith("==") -> { pos += 2; "==" }
-        input.substring(pos).startsWith("!=") -> { pos += 2; "!=" }
-        input.substring(pos).startsWith(">=") -> { pos += 2; ">=" }
-        input.substring(pos).startsWith("<=") -> { pos += 2; "<=" }
-        input[pos] == '>' -> { pos++; ">" }
-        input[pos] == '<' -> { pos++; "<" }
-        else -> null
+                input.substring(pos).startsWith("!=") -> { pos += 2; "!=" }
+                input.substring(pos).startsWith(">=") -> { pos += 2; ">=" }
+                input.substring(pos).startsWith("<=") -> { pos += 2; "<=" }
+                input[pos] == '>' -> { pos++; ">" }
+                input[pos] == '<' -> { pos++; "<" }
+                else -> null
             }
-        if (op != null) {
+            if (op != null) {
                 skipWhitespace()
-        left = BinaryExpression(left, op, parseTerm())
+                left = BinaryExpression(left, op, parseTerm())
             } else break
             skipWhitespace()
         }
         return left
     }
-        private fun parseTerm(): Expression {
+
+    private fun parseTerm(): Expression {
         var left = parseFactor()
         skipWhitespace()
         while (pos < input.length && (input[pos] == '+' || input[pos] == '-')) {
             val op = input[pos].toString(); pos++
             skipWhitespace()
-        left = BinaryExpression(left, op, parseFactor())
-        skipWhitespace()
+            left = BinaryExpression(left, op, parseFactor())
+            skipWhitespace()
         }
         return left
     }
-        private fun parseFactor(): Expression {
+
+    private fun parseFactor(): Expression {
         var left = parseUnary()
         skipWhitespace()
         while (pos < input.length && (input[pos] == '*' || input[pos] == '/')) {
             val op = input[pos].toString(); pos++
             skipWhitespace()
-        left = BinaryExpression(left, op, parseUnary())
-        skipWhitespace()
+            left = BinaryExpression(left, op, parseUnary())
+            skipWhitespace()
         }
         return left
     }
-        private fun parseUnary(): Expression {
+
+    private fun parseUnary(): Expression {
         skipWhitespace()
         if (pos < input.length && input[pos] == '!') {
             pos++; skipWhitespace()
-        return UnaryExpression("not", parsePrimary())
+            return UnaryExpression("not", parsePrimary())
         }
         if (pos < input.length && input[pos] == '-') {
             pos++; skipWhitespace()
-        return UnaryExpression("-", parsePrimary())
+            return UnaryExpression("-", parsePrimary())
         }
         return parsePrimary()
     }
-        private fun parsePrimary(): Expression {
+
+    private fun parsePrimary(): Expression {
         skipWhitespace()
         if (pos >= input.length) throw IllegalStateException("Unexpected end of input")
         return when {
             input[pos] == '(' -> {
                 pos++; val expr = parseConditional()
-        if (pos >= input.length || input[pos] != ')') throw IllegalStateException("Missing )")
-        pos++; expr
+                if (pos >= input.length || input[pos] != ')') throw IllegalStateException("Missing )")
+                pos++; expr
             }
-        input[pos] == '"' || input[pos] == '\'' -> { val quote = input[pos]; pos++ val start = pos while (pos < input.length && input[pos] != quote) pos++ val str = input.substring(start, pos) if (pos < input.length) pos++ ValueExpression(str) }
-input[pos].isDigit() -> { val start = pos while (pos < input.length && (input[pos].isDigit() || input[pos] == '.')) pos++ val num = input.substring(start, pos) ValueExpression(if (num.contains('.')) num.toDouble() else num.toInt()) }
-input[pos] == 't' && input.substring(pos).startsWith("true") -> { pos += 4; ValueExpression(true) }
-input[pos] == 'f' && input.substring(pos).startsWith("false") -> { pos += 5; ValueExpression(false) }
-else -> { val start = pos while (pos < input.length && (input[pos].isLetterOrDigit() || input[pos] == '_')) pos++ val name = input.substring(start, pos) skipWhitespace() if (pos < input.length && input[pos] == '(') { pos++;
-val args = mutableListOf<Expression>() while (pos < input.length && input[pos] != ')') { skipWhitespace() if (args.isNotEmpty()) { if (input[pos] == ',') pos++; skipWhitespace() }
-args.add(parseConditional()) skipWhitespace() }
-if (pos < input.length) pos++ FunctionExpression(name, args) }
-else { VariableExpression(name) } } } }
-private fun skipWhitespace() { while (pos < input.length && input[pos].isWhitespace()) pos++ } }  /** Agent 脚本解释器 */ class AgentScriptInterpreter { private val context = ScriptContext() private val parser: ExpressionParser? = null  fun execute(script: String): Any? { val parser = ExpressionParser(script) val ast = parser.parse() return ast.interpret(context) }
-fun setVariable(name: String, value: Any?) { context.setVariable(name, value) }
-fun getContext(): ScriptContext = context fun clearContext() = context.clear() }
+            input[pos] == '"' || input[pos] == '\'' -> {
+                val quote = input[pos]; pos++
+                val start = pos
+                while (pos < input.length && input[pos] != quote) pos++
+                val str = input.substring(start, pos)
+                if (pos < input.length) pos++
+                ValueExpression(str)
+            }
+            input[pos].isDigit() -> {
+                val start = pos
+                while (pos < input.length && (input[pos].isDigit() || input[pos] == '.')) pos++
+                val num = input.substring(start, pos)
+                ValueExpression(if (num.contains('.')) num.toDouble() else num.toInt())
+            }
+            input[pos] == 't' && input.substring(pos).startsWith("true") -> { pos += 4; ValueExpression(true) }
+            input[pos] == 'f' && input.substring(pos).startsWith("false") -> { pos += 5; ValueExpression(false) }
+            else -> {
+                val start = pos
+                while (pos < input.length && (input[pos].isLetterOrDigit() || input[pos] == '_')) pos++
+                val name = input.substring(start, pos)
+                skipWhitespace()
+                if (pos < input.length && input[pos] == '(') {
+                    pos++; val args = mutableListOf<Expression>()
+                    while (pos < input.length && input[pos] != ')') {
+                        skipWhitespace()
+                        if (args.isNotEmpty()) { if (input[pos] == ',') pos++; skipWhitespace() }
+                        args.add(parseConditional())
+                        skipWhitespace()
+                    }
+                    if (pos < input.length) pos++
+                    FunctionExpression(name, args)
+                } else {
+                    VariableExpression(name)
+                }
+            }
+        }
+    }
+
+    private fun skipWhitespace() {
+        while (pos < input.length && input[pos].isWhitespace()) pos++
+    }
+}
+
+/** Agent 脚本解释器 */
+class AgentScriptInterpreter {
+    private val context = ScriptContext()
+    private val parser: ExpressionParser? = null
+
+    fun execute(script: String): Any? {
+        val parser = ExpressionParser(script)
+        val ast = parser.parse()
+        return ast.interpret(context)
+    }
+
+    fun setVariable(name: String, value: Any?) { context.setVariable(name, value) }
+    fun getContext(): ScriptContext = context
+    fun clearContext() = context.clear()
+}

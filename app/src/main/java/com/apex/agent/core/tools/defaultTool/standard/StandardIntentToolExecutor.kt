@@ -29,7 +29,8 @@ class StandardIntentToolExecutor(private val context: Context) {
         const val TYPE_BROADCAST = "broadcast"
         const val TYPE_SERVICE = "service"
     }
-        private fun applyComponentName(intent: Intent, rawComponentName: String) {
+
+    private fun applyComponentName(intent: Intent, rawComponentName: String) {
         val parts = rawComponentName.split("/", limit = 2)
         if (parts.size != 2) {
             return
@@ -47,7 +48,8 @@ class StandardIntentToolExecutor(private val context: Context) {
             }
         intent.setClassName(packageName, normalizedClassName)
     }
-        suspend fun invoke(tool: AITool): ToolResult {
+
+    suspend fun invoke(tool: AITool): ToolResult {
         // Validate parameters
         val validationResult = validateParameters(tool)
         if (!validationResult.valid) {
@@ -58,6 +60,7 @@ class StandardIntentToolExecutor(private val context: Context) {
                     error = validationResult.errorMessage
             )
         }
+
         val action = tool.parameters.find { it.name == "action" }?.value
         val uri = tool.parameters.find { it.name == "uri" }?.value
         val packageName = tool.parameters.find { it.name == "package" }?.value
@@ -68,42 +71,42 @@ class StandardIntentToolExecutor(private val context: Context) {
 
         return try {
             // Create the intent
-        val intent = Intent()
+            val intent = Intent()
 
             // Set action if provided
-        if (!action.isNullOrBlank()) {
+            if (!action.isNullOrBlank()) {
                 intent.action = action
             }
 
             // Set data URI if provided
-        if (!uri.isNullOrBlank()) {
+            if (!uri.isNullOrBlank()) {
                 intent.data = Uri.parse(uri)
             }
 
             // Set package if provided
-        if (!packageName.isNullOrBlank()) {
+            if (!packageName.isNullOrBlank()) {
                 intent.`package` = packageName
             }
 
             // Set component if provided
-        if (!componentName.isNullOrBlank()) {
+            if (!componentName.isNullOrBlank()) {
                 applyComponentName(intent, componentName)
             }
 
             // Set flags if provided
-        if (!flags.isNullOrBlank()) {
+            if (!flags.isNullOrBlank()) {
                 try {
                     val flagsJson = JSONArray(flags)
-        var combinedFlags = 0
+                    var combinedFlags = 0
                     for (i in 0 until flagsJson.length()) {
                         val flag = flagsJson.getInt(i)
-        combinedFlags = combinedFlags or flag
+                        combinedFlags = combinedFlags or flag
                     }
-        intent.flags = combinedFlags
+                    intent.flags = combinedFlags
                 } catch (e: Exception) {
                     AppLogger.e(TAG, "Error parsing flags", e)
                     // Try to parse as a single integer value
-        try {
+                    try {
                         intent.flags = flags.toInt()
                     } catch (e2: Exception) {
                         AppLogger.e(TAG, "Error parsing flags as integer", e2)
@@ -112,50 +115,51 @@ class StandardIntentToolExecutor(private val context: Context) {
             }
 
             // Set extras if provided
-        if (!extras.isNullOrBlank()) {
+            if (!extras.isNullOrBlank()) {
                 try {
                     val extrasJson = JSONObject(extras)
-        val keys = extrasJson.keys()
-        while (keys.hasNext()) {
+                    val keys = extrasJson.keys()
+                    while (keys.hasNext()) {
                         val key = keys.next()
-        val value = extrasJson.get(key)
-        when (value) {
+                        val value = extrasJson.get(key)
+
+                        when (value) {
                             is String -> intent.putExtra(key, value)
-        is Int -> intent.putExtra(key, value)
-        is Boolean -> intent.putExtra(key, value)
-        is Float -> intent.putExtra(key, value)
-        is Double -> intent.putExtra(key, value)
-        is Long -> intent.putExtra(key, value)
-        else -> {
+                            is Int -> intent.putExtra(key, value)
+                            is Boolean -> intent.putExtra(key, value)
+                            is Float -> intent.putExtra(key, value)
+                            is Double -> intent.putExtra(key, value)
+                            is Long -> intent.putExtra(key, value)
+                            else -> {
                                 // Try to detect array types
-        if (value is JSONArray) {
+                                if (value is JSONArray) {
                                     // Handle various array types
-        if (value.length() > 0) {
+                                    if (value.length() > 0) {
                                         val firstItem = value.get(0)
-        when (firstItem) {
+                                        when (firstItem) {
                                             is String -> {
                                                 val stringArray =
                                                         Array(value.length()) { i ->
                                                             value.getString(i)
                                                         }
-        intent.putExtra(key, stringArray)
+                                                intent.putExtra(key, stringArray)
                                             }
-        is Int -> {
+                                            is Int -> {
                                                 val intArray =
                                                         IntArray(value.length()) { i ->
                                                             value.getInt(i)
                                                         }
-        intent.putExtra(key, intArray)
+                                                intent.putExtra(key, intArray)
                                             }
-        else -> {
+                                            else -> {
                                                 // Convert to string if type is unsupported
-        intent.putExtra(key, value.toString())
+                                                intent.putExtra(key, value.toString())
                                             }
                                         }
                                     }
                                 } else {
                                     // Convert to string if type is unsupported
-        intent.putExtra(key, value.toString())
+                                    intent.putExtra(key, value.toString())
                                 }
                             }
                         }
@@ -166,7 +170,7 @@ class StandardIntentToolExecutor(private val context: Context) {
             }
 
             // Check if intent is valid
-        if (intent.action == null && componentName.isNullOrBlank()) {
+            if (intent.action == null && componentName.isNullOrBlank()) {
                 return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -177,13 +181,13 @@ class StandardIntentToolExecutor(private val context: Context) {
 
             // Add FLAG_ACTIVITY_NEW_TASK for safety if not already set when starting activity
             // This is needed when starting activities from non-activity contexts
-        if (type == TYPE_ACTIVITY && intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK == 0) {
+            if (type == TYPE_ACTIVITY && intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK == 0) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
             // Execute the intent based on the requested type using withContext to ensure main
             // thread execution
-        try {
+            try {
                 val result =
                         withContext(Dispatchers.Main) {
                             when (type) {
@@ -191,22 +195,22 @@ class StandardIntentToolExecutor(private val context: Context) {
                                     context.sendBroadcast(intent)
                                     "Broadcast sent successfully"
                                 }
-        TYPE_SERVICE -> {
+                                TYPE_SERVICE -> {
                                     if (componentName.isNullOrBlank()) {
                                         return@withContext "ERROR: Component must be specified when starting a service"
                                     }
-        context.startService(intent)
+                                    context.startService(intent)
                                     "Service started successfully"
                                 }
-        else -> { // Default to activity
-        context.startActivity(intent)
+                                else -> { // Default to activity
+                                    context.startActivity(intent)
                                     "Activity started successfully"
                                 }
                             }
                         }
 
                 // Handle error from service component check
-        if (result.startsWith("ERROR:")) {
+                if (result.startsWith("ERROR:")) {
                     return ToolResult(
                             toolName = tool.name,
                             success = false,
@@ -216,9 +220,10 @@ class StandardIntentToolExecutor(private val context: Context) {
                 }
 
                 // Bundle up the intent details for the response
-        val extras = Bundle()
-        intent.extras?.let { extras.putAll(it) }
-        return ToolResult(
+                val extras = Bundle()
+                intent.extras?.let { extras.putAll(it) }
+
+                return ToolResult(
                         toolName = tool.name,
                         success = true,
                         result =
@@ -242,7 +247,7 @@ class StandardIntentToolExecutor(private val context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error executing Intent", e)
-        ToolResult(
+            ToolResult(
                     toolName = tool.name,
                     success = false,
                     result = StringResultData(""),
@@ -283,6 +288,7 @@ class StandardIntentToolExecutor(private val context: Context) {
                     errorMessage = "Component parameter is required when type is 'service'"
             )
         }
+
         return ToolValidationResult(valid = true)
     }
 }

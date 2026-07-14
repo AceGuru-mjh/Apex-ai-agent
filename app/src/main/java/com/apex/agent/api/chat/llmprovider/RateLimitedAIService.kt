@@ -27,6 +27,7 @@ class RateLimitedAIService(
     ): Stream<String> = com.apex.util.stream.stream {
         rateLimiter?.acquire()
         concurrencySemaphore?.acquire()
+
         try {
             delegate.sendMessage(
                 context = context,

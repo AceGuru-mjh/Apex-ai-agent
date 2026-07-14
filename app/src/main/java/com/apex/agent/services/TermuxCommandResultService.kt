@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Termux命令结果服务
- * 用于接收来自Termux的命令执行结，*/
+ * 用于接收来自Termux的命令执行结�?*/
 class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
     companion object {
         private const val TAG = "TermuxResultService"
@@ -27,7 +27,7 @@ class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
          */
         fun registerCallback(executionId: Int, callback: (CommandResult) -> Unit) {
             callbackMap[executionId] = callback
-            AppLogger.d(TAG, "已注册回调，ID: ${executionId}, 当前回调用${callbackMap.size}")
+            AppLogger.d(TAG, "已注册回调，ID: ${executionId}, 当前回调�?${callbackMap.size}")
         }
         
         /**
@@ -36,26 +36,29 @@ class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
          */
         fun removeCallback(executionId: Int) {
             callbackMap.remove(executionId)
-        AppLogger.d(TAG, "已移除回调，ID: ${executionId}, 当前回调用${callbackMap.size}")
+            AppLogger.d(TAG, "已移除回调，ID: ${executionId}, 当前回调�?${callbackMap.size}")
         }
     }
-        private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-        override fun onHandleIntent(intent: Intent) {
+    
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    
+    override fun onHandleIntent(intent: Intent) {
         if (intent == null) return
         
         // 获取执行ID
         val executionId = intent.getIntExtra(EXTRA_EXECUTION_ID, -1)
         // AppLogger.d(TAG, "收到命令结果，执行ID: ${executionId}")
+        
         if (executionId == -1) {
             AppLogger.e(TAG, "无效的执行ID")
-        return
+            return
         }
         
         // 获取结果Bundle
         val resultBundle = intent.getBundleExtra("result")
         if (resultBundle == null) {
             AppLogger.e(TAG, "结果Bundle为空")
-        return
+            return
         }
         
         // 解析结果
@@ -79,11 +82,10 @@ class TermuxCommandResultService : IntentService("TermuxCommandResultService") {
         if (callback != null) {
             serviceScope.launch {
                 callback(result)
-                // 执行完成后移除回失
-        removeCallback(executionId)
+                // 执行完成后移除回�?               removeCallback(executionId)
             }
         } else {
-            // AppLogger.w(TAG, "未找到ID，的${executionId} 的回复）"
+            // AppLogger.w(TAG, "未找到ID，的${executionId} 的回复）
         }
     }
 } 

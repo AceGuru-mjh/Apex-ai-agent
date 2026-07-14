@@ -34,10 +34,10 @@ data class ContextWindowState(
 
 enum class ContextPressure {
     SAFE,       // < 50%
-        MODERATE,   // 50-70%
-        HIGH,       // 70-85%
-        CRITICAL,   // 85-95%
-        OVERFLOW    // > 95%
+    MODERATE,   // 50-70%
+    HIGH,       // 70-85%
+    CRITICAL,   // 85-95%
+    OVERFLOW    // > 95%
 }
 
 /**
@@ -115,6 +115,7 @@ class ContextWindowVisualizer(
 
         // 建议
         val recommendations = generateRecommendations(pressure, breakdown, distribution, messages)
+
         return ContextWindowState(
             totalTokens = totalTokens,
             maxTokens = maxTokens,
@@ -141,10 +142,10 @@ class ContextWindowVisualizer(
         val percentage = (state.usageRatio * 100).toInt()
         val pressureIcon = when (state.pressure) {
             ContextPressure.SAFE -> "🟢"
-        ContextPressure.MODERATE -> "🟡"
-        ContextPressure.HIGH -> "🟠"
-        ContextPressure.CRITICAL -> "🔴"
-        ContextPressure.OVERFLOW -> "⛔"
+            ContextPressure.MODERATE -> "🟡"
+            ContextPressure.HIGH -> "🟠"
+            ContextPressure.CRITICAL -> "🔴"
+            ContextPressure.OVERFLOW -> "⛔"
         }
         sb.appendLine("$pressureIcon [$bar] $percentage% (${state.totalTokens}/${state.maxTokens} tokens)")
         sb.appendLine()
@@ -153,7 +154,7 @@ class ContextWindowVisualizer(
         sb.appendLine("消息层级:")
         state.layers.forEach { layer ->
             val layerBar = "▓".repeat((layer.ratio * 20).toInt().coerceIn(0, 20))
-        sb.appendLine("  ${layer.tier.name.padEnd(12)} $layerBar ${layer.messageCount}条 ${layer.tokenCount}tokens")
+            sb.appendLine("  ${layer.tier.name.padEnd(12)} $layerBar ${layer.messageCount}条 ${layer.tokenCount}tokens")
         }
         sb.appendLine()
 
@@ -161,8 +162,8 @@ class ContextWindowVisualizer(
         sb.appendLine("消息分类:")
         with(state.messageBreakdown) {
             sb.appendLine("  用户: $userMessages | 助手: $assistantMessages | 系统: $systemMessages")
-        sb.appendLine("  平均: ${avgTokensPerMessage.toInt()} tokens/条")
-        sb.appendLine("  最长: $longestMessage | 最短: $shortestMessage")
+            sb.appendLine("  平均: ${avgTokensPerMessage.toInt()} tokens/条")
+            sb.appendLine("  最长: $longestMessage | 最短: $shortestMessage")
         }
         sb.appendLine()
 
@@ -170,17 +171,17 @@ class ContextWindowVisualizer(
         sb.appendLine("Token 分布:")
         with(state.tokenDistribution) {
             sb.appendLine("  系统提示: $systemPromptTokens (${(systemPromptTokens.toFloat() / total * 100).toInt()}%)")
-        sb.appendLine("  用户内容: $userContentTokens (${(userContentTokens.toFloat() / total * 100).toInt()}%)")
-        sb.appendLine("  助手内容: $assistantContentTokens (${(assistantContentTokens.toFloat() / total * 100).toInt()}%)")
-        sb.appendLine("  工具调用: $toolCallTokens (${(toolCallTokens.toFloat() / total * 100).toInt()}%)")
-        sb.appendLine("  摘要: $summaryTokens (${(summaryTokens.toFloat() / total * 100).toInt()}%)")
+            sb.appendLine("  用户内容: $userContentTokens (${(userContentTokens.toFloat() / total * 100).toInt()}%)")
+            sb.appendLine("  助手内容: $assistantContentTokens (${(assistantContentTokens.toFloat() / total * 100).toInt()}%)")
+            sb.appendLine("  工具调用: $toolCallTokens (${(toolCallTokens.toFloat() / total * 100).toInt()}%)")
+            sb.appendLine("  摘要: $summaryTokens (${(summaryTokens.toFloat() / total * 100).toInt()}%)")
         }
         sb.appendLine()
 
         // 建议
         if (state.recommendations.isNotEmpty()) {
             sb.appendLine("建议:")
-        state.recommendations.forEach { sb.appendLine("  • $it") }
+            state.recommendations.forEach { sb.appendLine("  • $it") }
         }
         sb.appendLine("═══════════════")
         return sb.toString()
@@ -193,25 +194,28 @@ class ContextWindowVisualizer(
         val sb = StringBuilder()
         sb.appendLine("═══ 对话时间轴 ═══")
         sb.appendLine()
+
         val maxBarLength = 50
         val maxTokenCount = messages.maxOfOrNull { it.tokenCount } ?: 1
 
         messages.forEach { msg ->
             val roleIcon = when (msg.role) {
                 ConversationMessage.Role.USER -> "👤"
-        ConversationMessage.Role.ASSISTANT -> "🤖"
-        ConversationMessage.Role.SYSTEM -> "⚙️"
+                ConversationMessage.Role.ASSISTANT -> "🤖"
+                ConversationMessage.Role.SYSTEM -> "⚙️"
             }
-        val barLength = (msg.tokenCount.toFloat() / maxTokenCount * maxBarLength).toInt().coerceIn(1, maxBarLength)
-        val bar = "█".repeat(barLength)
-        val importanceBar = "★".repeat((msg.importance * 5).toInt().coerceIn(0, 5))
-        sb.append("$roleIcon ")
-        sb.append(bar)
-        sb.append(" ${msg.tokenCount}t ")
-        sb.append(importanceBar)
-        sb.append(" ${msg.content.take(30).replace("\n", " ")}")
-        sb.appendLine()
+            val barLength = (msg.tokenCount.toFloat() / maxTokenCount * maxBarLength).toInt().coerceIn(1, maxBarLength)
+            val bar = "█".repeat(barLength)
+            val importanceBar = "★".repeat((msg.importance * 5).toInt().coerceIn(0, 5))
+
+            sb.append("$roleIcon ")
+            sb.append(bar)
+            sb.append(" ${msg.tokenCount}t ")
+            sb.append(importanceBar)
+            sb.append(" ${msg.content.take(30).replace("\n", " ")}")
+            sb.appendLine()
         }
+
         sb.appendLine()
         val totalTokens = messages.sumOf { it.tokenCount }
         sb.appendLine("总计: ${messages.size} 条消息, $totalTokens tokens (上限 $maxTokens)")
@@ -220,32 +224,35 @@ class ContextWindowVisualizer(
     }
 
     // ============ 内部方法 ============
-        private fun buildLayers(
+
+    private fun buildLayers(
         messages: List<ConversationMessage>,
         compression: com.apex.agent.core.normal.context.CompressionResult
     ): List<ContextLayer> {
         val grouped = compression.tiers.values.groupBy { it }
         val totalTokens = messages.sumOf { it.tokenCount }.coerceAtLeast(1)
+
         return com.apex.agent.core.normal.context.CompressionTier.values().map { tier ->
             val tierMessages = grouped[tier] ?: emptyList()
-        val tierTokens = tierMessages.sumOf { id ->
+            val tierTokens = tierMessages.sumOf { id ->
                 messages.find { it.id == id }?.tokenCount ?: 0
             }
-        ContextLayer(
+            ContextLayer(
                 tier = tier,
                 messageCount = tierMessages.size,
                 tokenCount = tierTokens,
                 ratio = tierTokens.toFloat() / totalTokens,
                 description = when (tier) {
                     com.apex.agent.core.normal.context.CompressionTier.FULL -> "保留原文"
-        com.apex.agent.core.normal.context.CompressionTier.SUMMARY -> "保留摘要"
-        com.apex.agent.core.normal.context.CompressionTier.FACTS_ONLY -> "仅关键事实"
-        com.apex.agent.core.normal.context.CompressionTier.DISCARD -> "丢弃"
+                    com.apex.agent.core.normal.context.CompressionTier.SUMMARY -> "保留摘要"
+                    com.apex.agent.core.normal.context.CompressionTier.FACTS_ONLY -> "仅关键事实"
+                    com.apex.agent.core.normal.context.CompressionTier.DISCARD -> "丢弃"
                 }
             )
         }
     }
-        private fun buildMessageBreakdown(messages: List<ConversationMessage>): MessageBreakdown {
+
+    private fun buildMessageBreakdown(messages: List<ConversationMessage>): MessageBreakdown {
         val user = messages.count { it.role == ConversationMessage.Role.USER }
         val assistant = messages.count { it.role == ConversationMessage.Role.ASSISTANT }
         val system = messages.count { it.role == ConversationMessage.Role.SYSTEM }
@@ -256,7 +263,8 @@ class ContextWindowVisualizer(
 
         return MessageBreakdown(user, assistant, system, total, avgTokens, longest, shortest)
     }
-        private fun buildTokenDistribution(messages: List<ConversationMessage>, systemTokens: Int): TokenDistribution {
+
+    private fun buildTokenDistribution(messages: List<ConversationMessage>, systemTokens: Int): TokenDistribution {
         var userTokens = 0
         var assistantTokens = 0
         var toolTokens = 0
@@ -269,12 +277,13 @@ class ContextWindowVisualizer(
                     if (msg.summary != null) summaryTokens += msg.tokenCount
                     else assistantTokens += msg.tokenCount
                 }
-        ConversationMessage.Role.SYSTEM -> {
+                ConversationMessage.Role.SYSTEM -> {
                     // 系统消息中包含工具调用结果
-        if (msg.content.contains("[tool_result]")) toolTokens += msg.tokenCount
+                    if (msg.content.contains("[tool_result]")) toolTokens += msg.tokenCount
                 }
             }
         }
+
         return TokenDistribution(
             systemPromptTokens = systemTokens,
             userContentTokens = userTokens,
@@ -284,36 +293,44 @@ class ContextWindowVisualizer(
             otherTokens = 0
         )
     }
-        private fun generateRecommendations(
+
+    private fun generateRecommendations(
         pressure: ContextPressure,
         breakdown: MessageBreakdown,
         distribution: TokenDistribution,
         messages: List<ConversationMessage>
     ): List<String> {
         val recs = mutableListOf<String>()
+
         when (pressure) {
             ContextPressure.SAFE -> {}
-        ContextPressure.MODERATE -> recs.add("上下文使用中等，可继续对话")
-        ContextPressure.HIGH -> recs.add("上下文压力较高，建议压缩历史或开启新会话")
-        ContextPressure.CRITICAL -> recs.add("上下文即将超限，建议立即总结历史或开启新会话")
-        ContextPressure.OVERFLOW -> recs.add("上下文已超限！请清理历史或开启新会话")
+            ContextPressure.MODERATE -> recs.add("上下文使用中等，可继续对话")
+            ContextPressure.HIGH -> recs.add("上下文压力较高，建议压缩历史或开启新会话")
+            ContextPressure.CRITICAL -> recs.add("上下文即将超限，建议立即总结历史或开启新会话")
+            ContextPressure.OVERFLOW -> recs.add("上下文已超限！请清理历史或开启新会话")
         }
+
         if (breakdown.avgTokensPerMessage > 500) {
             recs.add("平均消息较长，可考虑精简输入")
         }
+
         if (distribution.systemPromptTokens.toFloat() / distribution.total > 0.3f) {
             recs.add("系统提示占比较高，可优化 prompt")
         }
+
         if (breakdown.assistantMessages > 0 && breakdown.userMessages.toFloat() / breakdown.assistantMessages > 3f) {
             recs.add("用户消息远多于助手，可能需要更多互动")
         }
+
         val oldMessages = messages.count { System.currentTimeMillis() - it.timestamp > 24 * 60 * 60_000L }
         if (oldMessages > 10) {
             recs.add("有 $oldMessages 条超过 24 小时的消息，可考虑归档")
         }
+
         if (recs.isEmpty()) {
             recs.add("上下文状态良好")
         }
+
         return recs
     }
 }
