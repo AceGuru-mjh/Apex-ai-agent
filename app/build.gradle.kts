@@ -7,9 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.google.hilt.android)
     // id("io.objectbox") // Disabled: KSP not supported
     // 模块归属校验 — 防止 lib:* 被打包进主 APK
     id("apex.module.ownership")
@@ -190,9 +188,6 @@ android {
 }
 
 // Room schema 导出目录配置（用于迁移验证）
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-}
 
 // Kotlin 编译配置
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
@@ -357,7 +352,6 @@ dependencies {
 
     // Hilt 依赖注入
     implementation(libs.google.hilt.android)
-    ksp(libs.google.hilt.compiler)
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Room 数据库
