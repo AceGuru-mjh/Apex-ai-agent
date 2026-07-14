@@ -140,7 +140,8 @@ data class DeviceInfoResultData(
         sb.appendLine("Screen: ${screenResolution} (${screenDensity}dp)")
         sb.appendLine("Memory: Available ${availableMemory} / Total ${totalMemory}")
         sb.appendLine("Storage: Available ${availableStorage} / Total ${totalStorage}")
-        sb.appendLine("Battery: ${batteryLevel}% ${if (batteryCharging) "(Charging)" else ""}")
+        val _kaptFix25 = if (batteryCharging) "(Charging)" else ""
+        sb.appendLine("Battery: ${batteryLevel}% ${_kaptFix25}")
         sb.appendLine("Network: ${networkType}")
         sb.appendLine("Processor: ${cpuInfo}")
         if (additionalInfo.isNotEmpty()) {

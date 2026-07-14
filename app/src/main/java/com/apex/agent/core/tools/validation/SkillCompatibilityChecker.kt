@@ -290,7 +290,8 @@ class SkillCompatibilityChecker(private val context: Context) {
                 appendLine("Conflicts: None")
             }
         appendLine()
-        appendLine("Status: ${if (report.isPassed) "PASSED" else "FAILED"}")
+        val _kaptFix60 = if (report.isPassed) "PASSED" else "FAILED"
+        appendLine("Status: ${_kaptFix60}")
         }
     }
 }

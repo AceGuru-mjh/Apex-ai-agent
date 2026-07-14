@@ -1693,7 +1693,8 @@ private constructor(private val context: Context, private val aiToolHandler: AIT
         jsonConfig.decodeFromString<ToolPackage>(jsonString)
                 } else {
                     loadPackageFromJsFile(file)
-                        ?: return "Failed to parse ${if (lowerPath.endsWith(".ts")) "TypeScript" else "JavaScript"} package file"
+                        val _kaptFix71 = if (lowerPath.endsWith(".ts")) "TypeScript" else "JavaScript"
+                        ?: return "Failed to parse ${_kaptFix71} package file"
                 }
         if (availablePackages.containsKey(packageMetadata.name)) {
                 return "A package with name '${packageMetadata.name}' already exists in available packages"

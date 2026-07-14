@@ -81,7 +81,8 @@ abstract class BaseUITools(protected val context: Context) : com.apex.agent.core
             logger.logError(toolName, action, com.apex.agent.core.tools.result.UIToolsErrorCode.OPERATION_FAILED, duration, details)
         }
         if (UIToolsConfig.ENABLE_DETAILED_LOGS) {
-            AppLogger.d(TAG, "[${toolName}] ${action}: ${if (success) "成功" else "失败"}${details?.let { " - ${it}" } ?: ""}")
+            val _kaptFix72 = if (success) "成功" else "失败"
+            AppLogger.d(TAG, "[${toolName}] ${action}: ${_kaptFix72}${details?.let { " - ${it}" } ?: ""}")
         }
     }
     

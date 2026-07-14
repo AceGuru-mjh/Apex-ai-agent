@@ -290,7 +290,8 @@ class ConversationGameEngine {
         appendLine("分数:")
         session.score.forEach { (player, score) ->
                 val isWinner = player == session.winner || score == session.score.values.maxOrNull()
-        appendLine("  ${if (isWinner) "🏆" else "  "} $player: $score 分")
+        val _kaptFix16 = if (isWinner) "🏆" else "  "
+        appendLine("  ${_kaptFix16} $player: $score 分")
             }
         appendLine("═══════════════")
         }

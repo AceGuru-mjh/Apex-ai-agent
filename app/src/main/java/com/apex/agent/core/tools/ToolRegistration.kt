@@ -524,7 +524,8 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
                     !sourceTitle.isNullOrBlank() || !targetTitle.isNullOrBlank() -> "${sourceTitle ?: "*"} -> ${targetTitle ?: "*"}"
         else -> "all links"
                 }
-                "Query memory links: ${locator}${if (!linkType.isNullOrBlank()) ", type=${linkType}" else ""}"
+                val _kaptFix19 = if (!linkType.isNullOrBlank()) ", type=${linkType}" else ""
+                "Query memory links: ${locator}${_kaptFix19}"
             },
             executor = { tool ->
                 val memoryTool = ToolGetter.getMemoryQueryToolExecutor(context)

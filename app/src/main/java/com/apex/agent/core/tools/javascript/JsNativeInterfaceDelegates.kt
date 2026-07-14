@@ -463,7 +463,8 @@ internal object JsNativeInterfaceDelegates {
                 val resultString = result.result.toString()
         AppLogger.d(
                     TAG,
-                    "[Sync] Tool execution succeeded: ${resultString.take(1000)}${if (resultString.length > 1000) "..." else ""}"
+                    val _kaptFix55 = if (resultString.length > 1000) "..." else ""
+                    "[Sync] Tool execution succeeded: ${resultString.take(1000)}${_kaptFix55}"
                 )
             } else {
                 AppLogger.e(TAG, "[Sync] Tool execution failed: ${result.error}")
@@ -520,7 +521,8 @@ internal object JsNativeInterfaceDelegates {
                     val resultString = result.result.toString()
         AppLogger.d(
                         TAG,
-                        "[Async] Tool execution succeeded: ${resultString.take(1000)}${if (resultString.length > 1000) "..." else ""}"
+                        val _kaptFix54 = if (resultString.length > 1000) "..." else ""
+                        "[Async] Tool execution succeeded: ${resultString.take(1000)}${_kaptFix54}"
                     )
                 } else {
                     AppLogger.e(TAG, "[Async] Tool execution failed: ${result.error}")

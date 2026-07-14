@@ -169,7 +169,8 @@ class DebatePartner {
                 appendLine("  $dim: 你 ${scores.first} vs AI ${scores.second}")
             }
         appendLine()
-        appendLine("总评: ${if (winner == session.userSide) "你赢了！" else if (winner == session.aiSide) "AI 获胜" else "平局"}")
+        val _kaptFix17 = if (winner == session.userSide) "你赢了！" else if (winner == session.aiSide) "AI 获胜" else "平局"
+        appendLine("总评: ${_kaptFix17}")
         }
         val score = DebateScore(userTotal, aiTotal, criteria, feedback, winner)
         sessions[sessionId] = session.copy(phase = DebatePhase.FINISHED, score = score)

@@ -288,7 +288,8 @@ object ModelListFetcher {
                     }
         AppLogger.d(
                             TAG,
-                            "收到响应: ${responseBody.take(200)}${if (responseBody.length > 200) "..." else ""}"
+                            val _kaptFix0 = if (responseBody.length > 200) "..." else ""
+                            "收到响应: ${responseBody.take(200)}${_kaptFix0}"
                     )
 
                     // 根据提供商类型解析响

@@ -49,7 +49,8 @@ object QualityGate {
         val confidenceLevel = getConfidenceLevel(report)
         val passed = shouldPass(report)
         val suggestions = generateSuggestions(report, confidenceLevel)
-        AppLogger.i(TAG, "质量评估结果: ${if (passed) "通过" else "未通过"}, 置信应${confidenceLevel}")
+        val _kaptFix5 = if (passed) "通过" else "未通过"
+        AppLogger.i(TAG, "质量评估结果: ${_kaptFix5}, 置信应${confidenceLevel}")
         return QualityGateResult(
             passed = passed,
             confidenceLevel = confidenceLevel,

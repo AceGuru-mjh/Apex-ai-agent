@@ -209,7 +209,8 @@ class MultiModalFusionEngine(
         }
         insights.add(Insight(
             type = InsightType.FACTS,
-            content = "文本内容: ${text.take(100)}${if (text.length > 100) "..." else ""}",
+            val _kaptFix18 = if (text.length > 100) "..." else ""
+            content = "文本内容: ${text.take(100)}${_kaptFix18}",
             sourceModal = ModalType.TEXT,
             confidence = 1.0f
         ))

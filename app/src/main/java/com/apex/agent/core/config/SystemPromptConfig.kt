@@ -543,7 +543,8 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
               if (useEnglish) {
               """
         WORKSPACE GUIDELINES:
-              - The current workspace root is `${workspacePath}`${if (shouldShowEnv) " (environment=${envLabel})" else ""}.
+              val _kaptFix12 = if (shouldShowEnv) " (environment=${envLabel})" else ""
+              - The current workspace root is `${workspacePath}`${_kaptFix12}.
               - Treat this exact path as the base path for all workspace file operations.
               - When using tools to read, write, search, list, move, or delete workspace files, do not use relative paths; always use absolute paths rooted at `${workspacePath}`.
               ${if (shouldShowEnv) "- When operating on workspace files via tools, always pass `environment=\"${envLabel}\"` together with the workspace path." else ""}

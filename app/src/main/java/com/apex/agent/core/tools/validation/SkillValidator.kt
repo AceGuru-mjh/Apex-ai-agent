@@ -107,9 +107,12 @@ class SkillValidator(context: Context) {
         compatibilityReport: CompatibilityReport
     ): String {
         return buildString {
-            append("Security: ${if (securityReport.isPassed) "PASS" else "FAIL"} (${securityReport.riskLevel.name}), ")
-        append("Performance: ${if (performanceReport.isPassed) "PASS" else "WARN"} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms), ")
-        append("Compatibility: ${if (compatibilityReport.isPassed) "PASS" else "FAIL"}")
+            val _kaptFix69 = if (securityReport.isPassed) "PASS" else "FAIL"
+            append("Security: ${_kaptFix69} (${securityReport.riskLevel.name}), ")
+        val _kaptFix68 = if (performanceReport.isPassed) "PASS" else "WARN"
+        append("Performance: ${_kaptFix68} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms), ")
+        val _kaptFix67 = if (compatibilityReport.isPassed) "PASS" else "FAIL"
+        append("Compatibility: ${_kaptFix67}")
         }
     }
         private fun buildScriptSummary(
@@ -117,8 +120,10 @@ class SkillValidator(context: Context) {
         performanceReport: PerformanceReport
     ): String {
         return buildString {
-            append("Security: ${if (securityReport.isPassed) "PASS" else "FAIL"} (${securityReport.riskLevel.name}), ")
-        append("Performance: ${if (performanceReport.isPassed) "PASS" else "WARN"} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms)")
+            val _kaptFix66 = if (securityReport.isPassed) "PASS" else "FAIL"
+            append("Security: ${_kaptFix66} (${securityReport.riskLevel.name}), ")
+        val _kaptFix65 = if (performanceReport.isPassed) "PASS" else "WARN"
+        append("Performance: ${_kaptFix65} (load: ${performanceReport.loadTimeMs}ms, exec: ${performanceReport.executionTimeMs}ms)")
         }
     }
         private fun buildMarkdownReport(report: ValidationReport): String {
@@ -135,7 +140,8 @@ class SkillValidator(context: Context) {
         report.securityReport?.let { security ->
                 appendLine("## Security Scan")
         appendLine()
-        appendLine("**Status:** ${if (security.isPassed) "PASSED" else "FAILED"}")
+        val _kaptFix64 = if (security.isPassed) "PASSED" else "FAILED"
+        appendLine("**Status:** ${_kaptFix64}")
         appendLine("**Risk Level:** ${security.riskLevel.name}")
         appendLine()
         if (security.dangerPatterns.isNotEmpty()) {
@@ -161,7 +167,8 @@ class SkillValidator(context: Context) {
         if (security.networkRequests.isNotEmpty()) {
                     appendLine("### Network Requests (${security.networkRequests.size})")
         security.networkRequests.forEach { req ->
-                        appendLine("- ${req.url} (Line ${req.lineNumber})${if (req.isSuspicious) " **[SUSPICIOUS]**" else ""}")
+                        val _kaptFix63 = if (req.isSuspicious) " **[SUSPICIOUS]**" else ""
+                        appendLine("- ${req.url} (Line ${req.lineNumber})${_kaptFix63}")
                     }
         appendLine()
                 }
@@ -176,7 +183,8 @@ class SkillValidator(context: Context) {
         report.performanceReport?.let { perf ->
                 appendLine("## Performance Benchmark")
         appendLine()
-        appendLine("**Status:** ${if (perf.isPassed) "PASSED" else "WARNING"}")
+        val _kaptFix62 = if (perf.isPassed) "PASSED" else "WARNING"
+        appendLine("**Status:** ${_kaptFix62}")
         appendLine()
         appendLine("| Metric | Value |")
         appendLine("|--------|-------|")
@@ -204,7 +212,8 @@ class SkillValidator(context: Context) {
         report.compatibilityReport?.let { compat ->
                 appendLine("## Compatibility Check")
         appendLine()
-        appendLine("**Status:** ${if (compat.isPassed) "PASSED" else "FAILED"}")
+        val _kaptFix61 = if (compat.isPassed) "PASSED" else "FAILED"
+        appendLine("**Status:** ${_kaptFix61}")
         appendLine()
         appendLine("### Android Version")
         appendLine("- **Required:** ${compat.androidVersionCheck.requiredVersion}")

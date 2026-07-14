@@ -119,7 +119,8 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
         item { SectionHeader("高级") }
         item {
                 SettingsCard(Icons.Default.Bolt, "Shizuku",
-                    if (shizukuAvailable) "已连接（v$shizukuVersion${if (shizukuGranted) " · 已授权" else " · 未授权"}）" else "未连接") {
+                    val _kaptFix1 = if (shizukuGranted) " · 已授权" else " · 未授权"
+                    if (shizukuAvailable) "已连接（v$shizukuVersion${_kaptFix1}）" else "未连接") {
                     if (!shizukuAvailable) TextButton(onClick = {
                         try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://shizuku.rikka.app/")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {}
                     }) { Text("安装") }

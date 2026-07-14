@@ -352,8 +352,10 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                 code = code,
                 result =
                     when {
-                        ref != null -> "Clicked ref=${ref} with button=${button}${if (doubleClick) " (double)" else ""}"
-        else -> "Clicked selector=${selector ?: ""} with button=${button}${if (doubleClick) " (double)" else ""}"
+                        val _kaptFix45 = if (doubleClick) " (double)" else ""
+                        ref != null -> "Clicked ref=${ref} with button=${button}${_kaptFix45}"
+        val _kaptFix44 = if (doubleClick) " (double)" else ""
+        else -> "Clicked selector=${selector ?: ""} with button=${button}${_kaptFix44}"
                     }
             )
         )
@@ -422,10 +424,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         try { target.focus({ preventScroll: true }); } catch (_) {}
         const buttonValue = ${buttonValue};
         const buttonsValue = ${buttonsValue};
-        const altKey = ${if (altKey) "true" else "false"};
-        const ctrlKey = ${if (controlKey) "true" else "false"};
-        const metaKey = ${if (metaKey) "true" else "false"};
-        const shiftKey = ${if (shiftKey) "true" else "false"};
+        val _kaptFix43 = if (altKey) "true" else "false"
+        const altKey = ${_kaptFix43};
+        val _kaptFix42 = if (controlKey) "true" else "false"
+        const ctrlKey = ${_kaptFix42};
+        val _kaptFix41 = if (metaKey) "true" else "false"
+        const metaKey = ${_kaptFix41};
+        val _kaptFix40 = if (shiftKey) "true" else "false"
+        const shiftKey = ${_kaptFix40};
         function emit(type, detail) {
                         try {
                             const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
@@ -455,7 +461,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     }
         let activationMethod = "mouse_event";
         let activationTag = String(target.tagName || "").toLowerCase();
-        const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
+        val _kaptFix39 = if (doubleClick) "true" else "false"
+        const nativeAnchorClickEligible = !${_kaptFix39} &&
                         buttonValue === 0 && !altKey && !ctrlKey && !metaKey && !shiftKey &&
                         !!anchor && typeof anchor.click === "function";
         setTimeout(() => {
@@ -464,7 +471,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                                 activationMethod = "native_anchor_click";
         activationTag = String(anchor.tagName || "").toLowerCase();
         anchor.click();
-                            } else if (${if (doubleClick) "true" else "false"}) {
+                            val _kaptFix38 = if (doubleClick) "true" else "false"
+                            } else if (${_kaptFix38}) {
                                 clickOnce(1);
         clickOnce(2);
         emit("dblclick", 2);
@@ -477,7 +485,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                         ok: true,
                         ref: refValue,
                         button: ${quoteJs(button)},
-                        doubleClick: ${if (doubleClick) "true" else "false"},
+                        val _kaptFix37 = if (doubleClick) "true" else "false"
+                        doubleClick: ${_kaptFix37},
                         tag: String(target.tagName || "").toLowerCase(),
                         activationMethod,
                         activationTag,
@@ -626,10 +635,14 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         try { target.focus({ preventScroll: true }); } catch (_) {}
         const buttonValue = ${buttonValue};
         const buttonsValue = ${buttonsValue};
-        const altKey = ${if (altKey) "true" else "false"};
-        const ctrlKey = ${if (controlKey) "true" else "false"};
-        const metaKey = ${if (metaKey) "true" else "false"};
-        const shiftKey = ${if (shiftKey) "true" else "false"};
+        val _kaptFix36 = if (altKey) "true" else "false"
+        const altKey = ${_kaptFix36};
+        val _kaptFix35 = if (controlKey) "true" else "false"
+        const ctrlKey = ${_kaptFix35};
+        val _kaptFix34 = if (metaKey) "true" else "false"
+        const metaKey = ${_kaptFix34};
+        val _kaptFix33 = if (shiftKey) "true" else "false"
+        const shiftKey = ${_kaptFix33};
         function emit(type, detail) {
                         try {
                             const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
@@ -659,7 +672,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                     }
         let activationMethod = "mouse_event";
         let activationTag = String(target.tagName || "").toLowerCase();
-        const nativeAnchorClickEligible = !${if (doubleClick) "true" else "false"} &&
+        val _kaptFix32 = if (doubleClick) "true" else "false"
+        const nativeAnchorClickEligible = !${_kaptFix32} &&
                         buttonValue === 0 && !altKey && !ctrlKey && !metaKey && !shiftKey &&
                         !!anchor && typeof anchor.click === "function";
         setTimeout(() => {
@@ -671,7 +685,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         return;
                             }
         clickOnce(1);
-        if (${if (doubleClick) "true" else "false"}) {
+        val _kaptFix31 = if (doubleClick) "true" else "false"
+        if (${_kaptFix31}) {
                                 emit("mousedown", 2);
         emit("mouseup", 2);
         emit("click", 2);
@@ -687,7 +702,8 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
                         ok: true,
                         selector: selectorValue,
                         button: ${quoteJs(button)},
-                        doubleClick: ${if (doubleClick) "true" else "false"},
+                        val _kaptFix30 = if (doubleClick) "true" else "false"
+                        doubleClick: ${_kaptFix30},
                         activationMethod,
                         activationTag
                     });

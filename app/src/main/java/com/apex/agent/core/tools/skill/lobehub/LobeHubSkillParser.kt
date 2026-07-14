@@ -204,6 +204,7 @@ return value.trim() }  /** * Convert LobeHubSkillSpec to Apex-compatible skill m
 if (spec.homepage.isNotBlank()) { sb.appendLine("homepage: ${spec.homepage}") }
 sb.appendLine("license: ${spec.license}") if (spec.tags.isNotEmpty()) { sb.appendLine("tags: [${spec.tags.joinToString(", ")}]") }
 if (spec.agent.isNotEmpty()) { sb.appendLine("agent: [${spec.agent.joinToString(", ")}]") }
-sb.appendLine("---") sb.appendLine() sb.appendLine("# ${spec.name}") sb.appendLine() sb.appendLine("## Description") sb.appendLine() sb.appendLine(spec.description) sb.appendLine() if (spec.inputs.isNotEmpty()) { sb.appendLine("## Inputs") sb.appendLine() sb.appendLine("| Parameter | Description | Type | Required |") sb.appendLine("|-----------|-------------|------|----------|") for (input in spec.inputs) { sb.appendLine("| ${input.name} | ${input.description} | ${input.type} | ${if (input.required) "Yes" else "No"} |") }
+val _kaptFix58 = if (input.required) "Yes" else "No"
+sb.appendLine("---") sb.appendLine() sb.appendLine("# ${spec.name}") sb.appendLine() sb.appendLine("## Description") sb.appendLine() sb.appendLine(spec.description) sb.appendLine() if (spec.inputs.isNotEmpty()) { sb.appendLine("## Inputs") sb.appendLine() sb.appendLine("| Parameter | Description | Type | Required |") sb.appendLine("|-----------|-------------|------|----------|") for (input in spec.inputs) { sb.appendLine("| ${input.name} | ${input.description} | ${input.type} | ${_kaptFix58} |") }
 sb.appendLine() }
 sb.appendLine("## Usage") sb.appendLine() sb.appendLine("Install using LobeHub Market CLI:") sb.appendLine() sb.appendLine("```bash") sb.appendLine("npx -y @lobehub/market-cli skills install ${spec.identifier}") sb.appendLine("```") return sb.toString() } }

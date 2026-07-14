@@ -179,7 +179,8 @@ class LogAnalyticsManager {
         sb.appendLine("    \"message\": \"${entry.message.replace("\"", "\\\"")}",")"
         sb.appendLine("    \"details\": ${if (entry.details != null) entry.details else "null"},")
         sb.appendLine("    \"duration\": ${entry.duration ?: "null"}")
-        sb.appendLine("  }${if (index < logs.size - 1) "," else ""}")
+        val _kaptFix6 = if (index < logs.size - 1) "," else ""
+        sb.appendLine("  }${_kaptFix6}")
         }
         sb.appendLine("]")
         return sb.toString()

@@ -50,7 +50,8 @@ sealed class UIToolsResult {
                 toolName = toolName,
                 success = false,
                 result = com.apex.agent.core.tools.StringResultData(""),
-                error = "[${errorCode.code}] ${message}${if (details != null) "\n详情: ${details}" else ""}"
+                val _kaptFix70 = if (details != null) "\n详情: ${details}" else ""
+                error = "[${errorCode.code}] ${message}${_kaptFix70}"
             )
         Timeout -> com.apex.data.model.ToolResult(
                 toolName = toolName,

@@ -40,7 +40,8 @@ data class HttpResponseData(
         if (cookies.isNotEmpty()) {
             sb.appendLine("Cookies: ${cookies.size}")
         cookies.entries.take(5).forEach { (name, value) ->
-                sb.appendLine("  ${name}: ${value.take(30)}${if (value.length > 30) "..." else ""}")
+                val _kaptFix26 = if (value.length > 30) "..." else ""
+                sb.appendLine("  ${name}: ${value.take(30)}${_kaptFix26}")
             }
         if (cookies.size > 5) {
                 sb.appendLine("  ... and ${cookies.size - 5} more cookies")

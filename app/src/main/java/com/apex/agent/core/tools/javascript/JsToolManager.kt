@@ -188,7 +188,8 @@ class JsToolManager private constructor(
         val preview = rawValue.replace("\n", "\\n").take(120)
         AppLogger.w(
             TAG,
-            "Strict parameter conversion failed: tool=${toolName}, param=${parameterName}, type=${expectedType}, value=${preview}${if (rawValue.length > 120) "..." else ""}${detail}"
+            val _kaptFix53 = if (rawValue.length > 120) "..." else ""
+            "Strict parameter conversion failed: tool=${toolName}, param=${parameterName}, type=${expectedType}, value=${preview}${_kaptFix53}${detail}"
         )
         return ToolParameterConversionException(
             "Invalid parameter '${parameterName}' for tool '${toolName}': expected ${expectedType}"

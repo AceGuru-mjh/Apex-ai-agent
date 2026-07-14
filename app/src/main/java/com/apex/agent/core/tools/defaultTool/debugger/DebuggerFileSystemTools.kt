@@ -1434,7 +1434,8 @@ open class DebuggerFileSystemTools(context: Context) : AccessibilityFileSystemTo
                                         path = sourcePath,
                                         successful = true,
                                         details =
-                                                "Successfully copied ${if (isDirectory) "directory" else "file"} ${sourcePath} to ${destPath}"
+                                                val _kaptFix46 = if (isDirectory) "directory" else "file"
+                                                "Successfully copied ${_kaptFix46} ${sourcePath} to ${destPath}"
                                 ),
                         error = ""
                 )

@@ -221,7 +221,8 @@ class EnhancedTerminalViewModel @Inject constructor(
             "clear" -> updateSession(sessionId) { it.copy(lines = emptyList()) }
             "new" -> { val id = createSession(args.ifBlank { null }); addSystemLine(id, "✓ 新建会话") }
             "close" -> closeSession(sessionId)
-            "sessions" -> { addSystemLine(sessionId, "📋 会话 (${_sessions.value.size}):"); _sessions.value.forEach { s -> addLine(sessionId, TerminalLine(text = "  ${if (s.id == _activeSessionId.value) "●" else "○"} ${s.name} ${s.shortDir} ${s.lines.size}行", kind = LineKind.OUTPUT)) } }
+            val _kaptFix76 = if (s.id == _activeSessionId.value) "●" else "○"
+            "sessions" -> { addSystemLine(sessionId, "📋 会话 (${_sessions.value.size}):"); _sessions.value.forEach { s -> addLine(sessionId, TerminalLine(text = "  ${_kaptFix76} ${s.name} ${s.shortDir} ${s.lines.size}行", kind = LineKind.OUTPUT)) } }
             "history" -> { addSystemLine(sessionId, "📜 历史 (最近${_globalHistory.value.size}条):"); _globalHistory.value.takeLast(30).forEach { (c, t) -> addLine(sessionId, TerminalLine(text = "  ${java.text.SimpleDateFormat("HH:mm:ss").format(java.util.Date(t))}  $c", kind = LineKind.OUTPUT)) } }
             "aliases" -> { addSystemLine(sessionId, "🔧 别名:"); _aliases.value.values.forEach { a -> addLine(sessionId, TerminalLine(text = "  ${a.alias} → ${a.command}", kind = LineKind.OUTPUT)) } }
             "snippets" -> { if (_snippets.value.isEmpty()) addSystemLine(sessionId, "暂无代码段") else { addSystemLine(sessionId, "📝 代码段:"); _snippets.value.forEach { s -> addLine(sessionId, TerminalLine(text = "  ${s.name} [${s.language}]", kind = LineKind.OUTPUT)) } } }

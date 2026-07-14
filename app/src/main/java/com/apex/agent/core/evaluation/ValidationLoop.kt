@@ -59,7 +59,8 @@ object ValidationLoop {
         delay(100) // 模拟验证耗时
         val validationResult = performSingleValidation(output, iteration)
         results.add(validationResult)
-        AppLogger.d(TAG, "符${iteration + 1}/${k} 次验证完成 ${if (validationResult.pass) "通过" else "失败"}, 评分 ${validationResult.score}")
+        val _kaptFix4 = if (validationResult.pass) "通过" else "失败"
+        AppLogger.d(TAG, "符${iteration + 1}/${k} 次验证完成 ${_kaptFix4}, 评分 ${validationResult.score}")
             } catch (e: Exception) {
                 AppLogger.e(TAG, "符${iteration + 1} 次验证异常", e)
         results.add(ValidationResult(

@@ -51,8 +51,10 @@ data class AutomationConfigSearchResult(
         sb.appendLine("App Name: ${config.appName}")
         sb.appendLine("Package Name: ${config.packageName}")
         sb.appendLine("Description: ${config.description}")
-        sb.appendLine("Type: ${if (config.isBuiltIn) "Built-in" else "User Imported"}")
-        sb.appendLine("Match Type: ${if (config.matchType == "packageName") "Package Name" else "App Name"}")
+        val _kaptFix23 = if (config.isBuiltIn) "Built-in" else "User Imported"
+        sb.appendLine("Type: ${_kaptFix23}")
+        val _kaptFix22 = if (config.matchType == "packageName") "Package Name" else "App Name"
+        sb.appendLine("Match Type: ${_kaptFix22}")
             }
         }
         return sb.toString()
@@ -94,7 +96,8 @@ data class AutomationPlanParametersResult(
         sb.appendLine("Parameter Name: ${param.key}")
         sb.appendLine("Description: ${param.description}")
         sb.appendLine("Type: ${param.type}")
-        sb.appendLine("Required: ${if (param.isRequired) "Yes" else "No"}")
+        val _kaptFix21 = if (param.isRequired) "Yes" else "No"
+        sb.appendLine("Required: ${_kaptFix21}")
         param.defaultValue?.let { sb.appendLine("Default Value: ${it}") }
             }
         }
@@ -128,7 +131,8 @@ data class AutomationExecutionResult(
         sb.appendLine("Automation Execution Result:")
         sb.appendLine("Function Name: ${functionName}")
         agentId?.let { sb.appendLine("AgentId: ${it}") }
-        sb.appendLine("Execution Status: ${if (executionSuccess) "Success" else "Failure"}")
+        val _kaptFix20 = if (executionSuccess) "Success" else "Failure"
+        sb.appendLine("Execution Status: ${_kaptFix20}")
         sb.appendLine("Execution Steps: ${executionSteps}")
         sb.appendLine("Result Message: ${executionMessage}")
         if (!executionError.isNullOrBlank()) {

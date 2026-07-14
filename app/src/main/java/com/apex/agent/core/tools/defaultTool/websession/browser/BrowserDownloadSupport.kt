@@ -386,7 +386,8 @@ internal class BrowserDownloadManager private constructor(
                     appendLine("- Speed: ${formatBytes(task.speedBytesPerSecond)}/s")
                 }
         appendLine("- Saved path: ${task.destinationPath}")
-        appendLine("- Resume supported: ${if (task.supportsResume) "yes" else "no"}")
+        val _kaptFix47 = if (task.supportsResume) "yes" else "no"
+        appendLine("- Resume supported: ${_kaptFix47}")
         if (!task.errorMessage.isNullOrBlank()) {
                     append("- Error: ${task.errorMessage}")
                 }

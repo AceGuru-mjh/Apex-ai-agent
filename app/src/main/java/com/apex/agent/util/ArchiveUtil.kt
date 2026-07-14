@@ -59,7 +59,8 @@ object ArchiveUtil {
         try {
                 if (extractArchive(sourceFile, tempDir, sourceExt, password)) {
                     val result = createArchive(tempDir, targetFile, targetExt)
-        AppLogger.d(TAG, "Archive conversion ${if (result) "successful" else "failed"}")
+        val _kaptFix75 = if (result) "successful" else "failed"
+        AppLogger.d(TAG, "Archive conversion ${_kaptFix75}")
         return result
                 } else {
                     // Check if extraction failed due to encryption

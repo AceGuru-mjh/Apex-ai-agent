@@ -250,11 +250,13 @@ class ConversationExporter {
         sb.appendLine("          \"tool\": ${escapeJson(tc.toolName)},")
         sb.appendLine("          \"success\": ${tc.success},")
         sb.appendLine("          \"durationMs\": ${tc.durationMs}")
-        sb.appendLine("        }${if (j < msg.toolCalls.size - 1) "," else ""}")
+        val _kaptFix14 = if (j < msg.toolCalls.size - 1) "," else ""
+        sb.appendLine("        }${_kaptFix14}")
                 }
         sb.appendLine("      ]")
             }
-        sb.appendLine("    }${if (i < messages.size - 1) "," else ""}")
+        val _kaptFix13 = if (i < messages.size - 1) "," else ""
+        sb.appendLine("    }${_kaptFix13}")
         }
         sb.appendLine("  ]")
         sb.appendLine("}")

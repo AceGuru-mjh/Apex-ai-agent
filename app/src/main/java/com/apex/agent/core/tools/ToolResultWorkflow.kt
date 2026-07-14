@@ -37,7 +37,8 @@ data class WorkflowResultData(
         sb.appendLine("ID: ${id}")
         sb.appendLine("Name: ${name}")
         sb.appendLine("Description: ${description}")
-        sb.appendLine("Status: ${if (enabled) "Enabled" else "Disabled"}")
+        val _kaptFix29 = if (enabled) "Enabled" else "Disabled"
+        sb.appendLine("Status: ${_kaptFix29}")
         sb.appendLine("Node Count: ${nodeCount}")
         sb.appendLine("Connection Count: ${connectionCount}")
         sb.appendLine("Total Executions: ${totalExecutions}")
@@ -69,7 +70,8 @@ data class WorkflowListResultData(
             sb.appendLine("ID: ${workflow.id}")
         sb.appendLine("Name: ${workflow.name}")
         sb.appendLine("Description: ${workflow.description}")
-        sb.appendLine("Status: ${if (workflow.enabled) "Enabled" else "Disabled"}")
+        val _kaptFix28 = if (workflow.enabled) "Enabled" else "Disabled"
+        sb.appendLine("Status: ${_kaptFix28}")
         sb.appendLine("Node Count: ${workflow.nodeCount}")
         sb.appendLine("Connection Count: ${workflow.connectionCount}")
         sb.appendLine("Total Executions: ${workflow.totalExecutions}")
@@ -112,7 +114,8 @@ data class WorkflowDetailResultData(
         sb.appendLine("ID: ${id}")
         sb.appendLine("Name: ${name}")
         sb.appendLine("Description: ${description}")
-        sb.appendLine("Status: ${if (enabled) "Enabled" else "Disabled"}")
+        val _kaptFix27 = if (enabled) "Enabled" else "Disabled"
+        sb.appendLine("Status: ${_kaptFix27}")
         sb.appendLine()
         sb.appendLine("Nodes (${nodes.size}):")
         nodes.forEach { node ->

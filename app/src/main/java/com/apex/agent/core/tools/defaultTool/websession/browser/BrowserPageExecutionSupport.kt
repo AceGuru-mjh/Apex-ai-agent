@@ -1269,9 +1269,12 @@ internal fun StandardBrowserSessionTools.renderPageState(session: BrowserToolSes
         return buildString {
         appendLine("- Title: ${session.pageTitle.ifBlank { "about:blank" }}")
         appendLine("- URL: ${session.currentUrl.ifBlank { "about:blank" }}")
-        appendLine("- Loading: ${if (session.isLoading) "yes" else "no"}")
-        appendLine("- Can go back: ${if (session.canGoBack) "yes" else "no"}")
-        appendLine("- Can go forward: ${if (session.canGoForward) "yes" else "no"}")
+        val _kaptFix52 = if (session.isLoading) "yes" else "no"
+        appendLine("- Loading: ${_kaptFix52}")
+        val _kaptFix51 = if (session.canGoBack) "yes" else "no"
+        appendLine("- Can go back: ${_kaptFix51}")
+        val _kaptFix50 = if (session.canGoForward) "yes" else "no"
+        appendLine("- Can go forward: ${_kaptFix50}")
         append("- Viewport: ${viewport.first}x${viewport.second}")
     }
 }
@@ -1528,8 +1531,10 @@ internal fun StandardBrowserSessionTools.typeIntoElementByRef(
                 throw new Error("ref_not_found");
             }
         const textValue = ${quoteJs(text)};
-        const submitValue = ${if (submit) "true" else "false"};
-        const slowValue = ${if (slowly) "true" else "false"};
+        val _kaptFix49 = if (submit) "true" else "false"
+        const submitValue = ${_kaptFix49};
+        val _kaptFix48 = if (slowly) "true" else "false"
+        const slowValue = ${_kaptFix48};
         if (slowValue) {
                 const typeResult = await __apex-agentPw.typeElement(target, textValue, 35);
         if (typeResult !== "done") {

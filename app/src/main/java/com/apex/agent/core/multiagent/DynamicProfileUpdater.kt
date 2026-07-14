@@ -173,7 +173,8 @@ class DynamicProfileUpdater {
         sb.appendLine("最近执行数，")
         dataList.takeLast(5).forEachIndexed { index, data ->
                 sb.appendLine("${index + 1}. 任务: ${data.taskCategory}, 难度: ${data.difficulty}")
-        sb.appendLine("   状？ ${if (data.success) "成功" else "失败"}, 质量: ${String.format("%.2f", data.qualityScore)}")
+        val _kaptFix7 = if (data.success) "成功" else "失败"
+        sb.appendLine("   状？ ${_kaptFix7}, 质量: ${String.format("%.2f", data.qualityScore)}")
         sb.appendLine("   时间: ${data.completionTime}ms, 反馈: ${data.userFeedback ?: "??}")"
             }
         }

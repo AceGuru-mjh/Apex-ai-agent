@@ -652,7 +652,8 @@ class ApexAgentApplication : Application(), ImageLoaderFactory, WorkConfiguratio
                 app = this,
                 collaborationFramework = adapter
             )
-        AppLogger.i(TAG, "BurstKernel 已启动，SWARM 协作 ${if (adapter != null) "已激活" else "回退到本地"}")
+        val _kaptFix2 = if (adapter != null) "已激活" else "回退到本地"
+        AppLogger.i(TAG, "BurstKernel 已启动，SWARM 协作 ${_kaptFix2}")
         } catch (e: Exception) {
             AppLogger.e(TAG, "BurstKernel 启动失败: ${e.message}", e)
         }

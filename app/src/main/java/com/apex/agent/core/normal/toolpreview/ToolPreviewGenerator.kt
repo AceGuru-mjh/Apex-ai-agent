@@ -141,7 +141,8 @@ class ToolPreviewGenerator {
         if (preview.sideEffects.isNotEmpty()) {
             sb.appendLine("副作用: ${preview.sideEffects.joinToString()}")
         }
-        sb.appendLine("可撤销: ${if (preview.reversible) "是" else "否"}")
+        val _kaptFix15 = if (preview.reversible) "是" else "否"
+        sb.appendLine("可撤销: ${_kaptFix15}")
         if (preview.dataAccess.isNotEmpty()) {
             sb.appendLine("数据访问: ${preview.dataAccess.joinToString()}")
         }

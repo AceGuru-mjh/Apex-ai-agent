@@ -212,7 +212,8 @@ internal class JsExecutionTraceRecorder(
         }
         if (depth >= 2) {
             val preview = entries.take(3).joinToString(", ") { it.first }
-        return "{${preview}${if (entries.size > 3) ", ..." else ""}}"
+        val _kaptFix57 = if (entries.size > 3) ", ..." else ""
+        return "{${preview}${_kaptFix57}}"
         }
         val parts =
             entries
@@ -224,7 +225,8 @@ internal class JsExecutionTraceRecorder(
                 .toMutableList()
         if (parts.isEmpty()) {
             val preview = entries.take(3).joinToString(", ") { it.first }
-        return "{${preview}${if (entries.size > 3) ", ..." else ""}}"
+        val _kaptFix56 = if (entries.size > 3) ", ..." else ""
+        return "{${preview}${_kaptFix56}}"
         }
         if (entries.size > 4) {
             parts += "+${entries.size - 4} more"

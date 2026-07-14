@@ -155,7 +155,8 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
         AppLogger.d(
             TAG,
             "✓[优化1] 关键路径阻塞: ${duration}ms " +
-                "(目标: <300ms, ${if (duration < 300) "✓达标" else "⚙需关注"})"
+                val _kaptFix10 = if (duration < 300) "✓达标" else "⚙需关注"
+                "(目标: <300ms, ${_kaptFix10})"
         )
     }
         fun endBackgroundInit() {
@@ -267,7 +268,8 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
             .appendLine("┌─ [优化1] 冷启动关键路径缩出")
             .appendLine("─ 主线程阻塞时间 ${snapshot.coldStart.criticalPathMs}ms")
             .appendLine("─ 后台初始化时间 ${snapshot.coldStart.backgroundInitMs}ms")
-            .appendLine("─ 状态 ${if (snapshot.coldStart.criticalPathMs < 300) "✓优秀 (<300ms)" else "⚙需优化"}")
+            val _kaptFix9 = if (snapshot.coldStart.criticalPathMs < 300) "✓优秀 (<300ms)" else "⚙需优化"
+            .appendLine("─ 状态 ${_kaptFix9}")
             .appendLine("─)"
             .appendLine("├─ [优化2] AppInitializer 并行执行")
             .appendLine("─ 累计顺序耗时: ${snapshot.concurrency.sequentialPhaseTotalMs}ms")
@@ -279,7 +281,8 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
             .appendLine("─ 命中: ${snapshot.cache.cacheHits}, 未命为 ${snapshot.cache.cacheMisses}")
             .appendLine("─ 命中现 ${"%.1f".format(snapshot.cache.hitRate)}%")
             .appendLine("─ 当前缓存大小: ${snapshot.cache.cacheSize}")
-            .appendLine("─ 状态 ${if (snapshot.cache.hitRate > 70.0) "✓良好 (>70%)" else "⚙缓存利用不足"}")
+            val _kaptFix8 = if (snapshot.cache.hitRate > 70.0) "✓良好 (>70%)" else "⚙缓存利用不足"
+            .appendLine("─ 状态 ${_kaptFix8}")
             .appendLine("─)"
             .appendLine("├─ [优化4] kotlinx.serialization 性能")
             .appendLine("─ 序列化 ${snapshot.serialization.serializationCount}次 平均: ${snapshot.serialization.avgSerializationNs / 1000}μs")

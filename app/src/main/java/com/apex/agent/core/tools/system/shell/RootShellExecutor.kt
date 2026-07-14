@@ -65,7 +65,8 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
     fun setUseExecMode(useExec: Boolean) {
         useExecMode = useExec
         refreshExecSuCommandFromPreferences()
-        AppLogger.d(TAG, "Root 命令执行模式设置 ${if(useExec) "exec模式" else "libsu模式"}")
+        val _kaptFix59 = if (useExec) "exec模式" else "libsu模式"
+        AppLogger.d(TAG, "Root 命令执行模式设置 ${_kaptFix59}")
     }
         fun setExecSuCommand(command: String) {
         suCommand = normalizeSuCommand(command)

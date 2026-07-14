@@ -123,7 +123,8 @@ class AgentThinkingSession(
         chain: ThinkingChain
     ): CoResult = withContext(Dispatchers.Default) {
         val obs = callAI(
-            "Observe the task carefully:\nTask: $task\nRole: ${agent.role}\n${if (background.isNotBlank()) "Context: $background" else ""}",
+            val _kaptFix3 = if (background.isNotBlank()) "Context: $background" else ""
+            "Observe the task carefully:\nTask: $task\nRole: ${agent.role}\n${_kaptFix3}",
             "You are ${agent.name}. What do you observe about this task?"
         ).ifBlank { "Task requires ${agent.role} analysis." }
         chain.addNode(ObservationNode(content = obs))

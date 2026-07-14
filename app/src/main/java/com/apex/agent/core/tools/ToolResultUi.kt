@@ -162,7 +162,8 @@ data class ComputerDesktopActionResultData(
         tabs?.let {
             sb.appendLine("\nOpen Tabs (${it.size}):")
         it.forEach { tab ->
-                sb.appendLine("- [${if (tab.isActive) "*" else " "}] ${tab.title} (${tab.url})")
+                val _kaptFix24 = if (tab.isActive) "*" else " "
+                sb.appendLine("- [${_kaptFix24}] ${tab.title} (${tab.url})")
             }
         }
         pageContent?.let {

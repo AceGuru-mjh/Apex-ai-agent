@@ -399,14 +399,16 @@ private fun Reflection.toSummaryString(): String {
     return buildString {
         appendLine("任务ID: ${taskId}")
         appendLine("任务目标: ${taskGoal}")
-        appendLine("执行结果: ${if (outcome.success) "成功" else "失败"}")
+        val _kaptFix74 = if (outcome.success) "成功" else "失败"
+        appendLine("执行结果: ${_kaptFix74}")
         if (!outcome.success) {
             appendLine("错误信息: ${outcome.errorMessage}")
         }
         appendLine()
         appendLine("执行步骤:")
         executionSteps.forEach { step ->
-            appendLine("  [${step.stepNumber}] ${step.action} - ${if (step.success) "成功" else "失败"} (${step.durationMs}ms)")
+            val _kaptFix73 = if (step.success) "成功" else "失败"
+            appendLine("  [${step.stepNumber}] ${step.action} - ${_kaptFix73} (${step.durationMs}ms)")
         }
         appendLine()
         appendLine("关键因素:")
