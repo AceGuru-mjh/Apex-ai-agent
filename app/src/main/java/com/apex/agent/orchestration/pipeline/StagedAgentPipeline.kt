@@ -83,11 +83,11 @@ interface StageAgent {
  */
 sealed class PipelineProgressEvent {
     data class Started(val goal: String) : PipelineProgressEvent()
-        data class StageStarted(val stage: PipelineStage, val loopCount: Int) : PipelineProgressEvent()
-        data class StageCompleted(val stage: PipelineStage, val result: StageResult) : PipelineProgressEvent()
-        data class LoopBacktrack(val newLoopCount: Int, val reason: String?) : PipelineProgressEvent()
-        data class Completed(val result: PipelineResult) : PipelineProgressEvent()
-        data class Failed(val error: String) : PipelineProgressEvent()
+    data class StageStarted(val stage: PipelineStage, val loopCount: Int) : PipelineProgressEvent()
+    data class StageCompleted(val stage: PipelineStage, val result: StageResult) : PipelineProgressEvent()
+    data class LoopBacktrack(val newLoopCount: Int, val reason: String?) : PipelineProgressEvent()
+    data class Completed(val result: PipelineResult) : PipelineProgressEvent()
+    data class Failed(val error: String) : PipelineProgressEvent()
 }
 
 /**
@@ -227,7 +227,7 @@ class StagedAgentPipeline @Inject constructor() {
             )
         }
     }
-        private fun generateFinalOutput(context: PipelineContext): String {
+    private fun generateFinalOutput(context: PipelineContext): String {
         val sb = StringBuilder()
         sb.appendLine("# 任务执行报告")
         sb.appendLine()
@@ -252,7 +252,7 @@ class StagedAgentPipeline @Inject constructor() {
         sb.appendLine("- 总Token消者 ${context.stageResults.sumOf { it.tokenCost }}")
         return sb.toString()
     }
-        private fun createFailureResult(context: PipelineContext, startTime: Long, error: String): PipelineResult {
+    private fun createFailureResult(context: PipelineContext, startTime: Long, error: String): PipelineResult {
         val totalDuration = System.currentTimeMillis() - startTime
         val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
         return PipelineResult(
@@ -323,7 +323,7 @@ private class ResearchAgent : StageAgent {
             )
         }
     }
-        private fun performResearch(goal: String): String {
+    private fun performResearch(goal: String): String {
         val sb = StringBuilder()
         sb.appendLine("# 研究报告")
         sb.appendLine()
@@ -359,7 +359,7 @@ private class ResearchAgent : StageAgent {
         sb.appendLine("- 集成复杂应 需要与多个系统协调")
         return sb.toString()
     }
-        private fun analyzeTaskType(goal: String): String {
+    private fun analyzeTaskType(goal: String): String {
         return when {
             goal.contains("code", ignoreCase = true) || goal.contains("代码") || goal.contains("编程") -> "编码任务"
         goal.contains("search", ignoreCase = true) || goal.contains("搜索") || goal.contains("研究") -> "研究任务"
@@ -368,14 +368,14 @@ private class ResearchAgent : StageAgent {
         else -> "通用任务"
         }
     }
-        private fun generateSummary(researchResult: String): String {
+    private fun generateSummary(researchResult: String): String {
         return "已完成信息收集，识别出任务类型为编码任务，明确了技术栈和关键需求，识别于个潜在风险点。"
     }
-        private fun estimateTokenCost(output: String): Int {
+    private fun estimateTokenCost(output: String): Int {
         // 粗略估计：每100个字符约40个token
         return (output.length / 100.0 * 40).toInt()
     }
-        override fun cancel() {
+    override fun cancel() {
         isCancelled = true
         AppLogger.i(TAG, "取消研究阶段执行")
     }
@@ -427,7 +427,7 @@ private class PlannerAgent : StageAgent {
             )
         }
     }
-        private fun createPlan(goal: String, researchContext: String): String {
+    private fun createPlan(goal: String, researchContext: String): String {
         val sb = StringBuilder()
         sb.appendLine("# 执行计划")
         sb.appendLine()
@@ -469,16 +469,16 @@ private class PlannerAgent : StageAgent {
         sb.appendLine("- 所需技能 Kotlin, Android, Jetpack Compose")
         return sb.toString()
     }
-        private fun countSteps(plan: String): Int {
+    private fun countSteps(plan: String): Int {
         return plan.lines().count { it.trim().startsWith("### 步骤") }
     }
-        private fun estimateTime(plan: String): Int {
+    private fun estimateTime(plan: String): Int {
         return countSteps(plan) * 30 // 每个步骤预估 30 分钟
     }
-        private fun estimateTokenCost(output: String): Int {
+    private fun estimateTokenCost(output: String): Int {
         return (output.length / 100.0 * 40).toInt()
     }
-        override fun cancel() {
+    override fun cancel() {
         isCancelled = true
         AppLogger.i(TAG, "取消规划阶段执行")
     }
@@ -530,7 +530,7 @@ private class ImplementerAgent : StageAgent {
             )
         }
     }
-        private fun implementCode(goal: String, plan: String, loopCount: Int): String {
+    private fun implementCode(goal: String, plan: String, loopCount: Int): String {
         val sb = StringBuilder()
         sb.appendLine("# 代码实现报告")
         sb.appendLine()
@@ -582,15 +582,15 @@ private class ImplementerAgent : StageAgent {
         sb.appendLine("- UI 展 进度展示")
         return sb.toString()
     }
-        private fun countFiles(implementation: String): Int {
+    private fun countFiles(implementation: String): Int {
         return 5 // 模拟，个主要文件    }
-        private fun countFunctions(implementation: String): Int {
+    private fun countFunctions(implementation: String): Int {
         return implementation.lines().count { it.contains("fun ") }
     }
-        private fun estimateTokenCost(output: String): Int {
+    private fun estimateTokenCost(output: String): Int {
         return (output.length / 100.0 * 40).toInt()
     }
-        override fun cancel() {
+    override fun cancel() {
         isCancelled = true
         AppLogger.i(TAG, "取消实现阶段执行")
     }
@@ -642,7 +642,7 @@ private class ReviewerAgent : StageAgent {
             )
         }
     }
-        private fun performReview(codeContext: String): String {
+    private fun performReview(codeContext: String): String {
         val sb = StringBuilder()
         sb.appendLine("# 代码审查报告")
         sb.appendLine()
@@ -695,7 +695,7 @@ private class ReviewerAgent : StageAgent {
         }
         return sb.toString()
     }
-        private fun checkCodeQuality(codeContext: String): List<String> {
+    private fun checkCodeQuality(codeContext: String): List<String> {
         val issues = mutableListOf<String>()
         if (codeContext.length > 5000) {
             issues.add("代码量较大，建议拆分为更小的模块")
@@ -705,7 +705,7 @@ private class ReviewerAgent : StageAgent {
         }
         return issues
     }
-        private fun checkSecurity(codeContext: String): List<String> {
+    private fun checkSecurity(codeContext: String): List<String> {
         val issues = mutableListOf<String>()
         val sensitivePatterns = listOf("password", "secret", "apiKey", "token")
         sensitivePatterns.forEach { pattern ->
@@ -715,14 +715,14 @@ private class ReviewerAgent : StageAgent {
         }
         return issues
     }
-        private fun checkPerformance(codeContext: String): List<String> {
+    private fun checkPerformance(codeContext: String): List<String> {
         val issues = mutableListOf<String>()
         if (codeContext.contains("Thread.sleep") || codeContext.contains("delay")) {
             issues.add("检测到阻塞式调用，建议使用异步方案替代")
         }
         return issues
     }
-        private fun calculateQualityScore(
+    private fun calculateQualityScore(
         qualityIssues: List<String>,
         securityIssues: List<String>,
         performanceIssues: List<String>
@@ -733,7 +733,7 @@ private class ReviewerAgent : StageAgent {
         score -= performanceIssues.size * 10
         return score.coerceIn(0, 100)
     }
-        private fun generateSuggestions(
+    private fun generateSuggestions(
         qualityIssues: List<String>,
         securityIssues: List<String>,
         performanceIssues: List<String>
@@ -750,16 +750,16 @@ private class ReviewerAgent : StageAgent {
         }
         return suggestions
     }
-        private fun generateSummary(reviewReport: String): String {
+    private fun generateSummary(reviewReport: String): String {
         val issueCount = reviewReport.lines().count { it.trim().startsWith("- ⚙") }
         val scoreLine = reviewReport.lines().find { it.contains("综合评分") }
         val score = scoreLine?.substringAfter(":")?.trim() ?: "N/A"
         return "代码审查完成，发现$issueCount 个问题，质量评分: $score。"
     }
-        private fun estimateTokenCost(output: String): Int {
+    private fun estimateTokenCost(output: String): Int {
         return (output.length / 100.0 * 40).toInt()
     }
-        override fun cancel() {
+    override fun cancel() {
         isCancelled = true
         AppLogger.i(TAG, "取消审查阶段执行")
     }
@@ -875,7 +875,7 @@ private class ValidatorAgent : StageAgent {
         }
         return InternalValidationResult(passed = passed, failures = failures, report = sb.toString())
     }
-        private fun verifyFunctional(goal: String, codeContext: String): Boolean {
+    private fun verifyFunctional(goal: String, codeContext: String): Boolean {
         // 检查实现内容是否与目标相关
         if (codeContext.isBlank()) return false
         val goalKeywords = goal.split(" ").filter { it.length > 2 }
@@ -884,26 +884,26 @@ private class ValidatorAgent : StageAgent {
         }
         return goalKeywords.isEmpty() || matchCount.toFloat() / goalKeywords.size >= 0.3f
     }
-        private fun verifyCompilation(codeContext: String): Boolean {
+    private fun verifyCompilation(codeContext: String): Boolean {
         // 检查代码块是否有明显的语法问题
         val codeBlocks = codeContext.lines().filter { it.trim().startsWith("```") }
         // 代码块标记应成对出现
         return codeBlocks.size % 2 == 0
     }
-        private fun verifyTests(codeContext: String): Boolean {
+    private fun verifyTests(codeContext: String): Boolean {
         // 检查是否包含测试相关内定
         return codeContext.contains("test", ignoreCase = true) ||
                 codeContext.contains("测试", ignoreCase = true) ||
                 codeContext.contains("验证", ignoreCase = true)
     }
-        private fun estimateTokenCost(output: String): Int {
+    private fun estimateTokenCost(output: String): Int {
         return (output.length / 100.0 * 40).toInt()
     }
-        override fun cancel() {
+    override fun cancel() {
         isCancelled = true
         AppLogger.i(TAG, "取消验证阶段执行")
     }
-        private data class InternalValidationResult(
+    private data class InternalValidationResult(
         val passed: Boolean,
         val failures: List<String>,
         val report: String
