@@ -10,6 +10,7 @@ import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilitySystemOpe
 import com.apex.agent.core.tools.system.AndroidShellExecutor
 import com.apex.data.model.AITool
 import com.apex.data.model.ToolResult
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /** 调试级别的系统操作工具，继承无障碍版�?并使用shell命令覆盖部分实现 */
 open class DebuggerSystemOperationTools(context: Context) :
@@ -292,13 +293,14 @@ open class DebuggerSystemOperationTools(context: Context) :
             if (activity.isBlank()) {
                 // 使用 am start 命令而不？monkey，避免修改系统设置（如屏幕旋转）
                 // 先获取应用户Activity，然后使�?n 参数启动
-                val resolveCmd = "cmd package resolve-activity --brief ${packageName} 2>/dev/null | tail -n 1"
+    val resolveCmd = "cmd package resolve-activity --brief ${packageName} 2>/dev/null | tail -n 1"
                 val resolveResult = AndroidShellExecutor.executeShellCommand(resolveCmd)
                 
                 if (resolveResult.success && resolveResult.stdout.isNotBlank()) {
                     val output = resolveResult.stdout.trim()
                     // resolve-activity 返回格式可能是：package/activity 或只？activity
-                    // 也可能返回多行，最后一行是组件�?                   val lines = output.lines().filter { it.isNotBlank() && !it.startsWith("name=") }
+                    // 也可能返回多行，最后一行是组件�?
+    val lines = output.lines().filter { it.isNotBlank() && !it.startsWith("name=") }
                     val mainActivity = lines.lastOrNull()?.trim() ?: output.trim()
                     
                     // 如果返回的是完整组件名（package/activity），直接使用
@@ -310,7 +312,8 @@ open class DebuggerSystemOperationTools(context: Context) :
                     }
                     AppLogger.d(TAG, "Resolved main Activity: ${mainActivity}, using command: ${command}")
                 } else {
-                    // 如果无法解析 Activity，返回错�?                   return ToolResult(
+                    // 如果无法解析 Activity，返回错�?
+    return ToolResult(
                         toolName = tool.name,
                         success = false,
                         result = StringResultData(""),

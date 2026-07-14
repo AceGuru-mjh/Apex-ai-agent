@@ -203,7 +203,7 @@ class MultimodalInputParser {
     }
 
     // ============ 内置解析器 ============
-        private fun registerBuiltinParsers() {
+    private fun registerBuiltinParsers() {
         // 文本解析器
         registerParser(MultimodalType.TEXT, TextParser())
         // 图片解析器（占位，需注入 OCR/VLM）
@@ -217,7 +217,7 @@ class MultimodalInputParser {
     }
 
     // ============ 文本解析器 ============
-        class TextParser : MultimodalParser {
+    class TextParser : MultimodalParser {
         override suspend fun parse(input: MultimodalInput): MultimodalParseResult {
             val text = input.metadata["text"]?.toString() ?: ""
         return MultimodalParseResult(
@@ -232,10 +232,10 @@ class MultimodalInputParser {
     }
 
     // ============ 图片解析器 ============
-        class ImageParser : MultimodalParser {
+    class ImageParser : MultimodalParser {
         override suspend fun parse(input: MultimodalInput): MultimodalParseResult {
             // 占位实现：实际应调用 OCR/VLM 服务
-        val imagePath = input.metadata["path"]?.toString()
+    val imagePath = input.metadata["path"]?.toString()
         val result = ImageParseResult(
                 ocrText = input.metadata["ocr_text"]?.toString() ?: "[图片内容需要 OCR 识别]",
                 objects = emptyList(),
@@ -261,7 +261,7 @@ class MultimodalInputParser {
     }
 
     // ============ 文件解析器 ============
-        class FileParser : MultimodalParser {
+    class FileParser : MultimodalParser {
         override suspend fun parse(input: MultimodalInput): MultimodalParseResult {
             val fileName = input.metadata["fileName"]?.toString() ?: "unknown"
         val filePath = input.metadata["path"]?.toString() ?: ""
@@ -356,7 +356,7 @@ class MultimodalInputParser {
                 }
         FileType.CODE -> {
                     // 代码文件：提取函数/类定义
-        val patterns = mapOf(
+    val patterns = mapOf(
                         "function" to Regex("(?:fun|function|def|func)\\s+(\\w+)"),
                         "class" to Regex("(?:class|interface|object|struct|enum)\\s+(\\w+)")
                     )
@@ -381,10 +381,10 @@ class MultimodalInputParser {
     }
 
     // ============ 语音解析器 ============
-        class VoiceParser : MultimodalParser {
+    class VoiceParser : MultimodalParser {
         override suspend fun parse(input: MultimodalInput): MultimodalParseResult {
             // 占位：实际应调用 ASR 服务
-        val transcript = input.metadata["transcript"]?.toString() ?: "[语音转文本结果]"
+    val transcript = input.metadata["transcript"]?.toString() ?: "[语音转文本结果]"
         val language = input.metadata["language"]?.toString() ?: "zh-CN"
         val confidence = (input.metadata["confidence"] as? Number)?.toFloat() ?: 0.9f
         val result = VoiceParseResult(

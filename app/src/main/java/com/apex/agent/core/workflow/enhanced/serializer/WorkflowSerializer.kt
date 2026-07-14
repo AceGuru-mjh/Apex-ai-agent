@@ -84,7 +84,7 @@ class WorkflowSerializer {
             val pkg = json.decodeFromString(WorkflowPackage.serializer(), jsonStr)
 
             // 校验版本
-            if (pkg.schemaVersion != CURRENT_SCHEMA_VERSION) {
+    if (pkg.schemaVersion != CURRENT_SCHEMA_VERSION) {
                 return ImportResult(
                     workflows = emptyList(),
                     warnings = listOf("Schema 版本不匹配: ${pkg.schemaVersion} vs $CURRENT_SCHEMA_VERSION，尝试兼容"),
@@ -93,7 +93,7 @@ class WorkflowSerializer {
             }
 
             // 校验和校验
-            val actualChecksum = computeChecksum(pkg.workflows)
+    val actualChecksum = computeChecksum(pkg.workflows)
             if (pkg.checksum.isNotEmpty() && actualChecksum != pkg.checksum) {
                 return ImportResult(
                     workflows = emptyList(),
@@ -103,7 +103,7 @@ class WorkflowSerializer {
             }
 
             // 校验每个工作流
-            val warnings = mutableListOf<String>()
+    val warnings = mutableListOf<String>()
             pkg.workflows.forEach { wf ->
                 val r = wf.validate()
                 warnings.addAll(r.warnings)
@@ -137,7 +137,7 @@ class WorkflowSerializer {
      */
     fun fromYaml(yamlStr: String): ImportResult {
         // 简化：先转 JSON 再解析
-        val jsonObj = yamlToJson(yamlStr)
+    val jsonObj = yamlToJson(yamlStr)
         val jsonStr = json.encodeToString(JsonElement.serializer(), jsonObj)
         return fromJson(jsonStr)
     }
@@ -289,7 +289,7 @@ class WorkflowSerializer {
 
     private fun yamlToJson(yaml: String): JsonElement {
         // 极简 YAML 解析（仅支持键值对和缩进）
-        val lines = yaml.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+    val lines = yaml.lines().filter { it.isNotBlank() && !it.startsWith("#") }
         val root = buildJsonObject {  }
         return root
     }

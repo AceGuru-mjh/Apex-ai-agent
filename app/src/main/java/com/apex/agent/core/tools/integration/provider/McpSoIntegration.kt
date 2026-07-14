@@ -16,6 +16,7 @@ import com.apex.data.mcp.MCPRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 private const val TAG = "McpSoIntegration"
 
@@ -28,14 +29,14 @@ class McpSoIntegration(private val context: Context) : IntegrationProvider {
     override fun getInfo(): IntegrationInfo = IntegrationInfo(
         id = source.id,
         name = source.name,
-        description = "MCP 服务器市场，浏览和安装来?mcp.so 生态的 MCP Server",
+        description = "MCP 服务器市场，浏览和安装来mcp.so 生态的 MCP Server",
         version = "1.0.0",
         author = "mcp.so",
         homepage = "https://mcp.so",
         logoUrl = null,
         enabled = true,
         capabilities = listOf(
-            IntegrationCapability("browse", "浏览服务, "按分类浏?MCP 服务, CapabilityType.BROWSE),
+            IntegrationCapability("browse", "浏览服务, "按分类浏MCP 服务, CapabilityType.BROWSE),
             IntegrationCapability("search", "搜索服务, "搜索 mcp.so 上的 MCP 服务, CapabilityType.SEARCH),
             IntegrationCapability("install", "安装服务, "?mcp.so 安装 MCP 服务, CapabilityType.INSTALL),
             IntegrationCapability("uninstall", "卸载服务, "卸载已安装的 MCP 服务, CapabilityType.UNINSTALL),

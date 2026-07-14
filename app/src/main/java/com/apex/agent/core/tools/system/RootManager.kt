@@ -21,6 +21,7 @@ import kotlinx.coroutines.sync.withLock
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import com.apex.agent.core.tools.system.ShellIdentity
 
 /**
  * Root 管理器 - 提供统一的 Root 权限管理接口
@@ -28,7 +29,6 @@ import java.io.InputStreamReader
 object RootManager {
     private const val TAG = "RootManager"
     private const val DETECTION_CACHE_DURATION = 30000L // 30秒
-
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutex = Mutex()
 
@@ -92,7 +92,7 @@ object RootManager {
                 initializeLibsu()
 
                 // 初始化执行器
-                if (rootShellExecutor == null) {
+    if (rootShellExecutor == null) {
                     rootShellExecutor = RootShellExecutor(context)
                 }
                 rootShellExecutor?.initialize()
@@ -145,7 +145,7 @@ object RootManager {
         val now = System.currentTimeMillis()
 
         // 检查缓存
-        if (!forceRefresh) {
+    if (!forceRefresh) {
             cachedDetection?.let { cached ->
                 if (now - cached.timestamp < DETECTION_CACHE_DURATION) {
                     AppLogger.v(TAG, "使用缓存的 Root 检测结果")
@@ -225,14 +225,14 @@ object RootManager {
         AppLogger.d(TAG, "检测设备是否已 Root...")
 
         // 方法 1: 检查 su 文件
-        val suExists = checkSuFiles()
+    val suExists = checkSuFiles()
         if (suExists) {
             AppLogger.d(TAG, "检测到 su 文件")
             return true
         }
 
         // 方法 2: 使用 libsu 检测
-        try {
+    try {
             val libsuRooted = Shell.isAppGrantedRoot() ?: false
             if (libsuRooted) {
                 AppLogger.d(TAG, "libsu 检测到 Root")
@@ -243,14 +243,14 @@ object RootManager {
         }
 
         // 方法 3: 检查 known Root 应用
-        val rootAppExists = checkRootApplications(context)
+    val rootAppExists = checkRootApplications(context)
         if (rootAppExists) {
             AppLogger.d(TAG, "检测到 Root 管理应用")
             return true
         }
 
         // 方法 4: 尝试执行 which su
-        try {
+    try {
             val process = Runtime.getRuntime().exec(arrayOf("which", "su"))
             val exitCode = process.waitFor()
             if (exitCode == 0) {
@@ -362,7 +362,7 @@ object RootManager {
         }
 
         // 尝试通过 su --version 检测
-        try {
+    try {
             val process = Runtime.getRuntime().exec(buildSuVersionCommand())
             val output = process.inputStream.bufferedReader().readText().lowercase()
             process.waitFor()
@@ -466,7 +466,7 @@ object RootManager {
         _rootExecutionMode.value = mode
 
         // 检查缓存
-        try {
+    try {
             androidPermissionPreferences.saveRootExecutionMode(mode.toLegacyMode())
         } catch (e: Exception) {
             AppLogger.e(TAG, "保存 Root 执行模式失败", e)
@@ -475,9 +475,9 @@ object RootManager {
         applyExecutionMode(mode)
 
         // 检查缓存
-        if (_isInitialized.value) {
+    if (_isInitialized.value) {
             // å·²åå§åæ¶ï¼éæ°æ£æµ Root ç¶æä»¥åºç¨æ°æ¨¡å¼
-            try {
+    try {
                 checkRootAccess()
             } catch (e: Exception) {
                 AppLogger.w(TAG, "åæ¢æ§è¡æ¨¡å¼åéæ°æ£æµ Root å¤±è´¥: ${e.message}")

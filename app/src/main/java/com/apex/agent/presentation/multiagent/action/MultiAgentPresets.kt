@@ -220,7 +220,7 @@ object MultiAgentQuickActions {
         ))
 
         // 创建任务
-        val taskId = state.createTask(taskTitle, "由快捷操作创建", TaskPriority.NORMAL)
+    val taskId = state.createTask(taskTitle, "由快捷操作创建", TaskPriority.NORMAL)
 
         // 分配
         state.assignTask(taskId, state.agents.value.map { it.id })
@@ -233,7 +233,7 @@ object MultiAgentQuickActions {
      */
     fun sendSystemMessage(state: MultiAgentPageState, content: String) {
         // 系统消息以广播形式发送
-        if (state.agents.value.isNotEmpty()) {
+    if (state.agents.value.isNotEmpty()) {
             state.broadcastMessage(
                 fromAgentId = state.agents.value.first().id,
                 content = "⚙️ [系统] $content",

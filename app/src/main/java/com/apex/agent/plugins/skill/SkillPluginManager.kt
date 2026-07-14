@@ -22,6 +22,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 private val Context.pluginManagerDataStore: DataStore<Preferences> by preferencesDataStore(name = "skill_plugin_manager")
 

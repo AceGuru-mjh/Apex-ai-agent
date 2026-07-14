@@ -67,7 +67,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
         }
 
         // 引导用户激活设备管理员
-        try {
+    try {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, context.getString(R.string.admin_shell_requires_permission))
@@ -104,8 +104,7 @@ class AdminShellExecutor(private val context: Context) : ShellExecutor {
                 AppLogger.d(TAG, "Executing command via device admin: ${command}")
 
                 // 设备管理员API不能直接执行shell命令，但可以执行一些系统操�?               // 这里实现将根据实际可用的管理员API而定
-
-                try {
+    try {
                     when {
                         command.startsWith("lockscreen") -> {
                             devicePolicyManager.lockNow()

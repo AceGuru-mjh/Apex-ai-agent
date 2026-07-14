@@ -11,6 +11,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.apex.agent.util.AppLogger
+import com.apex.core.tools.AIToolHandler
+import com.apex.core.workflow.WorkflowSchedulerInitializer
+import com.apex.util.ImagePoolManager
+import com.apex.util.MediaPoolManager
+import com.apex.util.TextSegmenter
 
 class AppInitializer(private val context: Context) {
     

@@ -46,12 +46,12 @@ class PermissionConfigBackupManager(
             val backupFile = File(backupDir, BACKUP_FILE_NAME)
 
             // 创建目录
-            if (!backupDir.exists()) {
+    if (!backupDir.exists()) {
                 backupDir.mkdirs()
             }
 
             // 写入备份文件
-            val jsonString = json.encodeToString(config)
+    val jsonString = json.encodeToString(config)
             backupFile.writeText(jsonString)
 
             AppLogger.d(TAG, "配置备份成功: ${backupFile.absolutePath}")
@@ -328,7 +328,7 @@ data class SwitchHistoryItem(
     val formattedTime: String
         get() {
             // 格式化时间戳
-            val date = java.util.Date(timestamp)
+    val date = java.util.Date(timestamp)
             val format = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
             return format.format(date)
         }
@@ -363,7 +363,7 @@ class PermissionModeAdvisor(
         val suggestions = mutableListOf<ModeSuggestion>()
 
         // 添加推荐模式
-        val recommended = getRecommendedMode()
+    val recommended = getRecommendedMode()
         if (recommended != PermissionMode.STANDARD) {
             suggestions.add(
                 ModeSuggestion(

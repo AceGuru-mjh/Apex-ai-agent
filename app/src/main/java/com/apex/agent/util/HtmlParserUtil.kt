@@ -42,7 +42,7 @@ object HtmlParserUtil {
         if (modalKeywords.some(keyword => classList.some(cls => cls.includes(keyword)))) score += 2;
 
                             // A high score strongly indicates a modal. We also check visibility and compare z-index.
-        if (score >= 5 && isVisible(el) && zIndex >= maxZ) {
+    if (score >= 5 && isVisible(el) && zIndex >= maxZ) {
                                 maxZ = zIndex;
         topmostModal = el;
                             }
@@ -93,7 +93,7 @@ object HtmlParserUtil {
 
                     // Any INPUT element is considered interactive.
                     // The specific type ('text', 'button', 'search', etc.) is determined later.
-        return INTERACTIVE_TAGS.has(tagName) ||
+    return INTERACTIVE_TAGS.has(tagName) ||
                            elem.hasAttribute('onclick') ||
                            style.cursor === 'pointer';
                 }
@@ -135,7 +135,7 @@ object HtmlParserUtil {
         let children = [];
                     // ALWAYS process children, regardless of whether the parent is interactive.
                     // This fixes the issue where an interactive container would hide its interactive children.
-        if (element.childNodes) {
+    if (element.childNodes) {
                         element.childNodes.forEach(child => {
                             if (child.nodeType === Node.ELEMENT_NODE) {
                                 const simplifiedChild = simplifyNode(child, depth + 1);
@@ -152,7 +152,7 @@ object HtmlParserUtil {
         const ownDescription = getNodeDescription(element).trim();
                     
                     // Pruning: If a node isn't interactive, has no text, and has no interactive children, it's just a layout div. Discard it.
-        if (!isItselfInteractive && !ownDescription && !hasInteractiveDescendant) {
+    if (!isItselfInteractive && !ownDescription && !hasInteractiveDescendant) {
                         return flatChildren;
                     }
         const tagName = element.tagName.toUpperCase();
@@ -204,7 +204,7 @@ object HtmlParserUtil {
             
             // The result from the new script is a list (or a single root object in a list)
             // We can wrap it in a root node for consistency with the old structure if needed
-        val rootChildren = result.tree ?: emptyList()
+    val rootChildren = result.tree ?: emptyList()
         return ComputerPageInfoNode(
                 interactionId = null,
                 type = "container",

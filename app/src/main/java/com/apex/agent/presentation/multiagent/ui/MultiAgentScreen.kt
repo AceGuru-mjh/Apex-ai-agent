@@ -24,6 +24,7 @@ import com.apex.agent.presentation.multiagent.state.MultiAgentPageState
 import com.apex.agent.presentation.multiagent.action.MultiAgentPresets
 import com.apex.ui.mascot.AuraMascotView
 import com.ai.assistance.aiterminal.terminal.mascot.AuraMascot
+import com.apex.agent.core.multiagent.TaskStatus
 
 /**
  * 多 Agent 协作界面(Android 独立界面)。

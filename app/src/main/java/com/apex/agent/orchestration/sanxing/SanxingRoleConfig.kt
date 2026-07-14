@@ -14,7 +14,7 @@ data class SanxingRoleConfig(
     val defaultModel: String,
     val provider: String = "openai",
     val endpoint: String = "https://api.openai.com/v1/chat/completions",
-        val temperature: Double = 0.5,
+    val temperature: Double = 0.5,
     val topP: Double = 0.95,
     val maxTokens: Int = 4096,
     val permissionTags: Set<String> = DEFAULT_PERMISSIONS,

@@ -44,23 +44,24 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     @Serializable
     data class ColdStartMetrics(
         var criticalPathMs: Long = 0,            // 主线程阻塞时�?(优化1)
-        var backgroundInitMs: Long = 0,          // 后台初始化总耗时 (优化1)
-        var sampleCount: Int = 0,                // 采样次数
-        var improvedSinceLast: Boolean = false
+    var backgroundInitMs: Long = 0,          // 后台初始化总耗时 (优化1)
+    var sampleCount: Int = 0,                // 采样次数
+    var improvedSinceLast: Boolean = false
     )
 
     @Serializable
     data class ConcurrencyMetrics(
         var sequentialPhaseTotalMs: Long = 0,    // 若为顺序执行的预计总耗时
-        var actualPhaseTotalMs: Long = 0,        // 实际并行执行总耗时
-        var taskCount: Int = 0,                  // 总任务数
-        var speedupRatio: Double = 0.0           // 加速比 = sequential / actual
+    var actualPhaseTotalMs: Long = 0,        // 实际并行执行总耗时
+    var taskCount: Int = 0,                  // 总任务数
+    var speedupRatio: Double = 0.0           // 加速比 = sequential / actual
     )
 
     @Serializable
     data class CacheMetrics(
         var cacheHits: Long = 0,                  // 缓存命中次数 (优化3)
-        var cacheMisses: Long = 0,                // 缓存未命中次�?        var cacheSize: Int = 0                    // 当前缓存大小
+    var cacheMisses: Long = 0,                // 缓存未命中次�?
+    var cacheSize: Int = 0                    // 当前缓存大小
     ) {
         val hitRate: Double get() {
             val total = cacheHits + cacheMisses
@@ -70,8 +71,9 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
 
     @Serializable
     data class SerializationMetrics(
-        var serializationCount: Long = 0,        // 序列化次�?        var totalSerializationTimeNs: Long = 0,  // 累计序列化耗时
-        var deserializationCount: Long = 0,
+        var serializationCount: Long = 0,        // 序列化次�?
+    var totalSerializationTimeNs: Long = 0,  // 累计序列化耗时
+    var deserializationCount: Long = 0,
         var totalDeserializationTimeNs: Long = 0
     ) {
         val avgSerializationNs: Long get() =
@@ -101,7 +103,6 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // 内部存储
     // ========================================================================
-
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val coldStart = ColdStartMetrics()
@@ -137,7 +138,6 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
 
     // ========================================================================
     // [优化1] 冷启动关键路径追�?    // ========================================================================
-
     fun beginColdStart() {
         _criticalPathStart.set(System.currentTimeMillis())
         AppLogger.d(TAG, "�?开始测量冷启动关键路径 [优化1]")
@@ -164,7 +164,6 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // [优化2] 并发执行效率追踪
     // ========================================================================
-
     fun recordPhaseExecution(
         phaseName: String,
         sequentialTotalMs: Long,   // 如果顺序执行预计耗时
@@ -186,7 +185,6 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
 
     // ========================================================================
     // [优化3] 缓存命中率追�?(�?AIServiceFactory 调用�?    // ========================================================================
-
     fun recordCacheHit() {
         cache.cacheHits++
     }
@@ -202,7 +200,6 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // [优化4] kotlinx.serialization 性能监控
     // ========================================================================
-
     fun <T> measureSerialization(block: () -> T): T {
         val start = System.nanoTime()
         val result = block()
@@ -222,7 +219,6 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // 内存监控 (周期性采样）
     // ========================================================================
-
     private fun startPeriodicMemoryMonitor() {
         scope.launch {
             while (true) {
@@ -254,9 +250,9 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
     // ========================================================================
     // 报告输出
     // ========================================================================
-
     fun reportHealth(): String {
-        sampleMemory() // 采样最新内�?        val snapshot = HealthSnapshot(
+        sampleMemory() // 采样最新内�?
+    val snapshot = HealthSnapshot(
             coldStart = coldStart,
             concurrency = concurrency,
             cache = cache,
@@ -308,7 +304,8 @@ class ArchitectureHealthCheck private constructor(private val context: Context) 
         return report
     }
 
-    // 获取结构化快�?(供调�?UI 使用�?    fun getSnapshot(): HealthSnapshot {
+    // 获取结构化快�?(供调�?UI 使用�?
+    fun getSnapshot(): HealthSnapshot {
         sampleMemory()
         return HealthSnapshot(
             coldStart = coldStart,

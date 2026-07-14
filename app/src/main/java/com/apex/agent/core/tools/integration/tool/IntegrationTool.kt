@@ -8,6 +8,7 @@ import com.apex.agent.core.tools.ToolResultData
 import com.apex.agent.core.tools.StringResultData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * 统一集成管理工具 —�?AI Agent 通过此工具管理所有集成源

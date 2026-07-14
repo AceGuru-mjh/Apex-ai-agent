@@ -57,19 +57,21 @@ object ModelListFetcher {
                     ApiProviderType.ANTHROPIC_GENERIC -> "${extractBaseUrl(apiEndpoint)}/v1/models"
                     ApiProviderType.GOOGLE,
                     ApiProviderType.GEMINI_GENERIC -> {
-                        // 对于Gemini API，直接使用提供的端点或默认端                       if (apiEndpoint.contains("generativelanguage.googleapis.com")) {
-                            // 如果端点已经是模型列表URL，直接使                           if (apiEndpoint.endsWith("/models")) {
+                        // 对于Gemini API，直接使用提供的端点或默认端
+    if (apiEndpoint.contains("generativelanguage.googleapis.com")) {
+                            // 如果端点已经是模型列表URL，直接使
+    if (apiEndpoint.endsWith("/models")) {
                                 apiEndpoint
                             } else {
                                 // 否则构造标准模型列表URL
-                                val version = if (apiEndpoint.contains("/v1/")) "v1" else "v1beta"
+    val version = if (apiEndpoint.contains("/v1/")) "v1" else "v1beta"
                                 "https://generativelanguage.googleapis.com/${version}/models"
                             }
                         } else if (apiEndpoint.contains("aiplatform.googleapis.com") ||
                                         apiEndpoint.contains("vertex")
                         ) {
                             // Vertex AI格式
-                            val projectMatch = Regex("projects/([^/]+)").find(apiEndpoint)
+    val projectMatch = Regex("projects/([^/]+)").find(apiEndpoint)
                             val locationMatch = Regex("locations/([^/]+)").find(apiEndpoint)
 
                             if (projectMatch != null && locationMatch != null) {
@@ -130,18 +132,19 @@ object ModelListFetcher {
             val url = URL(fullUrl)
             val path = url.path
 
-            // 查找版本路径，例?v1, /v2
-            val versionPathRegex = Regex("/v\\d+")
+            // 查找版本路径，例v1, /v2
+    val versionPathRegex = Regex("/v\\d+")
             val match = versionPathRegex.find(path)
 
             if (match != null) {
                 // 截取到版本路径之前的部分
-                val pathBeforeVersion = path.substring(0, match.range.first)
+    val pathBeforeVersion = path.substring(0, match.range.first)
                 val finalUrl = "${url.protocol}://${url.authority}${pathBeforeVersion}"
                 AppLogger.d(TAG, "，的${fullUrl} 提取基本URL: ${finalUrl} (找到版本路径 ${match.value})")
                 finalUrl
             } else {
-                // 如果找不到版本路径，则返回原始URL的主机部分，这通常是安全的备选方               val finalUrl = "${url.protocol}://${url.authority}"
+                // 如果找不到版本路径，则返回原始URL的主机部分，这通常是安全的备选方
+    val finalUrl = "${url.protocol}://${url.authority}"
                 AppLogger.d(TAG, "，的${fullUrl} 提取基本URL: ${finalUrl} (未找到版本路)
                 finalUrl
             }
@@ -194,7 +197,7 @@ object ModelListFetcher {
                     }
 
                     // 根据提供商类型获取模型列表URL
-                    val modelsUrl = getModelsListUrl(completedEndpoint, apiProviderType)
+    val modelsUrl = getModelsListUrl(completedEndpoint, apiProviderType)
                     val providerRequiresApiKey =
                             ApiProviderConfigs.requiresApiKey(apiProviderType, completedEndpoint)
                     AppLogger.d(TAG, "准备发送请求到: ${modelsUrl}, 尝试次数: ${retryCount + 1}/${maxRetries + 1}")
@@ -204,11 +207,12 @@ object ModelListFetcher {
                                     .url(modelsUrl)
                                     .addHeader("Content-Type", "application/json")
 
-                    // 根据不同供应商添加不同的认证                   when (apiProviderType) {
+                    // 根据不同供应商添加不同的认证
+    when (apiProviderType) {
                         ApiProviderType.GOOGLE,
                         ApiProviderType.GEMINI_GENERIC -> {
                             // Google Gemini API 使用 API 密钥作为查询参数
-                            val urlWithKey =
+    val urlWithKey =
                                     if (modelsUrl.contains("?")) {
                                         "${modelsUrl}&key=${apiKey}"
                                     } else {
@@ -303,7 +307,8 @@ object ModelListFetcher {
                             "收到响应: ${responseBody.take(200)}${if (responseBody.length > 200) "..." else ""}"
                     )
 
-                    // 根据提供商类型解析响                   val modelOptions =
+                    // 根据提供商类型解析响
+    val modelOptions =
                             try {
                                 when (apiProviderType) {
                                     ApiProviderType.OPENAI,
@@ -345,7 +350,8 @@ object ModelListFetcher {
                     AppLogger.d(TAG, "网络超时，尝试重，的${retryCount}/${maxRetries}")
 
                     if (retryCount <= maxRetries) {
-                        // 指数退避重                       val delayTime = 1000L * retryCount
+                        // 指数退避重
+    val delayTime = 1000L * retryCount
                         AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。
                         delay(delayTime)
                     }
@@ -369,7 +375,8 @@ object ModelListFetcher {
                     AppLogger.e(TAG, "获取模型列表失败: ${e.message}", e)
 
                     if (retryCount <= maxRetries) {
-                        // 指数退避重                       val delayTime = 1000L * retryCount
+                        // 指数退避重
+    val delayTime = 1000L * retryCount
                         AppLogger.d(TAG, "延迟 ${delayTime}ms 后重。
                         delay(delayTime)
                     }
@@ -407,7 +414,7 @@ object ModelListFetcher {
         }
 
         // 按照模型名称排序
-        return modelList.sortedBy { it.id }
+    return modelList.sortedBy { it.id }
     }
 
     /** 解析Anthropic格式的模型响应 */
@@ -457,7 +464,8 @@ object ModelListFetcher {
         try {
             val jsonObject = JSONObject(jsonResponse)
 
-            // 检查是否包含models"字段（Gemini API格式           if (jsonObject.has("models")) {
+            // 检查是否包含models"字段（Gemini API格式
+    if (jsonObject.has("models")) {
                 val modelsArray = jsonObject.getJSONArray("models")
                 AppLogger.d(TAG, "解析Google Gemini API格式响应: 发现 ${modelsArray.length()} 个模型）
 
@@ -468,7 +476,7 @@ object ModelListFetcher {
                     val baseModelId = modelObj.optString("baseModelId", "")
 
                     // 只添加支持generateContent的模型，通过检查supportedGenerationMethods字段
-                    val supportedMethods =
+    val supportedMethods =
                             try {
                                 if (modelObj.has("supportedGenerationMethods")) {
                                     val methods =
@@ -483,10 +491,9 @@ object ModelListFetcher {
                                 }
                             } catch (e: Exception) {
                                 listOf("generateContent") // 出错时默认支                           }
-
-                    if (supportedMethods.contains("generateContent")) {
+    if (supportedMethods.contains("generateContent")) {
                         // 使用基本模型ID作为下拉列表中的选项
-                        val finalId = if (baseModelId.isNotEmpty()) baseModelId else id
+    val finalId = if (baseModelId.isNotEmpty()) baseModelId else id
                         modelList.add(ModelOption(id = finalId, name = displayName))
                     }
                 }
@@ -509,7 +516,7 @@ object ModelListFetcher {
                     val displayName = modelObj.optString("displayName", id)
 
                     // 过滤只添加Gemini模型
-                    if (id.contains("gemini")) {
+    if (id.contains("gemini")) {
                         modelList.add(ModelOption(id = id, name = displayName))
                     }
                 }
@@ -544,14 +551,16 @@ object ModelListFetcher {
                 }
                 
                 // 遍历所有模型文件夹
-                val models = modelsDir.listFiles { file -> 
+    val models = modelsDir.listFiles { file -> 
                     file.isDirectory
                 }?.mapNotNull { folder ->
-                    // 在文件夹中查，llm.mnn 主文                   val mnnFile = File(folder, "llm.mnn")
+                    // 在文件夹中查，llm.mnn 主文
+    val mnnFile = File(folder, "llm.mnn")
                     val mnnWeightFile = File(folder, "llm.mnn.weight")
                     
                     if (mnnFile.exists()) {
-                        // 计算文件夹总大                       val totalSize = folder.listFiles()?.sumOf { it.length() } ?: 0L
+                        // 计算文件夹总大
+    val totalSize = folder.listFiles()?.sumOf { it.length() } ?: 0L
                         
                         AppLogger.d(TAG, "找到MNN模型: ${folder.name}, 主文${mnnFile.exists()}, 权重文件: ${mnnWeightFile.exists()}, 总大${formatFileSize(totalSize)}")
                         
@@ -576,7 +585,7 @@ object ModelListFetcher {
 
     suspend fun getLlamaLocalModels(context: Context): Result<List<ModelOption>> {
         // 本地 llama.cpp 推理已移除，返回空列表
-        return Result.success(emptyList())
+    return Result.success(emptyList())
     }?.map { file ->
                     ModelOption(
                         id = file.name,

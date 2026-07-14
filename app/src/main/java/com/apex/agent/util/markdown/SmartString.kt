@@ -35,7 +35,7 @@ class SmartString(initialContent: String = "") {
     operator fun plus(char: Char): SmartString {
         builder.append(char)
         cachedString = null // 标记缓存失效
-        return this
+    return this
     }
     
     /**
@@ -46,7 +46,7 @@ class SmartString(initialContent: String = "") {
         val currentLength = builder.length
         
         // 如果长度没变且有缓存，直接返回缓字
-        if (currentLength == lastLength && cachedString != null) {
+    if (currentLength == lastLength && cachedString != null) {
             return requireNotNull(cachedString)
         }
         

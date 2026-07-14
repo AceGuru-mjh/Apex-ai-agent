@@ -359,7 +359,7 @@ class InputValidator(
         val NOT_EMPTY = ValidationRule("not_empty", { it.isNotBlank() }, "Value must not be empty")
         val EMAIL = ValidationRule("email", { it.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) }, "Invalid email format")
         val URL = ValidationRule("url", { it.matches(Regex("^https?://[\\w.-]+(:\\d+)?(/.*)?$")) }, "Invalid URL format")
-        val ALPHANUMERIC = ValidationRule("alphanumeric", { it.matches(Regex("^[a-zA-Z0-9_]+$")) }, "Only alphanumeric characters and underscores allowed")
+    val ALPHANUMERIC = ValidationRule("alphanumeric", { it.matches(Regex("^[a-zA-Z0-9_]+$")) }, "Only alphanumeric characters and underscores allowed")
         val NUMERIC = ValidationRule("numeric", { it.matches(Regex("^\\d+$")) }, "Must be numeric")
         val NO_HTML = ValidationRule("no_html", { !it.contains(Regex("<[^>]*>")) }, "HTML tags not allowed")
         val NO_WHITESPACE = ValidationRule("no_whitespace", { !it.contains(Regex("\\s")) }, "Whitespace not allowed")

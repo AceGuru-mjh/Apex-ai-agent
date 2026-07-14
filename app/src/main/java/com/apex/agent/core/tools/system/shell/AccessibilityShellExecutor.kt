@@ -13,6 +13,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf
+import com.apex.agent.core.tools.system.shell.AccessibilityShellProcess
+import com.apex.agent.core.tools.system.shell.PermissionStatus
+import com.apex.agent.core.tools.system.shell.ShellProcess
 
 /**
  * 基于无障碍服务的Shell命令执行。实现ACCESSIBILITY权限级别的命令执�?*
@@ -60,7 +63,8 @@ class AccessibilityShellExecutor(private val context: Context) : ShellExecutor {
             return
         }
 
-        // 引导用户打开无障碍服务设�?       try {
+        // 引导用户打开无障碍服务设�?
+    try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)

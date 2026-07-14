@@ -51,7 +51,7 @@ data class ExportFilter(
     val startDate: Long? = null,
     val endDate: Long? = null,
     val roles: Set<String> = emptySet(),  // 空=全部
-        val searchQuery: String? = null,
+    val searchQuery: String? = null,
     val tags: Set<String> = emptySet()
 )
 
@@ -149,7 +149,7 @@ class ConversationExporter {
     }
 
     // ============ 格式实现 ============
-        private fun exportToMarkdown(
+    private fun exportToMarkdown(
         messages: List<ExportMessage>,
         title: String,
         options: ExportOptions
@@ -360,13 +360,13 @@ class ConversationExporter {
         options: ExportOptions
     ): String {
         // PDF 生成需要专门库（如 iText/PDFBox），这里返回 HTML 作为占位
-        return exportToHtml(messages, title, options).also {
+    return exportToHtml(messages, title, options).also {
             // 添加 PDF 提示
         }
     }
 
     // ============ 辅助方法 ============
-        private fun applyFilter(messages: List<ExportMessage>, filter: ExportFilter): List<ExportMessage> {
+    private fun applyFilter(messages: List<ExportMessage>, filter: ExportFilter): List<ExportMessage> {
         return messages.filter { msg ->
             (filter.startDate == null || msg.timestamp >= filter.startDate) &&
             (filter.endDate == null || msg.timestamp <= filter.endDate) &&

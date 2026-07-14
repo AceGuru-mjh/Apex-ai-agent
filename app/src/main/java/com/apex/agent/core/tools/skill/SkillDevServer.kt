@@ -465,7 +465,7 @@ private fun executeTool(toolName: String, body: String): Response {
         val request = if (body.isNullOrBlank()) null else JSONObject(body)
 
         // 通过注入的 toolExecutor 执行真实工具调用；如果未注入则返回占位响应。
-        val executor = toolExecutor
+    val executor = toolExecutor
         if (executor != null) {
             val result = kotlinx.coroutines.runBlocking { executor.execute(toolName, request) }
             val json = JSONObject()
@@ -478,7 +478,7 @@ private fun executeTool(toolName: String, body: String): Response {
             jsonResponse(json)
         } else {
             // 未注入 executor：返回明确的占位响应，提示集成方向
-            val json = JSONObject()
+    val json = JSONObject()
             json.put("toolName", toolName)
             json.put("success", false)
             json.put("message", "Tool execution placeholder - inject ToolExecutor via setToolExecutor() for actual execution")

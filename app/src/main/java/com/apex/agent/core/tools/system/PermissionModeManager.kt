@@ -16,6 +16,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.agent.core.tools.system.RootAuthorizer
+import com.apex.agent.core.tools.system.RootDetectionResult
+import com.apex.agent.core.tools.system.SELinuxStatus
+import com.apex.agent.core.tools.system.ShizukuDetectionResult
 
 /**
  * 权限模式管理�?- 统一管理所有权限模式的检测、状态、切�?
@@ -25,7 +29,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     companion object {
         private const val TAG = "PermissionModeManager"
         private const val DETECTION_CACHE_DURATION = 30000L // 30�?
-        private const val AUTO_CHECK_INTERVAL = 60000L // 1分钟
+    private const val AUTO_CHECK_INTERVAL = 60000L // 1分钟
 
         @Volatile
         private var instance: PermissionModeManager? = null
@@ -144,7 +148,7 @@ class PermissionModeManager private constructor(private val context: Context) {
             checkShizuku(forceRefresh)
 
             // 检测其他模�?
-            for (mode in PermissionMode.values()) {
+    for (mode in PermissionMode.values()) {
                 if (mode == PermissionMode.ROOT || mode == PermissionMode.SHIZUKU) {
                     // Root �?Shizuku 已单独检�?
                     continue
@@ -250,8 +254,7 @@ class PermissionModeManager private constructor(private val context: Context) {
     private fun checkDebuggerMode(timestamp: Long): PermissionModeState {
         val isAvailable = true
         val isGranted = true // 调试模式总是可用
-
-        return PermissionModeState(
+    return PermissionModeState(
             mode = PermissionMode.DEBUGGER,
             isAvailable = isAvailable,
             isGranted = isGranted,
@@ -335,14 +338,14 @@ class PermissionModeManager private constructor(private val context: Context) {
 
         val result = try {
             // 使用 RootAuthorizer 检�?
-            val isRooted = RootAuthorizer.isDeviceRooted()
+    val isRooted = RootAuthorizer.isDeviceRooted()
             val hasRootAccess = RootAuthorizer.hasRootAccess()
 
             // 检�?Root 方案
-            val rootScheme = detectRootScheme()
+    val rootScheme = detectRootScheme()
 
             // 检�?SELinux 状�?
-            val seLinuxStatus = detectSELinuxStatus()
+    val seLinuxStatus = detectSELinuxStatus()
 
             RootDetectionResult(
                 isRooted = isRooted,

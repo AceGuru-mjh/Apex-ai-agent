@@ -185,14 +185,14 @@ class ConversationGameEngine {
         val updatedHistory = session.history + updatedMove
 
         // 更新分数
-        val updatedScore = if (result is MoveResult.Correct) {
+    val updatedScore = if (result is MoveResult.Correct) {
             session.score.toMutableMap().apply {
                 this[player] = (this[player] ?: 0) + result.points
             }.toMap()
         } else session.score
 
         // 检查游戏结束
-        val newRound = if (result is MoveResult.Correct || result is MoveResult.Victory) {
+    val newRound = if (result is MoveResult.Correct || result is MoveResult.Victory) {
             session.round + 1
         } else session.round
 
@@ -204,7 +204,7 @@ class ConversationGameEngine {
         }
 
         // 切换玩家
-        val nextPlayer = if (players > 1) {
+    val nextPlayer = if (players > 1) {
             val idx = session.players.indexOf(player)
             session.players[(idx + 1) % session.players.size]
         } else player
@@ -322,7 +322,6 @@ class ConversationGameEngine {
     }
 
     // ============ 游戏处理器 ============
-
     private fun handleRiddleInput(session: GameSession, player: String, input: String): MoveResult {
         val q = session.gameData["currentQuestion"] as? Question ?: return MoveResult.Continue("无题目")
         return if (input.trim().equals(q.answer, ignoreCase = true)) {
@@ -354,7 +353,7 @@ class ConversationGameEngine {
             }
             input.contains("?") || input.contains("？") -> {
                 // 是/否问题
-                val answer = if (target.length > 3) "不，不是" else "是的"
+    val answer = if (target.length > 3) "不，不是" else "是的"
                 MoveResult.Continue(answer)
             }
             else -> MoveResult.Continue("请提问是/否问题")
@@ -391,7 +390,7 @@ class ConversationGameEngine {
 
     private fun handleTextAdventure(session: GameSession, player: String, input: String): MoveResult {
         // 简化的文字冒险
-        val scenes = mapOf(
+    val scenes = mapOf(
             "十字路口" to "你选择往${input}走，前方出现了...",
             "森林" to "你进入了森林，听到奇怪的声音...",
             "城堡" to "你来到一座古堡前，门虚掩着..."
@@ -424,7 +423,6 @@ class ConversationGameEngine {
     }
 
     // ============ 初始化 ============
-
     private fun initializeGameData(type: GameType): Map<String, Any> {
         return when (type) {
             GameType.RIDDLE -> mapOf("currentQuestion" to questionBank.filter { it.category == "riddle" }.randomOrNull() ?: Question("1", "riddle", 1, "?", "?"))

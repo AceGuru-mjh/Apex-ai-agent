@@ -2,6 +2,11 @@ package com.apex.agent.core.multiagent
 
 import com.apex.util.AppLogger
 import java.util.UUID
+import com.apex.agent.orchestration.pipeline.ImplementerAgent
+import com.apex.agent.orchestration.pipeline.PlannerAgent
+import com.apex.agent.orchestration.pipeline.ResearchAgent
+import com.apex.agent.orchestration.pipeline.ReviewerAgent
+import com.apex.agent.orchestration.pipeline.ValidatorAgent
 
 /**
  * 管道阶段枚举
@@ -127,7 +132,8 @@ class StagedAgentPipeline {
         )
 
         try {
-            // 按阶段顺序执�?           val stages = PipelineStage.entries.toList()
+            // 按阶段顺序执�?
+    val stages = PipelineStage.entries.toList()
             var currentStageIndex = 0
 
             while (currentStageIndex < stages.size) {
@@ -144,7 +150,7 @@ class StagedAgentPipeline {
                 }
 
                 // 执行阶段
-                val stageResult = executeStage(stageAgent, context)
+    val stageResult = executeStage(stageAgent, context)
                 context.stageResults.add(stageResult)
 
                 progressListener?.onStageCompleted(stage, stageResult)
@@ -152,7 +158,8 @@ class StagedAgentPipeline {
                 if (!stageResult.success) {
                     AppLogger.w(TAG, "阶段执行失败: ${stage.displayName}, 错误: ${stageResult.error}")
 
-                    // 验证阶段失败时回退到实现阶�?                   if (stage == PipelineStage.VALIDATE && context.shouldContinueLoop()) {
+                    // 验证阶段失败时回退到实现阶�?
+    if (stage == PipelineStage.VALIDATE && context.shouldContinueLoop()) {
                         AppLogger.i(TAG, "验证失败，回退到实现阶段，当前循环: ${context.loopCount}")
                         progressListener?.onLoopBacktrack(context.loopCount + 1)
 
@@ -168,7 +175,8 @@ class StagedAgentPipeline {
                 currentStageIndex++
             }
 
-            // 所有阶段完�?           val finalOutput = generateFinalOutput(context)
+            // 所有阶段完�?
+    val finalOutput = generateFinalOutput(context)
             val totalDuration = System.currentTimeMillis() - startTime
             val totalTokenCost = context.stageResults.sumOf { it.tokenCost }
 

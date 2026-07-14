@@ -21,7 +21,7 @@ class EmotionAnalyzer(private val context: Context) {
         val emotionProfile = EmotionProfile()
         
         // 过滤用户消息
-        val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         if (userMessages.isEmpty()) return@withContext emotionProfile
         
         // 分析情绪
@@ -46,7 +46,8 @@ class EmotionAnalyzer(private val context: Context) {
     private fun analyzeEmotions(messages: List<ChatMessage>, profile: EmotionProfile) {
         val emotionScores = mutableMapOf<String, Int>()
         
-        // 情绪关键�?      val emotionKeywords = mapOf(
+        // 情绪关键�?
+    val emotionKeywords = mapOf(
             "开�?to listOf("开�? "高兴", "快乐", "喜悦", "兴奋", "愉快", "欢乐", "欣喜"),
             "伤心" to listOf("伤心", "难过", "悲伤", "痛苦", "沮丧", "失落", "绝望", "悲痛"),
             "愤�?to listOf("愤�? "生气", "恼火", "愤�? "气愤", "暴，, "恼，),
@@ -107,16 +108,17 @@ class EmotionAnalyzer(private val context: Context) {
     private fun calculateEmotionIntensity(content: String): Int {
         var intensity = 0
         
-        // 强度关键�?      val intensityKeywords = listOf(
+        // 强度关键�?
+    val intensityKeywords = listOf(
             "非常", "特别", "�? "超级", "极其", "十分", "相当", "特别", "极其"
         )
         
         // 感叹号和问号
-        val exclamationCount = content.count { it == '!' }
+    val exclamationCount = content.count { it == '!' }
         val questionCount = content.count { it == '?' }
         
         // 计算强度
-        for (keyword in intensityKeywords) {
+    for (keyword in intensityKeywords) {
             if (content.contains(keyword)) {
                 intensity += 2
             }
@@ -268,7 +270,7 @@ class EmotionAnalyzer(private val context: Context) {
         val profile = analyzeEmotion(messages)
         
         // 紧急情绪：高强度的负面情绪
-        val urgentEmotions = listOf("伤心", "愤�? "焦虑")
+    val urgentEmotions = listOf("伤心", "愤�? "焦虑")
         urgentEmotions.contains(profile.dominantEmotion) && profile.avgEmotionIntensity > 6
     }
 }

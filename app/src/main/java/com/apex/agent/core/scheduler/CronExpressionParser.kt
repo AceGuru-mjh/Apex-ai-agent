@@ -3,6 +3,7 @@ package com.apex.agent.core.scheduler
 import com.apex.util.AppLogger
 import java.util.Calendar
 import java.util.regex.Pattern
+import com.apex.agent.core.scheduler.TimeDescription
 
 /**
  * 自然语言 Cron 表达式解析器
@@ -85,29 +86,32 @@ class CronExpressionParser {
     /**
      * 解析自然语言为时间描�?     */
     private fun parseNaturalLanguage(input: String): TimeDescription {
-        // 每分�?        if (input.contains("每分�?) || input == "every minute") {
+        // 每分�?
+    if (input.contains("每分�?) || input == "every minute") {
             return TimeDescription(intervalMinutes = 1)
         }
         
         // �?N 分钟
-        val minutePattern = Regex("�?\\d+)\\s*分钟")
+    val minutePattern = Regex("�?\\d+)\\s*分钟")
         minutePattern.find(input)?.let {
             val minutes = it.groupValues[1].toInt()
             return TimeDescription(intervalMinutes = minutes)
         }
         
-        // 每小�?        if (input.contains("每小�?) || input.contains("每小�?) || input == "every hour") {
+        // 每小�?
+    if (input.contains("每小�?) || input.contains("每小�?) || input == "every hour") {
             return TimeDescription(minute = 0)
         }
         
         // �?N 小时
-        val hourPattern = Regex("�?\\d+)\\s*小时")
+    val hourPattern = Regex("�?\\d+)\\s*小时")
         hourPattern.find(input)?.let {
             val hours = it.groupValues[1].toInt()
             return TimeDescription(intervalHours = hours)
         }
         
-        // 每周�?        val weekdayPattern = Regex("每周([一二三四五六日天])?[早中晚]?上\\s*(\\d+)?[�?]?(\\d+)?")
+        // 每周�?
+    val weekdayPattern = Regex("每周([一二三四五六日天])?[早中晚]?上\\s*(\\d+)?[�?]?(\\d+)?")
         weekdayPattern.find(input)?.let { match ->
             val dayOfWeek = mapWeekday(input)
             val hour = match.groupValues[2].toIntOrNull() ?: 9
@@ -120,7 +124,7 @@ class CronExpressionParser {
         }
         
         // 每月几号
-        val monthDayPattern = Regex("每月(\\d+)[号日]?[早中晚]?上\\s*(\\d+)?[�?]?(\\d+)?")
+    val monthDayPattern = Regex("每月(\\d+)[号日]?[早中晚]?上\\s*(\\d+)?[�?]?(\\d+)?")
         monthDayPattern.find(input)?.let { match ->
             val dayOfMonth = match.groupValues[1]
             val hour = match.groupValues[2].toIntOrNull() ?: 0
@@ -132,7 +136,8 @@ class CronExpressionParser {
             )
         }
         
-        // 工作�?        if (input.contains("工作�?) || input.contains("平日")) {
+        // 工作�?
+    if (input.contains("工作�?) || input.contains("平日")) {
             val hourMinute = extractHourMinute(input)
             return TimeDescription(
                 hour = hourMinute.first,
@@ -142,7 +147,7 @@ class CronExpressionParser {
         }
         
         // 周末
-        if (input.contains("周末") || input.contains("周六�?)) {
+    if (input.contains("周末") || input.contains("周六�?)) {
             val hourMinute = extractHourMinute(input)
             return TimeDescription(
                 hour = hourMinute.first,
@@ -152,7 +157,7 @@ class CronExpressionParser {
         }
         
         // 每天定时 - 多种中文模式
-        val dailyPatterns = listOf(
+    val dailyPatterns = listOf(
             Regex("每天[早中晚]?上\\s*(\\d+)[�?](\\d+)"),
             Regex("每天\\s*(\\d+)[�?](\\d+)"),
             Regex("每天[早中晚]?上\\s*(\\d+)�?),
@@ -167,12 +172,13 @@ class CronExpressionParser {
             }
         }
         
-        // 每天默认 9 �?        if (input.contains("每天") || input.contains("�?) || input == "daily" || input == "every day") {
+        // 每天默认 9 �?
+    if (input.contains("每天") || input.contains("�?) || input == "daily" || input == "every day") {
             return TimeDescription(hour = 9, minute = 0)
         }
         
         // 早上/下午/晚上 + 小时
-        val timeOfDayPattern = Regex("(早上|上午|下午|晚上|中午|凌晨�?\\d+)[�?]?(\\d+)?")
+    val timeOfDayPattern = Regex("(早上|上午|下午|晚上|中午|凌晨�?\\d+)[�?]?(\\d+)?")
         timeOfDayPattern.find(input)?.let { match ->
             val timeOfDay = match.groupValues[1]
             val hour = match.groupValues[2].toInt()
@@ -182,7 +188,7 @@ class CronExpressionParser {
         }
         
         // HH:mm 格式
-        val timePattern = Regex("(\\d{1,2}):(\\d{2})")
+    val timePattern = Regex("(\\d{1,2}):(\\d{2})")
         timePattern.find(input)?.let { match ->
             val hour = match.groupValues[1].toInt()
             val minute = match.groupValues[2].toInt()
@@ -190,7 +196,7 @@ class CronExpressionParser {
         }
         
         // 默认: 每天 9 �?        AppLogger.w(TAG, "无法完全匹配表达式，使用默认每天 9 �? ${input}")
-        return TimeDescription(hour = 9, minute = 0)
+    return TimeDescription(hour = 9, minute = 0)
     }
     
     /**
@@ -236,7 +242,7 @@ class CronExpressionParser {
         }
         
         // 英文
-        val englishMap = mapOf(
+    val englishMap = mapOf(
             "monday" to "1", "tuesday" to "2", "wednesday" to "3",
             "thursday" to "4", "friday" to "5", "saturday" to "6",
             "sunday" to "0"
@@ -298,7 +304,8 @@ class CronExpressionParser {
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         
-        // 如果是间隔执�?        if (minuteStr.startsWith("*/")) {
+        // 如果是间隔执�?
+    if (minuteStr.startsWith("*/")) {
             val interval = minuteStr.substring(2).toInt()
             calendar.set(Calendar.MINUTE, (calendar.get(Calendar.MINUTE) / interval) * interval)
             return calendar.timeInMillis
@@ -312,14 +319,14 @@ class CronExpressionParser {
         }
         
         // 固定时间执行
-        val minute = minuteStr.toInt()
+    val minute = minuteStr.toInt()
         val hour = hourStr.toInt()
         
         calendar.set(Calendar.MINUTE, minute)
         calendar.set(Calendar.HOUR_OF_DAY, hour)
         
         // 如果时间已过,移到明天
-        if (calendar.timeInMillis <= System.currentTimeMillis()) {
+    if (calendar.timeInMillis <= System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
         
@@ -350,18 +357,21 @@ class CronExpressionParser {
     private fun validateField(value: String, min: Int, max: Int) {
         if (value == "*") return
         
-        // 间隔�?        if (value.startsWith("*/")) {
+        // 间隔�?
+    if (value.startsWith("*/")) {
             val interval = value.substring(2).toInt()
             if (interval < 1) throw IllegalArgumentException("间隔值必须大�?0")
             return
         }
         
-        // 列表�?        if (value.contains(",")) {
+        // 列表�?
+    if (value.contains(",")) {
             value.split(",").forEach { validateField(it.trim(), min, max) }
             return
         }
         
-        // 范围�?        if (value.contains("-")) {
+        // 范围�?
+    if (value.contains("-")) {
             val range = value.split("-")
             if (range.size != 2) throw IllegalArgumentException("无效的范�? ${value}")
             val start = range[0].toInt()
@@ -370,7 +380,8 @@ class CronExpressionParser {
             return
         }
         
-        // 单个�?        val intValue = value.toInt()
+        // 单个�?
+    val intValue = value.toInt()
         if (intValue < min || intValue > max) {
             throw IllegalArgumentException("值超出范�?[${min}-${max}]: ${value}")
         }
@@ -389,7 +400,7 @@ class CronExpressionParser {
         val dayOfWeekStr = parts[4]
         
         // 间隔执行
-        if (minuteStr.startsWith("*/")) {
+    if (minuteStr.startsWith("*/")) {
             val interval = minuteStr.substring(2)
             return "�?${interval} 分钟执行一�?
         }
@@ -400,12 +411,12 @@ class CronExpressionParser {
         }
         
         // 固定时间
-        val hour = hourStr.toInt()
+    val hour = hourStr.toInt()
         val minute = minuteStr.toInt()
         val timeStr = String.format("%02d:%02d", hour, minute)
         
         // 每周执行
-        if (dayOfWeekStr != "*") {
+    if (dayOfWeekStr != "*") {
             val dayNames = mapOf(
                 "0" to "周日", "1" to "周一", "2" to "周二",
                 "3" to "周三", "4" to "周四", "5" to "周五", "6" to "周六",
@@ -416,11 +427,11 @@ class CronExpressionParser {
         }
         
         // 每月执行
-        if (dayOfMonthStr != "*") {
+    if (dayOfMonthStr != "*") {
             return "每月 ${dayOfMonthStr}�?${timeStr} 执行"
         }
         
         // 每天执行
-        return "每天 ${timeStr} 执行"
+    return "每天 ${timeStr} 执行"
     }
 }

@@ -30,7 +30,7 @@ class WorkflowValidator {
         val warnings = mutableListOf<ValidationWarning>()
 
         // 1. 基础结构校验
-        if (workflow.nodes.isEmpty()) {
+    if (workflow.nodes.isEmpty()) {
             errors.add(ValidationError.NoNodes)
             return ValidationResult(errors, warnings, emptyList())
         }
@@ -48,7 +48,7 @@ class WorkflowValidator {
         }
 
         // 3. 入口节点校验
-        val triggerNodes = workflow.getTriggerNodes()
+    val triggerNodes = workflow.getTriggerNodes()
         when {
             triggerNodes.isEmpty() -> {
                 errors.add(ValidationError.NoStartNode)
@@ -57,26 +57,26 @@ class WorkflowValidator {
         }
 
         // 4. 重复节点 ID
-        val idCounts = workflow.nodes.groupingBy { it.id }.eachCount()
+    val idCounts = workflow.nodes.groupingBy { it.id }.eachCount()
         idCounts.filter { it.value > 1 }.forEach { (id, count) ->
             errors.add(ValidationError.DuplicateNodeId(id, count))
         }
 
         // 5. 三色 DFS 环检测
-        val cycle = detectCycle(workflow)
+    val cycle = detectCycle(workflow)
         if (cycle != null) {
             errors.add(ValidationError.CycleDetected(cycle))
         }
 
         // 6. 可达性校验（BFS from triggers）
-        val reachable = bfsReachable(workflow, triggerNodes.map { it.id }.toSet())
+    val reachable = bfsReachable(workflow, triggerNodes.map { it.id }.toSet())
         val unreachable = workflow.nodes.filter { it.id !in reachable && it.type != EnhancedNodeType.TRIGGER }
         unreachable.forEach { node ->
             warnings.add(ValidationWarning.UnreachableNode(node.id, node.name))
         }
 
         // 7. FAN_OUT / FAN_IN 配对校验
-        val fanOutNodes = workflow.nodes.filter { it.type == EnhancedNodeType.FAN_OUT }
+    val fanOutNodes = workflow.nodes.filter { it.type == EnhancedNodeType.FAN_OUT }
         val fanInNodes = workflow.nodes.filter { it.type == EnhancedNodeType.FAN_IN }.map { it.id }.toSet()
         fanOutNodes.forEach { fo ->
             val downstream = findAllDownstream(workflow, fo.id)
@@ -86,14 +86,14 @@ class WorkflowValidator {
         }
 
         // 8. 悬空节点警告（非触发节点无入边）
-        val nodesWithIncoming = workflow.connections.map { it.targetNodeId }.toSet()
+    val nodesWithIncoming = workflow.connections.map { it.targetNodeId }.toSet()
         workflow.nodes.filter { it.type != EnhancedNodeType.TRIGGER && it.id !in nodesWithIncoming }
             .forEach { node ->
                 warnings.add(ValidationWarning.DanglingNode(node.id, node.name))
             }
 
         // 9. 拓扑排序（Kahn 算法）
-        val topologicalOrder = if (errors.isEmpty()) topologicalSort(workflow) else emptyList()
+    val topologicalOrder = if (errors.isEmpty()) topologicalSort(workflow) else emptyList()
 
         return ValidationResult(errors, warnings, topologicalOrder)
     }
@@ -136,7 +136,7 @@ class WorkflowValidator {
             if (color[node.id] == 0) {
                 if (dfs(node.id)) {
                     // 重建环路径
-                    val cycle = mutableListOf<String>()
+    val cycle = mutableListOf<String>()
                     var cur: String? = cycleEnd
                     while (cur != null && cur != cycleStart) {
                         cycle.add(cur)

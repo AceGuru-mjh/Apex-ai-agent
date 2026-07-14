@@ -150,7 +150,7 @@ class FestivalAwarenessSystem {
 
     private fun parseDate(pattern: String, cal: Calendar): Pair<Int, Int> {
         // 简化：仅支持 "M-D" 格式
-        val parts = pattern.split("-")
+    val parts = pattern.split("-")
         return if (parts.size == 2) (parts[0].toIntOrNull() ?: 1) to (parts[1].toIntOrNull() ?: 1) else 1 to 1
     }
 

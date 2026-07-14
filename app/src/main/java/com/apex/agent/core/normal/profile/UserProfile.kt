@@ -1,6 +1,7 @@
 package com.apex.agent.core.normal.profile
 
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.core.tools.javascript.not
 
 /**
  * F4: 用户偏好画像
@@ -213,7 +214,6 @@ class UserProfileManager {
     }
 
     // ============ 学习方法 ============
-
     private fun detectLanguages(message: String, known: List<String>): List<String> {
         val patterns = mapOf(
             "Python" to Regex("\\b(python|django|flask|pandas|numpy)\\b", RegexOption.IGNORE_CASE),
@@ -247,11 +247,11 @@ class UserProfileManager {
     private fun learnTraits(message: String, known: Map<String, String>): Map<String, String> {
         val traits = known.toMutableMap()
         // 检测时间偏好
-        if (message.contains("早上|上午|morning", true) && !"morning_person" in traits) {
+    if (message.contains("早上|上午|morning", true) && !"morning_person" in traits) {
             // 不自动设置，仅标记
         }
         // 检测代码偏好
-        if (message.contains("```") && "prefers_code" !in traits) {
+    if (message.contains("```") && "prefers_code" !in traits) {
             traits["prefers_code"] = "true"
         }
         return traits
@@ -260,7 +260,7 @@ class UserProfileManager {
     private fun inferLanguageStyle(message: String, current: LanguageStyle): LanguageStyle {
         var style = current
         // 推断正式度
-        if (current.formality == Formality.NEUTRAL) {
+    if (current.formality == Formality.NEUTRAL) {
             val casualMarkers = listOf("哈", "呀", "呢", "嘛", "lol", "btw", "haha")
             val formalMarkers = listOf("请问", "烦请", "敬请", "恳请", "respectfully")
             style = when {
@@ -272,7 +272,7 @@ class UserProfileManager {
             }
         }
         // 推断偏好语言
-        if (current.preferredLanguage.isBlank()) {
+    if (current.preferredLanguage.isBlank()) {
             val hasChinese = message.any { it.code in 0x4e00..0x9fff }
             val hasEnglish = message.any { it in 'a'..'z' || it in 'A'..'Z' }
             style = when {

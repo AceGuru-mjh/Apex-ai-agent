@@ -5,6 +5,12 @@ import com.apex.data.model.ChatMessage
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.emotion.EmotionCategory
+import com.apex.agent.core.emotion.EmotionDynamics
+import com.apex.agent.core.emotion.EmotionIntensity
+import com.apex.agent.core.emotion.EmotionPattern
+import com.apex.core.tools.javascript.not
+import com.apex.plugins.skill.PatternType
 
 class EnhancedEmotionAnalyzer(private val context: Context) {
         private val TAG = "EnhancedEmotionAnalyzer"

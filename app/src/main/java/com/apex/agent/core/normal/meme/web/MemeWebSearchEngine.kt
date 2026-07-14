@@ -52,9 +52,9 @@ class MemeWebSearchEngine(
      */
     suspend fun searchMeme(query: String, num: Int = 5, useCache: Boolean = true): MemeSearchResult {
         // 1. 检查缓存
-        if (useCache) {
+    if (useCache) {
             // 先查缓存（不指定引擎）
-        for (provider in registry.getAvailableProviders()) {
+    for (provider in registry.getAvailableProviders()) {
                 val cached = cache.getSearchResult(query, provider.name)
         if (cached != null && cached.success) {
                     return cached
@@ -63,7 +63,7 @@ class MemeWebSearchEngine(
         }
 
         // 2. 并发搜索所有可用引擎
-        val providers = registry.getAvailableProviders()
+    val providers = registry.getAvailableProviders()
         if (providers.isEmpty()) {
             return MemeSearchResult(
                 query = query, engine = "none", items = emptyList(),
@@ -97,11 +97,11 @@ class MemeWebSearchEngine(
         }
 
         // 3. 合并结果
-        val merged = mergeResults(query, results)
+    val merged = mergeResults(query, results)
         val finalResult = merged.copy(searchTimeMs = System.currentTimeMillis() - start)
 
         // 4. 缓存合并结果
-        if (useCache && finalResult.success) {
+    if (useCache && finalResult.success) {
             cache.putSearchResult(query, "merged", finalResult)
         }
         return finalResult
@@ -114,7 +114,7 @@ class MemeWebSearchEngine(
         if (query.length < 2) return emptyList()
 
         // 检查缓存
-        if (useCache) {
+    if (useCache) {
             for (provider in registry.getAvailableProviders()) {
                 val cached = cache.getSuggestions(query, provider.name)
         if (cached != null) return cached
@@ -137,7 +137,7 @@ class MemeWebSearchEngine(
         }
 
         // 过滤与排序：与查询词相关性高的优先
-        return allSuggestions
+    return allSuggestions
             .filter { it.contains(query, ignoreCase = true) || query.contains(it, ignoreCase = true) }
             .sortedBy { it.length }  // 短的优先（更可能是梗）
             .take(10)
@@ -149,7 +149,7 @@ class MemeWebSearchEngine(
      */
     suspend fun lookupMeme(query: String, useCache: Boolean = true): MemeWikiResult {
         // 检查缓存
-        if (useCache) {
+    if (useCache) {
             val cached = cache.getWiki(query)
         if (cached != null) return cached
         }
@@ -165,7 +165,7 @@ class MemeWebSearchEngine(
      */
     suspend fun getTrendingMemes(limit: Int = 10, useCache: Boolean = true): List<HotSearchProvider.TrendingMeme> {
         // 检查缓存
-        if (useCache) {
+    if (useCache) {
             val cached = cache.getHotSearch("trending_memes")
             @Suppress("UNCHECKED_CAST")
         if (cached != null) {
@@ -183,7 +183,7 @@ class MemeWebSearchEngine(
         val trending = hotSearchProvider.getTrendingMemes(limit)
 
         // 缓存
-        if (trending.isNotEmpty()) {
+    if (trending.isNotEmpty()) {
             val items = trending.map { t ->
                 HotSearchItem(0, t.title, t.hotScore, t.url, t.source)
             }
@@ -199,7 +199,7 @@ class MemeWebSearchEngine(
         val cacheKey = "hotsearch_${source}"
 
         // 检查缓存
-        if (useCache) {
+    if (useCache) {
             val cached = cache.getHotSearch(cacheKey)
         if (cached != null) return cached.take(limit)
         }
@@ -227,10 +227,10 @@ class MemeWebSearchEngine(
         val explanations = mutableListOf<MemeExplanation>()
 
         // 提取候选梗词（简化：连续的非空中文/英文片段）
-        val candidates = extractMemeCandidates(text)
+    val candidates = extractMemeCandidates(text)
         for (candidate in candidates) {
             // 先查缓存（已知的就不重复查）
-        val cached = cache.getWiki(candidate)
+    val cached = cache.getWiki(candidate)
         if (cached != null && cached.success) {
                 explanations.add(MemeExplanation(
                     term = candidate,
@@ -243,7 +243,7 @@ class MemeWebSearchEngine(
             }
 
             // 判断是否值得查询（短词、非通用词）
-        if (isLikelyMeme(candidate)) {
+    if (isLikelyMeme(candidate)) {
                 val wiki = lookupMeme(candidate)
         if (wiki.success) {
                     explanations.add(MemeExplanation(
@@ -296,7 +296,7 @@ class MemeWebSearchEngine(
     fun cleanupCache(): Int = cache.cleanupExpired()
 
     // ============ 内部方法 ============
-        private fun mergeResults(query: String, results: List<MemeSearchResult>): MemeSearchResult {
+    private fun mergeResults(query: String, results: List<MemeSearchResult>): MemeSearchResult {
         val allItems = mutableListOf<MemeSearchResultItem>()
         val engines = mutableListOf<String>()
         for (result in results) {
@@ -318,14 +318,14 @@ class MemeWebSearchEngine(
         }
 
         // 去重（按 URL）
-        val seen = mutableSetOf<String>()
+    val seen = mutableSetOf<String>()
         val deduped = allItems.filter { item ->
             val key = item.url.ifBlank { item.title }
         seen.add(key)
         }
 
         // 排序：标题/摘要包含查询词的优先
-        val queryLower = query.lowercase()
+    val queryLower = query.lowercase()
         val sorted = deduped.sortedWith(compareByDescending<MemeSearchResultItem> { item ->
             var score = 0
             if (item.title.contains(query, ignoreCase = true)) score += 3
@@ -346,13 +346,13 @@ class MemeWebSearchEngine(
     }
         private fun extractMemeCandidates(text: String): List<String> {
         // 提取候选词：英文缩写（2-6字母）、中文短语（2-4字）、特殊词
-        val candidates = mutableSetOf<String>()
+    val candidates = mutableSetOf<String>()
 
         // 英文缩写：连续 2-6 个字母，可能带数字
         Regex("\\b[A-Za-z]{2,6}\\d?\\b").findAll(text).forEach { m ->
             val word = m.value
             // 过滤常见英文单词
-        if (word.uppercase() == word && word.length in 2..6) {
+    if (word.uppercase() == word && word.length in 2..6) {
                 candidates.add(word)
             }
         }
@@ -363,7 +363,7 @@ class MemeWebSearchEngine(
         }
 
         // 已知梗模式
-        val knownPatterns = listOf("yyds", "绝绝子", "破防", "蚌埠", "栓Q", "芭比Q", "emo", "躺平", "摆烂", "卷王", "小镇做题家")
+    val knownPatterns = listOf("yyds", "绝绝子", "破防", "蚌埠", "栓Q", "芭比Q", "emo", "躺平", "摆烂", "卷王", "小镇做题家")
         knownPatterns.forEach { pattern ->
             if (text.contains(pattern, ignoreCase = true)) {
                 candidates.add(pattern)
@@ -376,15 +376,15 @@ class MemeWebSearchEngine(
     }
         private fun isLikelyMeme(term: String): Boolean {
         // 全大写英文缩写很可能是梗
-        if (term.uppercase() == term && term.length in 2..6 && term.any { it.isLetter() }) {
+    if (term.uppercase() == term && term.length in 2..6 && term.any { it.isLetter() }) {
             return true
         }
         // 包含梗相关字
-        if (term.containsAny("梗", "绝", "破", "蚌", "栓", "emo", "躺", "摆", "卷")) {
+    if (term.containsAny("梗", "绝", "破", "蚌", "栓", "emo", "躺", "摆", "卷")) {
             return true
         }
         // 短中文词
-        if (term.length in 2..4 && term.all { it.code in 0x4e00..0x9fff }) {
+    if (term.length in 2..4 && term.all { it.code in 0x4e00..0x9fff }) {
             return true
         }
         return false

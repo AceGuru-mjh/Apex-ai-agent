@@ -14,6 +14,7 @@ import java.io.FileOutputStream
 import java.net.URLClassLoader
 import java.util.concurrent.ConcurrentHashMap
 import java.util.zip.ZipInputStream
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 class SkillPluginLoader private constructor(private val context: Context) {
 
@@ -257,7 +258,7 @@ class SkillPluginLoader private constructor(private val context: Context) {
             while (entry != null) {
                 val outFile = File(destDir, entry.name)
                 // 防 Zip Slip 攻击: 确保解压目标路径在当前目录内
-                if (!outFile.canonicalPath.startsWith(destCanonical)) {
+    if (!outFile.canonicalPath.startsWith(destCanonical)) {
                     throw SecurityException("Zip Slip 攻击已拦截: ${entry.name}")
                 }
 

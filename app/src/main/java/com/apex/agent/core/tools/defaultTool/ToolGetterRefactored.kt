@@ -8,6 +8,9 @@ import com.apex.agent.core.tools.defaultTool.root.RootUIToolsRefactored
 import com.apex.agent.core.tools.defaultTool.standard.StandardUIToolsRefactored
 import com.apex.agent.core.tools.system.AndroidPermissionLevel
 import com.apex.agent.data.preferences.androidPermissionPreferences
+import com.apex.agent.core.tools.defaultTool.standard.StandardFFmpegConvertToolExecutor
+import com.apex.agent.core.tools.defaultTool.standard.StandardFFmpegInfoToolExecutor
+import com.apex.agent.core.tools.defaultTool.standard.StandardHttpTools
 
 /**
  * 工具获取器（重构版）

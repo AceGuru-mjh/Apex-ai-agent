@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class MemeCacheManager(
     private val defaultTtlMs: Long = 60 * 60_000L,        // 1 小时
-        private val suggestTtlMs: Long = 5 * 60_000L,          // 5 分钟
-        private val hotSearchTtlMs: Long = 30 * 60_000L,       // 30 分钟
-        private val maxEntries: Int = 500
+    private val suggestTtlMs: Long = 5 * 60_000L,          // 5 分钟
+    private val hotSearchTtlMs: Long = 30 * 60_000L,       // 30 分钟
+    private val maxEntries: Int = 500
 ) {
 
     private data class CacheEntry(
@@ -48,7 +48,7 @@ class MemeCacheManager(
         return null
         }
         // 标记来自缓存
-        return (entry.value as MemeSearchResult).copy(fromCache = true)
+    return (entry.value as MemeSearchResult).copy(fromCache = true)
     }
 
     /**
@@ -151,7 +151,7 @@ class MemeCacheManager(
     )
 
     // ============ 内部方法 ============
-        private fun put(key: String, value: Any, ttlMs: Long) {
+    private fun put(key: String, value: Any, ttlMs: Long) {
         cache[key] = CacheEntry(
             key = key,
             value = value,
@@ -166,7 +166,7 @@ class MemeCacheManager(
         if (cache.size <= maxEntries) return
 
         // LRU 淘汰：按最后访问时间排序，淘汰最久未访问的
-        val toRemove = cache.entries
+    val toRemove = cache.entries
             .sortedBy { it.value.lastAccessedAt }
             .take(cache.size - maxEntries)
             .map { it.key }

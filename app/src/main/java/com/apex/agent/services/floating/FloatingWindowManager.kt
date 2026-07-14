@@ -71,6 +71,7 @@ import com.apex.services.FloatingChatService
 import com.apex.ui.floating.FloatingChatWindow
 import com.apex.ui.floating.FloatingMode
 import com.apex.ui.floating.FloatingWindowTheme
+import com.apex.services.floating.TargetParams
 
 enum class StatusIndicatorStyle {
     FULLSCREEN_RAINBOW,
@@ -143,7 +144,7 @@ class FloatingWindowManager(
 
     companion object {
         // Private flag to disable window move animations
-        private const val PRIVATE_FLAG_NO_MOVE_ANIMATION = 0x00000040
+    private const val PRIVATE_FLAG_NO_MOVE_ANIMATION = 0x00000040
         private const val FULLSCREEN_BLUR_RADIUS_DP = 48
         private const val IME_FOCUS_DELAY_MS = 200L
         private const val IME_FOCUS_RETRY_DELAY_MS = 50L
@@ -529,7 +530,7 @@ class FloatingWindowManager(
                             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
                 
                 // 保持位置逻辑与球体类似，确保可见
-                val ballSizeInPx = (state.ballSize.value.value * density).toInt()
+    val ballSizeInPx = (state.ballSize.value.value * density).toInt()
                 val minVisible = ballSizeInPx / 2
                 state.x = state.x.coerceIn(-ballSizeInPx + minVisible, screenWidth - minVisible)
                 state.y = state.y.coerceIn(0, screenHeight - minVisible)
@@ -602,7 +603,7 @@ class FloatingWindowManager(
     private fun isAtEdge(x: Int, width: Int): Boolean {
         val screenWidth = context.resources.displayMetrics.widthPixels
         // A small tolerance to account for rounding errors or slight offsets
-        val tolerance = 5 
+    val tolerance = 5 
         return x <= tolerance || x >= screenWidth - width - tolerance
     }
 
@@ -654,8 +655,7 @@ class FloatingWindowManager(
         val willFullscreen = newMode == FloatingMode.FULLSCREEN || newMode == FloatingMode.SCREEN_OCR
 
         // 取消之前的动�?       sizeAnimator?.cancel()
-
-        val view = composeView ?: return
+    val view = composeView ?: return
         val currentParams = view.layoutParams as WindowManager.LayoutParams
 
         val displayMetrics = context.resources.displayMetrics
@@ -716,7 +716,7 @@ class FloatingWindowManager(
         }
 
         // 计算目标尺寸和位�?       data class TargetParams(
-            val width: Int,
+    val width: Int,
             val height: Int,
             val x: Int,
             val y: Int,
@@ -732,15 +732,16 @@ class FloatingWindowManager(
                     val ballSizeInPx = (state.ballSize.value.value * density).toInt()
                 
                 // 如果从全屏模式切换，球应该出现在屏幕右侧中间位置
-                val (newX, newY) = if (state.previousMode == FloatingMode.FULLSCREEN) {
-                    // 球出现在屏幕右侧，垂直居�?                   val rightX = screenWidth - ballSizeInPx
+    val (newX, newY) = if (state.previousMode == FloatingMode.FULLSCREEN) {
+                    // 球出现在屏幕右侧，垂直居�?
+    val rightX = screenWidth - ballSizeInPx
                     val centerY = (screenHeight - ballSizeInPx) / 2
                     Pair(rightX, centerY)
                 } else if (state.previousMode == FloatingMode.RESULT_DISPLAY) {
                     // 从结果展示模式切回时，直接恢复到原来的位�?                   Pair(state.lastBallPositionX, state.lastBallPositionY)
                 } else {
                     // 处理 MATCH_PARENT (-1) 的情况，使用实际屏幕尺寸
-                    val actualStartWidth = if (startWidth == WindowManager.LayoutParams.MATCH_PARENT) {
+    val actualStartWidth = if (startWidth == WindowManager.LayoutParams.MATCH_PARENT) {
                         screenWidth
                     } else {
                         startWidth
@@ -785,12 +786,12 @@ class FloatingWindowManager(
                     state.windowScale.value = state.lastWindowScale
 
                     // Coerce position to be within screen bounds for window mode
-                val finalX: Int
+    val finalX: Int
                 val finalY: Int
                 
                 if (isFromBall) {
                     // Limit strictly within screen when expanding from ball
-                    val maxX = (screenWidth - width).coerceAtLeast(0)
+    val maxX = (screenWidth - width).coerceAtLeast(0)
                     val maxY = (screenHeight - height).coerceAtLeast(0)
                     finalX = tempX.coerceIn(0, maxX)
                     finalY = tempY.coerceIn(0, maxY)
@@ -849,7 +850,8 @@ class FloatingWindowManager(
             }
         }
 
-        // 判断是否在球模式和其他模式之间切�?       val isBallTransition = (state.previousMode == FloatingMode.BALL) ||
+        // 判断是否在球模式和其他模式之间切�?
+    val isBallTransition = (state.previousMode == FloatingMode.BALL) ||
                                (newMode == FloatingMode.BALL)
         
         if (isBallTransition) {
@@ -996,7 +998,7 @@ class FloatingWindowManager(
                 params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
 
                 // Keep background tappable while IME is active.
-                if (state.currentMode.value == FloatingMode.WINDOW) {
+    if (state.currentMode.value == FloatingMode.WINDOW) {
                     params.flags =
                             params.flags or
                                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -1015,7 +1017,8 @@ class FloatingWindowManager(
             focusDismissOverlayRequested = false
             setFocusDismissOverlayEnabled(false)
 
-            // Step 1: 立即清理悬浮窗焦点并隐藏键盘，避免阻塞外部输入框抢焦�?           try {
+            // Step 1: 立即清理悬浮窗焦点并隐藏键盘，避免阻塞外部输入框抢焦�?
+    try {
                 view.findFocus()?.clearFocus()
             } catch (_: Exception) {
             }
@@ -1026,7 +1029,7 @@ class FloatingWindowManager(
             imm.hideSoftInputFromWindow(view.windowToken, 0)
 
             // Step 2: 立即恢复窗口不可聚焦状态（全屏模式除外�?           updateViewLayout { params ->
-                if (state.currentMode.value != FloatingMode.FULLSCREEN && state.currentMode.value != FloatingMode.SCREEN_OCR) {
+    if (state.currentMode.value != FloatingMode.FULLSCREEN && state.currentMode.value != FloatingMode.SCREEN_OCR) {
                     params.flags =
                             params.flags or
                                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE

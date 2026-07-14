@@ -28,7 +28,7 @@ class PerformanceTester {
         val quantifier = TaskComplexityQuantifier()
         
         // 初始化Agent
-        val agents = SanxingAgentSystem.createStandardAgents()
+    val agents = SanxingAgentSystem.createStandardAgents()
         allocator.initializeAgentProfiles(agents)
 
         val executor = Executors.newFixedThreadPool(threadCount)
@@ -183,13 +183,13 @@ class PerformanceTester {
         )
 
         // 第一次请求（无缓存）
-        val startTime1 = System.currentTimeMillis()
+    val startTime1 = System.currentTimeMillis()
         allocator.allocateTask(request)
         val endTime1 = System.currentTimeMillis()
         val timeWithoutCache = endTime1 - startTime1
 
         // 第二次请求（有缓存）
-        val startTime2 = System.currentTimeMillis()
+    val startTime2 = System.currentTimeMillis()
         allocator.allocateTask(request)
         val endTime2 = System.currentTimeMillis()
         val timeWithCache = endTime2 - startTime2

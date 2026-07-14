@@ -245,7 +245,7 @@ class CreativeWritingWorkshop {
         sb.appendLine()
 
         // 角色
-        if (project.characters.isNotEmpty()) {
+    if (project.characters.isNotEmpty()) {
             sb.appendLine("角色:")
             project.characters.forEach { c ->
                 sb.appendLine("- ${c.name} (${c.role}): ${c.description}")
@@ -256,7 +256,7 @@ class CreativeWritingWorkshop {
         }
 
         // 大纲
-        if (project.outline.isNotEmpty()) {
+    if (project.outline.isNotEmpty()) {
             sb.appendLine("大纲:")
             project.outline.sortedBy { it.order }.forEach { node ->
                 sb.appendLine("${node.order}. ${node.title}: ${node.description}")
@@ -338,7 +338,7 @@ class CreativeWritingWorkshop {
         val avgSentenceLength = if (sentenceCount > 0) wordCount / sentenceCount else 0
 
         // 检查文学手法
-        val metaphors = Regex("(像|如同|仿佛|宛如|好似).+").findAll(content).count()
+    val metaphors = Regex("(像|如同|仿佛|宛如|好似).+").findAll(content).count()
         val dialogues = content.count { it == '"' || it == '"' || it == '「' }
         val descriptions = Regex("(色|香|味|声|光|影)").findAll(content).count()
 
@@ -366,7 +366,6 @@ class CreativeWritingWorkshop {
     )
 
     // ============ 内部方法 ============
-
     private fun defaultStyle(genre: WritingGenre): WritingStyle {
         return when (genre) {
             WritingGenre.ANCIENT_POEM -> WritingStyle(WritingTone.LYRICAL, WritingMood.PEACEFUL, Perspective.FIRST_PERSON, Tense.PAST, LanguageStyle.CLASSICAL, 56)

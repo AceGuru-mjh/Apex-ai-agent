@@ -105,7 +105,7 @@ class SensitiveDataRedactor {
             detectedTypes.add(pattern.type)
 
             // 从后向前替换，避免索引偏移
-            for (match in matches.reversed()) {
+    for (match in matches.reversed()) {
                 val original = match.value
                 val placeholder = generatePlaceholder(pattern.type, original, sessionId, mappings)
                 mappings[placeholder] = original
@@ -114,7 +114,7 @@ class SensitiveDataRedactor {
         }
 
         // 保存到会话映射
-        if (sessionId != null && mappings.isNotEmpty()) {
+    if (sessionId != null && mappings.isNotEmpty()) {
             sessionMappings.computeIfAbsent(sessionId) { mutableMapOf() }.putAll(mappings)
         }
 
@@ -179,7 +179,6 @@ class SensitiveDataRedactor {
     }
 
     // ============ 内部方法 ============
-
     private fun generatePlaceholder(
         type: SensitiveType,
         original: String,
@@ -187,7 +186,7 @@ class SensitiveDataRedactor {
         currentMappings: Map<String, String>
     ): String {
         // 检查是否已经映射过同一个值
-        val existing = currentMappings.entries.find { it.value == original }?.key
+    val existing = currentMappings.entries.find { it.value == original }?.key
         if (existing != null) return existing
 
         val seq = counter.incrementAndGet()
@@ -198,7 +197,7 @@ class SensitiveDataRedactor {
             SensitiveType.PHONE_NUMBER -> "[PHONE_$seq]"
             SensitiveType.EMAIL -> {
                 // 邮箱部分脱敏：保留首字符和域名
-                val parts = original.split("@")
+    val parts = original.split("@")
                 if (parts.size == 2) {
                     val masked = parts[0].firstOrNull() + "***@" + parts[1]
                     return masked
@@ -212,13 +211,13 @@ class SensitiveDataRedactor {
             SensitiveType.SSN -> "[SSN_$seq]"
             SensitiveType.IP_ADDRESS -> {
                 // IP 部分脱敏：保留前两段
-                val parts = original.split(".")
+    val parts = original.split(".")
                 if (parts.size == 4) "${parts[0]}.${parts[1]}.***.***"
                 else "[IP_$seq]"
             }
             SensitiveType.CREDIT_CARD -> {
                 // 保留后4位
-                if (original.length >= 4) "****" + original.takeLast(4)
+    if (original.length >= 4) "****" + original.takeLast(4)
                 else "[CARD_$seq]"
             }
         }

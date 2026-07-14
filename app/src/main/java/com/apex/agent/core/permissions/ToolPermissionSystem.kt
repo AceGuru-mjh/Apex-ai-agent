@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 // Define DataStore
 private val Context.toolPermissionsDataStore: DataStore<Preferences> by preferencesDataStore(name = "tool_permissions")
@@ -58,10 +59,10 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         private const val PERMISSION_REQUEST_TIMEOUT_MS = 60000L // 60 seconds timeout
         
         // DataStore keys
-        private val MASTER_SWITCH = stringPreferencesKey("master_switch")
+    private val MASTER_SWITCH = stringPreferencesKey("master_switch")
         
         // Default permission setting
-        private val DEFAULT_MASTER_SWITCH = PermissionLevel.ASK.name
+    private val DEFAULT_MASTER_SWITCH = PermissionLevel.ASK.name
         
         @Volatile
         private var INSTANCE: ToolPermissionSystem? = null
@@ -209,7 +210,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
      */
     private suspend fun requestPermission(tool: AITool): Boolean {
         // Get operation description
-        val operationDescription = getOperationDescription(tool)
+    val operationDescription = getOperationDescription(tool)
         
         AppLogger.d(TAG, "Requesting permission: ${tool.name}")
         
@@ -219,7 +220,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
         _permissionRequestState.value = null
         
         // Set up new request
-        val requestInfo = Pair(tool, operationDescription)
+    val requestInfo = Pair(tool, operationDescription)
         permissionRequestInfo = requestInfo
         _permissionRequestState.value = requestInfo
         
@@ -236,7 +237,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
                     _permissionRequestState.value = null
                     
                     // Handle result
-                    when (result) {
+    when (result) {
                         PermissionRequestResult.ALLOW -> continuation.resume(true)
                         PermissionRequestResult.DENY -> continuation.resume(false)
                         PermissionRequestResult.ALWAYS_ALLOW -> {
@@ -255,7 +256,7 @@ class ToolPermissionSystem private constructor(private val context: Context) {
                 // Start permission request on main thread
                 mainHandler.post {
                     // Use overlay to show permission request
-                    if (!permissionRequestOverlay.hasOverlayPermission()) {
+    if (!permissionRequestOverlay.hasOverlayPermission()) {
                         AppLogger.w(TAG, "No overlay permission, requesting...")
                         permissionRequestOverlay.requestOverlayPermission()
                         currentPermissionCallback?.invoke(PermissionRequestResult.DENY)

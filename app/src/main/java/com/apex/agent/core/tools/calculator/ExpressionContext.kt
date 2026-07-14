@@ -278,12 +278,12 @@ object ExpressionContext {
     /** 日期解析 */
     private fun parseDate(dateString: String): Date? {
         // 特殊情况：today()
-        if (dateString.trim() == "today()") {
+    if (dateString.trim() == "today()") {
             return Date(System.currentTimeMillis())
         }
 
         // 尝试所有支持的日期格式
-        for (format in DATE_FORMATS) {
+    for (format in DATE_FORMATS) {
             try {
                 val formatter = SimpleDateFormat(format, Locale.getDefault())
                 formatter.isLenient = false
@@ -305,10 +305,11 @@ object ExpressionContext {
 
     /** 格式化结果显�?/
     fun formatResult(result: Double): String {
-        // 如果是整数则不显示小数部�?       if (result == Math.floor(result) && !result.isNaN() && !result.isInfinite()) {
+        // 如果是整数则不显示小数部�?
+    if (result == Math.floor(result) && !result.isNaN() && !result.isInfinite()) {
             return result.toInt().toString()
         }
         // 否则使用小数格式
-        return "%.6f".format(result).trimEnd('0').trimEnd('.')
+    return "%.6f".format(result).trimEnd('0').trimEnd('.')
     }
 }

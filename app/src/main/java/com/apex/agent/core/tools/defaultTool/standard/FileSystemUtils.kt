@@ -83,7 +83,7 @@ object FileSystemUtils {
             }
         }
         // Remove last newline if content is not empty
-        if (partContent.isNotEmpty()) {
+    if (partContent.isNotEmpty()) {
             partContent.setLength(partContent.length - 1)
         }
         return partContent.toString()

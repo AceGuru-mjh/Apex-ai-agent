@@ -5,7 +5,7 @@ import com.apex.util.AppLogger
 import java.io.File
 
 /**
- * Agent 工具和文件系- 参?AutoGPT
+ * Agent 工具和文件系- 参AutoGPT
  * ?Agent 能够访问和管理文。
  */
 class FileToolSystem(private val context: Context) {

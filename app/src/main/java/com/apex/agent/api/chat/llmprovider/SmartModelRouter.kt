@@ -85,7 +85,7 @@ object SmartModelRouter {
             return null
         }
         // 用户手动选择preferredProvider，跳过自动路由
-        if (request.preferredProvider != null) {
+    if (request.preferredProvider != null) {
             val manualConfig = availableModels.find {
                 it.provider == request.preferredProvider
             }
@@ -100,18 +100,18 @@ object SmartModelRouter {
             }
         }
         // 分析任务复杂度
-        val complexity = TaskComplexityAnalyzer.analyzeComplexity(request.query)
+    val complexity = TaskComplexityAnalyzer.analyzeComplexity(request.query)
         AppLogger.d(TAG, "任务复杂度分析: complexity=${complexity.complexity}, " +
                 "tokens=${complexity.estimatedTokens}, " +
                 "confidence=${complexity.confidence}")
         // 确定目标层级
-        val targetTierName = if (costSensitive) {
+    val targetTierName = if (costSensitive) {
             costSensitiveTier[complexity.complexity] ?: "standard"
         } else {
             complexityToTier[complexity.complexity] ?: "standard"
         }
         // 将 ModelConfig 转为 ModelTier 列表
-        val tiers = availableModels
+    val tiers = availableModels
             .filter {
                 it.isEnabled
             }
@@ -123,7 +123,7 @@ object SmartModelRouter {
             return null
         }
         // 对候选模型评分并选择最优
-        val scored = tiers.map {
+    val scored = tiers.map {
             tier -> tier to scoreTier(tier, targetTierName, complexity.estimatedTokens, costSensitive)
         }
         val best = scored.maxByOrNull {
@@ -132,7 +132,7 @@ object SmartModelRouter {
         val selectedTier = best?.first ?: tiers.first()
         val reason = buildReason(selectedTier, targetTierName, complexity.complexity, costSensitive)
         // 估算成本和延迟
-        val estimatedCost = complexity.estimatedTokens * selectedTier.costPerToken
+    val estimatedCost = complexity.estimatedTokens * selectedTier.costPerToken
         val estimatedLatency = (complexity.estimatedTokens.toLong() * selectedTier.speedRank) / 100L
         AppLogger.i(TAG, "路由决策: model=${selectedTier.modelName}, " +
                 "tier=${selectedTier.tier}, " +

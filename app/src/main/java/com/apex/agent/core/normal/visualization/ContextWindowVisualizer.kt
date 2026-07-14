@@ -104,17 +104,17 @@ class ContextWindowVisualizer(
         }
 
         // 分层统计
-        val compression = compressor.compress(messages)
+    val compression = compressor.compress(messages)
         val layers = buildLayers(messages, compression)
 
         // 消息分类
-        val breakdown = buildMessageBreakdown(messages)
+    val breakdown = buildMessageBreakdown(messages)
 
         // Token 分布
-        val distribution = buildTokenDistribution(messages, systemPromptTokens)
+    val distribution = buildTokenDistribution(messages, systemPromptTokens)
 
         // 建议
-        val recommendations = generateRecommendations(pressure, breakdown, distribution, messages)
+    val recommendations = generateRecommendations(pressure, breakdown, distribution, messages)
 
         return ContextWindowState(
             totalTokens = totalTokens,
@@ -136,7 +136,7 @@ class ContextWindowVisualizer(
         sb.appendLine("═══ 上下文窗口 ═══")
 
         // 压力条
-        val barLength = 30
+    val barLength = 30
         val filled = (state.usageRatio * barLength).toInt().coerceIn(0, barLength)
         val bar = "█".repeat(filled) + "░".repeat(barLength - filled)
         val percentage = (state.usageRatio * 100).toInt()
@@ -179,7 +179,7 @@ class ContextWindowVisualizer(
         sb.appendLine()
 
         // 建议
-        if (state.recommendations.isNotEmpty()) {
+    if (state.recommendations.isNotEmpty()) {
             sb.appendLine("建议:")
             state.recommendations.forEach { sb.appendLine("  • $it") }
         }
@@ -224,7 +224,6 @@ class ContextWindowVisualizer(
     }
 
     // ============ 内部方法 ============
-
     private fun buildLayers(
         messages: List<ConversationMessage>,
         compression: com.apex.agent.core.normal.context.CompressionResult
@@ -279,7 +278,7 @@ class ContextWindowVisualizer(
                 }
                 ConversationMessage.Role.SYSTEM -> {
                     // 系统消息中包含工具调用结果
-                    if (msg.content.contains("[tool_result]")) toolTokens += msg.tokenCount
+    if (msg.content.contains("[tool_result]")) toolTokens += msg.tokenCount
                 }
             }
         }

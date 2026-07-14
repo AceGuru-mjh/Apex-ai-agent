@@ -17,7 +17,7 @@ class EmotionResponseManager(private val context: Context, private val emotionAn
         val emotionProfile = emotionAnalyzer.analyzeEmotion(messages)
         
         // 根据情绪调整回应
-        val emotionalResponse = adjustResponseBasedOnEmotion(originalResponse, emotionProfile)
+    val emotionalResponse = adjustResponseBasedOnEmotion(originalResponse, emotionProfile)
         
         AppLogger.d(TAG, "生成情感化回�?{emotionProfile.dominantEmotion}")
         emotionalResponse

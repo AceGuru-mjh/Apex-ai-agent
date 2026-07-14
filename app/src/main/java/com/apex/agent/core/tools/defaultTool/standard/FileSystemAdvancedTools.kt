@@ -58,6 +58,8 @@ import com.apex.agent.core.tools.system.Terminal
 import com.apex.agent.util.LocaleUtils
 import org.json.JSONObject
 import java.util.concurrent.atomic.AtomicInteger
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.FilePartContentData
 
 open class FileSystemAdvancedTools(protected val context: Context) {
     companion object {
@@ -69,11 +71,13 @@ open class FileSystemAdvancedTools(protected val context: Context) {
         private var ripgrepAvailabilityVerified = false
     }
 
-    // ApiPreferences 实例，用于动态获取配�?    protected val apiPreferences: ApiPreferences by lazy {
+    // ApiPreferences 实例，用于动态获取配�?
+    protected val apiPreferences: ApiPreferences by lazy {
         ApiPreferences.getInstance(context)
     }
 
-    // SSH文件管理器（单例，懒加载�?    private val sshFileManager by lazy {
+    // SSH文件管理器（单例，懒加载�?
+    private val sshFileManager by lazy {
         SSHFileConnectionManager.getInstance(context)
     }
 
@@ -90,10 +94,11 @@ open class FileSystemAdvancedTools(protected val context: Context) {
 
     // Linux文件系统提供者，优先使用SSH连接，否则从TerminalManager获取
     protected fun getLinuxFileSystem(): FileSystemProvider {
-        // 先尝试获取SSH连接的文件系�?        val sshProvider = sshFileManager.getFileSystemProvider()
+        // 先尝试获取SSH连接的文件系�?
+    val sshProvider = sshFileManager.getFileSystemProvider()
         
         // 如果SSH已登录，使用SSH文件系统
-        if (sshProvider != null) {
+    if (sshProvider != null) {
             if (lastLinuxFileSystemProviderLabel != "ssh") {
                 AppLogger.d(TAG, "Using SSH file system provider")
                 lastLinuxFileSystemProviderLabel = "ssh"
@@ -101,7 +106,8 @@ open class FileSystemAdvancedTools(protected val context: Context) {
             return sshProvider
         }
         
-        // 否则使用本地Terminal的文件系�?        if (lastLinuxFileSystemProviderLabel != "local") {
+        // 否则使用本地Terminal的文件系�?
+    if (lastLinuxFileSystemProviderLabel != "local") {
             AppLogger.d(TAG, "Using local terminal file system provider")
             lastLinuxFileSystemProviderLabel = "local"
         }
@@ -964,7 +970,7 @@ open class FileSystemAdvancedTools(protected val context: Context) {
                     ToolProgressBus.update(toolName, roundBase + perRoundSearchSpan, "Reading selected snippets (round ${round}/3)...")
                     // 由于我们在FileSystemAdvancedTools中没有直接访问readFilePart的权限，
                     // 这里我们需要使用一个默认实现，或者在StandardFileSystemTools中重写此方法
-                    val enrichedDigestCandidates = digestCandidates
+    val enrichedDigestCandidates = digestCandidates
 
                     val contextByKey = HashMap<String, String>()
                     for (id in readIds) {

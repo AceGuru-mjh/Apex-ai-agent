@@ -10,6 +10,7 @@ import com.apex.util.ChatUtils
 import kotlin.math.abs
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 internal object StructuredToolCallBridge {
     private data class ToolResultRecord(

@@ -59,7 +59,7 @@ class AndroidShellExecutor {
             val ctx = context ?: return CommandResult(false, "", "Context not initialized")
 
             // 如果调用方显式指定了身份，就直接向下传递；否则使用默认身份
-            val identity = identityOverride ?: ShellIdentity.DEFAULT
+    val identity = identityOverride ?: ShellIdentity.DEFAULT
 
             val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
             AppLogger.d(TAG, "Using preferred permission level: ${preferredLevel}, identity=${identity}")

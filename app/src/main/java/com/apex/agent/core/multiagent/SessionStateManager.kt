@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 class SessionStateManager {
 
@@ -95,7 +96,7 @@ class SessionStateManager {
     fun applyRules(sessionId: String, rules: CollaborationRules) {
         val state = sessionStates[sessionId] ?: createSession(sessionId)
         // 根据规则更新会话模式
-        val mode = when (rules.mode) {
+    val mode = when (rules.mode) {
             "supervisor", "serial", "parallel", "debate", "free" -> ModeSwitchBar.SessionMode.SANXING_LIUBU
             else -> ModeSwitchBar.SessionMode.NORMAL
         }

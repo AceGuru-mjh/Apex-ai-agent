@@ -19,6 +19,7 @@ import com.apex.agent.mts.schema.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeout
+import com.apex.agent.mts.router.IntentAnalysis
 
 /**
  * MtsEngine - Meta Tool System unified entry point.

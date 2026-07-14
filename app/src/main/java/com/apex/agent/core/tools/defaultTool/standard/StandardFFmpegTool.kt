@@ -12,6 +12,7 @@ import com.arthenica.ffmpegkit.FFmpegKitConfig
 import com.arthenica.ffmpegkit.FFprobeKit
 import com.arthenica.ffmpegkit.ReturnCode
 import java.io.File
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /** FFmpeg工具执行为提供媒体文件处理能力，包括转换、裁剪、合并等功能 */
 class StandardFFmpegToolExecutor(private val context: Context) : ToolExecutor {
@@ -35,7 +36,7 @@ class StandardFFmpegToolExecutor(private val context: Context) : ToolExecutor {
             val startTime = System.currentTimeMillis()
 
             // 执行FFmpeg命令
-            val session = FFmpegKit.execute(command)
+    val session = FFmpegKit.execute(command)
             val returnCode = session.returnCode
             val output = session.output ?: ""
             val duration = System.currentTimeMillis() - startTime
@@ -103,7 +104,8 @@ class StandardFFmpegInfoToolExecutor : ToolExecutor {
             info.appendLine("FFmpeg version: ${FFmpegKitConfig.getVersion()}")
             info.appendLine("Build configuration: ${FFmpegKitConfig.getBuildDate()}")
 
-            // 列出支持的编解码�?           val codecsSession = FFmpegKit.execute("-codecs")
+            // 列出支持的编解码�?
+    val codecsSession = FFmpegKit.execute("-codecs")
             val codecsOutput = codecsSession.output ?: ""
             val duration = System.currentTimeMillis() - startTime
 
@@ -132,7 +134,8 @@ class StandardFFmpegInfoToolExecutor : ToolExecutor {
     }
 
     override fun validateParameters(tool: AITool): ToolValidationResult {
-        // 不需要参�?      return ToolValidationResult(valid = true)
+        // 不需要参�?
+    return ToolValidationResult(valid = true)
     }
 }
 
@@ -171,9 +174,10 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
         }
 
         // 构建FFmpeg命令
-        val commandBuilder = StringBuilder("-i \"${inputPath}\"")
+    val commandBuilder = StringBuilder("-i \"${inputPath}\"")
 
-        // 添加可选参�?      if (!videoCodec.isNullOrEmpty()) {
+        // 添加可选参�?
+    if (!videoCodec.isNullOrEmpty()) {
             commandBuilder.append(" -c:v ${videoCodec}")
         }
 
@@ -198,13 +202,14 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
             val startTime = System.currentTimeMillis()
 
             // 执行FFmpeg命令
-            val session = FFmpegKit.execute(command)
+    val session = FFmpegKit.execute(command)
             val returnCode = session.returnCode
             val output = session.output ?: ""
             val duration = System.currentTimeMillis() - startTime
 
             if (ReturnCode.isSuccess(returnCode)) {
-                // 获取输出文件的媒体信�?               val mediaSession = FFprobeKit.getMediaInformation(outputPath)
+                // 获取输出文件的媒体信�?
+    val mediaSession = FFprobeKit.getMediaInformation(outputPath)
                 val mediaInfo = mediaSession?.mediaInformation
 
                 val ffmpegResult =
@@ -247,7 +252,7 @@ class StandardFFmpegConvertToolExecutor(private val context: Context) : ToolExec
                                             .toMutableList()
 
                             // Get additional media information using FFprobe
-                            val ffprobeSession = FFprobeKit.getMediaInformation(outputPath)
+    val ffprobeSession = FFprobeKit.getMediaInformation(outputPath)
                             val ffprobeInfo = ffprobeSession?.mediaInformation
 
                             if (ffprobeInfo != null) {

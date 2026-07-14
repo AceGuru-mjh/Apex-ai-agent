@@ -11,6 +11,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.pow
+import com.apex.core.tools.javascript.not
 
 class SmartRecommender private constructor(private val context: Context) {
 

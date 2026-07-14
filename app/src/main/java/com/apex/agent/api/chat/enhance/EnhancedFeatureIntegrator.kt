@@ -4,6 +4,7 @@ import com.apex.data.model.ModelParameter
 import com.apex.data.model.ParameterCategory
 import com.apex.data.model.ParameterValueType
 import com.apex.util.AppLogger
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * 增强功能集成�?* 统一管理三个核心增强功能的集成点
@@ -19,13 +20,14 @@ object EnhancedFeatureIntegrator {
         existingParams: List<ModelParameter<*>>,
         userInput: String
     ): List<ModelParameter<*>> {
-        // 获取动态参�?       val dynamicParams = DynamicModelParamsAdapter.getDynamicModelParams(userInput)
+        // 获取动态参�?
+    val dynamicParams = DynamicModelParamsAdapter.getDynamicModelParams(userInput)
         val scenario = DynamicModelParamsAdapter.getScenarioDescription(userInput)
         
         AppLogger.d(TAG, "应用动态参�?场景=${scenario}, temp=${dynamicParams.temperature}")
         
         // 创建可修改的副本
-        val mutableParams = existingParams.toMutableList()
+    val mutableParams = existingParams.toMutableList()
         
         // 更新或添加temperature参数
         updateOrAddParam(
@@ -105,12 +107,14 @@ object EnhancedFeatureIntegrator {
         minValue: Any? = null,
         maxValue: Any? = null
     ) {
-        // 检查是否已存在该参数（通过apiName匹配�?       val existingIndex = params.indexOfFirst { 
+        // 检查是否已存在该参数（通过apiName匹配�?
+    val existingIndex = params.indexOfFirst { 
             it.apiName == apiName || it.id == id
         }
         
         if (existingIndex >= 0) {
-            // 更新现有参数 - 注意：这里我们创建一个新的参数对�?           val existing = params[existingIndex]
+            // 更新现有参数 - 注意：这里我们创建一个新的参数对�?
+    val existing = params[existingIndex]
             
             @Suppress("UNCHECKED_CAST")
             val updatedParam = when (valueType) {
@@ -129,7 +133,8 @@ object EnhancedFeatureIntegrator {
             
             params[existingIndex] = updatedParam
         } else {
-            // 添加新参�?           val newParam = createParameter(
+            // 添加新参�?
+    val newParam = createParameter(
                 id = id,
                 name = name,
                 apiName = apiName,

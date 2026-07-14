@@ -102,7 +102,7 @@ fun AuraMascotView(
         contentAlignment = Alignment.Center
     ) {
         // 形态切换变身光环爆发特效
-        if (transitionEnabled) {
+    if (transitionEnabled) {
             TransitionBurstEffect(
                 form = form,
                 accent = accent,

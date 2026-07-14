@@ -37,11 +37,11 @@ class CapabilityRegistry private constructor() {
         AppLogger.d(TAG, "Registering capability: ${capability.name} at level ${capability.level.level}")
 
         // Validate the capability
-        val validationResult = coreNarrowWaistValidator.validate(capability)
+    val validationResult = coreNarrowWaistValidator.validate(capability)
         return when (validationResult) {
             is CoreNarrowWaistValidator.ValidationResult.Accepted -> {
                 // Check if capability already exists
-        if (registeredCapabilities.containsKey(capability.name)) {
+    if (registeredCapabilities.containsKey(capability.name)) {
                     AppLogger.w(TAG, "Capability ${capability.name} already registered, updating")
                 }
         registeredCapabilities[capability.name] = capability

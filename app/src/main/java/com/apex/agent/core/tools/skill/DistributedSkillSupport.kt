@@ -146,7 +146,6 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     }
 
     // ========== 数据结构 ==========
-
     private val _localNode = MutableStateFlow<NodeInfo?>(null)
     val localNode: StateFlow<NodeInfo?> = _localNode.asStateFlow()
 
@@ -278,7 +277,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         )
 
         // 更新本地注册
-        val currentServices = _serviceRegistry.value.toMutableMap()
+    val currentServices = _serviceRegistry.value.toMutableMap()
         val skillServices = currentServices.getOrPut(skillId) { mutableListOf() }
         skillServices.removeAll { it.skillId == skillId && it.nodeId == node.nodeId }
         skillServices.add(registration)
@@ -324,7 +323,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
      */
     suspend fun discoverService(skillId: String, useCache: Boolean = true): List<ServiceInstance> = withContext(Dispatchers.IO) {
         // 启动服务
-        if (useCache) {
+    if (useCache) {
             val cached = serviceCache[skillId]
             if (cached != null && System.currentTimeMillis() - cached.second < SERVICE_CACHE_TTL_MS) {
                 return@withContext cached.first
@@ -332,7 +331,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 从注册表获取
-        val registrations = _serviceRegistry.value[skillId] ?: emptyList()
+    val registrations = _serviceRegistry.value[skillId] ?: emptyList()
 
         val instances = registrations.mapNotNull { reg ->
             val node = _registeredNodes.value[reg.nodeId]
@@ -346,7 +345,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 缓存结果
-        if (instances.isNotEmpty()) {
+    if (instances.isNotEmpty()) {
             serviceCache[skillId] = instances to System.currentTimeMillis()
         }
 
@@ -377,7 +376,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 选择实例
-        val instance = selectInstance(instances)
+    val instance = selectInstance(instances)
         if (instance == null) {
             return@withContext null
         }
@@ -417,7 +416,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
 
         try {
             // 广播注销
-            val connection = getConnection(node)
+    val connection = getConnection(node)
             if (connection == null) {
                 return@withContext RemoteCallResponse(
                     requestId = requestId,
@@ -430,7 +429,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             }
 
             // 广播注销
-            val requestJson = serializeRequest(request)
+    val requestJson = serializeRequest(request)
             val requestBytes = requestJson.toByteArray()
 
             synchronized(connection) {
@@ -441,7 +440,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             }
 
             // 等待响应（简化实现）
-            val response = withTimeoutOrNull(timeoutMs) {
+    val response = withTimeoutOrNull(timeoutMs) {
                 pendingRequests[requestId]?.await()
             } ?: RemoteCallResponse(
                 requestId = requestId,
@@ -528,10 +527,10 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         val node = _localNode.value ?: return@withContext false
 
         // 启动服务
-        val existingLock = _distributedLocks.value[lockId]
+    val existingLock = _distributedLocks.value[lockId]
         if (existingLock != null && !existingLock.isExpired) {
             // 尝试竞争
-            if (retryCount > 0) {
+    if (retryCount > 0) {
                 delay(retryDelayMs)
                 return@withContext tryLock(lockId, ttlMs, retryCount - 1, retryDelayMs)
             }
@@ -539,7 +538,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 启动服务
-        val lock = DistributedLock(
+    val lock = DistributedLock(
             lockId = lockId,
             ownerNodeId = node.nodeId,
             acquiredAt = System.currentTimeMillis(),
@@ -606,7 +605,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
             nodeConnections["${host}:${port}"] = socket
 
             // 广播注销
-            val local = _localNode.value ?: return@withContext false
+    val local = _localNode.value ?: return@withContext false
             val handshake = mapOf(
                 "type" to "handshake",
                 "nodeId" to local.nodeId,
@@ -650,7 +649,6 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     }
 
     // ========== 私有方法 ==========
-
     private fun startServer(port: Int) {
         serverJob = scope.launch {
             try {
@@ -789,7 +787,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         }
 
         // 启动服务
-        val currentServices = _serviceRegistry.value.toMutableMap()
+    val currentServices = _serviceRegistry.value.toMutableMap()
         currentServices.forEach { (skillId, services) ->
             services.removeAll { it.nodeId == nodeId }
             currentServices[skillId] = services
@@ -816,7 +814,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
         val parameters = json["parameters"] as? Map<String, Any?> ?: emptyMap()
 
         // 简化：直接返回成功响应
-        val response = RemoteCallResponse(
+    val response = RemoteCallResponse(
             requestId = requestId,
             success = true,
             result = mapOf("status" to "executed"),
@@ -899,7 +897,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
 
                         if (json["type"] == "discovery_request") {
                             // 响应发现请求
-                            val local = _localNode.value ?: continue
+    val local = _localNode.value ?: continue
                             val response = mapOf(
                                 "type" to "discovery_response",
                                 "nodeId" to local.nodeId,
@@ -940,7 +938,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
                 }
 
                 // 简化实现
-                val now = System.currentTimeMillis()
+    val now = System.currentTimeMillis()
                 _registeredNodes.value.forEach { (nodeId, node) ->
                     if (now - node.lastHeartbeat > HEARTBEAT_TIMEOUT_MS) {
                         // 正常超时
@@ -962,7 +960,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
                 delay(HEARTBEAT_INTERVAL_MS * 2)
 
                 // 清理过期的锁
-                val now = System.currentTimeMillis()
+    val now = System.currentTimeMillis()
                 _distributedLocks.value.forEach { (lockId, lock) ->
                     if (lock.expiresAt < now) {
                         _distributedLocks.value = _distributedLocks.value.toMutableMap().apply {
@@ -1019,7 +1017,7 @@ class DistributedSkillSupport private constructor(private val context: Context) 
 
     private fun broadcastServiceRegistration(registration: ServiceRegistration) {
         // 启动服务
-        val message = mapOf(
+    val message = mapOf(
             "type" to "service_register",
             "skillId" to registration.skillId,
             "skillName" to registration.skillName,
@@ -1109,7 +1107,6 @@ class DistributedSkillSupport private constructor(private val context: Context) 
     }
 
     // ========== 工具方法 ==========
-
     private fun generateNodeId(): String {
         val mac = getLocalMacAddress()
         return "node_${mac}_${(Math.random() * 10000).toInt()}"
@@ -1164,11 +1161,10 @@ class DistributedSkillSupport private constructor(private val context: Context) 
 
     private fun parseJson(json: String): Map<String, Any> {
         // 简化实现：实际应使用 JSON 库
-        return emptyMap()
+    return emptyMap()
     }
 
     // ========== 状态类 ==========
-
     fun getClusterStats(): ClusterStats {
         return ClusterStats(
             localNode = _localNode.value,

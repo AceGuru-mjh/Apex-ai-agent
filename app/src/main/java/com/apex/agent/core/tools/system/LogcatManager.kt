@@ -9,6 +9,7 @@ import java.io.File
 import java.io.RandomAccessFile
 import java.text.SimpleDateFormat
 import java.util.*
+import com.apex.gepa.LogLevel
 
 /**
  * 日志管理�? 从AppLogger的日志文件读取日�?*/
@@ -74,7 +75,7 @@ class LogcatManager(private val context: Context) {
         }
 
         // 非首行或异常格式（如堆栈跟踪），仍然显示出来
-        return if (line.isNotBlank()) {
+    return if (line.isNotBlank()) {
             LogRecord(
                 message = line,
                 level = LogLevel.UNKNOWN,

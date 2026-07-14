@@ -54,7 +54,7 @@ data class TriviaQuestion(
     val id: String,
     val category: FactCategory,
     val difficulty: Int,  // 1-5
-        val question: String,
+    val question: String,
     val answer: String,
     val options: List<String> = emptyList(),
     val funFact: String? = null  // 答题后揭晓的冷知识
@@ -118,7 +118,7 @@ class TriviaFunFactsSystem {
             q.options.indexOf(answer.trim()).let { it >= 0 && q.options[it] == q.answer }
 
         // 更新统计
-        val stats = userStats.computeIfAbsent(userId) { UserTriviaStats(userId) }
+    val stats = userStats.computeIfAbsent(userId) { UserTriviaStats(userId) }
         val updated = stats.copy(
             totalAnswered = stats.totalAnswered + 1,
             correctAnswers = if (correct) stats.correctAnswers + 1 else stats.correctAnswers,

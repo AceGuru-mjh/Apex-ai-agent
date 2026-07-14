@@ -101,20 +101,20 @@ class UpdateDownloadService : Service() {
         val state = manager.state.value
 
         // 重入保护：若下载已在进行中，不要重复启动
-        if (state is UpdateState.Downloading) {
+    if (state is UpdateState.Downloading) {
             AppLogger.d(TAG, "下载进行中，跳过重复启动")
         return START_NOT_STICKY
         }
 
         // 若已完成或失败，服务无需再启动下载
-        if (state is UpdateState.Downloaded || state is UpdateState.Failed) {
+    if (state is UpdateState.Downloaded || state is UpdateState.Failed) {
             AppLogger.d(TAG, "下载已结束（$state），停止服务")
         stopSelfAndCleanup()
         return START_NOT_STICKY
         }
 
         // 若无可用更新，停止服务
-        if (state !is UpdateState.UpdateAvailable || state.release == null || state.asset == null) {
+    if (state !is UpdateState.UpdateAvailable || state.release == null || state.asset == null) {
             AppLogger.w(TAG, "无可用更新，停止服务")
         stopSelfAndCleanup()
         return START_NOT_STICKY
@@ -152,7 +152,7 @@ class UpdateDownloadService : Service() {
 
         // 启动下载（HotUpdateManager.startDownload 内部会在自己的 scope 里 launch，
         // 这里仅做触发；downloadJob 用于追踪触发动作本身）
-        if (downloadJob == null || downloadJob?.isActive != true) {
+    if (downloadJob == null || downloadJob?.isActive != true) {
             downloadJob = serviceScope.launch {
                 try {
                     manager.startDownload()
@@ -168,7 +168,7 @@ class UpdateDownloadService : Service() {
         super.onDestroy()
         AppLogger.d(TAG, "UpdateDownloadService onDestroy")
         // 若下载仍在进行中，显式取消，确保 Service 生命周期与下载一致
-        val manager = HotUpdateManager.getInstance(this)
+    val manager = HotUpdateManager.getInstance(this)
         val s = manager.state.value
         if (s is UpdateState.Downloading) {
             manager.cancelDownload()

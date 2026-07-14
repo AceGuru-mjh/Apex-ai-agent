@@ -18,7 +18,7 @@ class PersistenceManager(private val context: Context) {
         private val dataDir = File(context.filesDir, "multi_agent")
         init {
         // 确保数据目录存在
-        if (!dataDir.exists()) {
+    if (!dataDir.exists()) {
             dataDir.mkdirs()
         }
     }

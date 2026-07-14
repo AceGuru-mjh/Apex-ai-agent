@@ -37,7 +37,7 @@ data class HttpResponseData(
         sb.appendLine("Size: ${size} bytes")
 
         // 添加Cookie信息
-        if (cookies.isNotEmpty()) {
+    if (cookies.isNotEmpty()) {
             sb.appendLine("Cookies: ${cookies.size}")
         cookies.entries.take(5).forEach { (name, value) ->
                 val _kaptFix26 = if (value.length > 30) "..." else ""

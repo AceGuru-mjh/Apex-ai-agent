@@ -7,6 +7,7 @@ import com.apex.agent.data.repository.MemoryRepository
 import com.apex.agent.util.AppLogger
 import kotlinx.coroutines.*
 import java.util.concurrent.Executors
+import com.apex.core.tools.javascript.not
 
 class OptimizedReflectionEngine(
     private val context: Context,

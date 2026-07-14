@@ -59,7 +59,7 @@ data class MCPToolParameter(
          * @return 转换后的�?        */
         fun smartConvert(value: Any, typeName: String): Any {
             // 如果已经，List ，Array，递归处理元素
-            if (value is List<*>) {
+    if (value is List<*>) {
                 return value.map { element -> 
                     if (element != null) smartConvert(element, null) else null 
                 }
@@ -100,7 +100,7 @@ data class MCPToolParameter(
                 }
                 else -> {
                     // 如果未指定类型，尝试智能猜测
-                    when {
+    when {
                         // 检测是否为对象格式（JSON对象�?                       value.trimStart().startsWith("{") && value.trimEnd().endsWith("}") -> {
                             parseObject(value)
                         }
@@ -131,7 +131,7 @@ data class MCPToolParameter(
             val trimmed = value.trim()
             
             // 尝试作为 JSON 数组解析
-            try {
+    try {
                 val jsonArray = JSONArray(trimmed)
                 val result = mutableListOf<Any>()
                 
@@ -141,7 +141,7 @@ data class MCPToolParameter(
                         else -> {
                             val rawValue = jsonArray.get(i)
                             // 递归处理数组元素
-                            when (rawValue) {
+    when (rawValue) {
                                 is JSONArray -> {
                                     // 嵌套数组，递归处理
                                     parseArray(rawValue.toString())
@@ -167,16 +167,19 @@ data class MCPToolParameter(
                 
                 return result
             } catch (e: JSONException) {
-                // JSON 解析失败，尝试修复常见的非标准格�?               if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+                // JSON 解析失败，尝试修复常见的非标准格�?
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
                     try {
                         // 尝试修复格式：将逗号分隔的无引号标识符转换为带引号的 JSON 数组
-                        val content = trimmed.substring(1, trimmed.length - 1).trim()
+    val content = trimmed.substring(1, trimmed.length - 1).trim()
                         
-                        // 检查是否是简单的标识符列表（只包含字母、数字、下划线和逗号�?                       if (content.matches(Regex("[\\w\\s,_-]+"))) {
-                            // 分割元素并添加引�?                           val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                        // 检查是否是简单的标识符列表（只包含字母、数字、下划线和逗号�?
+    if (content.matches(Regex("[\\w\\s,_-]+"))) {
+                            // 分割元素并添加引�?
+    val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                             
                             // 如果元素看起来像标识符（非数字），则保留为字符串
-                            return elements.map { element -> 
+    return elements.map { element -> 
                                 if (element.matches(Regex("\\d+"))) {
                                     element.toLongOrNull() ?: element
                                 } else if (element.matches(Regex("\\d+\\.\\d+"))) {
@@ -188,14 +191,16 @@ data class MCPToolParameter(
                         }
                         
                         // 否则，尝试一般的逗号分隔解析
-                        val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    val elements = content.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                         return elements.map { element -> smartConvert(element, null) }
                     } catch (ex: Exception) {
-                        // 修复失败，返回原始，                        return value
+                        // 修复失败，返回原始，
+    return value
                     }
                 }
                 
-                // 无法解析，返回原始，                return value
+                // 无法解析，返回原始，
+    return value
             } catch (e: Exception) {
                 return value
             }
@@ -239,7 +244,8 @@ data class MCPToolParameter(
                 
                 return result
             } catch (e: JSONException) {
-                // JSON 解析失败，返回原始，                return value
+                // JSON 解析失败，返回原始，
+    return value
             } catch (e: Exception) {
                 return value
             }

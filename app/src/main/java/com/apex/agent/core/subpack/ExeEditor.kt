@@ -109,7 +109,7 @@ private constructor(
         }
 
         // 确定输出文件
-        val outputExeFile =
+    val outputExeFile =
                 if (outputFile != null) {
                     outputFile!!
                 } else {
@@ -117,7 +117,7 @@ private constructor(
                 }
 
         // 更换图标
-        if (!exeIconChanger.changeIcon(exeFile, newIconBitmap!!, outputExeFile)) {
+    if (!exeIconChanger.changeIcon(exeFile, newIconBitmap!!, outputExeFile)) {
             throw RuntimeException(context.getString(R.string.exe_editor_change_icon_failed))
         }
 

@@ -1,6 +1,9 @@
 package com.apex.agent.core.ai.analysis
 
 import com.apex.agent.ui.components.burstmode.*
+import com.apex.agent.core.codeengine.Dependency
+import com.apex.agent.core.normal.multimodal.FileType
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * 项目结构分析�?
@@ -199,8 +202,7 @@ class ProjectStructureAnalyzer {
         
         // 这里需要实际读取文件内容来解析依赖
         // 暂时返回空列表，后续可以实现
-        
-        return dependencies
+    return dependencies
     }
     
     /**

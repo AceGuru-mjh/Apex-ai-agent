@@ -66,10 +66,10 @@ class SkillCollaboration private constructor(private val context: Context) {
         val type: EventType,
         val sourceSkillId: String,
         val targetSkillId: String?,  // null 表示广播
-        val payload: Any?,
+    val payload: Any?,
         val timestamp: Long,
         val correlationId: String?,  // 用于关联请求/响应
-        val replyTo: String?        // 回复地址
+    val replyTo: String?        // 回复地址
     )
 
     enum class EventType {
@@ -142,7 +142,7 @@ class SkillCollaboration private constructor(private val context: Context) {
         val inputs: Map<String, ParameterValue>,
         val outputs: List<String>,
         val dependsOn: List<String> = emptyList(),  // 依赖的前置步�?ID
-        val timeout: Long = 30000
+    val timeout: Long = 30000
     )
 
     /**
@@ -163,7 +163,6 @@ class SkillCollaboration private constructor(private val context: Context) {
     }
 
     // ========== 状�?==========
-
     private val _sharedStates = ConcurrentHashMap<String, SharedState>()
     private val _eventBus = MutableSharedFlow<SkillEvent>(replay = 0, extraBufferCapacity = 100)
     val eventBus: SharedFlow<SkillEvent> = _eventBus.asSharedFlow()
@@ -173,7 +172,6 @@ class SkillCollaboration private constructor(private val context: Context) {
 
     private val _activeTasks = ConcurrentHashMap<String, CollaborationTask>()
     private val _skillSubscriptions = ConcurrentHashMap<String, MutableSet<String>>()  // skillId -> subscribed event types
-
     private val _collaborationGraph = MutableStateFlow<CollaborationGraph?>(null)
     val collaborationGraph: StateFlow<CollaborationGraph?> = _collaborationGraph.asStateFlow()
 
@@ -246,13 +244,13 @@ class SkillCollaboration private constructor(private val context: Context) {
         }
 
         // 检查范围权�?
-        if (!hasReadPermission(state, requesterSkillId)) {
+    if (!hasReadPermission(state, requesterSkillId)) {
             AppLogger.w(TAG, "No read permission for state: ${key} by ${requesterSkillId}")
             return@withContext null
         }
 
         // 检查过�?
-        if (state.expiresAt != null && state.expiresAt < System.currentTimeMillis()) {
+    if (state.expiresAt != null && state.expiresAt < System.currentTimeMillis()) {
             _sharedStates.remove(key)
             return@withContext null
         }
@@ -626,7 +624,7 @@ class SkillCollaboration private constructor(private val context: Context) {
 
         for (step in task.workflow.steps) {
             // 检查依赖是否满�?
-            val dependenciesMet = step.dependsOn.all { depId ->
+    val dependenciesMet = step.dependsOn.all { depId ->
                 completedSteps.contains(depId)
             }
 
@@ -636,11 +634,11 @@ class SkillCollaboration private constructor(private val context: Context) {
             }
 
             // 发送执行请�?
-            val requestId = generateId()
+    val requestId = generateId()
             val responseReceived = CompletableDeferred<Boolean>()
 
             // 监听响应
-            val responseJob = scope.launch {
+    val responseJob = scope.launch {
                 _eventBus.filter { event ->
                     event.type == EventType.DATA_RESPONSE &&
                     event.correlationId == requestId
@@ -664,7 +662,7 @@ class SkillCollaboration private constructor(private val context: Context) {
             )
 
             // 等待响应或超�?
-            val completed = withTimeoutOrNull(step.timeout) {
+    val completed = withTimeoutOrNull(step.timeout) {
                 responseReceived.await()
             } ?: false
 
@@ -729,7 +727,7 @@ class SkillCollaboration private constructor(private val context: Context) {
         val interactionCounts = mutableMapOf<Pair<String, String>, Long>()
 
         // 收集所有共享状态创建�?
-        val stateOwners = _sharedStates.values.groupBy { it.skillId }
+    val stateOwners = _sharedStates.values.groupBy { it.skillId }
 
         // 收集事件交互
         // 简化：基于参与任务的次�?
@@ -769,12 +767,12 @@ class SkillCollaboration private constructor(private val context: Context) {
         }
 
         // 找出中心技�?
-        val centralSkills = nodes.sortedByDescending { it.connectionCount }
+    val centralSkills = nodes.sortedByDescending { it.connectionCount }
             .take(3)
             .map { it.skillId }
 
         // 找出孤立技�?
-        val isolatedSkills = nodes.filter { it.connectionCount == 0 }
+    val isolatedSkills = nodes.filter { it.connectionCount == 0 }
             .map { it.skillId }
 
         _collaborationGraph.value = CollaborationGraph(
@@ -786,7 +784,6 @@ class SkillCollaboration private constructor(private val context: Context) {
     }
 
     // ========== 事件处理 ==========
-
     private fun startEventProcessing() {
         scope.launch {
             _eventBus.collect { event ->
@@ -823,7 +820,6 @@ class SkillCollaboration private constructor(private val context: Context) {
     }
 
     // ========== 持久�?==========
-
     private fun initializeDirectories() {
         File(context.filesDir, SHARED_STATE_DIR).mkdirs()
         File(context.filesDir, PIPE_DIR).mkdirs()
@@ -865,7 +861,7 @@ class SkillCollaboration private constructor(private val context: Context) {
 
     private fun deserializeState(data: String): SharedState {
         // 简化实�?
-        return SharedState(
+    return SharedState(
             key = "",
             value = null,
             skillId = "",
@@ -875,7 +871,6 @@ class SkillCollaboration private constructor(private val context: Context) {
     }
 
     // ========== 工具方法 ==========
-
     private fun generateId(): String = "id_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
 
     fun getCollaborationStats(): CollaborationStats {

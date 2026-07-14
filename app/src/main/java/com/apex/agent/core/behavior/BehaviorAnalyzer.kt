@@ -49,7 +49,7 @@ class BehaviorAnalyzer(private val context: Context) {
         if (messages.isEmpty()) return
         
         // 计算对话频率
-        val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         val aiMessages = messages.filter { it.sender == "ai" || it.sender == "assistant" }
         
         profile.messageCount = messages.size
@@ -62,14 +62,14 @@ class BehaviorAnalyzer(private val context: Context) {
         profile.avgAiMessageLength = aiMessages.map { it.content.length }.average()
         
         // 分析对话密度
-        if (messages.size > 1) {
+    if (messages.size > 1) {
             val timeDifferences = mutableListOf<Long>()
             for (i in 1 until messages.size) {
                 val time1 = parseTimestamp(messages[i-1].timestamp)
                 val time2 = parseTimestamp(messages[i].timestamp)
                 if (time1 != null && time2 != null) {
                     val diff = abs(time2.time - time1.time) / 1000 // 转换为秒
-                    if (diff < 3600) { // 只考虑1小时内的消息
+    if (diff < 3600) { // 只考虑1小时内的消息
                         timeDifferences.add(diff)
                     }
                 }
@@ -101,7 +101,7 @@ class BehaviorAnalyzer(private val context: Context) {
         }
         
         // 分析活跃时间
-        if (hourDistribution.isNotEmpty()) {
+    if (hourDistribution.isNotEmpty()) {
             val peakHour = hourDistribution.maxByOrNull { it.value }?.key
             if (peakHour != null) {
                 profile.peakUsageHour = peakHour
@@ -115,7 +115,7 @@ class BehaviorAnalyzer(private val context: Context) {
         }
         
         // 分析活跃日期
-        if (dayDistribution.isNotEmpty()) {
+    if (dayDistribution.isNotEmpty()) {
             val peakDay = dayDistribution.maxByOrNull { it.value }?.key
             if (peakDay != null) {
                 profile.peakUsageDay = peakDay
@@ -140,7 +140,7 @@ class BehaviorAnalyzer(private val context: Context) {
         val userMessages = messages.filter { it.sender == "user" }
         
         // 分析消息类型
-        var questionCount = 0
+    var questionCount = 0
         var statementCount = 0
         var commandCount = 0
         
@@ -158,7 +158,7 @@ class BehaviorAnalyzer(private val context: Context) {
         profile.commandCount = commandCount
         
         // 分析语言风格
-        var formalCount = 0
+    var formalCount = 0
         var casualCount = 0
         
         val formalWords = listOf("�? "谢谢", "您好", "请问", "麻烦�? "不好意，)
@@ -203,13 +203,14 @@ class BehaviorAnalyzer(private val context: Context) {
      */
     private fun analyzeInteractionPatterns(messages: List<ChatMessage>, profile: UserBehaviorProfile) {
         // 分析轮次长度
-        var currentTurn = 0
+    var currentTurn = 0
         val turnLengths = mutableListOf<Int>()
         
         for (i in messages.indices) {
             currentTurn++
             
-            // 轮次结束条件：用户消息后跟着AI消息，或者是最后一条消�?           if (i == messages.size - 1 || 
+            // 轮次结束条件：用户消息后跟着AI消息，或者是最后一条消�?
+    if (i == messages.size - 1 || 
                 (messages[i].sender == "user" && 
                  (messages[i+1].sender == "ai" || messages[i+1].sender == "assistant"))
             ) {
@@ -225,7 +226,7 @@ class BehaviorAnalyzer(private val context: Context) {
         }
         
         // 分析回复模式
-        val responsePatterns = mutableMapOf<String, Int>()
+    val responsePatterns = mutableMapOf<String, Int>()
         
         for (i in 1 until messages.size) {
             val prevSender = messages[i-1].sender
@@ -247,7 +248,8 @@ class BehaviorAnalyzer(private val context: Context) {
     private fun analyzeUsageScenarios(messages: List<ChatMessage>, profile: UserBehaviorProfile) {
         val userMessages = messages.filter { it.sender == "user" }
         
-        // 分析场景关键�?      val scenarios = mutableMapOf<String, Int>()
+        // 分析场景关键�?
+    val scenarios = mutableMapOf<String, Int>()
         
         val scenarioKeywords = mapOf(
             "工作" to listOf("工作", "职场", "业务", "项目", "任务", "会议", "报告"),

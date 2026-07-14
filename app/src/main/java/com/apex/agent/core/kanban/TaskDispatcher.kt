@@ -5,6 +5,7 @@ import com.apex.agent.core.collaboration.AgentCollaborationFramework.AgentRole
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * TaskDispatcher - 任务分发逻辑
@@ -46,7 +47,7 @@ class TaskDispatcher(
      */
     suspend fun dispatchTask(task: KanbanTask): DispatchResult = withContext(Dispatchers.IO) {
         // 检查是否有未完成的依赖
-        val blockedBy = task.dependencies.filter { depId ->
+    val blockedBy = task.dependencies.filter { depId ->
             val depTask = board.getTask(depId)
             depTask?.status != KanbanTaskStatus.COMPLETED
         }
@@ -57,22 +58,22 @@ class TaskDispatcher(
         }
 
         // 检查列条件
-        val column = board.getColumn(task.columnId)
+    val column = board.getColumn(task.columnId)
         if (column != null && !column.canEnter(task)) {
             return@withContext DispatchResult.Failure(task, "Task does not meet column entry conditions")
         }
 
         // 找到最�?Worker
-        val worker = workerRegistry.findBestWorker(task, task.assignedRole)
+    val worker = workerRegistry.findBestWorker(task, task.assignedRole)
             ?: return@withContext DispatchResult.Failure(task, "No suitable worker found")
 
         // 尝试分配�?Worker
-        if (!worker.canHandle(task)) {
+    if (!worker.canHandle(task)) {
             return@withContext DispatchResult.Failure(task, "Worker ${worker.id} cannot handle task")
         }
 
         // 执行分配
-        try {
+    try {
             // 分配任务
             task.assignTo(
                 workerId = worker.id,
@@ -82,13 +83,13 @@ class TaskDispatcher(
             )
 
             // 如果协作框架存在，尝试分�?Agent
-            var agentAssigned = false
+    var agentAssigned = false
             if (collaborationFramework != null) {
                 agentAssigned = tryAssignAgent(task, worker)
             }
 
             // 移动任务�?进行�?列（如果配置了自动流转）
-            if (column?.autoProcessEnabled == true) {
+    if (column?.autoProcessEnabled == true) {
                 val nextColumn = findNextColumn(column)
                 if (nextColumn != null) {
                     board.moveTask(task.id, nextColumn.id)
@@ -119,7 +120,8 @@ class TaskDispatcher(
                 "Task not found"
             )
 
-        // 如果任务被阻塞，先解�?        if (task.status == KanbanTaskStatus.BLOCKED) {
+        // 如果任务被阻塞，先解�?
+    if (task.status == KanbanTaskStatus.BLOCKED) {
             task.unblock()
         }
 
@@ -134,7 +136,8 @@ class TaskDispatcher(
      * 自动分发新任务到合适列
      */
     suspend fun autoRouteTask(task: KanbanTask): Boolean = withContext(Dispatchers.IO) {
-        // 根据任务属性自动选择�?        val targetColumn = selectColumnForTask(task)
+        // 根据任务属性自动选择�?
+    val targetColumn = selectColumnForTask(task)
         if (targetColumn != null && targetColumn.id != task.columnId) {
             board.moveTask(task.id, targetColumn.id)
             AppLogger.d(TAG, "Auto-routed task ${task.id} to column ${targetColumn.name}")
@@ -148,7 +151,7 @@ class TaskDispatcher(
      * 基于任务属性选择合适的�?     */
     private fun selectColumnForTask(task: KanbanTask): KanbanColumn? {
         // 简单实现：基于标签或类型选择
-        val typeColumnMap = mapOf(
+    val typeColumnMap = mapOf(
             "design" to "设计",
             "development" to "开�?,
             "testing" to "测试",

@@ -151,10 +151,10 @@ class ToolPreviewGenerator {
     }
 
     // ============ 内部方法 ============
-        private fun estimateDuration(meta: ToolMetadata, args: Map<String, Any?>): Long {
+    private fun estimateDuration(meta: ToolMetadata, args: Map<String, Any?>): Long {
         var duration = meta.defaultDurationMs
         // 网络请求类工具耗时更长
-        if (meta.name.containsAny("http", "fetch", "request", "upload", "download")) {
+    if (meta.name.containsAny("http", "fetch", "request", "upload", "download")) {
             duration = (duration * 2).coerceAtLeast(10_000L)
         }
         // 大文件操作耗时更长
@@ -166,15 +166,15 @@ class ToolPreviewGenerator {
         private fun assessRisk(meta: ToolMetadata, args: Map<String, Any?>): RiskLevel {
         var risk = meta.defaultRiskLevel
         // 删除类操作提升风险
-        if (meta.name.containsAny("delete", "remove", "drop", "rm", "rmdir")) {
+    if (meta.name.containsAny("delete", "remove", "drop", "rm", "rmdir")) {
             risk = RiskLevel.CRITICAL
         }
         // 发送消息类提升风险
-        if (meta.name.containsAny("send", "post", "publish", "broadcast")) {
+    if (meta.name.containsAny("send", "post", "publish", "broadcast")) {
             risk = maxOf(risk.ordinal, RiskLevel.HIGH.ordinal).let { RiskLevel.values()[it] }
         }
         // 网络请求
-        if (meta.name.containsAny("http", "fetch", "request") && risk == RiskLevel.LOW) {
+    if (meta.name.containsAny("http", "fetch", "request") && risk == RiskLevel.LOW) {
             risk = RiskLevel.MEDIUM
         }
         return risk
@@ -218,7 +218,7 @@ class ToolConfirmationGateway(
      */
     suspend fun requestConfirmation(preview: ToolPreview): ConfirmationResult {
         // 低风险自动批准
-        if (autoApproveLowRisk && preview.riskLevel == RiskLevel.LOW) {
+    if (autoApproveLowRisk && preview.riskLevel == RiskLevel.LOW) {
             return ConfirmationResult.Approved(ApprovalScope.SESSION)
         }
         val deferred = CompletableDeferred<ConfirmationResult>()

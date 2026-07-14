@@ -10,7 +10,8 @@ import com.apex.util.AppLogger
 object DynamicContextManager {
     private const val TAG = "DynamicContextManager"
     
-    // 最大窗口大小：保留最，轮对象    private const val MAX_WINDOW_SIZE = 8
+    // 最大窗口大小：保留最，轮对象
+    private const val MAX_WINDOW_SIZE = 8
     
     // 核心信息最大长度（字符�?   private const val MAX_CORE_INFO_LENGTH = 300
     
@@ -21,7 +22,8 @@ object DynamicContextManager {
      * @param fullHistory 完整对话历史
      * @return 处理后的模型可用上下�?    */
     fun processChatContext(sessionId: String, fullHistory: List<PromptTurn>): List<PromptTurn> {
-        // 如果对话轮次很少，直接返回全量历�?       val userTurns = fullHistory.count { it.kind == PromptTurnKind.USER }
+        // 如果对话轮次很少，直接返回全量历�?
+    val userTurns = fullHistory.count { it.kind == PromptTurnKind.USER }
         if (userTurns <= MAX_WINDOW_SIZE) {
             AppLogger.d(TAG, "${userTurns} <= ${MAX_WINDOW_SIZE}，直接返回全量历�?
             return fullHistory
@@ -29,17 +31,20 @@ object DynamicContextManager {
 
         AppLogger.d(TAG, "${userTurns} > ${MAX_WINDOW_SIZE}，开始压缩处理）
         
-        // 分割历史：旧历史 + 最近N�?       val splitIndex = findSplitIndex(fullHistory)
+        // 分割历史：旧历史 + 最近N�?
+    val splitIndex = findSplitIndex(fullHistory)
         val oldHistory = fullHistory.subList(0, splitIndex)
         val recentHistory = fullHistory.subList(splitIndex, fullHistory.size)
 
-        // 提取历史对话的核心信�?       val coreInfo = extractCoreInfo(oldHistory)
+        // 提取历史对话的核心信�?
+    val coreInfo = extractCoreInfo(oldHistory)
         
         // 存储核心信息
         sessionCoreInfo[sessionId] = coreInfo
         AppLogger.d(TAG, "提取核心信息，长�?${coreInfo.length}")
 
-        // 构建最终上下文：核心信�? 最近对�?       return buildContextWithCoreInfo(coreInfo, recentHistory)
+        // 构建最终上下文：核心信�? 最近对�?
+    return buildContextWithCoreInfo(coreInfo, recentHistory)
     }
 
     /**
@@ -48,7 +53,8 @@ object DynamicContextManager {
         var userTurnCount = 0
         var splitIndex = fullHistory.size
         
-        // 从后往前数，找到包含MAX_WINDOW_SIZE用户轮次的位�?       for (i in fullHistory.size - 1 downTo 0) {
+        // 从后往前数，找到包含MAX_WINDOW_SIZE用户轮次的位�?
+    for (i in fullHistory.size - 1 downTo 0) {
             if (fullHistory[i].kind == PromptTurnKind.USER) {
                 userTurnCount++
                 if (userTurnCount >= MAX_WINDOW_SIZE) {
@@ -66,12 +72,13 @@ object DynamicContextManager {
      * @param oldHistory 需要压缩的旧历�?    * @return 核心信息摘要
      */
     private fun extractCoreInfo(oldHistory: List<PromptTurn>): String {
-        // 提取所有用户输�?       val userInputs = oldHistory
+        // 提取所有用户输�?
+    val userInputs = oldHistory
             .filter { it.kind == PromptTurnKind.USER }
             .map { it.content }
         
         // 简单的核心信息提取策略
-        val coreInfo = buildString {
+    val coreInfo = buildString {
             append("对话核心要点：\n")
             
             userInputs.take(5).forEachIndexed { index, input ->
@@ -84,7 +91,8 @@ object DynamicContextManager {
             }
         }
         
-        // 限制最大长�?       return coreInfo.take(MAX_CORE_INFO_LENGTH)
+        // 限制最大长�?
+    return coreInfo.take(MAX_CORE_INFO_LENGTH)
     }
 
     /**
@@ -95,14 +103,16 @@ object DynamicContextManager {
         coreInfo: String,
         recentHistory: List<PromptTurn>
     ): List<PromptTurn> {
-        // 创建核心信息的系统提�?       val coreInfoPrompt = """
+        // 创建核心信息的系统提�?
+    val coreInfoPrompt = """
             【以下是之前对话的核心摘要的            ${coreInfo}
             
             【重要提示，            请牢记这些核心信息，在后续回答中保持一致性，            如果用户提到之前讨论过的内容，请根据核心摘要来理解上下文�?       """.trimIndent()
 
         // 构建最终上下文
-        return mutableListOf<PromptTurn>().apply {
-            // 查找是否已存在系统提�?           val existingSystemTurn = recentHistory.find { it.kind == PromptTurnKind.SYSTEM }
+    return mutableListOf<PromptTurn>().apply {
+            // 查找是否已存在系统提�?
+    val existingSystemTurn = recentHistory.find { it.kind == PromptTurnKind.SYSTEM }
             
             if (existingSystemTurn != null) {
                 // 如果有系统提示，保留它，然后添加核心信息

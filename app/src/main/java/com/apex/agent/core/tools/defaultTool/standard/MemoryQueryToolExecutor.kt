@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import java.io.File
 import com.apex.agent.core.tools.defaultTool.standard.MemoryQueryUtils
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * Executes queries against the AI's memory graph and manages user preferences.
@@ -277,7 +278,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
         }
         
         // 如果查询"*" 且用户没有显式指？limit，则返回合理数量的结�?
-        val isWildcardQuery = query.trim() == "*"
+    val isWildcardQuery = query.trim() == "*"
         val defaultLimit = if (isWildcardQuery) {
             MAX_WILDCARD_QUERY_LIMIT
         } else {
@@ -290,7 +291,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
         }
 
         // limit 无上限，但至少为 1
-        val validLimit = if (finalLimit < 1) 1 else finalLimit
+    val validLimit = if (finalLimit < 1) 1 else finalLimit
         val (snapshotState, snapshotCreated) = getOrCreateQuerySnapshot(profileId, normalizedSnapshotId)
 
         AppLogger.d(
@@ -314,7 +315,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
             )
 
             // Keep de-duplication stable even when multiple calls share the same snapshot in parallel.
-            val (excludedBySnapshotCount, returnedMemories) = synchronized(snapshotState.lock) {
+    val (excludedBySnapshotCount, returnedMemories) = synchronized(snapshotState.lock) {
                 val excludedCount = results.count { it.id in snapshotState.seenMemoryIds }
                 val unseenResults = results.filterNot { it.id in snapshotState.seenMemoryIds }
                 val selectedResults = unseenResults.take(validLimit)
@@ -348,7 +349,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
         }
 
         // 提取可选的分块相关参数
-        val chunkIndexParam = MemoryQueryUtils.getStringParameter(tool, "chunk_index")
+    val chunkIndexParam = MemoryQueryUtils.getStringParameter(tool, "chunk_index")
         val chunkRangeParam = MemoryQueryUtils.getStringParameter(tool, "chunk_range")
         val queryParam = MemoryQueryUtils.getStringParameter(tool, "query")
         val chunkLimitParam = MemoryQueryUtils.getStringParameter(tool, "limit")
@@ -367,12 +368,12 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
             }
 
             // 如果是文档节点且提供了分块参数，则进行特殊处�?
-            if (memory.isDocumentNode && (chunkIndexParam != null || chunkRangeParam != null || queryParam != null)) {
+    if (memory.isDocumentNode && (chunkIndexParam != null || chunkRangeParam != null || queryParam != null)) {
                 return handleDocumentChunkRetrieval(tool.name, memory, chunkIndexParam, chunkRangeParam, queryParam, chunkLimitParam)
             }
 
             // 默认行为：返回完整记�?
-            val formattedResult = buildResultData(listOf(memory), title, 1)
+    val formattedResult = buildResultData(listOf(memory), title, 1)
             AppLogger.d(TAG, "Found memory by title '${title}':\n${formattedResult}")
             ToolResult(
                 toolName = tool.name,
@@ -403,7 +404,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
         
         try {
             // 优先级：query > chunk_range > chunk_index
-            val chunks = when {
+    val chunks = when {
                 // 模糊搜索分块
                 !queryParam.isNullOrBlank() -> {
                     AppLogger.d(TAG, "Searching chunks in document '${memory.title}' with query: '${queryParam}', limit: ${validLimit}")
@@ -421,7 +422,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
                         )
                     }
                     // 解析-based索引，转换为0-based
-                    val startIndex = (rangeParts[0].toIntOrNull() ?: 1) - 1
+    val startIndex = (rangeParts[0].toIntOrNull() ?: 1) - 1
                     val endIndex = (rangeParts[1].toIntOrNull() ?: totalChunks) - 1
                     
                     if (startIndex < 0 || endIndex >= totalChunks || startIndex > endIndex) {
@@ -438,7 +439,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
                 // 单个分块
                 !chunkIndexParam.isNullOrBlank() -> {
                     // 解析-based索引，转换为0-based
-                    val chunkIndex = (chunkIndexParam.toIntOrNull() ?: 1) - 1
+    val chunkIndex = (chunkIndexParam.toIntOrNull() ?: 1) - 1
                     if (chunkIndex < 0 || chunkIndex >= totalChunks) {
                         return@withContext ToolResult(
                             toolName = toolName,
@@ -464,7 +465,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
             }
 
             // 格式化返回结�?
-            val content = "Document: ${memory.title}\n" +
+    val content = "Document: ${memory.title}\n" +
                 chunks.joinToString("\n---\n") { chunk ->
                     "Chunk ${chunk.chunkIndex + 1}/${totalChunks}:\n${chunk.content}"
                 }
@@ -576,7 +577,8 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
                 return MemoryQueryUtils.createErrorResult(tool.name, "Memory not found with title: ${oldTitle}")
             }
 
-            // 获取要更新的字段，如果没有提供则使用户？            val newTitle = MemoryQueryUtils.getStringParameter(tool, "new_title") ?: memory.title
+            // 获取要更新的字段，如果没有提供则使用户？
+    val newTitle = MemoryQueryUtils.getStringParameter(tool, "new_title") ?: memory.title
             val newContent = MemoryQueryUtils.getStringParameter(tool, "content") ?: memory.content
             val newContentType = MemoryQueryUtils.getStringParameter(tool, "content_type") ?: memory.contentType
             val newSource = MemoryQueryUtils.getStringParameter(tool, "source") ?: memory.source
@@ -674,7 +676,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
 
         return try {
             // 从参数中提取各项偏好设置
-            val birthDate = MemoryQueryUtils.getStringParameter(tool, "birth_date")?.toLongOrNull()
+    val birthDate = MemoryQueryUtils.getStringParameter(tool, "birth_date")?.toLongOrNull()
             val gender = MemoryQueryUtils.getStringParameter(tool, "gender")
             val personality = MemoryQueryUtils.getStringParameter(tool, "personality")
             val identity = MemoryQueryUtils.getStringParameter(tool, "identity")
@@ -682,7 +684,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
             val aiStyle = MemoryQueryUtils.getStringParameter(tool, "ai_style")
 
             // 检查是否至少有一个参�?
-            if (birthDate == null && gender == null && personality == null && 
+    if (birthDate == null && gender == null && personality == null && 
                 identity == null && occupation == null && aiStyle == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -743,15 +745,15 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
 
         return try {
             // 提取可选参�?
-            val linkType = MemoryQueryUtils.getStringParameter(tool, "link_type") ?: "related"
+    val linkType = MemoryQueryUtils.getStringParameter(tool, "link_type") ?: "related"
             val weight = MemoryQueryUtils.getFloatParameter(tool, "weight", MemoryQueryConfig.DEFAULT_LINK_WEIGHT)
             val description = MemoryQueryUtils.getStringParameter(tool, "description") ?: ""
             
             // 限制 weight 在有效范围内
-            val validWeight = weight.coerceIn(0.0f, 1.0f)
+    val validWeight = weight.coerceIn(0.0f, 1.0f)
             
             // 查找源记忆和目标记忆
-            val sourceMemory = memoryRepository.findMemoryByTitle(sourceTitle)
+    val sourceMemory = memoryRepository.findMemoryByTitle(sourceTitle)
             if (sourceMemory == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -1100,10 +1102,9 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
     ): MemoryQueryResultData = withContext(Dispatchers.IO) {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         // ??limit > 20 时，只返回标题和截断内容
-        val isTruncatedMode = limit > MemoryQueryConfig.DEFAULT_QUERY_LIMIT
+    val isTruncatedMode = limit > MemoryQueryConfig.DEFAULT_QUERY_LIMIT
         val maxContentLength = MemoryQueryConfig.MAX_CONTENT_LENGTH_TRUNCATED // 截断后的最大内容长度（更严格）
-        
-        val memoryInfos = memories.map { memory ->
+    val memoryInfos = memories.map { memory ->
             val content: String
             val chunkInfo: String?
             val chunkIndices: List<Int>?

@@ -6,6 +6,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import com.apex.agent.core.normal.multimodal.FileType
+import com.apex.agent.core.provider.AuthType
 
 /**
  * GitHub API 服务
@@ -163,7 +165,7 @@ class GitHubService {
     ): Result<FileContent?> = withContext(Dispatchers.IO) {
         try {
             // 尝试常见�?README 文件�?
-            val readmeNames = listOf("README.md", "README.rst", "README.txt", "readme.md")
+    val readmeNames = listOf("README.md", "README.rst", "README.txt", "readme.md")
             
             for (readmeName in readmeNames) {
                 val result = getFileContent(owner, repo, readmeName, branch, authConfig)
@@ -285,7 +287,7 @@ class GitHubService {
         val nodes = mutableListOf<GitHubFileNode>()
         
         // 检查是否是单个文件
-        if (json.has("type")) {
+    if (json.has("type")) {
             val type = json.getString("type")
             if (type == "file") {
                 nodes.add(createFileNode(json, basePath))
@@ -294,7 +296,7 @@ class GitHubService {
         }
         
         // 检查是否是目录列表
-        if (json.has("tree")) {
+    if (json.has("tree")) {
             val tree = json.getJSONArray("tree")
             for (i in 0 until tree.length()) {
                 val item = tree.getJSONObject(i)

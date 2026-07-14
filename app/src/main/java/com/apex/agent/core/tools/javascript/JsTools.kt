@@ -4,7 +4,7 @@ package com.apex.core.tools.javascript
 fun getJsToolsDefinition(): String {
     return """
         // 工具调用的便捷方法
-        var Tools = {
+    var Tools = {
             // 文件系统操作
         Files: {
                 list: (path, environment) => {
@@ -85,12 +85,12 @@ fun getJsToolsDefinition(): String {
                 grep: (path, pattern, options = {}) => {
                     const params = { path, pattern, ...options };
                     // environment can be included in options
-        return toolCall("grep_code", params);
+    return toolCall("grep_code", params);
                 },
                 grepContext: (path, intent, options = {}) => {
                     const params = { path, intent, ...options };
                     // environment and file_pattern can be included in options
-        return toolCall("grep_context", params);
+    return toolCall("grep_context", params);
                 },
                 info: (path, environment) => {
                     const params = { path };
@@ -169,10 +169,10 @@ fun getJsToolsDefinition(): String {
                 visit: (params) => {
                     if (typeof params === 'string') {
                         // 向后兼容，如果只传入一个字符串，则假定为URL
-        return toolCall("visit_web", { url: params });
+    return toolCall("visit_web", { url: params });
                     }
                     // 否则，假定为参数对象
-        if (params && typeof params === 'object' && params.headers !== undefined && typeof params.headers === 'object') {
+    if (params && typeof params === 'object' && params.headers !== undefined && typeof params.headers === 'object') {
                         params = { ...params, headers: JSON.stringify(params.headers) };
                     }
         return toolCall("visit_web", params);
@@ -777,19 +777,19 @@ fun getJsToolsDefinition(): String {
                 // 增强的clickElement方法，支持多种参数类型
         clickElement: function(param1, param2, param3) {
                     // 根据参数类型和数量判断调用方法
-        if (typeof param1 === 'object') {
+    if (typeof param1 === 'object') {
                         // 如果第一个参数是对象，直接传递参数对象
-        return toolCall("click_element", param1);
+    return toolCall("click_element", param1);
                     } else if (arguments.length === 1) {
                         // 单参数，假定为resourceId
-        if (param1.startsWith('[') && param1.includes('][')) {
+    if (param1.startsWith('[') && param1.includes('][')) {
                             // 参数看起来像bounds格式 [x,y][x,y]
-        return toolCall("click_element", { bounds: param1 });
+    return toolCall("click_element", { bounds: param1 });
                         }
         return toolCall("click_element", { resourceId: param1 });
                     } else if (arguments.length === 2) {
                         // 两个参数，假定为(resourceId, index)，className, index)
-        if (param1 === 'resourceId') {
+    if (param1 === 'resourceId') {
                             return toolCall("click_element", { resourceId: param2 });
                         } else if (param1 === 'className') {
                             return toolCall("click_element", { className: param2 });
@@ -800,7 +800,7 @@ fun getJsToolsDefinition(): String {
                         }
                     } else if (arguments.length === 3) {
                         // 三个参数，假定为(type, value, index)
-        if (param1 === 'resourceId') {
+    if (param1 === 'resourceId') {
                             return toolCall("click_element", { resourceId: param2, index: param3 });
                         } else if (param1 === 'className') {
                             return toolCall("click_element", { className: param2, index: param3 });
@@ -809,7 +809,7 @@ fun getJsToolsDefinition(): String {
                         }
                     }
                     // 默认情况
-        return toolCall("click_element", { resourceId: param1 });
+    return toolCall("click_element", { resourceId: param1 });
                 },
 
                 setText: (text, resourceId) => {

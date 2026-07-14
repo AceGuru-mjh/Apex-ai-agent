@@ -83,7 +83,7 @@ class ConversationIntentStateMachine {
         val (intent, confidence, keywords) = classifyIntent(msg, currentState, history)
 
         // 话题管理
-        val topicId: String
+    val topicId: String
         val topicSummary: String
         when (intent) {
             ConversationIntent.INITIAL_QUERY, ConversationIntent.TOPIC_SWITCH -> {
@@ -174,13 +174,13 @@ class ConversationIntentStateMachine {
     }
 
     // ============ 内部方法 ============
-        private fun classifyIntent(
+    private fun classifyIntent(
         message: String,
         currentState: IntentState?,
         history: List<String>
     ): Triple<ConversationIntent, Float, List<String>> {
         // 关键词模式匹配
-        val patterns = mapOf(
+    val patterns = mapOf(
             ConversationIntent.CORRECTION to listOf("不对", "错了", "不是这个意思", "重新", "纠正", "wrong", "incorrect", "no,"),
             ConversationIntent.SUPPLEMENT to listOf("补充", "另外", "还有", "加上", "对了", "顺便", "also", "additionally", "plus"),
             ConversationIntent.CONFIRMATION to listOf("对", "是的", "没错", "确认", "ok", "yes", "correct", "right"),
@@ -199,7 +199,7 @@ class ConversationIntentStateMachine {
         }
 
         // 检测话题切换：代词指代不清 + 主题词变化大
-        if (currentState != null) {
+    if (currentState != null) {
             val currentKeywords = extractKeywords(currentState.topicSummary).toSet()
         val newKeywords = extractKeywords(message).toSet()
         val overlap = currentKeywords.intersect(newKeywords).size
@@ -216,7 +216,7 @@ class ConversationIntentStateMachine {
     }
         private fun extractKeywords(text: String): List<String> {
         // 简化：按空格和标点分词，过滤短词
-        return text.split(Regex("[\\s,，。.？?！!；;：:、\"'()（）\\[\\]【】]+"))
+    return text.split(Regex("[\\s,，。.？?！!；;：:、\"'()（）\\[\\]【】]+"))
             .filter { it.length >= 2 }
             .filter { it.lowercase() !in STOP_WORDS }
             .take(8)

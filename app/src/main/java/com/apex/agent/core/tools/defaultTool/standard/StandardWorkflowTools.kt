@@ -25,6 +25,15 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
+import com.apex.agent.core.kanban.ConditionOperator
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.agent.core.tools.skill.ExtractMode
+import com.apex.agent.core.tools.skill.NodePosition
+import com.apex.agent.core.tools.skill.ParameterValue
+import com.apex.agent.orchestration.workflow.Workflow
+import com.apex.agent.orchestration.workflow.WorkflowNode
+import com.apex.agent.orchestration.workflow.nodes.ConditionNode
+import com.apex.core.tools.javascript.not
 
 /**
  * 工作流管理工�?* 提供工作流的创建、查询、更新、启停、删除与触发功能
@@ -131,14 +140,14 @@ class StandardWorkflowTools(private val context: Context) {
             val enabled = tool.parameters.find { it.name == "enabled" }?.value?.toBoolean() ?: true
 
             // 解析节点
-            val nodes = if (!nodesJson.isNullOrBlank()) {
+    val nodes = if (!nodesJson.isNullOrBlank()) {
                 parseNodes(nodesJson)
             } else {
                 emptyList()
             }
 
             // 解析连接
-            val connections = if (!connectionsJson.isNullOrBlank()) {
+    val connections = if (!connectionsJson.isNullOrBlank()) {
                 parseConnections(connectionsJson, nodes)
             } else {
                 emptyList()
@@ -273,7 +282,8 @@ class StandardWorkflowTools(private val context: Context) {
                 )
             }
 
-            // 获取现有工作�?          val existingResult = workflowRepository.getWorkflowById(workflowId)
+            // 获取现有工作�?
+    val existingResult = workflowRepository.getWorkflowById(workflowId)
             if (existingResult.isFailure || existingResult.getOrNull() == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -286,20 +296,22 @@ class StandardWorkflowTools(private val context: Context) {
             val existingWorkflow = existingResult.getOrNull()!!
 
             // 更新字段（如果提供了新值）
-            val name = tool.parameters.find { it.name == "name" }?.value ?: existingWorkflow.name
+    val name = tool.parameters.find { it.name == "name" }?.value ?: existingWorkflow.name
             val description = tool.parameters.find { it.name == "description" }?.value ?: existingWorkflow.description
             val nodesJson = tool.parameters.find { it.name == "nodes" }?.value
             val connectionsJson = tool.parameters.find { it.name == "connections" }?.value
             val enabledParam = tool.parameters.find { it.name == "enabled" }?.value
             val enabled = if (enabledParam != null) enabledParam.toBoolean() else existingWorkflow.enabled
 
-            // 解析节点（如果提供了�?           val nodes = if (!nodesJson.isNullOrBlank()) {
+            // 解析节点（如果提供了�?
+    val nodes = if (!nodesJson.isNullOrBlank()) {
                 parseNodes(nodesJson)
             } else {
                 existingWorkflow.nodes
             }
 
-            // 解析连接（如果提供了�?           val connections = if (!connectionsJson.isNullOrBlank()) {
+            // 解析连接（如果提供了�?
+    val connections = if (!connectionsJson.isNullOrBlank()) {
                 parseConnections(connectionsJson, nodes)
             } else {
                 existingWorkflow.connections
@@ -437,7 +449,8 @@ class StandardWorkflowTools(private val context: Context) {
                 )
             }
 
-            // 获取现有工作�?          val existingResult = workflowRepository.getWorkflowById(workflowId)
+            // 获取现有工作�?
+    val existingResult = workflowRepository.getWorkflowById(workflowId)
             if (existingResult.isFailure || existingResult.getOrNull() == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -657,7 +670,7 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // Apply node patches
-            if (!nodePatchesJson.isNullOrBlank()) {
+    if (!nodePatchesJson.isNullOrBlank()) {
                 val patchArray = JSONArray(nodePatchesJson)
                 for (i in 0 until patchArray.length()) {
                     val patchObj = patchArray.getJSONObject(i)
@@ -697,7 +710,7 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // Apply connection patches
-            if (!connectionPatchesJson.isNullOrBlank()) {
+    if (!connectionPatchesJson.isNullOrBlank()) {
                 val nodeIdList = nodes.map { it.id }
                 val nodeIdSet = nodeIdList.toSet()
                 val nodeNameToIds = nodes.groupBy { it.name.trim() }.mapValues { (_, v) -> v.map { it.id } }
@@ -759,7 +772,7 @@ class StandardWorkflowTools(private val context: Context) {
             }
 
             // 清理非法连接（例如节点被删掉后）
-            val nodeIdSet = nodes.map { it.id }.toSet()
+    val nodeIdSet = nodes.map { it.id }.toSet()
             connections.removeAll { it.sourceNodeId !in nodeIdSet || it.targetNodeId !in nodeIdSet || it.sourceNodeId == it.targetNodeId }
 
             val updatedWorkflow = existingWorkflow.copy(
@@ -930,7 +943,7 @@ class StandardWorkflowTools(private val context: Context) {
             val description = nodeObj.optString("description", "")
             
             // 解析位置
-            val positionObj = nodeObj.optJSONObject("position")
+    val positionObj = nodeObj.optJSONObject("position")
             val position = if (positionObj != null) {
                 NodePosition(
                     x = positionObj.optDouble("x", 0.0).toFloat(),
@@ -1179,7 +1192,7 @@ class StandardWorkflowTools(private val context: Context) {
             val v = connObj.optString(k, "").trim()
             if (v.isNotBlank() && nodeIdSet.contains(v)) return v
             // Some LLMs put indices in id fields, e.g. "sourceNodeId": 0 or "0"
-            val idxFromIdField = v.toIntOrNull()
+    val idxFromIdField = v.toIntOrNull()
             if (idxFromIdField != null) {
                 val idByIndex = nodeIdList.getOrNull(idxFromIdField)
                 if (idByIndex != null) return idByIndex

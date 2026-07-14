@@ -123,7 +123,7 @@ class SmartReminderManager(
         val extracted = mutableListOf<Reminder>()
 
         // 检测待办模式
-        val todoPatterns = mapOf(
+    val todoPatterns = mapOf(
             "提醒我(\\d+[点时分小时分钟]*)(.*)" to ReminderType.TODO,
             "记得(.*?)(?:当|在|明天|后天|今天)" to ReminderType.TODO,
             "不要忘了(.*?)" to ReminderType.TODO,
@@ -137,8 +137,7 @@ class SmartReminderManager(
                 val title = match.groupValues.getOrElse(1) { "" }.ifBlank { "待办事项" }
                 val timeStr = match.groupValues.getOrNull(2) ?: ""
                 val scheduledAt = parseTimeString(timeStr) ?: (System.currentTimeMillis() + 60 * 60_000L)  // 默认 1 小时后
-
-                val reminder = Reminder(
+    val reminder = Reminder(
                     id = "reminder_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}",
                     type = type,
                     title = title.trim(),
@@ -154,7 +153,7 @@ class SmartReminderManager(
         }
 
         // 检测截止日期
-        val deadlinePattern = Regex("(?:截止|deadline|due)[:\\s]+(.+?)(?:\\s+(?:by|at|on|前)\\s+(.+))?", RegexOption.IGNORE_CASE)
+    val deadlinePattern = Regex("(?:截止|deadline|due)[:\\s]+(.+?)(?:\\s+(?:by|at|on|前)\\s+(.+))?", RegexOption.IGNORE_CASE)
         deadlinePattern.findAll(message).forEach { match ->
             val title = match.groupValues[1].ifBlank { "截止任务" }
             val timeStr = match.groupValues.getOrNull(2) ?: ""
@@ -318,7 +317,6 @@ class SmartReminderManager(
     }
 
     // ============ 内部方法 ============
-
     private fun startChecker() {
         checkerJob = scope.launch {
             while (isActive) {
@@ -393,7 +391,7 @@ class SmartReminderManager(
         val now = System.currentTimeMillis()
 
         // 相对时间
-        val relativePatterns = mapOf(
+    val relativePatterns = mapOf(
             "明天" to 24 * 60 * 60_000L,
             "后天" to 2 * 24 * 60 * 60_000L,
             "下周" to 7 * 24 * 60 * 60_000L,
@@ -405,10 +403,10 @@ class SmartReminderManager(
         }
 
         // "X 小时后" / "X 分钟后"
-        Regex("(\\d+)\\s*(小时|hour|h)后?").find(timeStr)?.let { m ->
+        Regex("(\\d+)\\s*(小时|hour|h)后").find(timeStr)?.let { m ->
             return now + m.groupValues[1].toLong() * 60 * 60_000L
         }
-        Regex("(\\d+)\\s*(分钟|minute|min|m)后?").find(timeStr)?.let { m ->
+        Regex("(\\d+)\\s*(分钟|minute|min|m)后").find(timeStr)?.let { m ->
             return now + m.groupValues[1].toLong() * 60_000L
         }
 

@@ -25,10 +25,10 @@ data class InterruptPayload(
     val interruptId: String = UUID.randomUUID().toString(),
     val nodeId: String,
     val threadId: String,               // 工作流执行线程
-        val workflowId: String,
+    val workflowId: String,
     val workflowName: String,
     val prompt: String,                 // 给用户看的问题/说明
-        val options: List<String> = listOf("approve", "reject"),
+    val options: List<String> = listOf("approve", "reject"),
     val details: Map<String, Any> = emptyMap(),
     val timeoutMs: Long = 24 * 60 * 60_000L,
     val createdAt: Long = System.currentTimeMillis()
@@ -94,7 +94,7 @@ class InMemoryApprovalGateway : ApprovalGateway {
         listeners.forEach { it(payload) }
 
         // 等待响应（带超时）
-        val command = try {
+    val command = try {
             kotlinx.coroutines.withTimeout(payload.timeoutMs) {
                 deferred.await()
             }

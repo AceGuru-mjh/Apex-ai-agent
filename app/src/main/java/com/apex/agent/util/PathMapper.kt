@@ -15,16 +15,16 @@ object PathMapper {
      */
     fun mapLinuxPath(context: Context, linuxPath: String): String {
         // Ubuntu根目录位置{filesDir}/usr/var/lib/proot-distro/installed-rootfs/ubuntu
-        val ubuntuRoot = File(
+    val ubuntuRoot = File(
             context.filesDir,
             "usr/var/lib/proot-distro/installed-rootfs/ubuntu"
         )
         
         // 移除路径开头的/，然后拼接到Ubuntu根目当
-        val relativePath = linuxPath.trimStart('/')
+    val relativePath = linuxPath.trimStart('/')
         
         // 如果输入路径为空或只，，返回Ubuntu根目当
-        if (relativePath.isEmpty()) {
+    if (relativePath.isEmpty()) {
             return ubuntuRoot.absolutePath
         }
         return File(ubuntuRoot, relativePath).absolutePath

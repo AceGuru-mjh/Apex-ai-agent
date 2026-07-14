@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /** Base class for UI automation tools - standard version does not support UI operations */
 open class StandardUITools(protected val context: Context) : ToolImplementations {
@@ -431,7 +432,7 @@ open class StandardUITools(protected val context: Context) : ToolImplementations
 
         return try {
             // 获取专用户UI_CONTROLLER 的AIService 实例
-            val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
+    val uiService = EnhancedAIService.getAIServiceForFunction(context, FunctionType.UI_CONTROLLER)
             val systemPrompt = buildUiAutomationSystemPrompt()
 
             val metrics = context.resources.displayMetrics

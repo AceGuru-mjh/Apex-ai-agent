@@ -356,7 +356,7 @@ class SkillManager private constructor(private val context: Context) {
         }
 
         // 先加载依赖
-        val deps = skillPkg.dependencies
+    val deps = skillPkg.dependencies
         if (deps.isNotEmpty()) {
             Log.d(TAG, "Loading dependencies for $skillName: $deps")
             val missingDeps = validateSkillDependencies(skillName)

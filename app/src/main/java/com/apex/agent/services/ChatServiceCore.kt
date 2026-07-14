@@ -98,7 +98,7 @@ class ChatServiceCore(
             getEnhancedAiService = { enhancedAiService },
             ensureAiServiceAvailable = {
                 // 确保 AI 服务可用
-                if (enhancedAiService == null) {
+    if (enhancedAiService == null) {
                     enhancedAiService = EnhancedAIService.getInstance(context)
                 }
             },
@@ -221,7 +221,7 @@ class ChatServiceCore(
         // 先取消总结（如果正在进行）
         messageCoordinationDelegate.cancelSummary()
         // 然后取消“当前聊天”的消息处理
-        val chatId = chatHistoryDelegate.currentChatId.value
+    val chatId = chatHistoryDelegate.currentChatId.value
         if (chatId != null) {
             messageProcessingDelegate.cancelMessage(chatId)
         }

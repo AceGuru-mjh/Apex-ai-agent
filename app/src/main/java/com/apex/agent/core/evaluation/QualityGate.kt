@@ -29,13 +29,13 @@ object QualityGate {
     private const val TAG = "QualityGate"
     
     // 质量阈值
-        private const val PASS_AT_1_THRESHOLD = 0.7f
+    private const val PASS_AT_1_THRESHOLD = 0.7f
     private const val HIGH_CONFIDENCE_THRESHOLD = 0.9f
     private const val MEDIUM_CONFIDENCE_THRESHOLD = 0.7f
     private const val LOW_CONFIDENCE_THRESHOLD = 0.5f
     
     // 评分阈值
-        private const val HIGH_SCORE_THRESHOLD = 0.85f
+    private const val HIGH_SCORE_THRESHOLD = 0.85f
     private const val MEDIUM_SCORE_THRESHOLD = 0.7f
     private const val LOW_SCORE_THRESHOLD = 0.5f
 
@@ -80,7 +80,7 @@ object QualityGate {
         val averageScore = report.averageScore
         
         // 综合 pass@k 和平均评分判断置信度
-        return when {
+    return when {
             passAtK >= HIGH_CONFIDENCE_THRESHOLD && averageScore >= HIGH_SCORE_THRESHOLD -> ConfidenceLevel.HIGH
             passAtK >= MEDIUM_CONFIDENCE_THRESHOLD && averageScore >= MEDIUM_SCORE_THRESHOLD -> ConfidenceLevel.MEDIUM
             passAtK >= LOW_CONFIDENCE_THRESHOLD && averageScore >= LOW_SCORE_THRESHOLD -> ConfidenceLevel.LOW
@@ -93,7 +93,7 @@ object QualityGate {
      */
     private fun shouldPass(report: PassKReport): Boolean {
         // pass@1 >= 0.7 为通过
-        return report.passAtK >= PASS_AT_1_THRESHOLD
+    return report.passAtK >= PASS_AT_1_THRESHOLD
     }
 
     /**
@@ -125,7 +125,7 @@ object QualityGate {
         }
 
         // 基于具体指标的通用建议
-        if (report.results.any { !it.pass }) {
+    if (report.results.any { !it.pass }) {
             val failedCount = report.results.count { !it.pass }
         suggestions.add("有${failedCount}/${report.k} 次验证失败，分析失败原因并针对性修失")
         }

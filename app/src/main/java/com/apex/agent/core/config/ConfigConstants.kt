@@ -11,7 +11,7 @@ package com.apex.agent.core.config
 object ConfigConstants {
 
     // ==================== API 相关配置 ====================
-        object ApiKeys {
+    object ApiKeys {
         val baseUrl = ConfigKey(
             path = "api.baseUrl",
             defaultValue = "http://localhost:8080",
@@ -52,7 +52,7 @@ object ConfigConstants {
     }
 
     // ==================== 模型相关配置 ====================
-        object ModelKeys {
+    object ModelKeys {
         val defaultModel = ConfigKey(
             path = "model.defaultModel",
             defaultValue = "gpt-4",
@@ -92,7 +92,7 @@ object ConfigConstants {
     }
 
     // ==================== 缓存相关配置 ====================
-        object CacheKeys {
+    object CacheKeys {
         val memoryCacheSize = ConfigKey(
             path = "cache.memorySize",
             defaultValue = "100MB",
@@ -126,7 +126,7 @@ object ConfigConstants {
     }
 
     // ==================== 推理相关配置 ====================
-        object ReasoningKeys {
+    object ReasoningKeys {
         val defaultStrategy = ConfigKey(
             path = "reasoning.strategy",
             defaultValue = "auto",
@@ -154,7 +154,7 @@ object ConfigConstants {
     }
 
     // ==================== 记忆相关配置 ====================
-        object MemoryKeys {
+    object MemoryKeys {
         val vectorDimension = ConfigKey(
             path = "memory.vectorDimension",
             defaultValue = "1536",
@@ -182,7 +182,7 @@ object ConfigConstants {
     }
 
     // ==================== 网络相关配置 ====================
-        object NetworkKeys {
+    object NetworkKeys {
         val connectTimeout = ConfigKey(
             path = "network.connectTimeout",
             defaultValue = "10s",
@@ -210,7 +210,7 @@ object ConfigConstants {
     }
 
     // ==================== 日志相关配置 ====================
-        object LoggingKeys {
+    object LoggingKeys {
         val logLevel = ConfigKey(
             path = "logging.level",
             defaultValue = "INFO",
@@ -244,7 +244,7 @@ object ConfigConstants {
     }
 
     // ==================== 安全相关配置 ====================
-        object SecurityKeys {
+    object SecurityKeys {
         val encryptionEnabled = ConfigKey(
             path = "security.encryption",
             defaultValue = "false",
@@ -274,7 +274,7 @@ object ConfigConstants {
     }
 
     // ==================== 特性开关配置 ====================
-        object FeatureKeys {
+    object FeatureKeys {
         val experimentalFeatures = ConfigKey(
             path = "features.experimental",
             defaultValue = "false",

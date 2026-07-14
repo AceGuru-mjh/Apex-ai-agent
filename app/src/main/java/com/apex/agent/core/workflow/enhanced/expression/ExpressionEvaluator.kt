@@ -102,7 +102,6 @@ class ExpressionEvaluator {
     }
 
     // ============ Tokenizer ============
-
     private class Tokenizer {
         fun tokenize(input: String): List<Token> {
             val tokens = mutableListOf<Token>()
@@ -114,7 +113,7 @@ class ExpressionEvaluator {
                     c.isWhitespace() -> i++
                     c == '$' && i + 1 < s.length && s[i + 1] == '{' -> {
                         // ${var.path}
-                        val end = s.indexOf('}', i + 2)
+    val end = s.indexOf('}', i + 2)
                         require(end > 0) { "未闭合的 \${" }
                         val path = s.substring(i + 2, end)
                         tokens.add(Token.Variable(path))
@@ -122,14 +121,14 @@ class ExpressionEvaluator {
                     }
                     c == '$' && i + 1 < s.length && (s[i + 1].isLetter() || s[i + 1] == '_') -> {
                         // $var.path
-                        var j = i + 1
+    var j = i + 1
                         while (j < s.length && (s[j].isLetterOrDigit() || s[j] == '_' || s[j] == '.')) j++
                         tokens.add(Token.Variable(s.substring(i + 1, j)))
                         i = j
                     }
                     c == '\'' || c == '"' -> {
                         // 字符串字面量
-                        val quote = c
+    val quote = c
                         val sb = StringBuilder()
                         var j = i + 1
                         while (j < s.length && s[j] != quote) {
@@ -151,7 +150,7 @@ class ExpressionEvaluator {
                     }
                     c.isDigit() || (c == '-' && i + 1 < s.length && s[i + 1].isDigit() && (tokens.isEmpty() || tokens.last() is Token.Operator)) -> {
                         // 数字
-                        var j = if (c == '-') i + 1 else i
+    var j = if (c == '-') i + 1 else i
                         var hasDot = false
                         while (j < s.length && (s[j].isDigit() || s[j] == '.')) {
                             if (s[j] == '.') hasDot = true
@@ -163,7 +162,7 @@ class ExpressionEvaluator {
                     }
                     c.isLetter() || c == '_' -> {
                         // 标识符 / 关键字
-                        var j = i
+    var j = i
                         while (j < s.length && (s[j].isLetterOrDigit() || s[j] == '_')) j++
                         val word = s.substring(i, j)
                         tokens.add(when (word.lowercase()) {
@@ -359,7 +358,6 @@ class ExpressionEvaluator {
     }
 
     // ============ Parser ============
-
     private class Parser {
         private var tokens: List<Token> = emptyList()
         private var pos = 0
@@ -493,7 +491,7 @@ class ExpressionEvaluator {
                             node = ASTNode.MethodCall(node, ident.name, args)
                         } else {
                             // 属性访问 - 视为变量路径的一部分
-                            val path = when (node) {
+    val path = when (node) {
                                 is ASTNode.VariableRef -> node.path + "." + ident.name
                                 else -> ident.name
                             }

@@ -21,7 +21,7 @@ class LobeHubSkillManager private constructor(private val context: Context) {
         private const val TAG = "LobeHubSkillManager"
         
         // LobeHub skills storage directory
-        private const val LOBEHUB_SKILLS_DIR = "LobeHub"
+    private const val LOBEHUB_SKILLS_DIR = "LobeHub"
 
         @Volatile private var INSTANCE: LobeHubSkillManager? = null
 

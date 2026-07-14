@@ -13,6 +13,8 @@ import com.apex.agent.data.repository.UIHierarchyManager
 import com.apex.agent.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.agent.core.tools.system.AndroidShellExecutor
 
 /**
  * 调试级别的UI工具类（重构版）
@@ -38,13 +40,13 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
      */
     override suspend fun tap(tool: AITool): ToolResult {
         // 如果没有display参数且无障碍服务启用，使用无障碍点击
-        if (!hasDisplayParam(tool) && UIHierarchyManager.isAccessibilityServiceEnabled(context)) {
+    if (!hasDisplayParam(tool) && UIHierarchyManager.isAccessibilityServiceEnabled(context)) {
             AppLogger.d(TAG, "无障碍服务已启用，使用无障碍点击")
             return super.tap(tool)
         }
 
         // 否则使用Shell命令点击
-        return executeWithCatch("tap", tool) {
+    return executeWithCatch("tap", tool) {
             // 1. 验证参数
             validateParameters(
                 tool,
@@ -53,7 +55,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             )
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
+    val x = getRequiredParameter(tool, "x").toIntOrNull()
             val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
@@ -67,7 +69,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             showTapOverlay(x, y)
 
             // 4. 执行Shell点击命令
-            val displayArg = getDisplayArg(tool)
+    val displayArg = getDisplayArg(tool)
             val command = "input ${displayArg}tap ${x} ${y}"
             val result = executeUiShellCommand(command)
 
@@ -96,13 +98,13 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
      */
     override suspend fun longPress(tool: AITool): ToolResult {
         // 如果没有display参数且无障碍服务启用，使用无障碍长按
-        if (!hasDisplayParam(tool) && UIHierarchyManager.isAccessibilityServiceEnabled(context)) {
+    if (!hasDisplayParam(tool) && UIHierarchyManager.isAccessibilityServiceEnabled(context)) {
             AppLogger.d(TAG, "无障碍服务已启用，使用无障碍长按")
             return super.longPress(tool)
         }
 
         // 否则使用Shell命令长按
-        return executeWithCatch("longPress", tool) {
+    return executeWithCatch("longPress", tool) {
             // 1. 验证参数
             validateParameters(
                 tool,
@@ -111,7 +113,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             )
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
+    val x = getRequiredParameter(tool, "x").toIntOrNull()
             val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
@@ -124,7 +126,8 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             // 3. 显示长按效果
             showTapOverlay(x, y)
 
-            // 4. 执行Shell长按命令（使用swipe模模�?            val displayArg = getDisplayArg(tool)
+            // 4. 执行Shell长按命令（使用swipe模模�?
+    val displayArg = getDisplayArg(tool)
             val command = "input ${displayArg}swipe ${x} ${y} ${x} ${y} 800"
             val result = executeUiShellCommand(command)
 
@@ -153,13 +156,13 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
      */
     override suspend fun swipe(tool: AITool): ToolResult {
         // 如果没有display参数且无障碍服务启用，使用无障碍滑动
-        if (!hasDisplayParam(tool) && UIHierarchyManager.isAccessibilityServiceEnabled(context)) {
+    if (!hasDisplayParam(tool) && UIHierarchyManager.isAccessibilityServiceEnabled(context)) {
             AppLogger.d(TAG, "无障碍服务已启用，使用无障碍滑动")
             return super.swipe(tool)
         }
 
         // 否则使用Shell命令滑动
-        return executeWithCatch("swipe", tool) {
+    return executeWithCatch("swipe", tool) {
             // 1. 验证参数
             validateParameters(
                 tool,
@@ -168,7 +171,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             )
 
             // 2. 获取参数
-            val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
+    val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
             val startY = getRequiredParameter(tool, "start_y").toIntOrNull()
             val endX = getRequiredParameter(tool, "end_x").toIntOrNull()
             val endY = getRequiredParameter(tool, "end_y").toIntOrNull()
@@ -185,7 +188,7 @@ open class DebuggerUIToolsRefactored(context: Context) : com.apex.agent.core.too
             showSwipeOverlay(startX, startY, endX, endY)
 
             // 4. 执行Shell滑动命令
-            val displayArg = getDisplayArg(tool)
+    val displayArg = getDisplayArg(tool)
             val command = "input ${displayArg}swipe ${startX} ${startY} ${endX} ${endY} ${duration}"
             val result = executeUiShellCommand(command)
 

@@ -42,10 +42,14 @@ class AnrMonitor(
     private val tag: String = "AnrMonitor"
 ) {
     companion object {
-        // 默认阈值设�?       private const val ANR_THRESHOLD_MS = 1000L     // 1秒，标准ANR阈，        private const val WARNING_THRESHOLD_MS = 500L // 0.5秒，警告阈，        private const val SAMPLING_INTERVAL_MS = 100L  // 100毫秒采样间隔
-        private const val MAX_STACK_TRACES = 10        // 最大堆栈跟踪数
+        // 默认阈值设�?
+    private const val ANR_THRESHOLD_MS = 1000L     // 1秒，标准ANR阈，
+    private const val WARNING_THRESHOLD_MS = 500L // 0.5秒，警告阈，
+    private const val SAMPLING_INTERVAL_MS = 100L  // 100毫秒采样间隔
+    private const val MAX_STACK_TRACES = 10        // 最大堆栈跟踪数
         
-        // 主线程名�?       private const val MAIN_THREAD_NAME = "main"
+        // 主线程名�?
+    private const val MAIN_THREAD_NAME = "main"
     }
     
     private val running = AtomicBoolean(false)
@@ -83,7 +87,8 @@ class AnrMonitor(
         AppLogger.d(tag, "启动ANR监控�?
         lastResponseTime.set(System.currentTimeMillis())
         
-        // 尝试获取主线程引�?       try {
+        // 尝试获取主线程引�?
+    try {
             mainThread = getMainThread()
             AppLogger.d(tag, "已获取主线程引用: ${mainThread}")
         } catch (e: Exception) {
@@ -138,7 +143,8 @@ class AnrMonitor(
         monitoringJob?.cancel()
         scheduledExecutor?.shutdown()
         
-        // 如果有记录到ANR，保存报�?       if (anrCount.get() > 0 || warningCount.get() > 0) {
+        // 如果有记录到ANR，保存报�?
+    if (anrCount.get() > 0 || warningCount.get() > 0) {
             saveAnrReport()
         }
     }
@@ -188,15 +194,14 @@ class AnrMonitor(
         
         if (timeSinceLastResponse > WARNING_THRESHOLD_MS) {
             // 主线程可能被阻塞
-            val message = context.getString(R.string.anr_main_thread_not_responding, timeSinceLastResponse)
+    val message = context.getString(R.string.anr_main_thread_not_responding, timeSinceLastResponse)
             
             if (timeSinceLastResponse > ANR_THRESHOLD_MS) {
                 // 已超过ANR阈，                AppLogger.e(tag, "${message} - 可能发生ANR!")
                 anrCount.incrementAndGet()
                 
                 // 记录堆栈跟踪 - 使用增强的堆栈捕�?               captureFullThreadDump()
-                
-                if (timeSinceLastResponse > maxBlockDuration.get()) {
+    if (timeSinceLastResponse > maxBlockDuration.get()) {
                     maxBlockDuration.set(timeSinceLastResponse)
                 }
             } else {
@@ -213,20 +218,19 @@ class AnrMonitor(
             try {
                 val stackTrace = Thread.currentThread().stackTrace
                     .drop(3) // 跳过前三个元素（VM相关调用�?                   .joinToString("\n") { "    at ${it}" }
-                    
-                val timeStamp = System.currentTimeMillis()
+    val timeStamp = System.currentTimeMillis()
                 val trace = Pair(timeStamp, stackTrace)
                 
                 synchronized(stackTraces) {
                     stackTraces.add(trace)
                     // 限制堆栈历史数量
-                    if (stackTraces.size > MAX_STACK_TRACES) {
+    if (stackTraces.size > MAX_STACK_TRACES) {
                         stackTraces.removeAt(0)
                     }
                 }
                 
                 // 分析堆栈
-                val analysis = analyzeStackTrace(stackTrace)
+    val analysis = analyzeStackTrace(stackTrace)
                 
                 AppLogger.e(tag, "主线程堆栈跟，\n${stackTrace}\n${analysis}")
             } catch (e: Exception) {
@@ -243,7 +247,7 @@ class AnrMonitor(
             // 尝试方法1：通过Looper的对应线�?           Looper.getMainLooper().thread?.let { return it }
             
             // 尝试方法2：遍历所有线程查找main线程
-            val threadGroup = Thread.currentThread().threadGroup ?: return null
+    val threadGroup = Thread.currentThread().threadGroup ?: return null
             val threadCount = threadGroup.activeCount()
             val threads = arrayOfNulls<Thread>(threadCount)
             threadGroup.enumerate(threads)
@@ -265,7 +269,8 @@ class AnrMonitor(
             
             sbDump.append(context.getString(R.string.anr_thread_dump_header, dateFormat.format(Date())))
             
-            // 首先获取主线程信�?           val mainThreadStack: String = mainThread?.let {
+            // 首先获取主线程信�?
+    val mainThreadStack: String = mainThread?.let {
                 try {
                     val stackTraceElements = it.stackTrace
                     val stackStr = stackTraceElements.joinToString("\n") { element -> "    at ${element}" }
@@ -277,9 +282,11 @@ class AnrMonitor(
             
             // 添加主线程信�?           sbDump.append(context.getString(R.string.anr_main_thread_section, mainThreadStack))
             
-            // 添加主线程分�?           val analysis = analyzeStackTrace(mainThreadStack)
+            // 添加主线程分�?
+    val analysis = analyzeStackTrace(mainThreadStack)
             
-            // 检查是否和上次ANR相同，如果相同则不输�?           if (analysis == lastAnrAnalysis) {
+            // 检查是否和上次ANR相同，如果相同则不输�?
+    if (analysis == lastAnrAnalysis) {
                 AppLogger.w(tag, "检测到重复的ANR，跳过输出）
                 return
             }
@@ -289,14 +296,15 @@ class AnrMonitor(
 
             sbDump.append(context.getString(R.string.anr_analysis_section, analysis))
 
-            // 获取并添加调用者信�?           if (callerInfo.isNotEmpty()) {
+            // 获取并添加调用者信�?
+    if (callerInfo.isNotEmpty()) {
                 sbDump.append(context.getString(R.string.anr_recent_call_info))
                 callerInfo.forEach { (_, info) -> sbDump.append("${info}\n") }
                 sbDump.append("\n")
             }
             
             // 保存线程转储
-            val timestamp = System.currentTimeMillis()
+    val timestamp = System.currentTimeMillis()
             val trace = Pair(timestamp, sbDump.toString())
             
             // 更新堆栈跟踪历史
@@ -326,17 +334,18 @@ class AnrMonitor(
         
         for (line in stackTrace.lines()) {
             // 匹配堆栈行格�?at package.Class.method(File.java:line)
-            val atIndex = line.indexOf("at ")
+    val atIndex = line.indexOf("at ")
             if (atIndex >= 0) {
                 val stackPart = line.substring(atIndex + 3).trim()
                 // 只保留com.apex包的堆栈
-                if (stackPart.startsWith(targetPackage)) {
+    if (stackPart.startsWith(targetPackage)) {
                     lines.add(line.trim())
                 }
             }
         }
         
-        // 输出捕捉到的堆栈�?       if (lines.isNotEmpty()) {
+        // 输出捕捉到的堆栈�?
+    if (lines.isNotEmpty()) {
             analysis.append(context.getString(R.string.anr_package_calls, targetPackage, lines.size))
             lines.forEach { line ->
                 analysis.append("${line}\n")

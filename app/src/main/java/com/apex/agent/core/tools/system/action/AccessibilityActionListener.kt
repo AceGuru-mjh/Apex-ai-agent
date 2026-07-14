@@ -11,6 +11,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 import com.apex.agent.R
+import com.apex.agent.core.multiagent.ActionType
+import com.apex.agent.core.tools.system.action.ActionEvent
+import com.apex.agent.core.tools.system.action.ActionListener
+import com.apex.agent.core.tools.system.action.ElementInfo
+import com.apex.agent.core.tools.system.action.ListeningResult
+import com.apex.agent.core.tools.system.shell.PermissionStatus
 
 /**
  * 基于无障碍服务的UI操作监听了实现ACCESSIBILITY权限级别的操作监�?* 通过UIHierarchyManager与系统的无障碍服务进行通信，监听系统级的UI事件和用户操�?*/
@@ -25,7 +31,8 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
     override fun getPermissionLevel(): AndroidPermissionLevel = AndroidPermissionLevel.ACCESSIBILITY
 
     override suspend fun isAvailable(): Boolean {
-        // 使用UIHierarchyManager检查无障碍服务是否启用并连�?       return UIHierarchyManager.isAccessibilityServiceEnabled(context)
+        // 使用UIHierarchyManager检查无障碍服务是否启用并连�?
+    return UIHierarchyManager.isAccessibilityServiceEnabled(context)
     }
 
     override suspend fun hasPermission(): ActionListener.PermissionStatus {
@@ -46,7 +53,8 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
             return
         }
 
-        // 引导用户打开无障碍服务设�?       try {
+        // 引导用户打开无障碍服务设�?
+    try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
@@ -113,7 +121,7 @@ class AccessibilityActionListener(private val context: Context) : ActionListener
         val callback = actionCallback ?: return
 
         // 过滤掉不需要的事件类型，避免产生噪�?       // 2048 = TYPE_TOUCH_INTERACTION_START - 触摸交互开始事件，频繁触发
-        if (event.eventType == 2048) {
+    if (event.eventType == 2048) {
             return
         }
 

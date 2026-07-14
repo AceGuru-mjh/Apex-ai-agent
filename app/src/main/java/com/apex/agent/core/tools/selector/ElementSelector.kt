@@ -123,7 +123,7 @@ data class ElementSelector(
      */
     fun isCompatibleWith(other: ElementSelector): Boolean {
         // 如果两个选择器都指定了相同的字段但值不同，则不兼容
-        if (resourceId != null && other.resourceId != null && resourceId != other.resourceId) {
+    if (resourceId != null && other.resourceId != null && resourceId != other.resourceId) {
             return false
         }
         if (className != null && other.className != null && className != other.className) {

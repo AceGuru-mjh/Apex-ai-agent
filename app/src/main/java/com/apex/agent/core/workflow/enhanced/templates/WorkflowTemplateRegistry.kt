@@ -28,7 +28,7 @@ data class TemplateParameter(
     val defaultValue: String? = null,
     val description: String = "",
     val options: List<String>? = null,        // SELECT/MULTI_SELECT 选项
-        val placeholder: String? = null,
+    val placeholder: String? = null,
     val secret: Boolean = false               // 是否敏感（不回显）
 )
 
@@ -40,7 +40,7 @@ data class TemplateMeta(
     val description: String,
     val author: String = "anonymous",
     val category: String = "general",         // automation / rag / agent / data / utility
-        val tags: List<String> = emptyList(),
+    val tags: List<String> = emptyList(),
     val version: String = "1.0.0",
     val previewImageUrl: String? = null,
     val requiredPermissions: List<String> = emptyList(),
@@ -54,7 +54,7 @@ data class WorkflowTemplate(
     val id: String = "tpl_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}",
     val meta: TemplateMeta,
     val definitionJson: String,               // EnhancedWorkflow JSON
-        val parameters: List<TemplateParameter> = emptyList(),
+    val parameters: List<TemplateParameter> = emptyList(),
     val installCount: Int = 0,
     val rating: Double = 0.0,
     val ratingCount: Int = 0,
@@ -142,11 +142,11 @@ class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
             ?: return TemplateInstallResult.Failure(IllegalArgumentException("模板 $templateId 不存在"))
 
         // 校验必填参数
-        val missing = template.parameters.filter { it.required && params[it.key].isNullOrBlank() }.map { it.key }
+    val missing = template.parameters.filter { it.required && params[it.key].isNullOrBlank() }.map { it.key }
         if (missing.isNotEmpty()) return TemplateInstallResult.MissingParameters(missing)
 
         // 解析模板，替换参数占位符
-        return try {
+    return try {
             var jsonStr = template.definitionJson
             template.parameters.forEach { p ->
                 val value = params[p.key] ?: p.defaultValue ?: ""
@@ -161,7 +161,7 @@ class InMemoryTemplateRegistry : WorkflowTemplateRegistry {
             }
 
             // 增加安装计数
-        val updated = template.copy(installCount = template.installCount + 1)
+    val updated = template.copy(installCount = template.installCount + 1)
         templates[templateId] = updated
 
             TemplateInstallResult.Success(workflow, validation.warnings)

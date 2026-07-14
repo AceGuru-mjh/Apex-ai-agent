@@ -163,7 +163,7 @@ class MarkdownUIBinder<T>(
     /** 绑定StreamGroup到UI组件 */
     suspend fun bind(group: StreamGroup<MarkdownProcessorType>) {
         // 递归处理所有组
-        val nodes = processGroupToNodes(group)
+    val nodes = processGroupToNodes(group)
         renderStrategy(component, nodes)
     }
 
@@ -171,13 +171,14 @@ class MarkdownUIBinder<T>(
     private suspend fun processGroupToNodes(
             group: StreamGroup<MarkdownProcessorType>
     ): MarkdownNode {
-        // 处理当前�?       val content = StringBuilder()
+        // 处理当前�?
+    val content = StringBuilder()
         group.stream.collect { content.append(it) }
 
         val node = MarkdownNode(group.tag, initialContent = content.toString())
 
         // 递归处理子组
-        for (child in group.children) {
+    for (child in group.children) {
             @Suppress("UNCHECKED_CAST") val childGroup = child as StreamGroup<MarkdownProcessorType>
             val childNode = processGroupToNodes(childGroup)
             node.children.add(childNode)

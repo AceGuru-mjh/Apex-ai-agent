@@ -38,12 +38,12 @@ data class EasterEgg(
     val id: String,
     val type: EasterEggType,
     val trigger: String,            // 触发词/命令
-        val triggerType: TriggerType,
+    val triggerType: TriggerType,
     val response: String,           // 彩蛋响应
-        val emoji: String,
+    val emoji: String,
     val rarity: Float,              // 稀有度 0-1
-        val cooldownMs: Long = 0,       // 冷却时间
-        val oneTimeOnly: Boolean = false,
+    val cooldownMs: Long = 0,       // 冷却时间
+    val oneTimeOnly: Boolean = false,
     val discoverable: Boolean = true // 是否可被发现
 )
 
@@ -72,7 +72,7 @@ class EasterEggSystem {
 
     private val eggs = mutableListOf<EasterEgg>()
         private val discoveredEggs = ConcurrentHashMap<String, MutableSet<String>>()  // userId -> eggIds
-        private val lastTriggered = ConcurrentHashMap<String, Long>()  // eggId -> 上次触发时间
+    private val lastTriggered = ConcurrentHashMap<String, Long>()  // eggId -> 上次触发时间
         init {
         registerBuiltinEggs()
     }
@@ -85,14 +85,14 @@ class EasterEggSystem {
         val userDiscovered = discoveredEggs.getOrPut(userId) { mutableSetOf() }
         for (egg in eggs) {
             // 检查一次性彩蛋是否已发现
-        if (egg.oneTimeOnly && egg.id in userDiscovered) continue
+    if (egg.oneTimeOnly && egg.id in userDiscovered) continue
 
             // 检查冷却
-        val lastTime = lastTriggered[egg.id] ?: 0
+    val lastTime = lastTriggered[egg.id] ?: 0
             if (egg.cooldownMs > 0 && now - lastTime < egg.cooldownMs) continue
 
             // 检查触发
-        if (matchesTrigger(input, egg)) {
+    if (matchesTrigger(input, egg)) {
                 lastTriggered[egg.id] = now
                 val isNew = egg.id !in userDiscovered
                 if (isNew) userDiscovered.add(egg.id)
@@ -146,7 +146,7 @@ class EasterEggSystem {
     }
 
     // ============ 内部方法 ============
-        private fun matchesTrigger(input: String, egg: EasterEgg): Boolean {
+    private fun matchesTrigger(input: String, egg: EasterEgg): Boolean {
         val trimmed = input.trim()
         return when (egg.triggerType) {
             TriggerType.EXACT_MATCH -> trimmed.equals(egg.trigger, ignoreCase = true)
@@ -167,7 +167,7 @@ class EasterEggSystem {
     }
 
     // ============ 预置彩蛋 ============
-        private fun registerBuiltinEggs() {
+    private fun registerBuiltinEggs() {
         // 隐藏命令
         eggs.add(EasterEgg("egg_konami", EasterEggType.HIDDEN_COMMAND, "上上下下左右左右BA", TriggerType.EXACT_MATCH, "🎮 Konami Code 激活！你发现了经典彩蛋！", "🎮", 0.95f, cooldownMs = 60_000))
         eggs.add(EasterEgg("egg_matrix", EasterEggType.HIDDEN_COMMAND, "red pill", TriggerType.CONTAINS, "💊 你选择了红色药丸。Welcome to the Matrix.", "💊", 0.8f))

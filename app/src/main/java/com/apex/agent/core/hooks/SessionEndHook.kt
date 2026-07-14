@@ -42,19 +42,19 @@ class SessionEndHook : SessionLifecycleHook {
         summary["tokenUsage"] = sessionContext.tokenUsage
 
         // 提取关键决策
-        val decisions = extractKeyDecisions(sessionContext.environmentState)
+    val decisions = extractKeyDecisions(sessionContext.environmentState)
         if (decisions.isNotEmpty()) {
             summary["keyDecisions"] = decisions
         }
 
         // 提取学习成果
-        val learnings = extractLearnings(sessionContext.environmentState)
+    val learnings = extractLearnings(sessionContext.environmentState)
         if (learnings.isNotEmpty()) {
             summary["learnings"] = learnings
         }
 
         // 提取未完成工作
-        val incompleteWork = extractIncompleteWork(sessionContext.environmentState)
+    val incompleteWork = extractIncompleteWork(sessionContext.environmentState)
         if (incompleteWork.isNotEmpty()) {
             summary["incompleteWork"] = incompleteWork
         }
@@ -177,7 +177,7 @@ class SessionEndHook : SessionLifecycleHook {
     private suspend fun notifySkillSystem(context: Context, summary: Map<String, Any>) {
         try {
             // 尝试动态加转AutoSkillExtractor 类
-        val autoSkillExtractorClass = try {
+    val autoSkillExtractorClass = try {
                 Class.forName("com.apex.agent.core.skills.AutoSkillExtractor")
             } catch (e: ClassNotFoundException) {
                 AppLogger.d(TAG, "AutoSkillExtractor not found, skipping skill extraction")
@@ -185,11 +185,11 @@ class SessionEndHook : SessionLifecycleHook {
             }
 
             // 获取单例实例
-        val getInstanceMethod = autoSkillExtractorClass.getMethod("getInstance", Context::class.java)
+    val getInstanceMethod = autoSkillExtractorClass.getMethod("getInstance", Context::class.java)
         val extractor = getInstanceMethod.invoke(null, context)
 
             // 调用 extractFromSession 方法
-        val extractMethod = autoSkillExtractorClass.getMethod(
+    val extractMethod = autoSkillExtractorClass.getMethod(
                 "extractFromSession",
                 Map::class.java
             )

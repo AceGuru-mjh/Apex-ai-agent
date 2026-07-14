@@ -65,7 +65,7 @@ fun SettingsScreen(modifier: Modifier = Modifier, onMenuClick: () -> Unit = {}) 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             // Shizuku
-            try {
+    try {
                 val sm = com.ai.assistance.apex.engine.shizuku.ShizukuManager.getInstance(context)
                 shizukuAvailable = sm.isAvailable()
                 shizukuVersion = sm.getVersion()

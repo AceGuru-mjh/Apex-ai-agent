@@ -126,7 +126,6 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     }
 
     // ========== 状�?==========
-
     private val _builtInTemplates = MutableStateFlow<List<SkillTemplate>>(emptyList())
     val builtInTemplates: StateFlow<List<SkillTemplate>> = _builtInTemplates.asStateFlow()
 
@@ -140,7 +139,6 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     // ========== 内置模板 ==========
-
     private val builtInTemplateList = listOf(
         // 自动化类模板
         createBatchOperationTemplate(),
@@ -186,7 +184,6 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     }
 
     // ========== 模板创建方法 ==========
-
     private fun createBatchOperationTemplate() = SkillTemplate(
         id = "template_batch_operation",
         name = "批量操作",
@@ -802,7 +799,6 @@ class SkillTemplateSystem private constructor(private val context: Context) {
     )
 
     // ========== 公开 API ==========
-
     suspend fun loadUserTemplates() = withContext(Dispatchers.IO) {
         _isLoading.value = true
         try {
@@ -909,14 +905,14 @@ class SkillTemplateSystem private constructor(private val context: Context) {
             skillDirectory.mkdirs()
 
             // 替换变量
-            val replacedContent = replaceVariables(template, variables)
+    val replacedContent = replaceVariables(template, variables)
 
             // 生成 SKILL.md
-            val skillMdContent = buildSkillMd(template, finalSkillName, replacedContent)
+    val skillMdContent = buildSkillMd(template, finalSkillName, replacedContent)
             File(skillDirectory, "SKILL.md").writeText(skillMdContent)
 
             // 生成工作流文�?
-            if (template.workflow != null) {
+    if (template.workflow != null) {
                 val workflowContent = buildWorkflowJson(template.workflow, replacedContent)
                 File(skillDirectory, "workflow.json").writeText(workflowContent)
             }
@@ -933,7 +929,7 @@ class SkillTemplateSystem private constructor(private val context: Context) {
             }
 
             // 生成 README.md
-            val readmeContent = buildReadme(template, finalSkillName)
+    val readmeContent = buildReadme(template, finalSkillName)
             File(skillDirectory, "README.md").writeText(readmeContent)
 
             val result = SkillCreationResult(

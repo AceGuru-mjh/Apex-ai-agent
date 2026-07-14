@@ -173,7 +173,7 @@ object ToolAdapterManager {
         executionHistory.add(record)
         
         // 限制历史记录大小
-        if (executionHistory.size > MAX_HISTORY_SIZE) {
+    if (executionHistory.size > MAX_HISTORY_SIZE) {
             executionHistory.removeAt(0)
         }
     }

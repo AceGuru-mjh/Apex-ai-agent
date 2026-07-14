@@ -29,6 +29,7 @@ import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import com.apex.core.tools.javascript.JsToolCallInterface
 
 /**
  * JavaScript 引擎 - 通过 QuickJS 执行 JavaScript 脚本并提供与 Android 原生代码的交互机�?*/
@@ -1121,7 +1122,7 @@ class JsEngine(private val context: Context) {
             if (temporaryResolverActive) {
                 // During toolpkg parsing we must not fall back into PackageManager.
                 // That fallback can wait on initialization and deadlock JavaBridge thread.
-                return ""
+    return ""
             }
             return JsNativeInterfaceDelegates.readToolPkgTextResource(
                     packageManager = packageManager,

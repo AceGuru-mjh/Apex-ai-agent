@@ -39,7 +39,6 @@ class ApiConfigDelegate(
 
     // State flows
     private val _isConfigured = MutableStateFlow(true) // 默认已配�?   val isConfigured: StateFlow<Boolean> = _isConfigured.asStateFlow()
-
     private val _featureToggles = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     val featureToggles: StateFlow<Map<String, Boolean>> = _featureToggles.asStateFlow()
 
@@ -355,7 +354,7 @@ class ApiConfigDelegate(
                 AppLogger.d(TAG, "API配置已保存到ModelConfigManager")
 
                 // 在IO线程上创建服务，避免阻塞
-                val enhancedAiService = withContext(Dispatchers.IO) {
+    val enhancedAiService = withContext(Dispatchers.IO) {
                     EnhancedAIService.getInstance(context)
                 }
 

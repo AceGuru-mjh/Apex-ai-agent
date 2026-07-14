@@ -23,7 +23,7 @@ class SkillEvolutionManager(private val context: Context) {
     
     init {
         // 初始化技能存储目�?      skillDir = File(ApexAgentPaths.getSkillsDir(context))
-        if (!skillDir.exists()) {
+    if (!skillDir.exists()) {
             skillDir.mkdirs()
             AppLogger.d(TAG, "Created skills directory: ${skillDir.absolutePath}")
         }
@@ -42,16 +42,18 @@ class SkillEvolutionManager(private val context: Context) {
         AppLogger.d(TAG, "Extracting skill for task type: ${taskType}")
         
         // 生成技能ID
-        val skillId = "${taskType}_${Date().time}"
+    val skillId = "${taskType}_${Date().time}"
         
-        // 提炼可复用操作方案（简化版，实际应该用LLM�?       val operationSteps = agentBehavior.map { "${agentBehavior.indexOf(it) + 1}. ${it}" }
+        // 提炼可复用操作方案（简化版，实际应该用LLM�?
+    val operationSteps = agentBehavior.map { "${agentBehavior.indexOf(it) + 1}. ${it}" }
         val applicableScenarios = listOf(
             "�?{taskType任务执行}",
             "类似�?{taskType的场的},
             "需要{agentBehavior.size}个步骤的任务"
         )
         
-        // 创建技能规�?       val skill = ApexAgentSkillSpec(
+        // 创建技能规�?
+    val skill = ApexAgentSkillSpec(
             skillId = skillId,
             taskType = taskType,
             operationSteps = operationSteps.toMutableList(),
@@ -60,7 +62,8 @@ class SkillEvolutionManager(private val context: Context) {
             updateTimestamp = Date().toString()
         )
         
-        // 保存技能文�?      val skillFile = File(skillDir, "${skillId}.json")
+        // 保存技能文�?
+    val skillFile = File(skillDir, "${skillId}.json")
         skillFile.writeText(skill.toJson(), Charsets.UTF_8)
         
         AppLogger.d(TAG, "Extracted skill saved to: ${skillFile.absolutePath}")
@@ -79,7 +82,8 @@ class SkillEvolutionManager(private val context: Context) {
     ): String = withContext(Dispatchers.IO) {
         AppLogger.d(TAG, "Evolving skill: ${skillId}")
         
-        // 加载原有技�?       val skillFile = File(skillDir, "${skillId}.json")
+        // 加载原有技�?
+    val skillFile = File(skillDir, "${skillId}.json")
         if (!skillFile.exists()) {
             throw java.io.FileNotFoundException("Skill ${skillId} not found")
         }
@@ -88,7 +92,8 @@ class SkillEvolutionManager(private val context: Context) {
         val skill = ApexAgentSkillSpec.fromJson(skillJson) ?: 
             throw java.lang.IllegalArgumentException("Invalid skill file format")
         
-        // 融合新行为优化技能（简化版，实际应该用LLM�?       val optimizedSteps = skill.operationSteps.toMutableList()
+        // 融合新行为优化技能（简化版，实际应该用LLM�?
+    val optimizedSteps = skill.operationSteps.toMutableList()
         newBehavior.forEach { behavior ->
             if (!optimizedSteps.contains(behavior)) {
                 optimizedSteps.add("${optimizedSteps.size + 1}. ${behavior}")

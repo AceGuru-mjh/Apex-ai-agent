@@ -22,7 +22,7 @@ class ServiceLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateReg
         private val mainHandler = Handler(Looper.getMainLooper())
         init {
         // 确保在主线程上初始化
-        if (Looper.myLooper() == Looper.getMainLooper()) {
+    if (Looper.myLooper() == Looper.getMainLooper()) {
             // 在主线程上，直接初始，
         savedStateRegistryController.performRestore(null)
         } else {
@@ -42,7 +42,7 @@ class ServiceLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateReg
         
     fun handleLifecycleEvent(event: Lifecycle.Event) {
         // 确保生命周期事件在主线程上处理
-        if (Looper.myLooper() == Looper.getMainLooper()) {
+    if (Looper.myLooper() == Looper.getMainLooper()) {
             lifecycleRegistry.handleLifecycleEvent(event)
         } else {
             // 如果不在主线程上，使用Handler将调用转到主线程

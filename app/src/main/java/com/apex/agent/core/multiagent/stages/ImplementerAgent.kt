@@ -4,6 +4,9 @@ import com.apex.agent.core.multiagent.PipelineContext
 import com.apex.agent.core.multiagent.StageAgent
 import com.apex.agent.core.multiagent.StageAgentResult
 import com.apex.util.AppLogger/** * 实现阶段 Agent * 负责代码实现 */class ImplementerAgent : StageAgent {
+import com.apex.agent.core.multiagent.AppLogger
+import com.apex.agent.orchestration.pipeline.PipelineResult
+import com.apex.core.tools.javascript.implementation
 companion
     object {
 private const

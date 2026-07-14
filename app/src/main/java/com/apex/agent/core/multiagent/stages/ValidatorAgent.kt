@@ -4,6 +4,7 @@ import com.apex.agent.core.multiagent.PipelineContext
 import com.apex.agent.core.multiagent.StageAgent
 import com.apex.agent.core.multiagent.StageAgentResult
 import com.apex.util.AppLogger/** * 验证阶段 Agent * 负责功能验证、编译检查、测试运�?*/class ValidatorAgent : StageAgent {
+import com.apex.agent.core.multiagent.AppLogger
 companion
     object {
 private const
@@ -78,7 +79,8 @@ sb.appendLine("- ${it}")
 }
     private
     fun verifyFunctional(goal: String, codeContext: String): Boolean {
-// 检查实现内容是否与目标相关        if (codeContext.isBlank()) return false
+// 检查实现内容是否与目标相关
+    if (codeContext.isBlank()) return false
     val goalKeywords = goal.split(" ").filter {
 it.length > 2
 }
@@ -93,11 +95,13 @@ keyword ->            codeContext.contains(keyword, ignoreCase = true)
     val codeBlocks = codeContext.lines().filter {
 it.trim().startsWith("```")
 }
-        // 代码块标记应成对出现        return codeBlocks.size % 2 == 0
+        // 代码块标记应成对出现
+    return codeBlocks.size % 2 == 0
 }
     private
     fun verifyTests(codeContext: String): Boolean {
-// 检查是否包含测试相关内�?       return codeContext.contains("test", ignoreCase = true) ||                codeContext.contains("测试", ignoreCase = true) ||                codeContext.contains("验证", ignoreCase = true)
+// 检查是否包含测试相关内�?
+    return codeContext.contains("test", ignoreCase = true) ||                codeContext.contains("测试", ignoreCase = true) ||                codeContext.contains("验证", ignoreCase = true)
 }
     private
     fun estimateTokenCost(output: String): Int {

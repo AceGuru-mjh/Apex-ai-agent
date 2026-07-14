@@ -58,7 +58,7 @@ class SkillVersionManager(private val context: Context) {
         if (allVersions.isEmpty()) return
 
         // 简单的优胜劣汰逻辑：如的Candidate 版本的平均评分超的Stable 版本 10%，则晋升
-        val stable = allVersions.find { it.status == LogistraSkillSpecV2.SkillStatus.STABLE }
+    val stable = allVersions.find { it.status == LogistraSkillSpecV2.SkillStatus.STABLE }
         val bestCandidate = allVersions
             .filter { it.status == LogistraSkillSpecV2.SkillStatus.CANDIDATE }
             .maxByOrNull { it.metadata.fitnessHistory.map { h -> h.score }.average() }

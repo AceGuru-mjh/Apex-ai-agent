@@ -72,6 +72,8 @@ import kotlin.system.exitProcess
 import java.io.FileInputStream
 import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.core.tools.condition.Punct
+import com.apex.core.tools.javascript.not
 private fun AudioRecordingConfiguration.tryGetClientUid(): Int? {
         return try {
         val method =            java.class.methods.firstOrNull {
@@ -125,7 +127,7 @@ class AIForegroundService : Service() {
         @Volatile
         private var lastRequestedImeVisible: Boolean = false
         // 静态标志，用于从外部检查服务是否正在运�?
-        val isRunning = java.util.concurrent.atomic.AtomicBoolean(false)
+    val isRunning = java.util.concurrent.atomic.AtomicBoolean(false)
         private val activeReplyNotificationTags = ConcurrentHashMap.newKeySet<String>()
         private val externalHttpStateFlow = MutableStateFlow(ExternalChatHttpState())
         val externalHttpState = externalHttpStateFlow.asStateFlow()
@@ -555,7 +557,7 @@ if {
         audioRecordingCallback = null        audioManager = null        wakeListeningSuspendedForExternalRecording = false
 }
         // 存储通知信息
-        private var characterName: String? = null
+    private var characterName: String? = null
         private var avatarUri: String? = null
         private var isAiBusy: Boolean = false
         @Volatile
@@ -967,7 +969,7 @@ override = configuredPort, lastError = null)            stopSelfIfIdle(ignoreApp
 }
         // ??External HTTP 处于启用状态时，使？START_STICKY 提高后台保活强度�?
         // 其他场景仍由 EnhancedAIService 与前台交互精确控制生命周期？
-        return if (isExternalHttpEnabledNow()) START_STICKY else START_NOT_STICKY
+    return if (isExternalHttpEnabledNow()) START_STICKY else START_NOT_STICKY
 }
         override fun onDestroy() {
         val stoppedPort = externalHttpCurrentPort ?: externalHttpStateFlow.value.port        runCatching {
@@ -979,7 +981,7 @@ override = configuredPort, lastError = null)            stopSelfIfIdle(ignoreApp
 }
         override fun onBind(intent: Intent): IBinder? {
         // 该服务是启动服务，不提供绑定功能�?
-        return null
+    return null
 }
         private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1371,7 +1373,7 @@ Punct
         private fun createNotification(): Notification {
         // 为了简单起见，使用一个安卓内置图标？
         // 在实际项目中，应替换为应用的自定义图标？
-        val wakeListeningEnabledSnapshot = wakeListeningEnabled
+    val wakeListeningEnabledSnapshot = wakeListeningEnabled
         val wakeListeningSuspendedSnapshot = wakeListeningSuspendedForIme || wakeListeningSuspendedForExternalRecording || wakeListeningSuspendedForFloatingFullscreen
         val externalHttpSnapshot = externalHttpStateFlow.value
         val title =
@@ -1413,7 +1415,7 @@ Punct
                 getString(R.string.service_Apex_running)
 }
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)            .setContentTitle(title)            .setContentText(contentText)            .setSmallIcon(android.R.drawable.ic_dialog_info)            .setPriority(NotificationCompat.PRIORITY_LOW)            .setOngoing(true) // 使通知不可被用户清�?
-        val contentIntent = Intent(this, MainActivity::class.java).apply {
+    val contentIntent = Intent(this, MainActivity::class.java).apply {
             flags =                Intent.FLAG_ACTIVITY_NEW_TASK or                    Intent.FLAG_ACTIVITY_CLEAR_TOP or                    Intent.FLAG_ACTIVITY_SINGLE_TOP
 }
         val contentPendingIntent = PendingIntent.getActivity(            this,            0,            contentIntent,

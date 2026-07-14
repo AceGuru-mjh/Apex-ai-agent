@@ -25,13 +25,13 @@ data class Persona(
     val name: String,
     val displayName: String,
     val avatar: String,             // emoji 或图标标识
-        val description: String,
+    val description: String,
     val systemPrompt: String,       // 角色的 system prompt
-        val personality: Personality,
+    val personality: Personality,
     val speakingStyle: SpeakingStyle,
     val catchphrases: List<String> = emptyList(),  // 口头禅
-        val expertise: List<String> = emptyList(),     // 专长领域
-        val appropriateScenes: Set<String> = emptySet(),
+    val expertise: List<String> = emptyList(),     // 专长领域
+    val appropriateScenes: Set<String> = emptySet(),
     val isBuiltin: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -41,13 +41,13 @@ data class Persona(
  */
 data class Personality(
     val openness: Float = 0.5f,          // 开放性 0-1
-        val conscientiousness: Float = 0.5f, // 尽责性
-        val extraversion: Float = 0.5f,      // 外向性
-        val agreeableness: Float = 0.5f,     // 宜人性
-        val neuroticism: Float = 0.5f,       // 神经质
-        val humor: Float = 0.5f,             // 幽默感
-        val warmth: Float = 0.5f,            // 温暖度
-        val formality: Float = 0.5f          // 正式度
+    val conscientiousness: Float = 0.5f, // 尽责性
+    val extraversion: Float = 0.5f,      // 外向性
+    val agreeableness: Float = 0.5f,     // 宜人性
+    val neuroticism: Float = 0.5f,       // 神经质
+    val humor: Float = 0.5f,             // 幽默感
+    val warmth: Float = 0.5f,            // 温暖度
+    val formality: Float = 0.5f          // 正式度
 )
 
 /**
@@ -178,7 +178,7 @@ class PersonaRegistry {
     }
 
     // ============ 预置角色 ============
-        private fun registerBuiltinPersonas() {
+    private fun registerBuiltinPersonas() {
         // 学者
         register(Persona(
             id = "persona_scholar",

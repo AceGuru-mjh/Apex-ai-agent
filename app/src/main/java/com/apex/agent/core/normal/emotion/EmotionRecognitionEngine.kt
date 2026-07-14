@@ -188,7 +188,7 @@ class EmotionRecognitionEngine {
         val cues = mutableListOf<EmotionCue>()
 
         // 1. 关键词匹配
-        val emotionScores = mutableMapOf<Emotion, Float>()
+    val emotionScores = mutableMapOf<Emotion, Float>()
         val textLower = text.lowercase()
 
         for ((emotion, keywords) in emotionKeywords) {
@@ -202,7 +202,7 @@ class EmotionRecognitionEngine {
         }
 
         // 2. 表情符号
-        for ((emoji, emotion) in emojiEmotions) {
+    for ((emoji, emotion) in emojiEmotions) {
             if (text.contains(emoji)) {
                 emotionScores[emotion] = (emotionScores[emotion] ?: 0f) + 1.5f
                 cues.add(EmotionCue(CueType.EMOJI, emoji, 1.5f))
@@ -210,10 +210,10 @@ class EmotionRecognitionEngine {
         }
 
         // 3. 标点符号（感叹号=兴奋/愤怒，问号=困惑）
-        val exclamationCount = text.count { it == '!' || it == '！' }
+    val exclamationCount = text.count { it == '!' || it == '！' }
         if (exclamationCount >= 2) {
             // 根据上下文判断是兴奋还是愤怒
-            val targetEmotion = if (emotionScores[Emotion.ANGRY] ?: 0f > 0) Emotion.ANGRY else Emotion.EXCITED
+    val targetEmotion = if (emotionScores[Emotion.ANGRY] ?: 0f > 0) Emotion.ANGRY else Emotion.EXCITED
             emotionScores[targetEmotion] = (emotionScores[targetEmotion] ?: 0f) + exclamationCount * 0.3f
             cues.add(EmotionCue(CueType.PUNCTUATION, "!".repeat(exclamationCount), exclamationCount * 0.3f))
         }
@@ -225,7 +225,7 @@ class EmotionRecognitionEngine {
         }
 
         // 4. 大写（英文）
-        val upperCaseRatio = if (text.any { it.isLetter() }) {
+    val upperCaseRatio = if (text.any { it.isLetter() }) {
             text.count { it.isUpperCase() && it.isLetter() }.toFloat() / text.count { it.isLetter() }
         } else 0f
         if (upperCaseRatio > 0.5f && text.length > 5) {
@@ -234,7 +234,7 @@ class EmotionRecognitionEngine {
         }
 
         // 5. 重复字符（soooo, ！！！）
-        val repetitionPattern = Regex("(.)\\1{2,}")
+    val repetitionPattern = Regex("(.)\\1{2,}")
         repetitionPattern.findAll(text).forEach { match ->
             val emotion = if (match.value.first() == '!' || match.value.first() == '！') Emotion.EXCITED else Emotion.HAPPY
             emotionScores[emotion] = (emotionScores[emotion] ?: 0f) + 0.3f
@@ -242,7 +242,7 @@ class EmotionRecognitionEngine {
         }
 
         // 6. 强度词
-        var intensityMultiplier = 1.0f
+    var intensityMultiplier = 1.0f
         for ((intensifier, multiplier) in intensifiers) {
             if (textLower.contains(intensifier)) {
                 intensityMultiplier *= multiplier
@@ -251,7 +251,7 @@ class EmotionRecognitionEngine {
         }
 
         // 选择主要情感
-        val sorted = emotionScores.entries.sortedByDescending { it.value }
+    val sorted = emotionScores.entries.sortedByDescending { it.value }
         val primaryEmotion = sorted.firstOrNull()?.key ?: Emotion.NEUTRAL
         val secondaryEmotion = sorted.getOrNull(1)?.key
         val confidence = if (sorted.isNotEmpty()) {
@@ -261,10 +261,10 @@ class EmotionRecognitionEngine {
         val dimensions = computeDimensions(primaryEmotion, intensity)
 
         // 生成响应语气建议
-        val responseTone = suggestResponseTone(primaryEmotion, intensity)
+    val responseTone = suggestResponseTone(primaryEmotion, intensity)
 
         // 追踪
-        if (chatId != null) {
+    if (chatId != null) {
             val entry = EmotionTrackEntry(System.currentTimeMillis(), primaryEmotion, intensity.coerceIn(0f, 1f), messageId)
             tracks.computeIfAbsent(chatId) { mutableListOf() }.add(entry)
         }
@@ -320,7 +320,7 @@ class EmotionRecognitionEngine {
         if (toneSnippet.isNotBlank()) sb.append("\n").append(toneSnippet)
 
         // 特殊共情指导
-        when (analysis.primaryEmotion) {
+    when (analysis.primaryEmotion) {
             Emotion.SAD -> sb.append("\n[共情指导] 用户情绪低落，先表达理解与陪伴，再提供帮助")
             Emotion.ANGRY, Emotion.FRUSTRATED -> sb.append("\n[共情指导] 用户情绪激动，先认同感受，避免说教，提供解决方案")
             Emotion.ANXIOUS -> sb.append("\n[共情指导] 用户焦虑，给予安抚与确定性信息，分步骤说明")
@@ -336,7 +336,6 @@ class EmotionRecognitionEngine {
     }
 
     // ============ 内部方法 ============
-
     private fun computeDimensions(emotion: Emotion, intensity: Float): EmotionDimension {
         val base = when (emotion) {
             Emotion.HAPPY -> Triple(0.8f, 0.3f, 0.5f)
@@ -425,12 +424,12 @@ class EmotionRecognitionEngine {
         val pleasureValues = recent.map { computeDimensions(it.emotion, it.intensity).pleasure }
 
         // 简单线性趋势
-        val firstHalf = pleasureValues.take(pleasureValues.size / 2).average()
+    val firstHalf = pleasureValues.take(pleasureValues.size / 2).average()
         val secondHalf = pleasureValues.drop(pleasureValues.size / 2).average()
         val diff = secondHalf - firstHalf
 
         // 波动性
-        val variance = pleasureValues.map { (it - pleasureValues.average()).let { d -> d * d } }.average()
+    val variance = pleasureValues.map { (it - pleasureValues.average()).let { d -> d * d } }.average()
 
         return when {
             variance > 0.3 -> EmotionTrend.VOLATILE

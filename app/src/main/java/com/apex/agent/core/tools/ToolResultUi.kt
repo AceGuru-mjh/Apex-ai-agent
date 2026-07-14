@@ -60,7 +60,7 @@ data class SimplifiedUINode(
         private fun shouldKeepNode(): Boolean {
         // Keep conditions: key element types or has content or clickable or has children that
         // should be kept
-        val isKeyElement =
+    val isKeyElement =
                 className in
                         setOf("Button", "TextView", "EditText", "ScrollView", "Switch", "ImageView")
         val hasContent = !text.isNullOrBlank() || !contentDesc.isNullOrBlank()
@@ -120,7 +120,7 @@ data class CombinedOperationResultData(
 data class ComputerPageInfoNode(
     val interactionId: Int?,
     val type: String, // e.g., "container", "button", "link", "text", "input"
-        val description: String,
+    val description: String,
     val children: List<ComputerPageInfoNode>
 ) {
     fun toTreeString(level: Int = 0): String {

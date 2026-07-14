@@ -1,6 +1,7 @@
 package com.apex.api.chat.enhance
 
 import com.apex.util.AppLogger
+import com.apex.api.chat.enhance.ConversationScenario
 
 /**
  * 动态模型参数适配�?* 根据用户提问类型自动调整模型参数，提升回答质量和适配�?*/
@@ -86,7 +87,8 @@ object DynamicModelParamsAdapter {
     fun getDynamicModelParams(userInput: String): ModelParams {
         val inputLower = userInput.lowercase()
         
-        // 检查每个规�?       for (rule in scenarioRules) {
+        // 检查每个规�?
+    for (rule in scenarioRules) {
             if (matchesAnyKeyword(inputLower, rule.keywords)) {
                 AppLogger.d(TAG, "匹配到场�?${rule.scenario.name}, 用户输入: ${userInput.take(50)}")
                 return rule.params

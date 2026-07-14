@@ -203,7 +203,7 @@ class OperationLogger(private val maxEntries: Int = 1000) {
         logEntries.add(entry)
         
         // 如果超过最大条目数，删除最旧的条目
-        if (logEntries.size > maxEntries) {
+    if (logEntries.size > maxEntries) {
             logEntries.removeAt(0)
         }
     }

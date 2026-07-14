@@ -16,6 +16,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.javascript.not
 
 /** * Handles the extraction and execution of AI tools from responses Supports real-time streaming * extraction and execution of tools */
 class AIToolHandler private constructor(
@@ -31,7 +33,8 @@ private val context: Context) {
 }
 }
     // Available tools regis
-try    private val availableTools = ConcurrentHashMap<String, ToolExecutor>()    private val toolHooks = CopyOnWriteArrayList<AIToolHook>()    private val defaultToolsRegistered = AtomicBoolean(false)    private val registrationLock = Any()    // Tool permission system    private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
+try    private val availableTools = ConcurrentHashMap<String, ToolExecutor>()    private val toolHooks = CopyOnWriteArrayList<AIToolHook>()    private val defaultToolsRegistered = AtomicBoolean(false)    private val registrationLock = Any()    // Tool permission system
+    private val toolPermissionSystem = ToolPermissionSystem.getInstance(context)
 
     /** Get the tool permission system for UI use */    fun getToolPermissionSystem(): ToolPermissionSystem {
         return toolPermissionSystem
@@ -115,7 +118,8 @@ eventName
         return toolPermissionSystem.refreshPermissionRequestState()
 }
 // 工具注册的唯一方法 - 提供完整信息的注�?   fun registerTool(            name: String,            descriptionGenerator: ((AITool) -> String)? = null,            executor: ToolExecutor    ) {
-        availableTools[name] = executor        // 注册描述生成器（如果提供�?       if (descriptionGenerator != null) {
+        availableTools[name] = executor        // 注册描述生成器（如果提供�?
+    if (descriptionGenerator != null) {
             toolPermissionSystem.registerOperationDescription(name, descriptionGenerator)
 }
 }
@@ -127,12 +131,14 @@ eventName
 }
         )
 }
-// Register all default tools    fun registerDefaultTools() {
+// Register all default tools
+    fun registerDefaultTools() {
         if (defaultToolsRegistered.get()) return        synchronized(registrationLock) {
             if (defaultToolsRegistered.get()) return            registerAllTools(this, context)            defaultToolsRegistered.set(true)
 }
 }
-    // Package manager instance (lazy initialized)    private var packageManagerInstance: PackageManager? = null
+    // Package manager instance (lazy initialized)
+    private var packageManagerInstance: PackageManager? = null
 
     /** Gets or creates the package manager instance */    fun getOrCreatePackageManager(): PackageManager {
         return packageManagerInstance                ?: run {
@@ -238,7 +244,8 @@ tool.name
 }
 "                    )            notifyToolExecutionResult(tool, notFoundResult)            notifyToolExecutionFinished(tool)            return notFoundResult
 }
-// Validate parameters        val validationResult = executor.validateParameters(tool)        if (!validationResult.valid) {
+// Validate parameters
+    val validationResult = executor.validateParameters(tool)        if (!validationResult.valid) {
             val validationFailedResult =                    ToolResult(                            toolName = tool.name,                            success = false,                            result = StringResult
 data(""),                            error = validationResult.errorMessage                    )            notifyToolExecutionResult(tool, validationFailedResult)            notifyToolExecutionFinished(tool)            return validationFailedResult
 }

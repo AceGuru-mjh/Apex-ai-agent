@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
+import com.apex.agent.core.multiagent.FaultType
+import com.apex.agent.core.multiagent.HealthMetrics
 
 class SelfHealingManager(private val context: Context) {
 

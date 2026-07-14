@@ -44,7 +44,8 @@ class UserProfileManager private constructor(
         // 先从缓存获取
         profileCache[userId]?.let { return@withContext it }
         
-        // 从存储获�?      val profile = memoryRepository.getHonzonProfile(userId)
+        // 从存储获�?
+    val profile = memoryRepository.getHonzonProfile(userId)
         profileCache[userId] = profile
         profile
     }
@@ -75,7 +76,7 @@ class UserProfileManager private constructor(
         val success = memoryRepository.updateHonzonProfile(userId, dimension, value)
         if (success) {
             // 更新缓存
-            val profile = profileCache[userId]
+    val profile = profileCache[userId]
             if (profile != null) {
                 profile.updateDimension(dimension, value)
             }

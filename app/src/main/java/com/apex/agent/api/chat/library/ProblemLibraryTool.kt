@@ -75,7 +75,8 @@ class ProblemLibraryTool private constructor(private val context: Context) {
 
     // 将Memory转换为ProblemRecord
     private fun convertToProblemRecord(memory: Memory): ProblemRecord {
-        // 尝试从内容中提取问题和解决方�?      val contentParts = memory.content.split("\n\n")
+        // 尝试从内容中提取问题和解决方�?
+    val contentParts = memory.content.split("\n\n")
         val questionLabel = context.getString(R.string.problem_library_question_label)
         val solutionLabel = context.getString(R.string.problem_library_solution_label)
 
@@ -94,7 +95,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
                 }
 
         // 提取工具信息 - 从标签中获取
-        val tools =
+    val tools =
                 memory.tags.filter { it.name.startsWith("tool:") }.map {
                     it.name.substringAfter("tool:")
                 }
@@ -116,7 +117,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
         kotlinx.coroutines.runBlocking {
             try {
                 // 转换为Memory对象
-                val memory = convertToMemory(record)
+    val memory = convertToMemory(record)
                 AppLogger.d(TAG, "[Legacy] 已将ProblemRecord转换为Memory对象")
 
                 memoryRepository.createMemory(memory)
@@ -141,7 +142,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
         return kotlinx.coroutines.runBlocking {
             try {
                 // 查询带有ProblemLibrary标签的所有Memory
-                val memories = memoryRepository.searchMemories("ProblemLibrary_Legacy")
+    val memories = memoryRepository.searchMemories("ProblemLibrary_Legacy")
                 memories.map { convertToProblemRecord(it) }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "获取所有Legacy 问题记录失败: ${e.message}", e)
@@ -156,13 +157,15 @@ class ProblemLibraryTool private constructor(private val context: Context) {
                 try {
                     if (query.isBlank()) {
                         // 如果查询为空，返回所有带ProblemLibrary标签的Memory
-                        val memories = memoryRepository.searchMemories("ProblemLibrary_Legacy")
+    val memories = memoryRepository.searchMemories("ProblemLibrary_Legacy")
                         return@withContext memories.map { convertToProblemRecord(it) }
                     }
 
-                    // 使用MemoryRepository的语义搜�?                  val memories = memoryRepository.searchMemories(query)
+                    // 使用MemoryRepository的语义搜�?
+    val memories = memoryRepository.searchMemories(query)
 
-                    // 只返回带有ProblemLibrary标签的结�?                   val filteredMemories =
+                    // 只返回带有ProblemLibrary标签的结�?
+    val filteredMemories =
                             memories.filter { memory ->
                                 memory.tags.any { it.name == "ProblemLibrary_Legacy" }
                             }
@@ -200,8 +203,9 @@ class ProblemLibraryTool private constructor(private val context: Context) {
     suspend fun queryProblemLibrary(query: String): String =
             withContext(Dispatchers.IO) {
                 try {
-                    // 搜索问题�?                   val searchResults = searchProblemLibrary(query).take(5) // 最多返回条记的
-                    if (searchResults.isEmpty()) {
+                    // 搜索问题�?
+    val searchResults = searchProblemLibrary(query).take(5) // 最多返回条记的
+    if (searchResults.isEmpty()) {
                         return@withContext context.getString(R.string.problem_library_no_legacy_found)
                     }
 
@@ -224,7 +228,7 @@ class ProblemLibraryTool private constructor(private val context: Context) {
             result.appendLine("\nUUID: ${record.uuid}")
 
             // 优先显示摘要，如果没有则显示原始查询
-            if (record.summary.isNotEmpty()) {
+    if (record.summary.isNotEmpty()) {
                 result.appendLine(context.getString(R.string.problem_library_summary, record.summary))
             } else {
                 result.appendLine(context.getString(R.string.problem_library_query, record.query))

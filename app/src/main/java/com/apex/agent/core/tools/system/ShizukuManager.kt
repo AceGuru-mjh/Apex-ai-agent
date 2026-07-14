@@ -151,12 +151,12 @@ object ShizukuManager {
         }
 
         // 检�?SUI 后端
-        if (checkIsSuiBackend()) {
+    if (checkIsSuiBackend()) {
             return true
         }
 
         // 检�?Shizuku �?
-        return try {
+    return try {
             pm?.getPackageInfo(SHIZUKU_PACKAGE, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {

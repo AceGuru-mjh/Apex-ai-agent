@@ -6,6 +6,8 @@ import com.apex.agent.mts.MtsEngine
 import com.apex.agent.mts.executor.ExecutionConfig
 import com.apex.agent.mts.executor.ToolInvoker
 import com.apex.agent.mts.schema.*
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.StringResultData
 
 class LegacyToolBridge(context: Context) {
     private val toolHandler = AIToolHandler.getInstance(context)

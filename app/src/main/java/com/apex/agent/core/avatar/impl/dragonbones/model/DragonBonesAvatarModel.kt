@@ -4,6 +4,7 @@ import com.apex.agent.core.avatar.common.model.AvatarType
 import com.apex.agent.core.avatar.common.model.ISkeletalAvatarModel
 import java.io.File
 import com.apex.data.model.DragonBonesModel as DragonBonesDataModel
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * A concrete implementation of [ISkeletalAvatarModel] for DragonBones avatars.

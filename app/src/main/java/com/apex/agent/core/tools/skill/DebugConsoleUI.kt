@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 class DebugConsoleUI private constructor(private val context: Context) {
 

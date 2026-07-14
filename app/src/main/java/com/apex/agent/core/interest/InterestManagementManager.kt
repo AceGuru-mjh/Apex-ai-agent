@@ -43,7 +43,7 @@ class InterestManagementManager private constructor(
         interestCache[userId]?.let { return@withContext it }
         
         // 分析兴趣
-        val profile = interestAnalyzer.analyzeInterests(messages, userProfile)
+    val profile = interestAnalyzer.analyzeInterests(messages, userProfile)
         interestCache[userId] = profile
         profile
     }

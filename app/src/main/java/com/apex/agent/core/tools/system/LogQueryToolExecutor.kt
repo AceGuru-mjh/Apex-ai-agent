@@ -4,6 +4,9 @@ import android.content.Context
 import com.apex.data.model.AITool
 import com.apex.data.model.ToolResult
 import com.apex.data.model.StringResultData
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.agent.core.tools.system.LogType
+import com.apex.gepa.LogLevel
 
 /**
  * 日志查询工具执行�? */
@@ -17,7 +20,7 @@ object LogQueryToolExecutor {
             val logQueryManager = SmartLogQueryManager(context)
             
             // 解析参数
-            val keyword = tool.parameters.find { it.name == "keyword" }?.value
+    val keyword = tool.parameters.find { it.name == "keyword" }?.value
             val logTypeStr = tool.parameters.find { it.name == "log_type" }?.value ?: "auto"
             val levelStr = tool.parameters.find { it.name == "level" }?.value
             val tag = tool.parameters.find { it.name == "tag" }?.value
@@ -26,7 +29,7 @@ object LogQueryToolExecutor {
             val agentId = tool.parameters.find { it.name == "agent_id" }?.value
             
             // 映射日志类型
-            val logType = when (logTypeStr.lowercase()) {
+    val logType = when (logTypeStr.lowercase()) {
                 "system", "logcat" -> SmartLogQueryManager.LogType.SYSTEM_LOGCAT
                 "app", "applogger" -> SmartLogQueryManager.LogType.APP_LOGGER
                 "gepa" -> SmartLogQueryManager.LogType.GEPA_LOGS
@@ -39,7 +42,7 @@ object LogQueryToolExecutor {
             }
             
             // 映射日志级别
-            val level = when (levelStr?.uppercase()) {
+    val level = when (levelStr?.uppercase()) {
                 "VERBOSE" -> SmartLogQueryManager.LogLevel.VERBOSE
                 "DEBUG" -> SmartLogQueryManager.LogLevel.DEBUG
                 "INFO" -> SmartLogQueryManager.LogLevel.INFO
@@ -49,7 +52,8 @@ object LogQueryToolExecutor {
                 else -> null
             }
             
-            // 构建过滤�?            val filter = SmartLogQueryManager.LogFilter(
+            // 构建过滤�?
+    val filter = SmartLogQueryManager.LogFilter(
                 logType = logType,
                 level = level,
                 tag = tag,
@@ -60,10 +64,11 @@ object LogQueryToolExecutor {
             )
             
             // 执行查询
-            val result = logQueryManager.queryLogs(filter)
+    val result = logQueryManager.queryLogs(filter)
             
             if (result.success) {
-                // 格式化输�?                val output = buildString {
+                // 格式化输�?
+    val output = buildString {
                     appendLine("=== 日志查询结果 ===")
                     appendLine("日志类型: ${result.logType}")
                     appendLine("总条�?${result.totalCount}")

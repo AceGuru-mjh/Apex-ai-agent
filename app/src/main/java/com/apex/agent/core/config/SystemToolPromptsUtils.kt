@@ -2,6 +2,7 @@ package com.apex.core.config
 
 import com.apex.data.model.SystemToolPromptCategory
 import com.apex.data.model.ToolPrompt
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 object SystemToolPromptsUtils {
 

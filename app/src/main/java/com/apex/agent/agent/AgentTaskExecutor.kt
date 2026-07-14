@@ -109,7 +109,7 @@ class AgentTaskExecutor(
         val job = scope.launch {
             try {
                 // 等待 Agent 就绪
-                val agentReady = lifecycleManager?.let { mgr ->
+    val agentReady = lifecycleManager?.let { mgr ->
                     mgr.getState(agent.agentId) == null || mgr.getState(agent.agentId) == AgentLifecycleState.ACTIVE
                 } ?: true
 
@@ -120,11 +120,11 @@ class AgentTaskExecutor(
                 }
 
                 // 进入运行状态
-                val runningState = TaskExecutionState.Running(agent.agentId, System.currentTimeMillis())
+    val runningState = TaskExecutionState.Running(agent.agentId, System.currentTimeMillis())
                 updateState(taskId, runningState, onStateUpdate)
 
                 // 执行（带重试）
-                val result = executeWithRetry(agent, task, config, taskId, onStateUpdate)
+    val result = executeWithRetry(agent, task, config, taskId, onStateUpdate)
 
                 val finalState = if (result.success) {
                     TaskExecutionState.Completed(result)
@@ -209,7 +209,6 @@ class AgentTaskExecutor(
     }
 
     // ===== 内部方法 =====
-
     private suspend fun executeWithRetry(
         agent: SubAgent,
         task: SubTask,
@@ -255,14 +254,14 @@ class AgentTaskExecutor(
             lastResult = result
 
             // 成功则返回
-            if (result.success) {
+    if (result.success) {
                 return result
             }
 
             // 最后一次尝试不再等待
-            if (attempt < totalAttempts) {
+    if (attempt < totalAttempts) {
                 // 通知重试
-                if (config.enableProgress) {
+    if (config.enableProgress) {
                     val progressState = TaskExecutionState.Progress(
                         agentId = agent.agentId,
                         progress = attempt.toFloat() / totalAttempts,

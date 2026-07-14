@@ -31,6 +31,9 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers as CoroutineDispatchers
+import com.apex.agent.core.patterns.CommandResult
+import com.apex.agent.core.tools.system.shell.PermissionStatus
+import com.apex.agent.core.tools.system.shell.ShellProcess
 
 /** 提供Root权限的Shell命令执行，实现ROOT权限检测和命令执行 */
 class RootShellExecutor(private val context: Context) : ShellExecutor {
@@ -128,22 +131,23 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
             applyExecutionModePreferenceOverride()
 
             // 如果使用exec模式，检查su命令是否可用
-            if (useExecMode) {
+    if (useExecMode) {
                 return checkExecSuAvailable()
             }
             
-            // 如果已经检测过，直接返回缓存结果，避免每次重复检                       if (rootAvailable != null) {
+            // 如果已经检测过，直接返回缓存结果，避免每次重复检
+    if (rootAvailable != null) {
                 // 使用更轻量的日志级别，使用缓存的Root结果                AppLogger.v(TAG, "使用缓存的Root结果: ${rootAvailable}")
-                return rootAvailable ?: false
+    return rootAvailable ?: false
             }
 
-            // 使用 libsu 检?root 权限
-            val hasRoot = Shell.getShell().isRoot
+            // 使用 libsu 检root 权限
+    val hasRoot = Shell.getShell().isRoot
             val previousValue = rootAvailable
             rootAvailable = hasRoot
             
             // 只在初次检测或值变化时打印日志
-            if (previousValue != hasRoot) {
+    if (previousValue != hasRoot) {
                 AppLogger.d(TAG, "Root 检测结 ${hasRoot}")
             }
             return hasRoot
@@ -201,16 +205,16 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
             applyExecutionModePreferenceOverride()
 
             // 如果使用exec模式，检查su命令是否可用
-            if (useExecMode) {
+    if (useExecMode) {
                 refreshExecSuCommandFromPreferences()
                 rootAvailable = checkExecSuAvailable()
-                AppLogger.d(TAG, "使用exec模式初始?Root 状 ${rootAvailable}")
+                AppLogger.d(TAG, "使用exec模式初始Root 状 ${rootAvailable}")
                 return
             }
             
-            // 初始?libsu ?Shell 实例
+            // 初始libsu ?Shell 实例
             Shell.getShell { shell ->
-                AppLogger.d(TAG, "Shell 初始化完?root: ${shell.isRoot}")
+                AppLogger.d(TAG, "Shell 初始化完root: ${shell.isRoot}")
                 rootAvailable = shell.isRoot
             }
         } catch (e: Exception) {
@@ -221,7 +225,8 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
 
     override fun requestPermission(onResult: (Boolean) -> Unit) {
         try {
-            // Root权限无法通过代码请求，只能提示用�?           val hasRoot = isAvailable()
+            // Root权限无法通过代码请求，只能提示用�?
+    val hasRoot = isAvailable()
             onResult(hasRoot)
 
             if (!hasRoot) {
@@ -240,12 +245,12 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
      */
     private fun extractActualCommand(command: String): String {
         // 检查命令是否是run-as格式
-        val runAsPattern = """run-as\s+(\S+)\s+sh\s+-c\s+['"](.+)['"]""".toRegex()
+    val runAsPattern = """run-as\s+(\S+)\s+sh\s+-c\s+['"](.+)['"]""".toRegex()
         val match = runAsPattern.find(command)
         
         return if (match != null) {
             // 获取内部命令
-            val innerCommand = match.groupValues[2]
+    val innerCommand = match.groupValues[2]
             // 使用更轻量的日志级别            AppLogger.v(TAG, "提取run-as内部命令: ${innerCommand}")
             innerCommand
         } else {
@@ -255,7 +260,7 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
     }
     
     /**
-     * 确保用于shell命令执行的本?launcher 二进制文件已从assets复制到可执行路径
+     * 确保用于shell命令执行的本launcher 二进制文件已从assets复制到可执行路径
      * @return 可执行文件的绝对路径，如果复制失败则返回空字符串
      */
     private fun ensureShellLauncherInstalled(): String {
@@ -299,7 +304,7 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
                 AppLogger.d(TAG, "使用exec执行Root命令: ${command}")
 
                 // 执行 su -c 命令
-                val process = Runtime.getRuntime().exec(buildSuExecCommand(command))
+    val process = Runtime.getRuntime().exec(buildSuExecCommand(command))
                 
                 var stdoutStr = ""
                 var stderrStr = ""
@@ -461,7 +466,7 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
                         }
                         ShellIdentity.ROOT, ShellIdentity.DEFAULT, ShellIdentity.APP -> {
                             // 使用原始 Root 命令执行逻辑
-                            if (useExecMode) {
+    if (useExecMode) {
                                 executeCommandWithExec(actualCommand)
                             } else {
                                 AppLogger.d(TAG, "执行Root命令: ${actualCommand} (原始命令: ${command})")
@@ -507,7 +512,7 @@ class RootShellExecutor(private val context: Context) : ShellExecutor {
 }
 
 /**
- * 使用 libsu 实现?ShellProcess */
+ * 使用 libsu 实现ShellProcess */
 private class LibSuShellProcess(command: String) : ShellProcess {
     private val stdoutChannel = Channel<String>(capacity = 256, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val stderrChannel = Channel<String>(capacity = 256, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -566,7 +571,7 @@ private class LibSuShellProcess(command: String) : ShellProcess {
 }
 
 /**
- * 使用传统 `Runtime.exec("su")` 实现?ShellProcess */
+ * 使用传统 `Runtime.exec("su")` 实现ShellProcess */
 private class ExecRootShellProcess(command: String, suCommand: Array<String>) : ShellProcess {
     private val process: Process = Runtime.getRuntime().exec(suCommand)
 

@@ -1659,7 +1659,7 @@ internal class WebSessionUserscriptManager(
         if (!isAiServiceSite(siteKey)) return
         
         // 提取完整�?Cookie 字符�?
-        val cookiesString = buildCookiesString(pageUrl)
+    val cookiesString = buildCookiesString(pageUrl)
         if (cookiesString.isEmpty()) return
         
         // 保存�?Agent 登录存储

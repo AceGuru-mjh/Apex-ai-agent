@@ -66,6 +66,7 @@ import kotlinx.coroutines.runBlocking
 import androidx.core.content.ContextCompat
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor {
 

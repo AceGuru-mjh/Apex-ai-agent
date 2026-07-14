@@ -26,8 +26,8 @@ data class SceneTemplate(
     val systemPrompt: String,
     val recommendedTools: List<String> = emptyList(),
     val recommendedDepth: String = "standard",  // brief/standard/detailed/comprehensive
-        val recommendedStyle: String = "balanced",   // balanced/technical/conversational/academic
-        val suggestedParams: Map<String, Any> = emptyMap(),
+    val recommendedStyle: String = "balanced",   // balanced/technical/conversational/academic
+    val suggestedParams: Map<String, Any> = emptyMap(),
     val exampleQuestions: List<String> = emptyList(),
     val category: SceneCategory,
     val tags: List<String> = emptyList(),
@@ -128,7 +128,7 @@ class SceneTemplateRegistry {
     }
 
     // ============ 预置模板 ============
-        private fun registerBuiltinTemplates() {
+    private fun registerBuiltinTemplates() {
         // 编程助手
         register(SceneTemplate(
             id = "scene_programming",

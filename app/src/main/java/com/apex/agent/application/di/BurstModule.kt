@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.apex.api.chat.llmprovider.AIService
 
 /**
  * Burst 模块的 Hilt 依赖图。
@@ -40,7 +41,7 @@ object BurstModule {
         @ApplicationContext ctx: Context
     ): AgentCollaborationFramework {
         // EnhancedAIService 是单例，getInstance 内部双重检查锁
-        val aiService: com.apex.agent.api.chat.llmprovider.AIService =
+    val aiService: com.apex.agent.api.chat.llmprovider.AIService =
             EnhancedAIService.getInstance(ctx)
         return AgentCollaborationFramework(ctx, aiService)
     }

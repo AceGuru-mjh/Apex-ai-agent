@@ -173,7 +173,7 @@ object UIToolsConfig {
                         
                         if (appName.isNotBlank() && packageName.isNotBlank()) {
                             // 只添加不在内置列表中的应�?
-                            if (!BUILTIN_APP_PACKAGES.containsKey(appName)) {
+    if (!BUILTIN_APP_PACKAGES.containsKey(appName)) {
                                 newPackages[appName] = packageName
                             }
                         }

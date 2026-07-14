@@ -316,13 +316,13 @@ object HermesIntegration {
                 logger.debug("Fetched ${models.size} models from provider ${providerProfile.name}")
 
                 // Filter models based on provider capabilities
-                val filteredModels = filterModelsByProviderCapability(models, providerProfile)
+    val filteredModels = filterModelsByProviderCapability(models, providerProfile)
 
                 // Update model selector with available models
                 logger.debug("Filtered to ${filteredModels.size} models based on provider capabilities")
 
                 // Set default model if available
-                val defaultModel = filteredModels.find { it.id == providerProfile.defaultModel }
+    val defaultModel = filteredModels.find { it.id == providerProfile.defaultModel }
                     ?: filteredModels.firstOrNull()
 
                 if (defaultModel != null) {
@@ -352,11 +352,11 @@ object HermesIntegration {
         linkedSkillManager.value = skillManager
 
         // Register all capabilities from CapabilityRegistry to SkillManager
-        val capabilityRegistry = CapabilityRegistry.getInstance()
+    val capabilityRegistry = CapabilityRegistry.getInstance()
         val allCapabilities = capabilityRegistry.getAllCapabilities()
 
         // Dynamic capability listener that keeps SkillManager in sync
-        val listener = object : CapabilityRegistry.CapabilityChangeListener {
+    val listener = object : CapabilityRegistry.CapabilityChangeListener {
             override fun onCapabilityRegistered(capability: Capability) {
                 registerCapabilityWithSkillManager(skillManager, capability)
             }
@@ -413,7 +413,7 @@ object HermesIntegration {
         extensionRegistry[capability.name] = extension
 
         // Attempt to preload a skill with the same name so the skill system can invoke it
-        return try {
+    return try {
             skillManager.preloadSkill(capability.name)
         } catch (e: Exception) {
             logger.warn("Could not preload skill for capability ${capability.name}: ${e.message}")
@@ -481,11 +481,11 @@ object HermesIntegration {
     private fun createChatHistoryAdapter(context: Context): ChatHistoryPort {
         // In production, this would wrap the actual ChatHistoryManager
         // For now, return a no-op adapter that can be replaced with actual implementation
-        return object : ChatHistoryPort {
+    return object : ChatHistoryPort {
             override suspend fun loadMessages(chatId: String): List<ChatMessage> {
                 return try {
                     // Attempt to use ChatHistoryManager if available via reflection
-                    val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
+    val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
                     val getInstanceMethod = chatHistoryManagerClass.getMethod("getInstance", Context::class.java)
                     val manager = getInstanceMethod.invoke(null, context)
                     val loadMessagesMethod = chatHistoryManagerClass.getMethod("loadChatMessages", String::class.java)
@@ -501,7 +501,7 @@ object HermesIntegration {
             override suspend fun saveMessage(chatId: String, message: ChatMessage): Boolean {
                 return try {
                     // Attempt to use ChatHistoryManager if available via reflection
-                    val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
+    val chatHistoryManagerClass = Class.forName("com.apex.data.repository.ChatHistoryManager")
                     val getInstanceMethod = chatHistoryManagerClass.getMethod("getInstance", Context::class.java)
                     val manager = getInstanceMethod.invoke(null, context)
                     val addMessageMethod = chatHistoryManagerClass.getMethod("addMessage", String::class.java, ChatMessage::class.java)
@@ -536,12 +536,12 @@ object HermesIntegration {
                 mcpBridge.initialize()
 
                 // Get available tools from MCP
-                val mcpTools = mcpBridge.discoverTools()
+    val mcpTools = mcpBridge.discoverTools()
 
                 logger.debug("Discovered ${mcpTools.size} MCP tools")
 
                 // Register each tool with tool manager
-                var registeredCount = 0
+    var registeredCount = 0
                 mcpTools.forEach { tool ->
                     try {
                         val toolPermission = ToolPermission(
@@ -595,7 +595,7 @@ object HermesIntegration {
         linkedWorkflowEngine.value = workflowEngine
 
         // Register a dedicated agent so the scheduler can dispatch workflow tasks
-        val workflowAgent = WorkflowSubAgent(context, scheduler, workflowEngine)
+    val workflowAgent = WorkflowSubAgent(context, scheduler, workflowEngine)
         if (!scheduler.registerAgent(workflowAgent)) {
             logger.warn("Workflow agent registration returned false; an agent with the same id may already exist")
         }
@@ -648,14 +648,13 @@ object HermesIntegration {
     }
 
     // ============ Helper Methods ============
-
     private fun filterModelsByProviderCapability(
         models: List<ProviderProfile.ModelInfo>,
         provider: ProviderProfile
     ): List<ProviderProfile.ModelInfo> {
         return models.filter { model ->
             // Filter by streaming support if provider requires it
-            if (provider.supportsStreaming) {
+    if (provider.supportsStreaming) {
                 true // Keep all models if provider supports streaming
             } else {
                 // Could add more filtering logic here
@@ -770,7 +769,7 @@ object HermesIntegration {
 
         suspend fun discoverTools(): List<MCPBridgeTool> {
             // Discover tools from the Nous-approved MCP catalog
-            return try {
+    return try {
                 val entries = MCPCatalog.getInstance(context).getCatalog()
                 entries.map { entry ->
                     MCPBridgeTool(

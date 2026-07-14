@@ -22,6 +22,8 @@ import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import kotlinx.coroutines.delay
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.javascript.not
 
 /** 无障碍级别的UI工具，使用Android无障碍服务API实现UI操作 */
 open class AccessibilityUITools(context: Context) : StandardUITools(context) {
@@ -89,7 +91,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
             )
         }
 
-            // 使用无障碍服务获取UI数据（带重试着            val uiXml = getUIHierarchyWithRetry()
+            // 使用无障碍服务获取UI数据（带重试着
+    val uiXml = getUIHierarchyWithRetry()
             if (uiXml.isEmpty()) {
                     return@withAccessibilityCheck ToolResult(
                         toolName = tool.name,
@@ -100,12 +103,13 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
             }
 
             // 解析当前窗口信息
-            val focusInfo = extractFocusInfoFromAccessibility()
+    val focusInfo = extractFocusInfoFromAccessibility()
 
             // 简化布局信息
-            val simplifiedLayout = simplifyLayout(uiXml)
+    val simplifiedLayout = simplifyLayout(uiXml)
 
-            // 创建结构化数�?          val resultData =
+            // 创建结构化数�?
+    val resultData =
                     UIPageResultData(
                             packageName = focusInfo.packageName ?: "Unknown",
                             activityName = focusInfo.activityName ?: "Unknown",
@@ -129,7 +133,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
     private suspend fun extractFocusInfoFromAccessibility(): FocusInfo {
         val focusInfo = FocusInfo()
         try {
-            // 1. 获取UI层次结构的XML快照（带重试着            val hierarchyXml = getUIHierarchyWithRetry()
+            // 1. 获取UI层次结构的XML快照（带重试着
+    val hierarchyXml = getUIHierarchyWithRetry()
             if (hierarchyXml.isEmpty()) {
                 AppLogger.w(TAG, "无法获取UI层次结构XML，使用默认值，)
                 focusInfo.packageName = "android"
@@ -138,14 +143,16 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
                 return focusInfo
             }
 
-            // 2. 从XML中解析包�?          val (packageName, _) = UIHierarchyManager.extractWindowInfo(hierarchyXml)
+            // 2. 从XML中解析包�?
+    val (packageName, _) = UIHierarchyManager.extractWindowInfo(hierarchyXml)
             // 3. 从服务中直接获取当前Activity名称
-            val activityName = UIHierarchyManager.getCurrentActivityName(context)
+    val activityName = UIHierarchyManager.getCurrentActivityName(context)
 
             focusInfo.packageName = packageName
             focusInfo.activityName = activityName // 使用从服务获取的Activity名称
 
-            // 如果没有获取到，使用默认�?           if (focusInfo.packageName == null) focusInfo.packageName = "android"
+            // 如果没有获取到，使用默认�?
+    if (focusInfo.packageName == null) focusInfo.packageName = "android"
             if (focusInfo.activityName == null) focusInfo.activityName = "ForegroundActivity"
         } catch (e: Exception) {
             AppLogger.e(TAG, "从XML解析焦点信息时出�? e)
@@ -199,7 +206,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
     }
 
     private fun createNode(parser: XmlPullParser): UINode {
-        // 解析关键属的       val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
+        // 解析关键属的
+    val className = parser.getAttributeValue(null, "class")?.substringAfterLast('.')
         val text = parser.getAttributeValue(null, "text")?.replace("&#10;", "\n")
         val contentDesc = parser.getAttributeValue(null, "content-desc")
         val resourceId = parser.getAttributeValue(null, "resource-id")
@@ -236,17 +244,18 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
                 }
 
                 // 如果提供了边界坐标，直接解析并点击中心点
-                if (bounds != null) {
+    if (bounds != null) {
                     return@withAccessibilityCheck handleClickByBounds(tool, bounds)
                 }
 
-                // 获取UI层次结构XML（带重试着                val uiXml = getUIHierarchyWithRetry()
+                // 获取UI层次结构XML（带重试着
+    val uiXml = getUIHierarchyWithRetry()
                 if (uiXml.isEmpty()) {
                     return@withAccessibilityCheck ToolResult(toolName = tool.name, success = false, result = StringResultData(""), error = "Unable to get UI hierarchy.")
                 }
 
                 // 在XML中查找匹配的节点
-                val matchedNodes = findNodesInXml(uiXml) { parser ->
+    val matchedNodes = findNodesInXml(uiXml) { parser ->
                     val hasSelectors = resourceId != null || className != null || contentDesc != null
                     if (!hasSelectors) {
                         return@findNodesInXml false
@@ -275,7 +284,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
                     return@withAccessibilityCheck ToolResult(toolName = tool.name, success = false, result = StringResultData(""), error = "No matching element found.")
                 }
 
-                // 检查索引是否有�?               if (index < 0 || index >= matchedNodes.size) {
+                // 检查索引是否有�?
+    if (index < 0 || index >= matchedNodes.size) {
                     return@withAccessibilityCheck ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -285,7 +295,7 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
                 }
 
                 // 获取目标节点的bounds
-                val targetNodeBounds = matchedNodes[index].bounds
+    val targetNodeBounds = matchedNodes[index].bounds
                 if (targetNodeBounds == null) {
                     return@withAccessibilityCheck ToolResult(toolName = tool.name, success = false, result = StringResultData(""), error = "Target element has no bounds.")
                 }
@@ -370,7 +380,7 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
         val text = tool.parameters.find { it.name == "text" }?.value ?: ""
 
             // 通过UIHierarchyManager请求远程服务找到焦点节点的ID
-            val focusedNodeId = UIHierarchyManager.findFocusedNodeId(context)
+    val focusedNodeId = UIHierarchyManager.findFocusedNodeId(context)
             if (focusedNodeId.isNullOrEmpty()) {
                     return@withAccessibilityCheck ToolResult(
                         toolName = tool.name,
@@ -381,13 +391,13 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
             }
 
             // 显示反馈
-            val rect = parseBounds(focusedNodeId)
+    val rect = parseBounds(focusedNodeId)
             if (!rect.isEmpty) {
             operationOverlay.showTextInput(rect.centerX(), rect.centerY(), text)
             }
 
             // 通过UIHierarchyManager请求远程服务设置文本
-            val result = UIHierarchyManager.setTextOnNode(context, focusedNodeId, text)
+    val result = UIHierarchyManager.setTextOnNode(context, focusedNodeId, text)
 
                 if (result) {
                 // 成功后主动隐藏overlay
@@ -444,7 +454,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
             // 显示点击反馈
             operationOverlay.showTap(x, y)
 
-            // 使用无障碍服务执行点�?           val result = performAccessibilityClick(x, y)
+            // 使用无障碍服务执行点�?
+    val result = performAccessibilityClick(x, y)
 
                 if (result) {
                 // 成功后主动隐藏overlay
@@ -502,7 +513,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
             // 显示长按反馈（复用点击效果）
             operationOverlay.showTap(x, y)
 
-            // 使用无障碍服务执行长�?           val result = performAccessibilityLongPress(x, y)
+            // 使用无障碍服务执行长�?
+    val result = performAccessibilityLongPress(x, y)
 
                 if (result) {
                 // 成功后主动隐藏overlay
@@ -563,7 +575,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
             // 显示滑动反馈
             operationOverlay.showSwipe(startX, startY, endX, endY)
 
-            // 使用无障碍服务执行滑�?           val result = performAccessibilitySwipe(startX, startY, endX, endY, duration)
+            // 使用无障碍服务执行滑�?
+    val result = performAccessibilitySwipe(startX, startY, endX, endY, duration)
 
                 if (result) {
                 // 成功后主动隐藏overlay
@@ -652,7 +665,7 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
 
         try {
             // 将字符串keyCode转换为AccessibilityService中的常量
-            val keyAction = when (keyCode) {
+    val keyAction = when (keyCode) {
                 "KEYCODE_BACK" -> android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK
                 "KEYCODE_HOME" -> android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME
                 "KEYCODE_RECENTS" -> android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RECENTS
@@ -664,7 +677,7 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
 
             if (keyAction != null) {
                 // 通过UIHierarchyManager请求远程服务执行操作
-                val success = UIHierarchyManager.performGlobalAction(context, keyAction)
+    val success = UIHierarchyManager.performGlobalAction(context, keyAction)
                 return if (success) {
                     ToolResult(
                             toolName = tool.name,
@@ -687,7 +700,8 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
                     )
                 }
             } else {
-                // 如果不是标准全局操作，返回不支持的错�?              return ToolResult(
+                // 如果不是标准全局操作，返回不支持的错�?
+    return ToolResult(
                         toolName = tool.name,
                         success = false,
                         result = StringResultData(""),
@@ -751,7 +765,7 @@ open class AccessibilityUITools(context: Context) : StandardUITools(context) {
 
     private fun parseBounds(boundsString: String): android.graphics.Rect {
         // 解析 "[left,top][right,bottom]" 格式的边界字符串
-        val rect = android.graphics.Rect()
+    val rect = android.graphics.Rect()
         try {
             val parts = boundsString.replace("[", "").replace("]", ",").split(",")
             if (parts.size >= 4) {

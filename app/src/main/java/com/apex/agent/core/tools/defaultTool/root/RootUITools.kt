@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * Root-level UI tools that use shell commands (uiautomator, input) for robust UI automation.

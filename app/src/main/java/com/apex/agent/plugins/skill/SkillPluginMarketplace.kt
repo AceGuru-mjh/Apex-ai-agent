@@ -26,9 +26,8 @@ class SkillPluginMarketplace private constructor(private val context: Context) :
         @Volatile private var INSTANCE: SkillPluginMarketplace? = null
 
         private const val MARKETPLACE_URL = "https://api.apex-agent.ai/plugins/v1"
-        private const val FALLBACK_MARKETPLACE_URL = "https://marketplace.example.com/api/v1"
-
-        private var customBaseUrl: String? = null
+    private const val FALLBACK_MARKETPLACE_URL = "https://marketplace.example.com/api/v1"
+    private var customBaseUrl: String? = null
 
         fun setBaseUrl(url: String) {
             customBaseUrl = url

@@ -32,6 +32,7 @@ import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 class SafFileSystemTools(
     private val context: Context,
@@ -56,10 +57,10 @@ class SafFileSystemTools(
         if (p.isEmpty()) return "/"
         if (!p.startsWith("/")) p = "/${p}"
         // Remove trailing slash (except root)
-        if (p.length > 1 && p.endsWith('/')) p = p.dropLast(1)
+    if (p.length > 1 && p.endsWith('/')) p = p.dropLast(1)
         // Collapse multiple slashes
         while (p.contains("//")) p = p.replace("//", "/")
-        return p
+    return p
     }
 
     private suspend fun resolveTreeUriFromEnvironment(environment: String): Uri? {
@@ -73,7 +74,7 @@ class SafFileSystemTools(
 
     private suspend fun resolveSafPathToDocumentUriOrNull(path: String, environment: String): Uri? {
         // Already a content uri
-        if (isContentUri(path)) return runCatching { Uri.parse(path) }.getOrNull()
+    if (isContentUri(path)) return runCatching { Uri.parse(path) }.getOrNull()
 
         val treeUri = resolveTreeUriFromEnvironment(environment) ?: return null
         val authority = treeUri.authority ?: return null
@@ -137,7 +138,7 @@ class SafFileSystemTools(
         val parent = path.substring(0, idx)
         val name = path.substring(idx + 1)
         if (parent.startsWith("content://", ignoreCase = true) && name.isNotBlank()) {
-            return parent to name
+    return parent to name
         }
         return null
     }

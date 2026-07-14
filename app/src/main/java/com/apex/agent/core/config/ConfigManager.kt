@@ -438,7 +438,6 @@ class ConfigManager(
     }
 
     // ==================== 内部实现 ====================
-
     private fun getValue(key: ConfigKey): String? {
         lock.read {
             for ((_, sourceList) in providers) {

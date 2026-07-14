@@ -36,7 +36,7 @@ class CompressionStrategy(
         val protectedIndices = mutableSetOf<Int>()
 
         // 保护首轮：system、human
-        var headEnd = 0
+    var headEnd = 0
         for (i in turns.indices) {
             val turn = turns[i]
             when {
@@ -53,17 +53,18 @@ class CompressionStrategy(
         }
 
         // 如果没有找到 human，找到第一�?assistant
-        if (protectedIndices.isEmpty() && turns.isNotEmpty()) {
+    if (protectedIndices.isEmpty() && turns.isNotEmpty()) {
             protectedIndices.add(0)
             headEnd = 0
         }
 
-        // 保护第一个工具调用（如果启用�?        if (preserveFirstToolCall) {
+        // 保护第一个工具调用（如果启用�?
+    if (preserveFirstToolCall) {
             val firstToolCallIndex = turns.indexOfFirst { it.isToolCall }
             if (firstToolCallIndex >= 0 && firstToolCallIndex <= headEnd + 2) {
                 protectedIndices.add(firstToolCallIndex)
                 // 同时保护对应�?tool result
-                val toolResultIndex = findMatchingToolResult(turns, firstToolCallIndex)
+    val toolResultIndex = findMatchingToolResult(turns, firstToolCallIndex)
                 if (toolResultIndex != null) {
                     protectedIndices.add(toolResultIndex)
                 }
@@ -71,7 +72,7 @@ class CompressionStrategy(
         }
 
         // 保护末轮：assistant（结论）、最后的工具调用
-        var tailStart = turns.size - 1
+    var tailStart = turns.size - 1
         for (i in turns.indices.reversed()) {
             val turn = turns[i]
             when {
@@ -86,24 +87,26 @@ class CompressionStrategy(
                     }
                 }
             }
-            // 找到至少一�?assistant 就停�?            if (turn.kind == PromptTurnKind.ASSISTANT && i < turns.size - 1) {
+            // 找到至少一�?assistant 就停�?
+    if (turn.kind == PromptTurnKind.ASSISTANT && i < turns.size - 1) {
                 break
             }
         }
 
         // 确保头部保护数量
-        val actualHeadEnd = minOf(headEnd, headProtectionTurns - 1)
+    val actualHeadEnd = minOf(headEnd, headProtectionTurns - 1)
         for (i in 0..actualHeadEnd) {
             protectedIndices.add(i)
         }
 
         // 确保尾部保护数量
-        val actualTailStart = maxOf(tailStart, turns.size - tailProtectionTurns)
+    val actualTailStart = maxOf(tailStart, turns.size - tailProtectionTurns)
         for (i in actualTailStart until turns.size) {
             protectedIndices.add(i)
         }
 
-        // 计算中间区域的边�?        val sortedProtected = protectedIndices.sorted()
+        // 计算中间区域的边�?
+    val sortedProtected = protectedIndices.sorted()
         val middleStart = if (sortedProtected.isNotEmpty()) sortedProtected.last() + 1 else 0
         val middleEnd = if (sortedProtected.isNotEmpty()) sortedProtected.first() - 1 else turns.size - 1
 
@@ -135,14 +138,16 @@ class CompressionStrategy(
             return TrajectoryPartition(emptyList(), emptyList(), emptyList())
         }
 
-        // 找到分界�?        val headEnd = plan.headProtectedIndices.maxOrNull() ?: 0
+        // 找到分界�?
+    val headEnd = plan.headProtectedIndices.maxOrNull() ?: 0
         val tailStart = plan.tailProtectedIndices.minOrNull() ?: (turns.size - 1)
 
         val headTurns = if (headEnd >= 0) turns.subList(0, headEnd + 1) else emptyList()
         val middleTurns = if (tailStart > headEnd + 1) {
             turns.subList(headEnd + 1, tailStart)
         } else if (tailStart > 0 && headEnd < turns.size - 1) {
-            // 如果中间区域太小，尝试获取一些轮�?            val midStart = minOf(headEnd + 1, turns.size - 1)
+            // 如果中间区域太小，尝试获取一些轮�?
+    val midStart = minOf(headEnd + 1, turns.size - 1)
             val midEnd = maxOf(tailStart, midStart + 1)
             if (midEnd <= turns.size) turns.subList(midStart, midEnd) else emptyList()
         } else {

@@ -89,7 +89,7 @@ class LoopExecutor {
 
         if (spec.parallel) {
             // 并行执行
-            val semaphore = Semaphore(spec.times.coerceAtMost(8))
+    val semaphore = Semaphore(spec.times.coerceAtMost(8))
             val deferred = (0 until spec.times).map { i ->
                 async {
                     semaphore.withPermit {
@@ -196,7 +196,7 @@ class LoopExecutor {
         val semaphore = Semaphore(spec.maxConcurrency.coerceAtLeast(1))
 
         // Map 阶段：并行
-        val mapped = spec.items.mapIndexed { i, item ->
+    val mapped = spec.items.mapIndexed { i, item ->
             async {
                 semaphore.withPermit {
                     val ctx = LoopContext(iteration = i, item = item)
@@ -206,7 +206,7 @@ class LoopExecutor {
         }.awaitAll()
 
         // Reduce 阶段：串行
-        var acc: Any? = null
+    var acc: Any? = null
         mapped.forEachIndexed { i, v ->
             acc = spec.reducer(acc, v)
         }

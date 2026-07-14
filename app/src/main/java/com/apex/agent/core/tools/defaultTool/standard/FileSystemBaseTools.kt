@@ -22,6 +22,8 @@ import com.apex.agent.util.SyntaxCheckUtil
 import com.apex.agent.util.PathMapper
 import com.apex.agent.terminal.provider.filesystem.FileSystemProvider
 import com.apex.agent.core.tools.defaultTool.PathValidator
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.StringResultData
 
 open class FileSystemBaseTools(protected val context: Context) {
     companion object {
@@ -52,7 +54,7 @@ open class FileSystemBaseTools(protected val context: Context) {
         val environment = tool.parameters.find { it.name == "environment" }?.value
 
         // 如果是Linux环境，委托给LinuxFileSystemTools
-        if (isLinuxEnvironment(environment)) {
+    if (isLinuxEnvironment(environment)) {
             return linuxTools.listFiles(tool)
         }
         if (isSafEnvironment(environment)) {
@@ -132,12 +134,12 @@ open class FileSystemBaseTools(protected val context: Context) {
     protected fun getFilePermissions(file: File): String {
         // Java has limited capabilities for getting Unix-style file permissions
         // This is a simplified version that checks basic permissions
-        val canRead = if (file.canRead()) 'r' else '-'
+    val canRead = if (file.canRead()) 'r' else '-'
         val canWrite = if (file.canWrite()) 'w' else '-'
         val canExecute = if (file.canExecute()) 'x' else '-'
 
         // For simplicity, we'll use the same permissions for user, group, and others
-        return "${canRead}${canWrite}${canExecute}${canRead}-${canExecute}${canRead}-${canExecute}"
+    return "${canRead}${canWrite}${canExecute}${canRead}-${canExecute}${canRead}-${canExecute}"
     }
 
     /** Read file content */
@@ -499,7 +501,7 @@ open class FileSystemBaseTools(protected val context: Context) {
             }
         }
         // Remove last newline if content is not empty
-        if (partContent.isNotEmpty()) {
+    if (partContent.isNotEmpty()) {
             partContent.setLength(partContent.length - 1)
         }
         return partContent.toString()

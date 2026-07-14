@@ -476,7 +476,7 @@ class ExternalChatHttpServer(
 
         // application/json is defined as UTF-8 by default; keep requests usable
         // even when the caller omits `charset=utf-8`.
-        return StandardCharsets.UTF_8
+    return StandardCharsets.UTF_8
     }
 
     private fun jsonResponse(status: Response.Status, body: ExternalChatResult): Response {

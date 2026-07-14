@@ -83,7 +83,7 @@ class WorkflowEventBus(
      */
     suspend fun publish(event: WorkflowEvent) {
         // 去重（基于 dedupKey）
-        if (event is WorkflowEvent.External) {
+    if (event is WorkflowEvent.External) {
             val dedupKey = event.payload.takeIf { it is String }?.toString()
         if (dedupKey != null && dedupStore.containsKey(dedupKey)) {
                 val age = System.currentTimeMillis() - (dedupStore[dedupKey] ?: 0)

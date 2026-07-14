@@ -12,6 +12,8 @@ import com.apex.data.model.ToolValidationResult
 import com.apex.util.ImagePoolManager
 import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.mcp.MCPManager
 
 /**
  * MCP工具执行�?*
@@ -49,7 +51,7 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
         }
 
         // 提取 content 数组中的内容
-        val contentArray = resultData.optJSONArray("content")
+    val contentArray = resultData.optJSONArray("content")
         val contentText =
                 if (contentArray != null && contentArray.length() > 0) {
                     val extractedText = StringBuilder()
@@ -128,7 +130,7 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
                 }
 
         // 提取元数�?resultData 中除�?content" 之外的所有字�?
-        val metadata = JSONObject()
+    val metadata = JSONObject()
         val keys = resultData.keys()
         while (keys.hasNext()) {
             val key = keys.next()
@@ -140,7 +142,7 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
         val metadataText = if (metadata.length() > 0) metadata.toString() else ""
 
         // 组合元数据和内容
-        return when {
+    return when {
             metadataText.isNotEmpty() && contentText.isNotEmpty() -> {
                 "${metadataText}\n\n${contentText}"
             }
@@ -160,12 +162,13 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
         if (trimmed.isEmpty()) return false
         
         // 检查是否以 JSON 对象或数组的标志开头和结尾
-        val isJsonObject = trimmed.startsWith("{") && trimmed.endsWith("}")
+    val isJsonObject = trimmed.startsWith("{") && trimmed.endsWith("}")
         val isJsonArray = trimmed.startsWith("[") && trimmed.endsWith("]")
         
         if (!isJsonObject && !isJsonArray) return false
         
-        // 尝试解析以确�?       return try {
+        // 尝试解析以确�?
+    return try {
             if (isJsonObject) {
                 JSONObject(trimmed)
             } else {
@@ -187,11 +190,11 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
         return try {
             if (trimmed.startsWith("{")) {
                 // JSON 对象
-                val jsonObject = JSONObject(trimmed)
+    val jsonObject = JSONObject(trimmed)
                 jsonObject.toString()
             } else if (trimmed.startsWith("[")) {
                 // JSON 数组
-                val jsonArray = org.json.JSONArray(trimmed)
+    val jsonArray = org.json.JSONArray(trimmed)
                 jsonArray.toString()
             } else {
                 jsonString
@@ -205,7 +208,7 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
     override fun invoke(tool: AITool): ToolResult {
         // 从工具名称中提取服务器名称和工具名称
         // 格式：服务器名称:工具名称
-        val toolNameParts = tool.name.split(":")
+    val toolNameParts = tool.name.split(":")
         if (toolNameParts.size < 2) {
             return ToolResult(
                     toolName = tool.name,
@@ -218,7 +221,8 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
         val serverName = toolNameParts[0]
         val actualToolName = toolNameParts.subList(1, toolNameParts.size).joinToString(":")
 
-        // 获取MCP桥接客户�?       val mcpClient = mcpManager.getOrCreateClient(serverName)
+        // 获取MCP桥接客户�?
+    val mcpClient = mcpManager.getOrCreateClient(serverName)
         if (mcpClient == null) {
             val detailedReason = mcpManager.getLastConnectionFailureReason(serverName)
             return ToolResult(
@@ -233,7 +237,8 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
             )
         }
 
-        // 在调用工具前，检查服务是否处于激活状�?       val isActive = kotlinx.coroutines.runBlocking { mcpClient.isActive() }
+        // 在调用工具前，检查服务是否处于激活状�?
+    val isActive = kotlinx.coroutines.runBlocking { mcpClient.isActive() }
         if (!isActive) {
             return ToolResult(
                     toolName = tool.name,
@@ -247,18 +252,19 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
         AppLogger.d(TAG, "准备调用MCP工具: ${serverName}:${actualToolName}")
 
         // 将AITool参数转换为Map
-        val parameters = tool.parameters.associate { it.name to it.value }
+    val parameters = tool.parameters.associate { it.name to it.value }
 
         // 获取工具参数类型信息 (如果可用�?
-        val toolInfo = getToolInfo(serverName, actualToolName)
+    val toolInfo = getToolInfo(serverName, actualToolName)
 
         // 自动类型转换处理
-        val convertedParameters = convertParameterTypes(parameters, toolInfo)
+    val convertedParameters = convertParameterTypes(parameters, toolInfo)
 
         // 调用MCP工具 - 使用同步版本
-        val result =
+    val result =
                 try {
-                    // 直接调用工具，返回完整的响应（包含success, result, error�?                   val response = mcpClient.callToolSync(actualToolName, convertedParameters)
+                    // 直接调用工具，返回完整的响应（包含success, result, error�?
+    val response = mcpClient.callToolSync(actualToolName, convertedParameters)
 
                     if (response == null) {
                         // 如果响应为空（不应该发生成但做个保护�?                       AppLogger.e(TAG, "MCP工具调用返回空响�?${serverName}:${actualToolName}")
@@ -273,7 +279,7 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
                         
                         if (success) {
                             // 成功：提示result 字段并解析content 数组
-                            val resultData = response.optJSONObject("result")
+    val resultData = response.optJSONObject("result")
                             val extractedContent = extractContentFromResult(resultData)
                             val truncatedResult = kotlinx.coroutines.runBlocking { truncateResult(extractedContent) }
                             AppLogger.d(TAG, "MCP工具调用成功: ${serverName}:${actualToolName}")
@@ -285,7 +291,7 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
                             )
                         } else {
                             // 失败：提示error 字段
-                            val errorObj = response.optJSONObject("error")
+    val errorObj = response.optJSONObject("error")
                             val errorMessage = if (errorObj != null) {
                                 val code = errorObj.optInt("code", -1)
                                 val message = errorObj.optString("message", "Unknown error")
@@ -344,14 +350,14 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
 
         parameters.forEach { (name, value) ->
             // 尝试从工具定义中获取参数类型（从 inputSchema.properties 中获取）
-            val expectedType =
+    val expectedType =
                     toolInfo?.optJSONObject("inputSchema")?.optJSONObject("properties")?.let {
                                 properties ->
                         properties.optJSONObject(name)?.optString("type")
                     }
 
             // 使用 MCPToolParameter.smartConvert 进行智能类型转换
-            val convertedValue = MCPToolParameter.smartConvert(value, expectedType)
+    val convertedValue = MCPToolParameter.smartConvert(value, expectedType)
 
             if (convertedValue != value) {
                 AppLogger.d(
@@ -368,7 +374,7 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
 
     override fun validateParameters(tool: AITool): ToolValidationResult {
         // 验证工具名称格式
-        val toolNameParts = tool.name.split(":")
+    val toolNameParts = tool.name.split(":")
         if (toolNameParts.size < 2) {
             return ToolValidationResult(
                     valid = false,
@@ -376,7 +382,8 @@ class MCPToolExecutor(private val context: Context, private val mcpManager: MCPM
             )
         }
 
-        // 这里可以添加更多验证逻辑，但目前简单返回成�?       return ToolValidationResult(valid = true)
+        // 这里可以添加更多验证逻辑，但目前简单返回成�?
+    return ToolValidationResult(valid = true)
     }
 }
 
@@ -433,15 +440,16 @@ class MCPManager(private val context: Context) {
     fun getOrCreateClient(
             serverName: String
     ): com.apex.data.mcp.plugins.MCPBridgeClient? {
-        // 检查缓存中是否已有客户�?       val cachedClient = clientCache[serverName]
+        // 检查缓存中是否已有客户�?
+    val cachedClient = clientCache[serverName]
         if (cachedClient != null) {
             // 检查客户端连接状�? 只做轻量检查，不要过早断开
-            if (cachedClient.isConnected()) {
+    if (cachedClient.isConnected()) {
                 AppLogger.d(TAG, "使用已缓存的客户�?${serverName}")
                 return cachedClient
             } else {
                 // 尝试重新连接现有客户�?               AppLogger.d(TAG, "尝试重新连接缓存的客户端: ${serverName}")
-                val reconnected = kotlinx.coroutines.runBlocking { cachedClient.connect() }
+    val reconnected = kotlinx.coroutines.runBlocking { cachedClient.connect() }
                 if (reconnected) {
                     AppLogger.d(TAG, "成功重新连接到服�?${serverName}")
                     connectionFailureReasons.remove(serverName)
@@ -455,7 +463,8 @@ class MCPManager(private val context: Context) {
             }
         }
 
-        // 获取服务器配�?       val serverConfig =
+        // 获取服务器配�?
+    val serverConfig =
                 serverConfigCache[serverName]
                         ?: run {
                             connectionFailureReasons[serverName] =
@@ -464,11 +473,12 @@ class MCPManager(private val context: Context) {
                         }
 
         try {
-            // 创建新的桥接客户�?           val client =
+            // 创建新的桥接客户�?
+    val client =
                     com.apex.data.mcp.plugins.MCPBridgeClient(context, serverName)
 
             // 尝试连接 - 带详细日�?           AppLogger.d(TAG, "正在创建新的连接到服�?${serverName}")
-            val connectResult = kotlinx.coroutines.runBlocking { client.connect() }
+    val connectResult = kotlinx.coroutines.runBlocking { client.connect() }
 
             if (connectResult) {
                 // 连接成功，在会话期间保持此连�?               AppLogger.d(TAG, "成功连接到服�?${serverName}，将在会话期间保持连�?
@@ -498,8 +508,9 @@ class MCPManager(private val context: Context) {
         connectionFailureReasons.remove(serverName)
 
         // 如果已有缓存的客户端，需要更新或移除
-        if (clientCache.containsKey(serverName)) {
-            // 移除旧客户端，下次需要时会重新创�?           val oldClient = clientCache.remove(serverName)
+    if (clientCache.containsKey(serverName)) {
+            // 移除旧客户端，下次需要时会重新创�?
+    val oldClient = clientCache.remove(serverName)
             oldClient?.disconnect()
         }
     }
@@ -512,7 +523,7 @@ class MCPManager(private val context: Context) {
         connectionFailureReasons.remove(serverName)
 
         // 关闭并移除对应客户端缓存
-        val oldClient = clientCache.remove(serverName)
+    val oldClient = clientCache.remove(serverName)
         oldClient?.disconnect()
     }
 

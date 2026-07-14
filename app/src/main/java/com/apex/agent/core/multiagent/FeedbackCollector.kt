@@ -33,7 +33,6 @@ class FeedbackCollector {
 
     enum class FeedbackStatus {
         PENDING,     // 待处�?       IN_PROGRESS, // 处理�?       RESOLVED,    // 已解�?       CLOSED       // 已关�?   }
-
     private val feedbacks = ConcurrentHashMap<String, Feedback>()
     private val feedbackIdCounter = AtomicInteger(0)
 

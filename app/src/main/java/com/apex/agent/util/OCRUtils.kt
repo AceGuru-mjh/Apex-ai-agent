@@ -76,13 +76,14 @@ object OCRUtils {
      * @return 经过处理的Bitmap，如果无需处理则返回原始Bitmap
      */
     private fun preprocessBitmap(bitmap: Bitmap): Bitmap {
-        // 对于高质量模式，我们放大图像。这可以显著提高小图像的OCR准确性，        // 我们使用一个缩放因子，但避免使图像过大       val scaleFactor = 2.0f
+        // 对于高质量模式，我们放大图像。这可以显著提高小图像的OCR准确性，        // 我们使用一个缩放因子，但避免使图像过大
+    val scaleFactor = 2.0f
         val maxDimension = 4096 // 限制最大尺寸以避免OOM
-
-        val newWidth = (bitmap.width * scaleFactor).toInt()
+    val newWidth = (bitmap.width * scaleFactor).toInt()
         val newHeight = (bitmap.height * scaleFactor).toInt()
 
-        // 如果图像已经足够大或放大后会超出限制，则不进行处       if (bitmap.width >= newWidth ||
+        // 如果图像已经足够大或放大后会超出限制，则不进行处
+    if (bitmap.width >= newWidth ||
                         bitmap.height >= newHeight ||
                         newWidth > maxDimension ||
                         newHeight > maxDimension
@@ -134,7 +135,8 @@ object OCRUtils {
             AppLogger.e(TAG, "Error recognizing text from bitmap: ${e.message}", e)
             OCRResult.Error(e.message ?: "Unknown error")
         } finally {
-            // 如果创建了新的Bitmap，则回收           if (processedBitmap !== bitmap) {
+            // 如果创建了新的Bitmap，则回收
+    if (processedBitmap !== bitmap) {
                 processedBitmap.recycle()
             }
         }
@@ -155,7 +157,8 @@ object OCRUtils {
             language: Language = Language.LATIN,
             quality: Quality = Quality.LOW
     ): OCRResult {
-        // 低质量模式直接使用MLKit的API，效率更       if (quality == Quality.LOW) {
+        // 低质量模式直接使用MLKit的API，效率更
+    if (quality == Quality.LOW) {
             return try {
                 val image = InputImage.fromFilePath(context, uri)
                 val result = processImage(image, language)
@@ -169,7 +172,8 @@ object OCRUtils {
             }
         }
 
-        // 高质量模式需要先加载Bitmap进行预处       return withContext(Dispatchers.IO) {
+        // 高质量模式需要先加载Bitmap进行预处
+    return withContext(Dispatchers.IO) {
             try {
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
                     val originalBitmap = BitmapFactory.decodeStream(inputStream)
@@ -218,13 +222,14 @@ object OCRUtils {
             quality: Quality = Quality.LOW
     ): String {
         // 同时进行拉丁文和中文识别
-        val latinResult = recognizeTextFromBitmap(bitmap, Language.LATIN, quality)
+    val latinResult = recognizeTextFromBitmap(bitmap, Language.LATIN, quality)
         val chineseResult = recognizeTextFromBitmap(bitmap, Language.CHINESE, quality)
 
         val latinText = if (latinResult is OCRResult.Success) latinResult.getFullText() else ""
         val chineseText = if (chineseResult is OCRResult.Success) chineseResult.getFullText() else ""
 
-        // 常见的包名格式转�?       return when {
+        // 常见的包名格式转�?
+    return when {
             latinText.isEmpty() -> chineseText
             chineseText.isEmpty() -> latinText
             latinText == chineseText -> latinText
@@ -266,13 +271,14 @@ object OCRUtils {
     @WorkerThread
     suspend fun recognizeText(context: Context, uri: Uri, quality: Quality = Quality.LOW): String {
         // 同时进行拉丁文和中文识别
-        val latinResult = recognizeTextFromUri(context, uri, Language.LATIN, quality)
+    val latinResult = recognizeTextFromUri(context, uri, Language.LATIN, quality)
         val chineseResult = recognizeTextFromUri(context, uri, Language.CHINESE, quality)
 
         val latinText = if (latinResult is OCRResult.Success) latinResult.getFullText() else ""
         val chineseText = if (chineseResult is OCRResult.Success) chineseResult.getFullText() else ""
 
-        // 常见的包名格式转�?       return when {
+        // 常见的包名格式转�?
+    return when {
             latinText.isEmpty() -> chineseText
             chineseText.isEmpty() -> latinText
             latinText == chineseText -> latinText
@@ -299,7 +305,7 @@ object OCRUtils {
             if (result is OCRResult.Success) {
                 result.getTextBlocks().forEach { block -> textBlocks.add(block.text) }
                 // 如果有结果，就不需要继续尝试其他语言
-                if (textBlocks.isNotEmpty()) {
+    if (textBlocks.isNotEmpty()) {
                     break
                 }
             }

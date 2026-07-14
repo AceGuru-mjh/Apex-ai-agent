@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * This file contains all tool registrations centralized for easier maintenance and integration It
@@ -1583,7 +1584,7 @@ fun registerAllTools(handler: AIToolHandler, context: Context) {
                 val environment = tool.parameters.find { it.name == "environment" }?.value
 
                 // 确定源和目标环境
-                val srcEnv = sourceEnv ?: environment ?: "android"
+    val srcEnv = sourceEnv ?: environment ?: "android"
                 val dstEnv = destEnv ?: environment ?: "android"
 
                 val envInfo = formatEnvArrowInfo(srcEnv, dstEnv)

@@ -38,10 +38,10 @@ enum class ClarificationType {
 data class ClarificationNeed(
     val type: ClarificationType,
     val ambiguousPart: String,      // 模糊的部分
-        val possibleInterpretations: List<String>,  // 可能的解读
-        val suggestedQuestion: String,  // 建议的反问
-        val confidence: Float,          // 检测置信度
-        val options: List<String> = emptyList()  // 选项（如有）
+    val possibleInterpretations: List<String>,  // 可能的解读
+    val suggestedQuestion: String,  // 建议的反问
+    val confidence: Float,          // 检测置信度
+    val options: List<String> = emptyList()  // 选项（如有）
 )
 
 /**
@@ -83,7 +83,7 @@ class ProactiveClarification {
         needs.addAll(detectMissingContext(userMessage, context))
 
         // 按置信度排序，取前 3 个
-        val topNeeds = needs.sortedByDescending { it.confidence }.take(3)
+    val topNeeds = needs.sortedByDescending { it.confidence }.take(3)
         val combinedQuestion = if (topNeeds.isNotEmpty()) {
             buildCombinedQuestion(topNeeds)
         } else ""
@@ -108,7 +108,7 @@ class ProactiveClarification {
     }
 
     // ============ 检测方法 ============
-        private fun detectPronounAmbiguity(message: String, context: Map<String, Any>): List<ClarificationNeed> {
+    private fun detectPronounAmbiguity(message: String, context: Map<String, Any>): List<ClarificationNeed> {
         val needs = mutableListOf<ClarificationNeed>()
         val pronouns = mapOf(
             "它" to "指代对象",
@@ -127,7 +127,7 @@ class ProactiveClarification {
         )
 
         // 如果上下文中没有明确的指代对象，标记为模糊
-        val hasRecentEntity = context.containsKey("last_entity") || context.containsKey("last_subject")
+    val hasRecentEntity = context.containsKey("last_entity") || context.containsKey("last_subject")
         for ((pronoun, desc) in pronouns) {
             if (message.contains(pronoun, ignoreCase = true) && !hasRecentEntity) {
                 needs.add(ClarificationNeed(
@@ -182,9 +182,9 @@ class ProactiveClarification {
         for ((action, question) in actionPatterns) {
             if (message.contains(action, ignoreCase = true)) {
                 // 检查是否有明确的目标
-        val hasTarget = message.contains(Regex("(文件|目录|应用|程序|配置)[\\s]*[\"「『]([^\"」』]+)[\"」』]")) ||
+    val hasTarget = message.contains(Regex("(文件|目录|应用|程序|配置)[\\s]*[\"「『]([^\"」』]+)[\"」』]")) ||
                                message.contains(Regex("/\\S+"))  // 路径
-        if (!hasTarget) {
+    if (!hasTarget) {
                     needs.add(ClarificationNeed(
                         type = ClarificationType.TARGET_UNCLEAR,
                         ambiguousPart = action,
@@ -227,7 +227,7 @@ class ProactiveClarification {
         private fun detectVagueIntent(message: String): List<ClarificationNeed> {
         val needs = mutableListOf<ClarificationNeed>()
         // 过短的消息可能意图模糊
-        if (message.trim().length < 5 && !message.matches(Regex("^(你好|hi|hello|谢谢).*", RegexOption.IGNORE_CASE))) {
+    if (message.trim().length < 5 && !message.matches(Regex("^(你好|hi|hello|谢谢).*", RegexOption.IGNORE_CASE))) {
             needs.add(ClarificationNeed(
                 type = ClarificationType.INTENT_VAGUE,
                 ambiguousPart = message,
@@ -241,7 +241,7 @@ class ProactiveClarification {
         private fun detectMissingContext(message: String, context: Map<String, Any>): List<ClarificationNeed> {
         val needs = mutableListOf<ClarificationNeed>()
         // 检测代码相关但无上下文
-        if (message.contains("这段代码") || message.contains("这个错误") || message.contains("this code") || message.contains("this error")) {
+    if (message.contains("这段代码") || message.contains("这个错误") || message.contains("this code") || message.contains("this error")) {
             if (!context.containsKey("code") && !context.containsKey("error") && !message.contains("```")) {
                 needs.add(ClarificationNeed(
                     type = ClarificationType.CONTEXT_MISSING,

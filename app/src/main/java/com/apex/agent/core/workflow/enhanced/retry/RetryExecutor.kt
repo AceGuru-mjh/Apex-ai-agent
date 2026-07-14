@@ -152,7 +152,7 @@ class CircuitBreaker(
         successCount.set(0)
         if (state.get() == State.HALF_OPEN) {
             // 半开状态下失败，重新熔断
-            if (state.compareAndSet(State.HALF_OPEN, State.OPEN)) {
+    if (state.compareAndSet(State.HALF_OPEN, State.OPEN)) {
                 openedAt.set(System.currentTimeMillis())
                 onStateChange?.invoke(State.HALF_OPEN, State.OPEN)
             }

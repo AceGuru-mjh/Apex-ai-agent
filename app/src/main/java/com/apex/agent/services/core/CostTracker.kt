@@ -303,7 +303,7 @@ object CostTracker {
             val (startTime, endTime) = getTimeRange(CostPeriod.DAILY)
 
             // 1. 分析模型成本分布
-            val modelCosts = dao.getCostByModel(startTime, endTime)
+    val modelCosts = dao.getCostByModel(startTime, endTime)
             if (modelCosts.isNotEmpty()) {
                 val totalCost = modelCosts.sumOf { it.cost.toDouble() }.toFloat()
                 val mostExpensive = modelCosts.maxByOrNull { it.cost }
@@ -319,7 +319,7 @@ object CostTracker {
             }
 
             // 2. 分析调用次数
-            val callCounts = dao.getCallCountByModel(startTime, endTime)
+    val callCounts = dao.getCallCountByModel(startTime, endTime)
             if (callCounts.isNotEmpty()) {
                 val highFreqModel = callCounts.maxByOrNull { it.count }
                 if (highFreqModel != null && highFreqModel.count > 100) {
@@ -334,7 +334,7 @@ object CostTracker {
             }
 
             // 3. 分析 Agent 成本
-            val agentCosts = dao.getCostByAgent(startTime, endTime)
+    val agentCosts = dao.getCostByAgent(startTime, endTime)
             if (agentCosts.size > 1) {
                 val sorted = agentCosts.sortedByDescending { it.cost }
                 val topAgent = sorted.first()
@@ -348,7 +348,7 @@ object CostTracker {
             }
 
             // 4. 分析 Skill 成本
-            val skillCosts = dao.getCostBySkill(startTime, endTime)
+    val skillCosts = dao.getCostBySkill(startTime, endTime)
             if (skillCosts.isNotEmpty()) {
                 val topSkill = skillCosts.maxByOrNull { it.cost }
                 if (topSkill != null && topSkill.cost > totalCost(dao, startTime, endTime) * 0.3f) {
@@ -359,7 +359,7 @@ object CostTracker {
             }
 
             // 5. 通用建议
-            if (modelCosts.any { it.model.contains("gpt-4", ignoreCase = true) }) {
+    if (modelCosts.any { it.model.contains("gpt-4", ignoreCase = true) }) {
                 suggestions.add("检测到使用了 GPT-4 系列模型，对于简单任务建议使用 GPT-4o-mini 或 GPT-3.5-turbo 以降低成本")
             }
 
@@ -390,7 +390,6 @@ object CostTracker {
     }
 
     // ---- 内部辅助方法 ----
-
     private suspend fun totalCost(dao: CostRecordDao, startTime: Long, endTime: Long): Float {
         return dao.getTotalCostByTimeRange(startTime, endTime) ?: 0f
     }

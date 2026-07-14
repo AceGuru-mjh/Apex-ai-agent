@@ -36,6 +36,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.api.chat.llmprovider.ModelListFetcher
 
 /** Anthropic Claude API的实现，处理Claude特有的API格式 */
 class ClaudeProvider(
@@ -47,7 +49,6 @@ class ClaudeProvider(
     private val providerType: ApiProviderType = ApiProviderType.ANTHROPIC,
     private val enableToolCall: Boolean = false // 是否启用Tool Call接口（预留，Claude有原生tool支持�? : AIService {
     // private val client: OkHttpClient = HttpClientFactory.instance
-
     private val JSON = "application/json".toMediaType()
     private val ANTHROPIC_VERSION = "2023-06-01" // Claude API版本
     private val PROMPT_CACHE_CONTROL_TYPE = "ephemeral"
@@ -72,7 +73,8 @@ class ClaudeProvider(
     override val outputTokenCount: Int
         get() = tokenCacheManager.outputTokenCount
 
-    // 供应，模型标识，    override val providerModel: String
+    // 供应，模型标识，
+    override val providerModel: String
         get() = "${providerType.name}:${modelName}"
 
     // 重置token计数
@@ -85,7 +87,7 @@ class ClaudeProvider(
         isManuallyCancelled = true
 
         // 1. 强制关闭 Response（这会立即中断流读取操作�?       activeResponse?.let {
-            try {
+    try {
                 it.close()
                 AppLogger.d("AIService", "已强制关闭Response�?
             } catch (e: Exception) {
@@ -282,7 +284,7 @@ class ClaudeProvider(
             val toolBody = match.groupValues[3]
 
             // 解析参数
-            val input = JSONObject()
+    val input = JSONObject()
 
             ChatMarkupRegex.toolParamPattern.findAll(toolBody).forEach { paramMatch ->
                 val paramName = paramMatch.groupValues[1]
@@ -290,7 +292,8 @@ class ClaudeProvider(
                 input.put(paramName, paramValue)
             }
 
-            // 构建tool_use对象（Claude格式�?           val toolNamePart = sanitizeToolCallId(toolName)
+            // 构建tool_use对象（Claude格式�?
+    val toolNamePart = sanitizeToolCallId(toolName)
             val hashPart = stableIdHashPart("${toolName}:${input}")
             val callId = sanitizeToolCallId("toolu_${toolNamePart}_${hashPart}_${callIndex}")
             toolUses.put(JSONObject().apply {
@@ -356,7 +359,7 @@ class ClaudeProvider(
             tools.put(JSONObject().apply {
                 put("name", tool.name)
                 // 组合description和details作为完整描述
-                val fullDescription = if (tool.details.isNotEmpty()) {
+    val fullDescription = if (tool.details.isNotEmpty()) {
                     "${tool.description}\n${tool.details}"
                 } else {
                     tool.description
@@ -364,7 +367,7 @@ class ClaudeProvider(
                 put("description", fullDescription)
                 
                 // 使用结构化参数构建input_schema
-                val inputSchema = buildSchemaFromStructured(tool.parametersStructured ?: emptyList())
+    val inputSchema = buildSchemaFromStructured(tool.parametersStructured ?: emptyList())
                 put("input_schema", inputSchema)
             })
         }
@@ -417,7 +420,8 @@ class ClaudeProvider(
             text
         }
         
-        // 检查是否包含图片链�?       if (MediaLinkParser.hasImageLinks(textAfterMediaRemoval)) {
+        // 检查是否包含图片链�?
+    if (MediaLinkParser.hasImageLinks(textAfterMediaRemoval)) {
             val imageLinks = MediaLinkParser.extractImageLinks(textAfterMediaRemoval)
             val textWithoutLinks = MediaLinkParser.removeImageLinks(textAfterMediaRemoval).trim()
             
@@ -433,7 +437,8 @@ class ClaudeProvider(
                 })
             }
             
-            // 添加文本（如果有�?           if (textWithoutLinks.isNotEmpty()) {
+            // 添加文本（如果有�?
+    if (textWithoutLinks.isNotEmpty()) {
                 contentArray.put(JSONObject().apply {
                     put("type", "text")
                     put("text", textWithoutLinks)
@@ -952,7 +957,7 @@ class ClaudeProvider(
         }
 
         // 添加 Tool Call 工具定义（如果启用且有可用工具）
-        var tools: JSONArray? = null
+    var tools: JSONArray? = null
         if (enableToolCall && availableTools != null && availableTools.isNotEmpty()) {
             val builtTools = buildToolDefinitionsForClaude(availableTools)
             if (builtTools.length() > 0) {
@@ -968,12 +973,12 @@ class ClaudeProvider(
         jsonObject.put("messages", messagesArray)
 
         // Claude对系统消息的处理有所不同，它使用system参数
-        if (systemBlocks != null) {
+    if (systemBlocks != null) {
             jsonObject.put("system", systemBlocks)
         }
 
         // 添加extended thinking支持
-        if (enableThinking) {
+    if (enableThinking) {
             val thinkingObject = JSONObject()
             thinkingObject.put("type", "enabled")
 
@@ -989,7 +994,7 @@ class ClaudeProvider(
         }
 
         // 日志输出时省略过长的tools字段
-        val logJson = JSONObject(jsonObject.toString())
+    val logJson = JSONObject(jsonObject.toString())
         if (logJson.has("tools")) {
             val toolsArray = logJson.getJSONArray("tools")
             logJson.put("tools", "[${toolsArray.length()} tools omitted for brevity]")
@@ -1035,7 +1040,7 @@ class ClaudeProvider(
                             )
                     "stop_sequences" -> {
                         // 处理停止序列
-                        val stopSequences = param.currentValue as? List<*>
+    val stopSequences = param.currentValue as? List<*>
                         if (stopSequences != null) {
                             val stopArray = JSONArray()
                             stopSequences.forEach { stopArray.put(it.toString()) }
@@ -1049,7 +1054,7 @@ class ClaudeProvider(
                     }
                     else -> {
                         // 添加其他Claude特定参数
-                        when (param.valueType) {
+    when (param.valueType) {
                             com.apex.data.model.ParameterValueType.INT ->
                                     jsonObject.put(param.apiName, param.currentValue as Int)
                             com.apex.data.model.ParameterValueType.FLOAT ->
@@ -1297,7 +1302,7 @@ class ClaudeProvider(
                         if (!response.isSuccessful) {
                             val errorBody = response.body?.string() ?: context.getString(R.string.openai_error_no_error_details)
                             // 4xx错误仍保留单独的异常类型，具体是否重试由统一策略决定
-                            if (response.code in 400..499) {
+    if (response.code in 400..499) {
                                 throw NonRetriableException(context.getString(R.string.openai_error_api_request_failed_with_status, response.code, errorBody))
                             }
                             throw IOException(context.getString(R.string.openai_error_api_request_failed_with_status, response.code, errorBody))
@@ -1391,7 +1396,8 @@ class ClaudeProvider(
                                 break
                             }
                             if (!line.startsWith("data:")) {
-                                // 某些兼容端点可能直接返回 JSON/JSONL（不，SSE ，data: 前缀�?                               if ((line.startsWith("{") || line.startsWith("[")) &&
+                                // 某些兼容端点可能直接返回 JSON/JSONL（不，SSE ，data: 前缀�?
+    if ((line.startsWith("{") || line.startsWith("[")) &&
                                     nonSseJsonLinesBuffer.length < 2_000_000
                                 ) {
                                     nonSseJsonLinesBuffer.append(line).append('\n')
@@ -1406,7 +1412,7 @@ class ClaudeProvider(
                             val type = jsonResponse.optString("type", "")
 
                             // OpenAI-style chunk (no `type`)
-                            if (type.isBlank()) {
+    if (type.isBlank()) {
                                 val choices = jsonResponse.optJSONArray("choices")
                                 val first = choices?.optJSONObject(0)
                                 val delta = first?.optJSONObject("delta")
@@ -1629,7 +1635,7 @@ class ClaudeProvider(
                             )
 
                             // 先尝试整体当成一个JSON对象解析
-                            val wholeJson = runCatching { JSONObject(buffered) }.getOrNull()
+    val wholeJson = runCatching { JSONObject(buffered) }.getOrNull()
                             if (wholeJson != null) {
                                 val resultText = parseAnthropicNonStreaming(wholeJson)
                                     .ifBlank { parseOpenAiNonStreaming(wholeJson) }
@@ -1727,7 +1733,7 @@ class ClaudeProvider(
      */
     override suspend fun getModelsList(context: Context): Result<List<ModelOption>> {
         // 调用ModelListFetcher获取模型列表
-        return ModelListFetcher.getModelsList(
+    return ModelListFetcher.getModelsList(
             context = context,
             apiKey = apiKeyProvider.getApiKey(),
             apiEndpoint = apiEndpoint,
@@ -1737,7 +1743,8 @@ class ClaudeProvider(
 
     override suspend fun testConnection(context: Context): Result<String> {
         return try {
-            // 通过发送一条短消息来测试完整的连接、认证和API端点�?           // 这比getModelsList更可靠，因为它直接命中了聊天API�?           // 提供一个通用的系统提示，以防止某些需要它的模型出现错误，            val testHistory = listOf("system" to "You are a helpful assistant.").toPromptTurns()
+            // 通过发送一条短消息来测试完整的连接、认证和API端点�?           // 这比getModelsList更可靠，因为它直接命中了聊天API�?           // 提供一个通用的系统提示，以防止某些需要它的模型出现错误，
+    val testHistory = listOf("system" to "You are a helpful assistant.").toPromptTurns()
             val stream = sendMessage(
                 context,
                 testHistory + PromptTurn(kind = PromptTurnKind.USER, content = "Hi"),

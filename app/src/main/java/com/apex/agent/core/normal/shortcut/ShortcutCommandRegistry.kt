@@ -261,7 +261,6 @@ class ShortcutCommandRegistry {
     }
 
     // ============ 参数解析 ============
-
     private fun parseArguments(argsStr: String, params: List<CommandParameter>): Map<String, String> {
         if (argsStr.isBlank()) return emptyMap()
         if (params.isEmpty()) return mapOf("input" to argsStr)
@@ -270,13 +269,13 @@ class ShortcutCommandRegistry {
         val tokens = tokenizeArgs(argsStr)
 
         // 简化：按位置赋值
-        var paramIdx = 0
+    var paramIdx = 0
         var i = 0
         while (i < tokens.size && paramIdx < params.size) {
             val param = params[paramIdx]
             if (tokens[i].startsWith("--")) {
                 // 命名参数 --name value
-                val name = tokens[i].removePrefix("--")
+    val name = tokens[i].removePrefix("--")
                 val paramDef = params.find { it.name == name }
                 if (paramDef != null && i + 1 < tokens.size) {
                     result[name] = tokens[i + 1]
@@ -293,7 +292,7 @@ class ShortcutCommandRegistry {
         }
 
         // 填充默认值
-        for (param in params) {
+    for (param in params) {
             if (param.name !in result && param.defaultValue != null) {
                 result[param.name] = param.defaultValue
             }
@@ -324,7 +323,6 @@ class ShortcutCommandRegistry {
     }
 
     // ============ 预置命令 ============
-
     private fun registerBuiltinCommands() {
         // AI 操作
         register(ShortcutCommand(

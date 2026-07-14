@@ -745,7 +745,7 @@ class AgentCollaborationFramework(
             }
 
             // 更新原任务，关联子任�?
-            val updatedTask = task.copy(
+    val updatedTask = task.copy(
                 subtasks = subtasks.map { it.id },
                 updatedAt = System.currentTimeMillis()
             )
@@ -786,7 +786,6 @@ class AgentCollaborationFramework(
     }
 
     // ===================== AI 驱动增强方法 =====================
-
     private suspend fun callForCollaboration(prompt: String, system: String = "你是一名专业的多代理协作协调者�?): String {
         return try {
             val ai = EnhancedAIService.getInstance(context)

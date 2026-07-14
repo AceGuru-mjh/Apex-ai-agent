@@ -151,7 +151,6 @@ class EnhancedTerminalViewModel @Inject constructor(
     }
 
     // === 代码段编辑器 ===
-
     fun openSnippetEditor(existing: Snippet? = null) {
         _editingSnippet.value = existing
         _snippetEditorOpen.value = true

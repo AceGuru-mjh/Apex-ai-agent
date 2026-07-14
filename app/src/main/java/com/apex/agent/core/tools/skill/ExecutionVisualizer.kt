@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
+import com.apex.agent.core.tools.skill.WorkflowTriggered
 
 /**
  * 技能执行可视化模块
@@ -130,7 +131,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         val nodeName: String,
         val status: NodeStatus,
         val progress: Float,  // 0-1 for running nodes
-        val elapsedMs: Long,
+    val elapsedMs: Long,
         val durationMs: Long?,
         val color: Int,
         val x: Float,
@@ -144,7 +145,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         val toNodeId: String,
         val status: ConnectionStatus,
         val flowProgress: Float = 0f,  // 0-1 for active flow animation
-        val color: Int
+    val color: Int
     )
 
     enum class ConnectionStatus {
@@ -176,7 +177,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         val bottlenecks: List<Bottleneck>,
         val recommendations: List<PerformanceRecommendation>,
         val nodeTimings: Map<String, Long>,  // nodeId -> avg time
-        val timeDistribution: Map<String, Float>  // stage -> percentage
+    val timeDistribution: Map<String, Float>  // stage -> percentage
     )
 
     data class Bottleneck(
@@ -219,7 +220,6 @@ class ExecutionVisualizer private constructor(private val context: Context) {
     }
 
     // ========== 状�?==========
-
     private val _currentExecution = MutableStateFlow<ExecutionRecord?>(null)
     val currentExecution: StateFlow<ExecutionRecord?> = _currentExecution.asStateFlow()
 
@@ -301,7 +301,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         _currentExecution.value = updatedRecord
 
         // 检查是否完�?
-        if (updatedExecutions.all { it.isComplete }) {
+    if (updatedExecutions.all { it.isComplete }) {
             finishVisualization(
                 if (updatedExecutions.any { it.status == NodeStatus.FAILED })
                     ExecutionStatus.FAILED else ExecutionStatus.SUCCESS
@@ -427,7 +427,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
             val node = sortedNodes[currentIndex]
 
             // 计算当前时间点之前所有节点的状�?
-            val currentTime = System.currentTimeMillis()
+    val currentTime = System.currentTimeMillis()
             val nodeStates = sortedNodes.map { exec ->
                 val isComplete = exec.endTime != null && exec.endTime <= node.endTime
                 val isRunning = exec.startTime <= currentTime &&
@@ -520,7 +520,6 @@ class ExecutionVisualizer private constructor(private val context: Context) {
     }
 
     // ========== 私有方法 ==========
-
     private fun startRefreshLoop() {
         refreshJob?.cancel()
         refreshJob = scope.launch {
@@ -596,7 +595,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         nodeStates: Map<String, NodeVisualState>
     ): List<ConnectionVisual> {
         // 从工作流定义获取连接
-        val workflow = workflowEngine.getWorkflow(record.workflowId ?: return emptyList())
+    val workflow = workflowEngine.getWorkflow(record.workflowId ?: return emptyList())
             ?: return emptyList()
 
         return workflow.connections.map { conn ->
@@ -647,7 +646,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         } else 0f
 
         // 估算剩余时间
-        val completedTime = completedNodes.sumOf { it.durationMs }
+    val completedTime = completedNodes.sumOf { it.durationMs }
         val remainingNodes = nodeStates.count { it.value.status == NodeStatus.PENDING || it.value.status == NodeStatus.RUNNING }
         val estimatedRemaining = if (completedNodes.isNotEmpty() && remainingNodes > 0) {
             (avgTime * remainingNodes)
@@ -696,7 +695,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         val totalDuration = record.totalDurationMs
 
         // 识别瓶颈
-        val bottlenecks = record.nodeExecutions
+    val bottlenecks = record.nodeExecutions
             .filter { it.isComplete && it.durationMs > 0 }
             .sortedByDescending { it.durationMs }
             .take(5)
@@ -718,7 +717,7 @@ class ExecutionVisualizer private constructor(private val context: Context) {
             }
 
         // 生成建议
-        val recommendations = mutableListOf<PerformanceRecommendation>()
+    val recommendations = mutableListOf<PerformanceRecommendation>()
 
         bottlenecks.forEach { bottleneck ->
             if (bottleneck.severity >= BottleneckSeverity.HIGH) {
@@ -739,13 +738,13 @@ class ExecutionVisualizer private constructor(private val context: Context) {
         }
 
         // 节点平均时间
-        val nodeTimings = record.nodeExecutions
+    val nodeTimings = record.nodeExecutions
             .filter { it.isComplete }
             .groupBy { it.nodeId }
             .mapValues { (_, nodes) -> nodes.map { it.durationMs }.average().toLong() }
 
         // 时间分布
-        val timeDistribution = mapOf(
+    val timeDistribution = mapOf(
             "node_execution" to record.nodeExecutions.map { it.durationMs }.sum().toFloat() / max(1, totalDuration) * 100,
             "overhead" to 5f,  // 简�?
             "waiting" to 10f
@@ -912,7 +911,6 @@ class ExecutionVisualizer private constructor(private val context: Context) {
     private fun generateId(): String = "exec_${System.currentTimeMillis()}_${(Math.random() * 10000).toInt()}"
 
     // ========== 工具方法 ==========
-
     fun formatDuration(ms: Long): String {
         return when {
             ms < 1000 -> "${ms}ms"

@@ -40,7 +40,7 @@ object HttpMultiPartDownloader {
     }
         fun probeDownload(url: String, headers: Map<String, String> = emptyMap()): ProbeResult {
         // Prefer HEAD, but some servers don't allow it.
-        var conn: HttpURLConnection? = null
+    var conn: HttpURLConnection? = null
         try {
             conn = (URL(url).openConnection() as HttpURLConnection).apply {
                 requestMethod = "HEAD"
@@ -63,7 +63,7 @@ object HttpMultiPartDownloader {
         }
 
         // Fallback GET with Range 0-0 to detect range support.
-        var conn2: HttpURLConnection? = null
+    var conn2: HttpURLConnection? = null
         try {
             conn2 = (URL(url).openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
@@ -173,7 +173,7 @@ object HttpMultiPartDownloader {
     }
         private fun parseTotalFromContentRange(contentRange: String): Long {
         // format: bytes 0-0/12345
-        if (contentRange.isNullOrBlank()) return -1L
+    if (contentRange.isNullOrBlank()) return -1L
         val slash = contentRange.lastIndexOf('/')
         if (slash <= 0 || slash >= contentRange.length - 1) return -1L
         return contentRange.substring(slash + 1).trim().toLongOrNull() ?: -1L

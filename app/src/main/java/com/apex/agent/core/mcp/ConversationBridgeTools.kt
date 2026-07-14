@@ -160,7 +160,8 @@ class ConversationBridgeTools(private val context: Context) {
                 }
                 
                 val messages = if (beforeId != null) {
-                    // 获取指定消息之前的消�?                    val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
+                    // 获取指定消息之前的消�?
+    val allMessages = sessionDatabase.messageDao().getMessagesBySessionIdSync(conversationId)
                     val beforeIndex = allMessages.indexOfFirst { it.id == beforeId }
                     if (beforeIndex > 0) {
                         allMessages.subList(0, minOf(beforeIndex, limit))
@@ -214,7 +215,8 @@ class ConversationBridgeTools(private val context: Context) {
                     )
                 }
                 
-                // 检查对话是否存�?                val session = sessionDatabase.sessionDao().getSessionById(conversationId)
+                // 检查对话是否存�?
+    val session = sessionDatabase.sessionDao().getSessionById(conversationId)
                 if (session == null) {
                     return@withContext MessageSendResult(
                         success = false,
@@ -401,7 +403,7 @@ class ConversationBridgeTools(private val context: Context) {
                 }
                 
                 // 批准时持久化�?RBAC
-                if (approve) {
+    if (approve) {
                     rbacManager?.let { rbac ->
                         try {
                             val rbacPermName = "mcp:${permission.type}"
@@ -451,7 +453,7 @@ class ConversationBridgeTools(private val context: Context) {
         synchronized(eventQueue) {
             eventQueue.add(event)
             // 限制队列大小
-            if (eventQueue.size > 1000) {
+    if (eventQueue.size > 1000) {
                 eventQueue.removeAt(0)
             }
         }

@@ -184,7 +184,7 @@ data class GrepResultData(
             sb.appendLine("No matches found")
         } else {
             // Set display limit - show up to 30 match groups
-        val maxDisplayMatches = 30
+    val maxDisplayMatches = 30
             var displayedMatches = 0
             var collapsedMatches = 0
 
@@ -201,7 +201,7 @@ data class GrepResultData(
 
                 matchesToShow.forEach { lineMatch ->
                     // If context is available, show full context
-        if (lineMatch.matchContext != null && lineMatch.matchContext.isNotBlank()) {
+    if (lineMatch.matchContext != null && lineMatch.matchContext.isNotBlank()) {
                         val contextLines = lineMatch.matchContext.lines()
         val isPreNumberedContext =
                             contextLines.any { it.isNotBlank() } &&
@@ -232,7 +232,7 @@ data class GrepResultData(
         sb.appendLine() // Add blank line after each match block
                     } else {
                         // No context, show only matching line
-        val lineNumStr = String.format("%6d", lineMatch.lineNumber)
+    val lineNumStr = String.format("%6d", lineMatch.lineNumber)
         sb.appendLine("${lineNumStr}| ${lineMatch.lineContent}")
                     }
         displayedMatches++

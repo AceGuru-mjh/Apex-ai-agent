@@ -99,15 +99,16 @@ class Terminal private constructor(private val context: Context) {
         var completionOutput: String? = null
         
         // 生成命令ID
-        val commandId = java.util.UUID.randomUUID().toString()
+    val commandId = java.util.UUID.randomUUID().toString()
         
         val collectorReady = CompletableDeferred<Unit>()
         
-        // 先开始订阅事件流，然后再发送命�?       val job = scope.launch {
+        // 先开始订阅事件流，然后再发送命�?
+    val job = scope.launch {
             commandEvents
                 .filter { it.sessionId == sessionId && it.commandId == commandId }
                 .onStart { collectorReady.complete(Unit) } // 发出信号，表示已准备好收�?               .collect { event ->
-                    if (event.isCompleted) {
+    if (event.isCompleted) {
                         completionOutput = event.outputChunk
                     } else {
                         output.append(event.outputChunk)
@@ -121,8 +122,7 @@ class Terminal private constructor(private val context: Context) {
         // 等待收集器准备就�?       collectorReady.await()
         
         // 直接向指定会话发送命令，不切换当前会�?       terminalManager.sendCommandToSession(sessionId, command, commandId)
-
-        val result = deferred.await()
+    val result = deferred.await()
         
         job.cancel()
         

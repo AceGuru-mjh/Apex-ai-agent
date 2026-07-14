@@ -19,6 +19,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import com.apex.core.tools.javascript.not
 
 /**
  * A robust manager to track the current foreground activity using Android's standard
@@ -80,7 +81,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
                 }
 
                 // Window operations must be done on the UI thread.activity.runOnUiThread {
-                    val window = activity.window
+    val window = activity.window
                     if (enable) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                         AppLogger.d(TAG, "FLAG_KEEP_SCREEN_ON added.")
@@ -164,7 +165,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityPaused(activity: Activity) {
         // If the paused activity is the one we are currently tracking, clear it.
-        if (currentActivity?.get() == activity) {
+    if (currentActivity?.get() == activity) {
             currentActivity?.clear()
         }
         AppLifecycleHookPluginRegistry.dispatchAsync(
@@ -208,7 +209,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityDestroyed(activity: Activity) {
         // If the destroyed activity is the one we are tracking, ensure it is cleared.
-        if (currentActivity?.get() == activity) {
+    if (currentActivity?.get() == activity) {
             currentActivity?.clear()
         }
         
@@ -227,7 +228,7 @@ object ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
         )
         
         // 当最后一，Activity 被销毁时（包括从最近任务列表滑动关闭），清理虚拟屏幕和 Shower 连接
-        if (activityCount <= 0) {
+    if (activityCount <= 0) {
             AppLogger.d(TAG, "最后一，Activity 被销毁，清理虚拟屏幕资源")
             try {
                 VirtualDisplayOverlay.hideAll()

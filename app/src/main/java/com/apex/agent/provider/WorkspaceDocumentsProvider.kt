@@ -23,13 +23,13 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
         private const val TAG = "WorkspaceDocumentsProvider"
         
         // Authority需要与AndroidManifest中的声明一，
-        private const val AUTHORITY = "com.apex.documents.workspace"
+    private const val AUTHORITY = "com.apex.documents.workspace"
         
         // Root ID
-        private const val ROOT_ID = "workspace_root"
+    private const val ROOT_ID = "workspace_root"
         
         // 默认文档，
-        private val DEFAULT_ROOT_PROJECTION = arrayOf(
+    private val DEFAULT_ROOT_PROJECTION = arrayOf(
             DocumentsContract.Root.COLUMN_ROOT_ID,
             DocumentsContract.Root.COLUMN_MIME_TYPES,
             DocumentsContract.Root.COLUMN_FLAGS,
@@ -182,7 +182,7 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
         var flags = 0
         if (file.isDirectory) {
             // 目录支持创建子文件
-        if (file.canWrite()) {
+    if (file.canWrite()) {
                 flags = flags or DocumentsContract.Document.FLAG_DIR_SUPPORTS_CREATE
             }
         } else if (file.canWrite()) {
@@ -192,7 +192,7 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
         }
         
         // 支持重命，
-        if (file.parentFile?.canWrite() == true) {
+    if (file.parentFile?.canWrite() == true) {
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_RENAME
         }
         val displayName = file.name
@@ -235,7 +235,7 @@ class WorkspaceDocumentsProvider : DocumentsProvider() {
             workspaceRoot
         } else {
             // 移除开头的/，拼接到workspace根目当
-        val relativePath = documentId.trimStart('/')
+    val relativePath = documentId.trimStart('/')
         File(workspaceRoot, relativePath)
         }
         if (!file.exists()) {

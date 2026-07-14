@@ -21,7 +21,8 @@ class ShizukuInstaller {
         private const val SHIZUKU_APK_FILENAME = "shizuku.apk"
         private const val SHIZUKU_PACKAGE_NAME = "moe.shizuku.privileged.api"
         
-        // 缓存版本信息，避免重复计�?       private var cachedInstalledVersion: String? = null
+        // 缓存版本信息，避免重复计�?
+    private var cachedInstalledVersion: String? = null
         private var cachedBundledVersion: String? = null
         private var cachedUpdateNeeded: Boolean? = null
         private var lastCheckTime: Long = 0
@@ -66,13 +67,14 @@ class ShizukuInstaller {
          */
         fun installBundledShizuku(context: Context): Boolean {
             try {
-                // 记录是安装还是更�?               val isUpdate = ShizukuAuthorizer.isShizukuInstalled(context)
+                // 记录是安装还是更�?
+    val isUpdate = ShizukuAuthorizer.isShizukuInstalled(context)
                 val action = if (isUpdate) context.getString(R.string.shizuku_install_update) else context.getString(R.string.shizuku_install_install)
 
                 AppLogger.d(TAG, "开，{action}内置Shizuku")
 
                 // 从assets目录提取APK
-                val apkFile = extractApkFromAssets(context)
+    val apkFile = extractApkFromAssets(context)
                 if (apkFile == null) {
                     AppLogger.e(TAG, "提取APK失败")
                     return false
@@ -80,7 +82,8 @@ class ShizukuInstaller {
 
                 AppLogger.d(TAG, "APK提取成功: ${apkFile.absolutePath}, 大小: ${apkFile.length()} 字节")
 
-                // 生成APK的URI，考虑文件提供者权�?               val apkUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // 生成APK的URI，考虑文件提供者权�?
+    val apkUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(
                         context,
                         "${context.packageName}.fileprovider",
@@ -93,7 +96,7 @@ class ShizukuInstaller {
                 AppLogger.d(TAG, "生成APK URI: ${apkUri}")
 
                 // 创建安装意图
-                val installIntent = Intent(Intent.ACTION_VIEW).apply {
+    val installIntent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(apkUri, "application/vnd.android.package-archive")
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -107,8 +110,7 @@ class ShizukuInstaller {
                 context.startActivity(installIntent)
 
                 // 清除缓存，强制下次检测重新计�?               clearCache()
-
-                return true
+    return true
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Failed to install bundled Shizuku", e)
                 return false
@@ -121,14 +123,14 @@ class ShizukuInstaller {
          */
         fun getBundledShizukuVersion(context: Context): String {
             // 优先使用缓存
-            if (cachedBundledVersion != null && !isCacheExpired()) {
+    if (cachedBundledVersion != null && !isCacheExpired()) {
                 AppLogger.i(TAG, "从缓存获取内置Shizuku版本: ${cachedBundledVersion}")
                 return cachedBundledVersion!!
             }
 
             try {
                 // 从assets读取版本信息文件
-                val versionInfo = context.assets.open("shizuku_version.txt").use { inputStream ->
+    val versionInfo = context.assets.open("shizuku_version.txt").use { inputStream ->
                     inputStream.bufferedReader().readText().trim()
                 }
                 AppLogger.i(TAG, "获取内置Shizuku版本: ${versionInfo}")
@@ -148,7 +150,7 @@ class ShizukuInstaller {
          */
         fun getInstalledShizukuVersion(context: Context): String? {
             // 优先使用缓存
-            if (cachedInstalledVersion != null && !isCacheExpired()) {
+    if (cachedInstalledVersion != null && !isCacheExpired()) {
                 AppLogger.i(TAG, "从缓存获取已安装Shizuku版本: ${cachedInstalledVersion}")
                 return cachedInstalledVersion
             }
@@ -183,7 +185,7 @@ class ShizukuInstaller {
          */
         fun isShizukuUpdateNeeded(context: Context): Boolean {
             // 优先使用缓存
-            if (cachedUpdateNeeded != null && !isCacheExpired()) {
+    if (cachedUpdateNeeded != null && !isCacheExpired()) {
                 AppLogger.d(TAG, "从缓存获取Shizuku更新状�?${cachedUpdateNeeded}")
                 return cachedUpdateNeeded!!
             }
@@ -209,12 +211,14 @@ class ShizukuInstaller {
 
             try {
                 // 提取主版本号部分 (例如 "13.5.0.r1234" -> "13.5.0")
-                val installedMainVersion = extractMainVersion(installedVersion)
+    val installedMainVersion = extractMainVersion(installedVersion)
                 val bundledMainVersion = extractMainVersion(bundledVersion)
-                // 将版本号分割为数字数�?               val installed = installedMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
+                // 将版本号分割为数字数�?
+    val installed = installedMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
                 val bundled = bundledMainVersion.split(".").map { it.toIntOrNull() ?: 0 }
 
-                // 比较主要版本�?               for (i in 0 until minOf(installed.size, bundled.size)) {
+                // 比较主要版本�?
+    for (i in 0 until minOf(installed.size, bundled.size)) {
                     if (bundled[i] > installed[i]) {
                         AppLogger.d(TAG, "需要更�?内置版本 ${bundled[i]} > 已安装版�?{installed[i]} (位置: ${i})")
                         cachedUpdateNeeded = true
@@ -229,7 +233,8 @@ class ShizukuInstaller {
                     }
                 }
 
-                // 如果前面的版本号都相同，但bundled有更多的版本号段，则认为需要更�?               val updateNeeded = bundled.size > installed.size
+                // 如果前面的版本号都相同，但bundled有更多的版本号段，则认为需要更�?
+    val updateNeeded = bundled.size > installed.size
                 cachedUpdateNeeded = updateNeeded
                 updateCacheTimestamp()
                 return updateNeeded
@@ -246,7 +251,7 @@ class ShizukuInstaller {
          */
         private fun extractMainVersion(version: String): String {
             // 正则表达式匹配主版本号部�?x.y.z)
-            val mainVersionRegex = """^(\d+)\.(\d+)\.(\d+)""".toRegex()
+    val mainVersionRegex = """^(\d+)\.(\d+)\.(\d+)""".toRegex()
             val matchResult = mainVersionRegex.find(version)
             
             val result = matchResult?.value ?: version.split("-", ".", "+", " ").take(3).joinToString(".")

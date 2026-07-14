@@ -31,8 +31,8 @@ data class BattleContestant(
     val name: String,
     val avatar: String,
     val persona: String,            // 性格设定
-        val style: String,              // 说话风格
-        val catchphrase: String
+    val style: String,              // 说话风格
+    val catchphrase: String
 )
 
 data class BattleRound(
@@ -131,7 +131,7 @@ class BattleModeSystem {
         sessions[sessionId] = updated
 
         // 更新排行榜
-        if (newStatus == BattleStatus.FINISHED) {
+    if (newStatus == BattleStatus.FINISHED) {
             val winnerId = when {
                 newScoreA > newScoreB -> session.contestantA.id
                 newScoreB > newScoreA -> session.contestantB.id

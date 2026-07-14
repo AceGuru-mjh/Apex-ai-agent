@@ -14,26 +14,26 @@ class FloatingWindowState(context: Context) {
     private val screenHeightDp: Dp
 
     // Window position
-        var x: Int = 200
+    var x: Int = 200
     var y: Int = 200
 
     // Window size
-        val windowWidth = mutableStateOf(300.dp)
+    val windowWidth = mutableStateOf(300.dp)
         val windowHeight = mutableStateOf(400.dp)
         val windowScale = mutableStateOf(0.8f)
         var lastWindowScale: Float = 0.8f
 
     // Mode state
-        val currentMode = mutableStateOf(FloatingMode.WINDOW)
+    val currentMode = mutableStateOf(FloatingMode.WINDOW)
         var previousMode: FloatingMode = FloatingMode.WINDOW
     val ballSize = mutableStateOf(60.dp)
         val isAtEdge = mutableStateOf(false)
 
     // DragonBones pet mode lock state
-        var isPetModeLocked = mutableStateOf(false)
+    var isPetModeLocked = mutableStateOf(false)
 
     // Transition state
-        var lastWindowPositionX: Int = 0
+    var lastWindowPositionX: Int = 0
     var lastWindowPositionY: Int = 0
     var lastBallPositionX: Int = 0
     var lastBallPositionY: Int = 0
@@ -41,10 +41,10 @@ class FloatingWindowState(context: Context) {
     val transitionDebounceTime = 500L // 防抖时间
     
     // Ball explosion animation state
-        val ballExploding = mutableStateOf(false)
+    val ballExploding = mutableStateOf(false)
 
     // Whether system-level cross-window blur is actually active for fullscreen
-        val fullscreenSystemBlurActive = mutableStateOf(false)
+    val fullscreenSystemBlurActive = mutableStateOf(false)
         init {
         val displayMetrics = context.resources.displayMetrics
         screenWidthDp = (displayMetrics.widthPixels / displayMetrics.density).dp

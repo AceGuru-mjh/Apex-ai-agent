@@ -75,6 +75,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import com.apex.core.application.ActivityLifecycleManager
+import com.apex.core.tools.javascript.not
 
 /** Application class for apex */
 class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfiguration.Provider {
@@ -132,7 +134,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         AppIconManager.ensureComponentState(this)
 
         // Reset previous log on each cold start to prevent infinite log growth
-        val isCrashReportRecoveryStartup = CrashRecoveryState.consumePendingCrashReportLaunch(this)
+    val isCrashReportRecoveryStartup = CrashRecoveryState.consumePendingCrashReportLaunch(this)
         if (!isCrashReportRecoveryStartup) {
             AppLogger.resetLogFile()
         }
@@ -185,7 +187,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         AppLogger.d(TAG, "【启动计时】语言设置初始化完�?- ${System.currentTimeMillis() - startTime}ms")
 
         // Initialize user preferences manager
-        val defaultProfileName = applicationContext.getString(R.string.default_profile)
+    val defaultProfileName = applicationContext.getString(R.string.default_profile)
         initUserPreferencesManager(applicationContext, defaultProfileName)
         AppLogger.d(TAG, "【启动计时】用户偏好管理器初始化完�?- ${System.currentTimeMillis() - startTime}ms")
 
@@ -238,7 +240,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         AppLogger.d(TAG, "【启动计时】WaifuMessageProcessor初始化完�?- ${System.currentTimeMillis() - startTime}ms")
 
         // Initialize global image loader (needed for UI)
-        val imageOkHttpClient = OkHttpClient.Builder()
+    val imageOkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -397,7 +399,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
             // val alwaysListeningEnabled = runBlocking {
             //     WakeWordPreferences(applicationContext).alwaysListeningEnabledFlow.first()
             // }
-            val externalHttpEnabled = runBlocking {
+    val externalHttpEnabled = runBlocking {
                 ExternalHttpApiPreferences.getInstance(applicationContext).enabledFlow.first()
             }
             if ((/* !alwaysListeningEnabled &amp;&amp; */ !externalHttpEnabled) || AIForegroundService.isRunning.get()) {
@@ -420,10 +422,10 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
     private fun initializeAppLanguage() {
         try {
             // 同步获取已保存的语言设置
-            val languageCode = runBlocking {
+    val languageCode = runBlocking {
                 try {
                     // 使用更安全的方式检查preferencesManager
-                    val manager = runCatching { preferencesManager }.getOrNull()
+    val manager = runCatching { preferencesManager }.getOrNull()
                     if (manager != null) {
                         manager.appLanguage.first()
                     } else {
@@ -438,18 +440,18 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
             AppLogger.d(TAG, "获取语言设置: ${languageCode}")
 
             // 立即应用语言设置
-            val locale = LocaleUtils.getLocaleForLanguageCode(languageCode, this)
+    val locale = LocaleUtils.getLocaleForLanguageCode(languageCode, this)
             // 设置默认语言
             Locale.setDefault(locale)
 
             if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.TIRAMISU) {
                 // Android 13+ 使用AppCompatDelegate API
-                val localeList = LocaleListCompat.create(locale)
+    val localeList = LocaleListCompat.create(locale)
                 AppCompatDelegate.setApplicationLocales(localeList)
                 AppLogger.d(TAG, "使用AppCompatDelegate设置语言: ${languageCode}")
             } else {
                 // 较旧版本Android - 此处使用的部分更新将在attachBaseContext中完成更完整更新
-                val config = Configuration()
+    val config = Configuration()
                 if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.N) {
                     val localeList = LocaleList(locale)
                     LocaleList.setDefault(localeList)
@@ -469,13 +471,13 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
     override fun attachBaseContext(base: Context) {
         configureOpenMpEnvironment()
         // 在基础上下文附加前应用语言设置
-        try {
+    try {
             val code = LocaleUtils.getCurrentLanguage(base)
             val locale = LocaleUtils.getLocaleForLanguageCode(code, base)
             val config = Configuration(base.resources.configuration)
 
             // 设置语言配置
-            if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.N) {
+    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.N) {
                 val localeList = LocaleList(locale)
                 LocaleList.setDefault(localeList)
                 config.setLocales(localeList)
@@ -485,7 +487,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
             }
 
             // 使用createConfigurationContext创建新的上下�?
-            val context = base.createConfigurationContext(config)
+    val context = base.createConfigurationContext(config)
             super.attachBaseContext(context)
             AppLogger.d(TAG, "成功应用基础上下文语言: ${code}")
         } catch (e: Exception) {
@@ -513,7 +515,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         }
 
         // 清理终端管理器和SSH连接
-        try {
+    try {
             if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) {
                 Terminal.getInstance(applicationContext).destroy()
                 AppLogger.d(TAG, "应用终止，已清理所有终端会话和SSH连接")
@@ -523,7 +525,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         }
         
         // 在应用终止时关闭LocalWebServer服务�?
-        try {
+    try {
             val webServer = LocalWebServer.getInstance(applicationContext, LocalWebServer.ServerType.WORKSPACE)
             if (webServer.isRunning()) {
                 webServer.stop()
@@ -534,7 +536,7 @@ class LogistraAgentApplication : Application(), ImageLoaderFactory, WorkConfigur
         }
 
         // 在应用终止时，关闭虚拟显示器Overlay并断开Shower WebSocket连接
-        try {
+    try {
             VirtualDisplayOverlay.hideAll()
         } catch (e: Exception) {
             AppLogger.e(TAG, "终止时隐�?VirtualDisplayOverlay 失败: ${e.message}", e)

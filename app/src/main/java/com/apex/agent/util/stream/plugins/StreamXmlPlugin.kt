@@ -1,6 +1,8 @@
 package com.apex.util.stream.plugins
 
 import com.apex.util.stream.*
+import com.apex.util.stream.StreamKmpGraph
+import com.apex.util.stream.StreamKmpGraphBuilder
 
 private const val GROUP_TAG_NAME = 1
 private const val GROUP_CONTENT = 2
@@ -70,7 +72,7 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
 
         if (state == PluginState.PROCESSING) {
             // We are inside a tag, looking for the end tag.
-            val matcher = endTagMatcher!!
+    val matcher = endTagMatcher!!
             val result = matcher.processChar(c)
 
             return when (result) {
@@ -100,12 +102,12 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                     return finish(handleDefaultCharacter(c))
                 }
                 // Allow adjacent XML after an end tag/punctuation even if separated by spaces/tabs
-                if (c == ' ' || c == '\t' || isEmojiContinuationChar(c)) {
+    if (c == ' ' || c == '\t' || isEmojiContinuationChar(c)) {
                     return finish(handleDefaultCharacter(c))
                 }
             }
             // We are in IDLE or TRYING state, looking for a start tag.
-            val previousState = state
+    val previousState = state
             when (val result = startTagMatcher.processChar(c)) {
                 is StreamKmpMatchResult.Match -> {
                     val tagName = result.groups[GROUP_TAG_NAME]
@@ -151,14 +153,14 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
                 }
                 is StreamKmpMatchResult.NoMatch -> {
                     // If we were trying and the match failed, we must reset to idle.
-                    if (previousState == PluginState.TRYING) {
+    if (previousState == PluginState.TRYING) {
                         reset()
                     }
                     // Clear the allowance if we failed to start a new tag
                     allowStartAfterEndTag = false
                     allowStartAfterPunctuation = false
                     // This is a default character, not part of a tag managed by this plugin.
-                    return finish(handleDefaultCharacter(c))
+    return finish(handleDefaultCharacter(c))
                 }
             }
         }
@@ -202,11 +204,11 @@ class StreamXmlPlugin(private val includeTagsInOutput: Boolean = true) : StreamP
 
     private fun isEmojiTrigger(c: Char): Boolean {
         // Most modern emojis are surrogate pairs in UTF-16. Treat either half as a trigger.
-        if (Character.isSurrogate(c)) {
+    if (Character.isSurrogate(c)) {
             return true
         }
         // BMP emoji/symbols (e.g. ☀, �?are usually "OTHER_SYMBOL".
-        return Character.getType(c) == Character.OTHER_SYMBOL.toInt()
+    return Character.getType(c) == Character.OTHER_SYMBOL.toInt()
     }
 
     private fun isEmojiContinuationChar(c: Char): Boolean = emojiContinuationChars.contains(c)

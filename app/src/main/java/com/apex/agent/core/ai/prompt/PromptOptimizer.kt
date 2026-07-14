@@ -25,7 +25,7 @@ class PromptOptimizer {
         appendLine()
             
             // 上下文信息
-        if (context != null) {
+    if (context != null) {
                 if (context.imports.isNotEmpty()) {
                     appendLine("Available imports:")
         context.imports.forEach { appendLine("- ${it}") }
@@ -46,7 +46,7 @@ class PromptOptimizer {
             }
             
             // Few-shot 示例（从经验记忆中获取）
-        if (examples.isNotEmpty()) {
+    if (examples.isNotEmpty()) {
                 appendLine("Examples of good solutions:")
         examples.take(3).forEachIndexed { index, example ->
                     appendLine("Example ${index + 1}:")
@@ -60,7 +60,7 @@ class PromptOptimizer {
             }
             
             // 约束条件
-        if (constraints.isNotEmpty()) {
+    if (constraints.isNotEmpty()) {
                 appendLine("Constraints:")
         constraints.forEach { appendLine("- ${it}") }
         appendLine()

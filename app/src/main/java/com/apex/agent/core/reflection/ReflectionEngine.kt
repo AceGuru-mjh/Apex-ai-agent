@@ -6,6 +6,7 @@ import com.apex.agent.data.repository.MemoryRepository
 import com.apex.agent.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.core.tools.javascript.not
 
 class ReflectionEngine(
     private val context: Context,

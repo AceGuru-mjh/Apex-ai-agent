@@ -141,7 +141,7 @@ class ConversationBranching {
         val branch = chatBranches.find { it.id == branchId } ?: return false
 
         // 找到分支的第一条消息
-        val chatMessages = messages[chatId] ?: return false
+    val chatMessages = messages[chatId] ?: return false
         val branchStartMsg = chatMessages.values.find {
             it.parentId == branch.fromMessageId && it.branchLabel == branch.label
         } ?: return false
@@ -152,7 +152,7 @@ class ConversationBranching {
         }
 
         // 启用从根到分支末尾的路径
-        val path = mutableListOf<String>()
+    val path = mutableListOf<String>()
         var current: BranchMessage? = branchStartMsg
         while (current != null) {
             path.add(current.id)
@@ -172,7 +172,7 @@ class ConversationBranching {
         val path = mutableListOf<BranchMessage>()
 
         // 从活跃 tip 反向追溯到根
-        var currentId = activeTips[chatId]
+    var currentId = activeTips[chatId]
         while (currentId != null) {
             val msg = chatMessages[currentId] ?: break
             path.add(0, msg)
@@ -257,12 +257,11 @@ class ConversationBranching {
     }
 
     // ============ 内部方法 ============
-
     private fun deactivateSubtree(chatId: String, fromMessageId: String) {
         val chatMessages = messages[chatId] ?: return
         val from = chatMessages[fromMessageId] ?: return
         // 把 from 之后的所有消息标记为非活跃
-        val queue: ArrayDeque<String> = ArrayDeque(from.childrenIds)
+    val queue: ArrayDeque<String> = ArrayDeque(from.childrenIds)
         while (queue.isNotEmpty()) {
             val id = queue.removeFirst()
             val msg = chatMessages[id] ?: continue

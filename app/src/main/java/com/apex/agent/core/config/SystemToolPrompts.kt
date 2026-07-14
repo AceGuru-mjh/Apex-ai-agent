@@ -5,6 +5,12 @@ import com.apex.core.chat.hooks.PromptHookRegistry
 import com.apex.data.model.SystemToolPromptCategory
 import com.apex.data.model.ToolPrompt
 import com.apex.data.model.ToolParameterSchema
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.agent.database.performance.Page
+import com.apex.api.speech.Mode
+import com.apex.core.extension.without
+import com.apex.core.tools.javascript.not
+import com.apex.util.streamnative.Session
 
 /**
  * 系统工具提示词管理器

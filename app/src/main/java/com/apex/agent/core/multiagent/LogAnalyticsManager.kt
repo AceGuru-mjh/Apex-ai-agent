@@ -263,7 +263,7 @@ class LogAnalyticsManager {
     }
 
     // 高级分析功能：识别系统瓶�?   fun identifyBottlenecks(): List<Pair<String, Double>> {
-        return componentStats.map { (component, durations) ->
+    return componentStats.map { (component, durations) ->
             val avgDuration = durations.average()
             Pair(component, avgDuration)
         }.sortedByDescending { it.second }

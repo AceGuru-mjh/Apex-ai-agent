@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.javascript.not
 
 class ModelConfigService private constructor(private val context: Context) {
 
@@ -604,7 +606,7 @@ class ModelConfigService private constructor(private val context: Context) {
         configCache[configId]?.let { return it }
 
         // 从ModelConfigManager加载
-        val config = modelConfigManager.getModelConfig(configId)
+    val config = modelConfigManager.getModelConfig(configId)
 
         // 更新缓存
         configCache[configId] = config
@@ -615,7 +617,7 @@ class ModelConfigService private constructor(private val context: Context) {
     private suspend fun loadActiveConfig() {
         mutex.withLock {
             // 获取对话功能当前绑定的模型配�?
-            val chatConfigId = functionalConfigManager.getConfigIdForFunction(com.apex.data.model.FunctionType.CHAT)
+    val chatConfigId = functionalConfigManager.getConfigIdForFunction(com.apex.data.model.FunctionType.CHAT)
             val availableConfigIds = _configList.value
 
             val configId = availableConfigIds.firstOrNull { it == chatConfigId }
@@ -684,7 +686,7 @@ class ModelConfigService private constructor(private val context: Context) {
         _configChangeEvent.emit(ConfigChangeEvent.ConfigDeleted(configId))
 
         // 如果删除的是当前活跃配置，切换到其他配置
-        if (_activeConfigId.value == configId) {
+    if (_activeConfigId.value == configId) {
             val availableConfigIds = _configList.value
             val newConfigId = availableConfigIds.firstOrNull() ?: ModelConfigManager.DEFAULT_CONFIG_ID
             setActiveConfig(newConfigId)
@@ -755,7 +757,7 @@ class ModelConfigService private constructor(private val context: Context) {
     suspend fun preloadConfigs() {
         modelConfigManager.preloadConfigs()
         // 从ModelConfigManager的缓存同步到当前服务的缓�?
-        val configList = _configList.value
+    val configList = _configList.value
         for (configId in configList) {
             getConfigFromCacheOrLoad(configId)
         }
@@ -777,29 +779,29 @@ class ModelConfigService private constructor(private val context: Context) {
      */
     fun validateConfig(config: ModelConfigData): Pair<Boolean, String> {
         // 验证配置名称
-        if (config.name.isBlank()) {
+    if (config.name.isBlank()) {
             return Pair(false, "配置名称不能为空")
         }
 
         // 验证API提供商类�?
-        if (config.apiProviderType == com.apex.data.model.ApiProviderType.OTHER) {
+    if (config.apiProviderType == com.apex.data.model.ApiProviderType.OTHER) {
             // 对于自定义提供商，需要验证API端点
-            if (config.apiEndpoint.isBlank()) {
+    if (config.apiEndpoint.isBlank()) {
                 return Pair(false, "自定义API提供商需要设置API端点")
             }
             // 验证API端点格式
-            if (!config.apiEndpoint.startsWith("http://") && !config.apiEndpoint.startsWith("https://")) {
-                return Pair(false, "API端点格式无效，需要以http://或https://开�?)
+    if (!config.apiEndpoint.startsWith("http://") && !config.apiEndpoint.startsWith("https://")) {
+    return Pair(false, "API端点格式无效，需要以http://或https://开�?)
             }
         }
 
         // 验证模型名称
-        if (config.modelName.isBlank()) {
+    if (config.modelName.isBlank()) {
             return Pair(false, "模型名称不能为空")
         }
 
         // 验证API密钥（某些提供商需要）
-        val providersRequiringKey = listOf(
+    val providersRequiringKey = listOf(
             com.apex.data.model.ApiProviderType.OPENAI,
             com.apex.data.model.ApiProviderType.ANTHROPIC,
             com.apex.data.model.ApiProviderType.GOOGLE,

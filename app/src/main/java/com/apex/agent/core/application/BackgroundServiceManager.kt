@@ -24,6 +24,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+import com.apex.core.tools.javascript.not
 class BackgroundServiceManager private constructor(
 private val context: Context) {
     companion object {

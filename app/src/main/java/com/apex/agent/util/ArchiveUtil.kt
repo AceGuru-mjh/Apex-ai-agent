@@ -33,13 +33,13 @@ object ArchiveUtil {
         AppLogger.d(TAG, "Converting archive from ${sourceExt} to ${targetExt}")
         try {
             // If target is "extract", extract the archive
-        if (targetExt == "extract") {
+    if (targetExt == "extract") {
                 val extractDir = targetFile
                 AppLogger.d(TAG, "Extracting ${sourceFile.name} to directory ${extractDir.absolutePath}")
         val extractResult = extractArchive(sourceFile, extractDir, sourceExt, password)
 
                 // Check if extraction failed due to encryption
-        val noteFile = File(extractDir, "EXTRACTION_FAILED.txt")
+    val noteFile = File(extractDir, "EXTRACTION_FAILED.txt")
         if (!extractResult && noteFile.exists()) {
                     val errMessage = noteFile.readText()
         if (errMessage.contains("encrypted") ||
@@ -64,7 +64,7 @@ object ArchiveUtil {
         return result
                 } else {
                     // Check if extraction failed due to encryption
-        val noteFile = File(tempDir, "EXTRACTION_FAILED.txt")
+    val noteFile = File(tempDir, "EXTRACTION_FAILED.txt")
         if (noteFile.exists()) {
                         val errMessage = noteFile.readText()
         if (errMessage.contains("encrypted") ||
@@ -84,7 +84,7 @@ object ArchiveUtil {
                 }
             } finally {
                 // Always clean up temporary directory
-        if (tempDir.exists()) {
+    if (tempDir.exists()) {
                     AppLogger.d(TAG, "Cleaning up temporary directory")
         tempDir.deleteRecursively()
                 }
@@ -133,7 +133,7 @@ object ArchiveUtil {
         // Note: The standard ZipInputStream in Java doesn't support password-protected ZIPs
         // We would need a third-party library like zip4j to implement password support
         // For now, we'll just note that password-protection is detected
-        try {
+    try {
             ZipInputStream(BufferedInputStream(FileInputStream(zipFile))).use { zis ->
                 var entry: ZipEntry?
                 val buffer = ByteArray(BUFFER_SIZE)
@@ -144,7 +144,7 @@ object ArchiveUtil {
                         val newFile = File(targetDir, fileName)
 
                         // Create directories if needed
-        if (currentEntry.isDirectory) {
+    if (currentEntry.isDirectory) {
                             ensureDirectoryExists(newFile)
                         } else {
                             newFile.parentFile?.let { ensureDirectoryExists(it) }
@@ -178,7 +178,7 @@ object ArchiveUtil {
                                 e
                         )
                         // Create a note file in the target directory to inform the user
-        val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
+    val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
         noteFile.writeText(msg)
         return false
                     } else {
@@ -205,7 +205,7 @@ object ArchiveUtil {
                     val newFile = File(targetDir, fileName)
 
                     // Create directories if needed
-        if (currentEntry.isDirectory) {
+    if (currentEntry.isDirectory) {
                         ensureDirectoryExists(newFile)
                     } else {
                         newFile.parentFile?.let { ensureDirectoryExists(it) }
@@ -225,12 +225,12 @@ object ArchiveUtil {
         return true
         } catch (e: Exception) {
             // Check if the error might be related to encryption
-        if (e.message?.contains("encrypted", ignoreCase = true) == true ||
+    if (e.message?.contains("encrypted", ignoreCase = true) == true ||
                             e.message?.contains("password", ignoreCase = true) == true
             ) {
                 AppLogger.e(TAG, "Encrypted TAR file detected", e)
                 // Create a note file in the target directory to inform the user
-        val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
+    val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
         noteFile.writeText(
                         "The TAR file appears to be password-protected or encrypted.\n" +
                                 "This tool currently does not support extracting encrypted archives.\n" +
@@ -248,7 +248,7 @@ object ArchiveUtil {
         try {
             try {
                 // Try to open the 7z file with password if provided
-        val szf =
+    val szf =
                         if (password != null) {
                             try {
                                 SevenZFile(sevenZFile, password.toCharArray())
@@ -274,7 +274,7 @@ object ArchiveUtil {
                             val newFile = File(targetDir, fileName)
 
                             // Create directories if needed
-        if (currentEntry.isDirectory) {
+    if (currentEntry.isDirectory) {
                                 ensureDirectoryExists(newFile)
                             } else {
                                 newFile.parentFile?.let { ensureDirectoryExists(it) }
@@ -303,7 +303,7 @@ object ArchiveUtil {
         return true
             } catch (e: IOException) {
                 // Check if this is an encryption-related error
-        if (e.message?.contains("password", ignoreCase = true) == true ||
+    if (e.message?.contains("password", ignoreCase = true) == true ||
                                 e.message?.contains("encrypted", ignoreCase = true) == true
                 ) {
                     val msg =
@@ -316,7 +316,7 @@ object ArchiveUtil {
                             }
         AppLogger.e(TAG, "Encrypted 7z file detected", e)
                     // Create a note file in the target directory to inform the user
-        val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
+    val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
         noteFile.writeText(msg)
         return false
                 } else {
@@ -334,7 +334,7 @@ object ArchiveUtil {
         try {
             try {
                 // Create Archive with password if provided
-        val archive =
+    val archive =
                         if (password != null) {
                             try {
                                 Archive(rarFile, password)
@@ -354,10 +354,10 @@ object ArchiveUtil {
                     val buffer = ByteArray(BUFFER_SIZE)
 
                     // Check if RAR is password protected
-        if (archive.isEncrypted && password == null) {
+    if (archive.isEncrypted && password == null) {
                         AppLogger.e(TAG, "Encrypted RAR file detected, but no password provided")
                         // Create a note file in the target directory to inform the user
-        val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
+    val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
         noteFile.writeText(
                                 "The RAR file is password-protected or encrypted.\n" +
                                         "Please provide a password to extract this archive."
@@ -369,7 +369,7 @@ object ArchiveUtil {
         val newFile = File(targetDir, fileName)
 
                         // Create directories if needed
-        if (fileHeader.isDirectory) {
+    if (fileHeader.isDirectory) {
                             ensureDirectoryExists(newFile)
                         } else {
                             newFile.parentFile?.let { ensureDirectoryExists(it) }
@@ -386,7 +386,7 @@ object ArchiveUtil {
         return true
             } catch (e: Exception) {
                 // Check if this is an encryption-related error
-        if (e.message?.contains("password", ignoreCase = true) == true ||
+    if (e.message?.contains("password", ignoreCase = true) == true ||
                                 e.message?.contains("encrypted", ignoreCase = true) == true
                 ) {
                     val msg =
@@ -399,7 +399,7 @@ object ArchiveUtil {
                             }
         AppLogger.e(TAG, "Encrypted RAR file detected", e)
                     // Create a note file in the target directory to inform the user
-        val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
+    val noteFile = File(targetDir, "EXTRACTION_FAILED.txt")
         noteFile.writeText(msg)
         return false
                 } else {
@@ -487,7 +487,7 @@ object ArchiveUtil {
         for (file in files) {
             if (file.isDirectory) {
                 // Add directory entry
-        val relativePath = file.toRelativeString(baseDir) + "/"
+    val relativePath = file.toRelativeString(baseDir) + "/"
         val entry = TarArchiveEntry(file, relativePath)
         tos.putArchiveEntry(entry)
         tos.closeArchiveEntry()
@@ -496,7 +496,7 @@ object ArchiveUtil {
         addToTar(baseDir, file, tos)
             } else {
                 // Add file entry
-        val relativePath = file.toRelativeString(baseDir)
+    val relativePath = file.toRelativeString(baseDir)
         val entry = TarArchiveEntry(file, relativePath)
         tos.putArchiveEntry(entry)
         FileInputStream(file).use { fis ->
@@ -526,7 +526,7 @@ object ArchiveUtil {
             val relativePath = file.toRelativeString(baseDir)
         if (file.isDirectory) {
                 // Make sure we include directory entries with trailing slashes
-        val directoryPath =
+    val directoryPath =
                         if (relativePath.endsWith("/")) relativePath else "${relativePath}/"
         val entry = szof.createArchiveEntry(file, directoryPath)
         szof.putArchiveEntry(entry)
@@ -536,7 +536,7 @@ object ArchiveUtil {
         addTo7z(baseDir, file, szof)
             } else {
                 // Add file entry
-        val entry = szof.createArchiveEntry(file, relativePath)
+    val entry = szof.createArchiveEntry(file, relativePath)
         szof.putArchiveEntry(entry)
         FileInputStream(file).use { fis ->
                     BufferedInputStream(fis).use { bis ->

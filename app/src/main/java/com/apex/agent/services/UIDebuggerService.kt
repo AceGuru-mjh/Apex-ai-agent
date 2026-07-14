@@ -103,7 +103,7 @@ class UIDebuggerService : Service(), ViewModelStoreOwner {
         }
 
         // Unbind from FloatingChatService
-        if (isBound) {
+    if (isBound) {
             unbindService(connection)
             isBound = false
         }

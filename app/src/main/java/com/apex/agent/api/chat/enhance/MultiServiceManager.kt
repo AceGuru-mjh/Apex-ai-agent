@@ -61,11 +61,12 @@ class MultiServiceManager(private val context: Context) {
             }
 
             // 否则，创建新的服务实�?           // 所有功能类型都使用统一的活跃配�?
-            val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
+    val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
             val service = createServiceFromConfig(config, 0) // 使用默认模型索引
             serviceInstances[functionType] = service
 
-            // 如果是CHAT功能类型，也设置为默认服�?           if (functionType == FunctionType.CHAT) {
+            // 如果是CHAT功能类型，也设置为默认服�?
+    if (functionType == FunctionType.CHAT) {
                 defaultService = service
             }
 
@@ -159,7 +160,8 @@ class MultiServiceManager(private val context: Context) {
 
             // 移除旧实�?           serviceInstances.remove(functionType)
 
-            // 如果是默认服务，也清除默认服务缓�?           if (functionType == FunctionType.CHAT) {
+            // 如果是默认服务，也清除默认服务缓�?
+    if (functionType == FunctionType.CHAT) {
                 defaultService = null
                 customServiceInstances.values.forEach { service ->
                     try {
@@ -208,18 +210,19 @@ class MultiServiceManager(private val context: Context) {
     /** 根据配置创建AIService实例 */
     private suspend fun createServiceFromConfig(config: ModelConfigData, modelIndex: Int): AIService {
         // 使用公共函数计算有效索引
-        val actualIndex = getValidModelIndex(config.modelName, modelIndex)
+    val actualIndex = getValidModelIndex(config.modelName, modelIndex)
         
         // 记录越界警告
-        if (actualIndex != modelIndex && modelIndex != 0) {
+    if (actualIndex != modelIndex && modelIndex != 0) {
             val modelList = config.modelName.split(",").map { it.trim() }.filter { it.isNotEmpty() }
             AppLogger.w(TAG, "模型索引 ${modelIndex} 超出范围(0-${modelList.size - 1})，自动使用第一个模型）
         }
         
         // 根据实际索引选择具体模型
-        val selectedModelName = getModelByIndex(config.modelName, actualIndex)
+    val selectedModelName = getModelByIndex(config.modelName, actualIndex)
         
-        // 创建一个临时配置，使用选中的模型名�?       val configWithSelectedModel = config.copy(modelName = selectedModelName)
+        // 创建一个临时配置，使用选中的模型名�?
+    val configWithSelectedModel = config.copy(modelName = selectedModelName)
         
         AppLogger.d(TAG, "创建服务: 原始模型='${config.modelName}', 选中模型='${selectedModelName}' (请求索引=${modelIndex}, 实际索引=${actualIndex})")
 
@@ -272,7 +275,7 @@ class MultiServiceManager(private val context: Context) {
     ): List<com.apex.data.model.ModelParameter<*>> {
         ensureInitialized()
         // 所有功能类型都使用统一的活跃配�?
-        val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
+    val config = modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
         return modelConfigManager.getModelParametersForConfig(config.id)
     }
 
@@ -283,7 +286,7 @@ class MultiServiceManager(private val context: Context) {
     suspend fun getModelConfigForFunction(functionType: FunctionType): ModelConfigData {
         ensureInitialized()
         // 所有功能类型都使用统一的活跃配�?
-        return modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
+    return modelConfigService.getCurrentConfig() ?: throw IllegalStateException("No active model config found")
     }
 
     /** 获取指定配置ID的模型配�?/
@@ -308,7 +311,7 @@ class MultiServiceManager(private val context: Context) {
         ensureInitialized()
         val config = modelConfigService.getCurrentConfig() ?: return false
         // 检查模型配置是否启用了直接图片处理
-        return config.enableDirectImageProcessing
+    return config.enableDirectImageProcessing
     }
 
     suspend fun hasAudioRecognitionConfigured(): Boolean {

@@ -69,6 +69,8 @@ import java.net.ConnectException
 import java.net.ProtocolException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.javascript.not
 
 /** 软件设置修改工具（包含MCP 重启与日志收集） */
 class StandardSoftwareSettingsModifyTools(private val context: Context) {

@@ -205,7 +205,7 @@ object TextSegmenter {
                 .filter { it.length > 1 && it !in stopWords }
 
             // 统计词频
-        val freqMap = mutableMapOf<String, Int>()
+    val freqMap = mutableMapOf<String, Int>()
         words.forEach { word ->
                 freqMap[word] = (freqMap[word] ?: 0) + 1
             }
@@ -272,10 +272,10 @@ object TextSegmenter {
         val keywordLower = keyword.lowercase()
 
         // 先尝试直接包含检查
-        if (textLower.contains(keywordLower)) return true
+    if (textLower.contains(keywordLower)) return true
 
         // 再尝试对关键词分词后逐词检查
-        return try {
+    return try {
             val keywordWords = segmenter.process(keyword, JiebaSegmenter.SegMode.SEARCH)
                 .map { it.word.lowercase() }
                 .filter { it.length > 1 }

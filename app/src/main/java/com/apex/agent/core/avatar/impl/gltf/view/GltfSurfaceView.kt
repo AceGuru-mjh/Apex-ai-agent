@@ -629,7 +629,7 @@ class GltfSurfaceView @JvmOverloads constructor(
     private fun toNormalizedGltfJson(root: JSONObject): String {
         // Filament's glTF URI / mime parsing can mis-handle escaped slashes like `\/`.
         // Serialize JSON without slash escaping so values stay as `inline/...` and `image/png`.
-        return root.toString().replace("\\/", "/")
+    return root.toString().replace("\\/", "/")
     }
 
     private fun autoLinkMissingBaseColorTextures(
@@ -710,7 +710,7 @@ class GltfSurfaceView @JvmOverloads constructor(
             // This model family often ships without proper glTF texture bindings and with high metallic
             // factors, which causes near-black shading when environment lighting is reduced.
             // Normalize to a non-metal workflow when we auto-link external baseColor textures.pbr.put("metallicFactor", 0.0)
-            val roughness = pbr.optDouble("roughnessFactor", 1.0)
+    val roughness = pbr.optDouble("roughnessFactor", 1.0)
             if (!roughness.isNaN() && roughness < 0.82) {
                 pbr.put("roughnessFactor", 0.82)
             }
@@ -763,7 +763,7 @@ class GltfSurfaceView @JvmOverloads constructor(
         rgba[3] = source?.optDouble(3, 1.0)?.toFloat() ?: 1f
 
         // Match MMD preview's brighter look by lifting base color before rendering.
-        val lift = 1.22f
+    val lift = 1.22f
         val maxRgb = 1.6f
         val lifted = JSONArray()
         lifted.put((rgba[0] * lift).coerceIn(0f, maxRgb).toDouble())
@@ -1535,7 +1535,7 @@ class GltfSurfaceView @JvmOverloads constructor(
             .replace('\\', '/')
         val decoded = Uri.decode(normalizedSeparators).trim()
         if (decoded.startsWith("file://", ignoreCase = true)) {
-            val parsed = Uri.parse(decoded)
+    val parsed = Uri.parse(decoded)
             val parsedPath = parsed.path
             if (!parsedPath.isNullOrBlank()) {
                 return parsedPath

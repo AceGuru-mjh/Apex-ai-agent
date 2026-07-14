@@ -58,7 +58,7 @@ data class DataPolicy(
     val canAnalyze: Boolean,
     val canUpload: Boolean,
     val retentionDays: Int? = null,  // null=永久
-        val encryptAtRest: Boolean = true,
+    val encryptAtRest: Boolean = true,
     val anonymizeForAnalytics: Boolean = true
 )
 
@@ -70,7 +70,7 @@ data class PrivacyConfig(
     val policies: Map<DataType, DataPolicy> = defaultPolicies(),
     val autoDeleteAfterDays: Int? = null,
     val excludePatterns: List<String> = emptyList(),  // 不存储包含这些模式的内容
-        val requireExplicitConsent: Set<DataType> = setOf(DataType.SENSITIVE_DATA)
+    val requireExplicitConsent: Set<DataType> = setOf(DataType.SENSITIVE_DATA)
 ) {
     companion object {
         fun defaultPolicies(): Map<DataType, DataPolicy> {

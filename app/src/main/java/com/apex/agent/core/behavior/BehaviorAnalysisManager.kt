@@ -41,7 +41,7 @@ class BehaviorAnalysisManager private constructor(
         behaviorCache[userId]?.let { return@withContext it }
         
         // 分析行为
-        val profile = behaviorAnalyzer.analyzeUserBehavior(messages)
+    val profile = behaviorAnalyzer.analyzeUserBehavior(messages)
         behaviorCache[userId] = profile
         profile
     }

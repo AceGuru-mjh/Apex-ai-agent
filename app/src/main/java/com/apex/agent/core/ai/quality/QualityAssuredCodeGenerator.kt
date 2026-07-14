@@ -41,17 +41,17 @@ class QualityAssuredCodeGenerator(
                 )
                 
                 // 2. 生成代码
-                val code = generateCode(task, attempt)
+    val code = generateCode(task, attempt)
                 
                 // 3. 静态分析
-                val analysisResult = codeAnalyzer?.analyze(code, task.language)
+    val analysisResult = codeAnalyzer?.analyze(code, task.language)
                     ?: CodeAnalysisResult(isValid = true, issues = emptyList())
                 
                 // 4. 计算质量分数
-                val qualityScore = calculateQualityScore(code, analysisResult, task)
+    val qualityScore = calculateQualityScore(code, analysisResult, task)
                 
                 // 5. 创建结果对象
-                val result = CodeGenerationResult(
+    val result = CodeGenerationResult(
                     code = code,
                     qualityScore = qualityScore,
                     analysisResult = analysisResult,
@@ -60,12 +60,12 @@ class QualityAssuredCodeGenerator(
                 )
                 
                 // 6. 保存最佳结果
-                if (bestResult == null || qualityScore > bestResult.qualityScore) {
+    if (bestResult == null || qualityScore > bestResult.qualityScore) {
                     bestResult = result
                 }
                 
                 // 7. 如果质量达标，直接返回
-                if (qualityScore >= qualityThreshold) {
+    if (qualityScore >= qualityThreshold) {
                     progressCallback?.invoke(
                         GenerationProgress(
                             attempt = attempt + 1,
@@ -99,7 +99,7 @@ class QualityAssuredCodeGenerator(
         }
         
         // 达到最大尝试次数，返回最佳结果或抛出异常
-        if (bestResult != null) {
+    if (bestResult != null) {
             bestResult.copy(warnings = listOf("Quality threshold not met after ${maxAttempts} attempts"))
         } else {
             throw CodeGenerationException(
@@ -144,12 +144,12 @@ class QualityAssuredCodeGenerator(
         val issues = mutableListOf<String>()
         
         // 1. 基本语法检查
-        if (code.isBlank()) {
+    if (code.isBlank()) {
             issues.add("Generated code is empty")
         }
         
         // 2. 检查是否包含必要的导入
-        if (task.requiredImports.isNotEmpty()) {
+    if (task.requiredImports.isNotEmpty()) {
             task.requiredImports.forEach { import ->
                 if (!code.contains(import)) {
                     issues.add("Missing import: ${import}")
@@ -165,7 +165,7 @@ class QualityAssuredCodeGenerator(
         }
         
         // 4. 静态分析（如果有）
-        val analysisResult = codeAnalyzer?.analyze(code, task.language)
+    val analysisResult = codeAnalyzer?.analyze(code, task.language)
         analysisResult?.issues?.forEach { issue ->
             issues.add("${issue.severity}: ${issue.message}")
         }
@@ -178,7 +178,6 @@ class QualityAssuredCodeGenerator(
     }
     
     // ==================== 私有方法 ====================
-    
     private suspend fun generateCode(task: CodeGenerationTask, attempt: Int): String {
         val prompt = if (attempt == 0) {
             // 首次尝试：使用标准提示
@@ -275,15 +274,15 @@ class QualityAssuredCodeGenerator(
         }
         
         // 2. 检查是否包含必要的导入
-        if (code.length < 10) score -= 0.2f // 太短可能不完整
-        if (code.length > 10000) score -= 0.1f // 太长可能冗余
+    if (code.length < 10) score -= 0.2f // 太短可能不完整
+    if (code.length > 10000) score -= 0.1f // 太长可能冗余
         
         // 3. 检查是否满足约束条件
-        val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
+    val unmetConstraints = task.constraints.count { !checkConstraint(code, it) }
         score -= unmetConstraints * 0.1f
         
         // 4. 静态分析（如果有）
-        if (task.requiredImports.isNotEmpty()) {
+    if (task.requiredImports.isNotEmpty()) {
             val missingImports = task.requiredImports.count { !code.contains(it) }
             score -= missingImports * 0.1f
         }
@@ -300,7 +299,7 @@ class QualityAssuredCodeGenerator(
     private fun checkConstraint(code: String, constraint: String): Boolean {
         // 达到最大尝试次数，返回最佳结果或抛出异常
         // 实际项目中应该有更复杂的逻辑
-        return when {
+    return when {
             constraint.contains("tail recursion", ignoreCase = true) -> {
                 code.contains("tailrec", ignoreCase = true)
             }

@@ -57,8 +57,7 @@ object ValidationLoop {
             try {
                 // 模拟验证过程
                 delay(100) // 模拟验证耗时
-                
-                val validationResult = performSingleValidation(output, iteration)
+    val validationResult = performSingleValidation(output, iteration)
                 results.add(validationResult)
                 
                 AppLogger.d(TAG, "�?${iteration + 1}/${k} 次验证完�? ${if (validationResult.pass) "通过" else "失败"}, 评分 ${validationResult.score}")
@@ -103,12 +102,11 @@ object ValidationLoop {
         val n = results.size
         val c = results.count { it.pass }
         val k = minOf(n, 1) // pass@1
-        
-        if (c == 0) return 0f
+    if (c == 0) return 0f
         if (c >= n) return 1f
         
         // 使用组合数公式计�?        // pass@k = 1 - C(n-c, k) / C(n, k)
-        val combination = calculateCombination(n - c, k) / calculateCombination(n, k)
+    val combination = calculateCombination(n - c, k) / calculateCombination(n, k)
         return (1f - combination).coerceIn(0f, 1f)
     }
 
@@ -122,8 +120,7 @@ object ValidationLoop {
         val n = results.size
         val c = results.count { it.pass }
         val k = minOf(n, 1) // pass^1
-        
-        val passRate = c.toFloat() / n.toFloat()
+    val passRate = c.toFloat() / n.toFloat()
         return Math.pow(passRate.toDouble(), k.toDouble()).toFloat()
     }
 
@@ -134,7 +131,7 @@ object ValidationLoop {
         val startTime = System.currentTimeMillis()
         
         // 模拟验证逻辑
-        val hasContent = output.isNotBlank()
+    val hasContent = output.isNotBlank()
         val hasStructure = output.contains("#") || output.contains("```")
         val hasDetails = output.length > 100
         

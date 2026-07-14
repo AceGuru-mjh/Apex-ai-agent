@@ -35,6 +35,9 @@ import java.util.UUID
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.javascript.not
+import com.apex.core.workflow.WorkflowRunLogger
 
 /**
  * 节点执行状�?*/
@@ -534,7 +537,8 @@ class WorkflowExecutor(private val context: Context) {
         )
 
         try {
-            // 1. 找到所有触发节点作为入�?           val allTriggerNodes = workflow.nodes.filterIsInstance<TriggerNode>()
+            // 1. 找到所有触发节点作为入�?
+    val allTriggerNodes = workflow.nodes.filterIsInstance<TriggerNode>()
             
             if (allTriggerNodes.isEmpty()) {
                 runLogger.w(context.getString(R.string.workflow_log_no_trigger_node))
@@ -544,8 +548,10 @@ class WorkflowExecutor(private val context: Context) {
                 )
             }
             
-            // 2. 根据 triggerNodeId 决定要执行哪些触发节�?           val triggerNodes = if (triggerNodeId != null) {
-                // 如果指定了触发节点ID（通常是定时任务），只执行该触发节�?               val specificNode = allTriggerNodes.find { it.id == triggerNodeId }
+            // 2. 根据 triggerNodeId 决定要执行哪些触发节�?
+    val triggerNodes = if (triggerNodeId != null) {
+                // 如果指定了触发节点ID（通常是定时任务），只执行该触发节�?
+    val specificNode = allTriggerNodes.find { it.id == triggerNodeId }
                 if (specificNode == null) {
                     runLogger.w(context.getString(R.string.workflow_log_trigger_node_not_exist, triggerNodeId))
                     return@withContext buildResult(
@@ -561,7 +567,7 @@ class WorkflowExecutor(private val context: Context) {
                 listOf(specificNode)
             } else {
                 // 如果没有指定触发节点ID（通常是手动触发），执行所有手动触发类型的节点
-                val manualTriggers = allTriggerNodes.filter { it.triggerType == "manual" }
+    val manualTriggers = allTriggerNodes.filter { it.triggerType == "manual" }
                 if (manualTriggers.isEmpty()) {
                     runLogger.w(context.getString(R.string.workflow_log_no_manual_trigger_node))
                     return@withContext buildResult(
@@ -583,10 +589,11 @@ class WorkflowExecutor(private val context: Context) {
             
             currentCoroutineContext().ensureActive()
 
-            // 3. 构建依赖�?           val dependencyGraph = buildDependencyGraph(workflow)
+            // 3. 构建依赖�?
+    val dependencyGraph = buildDependencyGraph(workflow)
             
             // 4. 检测环
-            if (detectCycle(dependencyGraph.adjacencyList, workflow.nodes)) {
+    if (detectCycle(dependencyGraph.adjacencyList, workflow.nodes)) {
                 runLogger.e(context.getString(R.string.workflow_log_circular_dependency))
                 return@withContext buildResult(
                     success = false,
@@ -595,7 +602,7 @@ class WorkflowExecutor(private val context: Context) {
             }
             
             // 5. 标记所有触发节点为成功（触发节点本身不需要执行）
-            for (triggerNode in triggerNodes) {
+    for (triggerNode in triggerNodes) {
                 runLogger.d(
                     message = context.getString(R.string.workflow_log_mark_trigger_node, triggerNode.name, triggerNode.id),
                     nodeId = triggerNode.id,
@@ -606,7 +613,8 @@ class WorkflowExecutor(private val context: Context) {
                 onNodeStateChange(triggerNode.id, NodeExecutionState.Success(triggerPayload))
             }
             
-            // 6. 使用拓扑排序执行所有后续节�?           val executionResult = executeTopologicalOrder(
+            // 6. 使用拓扑排序执行所有后续节�?
+    val executionResult = executeTopologicalOrder(
                 startNodeIds = triggerNodes.map { it.id },
                 workflow = workflow,
                 dependencyGraph = dependencyGraph,
@@ -616,7 +624,8 @@ class WorkflowExecutor(private val context: Context) {
                 runLogger = runLogger
             )
             
-            // 如果执行失败，停止整个流�?           if (!executionResult) {
+            // 如果执行失败，停止整个流�?
+    if (!executionResult) {
                 return@withContext buildResult(
                     success = false,
                     message = "Workflow execution failed"
@@ -662,7 +671,7 @@ class WorkflowExecutor(private val context: Context) {
         val inDegree = mutableMapOf<String, Int>()
         
         // 初始化所有节点的入度�?
-        for (node in workflow.nodes) {
+    for (node in workflow.nodes) {
             inDegree[node.id] = 0
             adjacencyList[node.id] = mutableListOf()
         }
@@ -675,7 +684,8 @@ class WorkflowExecutor(private val context: Context) {
             inDegree[targetId] = (inDegree[targetId] ?: 0) + 1
         }
 
-        // 构建邻接表并计算入度（包含显式连接与参数引用依赖�?       for (connection in workflow.connections) {
+        // 构建邻接表并计算入度（包含显式连接与参数引用依赖�?
+    for (connection in workflow.connections) {
             addEdge(connection.sourceNodeId, connection.targetNodeId)
         }
 
@@ -691,25 +701,27 @@ class WorkflowExecutor(private val context: Context) {
      */
     private fun detectCycle(adjacencyList: Map<String, List<String>>, nodes: List<WorkflowNode>): Boolean {
         val visitState = mutableMapOf<String, Int>() // 0=未访�?1=访问�?2=已完�?       
-        // 初始化所有节点为未访�?       for (node in nodes) {
+        // 初始化所有节点为未访�?
+    for (node in nodes) {
             visitState[node.id] = 0
         }
         
         fun dfs(nodeId: String): Boolean {
             visitState[nodeId] = 1 // 标记为访问中
             
-            // 访问所有后继节�?           for (nextNodeId in adjacencyList[nodeId] ?: emptyList()) {
+            // 访问所有后继节�?
+    for (nextNodeId in adjacencyList[nodeId] ?: emptyList()) {
                 when (visitState[nextNodeId]) {
                     1 -> return true // 访问，访问，的节点，发现�?                   0 -> if (dfs(nextNodeId)) return true // 递归访问未访问的节点
                     // 2 -> 已完成的节点，跳�?               }
             }
             
             visitState[nodeId] = 2 // 标记为已完成
-            return false
+    return false
         }
         
         // 对每个未访问的节点执行DFS
-        for (node in nodes) {
+    for (node in nodes) {
             if (visitState[node.id] == 0) {
                 if (dfs(node.id)) {
                     return true
@@ -767,7 +779,8 @@ class WorkflowExecutor(private val context: Context) {
             }
         }
 
-        // 入度，的节点加入队列作为执行起，        for ((nodeId, inDegree) in currentInDegree) {
+        // 入度，的节点加入队列作为执行起，
+    for ((nodeId, inDegree) in currentInDegree) {
             if (inDegree == 0) {
                 queue.offer(nodeId)
             }
@@ -777,13 +790,14 @@ class WorkflowExecutor(private val context: Context) {
             currentCoroutineContext().ensureActive()
             val currentNodeId = queue.poll() ?: break
             
-            // 检查节点是否已经被执行�?           if (nodeResults.containsKey(currentNodeId)) {
+            // 检查节点是否已经被执行�?
+    if (nodeResults.containsKey(currentNodeId)) {
                 runLogger.d(context.getString(R.string.workflow_log_node_already_executed, currentNodeId), nodeId = currentNodeId)
                 continue
             }
             
             // 查找节点
-            val node = nodeById[currentNodeId]
+    val node = nodeById[currentNodeId]
             if (node == null) {
                 runLogger.w(context.getString(R.string.workflow_log_node_not_exist, currentNodeId), nodeId = currentNodeId)
                 continue
@@ -879,7 +893,7 @@ class WorkflowExecutor(private val context: Context) {
             )
             
             // 执行节点
-            val executionSuccess =
+    val executionSuccess =
                 executeNode(
                     node,
                     workflow,
@@ -891,7 +905,8 @@ class WorkflowExecutor(private val context: Context) {
                     runLogger
                 )
             
-            // 如果执行失败，停止整个流�?           if (!executionSuccess) {
+            // 如果执行失败，停止整个流�?
+    if (!executionSuccess) {
                 runLogger.e(
                     context.getString(R.string.workflow_log_node_failed, node.name),
                     nodeId = node.id,
@@ -900,7 +915,8 @@ class WorkflowExecutor(private val context: Context) {
                 hasFailure = true
             }
             
-            // 将后继节点的入度，，如果入度变量则加入队�?           for (nextNodeId in dependencyGraph.adjacencyList[currentNodeId] ?: emptyList()) {
+            // 将后继节点的入度，，如果入度变量则加入队�?
+    for (nextNodeId in dependencyGraph.adjacencyList[currentNodeId] ?: emptyList()) {
                 if (!currentInDegree.containsKey(nextNodeId)) {
                     continue
                 }
@@ -1168,7 +1184,7 @@ class WorkflowExecutor(private val context: Context) {
         
         try {
             // 检查是否有 actionType
-            if (node.actionType.isBlank()) {
+    if (node.actionType.isBlank()) {
                 val errorMsg = context.getString(R.string.workflow_node_execution_exception, context.getString(R.string.workflow_node_no_action, node.name))
                 runLogger.w(errorMsg, nodeId = node.id, nodeName = node.name)
                 nodeResults[node.id] = NodeExecutionState.Failed(errorMsg)
@@ -1176,10 +1192,11 @@ class WorkflowExecutor(private val context: Context) {
                 return false
             }
             
-            // 解析参数（支持静态值和节点引用�?           val parameters = resolveParameters(node, nodeResults, triggerExtras)
+            // 解析参数（支持静态值和节点引用�?
+    val parameters = resolveParameters(node, nodeResults, triggerExtras)
             
             // 构，AITool
-            val tool = AITool(
+    val tool = AITool(
                 name = node.actionType,
                 parameters = parameters
             )
@@ -1193,7 +1210,7 @@ class WorkflowExecutor(private val context: Context) {
             currentCoroutineContext().ensureActive()
 
             // 执行工具
-            val result = toolHandler.executeTool(tool)
+    val result = toolHandler.executeTool(tool)
             
             if (result.success) {
                 val resultData = result.result

@@ -62,7 +62,6 @@ fun ChatScreen(
     var selectedModel by remember { mutableStateOf("DeepSeek · deepseek-chat") }
     var showModelPicker by remember { mutableStateOf(false) }
     var pendingCommand by remember { mutableStateOf<String?>(null) }  // 待确认的危险命令
-
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
@@ -289,7 +288,7 @@ private suspend fun streamAgentResponse(
         delay(500)
 
         // 安全检查
-        val risk = CommandSafety.classify(cmd)
+    val risk = CommandSafety.classify(cmd)
         if (risk == CommandRisk.SAFE) {
             // 安全命令直接执行
             bubbles[bubbles.lastIndex] = Bubble.Command(cmd, CommandStatus.RUNNING)

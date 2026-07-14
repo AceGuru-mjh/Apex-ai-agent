@@ -276,7 +276,7 @@ class MemeModeEngine(
         }
 
         // 提供几个可用的梗
-        val availableMemes = memeDatabase.values
+    val availableMemes = memeDatabase.values
             .filter { it.type in detection.suggestedResponseTone.types }
             .filter { it.id !in config.blockedMemes }
             .sortedByDescending { it.popularity }
@@ -358,14 +358,13 @@ class MemeModeEngine(
     }
 
     // ============ 内部方法 ============
-
     private fun decideResponseTone(detected: List<DetectedMeme>, density: Float): MemeResponseTone {
         if (config.intensity == MemeIntensity.OFF) {
             return MemeResponseTone(false, 0f, emptySet(), "玩梗已关闭")
         }
 
         // 如果用户用了梗，鼓励回应
-        if (detected.isNotEmpty()) {
+    if (detected.isNotEmpty()) {
             val types = detected.map { it.meme.type }.toSet()
             val intensity = when (config.intensity) {
                 MemeIntensity.SUBTLE -> 0.1f
@@ -383,7 +382,7 @@ class MemeModeEngine(
         }
 
         // 用户没用梗，根据 intensity 决定
-        return when (config.intensity) {
+    return when (config.intensity) {
             MemeIntensity.SUBTLE -> MemeResponseTone(false, 0f, emptySet(), "低强度模式，不主动玩梗")
             MemeIntensity.BALANCED -> MemeResponseTone(true, 0.15f, setOf(MemeType.CHINESE_INTERNET, MemeType.PROGRAMMER), "平衡模式，偶尔玩梗")
             MemeIntensity.ENTHUSIASTIC -> MemeResponseTone(true, 0.3f, MemeType.values().toSet(), "热情模式，适度玩梗")
@@ -411,9 +410,9 @@ class MemeModeEngine(
         val memePhrases = memes.map { it.responses.randomOrNull() ?: it.example }
 
         // 根据密度决定注入位置
-        if (density > 0.4f) {
+    if (density > 0.4f) {
             // 高密度：开头加一个，结尾加一个
-            if (memes.size >= 1) {
+    if (memes.size >= 1) {
                 result = "${memePhrases[0]} $result"
             }
             if (memes.size >= 2) {
@@ -525,11 +524,11 @@ class MemeModeEngine(
      */
     suspend fun explainMemeEnhanced(query: String): String {
         // 1. 先查本地梗库
-        val local = explainMeme(query)
+    val local = explainMeme(query)
         if (local != null) return local
 
         // 2. 本地没有，网络搜索
-        if (webSearchEnabled) {
+    if (webSearchEnabled) {
             val wiki = lookupMemeOnline(query)
             if (wiki.success) {
                 return buildString {
@@ -539,7 +538,7 @@ class MemeModeEngine(
             }
 
             // 3. 百科没有，用搜索结果
-            val search = searchMemeOnline(query)
+    val search = searchMemeOnline(query)
             if (search.success && search.items.isNotEmpty()) {
                 return buildString {
                     appendLine("【$query】（网络搜索结果）")
@@ -571,7 +570,6 @@ class MemeModeEngine(
     }
 
     // ============ 预置梗库 ============
-
     private fun registerBuiltinMemes() {
         // === 中文网络梗 ===
         addMeme(Meme(

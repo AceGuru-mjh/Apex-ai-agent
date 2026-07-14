@@ -30,7 +30,7 @@ class InterestAnalyzer(private val context: Context) {
         analyzeInterestTrend(messages, interestProfile)
         
         // 从用户画像中提取兴趣
-        if (userProfile != null) {
+    if (userProfile != null) {
             extractInterestsFromProfile(userProfile, interestProfile)
         }
         
@@ -44,7 +44,8 @@ class InterestAnalyzer(private val context: Context) {
     private fun analyzeInterestTopics(messages: List<ChatMessage>, profile: InterestProfile) {
         val interestScores = mutableMapOf<String, Int>()
         
-        // 兴趣主题关键�?      val interestKeywords = mapOf(
+        // 兴趣主题关键�?
+    val interestKeywords = mapOf(
             "技�?to listOf(
                 "技�? "编程", "软件", "硬件", "开�? "代码", "算法", "数据库， "网络", "安全",
                 "python", "java", "kotlin", "javascript", "c++", "go", "rust", "swift", "php", "ruby"
@@ -73,7 +74,7 @@ class InterestAnalyzer(private val context: Context) {
         )
         
         // 分析用户消息
-        val userMessages = messages.filter { it.sender == "user" }
+    val userMessages = messages.filter { it.sender == "user" }
         for (message in userMessages) {
             val content = message.content.lowercase()
             
@@ -115,7 +116,7 @@ class InterestAnalyzer(private val context: Context) {
         }
         
         // 计算总体兴趣强度
-        val totalScore = profile.interestScores.values.sum()
+    val totalScore = profile.interestScores.values.sum()
         profile.overallInterestLevel = when {
             totalScore > 30 -> "�?
             totalScore > 15 -> "�?
@@ -129,18 +130,19 @@ class InterestAnalyzer(private val context: Context) {
     private fun analyzeInterestTrend(messages: List<ChatMessage>, profile: InterestProfile) {
         if (messages.size < 10) return
         
-        // 按时间分割消�?       val midPoint = messages.size / 2
+        // 按时间分割消�?
+    val midPoint = messages.size / 2
         val earlyMessages = messages.subList(0, midPoint)
         val recentMessages = messages.subList(midPoint, messages.size)
         
         // 分析早期兴趣
-        val earlyInterests = analyzeInterestTopics(earlyMessages)
+    val earlyInterests = analyzeInterestTopics(earlyMessages)
         
         // 分析近期兴趣
-        val recentInterests = analyzeInterestTopics(recentMessages)
+    val recentInterests = analyzeInterestTopics(recentMessages)
         
         // 计算兴趣变化
-        for (interest in profile.topInterests) {
+    for (interest in profile.topInterests) {
             val earlyScore = earlyInterests.getOrDefault(interest, 0)
             val recentScore = recentInterests.getOrDefault(interest, 0)
             
@@ -222,7 +224,7 @@ class InterestAnalyzer(private val context: Context) {
         }
         
         // 更新top interests
-        if (interestProfile.interestScores.isNotEmpty()) {
+    if (interestProfile.interestScores.isNotEmpty()) {
             val topInterests = interestProfile.interestScores.entries
                 .sortedByDescending { it.value }
                 .take(3)

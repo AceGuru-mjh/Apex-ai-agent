@@ -45,6 +45,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.javascript.not
 
 data class MessageSendStreamSession(
     val chatId: String,
@@ -74,7 +76,8 @@ class StandardChatManagerTool(private val context: Context) {
 
     companion object {
         private const val TAG = "StandardChatManagerTool"
-        private const val SERVICE_CONNECTION_TIMEOUT = 15000L // 15秒超�?       private const val RESPONSE_STREAM_ACQUIRE_TIMEOUT = 15000L
+        private const val SERVICE_CONNECTION_TIMEOUT = 15000L // 15秒超�?
+    private const val RESPONSE_STREAM_ACQUIRE_TIMEOUT = 15000L
         private const val AI_RESPONSE_TIMEOUT = 300000L
     }
 
@@ -588,7 +591,8 @@ class StandardChatManagerTool(private val context: Context) {
      * 确保服务已连�?    * @return 是否成功连接
      */
     private suspend fun ensureServiceConnected(startIntent: Intent? = null): Boolean {
-        // 如果已经连接，直接返�?      if (isBound && chatCore != null) {
+        // 如果已经连接，直接返�?
+    if (isBound && chatCore != null) {
             if (startIntent != null) {
                 withContext(Dispatchers.Main) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -619,7 +623,7 @@ class StandardChatManagerTool(private val context: Context) {
         }
 
         // 如果正在连接中，等待连接完成
-        if (!connectionDeferred.isCompleted) {
+    if (!connectionDeferred.isCompleted) {
             return try {
                 withTimeout(SERVICE_CONNECTION_TIMEOUT) {
                     connectionDeferred.await()
@@ -633,7 +637,8 @@ class StandardChatManagerTool(private val context: Context) {
             }
         }
 
-        // 重新启动和绑定服�?      return try {
+        // 重新启动和绑定服�?
+    return try {
             // 重置 deferred
             connectionDeferred = CompletableDeferred()
             
@@ -643,7 +648,7 @@ class StandardChatManagerTool(private val context: Context) {
                 withContext(Dispatchers.Main) {
                     if (startIntent != null) {
                         // 启动服务
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             appContext.startForegroundService(intent)
                         } else {
                             appContext.startService(intent)
@@ -868,7 +873,7 @@ class StandardChatManagerTool(private val context: Context) {
             )
 
             // 获取创建前的 chat list
-            val previousChatIds = core.chatHistories.value.map { it.id }.toSet()
+    val previousChatIds = core.chatHistories.value.map { it.id }.toSet()
 
             val group = tool.parameters.find { it.name == "group" }?.value?.trim()
             val effectiveGroup = group?.takeIf { it.isNotBlank() }
@@ -1095,7 +1100,7 @@ class StandardChatManagerTool(private val context: Context) {
             }
 
             // 检查对话是否存在并获取标题
-            val targetChat = core.chatHistories.value.find { it.id == chatId }
+    val targetChat = core.chatHistories.value.find { it.id == chatId }
             if (targetChat == null) {
                 return ToolResult(
                     toolName = tool.name,
@@ -1109,7 +1114,7 @@ class StandardChatManagerTool(private val context: Context) {
             core.switchChatLocal(chatId)
             
             // 等待切换完成（最多等着秒）
-            var attempts = 0
+    var attempts = 0
             while (attempts < 10 && core.currentChatId.value != chatId) {
                 delay(100)
                 attempts++
@@ -1186,7 +1191,7 @@ class StandardChatManagerTool(private val context: Context) {
 
             try {
                 // 可选的 chat_id 参数
-                val targetChatId = tool.parameters.find { it.name == "chat_id" }?.value?.trim()
+    val targetChatId = tool.parameters.find { it.name == "chat_id" }?.value?.trim()
                 val hasTargetChat = !targetChatId.isNullOrBlank()
 
                 if (hasTargetChat) {

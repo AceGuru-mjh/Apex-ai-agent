@@ -3,6 +3,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import com.apex.ui.main.MainActivity
+import com.apex.util.AppIconType
 
 /** * 应用图标切换管理器，通过启用/禁用 launcher alias 实现图标切换�?*/
 object AppIconManager {

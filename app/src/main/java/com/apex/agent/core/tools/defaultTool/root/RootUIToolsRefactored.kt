@@ -48,7 +48,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             )
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
+    val x = getRequiredParameter(tool, "x").toIntOrNull()
             val y = getRequiredParameter(tool, "y").toIntOrNull()
 
             if (x == null || y == null) {
@@ -62,7 +62,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             showTapOverlay(x, y)
 
             // 4. 执行点击命令
-            val displayArg = getDisplayArg(tool)
+    val displayArg = getDisplayArg(tool)
             val command = "input ${displayArg}tap ${x} ${y}"
             val result = executeUiShellCommand(command)
 
@@ -99,7 +99,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             )
 
             // 2. 获取参数
-            val x = getRequiredParameter(tool, "x").toIntOrNull()
+    val x = getRequiredParameter(tool, "x").toIntOrNull()
             val y = getRequiredParameter(tool, "y").toIntOrNull()
             val durationMs = getParameter(tool, "duration", "800").toIntOrNull() ?: 800
 
@@ -113,7 +113,8 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             // 3. 显示长按效果
             showTapOverlay(x, y)
 
-            // 4. 执行长按命令（使用swipe模拟长按�?            val displayArg = getDisplayArg(tool)
+            // 4. 执行长按命令（使用swipe模拟长按�?
+    val displayArg = getDisplayArg(tool)
             val command = "input ${displayArg}swipe ${x} ${y} ${x} ${y} ${durationMs}"
             val result = executeUiShellCommand(command)
 
@@ -150,7 +151,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             )
 
             // 2. 获取参数
-            val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
+    val startX = getRequiredParameter(tool, "start_x").toIntOrNull()
             val startY = getRequiredParameter(tool, "start_y").toIntOrNull()
             val endX = getRequiredParameter(tool, "end_x").toIntOrNull()
             val endY = getRequiredParameter(tool, "end_y").toIntOrNull()
@@ -167,7 +168,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             showSwipeOverlay(startX, startY, endX, endY)
 
             // 4. 执行滑动命令
-            val displayArg = getDisplayArg(tool)
+    val displayArg = getDisplayArg(tool)
             val command = "input ${displayArg}swipe ${startX} ${startY} ${endX} ${endY} ${duration}"
             val result = executeUiShellCommand(command)
 
@@ -203,7 +204,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             )
 
             // 2. 获取参数
-            val text = getRequiredParameter(tool, "text")
+    val text = getRequiredParameter(tool, "text")
 
             // 3. 显示输入效果
             showTextInputOverlay(text)
@@ -212,7 +213,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             kotlinx.coroutines.delay(300)
 
             // 5. 如果文本为空，只清空
-            if (text.isEmpty()) {
+    if (text.isEmpty()) {
                 hideOverlay()
                 return@executeWithCatch UIToolsResult.Success(
                     UIActionResultData("textInput", "Successfully cleared input field")
@@ -257,10 +258,10 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             )
 
             // 2. 获取参数
-            val keyCode = getRequiredParameter(tool, "key_code")
+    val keyCode = getRequiredParameter(tool, "key_code")
 
             // 3. 执行按键命令
-            val result = executeUiShellCommand("input ${getDisplayArg(tool)}keyevent ${keyCode}")
+    val result = executeUiShellCommand("input ${getDisplayArg(tool)}keyevent ${keyCode}")
 
             if (!result.success) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -281,7 +282,7 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
     override suspend fun getPageInfo(tool: AITool): ToolResult {
         return executeWithCatch("getPageInfo", tool) {
             // 1. 从shell获取UI数据
-            val uiData = getUIDataFromShell(tool)
+    val uiData = getUIDataFromShell(tool)
             
             if (uiData == null) {
                 return@executeWithCatch UIToolsResult.Error(
@@ -291,13 +292,13 @@ open class RootUIToolsRefactored(context: Context) : BaseUITools(context) {
             }
 
             // 2. 提取焦点信息
-            val focusInfo = extractFocusInfoFromShell(uiData.windowInfo)
+    val focusInfo = extractFocusInfoFromShell(uiData.windowInfo)
 
             // 3. 简化布局
-            val simplifiedLayout = xmlParser.parseAndSimplify(uiData.uiXml)
+    val simplifiedLayout = xmlParser.parseAndSimplify(uiData.uiXml)
 
             // 4. 构建结果
-            val resultData = com.apex.agent.core.tools.UIPageResultData(
+    val resultData = com.apex.agent.core.tools.UIPageResultData(
                 packageName = focusInfo.packageName ?: "Unknown",
                 activityName = focusInfo.activityName ?: "Unknown",
                 uiElements = simplifiedLayout

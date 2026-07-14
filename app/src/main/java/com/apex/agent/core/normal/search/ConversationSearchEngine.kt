@@ -48,7 +48,7 @@ data class SearchFilters(
     val chatIds: Set<String> = emptySet(),
     val sessionIds: Set<String> = emptySet(),
     val roles: Set<String> = emptySet(),  // user/assistant/system
-        val topics: Set<String> = emptySet(),
+    val topics: Set<String> = emptySet(),
     val startTime: Long? = null,
     val endTime: Long? = null,
     val minImportance: Float = 0f,
@@ -144,13 +144,13 @@ class ConversationSearchEngine {
         sessionIndex.computeIfAbsent(message.sessionId) { mutableSetOf() }.add(message.messageId)
 
         // 倒排索引
-        val tokens = tokenize(message.content)
+    val tokens = tokenize(message.content)
         for (token in tokens) {
             invertedIndex.computeIfAbsent(token) { mutableSetOf() }.add(message.messageId)
         }
 
         // 生成 embedding（如未提供）
-        if (message.embedding == null) {
+    if (message.embedding == null) {
             val embedding = embed(message.content)
         messages[message.messageId] = message.copy(embedding = embedding)
         }
@@ -231,7 +231,7 @@ class ConversationSearchEngine {
     }
 
     // ============ 搜索方法 ============
-        private fun getFilteredCandidates(filters: SearchFilters): List<SearchableMessage> {
+    private fun getFilteredCandidates(filters: SearchFilters): List<SearchableMessage> {
         return messages.values.filter { msg ->
             (filters.chatIds.isEmpty() || msg.chatId in filters.chatIds) &&
             (filters.sessionIds.isEmpty() || msg.sessionId in filters.sessionIds) &&
@@ -246,7 +246,7 @@ class ConversationSearchEngine {
     }
         private fun keywordSearch(query: String, candidates: List<SearchableMessage>): List<SearchResult> {
         // 解析查询：支持 AND / OR / NOT
-        val terms = parseQuery(query)
+    val terms = parseQuery(query)
         val positiveTerms = terms.filter { !it.startsWith("-") }
         val negativeTerms = terms.filter { it.startsWith("-") }.map { it.removePrefix("-") }
         return candidates.mapNotNull { msg ->
@@ -254,7 +254,7 @@ class ConversationSearchEngine {
         val matchedRanges = mutableListOf<IntRange>()
 
             // 正向匹配
-        val positiveMatches = positiveTerms.map { term ->
+    val positiveMatches = positiveTerms.map { term ->
         val idx = content.indexOf(term.lowercase())
         if (idx >= 0) {
                     matchedRanges.add(idx until idx + term.length)
@@ -263,7 +263,7 @@ class ConversationSearchEngine {
             }
 
             // 负向匹配（不能包含）
-        val negativeMatches = negativeTerms.map { term ->
+    val negativeMatches = negativeTerms.map { term ->
                 content.contains(term.lowercase())
             }
         if (positiveTerms.isNotEmpty() && positiveMatches.any { !it }) return@mapNotNull null
@@ -365,9 +365,9 @@ class ConversationSearchEngine {
     }
 
     // ============ 辅助方法 ============
-        private fun parseQuery(query: String): List<String> {
+    private fun parseQuery(query: String): List<String> {
         // 支持 "quoted phrase" 和 -negative
-        val terms = mutableListOf<String>()
+    val terms = mutableListOf<String>()
         val regex = Regex("(?:\"([^\"]+)\"|(-?\\S+))")
         regex.findAll(query).forEach { match ->
             val quoted = match.groupValues[1]
@@ -378,7 +378,7 @@ class ConversationSearchEngine {
     }
         private fun findBestMatch(query: String, content: String): Pair<Float, IntRange> {
         // 简化：滑动窗口 + 编辑距离
-        if (query.length > content.length) return 0f to (0..0)
+    if (query.length > content.length) return 0f to (0..0)
         var bestScore = 0f
         var bestRange = 0..0
         val windowSize = query.length
@@ -423,7 +423,7 @@ class ConversationSearchEngine {
         if (result.matchedRanges.isEmpty()) return result
         val sb = StringBuilder(result.content)
         // 从后向前插入标记
-        for (range in result.matchedRanges.sortedByDescending { it.first }) {
+    for (range in result.matchedRanges.sortedByDescending { it.first }) {
             sb.insert(range.last + 1, "</mark>")
         sb.insert(range.first, "<mark>")
         }

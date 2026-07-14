@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 private val Context.modelCardDataStore by preferencesDataStore("agent_model_cards")
 

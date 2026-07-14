@@ -228,7 +228,7 @@ object MemeJsonUtil {
     fun parseArray(json: String): JSONArray? {
         return try {
             // 去除可能的 JSONP 包装
-        val cleaned = cleanJsonp(json)
+    val cleaned = cleanJsonp(json)
         JSONArray(cleaned)
         } catch (e: Exception) {
             null
@@ -253,7 +253,7 @@ object MemeJsonUtil {
     private fun cleanJsonp(json: String): String {
         val trimmed = json.trim()
         // 如果是 JSONP 格式 callback(...)
-        if (trimmed.contains("(") && trimmed.endsWith(")")) {
+    if (trimmed.contains("(") && trimmed.endsWith(")")) {
             val start = trimmed.indexOf("(")
         val end = trimmed.lastIndexOf(")")
         if (start in 0..end) {

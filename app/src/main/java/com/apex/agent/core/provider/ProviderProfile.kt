@@ -254,7 +254,7 @@ class ProviderRegistry private constructor() {
     fun findProviderByUrl(url: String): ProviderProfile? {
         ensureInitialized()
         val hostname = url.removePrefix("https://").removePrefix("http://").split("/")[0]
-        return findProviderByHostname(hostname)
+    return findProviderByHostname(hostname)
     }
 
     fun findProvidersByModel(modelId: String): List<ProviderProfile> {

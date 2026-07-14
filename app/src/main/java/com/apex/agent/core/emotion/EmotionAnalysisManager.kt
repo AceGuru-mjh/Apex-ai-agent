@@ -6,6 +6,7 @@ import com.apex.agent.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.agent.core.emotion.EmotionResponseManager
 
 /**
  * 情感分析管理服务
@@ -43,7 +44,7 @@ class EmotionAnalysisManager private constructor(
         emotionCache[userId]?.let { return@withContext it }
         
         // 分析情感
-        val profile = emotionAnalyzer.analyzeEmotion(messages)
+    val profile = emotionAnalyzer.analyzeEmotion(messages)
         emotionCache[userId] = profile
         profile
     }

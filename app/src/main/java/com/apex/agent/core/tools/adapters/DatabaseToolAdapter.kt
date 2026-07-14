@@ -21,7 +21,6 @@ class DatabaseToolAdapter : ToolAdapter {
     private val queryCache = mutableMapOf<String, CachedQueryResult>()
     private val MAX_CACHE_SIZE = 50
     private val CACHE_EXPIRE_TIME = 5 * 60 * 1000L // 5分钟
-
     override fun getName(): String {
         return "database"
     }
@@ -83,7 +82,7 @@ class DatabaseToolAdapter : ToolAdapter {
 
         try {
             // 如果连接已存在，先关�?           connections[connectionId]?.let {
-                if (!it.isClosed) {
+    if (!it.isClosed) {
                     it.close()
                 }
             }
@@ -92,7 +91,7 @@ class DatabaseToolAdapter : ToolAdapter {
             Class.forName(driver)
             
             // 创建连接
-            val connection = DriverManager.getConnection(url, username, password)
+    val connection = DriverManager.getConnection(url, username, password)
             
             // 设置连接属�?           connection.autoCommit = true
             
@@ -121,7 +120,8 @@ class DatabaseToolAdapter : ToolAdapter {
             return@withContext StringResultData("错误：连接已关闭，请重新连接")
         }
 
-        // 检查缓�?       val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
+        // 检查缓�?
+    val cacheKey = "${connectionId}:${sql}:${params.joinToString(",")}"
         if (useCache) {
             queryCache[cacheKey]?.let { cached ->
                 if (System.currentTimeMillis() - cached.timestamp < CACHE_EXPIRE_TIME) {
@@ -148,13 +148,14 @@ class DatabaseToolAdapter : ToolAdapter {
                 val columnCount = metaData.columnCount
 
                 // 输出列名
-                for (i in 1..columnCount) {
+    for (i in 1..columnCount) {
                     result.append(metaData.getColumnName(i))
                     if (i < columnCount) result.append("\t")
                 }
                 result.append("\n")
 
-                // 输出分隔�?               for (i in 1..columnCount) {
+                // 输出分隔�?
+    for (i in 1..columnCount) {
                     val columnNameLength = metaData.getColumnName(i).length
                     result.append("-".repeat(columnNameLength))
                     if (i < columnCount) result.append("\t")
@@ -162,7 +163,7 @@ class DatabaseToolAdapter : ToolAdapter {
                 result.append("\n")
 
                 // 输出数据
-                var rowCount = 0
+    var rowCount = 0
                 while (resultSet.next()) {
                     for (i in 1..columnCount) {
                         val value = resultSet.getObject(i)
@@ -178,7 +179,7 @@ class DatabaseToolAdapter : ToolAdapter {
             statement.close()
 
             // 缓存结果
-            if (useCache) {
+    if (useCache) {
                 if (queryCache.size >= MAX_CACHE_SIZE) {
                     val oldestKey = queryCache.keys.firstOrNull()
                     oldestKey?.let { queryCache.remove(it) }

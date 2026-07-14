@@ -3,6 +3,7 @@ package com.apex.util.stream
 import android.content.Context
 import com.apex.agent.R
 import com.apex.util.AppLogger
+import com.apex.util.stream.StreamLogger
 
 /**
  * 流处理器接口，定义了如何处理流数�?* @param T 输入数据类型
@@ -26,7 +27,8 @@ class CompositeStreamProcessor<T, R>(
     override suspend fun process(stream: Stream<T>): R {
         // 先执行中间处理器
         processors.forEach { it.process(stream) }
-        // 最后执行最终处理器并返回结�?       return finalProcessor.process(stream)
+        // 最后执行最终处理器并返回结�?
+    return finalProcessor.process(stream)
     }
 
     companion object {

@@ -1,6 +1,9 @@
 package com.apex.agent.core.tools.system.action
 
 import com.apex.agent.core.tools.system.AndroidPermissionLevel
+import com.apex.agent.core.tools.system.action.ActionEvent
+import com.apex.agent.core.tools.system.action.ListeningResult
+import com.apex.agent.core.tools.system.shell.PermissionStatus
 
 /** 通用UI操作监听接口 定义了不同权限级别UI操作监听的统一接口 */
 interface ActionListener {

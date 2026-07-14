@@ -3,6 +3,7 @@ package com.apex.agent.core.security
 import com.apex.util.AppLogger
 import java.util.Base64
 import java.util.regex.Pattern
+import com.apex.agent.core.codeengine.RiskLevel
 
 /**
  * 外部数据消毒�? *
@@ -14,12 +15,12 @@ class ExternalDataSanitizer {
         private const val TAG = "ExternalDataSanitizer"
 
         // HTML 注释模式
-        private val HTML_COMMENT_PATTERN: Pattern = Pattern.compile(
+    private val HTML_COMMENT_PATTERN: Pattern = Pattern.compile(
             "<!--([\\s\\S]*)-->", Pattern.CASE_INSENSITIVE
         )
 
         // HTML 注释中的可疑内容
-        private val COMMENT_PAYLOAD_PATTERNS: List<Pattern> = listOf(
+    private val COMMENT_PAYLOAD_PATTERNS: List<Pattern> = listOf(
             Pattern.compile("<script[\\s\\S]*?>", Pattern.CASE_INSENSITIVE),
             Pattern.compile("javascript\\s*:", Pattern.CASE_INSENSITIVE),
             Pattern.compile("on\\w+\\s*=", Pattern.CASE_INSENSITIVE),
@@ -33,52 +34,56 @@ class ExternalDataSanitizer {
         )
 
         // Base64 编码内容检测（至少 20 字符的连�?Base64 字符串）
-        private val BASE64_PATTERN: Pattern = Pattern.compile(
+    private val BASE64_PATTERN: Pattern = Pattern.compile(
             "(?:[A-Za-z0-9+/]{20,}={0,2})"
         )
 
         // Base64 data URI 模式
-        private val BASE64_DATA_URI_PATTERN: Pattern = Pattern.compile(
+    private val BASE64_DATA_URI_PATTERN: Pattern = Pattern.compile(
             "data:[^;]+;base64,([A-Za-z0-9+/]+=*)", Pattern.CASE_INSENSITIVE
         )
 
         // 脚本标签
-        private val SCRIPT_TAG_PATTERN: Pattern = Pattern.compile(
+    private val SCRIPT_TAG_PATTERN: Pattern = Pattern.compile(
             "<script[\\s\\S]*?>[\\s\\S]*?</script>", Pattern.CASE_INSENSITIVE
         )
 
         // 脚本开始标签（无闭合）
-        private val SCRIPT_OPEN_TAG_PATTERN: Pattern = Pattern.compile(
+    private val SCRIPT_OPEN_TAG_PATTERN: Pattern = Pattern.compile(
             "<script[^>]*>", Pattern.CASE_INSENSITIVE
         )
 
-        // 事件处理器属�?        private val EVENT_HANDLER_PATTERN: Pattern = Pattern.compile(
+        // 事件处理器属�?
+    private val EVENT_HANDLER_PATTERN: Pattern = Pattern.compile(
             "\\bon\\w+\\s*=\\s*[\"'][^\"']*[\"']", Pattern.CASE_INSENSITIVE
         )
 
         // javascript: 协议
-        private val JAVASCRIPT_URI_PATTERN: Pattern = Pattern.compile(
+    private val JAVASCRIPT_URI_PATTERN: Pattern = Pattern.compile(
             "javascript\\s*:[^\\s\"'<>]*", Pattern.CASE_INSENSITIVE
         )
 
         // 外部脚本 src 引用
-        private val SCRIPT_SRC_PATTERN: Pattern = Pattern.compile(
+    private val SCRIPT_SRC_PATTERN: Pattern = Pattern.compile(
             """<script[^>]+src\s*=\s*["'][^"']+["'][^>]*>""", Pattern.CASE_INSENSITIVE
         )
 
-        // 可疑文件扩展名引�?        private val SUSPICIOUS_FILE_REF_PATTERN: Pattern = Pattern.compile(
+        // 可疑文件扩展名引�?
+    private val SUSPICIOUS_FILE_REF_PATTERN: Pattern = Pattern.compile(
             """(?:href|src|action)\s*=\s*["'][^"']*\.(?:js|vbs|php|asp|jsp|cgi|sh|bat|ps1|exe|dll)["']""",
             Pattern.CASE_INSENSITIVE
         )
 
-        // 条件注释（IE 条件注释，可隐藏恶意代码�?        private val CONDITIONAL_COMMENT_PATTERN: Pattern = Pattern.compile(
+        // 条件注释（IE 条件注释，可隐藏恶意代码�?
+    private val CONDITIONAL_COMMENT_PATTERN: Pattern = Pattern.compile(
             "<!--\\[if\\s+[\\s\\S]*?\\]>", Pattern.CASE_INSENSITIVE
         )
 
-        // 最�?Base64 检测长�?        private const val MIN_BASE64_LENGTH = 20
+        // 最�?Base64 检测长�?
+    private const val MIN_BASE64_LENGTH = 20
 
         // Base64 解码后最小可审查长度
-        private const val MIN_DECODED_REVIEW_LENGTH = 4
+    private const val MIN_DECODED_REVIEW_LENGTH = 4
     }
 
     /**
@@ -101,24 +106,26 @@ class ExternalDataSanitizer {
         val findings = mutableListOf<ExternalFinding>()
         var sanitized = input
 
-        // 1. HTML 注释负载检�?        val commentFindings = detectHtmlCommentPayloads(sanitized)
+        // 1. HTML 注释负载检�?
+    val commentFindings = detectHtmlCommentPayloads(sanitized)
         findings.addAll(commentFindings)
 
         // 2. 脚本引用移除
-        val scriptFindings = detectAndRemoveScriptReferences(sanitized)
+    val scriptFindings = detectAndRemoveScriptReferences(sanitized)
         findings.addAll(scriptFindings.findings)
         sanitized = scriptFindings.sanitizedText
 
         // 3. Base64 编码内容检测与解码审查
-        val base64Findings = detectBase64Content(sanitized)
+    val base64Findings = detectBase64Content(sanitized)
         findings.addAll(base64Findings)
 
-        // 4. 事件处理器移�?        val eventFindings = detectAndRemoveEventHandlers(sanitized)
+        // 4. 事件处理器移�?
+    val eventFindings = detectAndRemoveEventHandlers(sanitized)
         findings.addAll(eventFindings.findings)
         sanitized = eventFindings.sanitizedText
 
         // 5. 危险 URI 移除
-        val uriFindings = detectAndRemoveDangerousUris(sanitized)
+    val uriFindings = detectAndRemoveDangerousUris(sanitized)
         findings.addAll(uriFindings.findings)
         sanitized = uriFindings.sanitizedText
 
@@ -162,7 +169,8 @@ class ExternalDataSanitizer {
                 }
             }
 
-            // 检测条件注�?            if (CONDITIONAL_COMMENT_PATTERN.matcher(commentMatcher.group()).find()) {
+            // 检测条件注�?
+    if (CONDITIONAL_COMMENT_PATTERN.matcher(commentMatcher.group()).find()) {
                 findings.add(
                     ExternalFinding(
                         type = ExternalThreatType.HTML_COMMENT_PAYLOAD,
@@ -184,7 +192,7 @@ class ExternalDataSanitizer {
         val findings = mutableListOf<ExternalFinding>()
 
         // 检�?data URI 中的 Base64
-        val dataUriMatcher = BASE64_DATA_URI_PATTERN.matcher(input)
+    val dataUriMatcher = BASE64_DATA_URI_PATTERN.matcher(input)
         while (dataUriMatcher.find()) {
             val base64Content = dataUriMatcher.group(1) ?: continue
             val decodedFinding = reviewDecodedBase64(base64Content, dataUriMatcher.start())
@@ -193,7 +201,8 @@ class ExternalDataSanitizer {
             }
         }
 
-        // 检查独立的 Base64 字符�?        val base64Matcher = BASE64_PATTERN.matcher(input)
+        // 检查独立的 Base64 字符�?
+    val base64Matcher = BASE64_PATTERN.matcher(input)
         while (base64Matcher.find()) {
             val base64Content = base64Matcher.group()
             if (base64Content.length >= MIN_BASE64_LENGTH) {
@@ -215,7 +224,8 @@ class ExternalDataSanitizer {
             val decoded = Base64.getDecoder().decode(base64Content.trimEnd('='))
             val decodedText = String(decoded, Charsets.UTF_8)
 
-            // 检查解码后的内容是否包含可疑模�?            if (decodedText.length >= MIN_DECODED_REVIEW_LENGTH && decodedText != base64Content) {
+            // 检查解码后的内容是否包含可疑模�?
+    if (decodedText.length >= MIN_DECODED_REVIEW_LENGTH && decodedText != base64Content) {
                 val hasSuspiciousContent = COMMENT_PAYLOAD_PATTERNS.any { it.matcher(decodedText).find() }
                     || SCRIPT_OPEN_TAG_PATTERN.matcher(decodedText).find()
 
@@ -242,7 +252,7 @@ class ExternalDataSanitizer {
         var sanitized = input
 
         // 移除完整 script 标签
-        val scriptMatcher = SCRIPT_TAG_PATTERN.matcher(sanitized)
+    val scriptMatcher = SCRIPT_TAG_PATTERN.matcher(sanitized)
         while (scriptMatcher.find()) {
             findings.add(
                 ExternalFinding(
@@ -257,7 +267,7 @@ class ExternalDataSanitizer {
         sanitized = SCRIPT_TAG_PATTERN.matcher(sanitized).replaceAll("")
 
         // 检�?script src 引用
-        val srcMatcher = SCRIPT_SRC_PATTERN.matcher(input)
+    val srcMatcher = SCRIPT_SRC_PATTERN.matcher(input)
         while (srcMatcher.find()) {
             findings.add(
                 ExternalFinding(
@@ -271,7 +281,8 @@ class ExternalDataSanitizer {
         }
         sanitized = SCRIPT_SRC_PATTERN.matcher(sanitized).replaceAll("")
 
-        // 检测可疑文件引�?        val fileRefMatcher = SUSPICIOUS_FILE_REF_PATTERN.matcher(sanitized)
+        // 检测可疑文件引�?
+    val fileRefMatcher = SUSPICIOUS_FILE_REF_PATTERN.matcher(sanitized)
         while (fileRefMatcher.find()) {
             findings.add(
                 ExternalFinding(

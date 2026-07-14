@@ -120,7 +120,8 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
                         message.createdAt
                     ))
                     
-                    // 更新元数�?                    if (sessionTitle != null) {
+                    // 更新元数�?
+    if (sessionTitle != null) {
                         db.execSQL("""
                             INSERT OR REPLACE INTO ${FTS_METADATA_TABLE}(message_id, session_title)
                             VALUES (?, ?)
@@ -246,7 +247,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
      */
     suspend fun semanticSearch(query: String, limit: Int = 20): List<FTSSearchResult> {
         // 使用FTS5的BM25排序进行语义相似搜索
-        return search(query, limit)
+    return search(query, limit)
     }
     
     /**
@@ -307,7 +308,7 @@ class FTSSearch(context: Context) : SQLiteOpenHelper(
         return withContext(Dispatchers.IO) {
             readableDatabase.use { db ->
                 // 使用prefix search
-                val query = "${prefix}*"
+    val query = "${prefix}*"
                 db.rawQuery("""
                     SELECT DISTINCT content FROM ${FTS_CONTENT_TABLE}
                     WHERE content LIKE ?

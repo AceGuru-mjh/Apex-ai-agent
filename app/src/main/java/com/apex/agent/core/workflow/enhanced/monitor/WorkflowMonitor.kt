@@ -110,7 +110,6 @@ class WorkflowMonitor {
     )
 
     // ============ 内部状态 ============
-
     private val totalExecutions = AtomicLong(0)
     private val totalSuccess = AtomicLong(0)
     private val totalFailure = AtomicLong(0)
@@ -134,7 +133,6 @@ class WorkflowMonitor {
     private val maxLatencyHistory = 10_000
 
     // ============ 内部数据结构 ============
-
     private data class WorkflowStatsInternal(
         val workflowId: String,
         val workflowName: String,
@@ -245,7 +243,7 @@ class WorkflowMonitor {
         }
 
         // 错误分布
-        if (!success && error != null) {
+    if (!success && error != null) {
             val errorType = classifyError(error)
             errorDistribution.computeIfAbsent(errorType) { AtomicLong(0) }.incrementAndGet()
         }
@@ -366,7 +364,6 @@ class WorkflowMonitor {
     }
 
     // ============ 内部方法 ============
-
     private fun refreshSnapshot() {
         val totals = ExecutionTotals(
             totalExecutions = totalExecutions.get(),

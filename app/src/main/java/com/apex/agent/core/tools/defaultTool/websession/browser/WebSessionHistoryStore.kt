@@ -212,7 +212,7 @@ internal class WebSessionHistoryStore private constructor(private val context: C
             return null
         }
         if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
-            return null
+    return null
         }
 
         return runCatching {

@@ -234,7 +234,7 @@ object AppLogger {
     fun init(context: Context) {
         boundContext = context.applicationContext
         // Ensure log directory exists
-        try {
+    try {
             val dir = File(context.filesDir, LOG_DIR_NAME)
             if (!dir.exists()) {
                 dir.mkdirs()
@@ -291,7 +291,6 @@ object AppLogger {
     }
 
     // --- Internal helpers ---
-
     private fun writeToFile(priority: Int, tag: String, msg: String, tr: Throwable) {
         if (!enableFileLogging) return
 

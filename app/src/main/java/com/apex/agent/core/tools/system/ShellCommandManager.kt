@@ -10,6 +10,7 @@ import com.apex.core.tools.system.AndroidShellExecutor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
+import com.apex.agent.core.normal.shortcut.CommandCategory
 
 /**
  * Shell命令管理�? 负责命令执行、历史记录管理等
@@ -177,8 +178,7 @@ class ShellCommandManager(private val context: Context) {
         )
         
         // 保存到历史记�?       saveCommandToHistory(record)
-        
-        return record
+    return record
     }
     
     /**
@@ -192,7 +192,7 @@ class ShellCommandManager(private val context: Context) {
         history.add(0, record)
         
         // 限制历史记录大小
-        val trimmedHistory = history.take(MAX_HISTORY_SIZE)
+    val trimmedHistory = history.take(MAX_HISTORY_SIZE)
         
         // 保存到SharedPreferences
         // 在实际实现中，使用JSON序列化库将历史记录转换为JSON字符�?       // prefs.edit().putString(KEY_COMMAND_HISTORY, jsonString).apply()

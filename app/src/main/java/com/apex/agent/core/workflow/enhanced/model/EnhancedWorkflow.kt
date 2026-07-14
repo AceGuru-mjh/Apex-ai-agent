@@ -116,7 +116,7 @@ data class EnhancedWorkflow(
         }
 
         // 检查 FAN_OUT / FAN_IN 配对
-        val fanOutNodes = nodes.filter { it.type == EnhancedNodeType.FAN_OUT }
+    val fanOutNodes = nodes.filter { it.type == EnhancedNodeType.FAN_OUT }
         val fanInNodes = nodes.filter { it.type == EnhancedNodeType.FAN_IN }
         fanOutNodes.forEach { fo ->
             val hasMatchingFanIn = fanInNodes.any { fi ->

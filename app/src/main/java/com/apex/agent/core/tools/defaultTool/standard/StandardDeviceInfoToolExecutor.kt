@@ -13,6 +13,7 @@ import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.ToolExecutor
 import com.apex.data.model.AITool
 import com.apex.data.model.ToolResult
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * Device information tool that collects comprehensive system details Provides information about
@@ -22,26 +23,26 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
     override fun invoke(tool: AITool): ToolResult {
         return try {
             // Get basic device information
-            val deviceId =
+    val deviceId =
                     Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
             // Get device model and manufacturer
-            val model = Build.MODEL
+    val model = Build.MODEL
             val manufacturer = Build.MANUFACTURER
 
             // Get Android version
-            val androidVersion = Build.VERSION.RELEASE
+    val androidVersion = Build.VERSION.RELEASE
             val sdkVersion = Build.VERSION.SDK_INT
 
             // Get screen information
-            val displayMetrics = context.resources.displayMetrics
+    val displayMetrics = context.resources.displayMetrics
             val screenWidth = displayMetrics.widthPixels
             val screenHeight = displayMetrics.heightPixels
             val screenResolution = "${screenWidth}x${screenHeight}"
             val screenDensity = displayMetrics.density
 
             // Get memory information
-            val activityManager =
+    val activityManager =
                     context.getSystemService(Context.ACTIVITY_SERVICE) as
                             android.app.ActivityManager
             val memoryInfo = android.app.ActivityManager.MemoryInfo()
@@ -50,7 +51,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
             val totalMemory = formatSize(memoryInfo.totalMem)
 
             // Get storage information
-            val statFs = StatFs(Environment.getExternalStorageDirectory().path)
+    val statFs = StatFs(Environment.getExternalStorageDirectory().path)
             val availableBlocks = statFs.availableBlocksLong
             val blockSize = statFs.blockSizeLong
             val totalBlocks = statFs.blockCountLong
@@ -58,7 +59,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
             val totalStorage = formatSize(totalBlocks * blockSize)
 
             // Get battery information
-            var batteryLevel = 0
+    var batteryLevel = 0
             var isCharging = false
 
             try {
@@ -79,7 +80,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
             }
 
             // Get CPU information
-            val cpuInfo =
+    val cpuInfo =
                     try {
                         val processBuilder = ProcessBuilder("getprop", "ro.product.cpu.abi")
                         val process = processBuilder.start()
@@ -96,7 +97,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
                     }
 
             // Get network information
-            val connectivityManager =
+    val connectivityManager =
                     context.getSystemService(Context.CONNECTIVITY_SERVICE) as
                             android.net.ConnectivityManager
             val activeNetwork = connectivityManager.activeNetwork
@@ -121,7 +122,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
                     }
 
             // Collect additional system properties
-            val additionalInfo = mutableMapOf<String, String>()
+    val additionalInfo = mutableMapOf<String, String>()
             additionalInfo["Device name"] = Build.DEVICE
             additionalInfo["Product name"] = Build.PRODUCT
             additionalInfo["Hardware name"] = Build.HARDWARE
@@ -129,7 +130,7 @@ open class StandardDeviceInfoToolExecutor(private val context: Context) : ToolEx
             additionalInfo["Build time"] = java.util.Date(Build.TIME).toString()
 
             // Create result data object
-            val deviceInfoResult =
+    val deviceInfoResult =
                     DeviceInfoResultData(
                             deviceId = deviceId,
                             model = model,

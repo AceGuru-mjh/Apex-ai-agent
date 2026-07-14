@@ -119,7 +119,7 @@ fun ApexMainScaffold() {
                 HorizontalDivider()
 
                 // 历史对话列表
-                if (displaySessions.isEmpty()) {
+    if (displaySessions.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxWidth().padding(32.dp),
                         contentAlignment = Alignment.Center

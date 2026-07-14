@@ -75,7 +75,7 @@ class StreamingMarkdownRenderer {
         buffer.append(chunk)
 
         // 按行处理（保留最后不完整的行）
-        val lines = buffer.toString().split("\n")
+    val lines = buffer.toString().split("\n")
         val completeLines = if (buffer.endsWith("\n")) lines.dropLast(1) else lines.dropLast(1)
 
         for (line in completeLines) {
@@ -90,7 +90,7 @@ class StreamingMarkdownRenderer {
      */
     fun finalize(): RenderTree {
         // 处理缓冲区剩余内容
-        if (buffer.isNotEmpty()) {
+    if (buffer.isNotEmpty()) {
             val remaining = buffer.toString().split("\n")
             for (line in remaining) {
                 processLine(line)
@@ -99,7 +99,7 @@ class StreamingMarkdownRenderer {
         }
 
         // 关闭所有未闭合的结构
-        if (inCodeBlock) {
+    if (inCodeBlock) {
             root.children.add(RenderNode(
                 type = RenderNodeType.CODE_BLOCK,
                 content = codeBlockBuffer.toString(),
@@ -129,7 +129,6 @@ class StreamingMarkdownRenderer {
     }
 
     // ============ 内部方法 ============
-
     private fun processLine(line: String) {
         when {
             // 代码块开始/结束
@@ -175,7 +174,7 @@ class StreamingMarkdownRenderer {
                 if (!inTable) inTable = true
                 val cells = line.trim().trim('|').split("|").map { it.trim() }
                 // 跳过分隔行 |---|---|
-                if (!cells.all { it.matches(Regex("[-:]+")) }) {
+    if (!cells.all { it.matches(Regex("[-:]+")) }) {
                     tableRows.add(cells)
                 }
             }

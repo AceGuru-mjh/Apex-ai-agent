@@ -2,6 +2,9 @@ package com.apex.agent.core.tools.system.shell
 
 import com.apex.agent.core.tools.system.AndroidPermissionLevel
 import com.apex.agent.core.tools.system.ShellIdentity
+import com.apex.agent.core.patterns.CommandResult
+import com.apex.agent.core.tools.system.shell.PermissionStatus
+import com.apex.agent.core.tools.system.shell.ShellProcess
 
 /** 通用Shell命令执行接口 定义了不同权限级别Shell操作的统一接口 */
 interface ShellExecutor {

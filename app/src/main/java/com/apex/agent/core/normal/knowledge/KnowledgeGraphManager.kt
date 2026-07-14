@@ -119,7 +119,7 @@ class KnowledgeGraphManager {
     private val nodes = ConcurrentHashMap<String, KnowledgeNode>()
         private val edges = ConcurrentHashMap<String, KnowledgeEdge>()
         private val nameToId = ConcurrentHashMap<String, String>()  // name/alias -> id
-        private val adjacency = ConcurrentHashMap<String, MutableSet<String>>()  // nodeId -> edgeIds
+    private val adjacency = ConcurrentHashMap<String, MutableSet<String>>()  // nodeId -> edgeIds
 
     /**
      * 从文本中抽取知识
@@ -129,14 +129,14 @@ class KnowledgeGraphManager {
         val extractedEdges = mutableListOf<KnowledgeEdge>()
 
         // 1. 实体抽取（基于规则）
-        val entities = extractEntities(text)
+    val entities = extractEntities(text)
         for ((name, type) in entities) {
             val node = addOrUpdateNode(name, type)
         extractedNodes.add(node)
         }
 
         // 2. 关系抽取（基于模式）
-        val relations = extractRelations(text, entities)
+    val relations = extractRelations(text, entities)
         for ((source, relation, target) in relations) {
             val sourceNode = findOrCreateNode(source)
         val targetNode = findOrCreateNode(target)
@@ -190,7 +190,7 @@ class KnowledgeGraphManager {
      */
     fun addOrUpdateEdge(sourceId: String, targetId: String, relation: RelationType): KnowledgeEdge {
         // 查找是否已存在
-        val existing = edges.values.find {
+    val existing = edges.values.find {
             it.sourceId == sourceId && it.targetId == targetId && it.relation == relation
         }
         if (existing != null) {
@@ -340,7 +340,7 @@ class KnowledgeGraphManager {
     }
 
     // ============ 实体抽取 ============
-        private fun extractEntities(text: String): List<Pair<String, EntityType>> {
+    private fun extractEntities(text: String): List<Pair<String, EntityType>> {
         val entities = mutableListOf<Pair<String, EntityType>>()
 
         // 人名（简化：大写英文姓名 或 中文2-3字+说/表示）
@@ -376,7 +376,7 @@ class KnowledgeGraphManager {
         val relations = mutableListOf<Triple<String, RelationType, String>>()
 
         // 模式匹配
-        val patterns = mapOf(
+    val patterns = mapOf(
             RelationType.WORKS_AT to Regex("([\\u4e00-\\u9fa5A-Za-z]+)\\s*(?:在|就职于|工作于)\\s*([\\u4e00-\\u9fa5A-Za-z]+公司|团队|组织)"),
             RelationType.CREATED to Regex("([\\u4e00-\\u9fa5A-Za-z]+)\\s*(?:创建了|发明了|开发了|写了)\\s*([\\u4e00-\\u9fa5A-Za-z]+)"),
             RelationType.USES to Regex("([\\u4e00-\\u9fa5A-Za-z]+)\\s*(?:使用|用|采用)\\s*([\\u4e00-\\u9fa5A-Za-z]+)"),

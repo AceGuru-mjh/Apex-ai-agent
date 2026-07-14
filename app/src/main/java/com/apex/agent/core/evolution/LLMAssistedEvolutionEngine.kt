@@ -10,6 +10,7 @@ import com.apex.data.model.LogistraSkillSpecV2
 import com.apex.agent.util.AppLogger
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.toList
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 class LLMAssistedEvolutionEngine(
     private val context: Context,
@@ -30,7 +31,7 @@ class LLMAssistedEvolutionEngine(
         evaluationResult: SemanticEvaluationResult
     ): LogistraSkillSpecV2 {
         // 只有分数低于 8.0 才触的LLM 进化
-        if (evaluationResult.score >= 8.0f) {
+    if (evaluationResult.score >= 8.0f) {
             AppLogger.d(TAG, "Score ${evaluationResult.score} is high enough, skipping LLM evolution")
             return currentSkill
         }

@@ -342,7 +342,7 @@ sealed class ParameterValueDef {
     }
         private fun evalExpression(expr: String, context: Map<String, Any>): String {
         // 简易表达式：${nodeId.field} 替换
-        var result = expr
+    var result = expr
         val regex = Regex("\\$\\{([^}]+)}")
         regex.findAll(expr).forEach { m ->
             val (ref) = m.destructured

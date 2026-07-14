@@ -274,11 +274,11 @@ class WorkflowScheduler(
         if (waitMs > 0) delay(waitMs)
 
                 // 检查是否被取消或禁用
-        val latest = jobs[current.id] ?: break
+    val latest = jobs[current.id] ?: break
                 if (!latest.enabled) break
 
                 // 处理 misfire
-        val actualNow = System.currentTimeMillis()
+    val actualNow = System.currentTimeMillis()
         if (actualNow - nextRun > MISFIRE_THRESHOLD_MS) {
                     val missedCount = ((actualNow - nextRun) / (current.scheduleConfig.intervalMs ?: 60_000L)).toInt()
         when (latest.misfirePolicy) {
@@ -299,7 +299,7 @@ class WorkflowScheduler(
                 }
 
                 // 计算下次运行时间
-        if (!current.scheduleConfig.repeat) break
+    if (!current.scheduleConfig.repeat) break
                 val newNextRun = computeNextRun(current.scheduleConfig, System.currentTimeMillis())
         current = latest.copy(
                     lastRunAt = actualNow,

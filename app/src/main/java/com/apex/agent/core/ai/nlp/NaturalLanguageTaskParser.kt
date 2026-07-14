@@ -111,7 +111,7 @@ class NaturalLanguageTaskParser(
     private fun parseJsonResponse(response: String, fallbackInput: String): TaskData {
         val trimmed = response.trim()
         // 尝试提取 JSON 块
-        val jsonBlock = extractJsonBlock(trimmed)
+    val jsonBlock = extractJsonBlock(trimmed)
         if (jsonBlock != null) {
             try {
                 return parseJsonObject(jsonBlock)

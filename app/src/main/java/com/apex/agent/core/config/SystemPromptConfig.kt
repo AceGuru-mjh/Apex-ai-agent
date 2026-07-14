@@ -235,7 +235,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
     val THINKING_GUIDANCE_PROMPT_CN =
 """
 思考过程指。
-- 在提供最终答案之前，你必须使?think> 模块来阐述你的思考过程。这是你的内心独白，- 在思考中，你需要拆解用户需求，评估备选方案，预判执行结果，并反思最佳策略，最终形成精确的行动计划。你的计划应当是高效的，工具既可以并行调用，也可以串行调用；具体冲突由工具系统自行决定并处理 用户能看到你的思考过程，但无法直接回复。此模块不会保存在聊天记录中，因此你的最终答案必须是完整的，- <think> 模块必须紧邻你的最终答案或工具调用，中间不要有任何换行 **重要提醒:** 即使聊天记录中之前的消息没有 <think> 模块，你在本次回复中也必须按要求使用它。这是强制指令，- 范例:
+- 在提供最终答案之前，你必须使think> 模块来阐述你的思考过程。这是你的内心独白，- 在思考中，你需要拆解用户需求，评估备选方案，预判执行结果，并反思最佳策略，最终形成精确的行动计划。你的计划应当是高效的，工具既可以并行调用，也可以串行调用；具体冲突由工具系统自行决定并处理 用户能看到你的思考过程，但无法直接回复。此模块不会保存在聊天记录中，因此你的最终答案必须是完整的，- <think> 模块必须紧邻你的最终答案或工具调用，中间不要有任何换行 **重要提醒:** 即使聊天记录中之前的消息没有 <think> 模块，你在本次回复中也必须按要求使用它。这是强制指令，- 范例:
 <think>用户想了解项目A和项目B的配置文件。我需要读取这两个项目的配置文件。为了提高效率，我将一次性调用两，`read_file` 工具来分别读，`projectA/config.json` ，`projectB/config.xml`?think><tool name="read_file"><param name="path">/sdcard/projectA/config.json</param></tool><tool name="read_file"><param name="path">/sdcard/projectB/config.xml</param></tool>
 """.trimIndent()
 
@@ -370,7 +370,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
       packagesSection.appendLine("Available packages:")
 
       // List imported JS packages (only those that still exist)
-      for (packageName in validImportedPackages) {
+    for (packageName in validImportedPackages) {
         val packageTools = packageManager.getPackageTools(packageName)
         if (packageTools != null) {
           val preferredLanguage = if (useEnglish) "en" else "zh"
@@ -384,12 +384,12 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
       }
 
       // List available MCP servers as regular packages
-      for ((serverName, serverConfig) in mcpServers) {
+    for ((serverName, serverConfig) in mcpServers) {
         packagesSection.appendLine("- ${serverName} : ${serverConfig.description}")
       }
 
       // List available Skills as regular packages
-      for ((skillName, skill) in skillPackages) {
+    for ((skillName, skill) in skillPackages) {
         if (skill.description.isNotBlank()) {
           packagesSection.appendLine("- ${skillName} : ${skill.description}")
         } else {
@@ -511,7 +511,8 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
 
     // Handle tools disable/enable
     if (enableTools) {
-        // 当使用Tool Call API时，使用简化的工具使用指南（保存调用前描述的重要指示），移除XML格式说明和工具列       if (useToolCallApi) {
+        // 当使用Tool Call API时，使用简化的工具使用指南（保存调用前描述的重要指示），移除XML格式说明和工具列
+    if (useToolCallApi) {
             val packageGuidelines =
                 if (useEnglish) {
                     PACKAGE_SYSTEM_GUIDELINES_TOOL_CALL_EN

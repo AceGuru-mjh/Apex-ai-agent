@@ -19,7 +19,7 @@ class StandardTerminalCommandExecutor(private val context: Context) {
 
     companion object {
         // 用于将会话名称映射到会话ID
-        private val sessionNameToIdMap = ConcurrentHashMap<String, String>()
+    private val sessionNameToIdMap = ConcurrentHashMap<String, String>()
     }
 
 
@@ -39,7 +39,8 @@ class StandardTerminalCommandExecutor(private val context: Context) {
 
                 val terminal = Terminal.getInstance(context)
 
-                // 修正：直接检查Terminal 单例中是否已存在同名会话，而不是依赖本地缓�?              val existingSession = terminal.terminalState.value.sessions.find { it.title == sessionName }
+                // 修正：直接检查Terminal 单例中是否已存在同名会话，而不是依赖本地缓�?
+    val existingSession = terminal.terminalState.value.sessions.find { it.title == sessionName }
                 if (existingSession != null) {
                     // 如果存在，更新本地缓存并返回该会�?                  sessionNameToIdMap[sessionName] = existingSession.id
                     return@runBlocking ToolResult(
@@ -53,7 +54,8 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                     )
                 }
 
-                // 如果 Terminal 中不存在，则创建新会�?              val newSessionId = terminal.createSession(sessionName)
+                // 如果 Terminal 中不存在，则创建新会�?
+    val newSessionId = terminal.createSession(sessionName)
                 sessionNameToIdMap[sessionName] = newSessionId
 
                 ToolResult(
@@ -99,10 +101,10 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                                 ?.value
                                 ?.toLongOrNull()
                                 ?: 1800000L // 30 分钟
+    val terminal = Terminal.getInstance(context)
 
-                val terminal = Terminal.getInstance(context)
-
-                // 检查会话是否存�?               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
+                // 检查会话是否存�?
+    if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
                     // 如果会话不存在，也从我们的映射中移除
                     sessionNameToIdMap.entries.removeIf { it.value == sessionId }
                     return@runBlocking ToolResult(
@@ -299,7 +301,8 @@ class StandardTerminalCommandExecutor(private val context: Context) {
 
                 val terminal = Terminal.getInstance(context)
 
-                // 检查会话是否存�?               if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
+                // 检查会话是否存�?
+    if (terminal.terminalState.value.sessions.none { it.id == sessionId }) {
                     sessionNameToIdMap.entries.removeIf { it.value == sessionId }
                     return@runBlocking ToolResult(
                         toolName = tool.name,

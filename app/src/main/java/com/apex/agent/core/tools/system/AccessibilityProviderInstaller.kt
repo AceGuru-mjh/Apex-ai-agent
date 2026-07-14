@@ -17,7 +17,7 @@ class AccessibilityProviderInstaller {
         private const val ACCESSIBILITY_PACKAGE_NAME = "com.apex.agent.provider"
 
         // 缓存版本信息
-        private var cachedInstalledVersion: String? = null
+    private var cachedInstalledVersion: String? = null
         private var cachedBundledVersion: String? = null
         private var cachedUpdateNeeded: Boolean? = null
         private var lastCheckTime: Long = 0
@@ -137,8 +137,7 @@ class AccessibilityProviderInstaller {
         fun launchInstall(context: Context) {
             UIHierarchyManager.launchProviderInstall(context)
             clearCache() // 清除缓存以在安装后刷新状�?       }
-
-        private fun updateCacheTimestamp() {
+    private fun updateCacheTimestamp() {
             lastCheckTime = System.currentTimeMillis()
         }
 

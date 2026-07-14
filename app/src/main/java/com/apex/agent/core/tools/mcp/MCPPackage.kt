@@ -8,6 +8,8 @@ import com.apex.core.tools.ToolPackage
 import com.apex.data.mcp.plugins.MCPBridgeClient
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import com.apex.agent.core.tools.defaultTool.standard.name
+import com.apex.core.tools.javascript.not
 
 /**
  * 表示MCP服务器作为工具包
@@ -36,12 +38,13 @@ data class MCPPackage(
         }
 
         fun loadFromServer(context: Context, serverConfig: MCPServerConfig): LoadResult {
-            // 创建桥接客户�?           val bridgeClient = MCPBridgeClient(context, serverConfig.name)
+            // 创建桥接客户�?
+    val bridgeClient = MCPBridgeClient(context, serverConfig.name)
             com.apex.util.AppLogger.d(TAG, "正在连接到MCP服务�?${serverConfig.name}")
 
             try {
                 // 尝试连接
-                val connected = runBlocking { bridgeClient.connect() }
+    val connected = runBlocking { bridgeClient.connect() }
                 if (!connected) {
                     com.apex.util.AppLogger.w(TAG, "无法连接到MCP服务�?${serverConfig.name}")
                     return LoadResult(
@@ -55,7 +58,7 @@ data class MCPPackage(
                 com.apex.util.AppLogger.d(TAG, "成功连接到MCP服务�?${serverConfig.name}，开始获取工具列表）
 
                 // 获取工具列表
-                val jsonTools = runBlocking { bridgeClient.getTools() }
+    val jsonTools = runBlocking { bridgeClient.getTools() }
                 if (jsonTools.isEmpty()) {
                     com.apex.util.AppLogger.w(TAG, "MCP服务�?{serverConfig.name} 没有提供任何工具")
                     // 不要因为没有工具就返回null
@@ -67,20 +70,21 @@ data class MCPPackage(
                 com.apex.util.AppLogger.d(TAG, "成功从MCP服务器获�?{jsonTools.size} 个工具）
 
                 // 将JSONObject工具转换为MCPTool
-                val mcpTools =
+    val mcpTools =
                         jsonTools.mapNotNull { jsonTool ->
                             try {
                                 // 提取工具信息
-                                val name = jsonTool.optString("name", "")
+    val name = jsonTool.optString("name", "")
 
                                 // 直接获取描述，如果没有则使用空字符串
-                                val description = jsonTool.optString("description", "")
+    val description = jsonTool.optString("description", "")
 
                                 if (name.isEmpty()) return@mapNotNull null
 
                                 // 提取参数信息
-                                val params = mutableListOf<MCPToolParameter>()
-                                // 改为从inputSchema中获取参数信�?                               val inputSchema = jsonTool.optJSONObject("inputSchema")
+    val params = mutableListOf<MCPToolParameter>()
+                                // 改为从inputSchema中获取参数信�?
+    val inputSchema = jsonTool.optJSONObject("inputSchema")
                                 val propertiesObj = inputSchema?.optJSONObject("properties")
                                 val requiredArray = inputSchema?.optJSONArray("required")
 
@@ -116,7 +120,7 @@ data class MCPPackage(
                         }
 
                 // 注意：不要断开连接！让客户端保持活跃状�?               // 客户端会被缓存在MCPManager中以供后续使�?               com.apex.util.AppLogger.d(TAG, "成功创建MCP包，包含 ${mcpTools.size} 个工具，保持连接活跃")
-                return LoadResult(mcpPackage = MCPPackage(serverConfig, mcpTools))
+    return LoadResult(mcpPackage = MCPPackage(serverConfig, mcpTools))
             } catch (e: Exception) {
                 com.apex.util.AppLogger.e(TAG, "创建MCP包时出错: ${e.message}", e)
                 // 只有在发生异常时才断开连接
@@ -132,10 +136,10 @@ data class MCPPackage(
     /** 转换为标准工具包格式 将MCP包转换为与现有PackageManager兼容的ToolPackage格式 */
     fun toToolPackage(): ToolPackage {
         // 将MCP工具转换为标准工具包工具
-        val tools =
+    val tools =
                 mcpTools.map { mcpTool ->
                     // 将MCP工具参数转换为标准工具包参数
-                    val params =
+    val params =
                             mcpTool.parameters.map { mcpParam ->
                                 PackageToolParameter(
                                         name = mcpParam.name,
@@ -154,7 +158,7 @@ data class MCPPackage(
                 }
 
         // 创建完整的工具包，使用服务器名称作为包名，不添加任何前缀
-        return ToolPackage(
+    return ToolPackage(
                 name = serverConfig.name, // 直接使用服务器名称，不添加mcp:前缀
                 description = LocalizedText.of(serverConfig.description),
                 tools = tools,

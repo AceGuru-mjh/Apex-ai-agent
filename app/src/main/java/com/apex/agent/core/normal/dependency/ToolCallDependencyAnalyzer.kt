@@ -30,7 +30,7 @@ data class ToolInvocationRecord(
     val endTime: Long,
     val durationMs: Long,
     val parentInvocationId: String? = null,  // 父调用（嵌套调用）
-        val triggerSource: TriggerSource,
+    val triggerSource: TriggerSource,
     val errorMessage: String? = null,
     val retryCount: Int = 0
 )
@@ -63,9 +63,9 @@ data class ToolCallChain(
 data class ToolDependency(
     val toolName: String,
     val dependsOn: Set<String>,         // 依赖的工具
-        val dependedBy: Set<String>,        // 被依赖的工具
-        val producesData: List<String>,     // 产出的数据
-        val consumesData: List<String>      // 消费的数据
+    val dependedBy: Set<String>,        // 被依赖的工具
+    val producesData: List<String>,     // 产出的数据
+    val consumesData: List<String>      // 消费的数据
 )
 
 /**
@@ -136,7 +136,7 @@ class ToolCallDependencyAnalyzer {
         val root = chatInvocations.find { it.id == rootId } ?: return null
 
         // BFS 收集所有相关调用
-        val chain = mutableListOf<ToolInvocationRecord>()
+    val chain = mutableListOf<ToolInvocationRecord>()
         val queue = ArrayDeque<String>()
         queue.add(rootId)
         val visited = mutableSetOf<String>()
@@ -169,7 +169,7 @@ class ToolCallDependencyAnalyzer {
             nodes.add(inv.toolName)
 
             // 数据流依赖：如果 A 的输出被 B 的参数引用
-        for (other in chatInvocations) {
+    for (other in chatInvocations) {
                 if (inv.id == other.id) continue
                 if (hasDataDependency(inv, other)) {
                     edges.add(DependencyEdge(inv.toolName, other.toolName, DependencyType.DATA_FLOW))
@@ -177,7 +177,7 @@ class ToolCallDependencyAnalyzer {
             }
 
             // 时序依赖：A 在 B 之前完成，且时间接近
-        for (other in chatInvocations) {
+    for (other in chatInvocations) {
                 if (inv.id == other.id) continue
                 if (inv.endTime < other.startTime && other.startTime - inv.endTime < 5000) {
                     edges.add(DependencyEdge(inv.toolName, other.toolName, DependencyType.TEMPORAL))
@@ -229,7 +229,7 @@ class ToolCallDependencyAnalyzer {
         val failed = chatInvocations.find { it.id == failedInvocationId } ?: return FailureImpact(emptyList(), emptyList())
 
         // 找到所有依赖失败调用的后续调用
-        val affected = mutableListOf<ToolInvocationRecord>()
+    val affected = mutableListOf<ToolInvocationRecord>()
         val queue = ArrayDeque<String>()
         queue.add(failedInvocationId)
         val visited = mutableSetOf<String>()
@@ -281,7 +281,7 @@ class ToolCallDependencyAnalyzer {
     }
 
     // ============ 内部方法 ============
-        private fun computeDepth(chain: List<ToolInvocationRecord>, rootId: String): Int {
+    private fun computeDepth(chain: List<ToolInvocationRecord>, rootId: String): Int {
         var maxDepth = 0
         fun dfs(id: String, depth: Int) {
             if (depth > maxDepth) maxDepth = depth
@@ -301,7 +301,7 @@ class ToolCallDependencyAnalyzer {
     }
         private fun findCriticalPath(chain: List<ToolInvocationRecord>, rootId: String): List<String> {
         // 找到从根到叶子的最长路径
-        var longestPath = listOf<String>()
+    var longestPath = listOf<String>()
         fun dfs(id: String, path: List<String>) {
             val children = chain.filter { it.parentInvocationId == id }
         if (children.isEmpty()) {
@@ -315,7 +315,7 @@ class ToolCallDependencyAnalyzer {
     }
         private fun hasDataDependency(a: ToolInvocationRecord, b: ToolInvocationRecord): Boolean {
         // 简化：检查 B 的参数是否包含 A 的 ID 或 A 产出的数据
-        val aResult = a.result?.toString() ?: ""
+    val aResult = a.result?.toString() ?: ""
         return b.arguments.values.any { arg ->
             arg?.toString()?.contains(a.id) == true ||
             (aResult.length > 10 && arg?.toString()?.contains(aResult.take(20)) == true)
@@ -330,7 +330,7 @@ class ToolCallDependencyAnalyzer {
         fun dfs(node: String) {
             if (node in recursionStack) {
                 // 找到环
-        val cycleStart = path.indexOf(node)
+    val cycleStart = path.indexOf(node)
         if (cycleStart >= 0) {
                     cycles.add(path.subList(cycleStart, path.size) + node)
                 }

@@ -31,13 +31,13 @@ class LobeHubMarketplaceClient private constructor() {
         private const val TAG = "LobeHubMarketplace"
         
         // LobeHub API endpoints
-        private const val BASE_URL = "https://lobehub.com"
-        private const val SKILLS_API = "${BASE_URL}/api/skills"
+    private const val BASE_URL = "https://lobehub.com"
+    private const val SKILLS_API = "${BASE_URL}/api/skills"
         private const val SKILL_DETAIL_API = "${BASE_URL}/api/skills"
         private const val SKILL_MD_BASE = "${BASE_URL}/skills"
         
         // Fallback marketplace
-        private const val MARKET_CLI_NPX = "npx -y @lobehub/market-cli skills"
+    private const val MARKET_CLI_NPX = "npx -y @lobehub/market-cli skills"
         private const val CONNECT_TIMEOUT = 15_000
         private const val READ_TIMEOUT = 30_000
         private const val BUFFER_SIZE = 64 * 1024
@@ -156,25 +156,25 @@ class LobeHubMarketplaceClient private constructor() {
     ): Result<File> = withContext(Dispatchers.IO) {
         try {
             // First get the skill detail to find download URL
-        val detailResult = getSkillDetail(skillId)
+    val detailResult = getSkillDetail(skillId)
         if (detailResult.isFailure) {
                 return@withContext Result.failure(detailResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Get SKILL.md content
-        val mdResult = getSkillMd(skillId)
+    val mdResult = getSkillMd(skillId)
         if (mdResult.isFailure) {
                 return@withContext Result.failure(mdResult.exceptionOrNull() ?: Exception("Unknown error"))
             }
 
             // Create output directory
-        val skillDir = File(outputDir, skillId)
+    val skillDir = File(outputDir, skillId)
         if (!skillDir.exists()) {
                 skillDir.mkdirs()
             }
 
             // Write SKILL.md
-        val skillFile = File(skillDir, "SKILL.md")
+    val skillFile = File(skillDir, "SKILL.md")
         skillFile.writeText(mdResult.getOrNull() ?: "")
         Result.success(skillDir)
         } catch (e: Exception) {
@@ -258,7 +258,7 @@ class LobeHubMarketplaceClient private constructor() {
         } catch (e: Exception) {
             AppLogger.e(TAG, "Failed to parse search response", e)
             // Return fallback curated list
-        return getCuratedSkills()
+    return getCuratedSkills()
         }
         return if (skills.isEmpty()) getCuratedSkills() else skills
     }

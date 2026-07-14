@@ -15,18 +15,22 @@ class KanbanTask(
     var description: String = "",
     var columnId: String,
     var order: Int = 0,
-    // 任务状�?    var status: KanbanTaskStatus = KanbanTaskStatus.PENDING,
+    // 任务状�?
+    var status: KanbanTaskStatus = KanbanTaskStatus.PENDING,
     // 分配信息
     var assignedWorkerId: String? = null,
     var assignedAgentId: String? = null,
     var assignedAgentName: String? = null,
     var assignedRole: AgentRole? = null,
-    // 任务属�?    var priority: Int = 3,  // 1-5, 1 最�?    var taskType: String = "general",
+    // 任务属�?
+    var priority: Int = 3,  // 1-5, 1 最�?
+    var taskType: String = "general",
     val tags: MutableList<String> = mutableListOf(),
     // 依赖关系
     val dependencies: MutableList<String> = mutableListOf(),  // 依赖的任�?ID
     val blockingTasks: MutableList<String> = mutableListOf(),  // 阻塞此任务的任务 ID
-    // 结果和输�?    var result: TaskResult? = null,
+    // 结果和输�?
+    var result: TaskResult? = null,
     var outputArtifacts: MutableList<TaskArtifact> = mutableListOf(),
     // 时间追踪
     val createdAt: Long = System.currentTimeMillis(),

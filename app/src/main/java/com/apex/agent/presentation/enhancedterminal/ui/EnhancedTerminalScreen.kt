@@ -210,7 +210,7 @@ fun EnhancedTerminalScreen(
                     onDismissRequest = { viewModel.cancelDangerousCommand() },
                     icon = { Icon(Icons.Default.Warning, null, tint = Color(danger.level.color)) },
                     title = { Text("⚠ ${danger.level.label}", color = Color(danger.level.color), fontWeight = FontWeight.Bold) },
-                    text = { Text("即将执行危险命令:\n\n${danger.description}\n\n确定要继续吗?", fontSize = 13.sp) },
+                    text = { Text("即将执行危险命令:\n\n${danger.description}\n\n确定要继续吗", fontSize = 13.sp) },
                     confirmButton = { TextButton(onClick = { viewModel.confirmDangerousCommand() }, colors = ButtonDefaults.textButtonColors(contentColor = Color(danger.level.color))) { Text("确认执行") } },
                     dismissButton = { TextButton(onClick = { viewModel.cancelDangerousCommand() }) { Text("取消") } },
                     containerColor = theme.backgroundColor,
@@ -220,7 +220,7 @@ fun EnhancedTerminalScreen(
             }
 
             // 代码段编辑器 BottomSheet
-            if (snippetEditorOpen) {
+    if (snippetEditorOpen) {
                 SnippetEditorSheet(
                     existing = editingSnippet,
                     theme = theme,

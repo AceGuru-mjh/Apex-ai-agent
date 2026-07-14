@@ -57,7 +57,8 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
     override fun createDefaultModel(type: AvatarType, baseName: String): AvatarModel? {
         return when (type) {
             // AvatarType.DRAGONBONES -> {
-            //     val defaultData = mapOf(
+            //
+    val defaultData = mapOf(
             //         "folderPath" to "assets/avatars/default",
             //         "skeletonFile" to "default_ske.json",
             //         "textureJsonFile" to "default_tex.json",
@@ -139,14 +140,21 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
     }
 
     // private fun createDragonBonesModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
-    //     return try {
-    //         val folderPath = data["folderPath"] as? String ?: return null
-    //         val skeletonFile = data["skeletonFile"] as? String ?: return null
-    //         val textureJsonFile = data["textureJsonFile"] as? String ?: return null
-    //         val textureImageFile = data["textureImageFile"] as? String ?: return null
-    //         val isBuiltIn = data["isBuiltIn"] as? Boolean ?: false
     //
-    //         val dataModel = DragonBonesModel(
+    return try {
+    //
+    val folderPath = data["folderPath"] as? String ?: return null
+    //
+    val skeletonFile = data["skeletonFile"] as? String ?: return null
+    //
+    val textureJsonFile = data["textureJsonFile"] as? String ?: return null
+    //
+    val textureImageFile = data["textureImageFile"] as? String ?: return null
+    //
+    val isBuiltIn = data["isBuiltIn"] as? Boolean ?: false
+    //
+    //
+    val dataModel = DragonBonesModel(
     //             id = id,
     //             name = name,
     //             folderPath = folderPath,
@@ -161,7 +169,6 @@ class AvatarModelFactoryImpl : AvatarModelFactory {
     //         null
     //     }
     // }
-
     private fun createWebPModel(id: String, name: String, data: Map<String, Any>): AvatarModel? {
         return try {
             val basePath = data["basePath"] as? String ?: return null

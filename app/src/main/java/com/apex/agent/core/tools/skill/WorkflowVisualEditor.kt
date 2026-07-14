@@ -145,7 +145,6 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
     }
 
     // ========== 状�?==========
-
     private val _editorState = MutableStateFlow<EditorState?>(null)
     val editorState: StateFlow<EditorState?> = _editorState.asStateFlow()
 
@@ -192,7 +191,6 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
     }
 
     // ========== 节点模板 ==========
-
     private fun initializeNodeTemplates() {
         _nodeTemplates.value = listOf(
             // Trigger 节点
@@ -349,7 +347,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         )
 
         // 记录撤销操作
-        val action = EditorAction(
+    val action = EditorAction(
             type = ActionType.ADD_NODE,
             nodeId = nodeId,
             after = Json.encodeToString(newNode)
@@ -376,7 +374,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val node = state.workflow.nodes.find { it.id == nodeId } ?: return false
 
         // 删除节点及其连接
-        val updatedNodes = state.workflow.nodes.filter { it.id != nodeId }
+    val updatedNodes = state.workflow.nodes.filter { it.id != nodeId }
         val updatedConnections = state.workflow.connections.filter {
             it.sourceNodeId != nodeId && it.targetNodeId != nodeId
         }
@@ -460,11 +458,11 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val state = _editorState.value ?: return null
 
         // 验证节点存在
-        val sourceNode = state.workflow.nodes.find { it.id == sourceNodeId } ?: return null
+    val sourceNode = state.workflow.nodes.find { it.id == sourceNodeId } ?: return null
         val targetNode = state.workflow.nodes.find { it.id == targetNodeId } ?: return null
 
         // 验证不会创建循环（简单检查）
-        if (wouldCreateCycle(state.workflow, sourceNodeId, targetNodeId)) {
+    if (wouldCreateCycle(state.workflow, sourceNodeId, targetNodeId)) {
             AppLogger.w(TAG, "Connection would create a cycle")
             return null
         }
@@ -534,7 +532,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val newUndoStack = state.undoStack.dropLast(1)
 
         // 根据操作类型恢复状�?
-        val updatedWorkflow = when (action.type) {
+    val updatedWorkflow = when (action.type) {
             ActionType.ADD_NODE -> {
                 val nodeId = action.nodeId ?: return false
                 state.workflow.copy(
@@ -591,10 +589,10 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val newRedoStack = state.redoStack.dropLast(1)
 
         // 根据操作类型恢复状�?
-        val updatedWorkflow = when (action.type) {
+    val updatedWorkflow = when (action.type) {
             ActionType.UNDO -> {
                 // 执行相反的操�?
-                when (action.type) {
+    when (action.type) {
                     ActionType.ADD_NODE -> {
                         val nodeId = action.nodeId ?: return false
                         state.workflow.copy(
@@ -724,11 +722,11 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val state = _editorState.value ?: return
 
         // 简单的分层布局算法
-        val layers = mutableMapOf<String, Int>()
+    val layers = mutableMapOf<String, Int>()
         val positioned = mutableSetOf<String>()
 
         // 找出入口节点（没有入边的节点�?
-        val entryNodes = state.workflow.nodes.filter { node ->
+    val entryNodes = state.workflow.nodes.filter { node ->
             state.workflow.connections.none { it.targetNodeId == node.id }
         }
 
@@ -744,7 +742,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // BFS 分层
-        var currentLayer = 0
+    var currentLayer = 0
         while (positioned.size < state.workflow.nodes.size) {
             val nodesInLayer = state.workflow.nodes.filter { layers[it.id] == currentLayer }
 
@@ -763,7 +761,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 根据层级定位节点
-        val layerNodes = state.workflow.nodes.groupBy { layers[it.id] ?: 0 }
+    val layerNodes = state.workflow.nodes.groupBy { layers[it.id] ?: 0 }
         val updatedNodes = state.workflow.nodes.map { node ->
             val layer = layers[node.id] ?: 0
             val indexInLayer = layerNodes[layer]?.indexOf(node) ?: 0
@@ -789,7 +787,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         val issues = mutableListOf<ValidationIssue>()
 
         // 检查是否有节点
-        if (state.workflow.nodes.isEmpty()) {
+    if (state.workflow.nodes.isEmpty()) {
             issues.add(ValidationIssue(
                 severity = IssueSeverity.WARNING,
                 message = "Workflow has no nodes",
@@ -798,9 +796,9 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 检查每个节�?
-        for (node in state.workflow.nodes) {
+    for (node in state.workflow.nodes) {
             // 验证触发�?
-            if (node.type == NodeType.TRIGGER) {
+    if (node.type == NodeType.TRIGGER) {
                 if (node.config.triggerConfig == null) {
                     issues.add(ValidationIssue(
                         severity = IssueSeverity.ERROR,
@@ -811,7 +809,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             }
 
             // 验证执行节点
-            if (node.type == NodeType.EXECUTE) {
+    if (node.type == NodeType.EXECUTE) {
                 if (node.config.actionType.isNullOrBlank()) {
                     issues.add(ValidationIssue(
                         severity = IssueSeverity.ERROR,
@@ -822,7 +820,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
             }
 
             // 检查孤立的节点
-            val hasIncoming = state.workflow.connections.any { it.targetNodeId == node.id }
+    val hasIncoming = state.workflow.connections.any { it.targetNodeId == node.id }
             val hasOutgoing = state.workflow.connections.any { it.sourceNodeId == node.id }
             val isEntry = node.type == NodeType.TRIGGER
 
@@ -836,7 +834,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 检查连�?
-        for (conn in state.workflow.connections) {
+    for (conn in state.workflow.connections) {
             val sourceExists = state.workflow.nodes.any { it.id == conn.sourceNodeId }
             val targetExists = state.workflow.nodes.any { it.id == conn.targetNodeId }
 
@@ -850,7 +848,7 @@ class WorkflowVisualEditor private constructor(private val context: Context) {
         }
 
         // 检查循�?
-        if (hasCycle(state.workflow)) {
+    if (hasCycle(state.workflow)) {
             issues.add(ValidationIssue(
                 severity = IssueSeverity.WARNING,
                 message = "Workflow contains a cycle (might cause infinite loop)",
@@ -890,7 +888,7 @@ fun exportToImage(): ByteArray? {
         // WorkflowDefinition.nodes/edges 是 List<Any>，
         // 我们通过反射读取常用字段（id/name/type/sourceId/targetId），
         // 任何字段缺失都使用空串占位，保证导出不抛异常。
-        return try {
+    return try {
             val svg = buildString {
                 appendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
                 appendLine("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1200\" height=\"800\" viewBox=\"0 0 1200 800\">")
@@ -1014,10 +1012,9 @@ fun exportToImage(): ByteArray? {
     }
 
     // ========== 私有方法 ==========
-
     private fun wouldCreateCycle(workflow: WorkflowDefinition, sourceId: String, targetId: String): Boolean {
         // 简单检查：�?target 能否到达 source
-        val visited = mutableSetOf<String>()
+    val visited = mutableSetOf<String>()
         fun canReach(from: String, to: String): Boolean {
             if (from == to) return true
             if (from in visited) return false
@@ -1061,7 +1058,6 @@ fun exportToImage(): ByteArray? {
     }
 
     // ========== 工具方法 ==========
-
     fun getNodeTemplate(type: NodeType): NodeTemplate? {
         return _nodeTemplates.value.find { it.type == type }
     }

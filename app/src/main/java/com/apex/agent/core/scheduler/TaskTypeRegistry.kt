@@ -4,6 +4,9 @@ import android.content.Context
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.scheduler.TaskHandler
+import com.apex.agent.core.scheduler.TaskTypeRegistry
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /**
  * 任务类型注册�? * 
@@ -61,7 +64,7 @@ class TaskTypeRegistry(private val context: Context) {
             override suspend fun execute(): ExecutionResult {
                 return try {
                     // 生成日报内容
-                    val report = generateDailyReport()
+    val report = generateDailyReport()
                     ExecutionResult(true, report)
                 } catch (e: Exception) {
                     ExecutionResult(false, error = e.message)
@@ -112,7 +115,7 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 健康检查任�?        registerHandler(object : TaskHandler {
-            override val taskType = ScheduledTask.TaskType.HEALTH_CHECK
+    override val taskType = ScheduledTask.TaskType.HEALTH_CHECK
             
             override suspend fun execute(): ExecutionResult {
                 return try {
@@ -139,7 +142,7 @@ class TaskTypeRegistry(private val context: Context) {
         })
         
         // 自定义任�?        registerHandler(object : TaskHandler {
-            override val taskType = ScheduledTask.TaskType.CUSTOM
+    override val taskType = ScheduledTask.TaskType.CUSTOM
             
             override suspend fun execute(): ExecutionResult {
                 return ExecutionResult(true, "自定义任务执行完�?)

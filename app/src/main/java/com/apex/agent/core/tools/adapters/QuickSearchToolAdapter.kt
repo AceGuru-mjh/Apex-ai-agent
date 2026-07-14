@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import com.apex.agent.core.multiagent.SearchResult
 
 /**
  * 轻量搜索工具适配�?* 基于必应搜索的快速文本搜�?*/
@@ -18,7 +19,7 @@ class QuickSearchToolAdapter : ToolAdapter {
     companion object {
         private const val MAX_CACHE_SIZE = 50
         private const val CACHE_EXPIRE_TIME = 10 * 60 * 1000L // 10分钟
-        private const val CONNECT_TIMEOUT = 10L
+    private const val CONNECT_TIMEOUT = 10L
         private const val READ_TIMEOUT = 30L
         private const val WRITE_TIMEOUT = 30L
     }
@@ -54,7 +55,8 @@ class QuickSearchToolAdapter : ToolAdapter {
             return@withContext StringResultData("错误：请提供搜索关键值）
         }
 
-        // 检查缓�?       val cacheKey = "${query}:${count}"
+        // 检查缓�?
+    val cacheKey = "${query}:${count}"
         if (useCache) {
             cache[cacheKey]?.let { cached ->
                 if (System.currentTimeMillis() - cached.timestamp < CACHE_EXPIRE_TIME) {
@@ -67,8 +69,8 @@ class QuickSearchToolAdapter : ToolAdapter {
 
         try {
             // 执行搜索
-            val searchUrl = "https://cn.bing.com/search?q=${java.net.URLEncoder.encode(query, "UTF-8")}"
-            val request = Request.Builder()
+    val searchUrl = "https://cn.bing.com/search?q=${java.net.URLEncoder.encode(query, "UTF-8")}"
+    val request = Request.Builder()
                 .url(searchUrl)
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0")
                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
@@ -79,11 +81,11 @@ class QuickSearchToolAdapter : ToolAdapter {
             val html = response.body?.string() ?: ""
 
             // 解析搜索结果
-            val results = parseSearchResults(html, count)
+    val results = parseSearchResults(html, count)
             val formattedResult = formatResults(query, results)
 
             // 缓存结果
-            if (cache.size >= MAX_CACHE_SIZE) {
+    if (cache.size >= MAX_CACHE_SIZE) {
                 val oldestKey = cache.keys.firstOrNull()
                 oldestKey?.let { cache.remove(it) }
             }
@@ -110,19 +112,20 @@ class QuickSearchToolAdapter : ToolAdapter {
         val results = mutableListOf<SearchResult>()
         
         try {
-            // 使用正则表达式提取搜索结�?           val itemPattern = Regex("""<li[^>]*class="[^"]*b_algo[^"]*"[^>]*>.*?</li>""", RegexOption.DOT_MATCHES_ALL)
+            // 使用正则表达式提取搜索结�?
+    val itemPattern = Regex("""<li[^>]*class="[^"]*b_algo[^"]*"[^>]*>.*?</li>""", RegexOption.DOT_MATCHES_ALL)
             val items = itemPattern.findAll(html).take(maxResults)
             
             for (item in items) {
                 val itemHtml = item.value
                 
                 // 提取标题
-                val titleMatch = Regex("""<h2[^>]*>.*?<a[^>]*href="([^"]*)"[^>]*>(.*)</a>.*?</h2>""", RegexOption.DOT_MATCHES_ALL).find(itemHtml)
+    val titleMatch = Regex("""<h2[^>]*>.*?<a[^>]*href="([^"]*)"[^>]*>(.*)</a>.*?</h2>""", RegexOption.DOT_MATCHES_ALL).find(itemHtml)
                 var url = titleMatch?.groupValues?.get(1) ?: ""
                 var title = clearHtml(titleMatch?.groupValues?.get(2) ?: "")
                 
                 // 提取描述
-                val descPattern = Regex("""<p[^>]*>(.*)</p>""", RegexOption.DOT_MATCHES_ALL)
+    val descPattern = Regex("""<p[^>]*>(.*)</p>""", RegexOption.DOT_MATCHES_ALL)
                 val descMatch = descPattern.find(itemHtml)
                 val description = clearHtml(descMatch?.groupValues?.get(1) ?: "")
                 

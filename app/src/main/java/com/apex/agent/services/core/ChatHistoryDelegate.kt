@@ -28,6 +28,7 @@ import kotlinx.coroutines.withContext
 import com.apex.agent.core.hooks.HookRegistry
 import com.apex.agent.core.hooks.SessionContext
 import com.apex.agent.core.hooks.PreCompactHook
+import com.apex.agent.core.tools.defaultTool.standard.name
 
 /** 委托类，负责管理聊天历史相关功能 */
 class ChatHistoryDelegate(
@@ -36,7 +37,9 @@ class ChatHistoryDelegate(
         private val selectionMode: ChatSelectionMode = ChatSelectionMode.FOLLOW_GLOBAL,
         private val onTokenStatisticsLoaded: (chatId: String, inputTokens: Int, outputTokens: Int, windowSize: Int) -> Unit,
         private val getEnhancedAiService: () -> EnhancedAIService?,
-        private val ensureAiServiceAvailable: () -> Unit = {}, // 确保AI服务可用的回�?       private val getChatStatistics: () -> Triple<Int, Int, Int> = { Triple(0, 0, 0) }, // 获取（输入token, 输出token, 窗口大小�?       private val onScrollToBottom: () -> Unit = {} // 滚动到底部事件回复） {
+        private val ensureAiServiceAvailable: () -> Unit = {}, // 确保AI服务可用的回�?
+    private val getChatStatistics: () -> Triple<Int, Int, Int> = { Triple(0, 0, 0) }, // 获取（输入token, 输出token, 窗口大小�?
+    private val onScrollToBottom: () -> Unit = {} // 滚动到底部事件回复） {
     companion object {
         private const val TAG = "ChatHistoryDelegate"
         // This constant is now in AIMessageManager
@@ -208,14 +211,14 @@ class ChatHistoryDelegate(
     private suspend fun loadChatMessages(chatId: String) {
         try {
             // 直接从数据库加载消息
-            val messages = chatHistoryManager.loadChatMessages(chatId)
+    val messages = chatHistoryManager.loadChatMessages(chatId)
             AppLogger.d(TAG, "加载聊天 ${chatId} 的消息：${messages.size} �?
 
             // 无论消息是否为空，都更新聊天历史
             _chatHistory.value = messages
 
             // 查找聊天元数据，更新token统计
-            val selectedChat = _chatHistories.value.find { it.id == chatId }
+    val selectedChat = _chatHistories.value.find { it.id == chatId }
             if (selectedChat != null) {
                 onTokenStatisticsLoaded(chatId, selectedChat.inputTokens, selectedChat.outputTokens, selectedChat.currentWindowSize)
 
@@ -244,18 +247,21 @@ class ChatHistoryDelegate(
     suspend fun reloadChatMessagesSmart(chatId: String) {
         historyUpdateMutex.withLock {
             try {
-                // 从数据库加载最新消�?               val newMessages = chatHistoryManager.loadChatMessages(chatId)
+                // 从数据库加载最新消�?
+    val newMessages = chatHistoryManager.loadChatMessages(chatId)
                 val currentMessages = _chatHistory.value
                 
                 AppLogger.d(TAG, "智能重新加载聊天 ${chatId}: 当前 ${currentMessages.size} 条，数据�?{newMessages.size} �?
                 
-                // 创建 timestamp 到消息的映射，用于快速查�?               val currentMessageMap = currentMessages.associateBy { it.timestamp }
+                // 创建 timestamp 到消息的映射，用于快速查�?
+    val currentMessageMap = currentMessages.associateBy { it.timestamp }
                 
-                // 智能合并：保持已存在消息的实例，只更新内容（如果变化�?               val mergedMessages = newMessages.map { newMsg ->
+                // 智能合并：保持已存在消息的实例，只更新内容（如果变化�?
+    val mergedMessages = newMessages.map { newMsg ->
                     val existingMsg = currentMessageMap[newMsg.timestamp]
                     if (existingMsg != null) {
                         // 消息已存在，保持原实例，但更新内容（如果内容有变化）
-                        if (existingMsg.content != newMsg.content || existingMsg.roleName != newMsg.roleName) {
+    if (existingMsg.content != newMsg.content || existingMsg.roleName != newMsg.roleName) {
                             existingMsg.copy(content = newMsg.content, roleName = newMsg.roleName)
                         } else {
                             existingMsg
@@ -284,14 +290,16 @@ class ChatHistoryDelegate(
         historyUpdateMutex.withLock {
             val chatMeta = _chatHistories.value.firstOrNull { it.id == chatId }
 
-            // 在互斥锁内，先从数据库加载最新消息，确保数据一致，            // 这样可以避免竞态条件：如果内存中的_chatHistory还未加载，直接从数据库检�?           val dbMessages = chatHistoryManager.loadChatMessages(chatId)
+            // 在互斥锁内，先从数据库加载最新消息，确保数据一致，            // 这样可以避免竞态条件：如果内存中的_chatHistory还未加载，直接从数据库检�?
+    val dbMessages = chatHistoryManager.loadChatMessages(chatId)
             val hasUserMessage = dbMessages.any { it.sender == "user" }
             
             AppLogger.d(TAG, "从数据库检查消�? 数据库消息数: ${dbMessages.size}, 内存消息�?${_chatHistory.value.size}, 是否有用户消�?${hasUserMessage}")
             
             if (hasUserMessage) {
                 AppLogger.d(TAG, "聊天 ${chatId} 已存在用户消息，跳过开场白同步")
-                // 如果数据库有消息但内存中没有，同步一下内存状�?               if (_chatHistory.value.size != dbMessages.size) {
+                // 如果数据库有消息但内存中没有，同步一下内存状�?
+    if (_chatHistory.value.size != dbMessages.size) {
                     AppLogger.d(TAG, "同步内存消息列表，从 ${_chatHistory.value.size} 条更新为 ${dbMessages.size} �?
                     _chatHistory.value = dbMessages
                 }
@@ -307,7 +315,7 @@ class ChatHistoryDelegate(
             val effectiveCard = boundCard ?: activeCard
 
             // 如果没有有效的角色卡，使用默认角色卡
-            if (effectiveCard == null) {
+    if (effectiveCard == null) {
                 AppLogger.d(TAG, "没有有效的角色卡，跳过开场白处理")
                 _chatHistory.value = dbMessages
                 return@withLock
@@ -321,7 +329,7 @@ class ChatHistoryDelegate(
             AppLogger.d(TAG, "获取角色卡信�? 名称: ${roleName}, 开场白长度: ${opening.length}, 是否为空: ${opening.isBlank()}, 绑定角色�?${boundCardName}")
 
             // 使用数据库中的消息作为基准，但优先使用内存中的消息（如果已加载）
-            val currentMessages = if (_chatHistory.value.isNotEmpty() && _chatHistory.value.size >= dbMessages.size) {
+    val currentMessages = if (_chatHistory.value.isNotEmpty() && _chatHistory.value.size >= dbMessages.size) {
                 _chatHistory.value.toMutableList()
             } else {
                 dbMessages.toMutableList()
@@ -380,7 +388,8 @@ class ChatHistoryDelegate(
 
     /** 检查是否应该创建新聊天，确保同�?/
     fun checkIfShouldCreateNewChat(): Boolean {
-        // 只有当历史记录和当前对话ID都已加载，且未创建过初始对话时才检�?       if (!isInitialized.get() || _currentChatId.value == null) {
+        // 只有当历史记录和当前对话ID都已加载，且未创建过初始对话时才检�?
+    if (!isInitialized.get() || _currentChatId.value == null) {
             return false
         }
         return true
@@ -396,23 +405,25 @@ class ChatHistoryDelegate(
             val (inputTokens, outputTokens, windowSize) = getChatStatistics()
             saveCurrentChat(inputTokens, outputTokens, windowSize) // 使用获取到的完整统计数据
 
-            // 触发会话结束钩子（如果有当前会话�?            val previousChatId = _currentChatId.value
+            // 触发会话结束钩子（如果有当前会话�?
+    val previousChatId = _currentChatId.value
             if (previousChatId != null) {
                 triggerSessionEndHook(previousChatId)
             }
 
-            // 获取当前对话ID，以便继承分�?            val currentChatId = _currentChatId.value
+            // 获取当前对话ID，以便继承分�?
+    val currentChatId = _currentChatId.value
             val inheritGroupFromChatId = if (inheritGroupFromCurrent) currentChatId else null
 
             val shouldSyncCurrentChatToGlobal =
                 selectionMode == ChatSelectionMode.FOLLOW_GLOBAL && setAsCurrentChat
 
             // 获取当前活跃的多Agent协作
-            val activePrompt = activePromptManager.getActivePrompt()
+    val activePrompt = activePromptManager.getActivePrompt()
             val multiAgentId = (activePrompt as? com.apex.data.model.ActivePrompt.MultiAgent)?.id
 
             // 创建新对话，如果有当前对话则继承其分�?
-            val newChat = chatHistoryManager.createNewChat(
+    val newChat = chatHistoryManager.createNewChat(
                 group = group,
                 inheritGroupFromChatId = inheritGroupFromChatId,
                 multiAgentId = multiAgentId,
@@ -452,8 +463,7 @@ class ChatHistoryDelegate(
 
             val (inputTokens, outputTokens, windowSize) = getChatStatistics()
             saveCurrentChat(inputTokens, outputTokens, windowSize) // 切换前使用正确的窗口大小保存
-
-            if (syncToGlobal) {
+    if (syncToGlobal) {
                 chatHistoryManager.setCurrentChatId(chatId)
                 // _currentChatId.value will be updated by the collector, no need to set it here.
                 // loadChatMessages(chatId) is also called by the collector.
@@ -475,11 +485,10 @@ class ChatHistoryDelegate(
         coroutineScope.launch {
             val (inputTokens, outputTokens, windowSize) = getChatStatistics()
             saveCurrentChat(inputTokens, outputTokens, windowSize) // 保存当前聊天
-
-            val currentChatId = _currentChatId.value
+    val currentChatId = _currentChatId.value
             if (currentChatId != null) {
                 // 创建分支
-                val branchChat = chatHistoryManager.createBranch(currentChatId, upToMessageTimestamp)
+    val branchChat = chatHistoryManager.createBranch(currentChatId, upToMessageTimestamp)
                 _currentChatId.value = branchChat.id
                 
                 // 加载分支的消�?               _chatHistory.value = branchChat.messages
@@ -628,7 +637,7 @@ class ChatHistoryDelegate(
             chatHistoryManager.updateChatWorkspace(chatId, workspace, workspaceEnv)
 
             // 2. Manually update the UI state to reflect the change immediately
-            val updatedHistories = _chatHistories.value.map {
+    val updatedHistories = _chatHistories.value.map {
                 if (it.id == chatId) {
                     it.copy(workspace = workspace, workspaceEnv = workspaceEnv, updatedAt = LocalDateTime.now())
                 } else {
@@ -665,7 +674,7 @@ class ChatHistoryDelegate(
             chatHistoryManager.updateChatWorkspace(chatId, null, null)
 
             // 2. Manually update the UI state to reflect the change immediately
-            val updatedHistories = _chatHistories.value.map {
+    val updatedHistories = _chatHistories.value.map {
                 if (it.id == chatId) {
                     it.copy(workspace = null, workspaceEnv = null, updatedAt = LocalDateTime.now())
                 } else {
@@ -681,7 +690,8 @@ class ChatHistoryDelegate(
         coroutineScope.launch {
             // 更新数据�?           chatHistoryManager.updateChatTitle(chatId, title)
 
-            // 更新UI状�?           val updatedHistories =
+            // 更新UI状�?
+    val updatedHistories =
                     _chatHistories.value.map {
                         if (it.id == chatId) {
                             it.copy(title = title, updatedAt = LocalDateTime.now())
@@ -719,7 +729,7 @@ class ChatHistoryDelegate(
         val firstUserMessage = _chatHistory.value.firstOrNull { it.sender == "user" }?.content
         return if (firstUserMessage != null) {
             // 截取�?个字符作为标题，并添加省略号
-            if (firstUserMessage.length > 20) {
+    if (firstUserMessage.length > 20) {
                 "${firstUserMessage.take(20)}..."
             } else {
                 firstUserMessage
@@ -739,7 +749,8 @@ class ChatHistoryDelegate(
 
             val isCurrentChat = (targetChatId == _currentChatId.value)
 
-            // 仅在切换当前会话时阻止写入，后台会话仍允许写�?           if (isCurrentChat && !allowAddMessage.get()) {
+            // 仅在切换当前会话时阻止写入，后台会话仍允许写�?
+    if (isCurrentChat && !allowAddMessage.get()) {
                 AppLogger.d(
                     TAG,
                     "当前会话正在切换，跳过内存刷新但继续持久化消�?timestamp=${message.timestamp}"
@@ -755,7 +766,7 @@ class ChatHistoryDelegate(
             }
 
             // 当前会话：尝试在内存中定位并更新
-            val currentMessages = _chatHistory.value
+    val currentMessages = _chatHistory.value
             val existingIndex = currentMessages.indexOfFirst { it.timestamp == message.timestamp }
 
             if (existingIndex >= 0) {
@@ -830,7 +841,7 @@ class ChatHistoryDelegate(
         coroutineScope.launch {
             try {
                 // The list is already reordered. We just need to update displayOrder and group.
-                val updatedList = reorderedHistories.mapIndexed { index, history ->
+    val updatedList = reorderedHistories.mapIndexed { index, history ->
                     var newGroup = history.group
                     if (history.id == movedItem.id && targetGroup != null) {
                         newGroup = targetGroup
@@ -903,19 +914,20 @@ class ChatHistoryDelegate(
                     chatHistoryManager.loadChatMessages(chatId).toMutableList()
                 }
 
-            // 检查插入位置是否越�?           if (insertPosition < 0 || insertPosition > currentMessages.size) {
+            // 检查插入位置是否越�?
+    if (insertPosition < 0 || insertPosition > currentMessages.size) {
                 AppLogger.e(TAG, "总结插入位置越界: insertPosition=${insertPosition}, size=${currentMessages.size}，取消插�?
                 return@withLock
             }
 
             // 检查上个消息是否为总结消息
-            if (insertPosition > 0 && currentMessages[insertPosition - 1].sender == "summary") {
+    if (insertPosition > 0 && currentMessages[insertPosition - 1].sender == "summary") {
                 AppLogger.e(TAG, "上个消息已是总结消息，取消插入以避免重复")
                 return@withLock
             }
 
             // 检查下个消息是否为总结消息
-            if (insertPosition < currentMessages.size && currentMessages[insertPosition].sender == "summary") {
+    if (insertPosition < currentMessages.size && currentMessages[insertPosition].sender == "summary") {
                 AppLogger.e(TAG, "下个消息已是总结消息，取消插入以避免重复")
                 return@withLock
             }
@@ -927,7 +939,7 @@ class ChatHistoryDelegate(
             AppLogger.d(TAG, "在预计算索引 ${insertPosition} 处添加总结消息，更新后总消息数�?${currentMessages.size}")
 
             // 更新消息列表
-            if (isCurrentChat) {
+    if (isCurrentChat) {
                 _chatHistory.value = currentMessages
             }
         }
@@ -951,9 +963,11 @@ class ChatHistoryDelegate(
      * 找到合适的总结插入位置�?    * 新的逻辑是，总结应该插入在上一个已完成对话轮次的末尾，
      * 即最后一条AI消息之后�?    */
     fun findProperSummaryPosition(messages: List<ChatMessage>): Int {
-        // 从后往前找，找到最近的一条AI消息的索引，        val lastAiMessageIndex = messages.indexOfLast { it.sender == "ai" }
+        // 从后往前找，找到最近的一条AI消息的索引，
+    val lastAiMessageIndex = messages.indexOfLast { it.sender == "ai" }
 
-        // 摘要应该被放置在最后一条AI消息之后，这标志着一个完整对话轮次的结束�?       // 如果没有找到AI消息（例如，在聊天的开始），lastAiMessageIndex将是-1�?       // 我们将在索引0处插入，这是正确的行为，        return lastAiMessageIndex + 1
+        // 摘要应该被放置在最后一条AI消息之后，这标志着一个完整对话轮次的结束�?       // 如果没有找到AI消息（例如，在聊天的开始），lastAiMessageIndex将是-1�?       // 我们将在索引0处插入，这是正确的行为，
+    return lastAiMessageIndex + 1
     }
 
     /** 切换是否显示聊天历史选择�?/
@@ -974,13 +988,13 @@ class ChatHistoryDelegate(
     /** 获取EnhancedAIService实例 */
     private fun getEnhancedAiService(): EnhancedAIService? {
         // 使用构造函数中传入的callback获取EnhancedAIService实例
-        return getEnhancedAiService.invoke()
+    return getEnhancedAiService.invoke()
     }
 
     /** 通过回调获取当前token统计数据 */
     private fun getCurrentTokenCounts(): Pair<Int, Int> {
         // 使用构造函数中传入的回调获取当前token统计数据
-        val stats = getChatStatistics()
+    val stats = getChatStatistics()
         return Pair(stats.first, stats.second)
     }
 
@@ -1063,7 +1077,7 @@ class ChatHistoryDelegate(
             // checkpoint 数据已通过 PreCompactHook.restoreFromCheckpoint 取回，
             // 这里只需要把它推到当前会话状态。
             // 具体实现取决于 PreCompactHook 的状态结构；这里调用其 applyToSession 方法（如果存在）。
-            val method = checkpoint.javaClass.methods.firstOrNull { 
+    val method = checkpoint.javaClass.methods.firstOrNull { 
                 it.name == "applyToSession" && it.parameterCount == 1 
             }
             if (method != null) {

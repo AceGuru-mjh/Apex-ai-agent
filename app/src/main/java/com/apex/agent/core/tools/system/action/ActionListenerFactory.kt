@@ -4,23 +4,26 @@ import android.content.Context
 import com.apex.agent.util.AppLogger
 import com.apex.agent.core.tools.system.AndroidPermissionLevel
 import com.apex.agent.data.preferences.androidPermissionPreferences
+import com.apex.agent.core.tools.system.shell.PermissionStatus
 
 /** UI操作监听器工厂类 根据权限级别提供相应的监听器实例 */
 class ActionListenerFactory {
     companion object {
         private const val TAG = "ActionListenerFactory"
 
-        // 缓存已创建的监听器实�?       private val listeners = mutableMapOf<AndroidPermissionLevel, ActionListener>()
+        // 缓存已创建的监听器实�?
+    private val listeners = mutableMapOf<AndroidPermissionLevel, ActionListener>()
 
         /**
          * 获取指定权限级别的UI操作监听�?        * @param context Android上下�?        * @param permissionLevel 所需权限级别
          * @return 对应的UI操作监听�?        */
         fun getListener(context: Context, permissionLevel: AndroidPermissionLevel): ActionListener {
             // 检查缓存中是否已有该级别的监听�?           listeners[permissionLevel]?.let {
-                return it
+    return it
             }
 
-            // 创建新的监听器实�?           val listener = when (permissionLevel) {
+            // 创建新的监听器实�?
+    val listener = when (permissionLevel) {
                 AndroidPermissionLevel.ROOT -> RootActionListener(context)
                 AndroidPermissionLevel.ADMIN -> AdminActionListener(context)
                 AndroidPermissionLevel.DEBUGGER -> DebuggerActionListener(context)
@@ -43,7 +46,8 @@ class ActionListenerFactory {
             context: Context
         ): Pair<ActionListener, ActionListener.PermissionStatus> {
 
-            // 按权限从高到低尝�?           val levels = listOf(
+            // 按权限从高到低尝�?
+    val levels = listOf(
                 AndroidPermissionLevel.ROOT,
                 AndroidPermissionLevel.ADMIN,
                 AndroidPermissionLevel.DEBUGGER,
@@ -62,7 +66,7 @@ class ActionListenerFactory {
             }
 
             // 如果没有找到可用的监听器，返回标准监听器（至少能监听基本操作�?           AppLogger.d(TAG, "No available action listener found, falling back to STANDARD")
-            val standardListener = getListener(context, AndroidPermissionLevel.STANDARD)
+    val standardListener = getListener(context, AndroidPermissionLevel.STANDARD)
             return Pair(standardListener, standardListener.hasPermission())
         }
 
@@ -71,7 +75,8 @@ class ActionListenerFactory {
         fun getUserPreferredListener(context: Context): ActionListener {
             try {
                 val preferredLevel = androidPermissionPreferences.getPreferredPermissionLevel()
-                // 如果preferredLevel为null，使用标准权限级�?               val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
+                // 如果preferredLevel为null，使用标准权限级�?
+    val actualLevel = preferredLevel ?: AndroidPermissionLevel.STANDARD
                 return getListener(context, actualLevel)
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error getting preferred permission level, falling back to STANDARD", e)

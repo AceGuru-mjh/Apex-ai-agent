@@ -169,7 +169,7 @@ class PhoneAgent(
     private fun shouldUseShowerUi(hasShowerDisplay: Boolean): Boolean {
         // Main-screen Shower only borrows Shower for capture/input; the visible agent UI
         // should stay aligned with the regular main-screen automation experience.
-        return !isMainScreenAgent && hasShowerDisplay
+    return !isMainScreenAgent && hasShowerDisplay
     }
 
     private suspend fun ensureRequiredVirtualScreenOrError(): String? {

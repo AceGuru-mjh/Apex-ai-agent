@@ -5,6 +5,7 @@ import com.apex.agent.api.chat.llmprovider.AIService
 import com.apex.agent.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.core.tools.javascript.map
 
 class MultiModalFusionEngine(
     private val context: Context,

@@ -127,14 +127,14 @@ class NicknameRelationshipSystem {
         val suggestions = mutableListOf<String>()
         if (realName != null) {
             // 从真名推导
-        if (realName.length >= 2) {
+    if (realName.length >= 2) {
                 suggestions.add(realName.take(1) + "小" + realName.substring(1, 2))
         suggestions.add("小" + realName.take(1))
         suggestions.add("阿" + realName.take(1))
             }
         }
         // 基于兴趣
-        val interestNicknames = mapOf(
+    val interestNicknames = mapOf(
             "编程" to listOf("代码侠", "Bug 猎手", "极客"),
             "音乐" to listOf("音律使者", "旋律精灵"),
             "读书" to listOf("书虫", "墨客"),
@@ -145,7 +145,7 @@ class NicknameRelationshipSystem {
             interestNicknames[interest]?.let { suggestions.addAll(it) }
         }
         // 通用建议
-        if (suggestions.isEmpty()) {
+    if (suggestions.isEmpty()) {
             suggestions.addAll(listOf("朋友", "小伙伴", "探索者", "思考者"))
         }
         return suggestions.distinct().take(5)

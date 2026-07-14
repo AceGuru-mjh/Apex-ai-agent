@@ -48,19 +48,19 @@ class PreCompactHook : SessionLifecycleHook {
         state["environmentState"] = sessionContext.environmentState
 
         // 提取未完成任务列表（从环境状态中解析，
-        val pendingTasks = extractPendingTasks(sessionContext.environmentState)
+    val pendingTasks = extractPendingTasks(sessionContext.environmentState)
         if (pendingTasks.isNotEmpty()) {
             state["pendingTasks"] = pendingTasks
         }
 
         // 提取重要决策记录
-        val decisions = extractImportantDecisions(sessionContext.environmentState)
+    val decisions = extractImportantDecisions(sessionContext.environmentState)
         if (decisions.isNotEmpty()) {
             state["importantDecisions"] = decisions
         }
 
         // 提取关键变量值
-        val keyVariables = extractKeyVariables(sessionContext.environmentState)
+    val keyVariables = extractKeyVariables(sessionContext.environmentState)
         if (keyVariables.isNotEmpty()) {
             state["keyVariables"] = keyVariables
         }

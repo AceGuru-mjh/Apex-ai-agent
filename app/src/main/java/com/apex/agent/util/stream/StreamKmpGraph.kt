@@ -27,7 +27,8 @@ class CharCondition(private val expectedChar: Char) : KmpCondition {
     override fun getDescription(): String = "'${expectedChar}'"
     override fun toRegexPattern(): String =
             expectedChar.toString().let {
-                // 转义正则表达式特殊字�?               if (it in ".*+?^\${}()|[]\\") "\\" + it else it
+                // 转义正则表达式特殊字�?
+    if (it in ".*+?^\${}()|[]\\") "\\" + it else it
             }
 }
 
@@ -59,7 +60,7 @@ class NotCondition(private val condition: KmpCondition) : KmpCondition {
     override fun getDescription(): String = "not(${condition.getDescription()})"
     override fun toRegexPattern(): String {
         // 简单条件的否定可以直接使用 [^...]
-        if (condition is CharCondition ||
+    if (condition is CharCondition ||
                         condition is CharSetCondition ||
                         condition is CharRangeCondition
         ) {
@@ -103,7 +104,7 @@ class PredicateCondition(
     override fun getDescription(): String = description
     override fun toRegexPattern(): String {
         // 将常见谓词转换为等效的正则表达式
-        return when (description) {
+    return when (description) {
             "digit" -> "\\d"
             "not digit" -> "\\D"
             "letter" -> "[a-zA-Z]"
@@ -152,7 +153,7 @@ class KmpNode(
         val id: Int,
         val depth: Int, // The non-looping depth from the start node, used for match length
         // calculation.
-        var isFinal: Boolean = false
+    var isFinal: Boolean = false
 ) {
     private val transitions = mutableMapOf<KmpCondition, KmpNode>()
     var failureNode: KmpNode? = null
@@ -253,7 +254,7 @@ class StreamKmpGraph {
         } else {
             // --- Failure Path ---
             // Perform the failure jump to find a shorter prefix to continue from.
-            var searchNode = currentNode.failureNode
+    var searchNode = currentNode.failureNode
             while (searchNode != null) {
                 nextNode = searchNode.getNextNode(c)
                 if (nextNode != null) {
@@ -266,7 +267,7 @@ class StreamKmpGraph {
             }
 
             // If still no match after checking all failure links, try from the very start.
-            if (nextNode == null) {
+    if (nextNode == null) {
                 nextNode = startNode.getNextNode(c)
                 currentMatchLength = if (nextNode != null) 1 else 0
             }
@@ -274,7 +275,8 @@ class StreamKmpGraph {
 
         currentNode = nextNode ?: startNode
 
-        // 如果是最终节点，可能存在匹配，需要进行二次正则匹配确�?       if (currentNode.isFinal) {
+        // 如果是最终节点，可能存在匹配，需要进行二次正则匹配确�?
+    if (currentNode.isFinal) {
             return performRegexMatchingIfNeeded(true)
         }
 
@@ -290,7 +292,7 @@ class StreamKmpGraph {
         val patternObj = this.pattern ?: return StreamKmpMatchResult.Match(emptyMap(), isFullMatch)
 
         // 构建等效的正则表达式
-        val regexPattern = patternObj.toRegexPattern()
+    val regexPattern = patternObj.toRegexPattern()
         val text = characterStreamBuffer.toString()
 
         try {
@@ -302,7 +304,7 @@ class StreamKmpGraph {
 
                 // 从正则表达式的捕获组中提取匹�?               patternObj.groupIds.forEachIndexed { index, groupId ->
                     // 跳过组索，（整个匹配�?
-                    val groupValue = matchResult.groupValues.getOrNull(index + 1)
+    val groupValue = matchResult.groupValues.getOrNull(index + 1)
                     if (groupValue != null) {
                         groups[groupId] = groupValue
                     }
@@ -312,14 +314,13 @@ class StreamKmpGraph {
             }
         } catch (e: Exception) {
             // 正则表达式处理错误，返回无组的匹配结�?       }
-
-        return StreamKmpMatchResult.Match(emptyMap(), isFullMatch)
+    return StreamKmpMatchResult.Match(emptyMap(), isFullMatch)
     }
 
     /** 处理一串字�?/
     fun processText(text: String): List<Int> {
         reset() // Always start a full text scan from a clean state.
-        val matchPositions = mutableListOf<Int>()
+    val matchPositions = mutableListOf<Int>()
 
         text.forEachIndexed { index, c ->
             val result = processChar(c)
@@ -407,7 +408,7 @@ class StreamKmpGraphBuilder {
     fun build(pattern: KmpPattern): StreamKmpGraph {
         val graph = StreamKmpGraph()
         graph.pattern = pattern // 保存模式以便后续用于正则表达式匹�?
-        val finalNode = buildRecursive(graph, graph.getStartNode(), pattern.conditions, 0).first
+    val finalNode = buildRecursive(graph, graph.getStartNode(), pattern.conditions, 0).first
         finalNode.isFinal = true
         setupFailureTransitions(graph)
         return graph
@@ -431,7 +432,7 @@ class StreamKmpGraphBuilder {
                     }
 
                     // 递归构建组内容的子图
-                    val (lastNodeInGroup, finalGroupDepth) =
+    val (lastNodeInGroup, finalGroupDepth) =
                             buildRecursive(graph, currentNode, groupConditions, currentDepth)
 
                     // 主模式从组的子图末尾继续
@@ -440,7 +441,7 @@ class StreamKmpGraphBuilder {
                 }
                 is GreedyStarCondition -> {
                     // 为了使贪心星号真，贪�?但不"占有，，它不应消耗那些能让模式后续部分匹配的字符
-                    val nextCondition = conditions.getOrNull(index + 1)
+    val nextCondition = conditions.getOrNull(index + 1)
                     val loopCondition =
                             if (nextCondition != null) {
                                 // 循环条件：匹配星号条件并且不匹配序列中的下一个条�?                               AndCondition(condition.condition, NotCondition(nextCondition))
@@ -467,7 +468,7 @@ class StreamKmpGraphBuilder {
         val startNode = graph.getStartNode()
 
         // 将所有节点的失败转换设为起始节点（简化版本）
-        for (node in nodes) {
+    for (node in nodes) {
             if (node != startNode) {
                 graph.setFailure(node, startNode)
             }

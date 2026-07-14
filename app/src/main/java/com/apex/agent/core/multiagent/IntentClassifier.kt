@@ -148,7 +148,7 @@ class IntentClassifier(private val context: android.content.Context) {
         val queryLength = lowerQuery.length.coerceAtLeast(1)
 
         // 第一阶段：粗分类
-        for ((category, patterns) in broadPatterns) {
+    for ((category, patterns) in broadPatterns) {
             var score = 0f
             val matched = mutableListOf<String>()
         for (pattern in patterns) {
@@ -170,7 +170,7 @@ class IntentClassifier(private val context: android.content.Context) {
         }
 
         // 第二阶段：子类别精匹配（对命中大类进一步细分）
-        val subScores = mutableMapOf<IntentCategory, MutableMap<String, Float>>()
+    val subScores = mutableMapOf<IntentCategory, MutableMap<String, Float>>()
         for ((category, subMap) in specificPatterns) {
             if (!scores.containsKey(category)) continue
             val subs = mutableMapOf<String, Float>()
@@ -192,7 +192,7 @@ class IntentClassifier(private val context: android.content.Context) {
         }
 
         // 计算归一化置信度
-        val maxScore = scores.values.maxOrNull() ?: 0f
+    val maxScore = scores.values.maxOrNull() ?: 0f
         if (maxScore > 0f) {
             for (category in scores.keys) {
                 scores[category] = (scores[category] ?: 0f) / maxScore
@@ -200,12 +200,12 @@ class IntentClassifier(private val context: android.content.Context) {
         }
 
         // 选择最佳类别
-        val sortedCategories = scores.entries.sortedByDescending { it.value }
+    val sortedCategories = scores.entries.sortedByDescending { it.value }
         val topCategory = sortedCategories.firstOrNull()?.key ?: IntentCategory.UNKNOWN
         val confidence = sortedCategories.firstOrNull()?.value ?: 0f
 
         // 构建签名
-        val signature = buildSignature(lowerQuery, topCategory, confidence, matchedKeywords[topCategory] ?: emptyList(), subScores[topCategory])
+    val signature = buildSignature(lowerQuery, topCategory, confidence, matchedKeywords[topCategory] ?: emptyList(), subScores[topCategory])
         return ClassificationResult(
             category = topCategory,
             confidence = confidence,
