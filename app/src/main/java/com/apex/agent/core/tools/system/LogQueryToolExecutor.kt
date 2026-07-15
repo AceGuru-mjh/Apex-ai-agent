@@ -1,7 +1,7 @@
 package com.apex.agent.core.tools.system
 
 import android.content.Context
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 import com.apex.core.tools.StringResultData
 import com.apex.agent.core.tools.defaultTool.standard.name

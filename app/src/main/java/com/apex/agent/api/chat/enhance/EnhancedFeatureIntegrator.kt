@@ -1,8 +1,8 @@
 package com.apex.api.chat.enhance
 
-import com.apex.agent.data.model.ModelParameter
-import com.apex.agent.data.model.ParameterCategory
-import com.apex.agent.data.model.ParameterValueType
+import com.apex.data.model.ModelParameter
+import com.apex.data.model.ParameterCategory
+import com.apex.data.model.ParameterValueType
 import com.apex.util.AppLogger
 import com.apex.agent.core.tools.defaultTool.standard.name
 

@@ -1,6 +1,6 @@
 package com.apex.api.chat.llmprovider
 
-import com.apex.agent.data.model.ApiProviderType
+import com.apex.data.model.ApiProviderType
 import com.apex.util.AppLogger
 import java.security.MessageDigest
 import okhttp3.OkHttpClient

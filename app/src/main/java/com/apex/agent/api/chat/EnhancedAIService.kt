@@ -25,13 +25,13 @@ import com.apex.core.application.ActivityLifecycleManager
 import com.apex.core.tools.AIToolHandler
 import com.apex.core.tools.StringResultData
 import com.apex.core.tools.packTool.PackageManager
-import com.apex.agent.data.model.FunctionType
-import com.apex.agent.data.model.InputProcessingState
-import com.apex.agent.data.model.PromptFunctionType
-import com.apex.agent.data.model.ToolInvocation
+import com.apex.data.model.FunctionType
+import com.apex.data.model.InputProcessingState
+import com.apex.data.model.PromptFunctionType
+import com.apex.data.model.ToolInvocation
 import com.apex.core.tools.ToolResult
-import com.apex.agent.data.model.ModelConfigData
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.ModelConfigData
+import com.apex.data.model.AITool
 import com.apex.agent.data.preferences.ApiPreferences
 import com.apex.agent.data.preferences.ExternalHttpApiPreferences
 import com.apex.agent.data.preferences.WakeWordPreferences
@@ -75,8 +75,8 @@ import com.apex.agent.data.repository.CustomEmojiRepository
 import com.apex.agent.data.preferences.UserPreferencesManager
 import com.apex.core.config.ModelConfigService
 import com.apex.core.config.SystemToolPrompts
-import com.apex.agent.data.model.ToolPrompt
-import com.apex.core.tools.ToolParameterSchema
+import com.apex.data.model.ToolPrompt
+import com.apex.data.model.ToolParameterSchema
 import com.apex.util.ChatUtils
 import com.apex.util.LocaleUtils
 

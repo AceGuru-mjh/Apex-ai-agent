@@ -14,7 +14,7 @@ import com.apex.agent.core.tools.GrepResultData
 import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.ToolProgressBus
 import com.apex.agent.core.tools.ToolExecutionLimits
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolParameter
 import com.apex.core.tools.ToolResult
 import com.apex.agent.util.FileUtils

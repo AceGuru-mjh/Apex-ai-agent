@@ -4,9 +4,9 @@ import android.content.Context
 import com.apex.agent.core.tools.FFmpegResultData
 import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.ToolExecutor
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
-import com.apex.agent.data.model.ToolValidationResult
+import com.apex.data.model.ToolValidationResult
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegKitConfig
 import com.arthenica.ffmpegkit.FFprobeKit

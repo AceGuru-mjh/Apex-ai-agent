@@ -5,7 +5,7 @@ import com.apex.agent.api.chat.EnhancedAIService
 import com.apex.agent.core.chat.hooks.PromptTurn
 import com.apex.agent.core.chat.hooks.PromptTurnKind
 import com.apex.util.AppLogger
-import com.apex.agent.data.model.FunctionType
+import com.apex.data.model.FunctionType
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.first

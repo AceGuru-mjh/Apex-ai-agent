@@ -25,8 +25,8 @@ import com.apex.core.tools.system.ShizukuAuthorizer
 import com.apex.agent.data.preferences.DisplayPreferencesManager
 import com.apex.agent.data.preferences.EnvPreferences
 import com.apex.agent.data.preferences.androidPermissionPreferences
-import com.apex.agent.data.model.PackageToolPromptCategory
-import com.apex.agent.data.model.ToolPrompt
+import com.apex.data.model.PackageToolPromptCategory
+import com.apex.data.model.ToolPrompt
 import com.apex.core.tools.ToolResult
 import java.io.File
 import java.nio.charset.StandardCharsets

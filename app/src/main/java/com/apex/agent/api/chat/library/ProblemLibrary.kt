@@ -6,7 +6,7 @@ import com.apex.util.ChatMarkupRegex
 import com.apex.agent.R
 import com.apex.api.chat.llmprovider.AIService
 import com.apex.core.tools.AIToolHandler
-import com.apex.agent.data.model.Memory
+import com.apex.data.model.Memory
 import com.apex.agent.data.preferences.ApiPreferences
 import com.apex.agent.data.preferences.MemorySearchSettingsPreferences
 import com.apex.agent.data.preferences.preferencesManager

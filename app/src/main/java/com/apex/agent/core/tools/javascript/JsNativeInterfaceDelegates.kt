@@ -18,7 +18,7 @@ import com.apex.core.tools.SandboxScriptExecutionResultData
 import com.apex.core.tools.StringResultData
 import com.apex.core.tools.ToolResultData
 import com.apex.core.tools.packTool.PackageManager
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolParameter
 import com.apex.core.tools.ToolResult
 import com.apex.agent.data.preferences.EnvPreferences

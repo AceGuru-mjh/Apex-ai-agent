@@ -8,8 +8,8 @@ import com.apex.agent.R
 import com.apex.util.AppLogger
 import com.apex.util.ApexPaths
 import com.apex.core.tools.AIToolHandler
-import com.apex.agent.data.model.AITool
-import com.apex.agent.data.model.AttachmentInfo
+import com.apex.data.model.AITool
+import com.apex.data.model.AttachmentInfo
 import com.apex.core.tools.ToolParameter
 import com.apex.util.OCRUtils
 import kotlinx.coroutines.Dispatchers

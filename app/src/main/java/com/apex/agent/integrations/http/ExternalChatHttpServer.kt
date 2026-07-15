@@ -12,7 +12,7 @@ import com.apex.integrations.externalchat.ExternalChatResponseSanitizer
 import com.apex.integrations.externalchat.ExternalChatResult
 import com.apex.integrations.externalchat.ExternalChatStreamEnvelope
 import com.apex.integrations.externalchat.ExternalChatStreamingStartResult
-import com.apex.agent.data.model.InputProcessingState
+import com.apex.data.model.InputProcessingState
 import com.apex.util.AppLogger
 import fi.iki.elonen.NanoHTTPD
 import java.io.BufferedWriter

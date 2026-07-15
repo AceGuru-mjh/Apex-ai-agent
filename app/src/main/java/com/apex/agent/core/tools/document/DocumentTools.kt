@@ -2,7 +2,7 @@ package com.apex.core.tools.document
 
 import android.content.Context
 import com.apex.agent.core.security.InputSanitizer
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolParameter
 import com.apex.core.tools.ToolResult
 import com.apex.core.tools.StringResultData

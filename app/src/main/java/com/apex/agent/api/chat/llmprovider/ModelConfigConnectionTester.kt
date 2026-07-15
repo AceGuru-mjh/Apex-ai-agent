@@ -2,11 +2,11 @@ package com.apex.api.chat.llmprovider
 
 import android.content.Context
 import com.apex.agent.R
-import com.apex.agent.data.model.ModelConfigData
-import com.apex.core.tools.ToolParameterSchema
-import com.apex.agent.data.model.ToolPrompt
-import com.apex.agent.data.model.getModelByIndex
-import com.apex.agent.data.model.getValidModelIndex
+import com.apex.data.model.ModelConfigData
+import com.apex.data.model.ToolParameterSchema
+import com.apex.data.model.ToolPrompt
+import com.apex.data.model.getModelByIndex
+import com.apex.data.model.getValidModelIndex
 import com.apex.agent.data.preferences.ModelConfigManager
 import com.apex.core.chat.hooks.PromptTurn
 import com.apex.core.chat.hooks.PromptTurnKind

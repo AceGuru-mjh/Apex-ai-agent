@@ -2,7 +2,7 @@ package com.apex.agent.core.evolution
 
 import android.content.Context
 import com.apex.agent.core.skills.SkillEvolutionManager
-import com.apex.agent.data.model.HonzonUserProfile
+import com.apex.data.model.HonzonUserProfile
 import com.apex.agent.data.repository.MemoryRepository
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers

@@ -24,7 +24,7 @@ import com.apex.agent.core.tools.NotificationData
 import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.SystemSettingData
 import com.apex.agent.core.tools.system.AndroidShellExecutor
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers

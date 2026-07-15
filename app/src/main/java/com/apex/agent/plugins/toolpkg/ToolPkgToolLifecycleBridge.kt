@@ -6,7 +6,7 @@ import com.apex.core.tools.AIToolHandler
 import com.apex.core.tools.packTool.PackageManager
 import com.apex.core.tools.packTool.ToolPkgContainerRuntime
 import com.apex.core.tools.packTool.TOOLPKG_EVENT_TOOL_LIFECYCLE
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger
 import java.util.concurrent.atomic.AtomicBoolean

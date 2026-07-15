@@ -1,6 +1,6 @@
 package com.apex.agent.core.tools.defaultTool.standard
 
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.StringResultData
 

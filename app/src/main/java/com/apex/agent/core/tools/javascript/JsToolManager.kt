@@ -4,7 +4,7 @@ import android.content.Context
 import com.apex.core.tools.ScriptExecutionTraceData
 import com.apex.core.tools.StringResultData
 import com.apex.core.tools.packTool.PackageManager
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger
 import kotlinx.coroutines.channels.Channel

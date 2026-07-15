@@ -2,11 +2,11 @@ package com.apex.agent.core.evolution
 
 import android.content.Context
 import com.apex.agent.api.chat.EnhancedAIService
-import com.apex.agent.data.model.FitnessRecord
-import com.apex.agent.data.model.EvolutionNode
-import com.apex.agent.data.model.EvolutionNodeType
-import com.apex.agent.data.model.EvolutionMetadata
-import com.apex.agent.data.model.LogistraSkillSpecV2
+import com.apex.data.model.FitnessRecord
+import com.apex.data.model.EvolutionNode
+import com.apex.data.model.EvolutionNodeType
+import com.apex.data.model.EvolutionMetadata
+import com.apex.data.model.LogistraSkillSpecV2
 import com.apex.util.AppLogger
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.toList

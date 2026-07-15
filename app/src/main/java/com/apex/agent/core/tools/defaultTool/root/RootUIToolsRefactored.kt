@@ -9,7 +9,7 @@ import com.apex.agent.core.tools.parser.XmlLayoutParser
 import com.apex.agent.core.tools.result.UIToolsErrorCode
 import com.apex.agent.core.tools.result.UIToolsResult
 import com.apex.agent.core.tools.system.ShellIdentity
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolParameter
 import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger

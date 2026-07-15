@@ -20,7 +20,7 @@ import android.widget.Toast
 import com.apex.agent.R
 import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.defaultTool.standard.StandardBrowserSessionTools
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger
 import java.io.File

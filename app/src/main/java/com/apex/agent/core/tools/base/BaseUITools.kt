@@ -4,7 +4,7 @@ import android.content.Context
 import com.apex.agent.core.tools.config.UIToolsConfig
 import com.apex.agent.core.tools.result.OperationLogger
 import com.apex.agent.core.tools.result.UIToolsResult
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger
 import kotlinx.coroutines.delay

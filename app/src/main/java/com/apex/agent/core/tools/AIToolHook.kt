@@ -1,6 +1,6 @@
 package com.apex.core.tools
 
-import com.apex.agent.data.model.AITool
+import com.apex.data.model.AITool
 import com.apex.core.tools.ToolResult
 
 /**

@@ -1,6 +1,6 @@
 package com.apex.core.config
 
-import com.apex.agent.data.model.SystemToolPromptCategory
+import com.apex.data.model.SystemToolPromptCategory
 
 object SystemToolPromptsInternal {
 

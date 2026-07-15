@@ -3,8 +3,8 @@ package com.apex.api.chat.llmprovider
 import com.apex.core.chat.hooks.PromptTurn
 import com.apex.core.chat.hooks.PromptTurnKind
 import com.apex.core.chat.hooks.mergeAdjacentTurns
-import com.apex.core.tools.ToolParameterSchema
-import com.apex.agent.data.model.ToolPrompt
+import com.apex.data.model.ToolParameterSchema
+import com.apex.data.model.ToolPrompt
 import com.apex.util.ChatMarkupRegex
 import com.apex.util.ChatUtils
 import kotlin.math.abs
