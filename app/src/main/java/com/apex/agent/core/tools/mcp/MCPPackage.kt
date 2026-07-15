@@ -5,7 +5,7 @@ import com.apex.core.tools.LocalizedText
 import com.apex.core.tools.PackageTool
 import com.apex.core.tools.PackageToolParameter
 import com.apex.core.tools.ToolPackage
-import com.apex.data.mcp.plugins.MCPBridgeClient
+import com.apex.agent.data.mcp.plugins.MCPBridgeClient
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import com.apex.agent.core.tools.defaultTool.standard.name

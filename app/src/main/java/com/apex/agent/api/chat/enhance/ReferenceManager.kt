@@ -1,6 +1,6 @@
 package com.apex.api.chat.enhance
 
-import com.apex.data.model.AiReference
+import com.apex.agent.data.model.AiReference
 
 /**
  * Utility for extracting references from content

@@ -16,8 +16,8 @@ import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilityUITools
 import com.apex.agent.core.tools.defaultTool.standard.StandardUITools
 import com.apex.agent.core.tools.system.AndroidShellExecutor
 import com.apex.agent.core.tools.system.ShellIdentity
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import com.apex.agent.data.repository.UIHierarchyManager
 import java.io.StringReader
 import kotlinx.coroutines.Dispatchers

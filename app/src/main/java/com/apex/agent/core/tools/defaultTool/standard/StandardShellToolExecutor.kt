@@ -6,9 +6,9 @@ import com.apex.agent.core.tools.ADBResultData
 import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.system.AndroidShellExecutor
 import com.apex.agent.core.tools.system.ShizukuAuthorizer
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
-import com.apex.data.model.ToolValidationResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
+import com.apex.agent.data.model.ToolValidationResult
 import kotlinx.coroutines.runBlocking
 import com.apex.agent.core.tools.defaultTool.standard.name
 

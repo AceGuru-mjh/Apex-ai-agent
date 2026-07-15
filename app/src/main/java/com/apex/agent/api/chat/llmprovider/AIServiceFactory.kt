@@ -2,9 +2,9 @@ package com.apex.api.chat.llmprovider
 
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.data.model.ApiProviderType
-import com.apex.data.model.ModelConfigData
-import com.apex.data.preferences.ModelConfigManager
+import com.apex.agent.data.model.ApiProviderType
+import com.apex.agent.data.model.ModelConfigData
+import com.apex.agent.data.preferences.ModelConfigManager
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import okhttp3.ConnectionPool

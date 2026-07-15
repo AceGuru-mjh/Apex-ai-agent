@@ -10,8 +10,8 @@ import com.apex.agent.core.tools.FileExistsData
 import com.apex.agent.core.tools.FileInfoData
 import com.apex.agent.core.tools.FileOperationData
 import com.apex.agent.core.tools.FilePartContentData
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat

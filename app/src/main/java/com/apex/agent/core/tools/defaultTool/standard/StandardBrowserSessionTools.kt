@@ -43,8 +43,8 @@ import com.apex.agent.core.tools.defaultTool.websession.browser.*
 import com.apex.agent.core.tools.defaultTool.websession.userscript.UserscriptInstallSourceType
 import com.apex.agent.core.tools.defaultTool.websession.userscript.runtime.WebSessionUserscriptManager
 import com.apex.agent.core.tools.defaultTool.websession.userscript.storage.UserscriptRepository
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger
 import java.io.File
 import java.io.FileOutputStream

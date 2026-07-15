@@ -2,11 +2,11 @@ package com.apex.core.tools
 import android.content.Context
 import com.apex.util.AppLogger
 import com.apex.core.tools.packTool.PackageManager
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolInvocation
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
-import com.apex.data.model.ToolValidationResult
+import com.apex.agent.data.model.AITool
+import com.apex.agent.data.model.ToolInvocation
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
+import com.apex.agent.data.model.ToolValidationResult
 import com.apex.ui.common.displays.MessageContentParser
 import com.apex.agent.core.permissions.ToolPermissionSystem
 import com.apex.util.stream.splitBy

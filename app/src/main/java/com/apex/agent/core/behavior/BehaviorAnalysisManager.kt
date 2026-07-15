@@ -1,7 +1,7 @@
 package com.apex.agent.core.behavior
 
 import android.content.Context
-import com.apex.data.model.ChatMessage
+import com.apex.agent.data.model.ChatMessage
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

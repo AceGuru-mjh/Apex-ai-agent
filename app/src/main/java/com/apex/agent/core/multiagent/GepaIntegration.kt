@@ -12,7 +12,7 @@ import com.apex.agent.SubTask
 import com.apex.agent.TaskResult
 import com.apex.agent.TaskScheduler
 import com.apex.agent.TaskState
-import com.apex.data.gepa.SkillDatabase
+import com.apex.agent.data.gepa.SkillDatabase
 import com.apex.gepa.GepaConfig
 import com.apex.gepa.MatchedSkill
 import com.apex.gepa.MatchConfidence

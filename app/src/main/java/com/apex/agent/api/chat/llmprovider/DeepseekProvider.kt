@@ -5,8 +5,8 @@ import com.apex.core.chat.hooks.PromptTurn
 import com.apex.core.chat.hooks.PromptTurnKind
 import com.apex.core.chat.hooks.mergeAdjacentTurns
 import com.apex.util.AppLogger
-import com.apex.data.model.ModelParameter
-import com.apex.data.model.ToolPrompt
+import com.apex.agent.data.model.ModelParameter
+import com.apex.agent.data.model.ToolPrompt
 import com.apex.util.ChatUtils
 import com.apex.util.stream.Stream
 import okhttp3.OkHttpClient

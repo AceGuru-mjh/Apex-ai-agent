@@ -6,7 +6,7 @@ import android.os.Bundle
 import com.apex.util.AppLogger
 import android.view.WindowManager
 import com.apex.api.chat.AIForegroundService
-import com.apex.data.preferences.ApiPreferences
+import com.apex.agent.data.preferences.ApiPreferences
 import com.apex.plugins.lifecycle.AppLifecycleEvent
 import com.apex.plugins.lifecycle.AppLifecycleHookParams
 import com.apex.plugins.lifecycle.AppLifecycleHookPluginRegistry

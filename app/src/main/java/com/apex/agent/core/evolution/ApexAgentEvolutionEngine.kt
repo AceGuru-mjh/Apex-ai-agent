@@ -8,7 +8,7 @@ import com.apex.agent.core.rl.ActionType
 import com.apex.agent.core.rl.Reward
 import com.apex.agent.core.rl.RewardType
 import com.apex.agent.core.skills.SkillEvolutionManager
-import com.apex.data.model.HonzonUserProfile
+import com.apex.agent.data.model.HonzonUserProfile
 import com.apex.agent.data.repository.MemoryRepository
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers

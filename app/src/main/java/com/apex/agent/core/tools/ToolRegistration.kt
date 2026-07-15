@@ -3,9 +3,9 @@ package com.apex.core.tools
 import android.content.Context
 import com.apex.agent.R
 import com.apex.core.tools.defaultTool.ToolGetter
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import com.apex.integrations.tasker.triggerAIAgentAction
 import com.apex.services.FloatingChatService
 import com.apex.ui.common.displays.VirtualDisplayOverlay

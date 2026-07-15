@@ -1,7 +1,7 @@
 package com.apex.agent.core.evolution
 
 import android.content.Context
-import com.apex.data.model.LogistraSkillSpecV2
+import com.apex.agent.data.model.LogistraSkillSpecV2
 import com.apex.util.AppLogger
 import com.google.gson.Gson
 import java.io.File

@@ -4,7 +4,7 @@ import android.content.Context
 import com.apex.agent.R
 import com.apex.util.AppLogger
 import com.apex.util.ChatMarkupRegex
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 
 /**
  * Manages the markup elements used in conversations with the AI assistant.

@@ -4,10 +4,10 @@ import android.content.Context
 import com.apex.util.AppLogger
 import androidx.compose.ui.text.input.TextFieldValue
 import com.apex.api.chat.EnhancedAIService
-import com.apex.data.model.AttachmentInfo
-import com.apex.data.model.ChatMessage
-import com.apex.data.model.InputProcessingState
-import com.apex.data.model.PromptFunctionType
+import com.apex.agent.data.model.AttachmentInfo
+import com.apex.agent.data.model.ChatMessage
+import com.apex.agent.data.model.InputProcessingState
+import com.apex.agent.data.model.PromptFunctionType
 import com.apex.services.core.ApiConfigDelegate
 import com.apex.services.core.AttachmentDelegate
 import com.apex.services.core.ChatSelectionMode

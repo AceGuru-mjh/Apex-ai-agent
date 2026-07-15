@@ -8,8 +8,8 @@ import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.SystemSettingData
 import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilitySystemOperationTools
 import com.apex.agent.core.tools.system.AndroidShellExecutor
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.defaultTool.standard.name
 
 /** 调试级别的系统操作工具，继承无障碍版�并使用shell命令覆盖部分实现 */

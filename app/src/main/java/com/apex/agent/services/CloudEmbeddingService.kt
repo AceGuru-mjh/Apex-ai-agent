@@ -2,8 +2,8 @@ package com.apex.services
 
 import android.content.Context
 import com.apex.agent.R
-import com.apex.data.model.CloudEmbeddingConfig
-import com.apex.data.model.Embedding
+import com.apex.agent.data.model.CloudEmbeddingConfig
+import com.apex.agent.data.model.Embedding
 import com.apex.util.AppLogger
 import java.net.URL
 import java.util.concurrent.TimeUnit

@@ -2,9 +2,9 @@ package com.apex.api.chat.llmprovider
 
 import android.content.Context
 import com.apex.core.chat.hooks.PromptTurn
-import com.apex.data.model.ApiProviderType
-import com.apex.data.model.ModelParameter
-import com.apex.data.model.ToolPrompt
+import com.apex.agent.data.model.ApiProviderType
+import com.apex.agent.data.model.ModelParameter
+import com.apex.agent.data.model.ToolPrompt
 import com.apex.util.AppLogger
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody

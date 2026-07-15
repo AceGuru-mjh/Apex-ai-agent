@@ -6,9 +6,9 @@ import com.apex.core.tools.MessageSendResultData
 import com.apex.core.tools.defaultTool.standard.MessageSendStreamSession
 import com.apex.core.tools.defaultTool.standard.MessageSendStreamStartResult
 import com.apex.core.tools.defaultTool.standard.StandardChatManagerTool
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
-import com.apex.data.model.ToolParameter
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
+import com.apex.core.tools.ToolParameter
 import com.apex.util.AppLogger
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean

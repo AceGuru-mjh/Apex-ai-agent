@@ -24,12 +24,12 @@ import com.apex.agent.core.tools.ChatTitleUpdateResultData
 import com.apex.agent.core.tools.ChatDeleteResultData
 import com.apex.agent.core.tools.MessageSendResultData
 import com.apex.agent.core.tools.StringResultData
-import com.apex.data.model.ChatHistory
-import com.apex.data.model.AITool
-import com.apex.data.model.FunctionType
-import com.apex.data.model.InputProcessingState
-import com.apex.data.model.PromptFunctionType
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.ChatHistory
+import com.apex.agent.data.model.AITool
+import com.apex.agent.data.model.FunctionType
+import com.apex.agent.data.model.InputProcessingState
+import com.apex.agent.data.model.PromptFunctionType
+import com.apex.core.tools.ToolResult
 import com.apex.agent.data.preferences.ApiPreferences
 
 import com.apex.agent.data.repository.ChatHistoryManager

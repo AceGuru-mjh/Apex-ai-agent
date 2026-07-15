@@ -1,7 +1,7 @@
 package com.apex.agent.core.tools.defaultTool
 
 import com.apex.agent.core.tools.FileOperationData
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.StringResultData
 
 object PathValidator {

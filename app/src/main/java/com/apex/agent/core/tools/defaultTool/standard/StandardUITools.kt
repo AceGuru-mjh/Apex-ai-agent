@@ -17,10 +17,10 @@ import com.apex.agent.core.tools.system.MediaProjectionCaptureManager
 import com.apex.agent.core.tools.system.MediaProjectionHolder
 import com.apex.agent.core.tools.system.ScreenCaptureActivity
 import kotlinx.coroutines.delay
-import com.apex.data.model.AITool
-import com.apex.data.model.FunctionType
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.agent.data.model.FunctionType
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import com.apex.agent.services.FloatingChatService
 import com.apex.agent.ui.common.displays.UIOperationOverlay
 import com.apex.agent.ui.common.displays.UIAutomationProgressOverlay

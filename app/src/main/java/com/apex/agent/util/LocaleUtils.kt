@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import com.apex.data.preferences.preferencesManager
+import com.apex.agent.data.preferences.preferencesManager
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking

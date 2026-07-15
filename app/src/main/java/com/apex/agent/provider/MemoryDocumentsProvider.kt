@@ -13,10 +13,10 @@ import android.provider.DocumentsProvider
 import android.util.Base64
 import android.util.Log
 import com.apex.agent.R
-import com.apex.data.preferences.UserPreferencesManager
-import com.apex.data.model.Memory
-import com.apex.data.model.PreferenceProfile
-import com.apex.data.repository.MemoryRepository
+import com.apex.agent.data.preferences.UserPreferencesManager
+import com.apex.agent.data.model.Memory
+import com.apex.agent.data.model.PreferenceProfile
+import com.apex.agent.data.repository.MemoryRepository
 import com.apex.util.AppLogger
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking

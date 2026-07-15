@@ -1,8 +1,8 @@
 package com.apex.agent.core.profileevolution
 
 import android.content.Context
-import com.apex.data.model.ChatMessage
-import com.apex.data.model.HonzonUserProfile
+import com.apex.agent.data.model.ChatMessage
+import com.apex.agent.data.model.HonzonUserProfile
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

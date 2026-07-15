@@ -18,8 +18,8 @@ import com.apex.agent.core.tools.GrepResultData
 import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.ToolExecutionLimits
 import com.apex.agent.core.tools.ToolProgressBus
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import com.apex.agent.data.preferences.ApiPreferences
 import com.apex.util.AppLogger
 import com.apex.agent.util.FileUtils

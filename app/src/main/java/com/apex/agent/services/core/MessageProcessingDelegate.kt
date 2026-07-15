@@ -11,9 +11,9 @@ import com.apex.core.chat.logMessageTiming
 import com.apex.core.chat.messageTimingNow
 import com.apex.core.tools.AIToolHandler
 import com.apex.core.tools.agent.PhoneAgentJobRegistry
-import com.apex.data.model.*
-import com.apex.data.model.InputProcessingState as EnhancedInputProcessingState
-import com.apex.data.model.PromptFunctionType
+import com.apex.agent.data.model.*
+import com.apex.agent.data.model.InputProcessingState as EnhancedInputProcessingState
+import com.apex.agent.data.model.PromptFunctionType
 import com.apex.util.stream.SharedStream
 import com.apex.util.stream.share
 import com.apex.util.stream.shareRevisable
@@ -21,11 +21,11 @@ import com.apex.util.stream.TextStreamEventCarrier
 import com.apex.util.stream.TextStreamEventType
 import com.apex.util.stream.TextStreamRevisionTracker
 import com.apex.util.WaifuMessageProcessor
-import com.apex.data.preferences.ApiPreferences
-import com.apex.data.preferences.WaifuPreferences
-import com.apex.data.preferences.FunctionalConfigManager
-import com.apex.data.preferences.ModelConfigManager
-import com.apex.data.preferences.UserPreferencesManager
+import com.apex.agent.data.preferences.ApiPreferences
+import com.apex.agent.data.preferences.WaifuPreferences
+import com.apex.agent.data.preferences.FunctionalConfigManager
+import com.apex.agent.data.preferences.ModelConfigManager
+import com.apex.agent.data.preferences.UserPreferencesManager
 import com.apex.ui.floating.ui.fullscreen.XmlTextProcessor
 import com.apex.ui.features.chat.webview.workspace.WorkspaceBackupManager
 import kotlinx.coroutines.CompletableDeferred

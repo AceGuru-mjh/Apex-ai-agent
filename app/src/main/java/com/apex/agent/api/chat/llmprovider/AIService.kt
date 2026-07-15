@@ -2,9 +2,9 @@ package com.apex.api.chat.llmprovider
 
 import android.content.Context
 import com.apex.core.chat.hooks.PromptTurn
-import com.apex.data.model.ModelParameter
-import com.apex.data.model.ModelOption
-import com.apex.data.model.ToolPrompt
+import com.apex.agent.data.model.ModelParameter
+import com.apex.agent.data.model.ModelOption
+import com.apex.agent.data.model.ToolPrompt
 import com.apex.util.stream.Stream
 
 /** AI服务接口，定义与不同AI提供商进行交互的标准方法 */

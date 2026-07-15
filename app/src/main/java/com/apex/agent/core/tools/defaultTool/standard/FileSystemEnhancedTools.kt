@@ -3,8 +3,8 @@ package com.apex.agent.core.tools.defaultTool.standard
 import android.content.Context
 import com.apex.util.AppLogger
 import com.apex.agent.core.tools.StringResultData
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.defaultTool.PathValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

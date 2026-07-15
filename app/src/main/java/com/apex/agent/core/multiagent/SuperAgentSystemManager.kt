@@ -1,7 +1,7 @@
 package com.apex.agent.core.multiagent
 
 import android.content.Context
-import com.apex.data.agent.multi.MultiAgentManager
+import com.apex.agent.data.agent.multi.MultiAgentManager
 import com.apex.util.AppLogger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -2,7 +2,7 @@ package com.apex.integrations.http
 
 import android.content.Context
 import com.apex.api.chat.AIForegroundService
-import com.apex.data.preferences.ExternalHttpApiPreferences
+import com.apex.agent.data.preferences.ExternalHttpApiPreferences
 import com.apex.util.AppLogger
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope

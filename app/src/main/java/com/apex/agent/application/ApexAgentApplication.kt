@@ -40,7 +40,7 @@ import com.apex.agent.core.workflow.WorkflowSchedulerInitializer
 import com.apex.agent.data.backup.RoomDatabaseBackupPreferences
 import com.apex.agent.data.backup.RoomDatabaseBackupScheduler
 import com.apex.agent.data.db.AppDatabase
-import com.apex.data.db.ObjectBoxManager
+import com.apex.agent.data.db.ObjectBoxManager
 import com.apex.agent.data.preferences.ExternalHttpApiPreferences
 import com.apex.agent.data.preferences.UserPreferencesManager
 import com.apex.agent.data.preferences.WakeWordPreferences

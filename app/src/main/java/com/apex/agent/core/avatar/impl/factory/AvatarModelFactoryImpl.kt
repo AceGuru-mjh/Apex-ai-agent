@@ -10,7 +10,7 @@ import com.apex.agent.core.avatar.impl.gltf.model.GltfAvatarModel
 import com.apex.agent.core.avatar.impl.mmd.model.MmdAvatarModel
 import com.apex.agent.core.avatar.impl.mp4.model.Mp4AvatarModel
 import com.apex.agent.core.avatar.impl.webp.model.WebPAvatarModel
-// import com.apex.data.model.DragonBonesModel
+// import com.apex.agent.data.model.DragonBonesModel
 import java.io.File
 
 class AvatarModelFactoryImpl : AvatarModelFactory {

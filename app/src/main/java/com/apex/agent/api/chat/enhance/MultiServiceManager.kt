@@ -8,11 +8,11 @@ import com.apex.api.chat.llmprovider.RateLimitedAIService
 import com.apex.api.chat.llmprovider.RateLimiterRegistry
 import com.apex.api.chat.llmprovider.RequestConcurrencyRegistry
 import com.apex.core.config.ModelConfigService
-import com.apex.data.model.FunctionType
-import com.apex.data.model.ModelConfigData
-import com.apex.data.model.getModelByIndex
-import com.apex.data.model.getValidModelIndex
-import com.apex.data.preferences.ModelConfigManager
+import com.apex.agent.data.model.FunctionType
+import com.apex.agent.data.model.ModelConfigData
+import com.apex.agent.data.model.getModelByIndex
+import com.apex.agent.data.model.getValidModelIndex
+import com.apex.agent.data.preferences.ModelConfigManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

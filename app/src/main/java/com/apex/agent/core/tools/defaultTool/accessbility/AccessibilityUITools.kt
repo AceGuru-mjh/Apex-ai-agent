@@ -9,8 +9,8 @@ import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.UIActionResultData
 import com.apex.agent.core.tools.UIPageResultData
 import com.apex.agent.core.tools.defaultTool.standard.StandardUITools
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import com.apex.agent.data.repository.UIHierarchyManager
 import com.apex.agent.util.LogistraPaths
 import java.io.File

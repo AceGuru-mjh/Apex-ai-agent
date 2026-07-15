@@ -3,7 +3,7 @@ package com.apex.agent.api.chat.library
 import android.content.Context
 import com.apex.agent.R
 import com.apex.util.AppLogger
-import com.apex.data.model.Memory
+import com.apex.agent.data.model.Memory
 import com.apex.agent.data.repository.MemoryRepository
 import java.text.SimpleDateFormat
 import java.util.*

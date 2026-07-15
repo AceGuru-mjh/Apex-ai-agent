@@ -14,9 +14,9 @@ import com.apex.agent.core.tools.FindFilesResultData
 import com.apex.agent.core.tools.ToolProgressBus
 import com.apex.agent.core.tools.GrepResultData
 import com.apex.agent.core.tools.StringResultData
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.defaultTool.PathValidator
 import org.json.JSONObject
 

@@ -1,8 +1,8 @@
 package com.apex.api.chat.llmprovider
 
 import com.apex.util.AppLogger
-import com.apex.data.model.ApiKeyAvailabilityStatus
-import com.apex.data.preferences.ModelConfigManager
+import com.apex.agent.data.model.ApiKeyAvailabilityStatus
+import com.apex.agent.data.preferences.ModelConfigManager
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import com.apex.agent.core.tools.defaultTool.standard.name

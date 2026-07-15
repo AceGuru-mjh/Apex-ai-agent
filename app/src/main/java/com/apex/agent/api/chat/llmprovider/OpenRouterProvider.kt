@@ -2,10 +2,10 @@ package com.apex.api.chat.llmprovider
 
 import android.content.Context
 import com.apex.core.chat.hooks.PromptTurn
-import com.apex.data.model.ApiProviderType
-import com.apex.data.model.ModelParameter
-import com.apex.data.model.ToolPrompt
-import com.apex.data.preferences.ApiPreferences
+import com.apex.agent.data.model.ApiProviderType
+import com.apex.agent.data.model.ModelParameter
+import com.apex.agent.data.model.ToolPrompt
+import com.apex.agent.data.preferences.ApiPreferences
 import com.apex.util.AppLogger
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking

@@ -3,10 +3,10 @@ package com.apex.api.chat.llmprovider
 import android.content.Context
 import android.os.Environment
 import com.apex.agent.R
-import com.apex.data.collects.ApiProviderConfigs
+import com.apex.agent.data.collects.ApiProviderConfigs
 import com.apex.util.AppLogger
-import com.apex.data.model.ApiProviderType
-import com.apex.data.model.ModelOption
+import com.apex.agent.data.model.ApiProviderType
+import com.apex.agent.data.model.ModelOption
 import java.io.File
 import java.io.IOException
 import java.net.SocketTimeoutException

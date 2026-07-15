@@ -20,9 +20,9 @@ import com.apex.agent.core.tools.StringResultData
 import com.apex.agent.core.tools.ToolExecutionLimits
 import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilityFileSystemTools
 import com.apex.agent.core.tools.system.AndroidShellExecutor
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.defaultTool.PathValidator
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream

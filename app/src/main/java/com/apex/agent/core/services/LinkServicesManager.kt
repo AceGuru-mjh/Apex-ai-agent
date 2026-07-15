@@ -3,7 +3,7 @@ package com.apex.core.services
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.apex.data.preferences.UserPreferencesManager
+import com.apex.agent.data.preferences.UserPreferencesManager
 import com.apex.util.AppLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

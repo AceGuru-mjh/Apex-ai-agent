@@ -4,10 +4,10 @@ import android.content.Context
 import com.apex.util.AppLogger
 import com.apex.agent.R
 import com.apex.api.chat.EnhancedAIService
-import com.apex.data.model.ChatHistory
-import com.apex.data.model.ChatMessage
-import com.apex.data.model.WorkspaceRenameResult
-import com.apex.data.repository.ChatHistoryManager
+import com.apex.agent.data.model.ChatHistory
+import com.apex.agent.data.model.ChatMessage
+import com.apex.agent.data.model.WorkspaceRenameResult
+import com.apex.agent.data.repository.ChatHistoryManager
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Job
@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import com.apex.data.preferences.ActivePromptManager
-import com.apex.data.model.ChatMessageTimestampAllocator
+import com.apex.agent.data.preferences.ActivePromptManager
+import com.apex.agent.data.model.ChatMessageTimestampAllocator
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

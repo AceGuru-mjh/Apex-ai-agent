@@ -1,7 +1,7 @@
 package com.apex.util
 
 import android.content.Context
-import com.apex.data.preferences.UserPreferencesManager
+import com.apex.agent.data.preferences.UserPreferencesManager
 import kotlinx.coroutines.flow.first
 
 data class TokenSavingStats(

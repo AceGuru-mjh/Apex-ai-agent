@@ -4,9 +4,9 @@ package com.apex.core.tools
  import android.os.Build
  import com.apex.core.tools.javascript.JsToolManager
  import com.apex.core.tools.packTool.PackageManager
- import com.apex.data.model.AITool
- import com.apex.data.model.ToolResult
- import com.apex.data.model.ToolValidationResult
+ import com.apex.agent.data.model.AITool
+ import com.apex.core.tools.ToolResult
+ import com.apex.agent.data.model.ToolValidationResult
  import kotlinx.coroutines.flow.Flow
  import kotlinx.serialization.builtins.MapSerializer
  import kotlinx.serialization.builtins.serializer

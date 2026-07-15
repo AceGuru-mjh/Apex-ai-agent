@@ -7,10 +7,10 @@ import com.apex.core.chat.hooks.PromptTurn
 import com.apex.core.chat.hooks.PromptTurnKind
 import com.apex.core.chat.hooks.mergeAdjacentTurns
 import com.apex.core.chat.hooks.toPromptTurns
-import com.apex.data.model.ApiProviderType
-import com.apex.data.model.ModelOption
-import com.apex.data.model.ModelParameter
-import com.apex.data.model.ToolPrompt
+import com.apex.agent.data.model.ApiProviderType
+import com.apex.agent.data.model.ModelOption
+import com.apex.agent.data.model.ModelParameter
+import com.apex.agent.data.model.ToolPrompt
 import com.apex.api.chat.llmprovider.EndpointCompleter
 import com.apex.util.ChatUtils
 import com.apex.util.StreamingJsonXmlConverter

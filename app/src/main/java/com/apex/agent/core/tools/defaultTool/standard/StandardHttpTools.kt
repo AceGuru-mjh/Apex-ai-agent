@@ -4,8 +4,8 @@ import android.content.Context
 import com.apex.util.AppLogger
 import com.apex.agent.core.tools.HttpResponseData
 import com.apex.agent.core.tools.StringResultData
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
 import java.io.File
 import java.net.InetSocketAddress
 import java.net.Proxy

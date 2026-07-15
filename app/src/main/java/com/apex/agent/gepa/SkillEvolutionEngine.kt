@@ -1,8 +1,8 @@
 package com.apex.gepa
 
 import com.apex.agent.SubTask
-import com.apex.data.gepa.SkillDao
-import com.apex.data.gepa.SkillTemplate
+import com.apex.agent.data.gepa.SkillDao
+import com.apex.agent.data.gepa.SkillTemplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext

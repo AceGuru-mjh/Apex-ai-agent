@@ -63,10 +63,10 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.apex.api.chat.AIForegroundService
-import com.apex.data.model.AttachmentInfo
-import com.apex.data.model.ChatMessage
-import com.apex.data.model.InputProcessingState
-import com.apex.data.model.PromptFunctionType
+import com.apex.agent.data.model.AttachmentInfo
+import com.apex.agent.data.model.ChatMessage
+import com.apex.agent.data.model.InputProcessingState
+import com.apex.agent.data.model.PromptFunctionType
 import com.apex.services.FloatingChatService
 import com.apex.ui.floating.FloatingChatWindow
 import com.apex.ui.floating.FloatingMode

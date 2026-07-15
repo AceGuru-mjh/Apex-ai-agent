@@ -2,7 +2,7 @@ package com.apex.integrations.http
 
 import android.content.Context
 import com.apex.BuildConfig
-import com.apex.data.preferences.ExternalHttpApiPreferences
+import com.apex.agent.data.preferences.ExternalHttpApiPreferences
 import com.apex.integrations.externalchat.ExternalChatAcceptedResponse
 import com.apex.integrations.externalchat.ExternalChatHealthResponse
 import com.apex.integrations.externalchat.ExternalChatHttpRequest
@@ -12,7 +12,7 @@ import com.apex.integrations.externalchat.ExternalChatResponseSanitizer
 import com.apex.integrations.externalchat.ExternalChatResult
 import com.apex.integrations.externalchat.ExternalChatStreamEnvelope
 import com.apex.integrations.externalchat.ExternalChatStreamingStartResult
-import com.apex.data.model.InputProcessingState
+import com.apex.agent.data.model.InputProcessingState
 import com.apex.util.AppLogger
 import fi.iki.elonen.NanoHTTPD
 import java.io.BufferedWriter

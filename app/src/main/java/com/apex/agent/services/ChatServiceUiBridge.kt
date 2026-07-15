@@ -1,6 +1,6 @@
 package com.apex.services
 
-import com.apex.data.model.ChatMessage
+import com.apex.agent.data.model.ChatMessage
 
 interface ChatServiceUiBridge {
     fun updateWebServerForCurrentChat(chatId: String)

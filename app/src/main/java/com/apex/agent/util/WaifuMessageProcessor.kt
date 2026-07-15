@@ -1,8 +1,8 @@
 package com.apex.util
 
 import android.content.Context
-import com.apex.data.preferences.ActivePromptManager
-import com.apex.data.repository.CustomEmojiRepository
+import com.apex.agent.data.preferences.ActivePromptManager
+import com.apex.agent.data.repository.CustomEmojiRepository
 import com.apex.util.markdown.MarkdownProcessorType
 import com.apex.util.stream.stream
 import com.apex.util.streamnative.nativeMarkdownSplitByBlock

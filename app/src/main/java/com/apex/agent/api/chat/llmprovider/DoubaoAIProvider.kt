@@ -2,8 +2,8 @@ package com.apex.api.chat.llmprovider
 
 import com.apex.util.AppLogger
 import com.apex.core.chat.hooks.PromptTurn
-import com.apex.data.model.ModelParameter
-import com.apex.data.model.ToolPrompt
+import com.apex.agent.data.model.ModelParameter
+import com.apex.agent.data.model.ToolPrompt
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody

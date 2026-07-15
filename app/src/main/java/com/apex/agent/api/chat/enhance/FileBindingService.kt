@@ -2,7 +2,7 @@ package com.apex.api.chat.enhance
 
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.data.model.FunctionType
+import com.apex.agent.data.model.FunctionType
 import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
 import java.util.concurrent.*

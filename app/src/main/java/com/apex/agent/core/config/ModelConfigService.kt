@@ -1,9 +1,9 @@
 package com.apex.core.config
 
 import android.content.Context
-import com.apex.data.model.ModelConfigData
-import com.apex.data.preferences.FunctionalConfigManager
-import com.apex.data.preferences.ModelConfigManager
+import com.apex.agent.data.model.ModelConfigData
+import com.apex.agent.data.preferences.FunctionalConfigManager
+import com.apex.agent.data.preferences.ModelConfigManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow

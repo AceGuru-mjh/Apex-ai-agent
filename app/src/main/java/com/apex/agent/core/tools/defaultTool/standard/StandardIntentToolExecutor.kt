@@ -7,9 +7,9 @@ import android.os.Bundle
 import com.apex.util.AppLogger
 import com.apex.agent.core.tools.IntentResultData
 import com.apex.agent.core.tools.StringResultData
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
-import com.apex.data.model.ToolValidationResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
+import com.apex.agent.data.model.ToolValidationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray

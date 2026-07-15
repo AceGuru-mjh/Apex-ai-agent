@@ -1,9 +1,9 @@
 package com.apex.core.tools.workflow
 
-import com.apex.data.model.ShareMetadata
-import com.apex.data.model.Workflow
-import com.apex.data.model.WorkflowImportResult
-import com.apex.data.model.WorkflowTemplate
+import com.apex.agent.data.model.ShareMetadata
+import com.apex.agent.data.model.Workflow
+import com.apex.agent.data.model.WorkflowImportResult
+import com.apex.agent.data.model.WorkflowTemplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable

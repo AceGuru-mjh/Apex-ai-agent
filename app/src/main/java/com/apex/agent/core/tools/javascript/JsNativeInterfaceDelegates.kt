@@ -18,10 +18,10 @@ import com.apex.core.tools.SandboxScriptExecutionResultData
 import com.apex.core.tools.StringResultData
 import com.apex.core.tools.ToolResultData
 import com.apex.core.tools.packTool.PackageManager
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
-import com.apex.data.preferences.EnvPreferences
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
+import com.apex.agent.data.preferences.EnvPreferences
 import com.apex.util.AppLogger
 import com.apex.util.ApexPaths
 import java.io.ByteArrayOutputStream

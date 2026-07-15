@@ -13,7 +13,7 @@ import android.os.Process
 import androidx.core.app.NotificationCompat
 import com.apex.agent.R
 import com.apex.api.chat.AIForegroundService
-import com.apex.data.preferences.UserPreferencesManager
+import com.apex.agent.data.preferences.UserPreferencesManager
 import com.apex.core.services.LinkServicesManager
 import com.apex.ui.main.MainActivity
 import com.apex.util.AppLogger

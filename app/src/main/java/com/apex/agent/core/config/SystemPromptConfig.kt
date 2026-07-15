@@ -5,8 +5,8 @@ import android.os.Environment
 import com.apex.core.chat.hooks.PromptHookContext
 import com.apex.core.chat.hooks.PromptHookRegistry
 import com.apex.core.tools.packTool.PackageManager
-import com.apex.data.preferences.ApiPreferences
-import com.apex.data.skill.SkillRepository
+import com.apex.agent.data.preferences.ApiPreferences
+import com.apex.agent.data.skill.SkillRepository
 import com.apex.ui.features.chat.webview.workspace.process.WorkspaceAttachmentProcessor
 import com.apex.util.LocaleUtils
 

@@ -10,9 +10,9 @@ import com.apex.agent.core.tools.UIActionResultData
 import com.apex.agent.core.tools.UIPageResultData
 import com.apex.agent.core.tools.defaultTool.admin.AdminUITools
 import com.apex.agent.core.tools.system.ShellIdentity
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import java.io.StringReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

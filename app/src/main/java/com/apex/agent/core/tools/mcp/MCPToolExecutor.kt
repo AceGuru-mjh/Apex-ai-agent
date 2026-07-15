@@ -5,10 +5,10 @@ import com.apex.util.AppLogger
 import com.apex.core.tools.StringResultData
 import com.apex.core.tools.ToolExecutionLimits
 import com.apex.core.tools.ToolExecutor
-import com.apex.data.mcp.plugins.MCPBridgeClient
-import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
-import com.apex.data.model.ToolValidationResult
+import com.apex.agent.data.mcp.plugins.MCPBridgeClient
+import com.apex.agent.data.model.AITool
+import com.apex.core.tools.ToolResult
+import com.apex.agent.data.model.ToolValidationResult
 import com.apex.util.ImagePoolManager
 import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONObject

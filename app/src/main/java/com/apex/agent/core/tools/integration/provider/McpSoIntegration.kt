@@ -8,11 +8,11 @@ import com.apex.agent.core.tools.integration.IntegrationProvider
 import com.apex.agent.core.tools.integration.IntegrationSource
 import com.apex.agent.core.tools.integration.ItemType
 import com.apex.agent.core.tools.integration.UnifiedItem
-import com.apex.data.api.mcpso.MCPSoApiClient
+import com.apex.agent.data.api.mcpso.MCPSoApiClient
 import com.apex.util.AppLogger
-import com.apex.data.api.mcpso.MCPSoServer
-import com.apex.data.mcp.MCPLocalServer
-import com.apex.data.mcp.MCPRepository
+import com.apex.agent.data.api.mcpso.MCPSoServer
+import com.apex.agent.data.mcp.MCPLocalServer
+import com.apex.agent.data.mcp.MCPRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
