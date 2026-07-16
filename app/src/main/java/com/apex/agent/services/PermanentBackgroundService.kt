@@ -1,5 +1,11 @@
 package com.apex.agent.services
 
-// Minimal implementation (original had 16 errors)
-// TODO: Restore full implementation from original code
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
 
+/** 后台常驻服务 — 占位实现。 */
+class PermanentBackgroundService : Service() {
+    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
+}

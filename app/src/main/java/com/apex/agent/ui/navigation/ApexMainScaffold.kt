@@ -1,6 +1,13 @@
 package com.apex.agent.ui.navigation
 
-// Minimal implementation (original had 4 errors)
-// TODO: Restore full implementation from original code
+import androidx.compose.runtime.Composable
+import com.apex.ui.main.material.ApexHomeScreen
 
-fun ApexMainScaffold() { }
+/**
+ * 主界面 Scaffold — 委托给 [ApexHomeScreen]。
+ * MainActivity 通过此 Composable 展示主界面。
+ */
+@Composable
+fun ApexMainScaffold() {
+    ApexHomeScreen()
+}

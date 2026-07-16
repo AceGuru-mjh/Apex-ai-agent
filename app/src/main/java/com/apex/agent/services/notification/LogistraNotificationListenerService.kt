@@ -1,9 +1,10 @@
 package com.apex.agent.services.notification
 
-// Minimal implementation (original had 9 errors)
-// TODO: Restore full implementation from original code
+import android.service.notification.NotificationListenerService
+
+/** Logistra 通知监听服务 — 占位实现。 */
+class LogistraNotificationListenerService : NotificationListenerService()
 
 object ApexAgentNotificationStore {
     fun init() { }
 }
-class LogistraNotificationListenerService
