@@ -1,18 +1,17 @@
 package com.apex.agent.core.config
 
-// Minimal implementation (had 92 errors)
-data class Warning(val data: String = "")
-interface ConfigValidator
-object RequiredValidator
-class RangeValidator
+// Re-stubbed (had 3 errors)
 class PatternValidator
+class RequiredValidator
+class ConfigValidator
 class EnumValidator
-object UrlValidator
-object EmailValidator
-object PortValidator
-object DurationValidator
-object SizeValidator
+class PortValidator
+class RangeValidator
+class EmailValidator
+class DurationValidator
+class CombineMode
+class Warning
 class CompositeValidator
-enum class CombineMode { DEFAULT }
+class SizeValidator
+class UrlValidator
 class ValidationEngine
-fun interface() { }

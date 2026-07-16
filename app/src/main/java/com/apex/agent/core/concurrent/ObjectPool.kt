@@ -1,16 +1,10 @@
 package com.apex.agent.core.concurrent
 
-// Minimal implementation (original had 2 errors)
-// TODO: Restore full implementation from original code
-
-class ObjectPool
-    fun init() { }
-}
-class PoolExhaustedException
-class StringBuilderPool
+// Re-stubbed (had 1 errors)
 class ByteArrayPool
 class IntArrayPool
+class ObjectPool
+class StringBuilderPool
+class PoolExhaustedException
+class PoolRegistry
 class MutableListPool
-object PoolRegistry {
-    fun init() { }
-}

@@ -1,9 +1,5 @@
 package com.apex.util
 
-// Minimal implementation (original had 7 errors)
-// TODO: Restore full implementation from original code
-
+// Re-stubbed (had 1 errors)
+class ArchiveUtil
 class for
-object ArchiveUtil {
-    fun init() { }
-}

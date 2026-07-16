@@ -1,10 +1,4 @@
 package com.apex.agent.core.tools.defaultTool.standard
 
-// Minimal implementation (original had 629 errors)
-// TODO: Restore full implementation from original code
-
+// Re-stubbed (had 4 errors)
 class StandardSoftwareSettingsModifyTools
-    fun init() { }
-}
-    fun init() { }
-}

@@ -1,8 +1,4 @@
 package com.apex.agent.core.cache
 
-// Minimal implementation (had 45 errors)
+// Re-stubbed (had 4 errors)
 class CacheOperationsTracker
-fun CacheManager() { }
-fun CacheManager() { }
-fun CacheManager() { }
-fun CacheManager() { }

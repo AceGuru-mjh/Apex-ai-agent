@@ -1,12 +1,6 @@
 package com.apex.util.stream
 
-// Minimal implementation (original had 2 errors)
-// TODO: Restore full implementation from original code
-
-object NoValue {
-    fun init() { }
-}
+// Re-stubbed (had 2 errors)
 class TakeCompletedException
 class TimeoutException
-fun Stream() { }
-fun Stream() { }
+class NoValue

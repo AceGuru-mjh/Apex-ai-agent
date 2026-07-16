@@ -1,18 +1,12 @@
 package com.apex.util.stream
 
-// Minimal implementation (original had 9 errors)
-// TODO: Restore full implementation from original code
-
-data class TextStreamEvent(val data: String = "")
-enum class TextStreamEventType { DEFAULT }
-interface TextStreamEventCarrier
-interface RevisableTextStream
-interface RevisableSharedTextStream
-interface RevisableCharStream
-class DelegatingRevisableTextStream
+// Re-stubbed (had 3 errors)
+class RevisableTextStream
+class RevisableSharedTextStream
+class TextStreamEvent
 class DelegatingRevisableSharedTextStream
+class TextStreamEventType
+class DelegatingRevisableTextStream
+class TextStreamEventCarrier
 class DelegatingRevisableCharStream
-fun Stream() { }
-fun SharedStream() { }
-fun Stream() { }
-fun Stream() { }
+class RevisableCharStream

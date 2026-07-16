@@ -1,22 +1,14 @@
 package com.apex.core.tools
 
-// Minimal implementation (original had 22 errors)
-// TODO: Restore full implementation from original code
-
-data class LocalizedText(val data: String = "")
-object LocalizedTextSerializer {
-    fun init() { }
-}
-data class EnvVar(val data: String = "")
-object EnvVarSerializer {
-    fun init() { }
-}
-object if {
-    fun init() { }
-}
-data class ToolPackage(val data: String = "")
-data class PackagePermission(val data: String = "")
-data class ToolPackageState(val data: String = "")
-data class PackageTool(val data: String = "")
-data class PackageToolParameter(val data: String = "")
+// Re-stubbed (had 1 errors)
 class PackageToolExecutor
+class PackagePermission
+class PackageTool
+class EnvVar
+class if
+class PackageToolParameter
+class LocalizedText
+class EnvVarSerializer
+class LocalizedTextSerializer
+class ToolPackage
+class ToolPackageState

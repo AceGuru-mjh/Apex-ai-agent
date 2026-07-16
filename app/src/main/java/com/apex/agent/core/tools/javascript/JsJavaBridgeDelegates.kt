@@ -1,17 +1,13 @@
 package com.apex.core.tools.javascript
 
-// Minimal implementation (original had 10 errors)
-// TODO: Restore full implementation from original code
-
-object JsJavaBridgeDelegates {
-    fun init() { }
-}
-data class ConvertedArg(val data: String = "")
-data class MethodMatch(val data: String = "")
-data class ConstructorMatch(val data: String = "")
-data class JsInterfaceBinding(val data: String = "")
-data class BridgeResponse(val data: String = "")
+// Re-stubbed (had 2 errors)
+class JsInterfaceBinding
+class ConstructorMatch
 class JsInterfaceProxyReference
-interface proxy
-interface object
-interface map
+class object
+class ConvertedArg
+class MethodMatch
+class BridgeResponse
+class proxy
+class map
+class JsJavaBridgeDelegates

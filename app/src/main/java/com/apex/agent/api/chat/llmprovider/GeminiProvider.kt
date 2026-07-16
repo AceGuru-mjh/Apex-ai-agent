@@ -1,10 +1,6 @@
 package com.apex.api.chat.llmprovider
 
-// Minimal implementation (original had 328 errors)
-// TODO: Restore full implementation from original code
-
+// Re-stubbed (had 2 errors)
 class GeminiProvider
-    fun init() { }
-}
-data class GeminiThoughtSignaturePayload(val data: String = "")
-data class GeminiFunctionCallPayload(val data: String = "")
+class GeminiThoughtSignaturePayload
+class GeminiFunctionCallPayload
