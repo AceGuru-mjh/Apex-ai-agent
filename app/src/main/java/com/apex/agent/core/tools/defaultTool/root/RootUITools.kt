@@ -4,21 +4,22 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.SimplifiedUINode
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.UIActionResultData
-import com.apex.agent.core.tools.UIPageResultData
+import com.apex.core.tools.SimplifiedUINode
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.UIActionResultData
+import com.apex.core.tools.UIPageResultData
 import com.apex.agent.core.tools.defaultTool.admin.AdminUITools
 import com.apex.agent.core.tools.system.ShellIdentity
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import java.io.StringReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * Root-level UI tools that use shell commands (uiautomator, input) for robust UI automation.
@@ -571,7 +572,8 @@ open class RootUITools(context: Context) : AdminUITools(context) {
                 buildPattern("resource-id", resourceId),
                 buildPattern("class", className),
                 buildPattern("content-desc", contentDesc)
-            ).joinToString(".*?")
+            ).joinToString("
+")
             
             if (attributes.isEmpty()) {
                  return ToolResult(tool.name, false, StringResultData(""), "No element identifiers provided for click.")

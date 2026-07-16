@@ -2,11 +2,12 @@ package com.apex.agent.core.reflection
 
 import android.content.Context
 import android.util.LruCache
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.agent.data.repository.MemoryRepository
 import com.apex.util.AppLogger
 import kotlinx.coroutines.*
 import java.util.concurrent.Executors
+import com.apex.core.tools.javascript.not
 
 class OptimizedReflectionEngine(
     private val context: Context,

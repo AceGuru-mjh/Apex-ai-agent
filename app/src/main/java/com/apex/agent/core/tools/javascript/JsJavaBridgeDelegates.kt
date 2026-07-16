@@ -3,7 +3,7 @@ package com.apex.core.tools.javascript
 import com.apex.util.AppLogger
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
-import java.lang.reflect.Array as ReflectArray
+import com.apex.core.tools.condition.Array as ReflectArray
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException

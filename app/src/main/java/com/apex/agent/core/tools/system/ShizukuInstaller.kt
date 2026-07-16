@@ -3,7 +3,7 @@ package com.apex.agent.core.tools.system
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.net.Uri
 import android.os.Build
 import com.apex.util.AppLogger
@@ -11,7 +11,7 @@ import androidx.core.content.FileProvider
 import com.apex.agent.R
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 
 /**
  * 用于管理内置Shizuku应用的安�?*/

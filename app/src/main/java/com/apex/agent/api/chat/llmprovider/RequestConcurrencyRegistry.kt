@@ -1,7 +1,7 @@
 package com.apex.api.chat.llmprovider
 
 import java.util.concurrent.ConcurrentHashMap
-import kotlinx.coroutines.sync.Semaphore
+import com.apex.agent.mts.executor.Semaphore
 
 object RequestConcurrencyRegistry {
     private data class Entry(

@@ -1,6 +1,6 @@
 package com.apex.agent.core.tools.skill
 
-import com.apex.agent.core.tools.PackagePermission
+import com.apex.core.tools.PackagePermission
 import java.io.File
 
 data class SkillPackage(

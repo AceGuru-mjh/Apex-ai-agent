@@ -7,7 +7,7 @@ import com.apex.agent.orchestration.memory.Decision
 import com.apex.agent.orchestration.memory.DecisionStatus
 import com.apex.agent.orchestration.memory.ContextItem
 import com.apex.agent.orchestration.memory.ContextCategory
-import com.apex.agent.orchestration.memory.ProgressUpdate
+import com.apex.agent.core.multiagent.ProgressUpdate
 import com.apex.agent.orchestration.memory.Artifact
 import com.apex.agent.orchestration.memory.ArtifactType
 import com.apex.agent.orchestration.memory.AgentMemory

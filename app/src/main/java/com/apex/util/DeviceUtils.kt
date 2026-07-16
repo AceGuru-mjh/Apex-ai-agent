@@ -2,7 +2,7 @@ package com.apex.util
 
 import android.app.ActivityManager
 import android.content.Context
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.content.res.Configuration
 import android.hardware.Sensor
 import android.hardware.SensorManager

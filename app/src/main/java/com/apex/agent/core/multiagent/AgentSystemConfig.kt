@@ -10,7 +10,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 
 private val Context.agentSystemDataStore by preferencesDataStore("agent_system_config")
 

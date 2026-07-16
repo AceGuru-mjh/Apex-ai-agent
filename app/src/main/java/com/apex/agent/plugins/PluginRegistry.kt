@@ -1,8 +1,8 @@
 package com.apex.plugins
 
-import com.apex.agent.plugins.toolbox.ToolboxPlugin
-import com.apex.agent.plugins.toolpkg.ToolPkgCommonBridgePlugin
-import com.apex.agent.plugins.workflow.WorkflowLifecyclePlugin
+import com.apex.plugins.toolbox.ToolboxPlugin
+import com.apex.plugins.toolpkg.ToolPkgCommonBridgePlugin
+import com.apex.plugins.workflow.WorkflowLifecyclePlugin
 import com.apex.util.AppLogger
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ConcurrentHashMap

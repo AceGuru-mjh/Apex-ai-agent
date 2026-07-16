@@ -3,7 +3,7 @@ package com.apex.agent.orchestration.workflow.nodes
 import com.apex.agent.common.result.Result
 import com.apex.agent.orchestration.workflow.NodeExecutionResult
 import com.apex.agent.orchestration.workflow.WorkflowContext
-import com.apex.agent.orchestration.workflow.WorkflowNode
+import com.apex.agent.core.multiagent.WorkflowNode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

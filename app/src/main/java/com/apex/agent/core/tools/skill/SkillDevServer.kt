@@ -2,7 +2,7 @@ package com.apex.agent.core.tools.skill
 
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.agent.util.PortProcessKiller
+import com.apex.util.PortProcessKiller
 import fi.iki.elonen.NanoHTTPD
 import kotlinx.coroutines.*
 import okhttp3.*
@@ -11,7 +11,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit

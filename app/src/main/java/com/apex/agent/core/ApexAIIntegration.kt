@@ -12,6 +12,7 @@ import com.apex.agent.core.planning.ReinforcementLearningPlanner
 import com.apex.agent.core.streaming.StreamingDataManager
 import com.apex.agent.core.swarm.SwarmIntelligenceEngine
 import com.apex.agent.data.memory.graph.EnhancedGraphReasoning
+import com.apex.api.chat.EnhancedAIService
 
 object ApexAIIntegration {
 

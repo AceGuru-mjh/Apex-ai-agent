@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import com.apex.agent.core.normal.search.SearchResult
 
 /**
  * 轻量搜索工具适配�?* 基于必应搜索的快速文本搜�?*/

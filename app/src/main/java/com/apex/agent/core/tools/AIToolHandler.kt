@@ -4,8 +4,8 @@ import com.apex.util.AppLogger
 import com.apex.core.tools.packTool.PackageManager
 import com.apex.data.model.AITool
 import com.apex.data.model.ToolInvocation
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import com.apex.data.model.ToolValidationResult
 import com.apex.ui.common.displays.MessageContentParser
 import com.apex.agent.core.permissions.ToolPermissionSystem
@@ -16,6 +16,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 /** * Handles the extraction and execution of AI tools from responses Supports real-time streaming * extraction and execution of tools */
 class AIToolHandler private constructor(

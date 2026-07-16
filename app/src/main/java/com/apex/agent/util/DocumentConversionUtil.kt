@@ -29,7 +29,8 @@ import com.itextpdf.text.FontFactory
 import com.itextpdf.text.Paragraph
 import com.itextpdf.text.pdf.PdfWriter
 import kotlinx.coroutines.runBlocking
-import java.io.IOException
+import com.apex.agent.core.util.IOException
+import com.apex.util.OCRUtils
 
 /** Utility class for document conversion operations */
 object DocumentConversionUtil {

@@ -1,10 +1,10 @@
 package com.apex.agent.orchestration.memory
 
-import com.apex.agent.core.multiagent.KnowledgeGraphManager
-import com.apex.agent.core.multiagent.KnowledgeGraphManager.KnowledgeNode
-import com.apex.agent.core.multiagent.KnowledgeGraphManager.KnowledgeEdge
-import com.apex.agent.core.multiagent.KnowledgeGraphManager.NodeType
-import com.apex.agent.core.multiagent.KnowledgeGraphManager.RelationType
+import com.apex.agent.core.normal.knowledge.KnowledgeGraphManager
+import com.apex.agent.core.normal.knowledge.KnowledgeGraphManager.KnowledgeNode
+import com.apex.agent.core.normal.knowledge.KnowledgeGraphManager.KnowledgeEdge
+import com.apex.agent.core.normal.knowledge.KnowledgeGraphManager.NodeType
+import com.apex.agent.core.normal.knowledge.KnowledgeGraphManager.RelationType
 import com.apex.agent.orchestration.memory.DecisionStatus
 import com.apex.agent.orchestration.memory.ContextCategory
 

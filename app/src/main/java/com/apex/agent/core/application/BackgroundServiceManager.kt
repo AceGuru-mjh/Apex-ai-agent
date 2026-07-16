@@ -6,7 +6,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.Process
@@ -24,6 +24,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+import com.apex.core.tools.javascript.not
 class BackgroundServiceManager private constructor(
 private val context: Context) {
     companion object {

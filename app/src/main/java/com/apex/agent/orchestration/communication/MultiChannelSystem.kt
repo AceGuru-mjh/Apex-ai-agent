@@ -2,7 +2,7 @@ package com.apex.agent.orchestration.communication
 
 import android.content.Context
 import com.apex.agent.common.result.Result
-import com.apex.agent.domain.entity.AgentMessage
+import com.apex.agent.AgentMessage
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton

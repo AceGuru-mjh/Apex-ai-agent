@@ -1,7 +1,7 @@
 package com.apex.agent.core.swarm
 
 import android.content.Context
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.core.chat.hooks.PromptTurn
 import com.apex.core.chat.hooks.PromptTurnKind
 import com.apex.util.AppLogger

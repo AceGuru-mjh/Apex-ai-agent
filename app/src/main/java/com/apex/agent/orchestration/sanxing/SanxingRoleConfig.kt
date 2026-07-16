@@ -1,6 +1,6 @@
 package com.apex.agent.orchestration.sanxing
 
-import com.apex.agent.orchestration.agent.model.AgentPermissions
+import com.apex.agent.core.multiagent.AgentPermissions
 
 /**
  * 三星制角色的配置数据类�? */

@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.apex.ui.floating.FloatingMode
+import com.apex.agent.ui.floating.FloatingMode
 
 class FloatingWindowState(context: Context) {
     private val prefs: SharedPreferences =

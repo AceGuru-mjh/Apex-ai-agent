@@ -17,7 +17,7 @@ import com.apex.util.AppLogger
 import fi.iki.elonen.NanoHTTPD
 import java.io.BufferedWriter
 import java.io.FilterInputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.nio.charset.Charset

@@ -2,7 +2,7 @@ package com.apex.agent.core.tools.defaultTool.websession.userscript.install
 
 import android.content.Context
 import android.content.Intent
-import com.apex.agent.core.application.ActivityLifecycleManager
+import com.apex.core.application.ActivityLifecycleManager
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CompletableDeferred

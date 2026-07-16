@@ -1,17 +1,17 @@
 package com.apex.agent.core.quality
 
 import android.content.Context
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.agent.core.evaluation.PassKReport
 import com.apex.agent.core.evaluation.QualityGate
-import com.apex.agent.core.evaluation.ValidationResult
+import com.apex.util.ValidationResult
 import com.apex.agent.core.multiagent.Agent
 import com.apex.agent.core.thinking.InferenceNode
 import com.apex.agent.core.thinking.ObservationNode
 import com.apex.agent.core.thinking.DecisionNode
 import com.apex.agent.core.thinking.ActionNode
 import com.apex.agent.core.thinking.SummaryNode
-import com.apex.agent.core.thinking.ThinkingChain
+import com.apex.agent.core.normal.thinking.ThinkingChain
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

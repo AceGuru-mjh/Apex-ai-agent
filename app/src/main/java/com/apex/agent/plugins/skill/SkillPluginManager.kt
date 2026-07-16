@@ -6,14 +6,14 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.apex.core.tools.skill.SkillManager
-import com.apex.core.tools.skill.SkillUsageTracker
+import com.apex.agent.core.tools.skill.SkillManager
+import com.apex.agent.core.tools.skill.SkillUsageTracker
 import com.apex.util.AppLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -22,6 +22,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 private val Context.pluginManagerDataStore: DataStore<Preferences> by preferencesDataStore(name = "skill_plugin_manager")
 

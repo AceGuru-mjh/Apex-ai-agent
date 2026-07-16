@@ -1,7 +1,7 @@
 package com.apex.agent.core.permissions
 
 import android.content.Context
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import com.apex.agent.R
 import com.apex.util.AppLogger
@@ -18,11 +18,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 // Define DataStore
 private val Context.toolPermissionsDataStore: DataStore<Preferences> by preferencesDataStore(name = "tool_permissions")

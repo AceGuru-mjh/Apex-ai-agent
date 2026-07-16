@@ -1,6 +1,8 @@
 package com.apex.util.stream.plugins
 
 import com.apex.util.stream.*
+import com.apex.util.stream.StreamKmpGraph
+import com.apex.util.stream.StreamKmpGraphBuilder
 
 private const val GROUP_TAG_NAME = 1
 private const val GROUP_CONTENT = 2

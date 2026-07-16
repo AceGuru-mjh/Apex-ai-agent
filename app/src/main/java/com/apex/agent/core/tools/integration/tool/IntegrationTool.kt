@@ -2,12 +2,13 @@ package com.apex.agent.core.tools.integration.tool
 
 import android.content.Context
 import com.apex.agent.core.tools.integration.IntegrationManager
-import com.apex.agent.core.tools.ToolAdapter
-import com.apex.agent.core.tools.ToolParameter
-import com.apex.agent.core.tools.ToolResultData
-import com.apex.agent.core.tools.StringResultData
+import com.apex.core.tools.ToolAdapter
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResultData
+import com.apex.core.tools.StringResultData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * 统一集成管理工具 —�?AI Agent 通过此工具管理所有集成源

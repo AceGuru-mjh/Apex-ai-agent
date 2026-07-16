@@ -1,6 +1,8 @@
 package com.apex.util.stream.plugins
 
 import com.apex.util.stream.*
+import com.apex.util.stream.StreamKmpGraph
+import com.apex.util.stream.StreamKmpGraphBuilder
 
 /**
  * A collection of StreamPlugins for parsing various Markdown constructs.

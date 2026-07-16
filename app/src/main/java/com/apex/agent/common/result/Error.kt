@@ -1,6 +1,6 @@
 package com.apex.agent.common.result
 
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException

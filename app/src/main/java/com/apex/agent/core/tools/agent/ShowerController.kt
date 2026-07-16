@@ -1,7 +1,7 @@
 package com.apex.core.tools.agent
 
 import android.content.Context
-import com.ai.assistance.showerclient.ShowerController as ClientShowerController
+import com.apex.core.tools.agent.ShowerController as ClientShowerController
 import java.util.concurrent.ConcurrentHashMap
 
 /**

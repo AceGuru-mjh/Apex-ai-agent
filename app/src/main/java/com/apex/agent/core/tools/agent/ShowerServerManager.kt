@@ -1,7 +1,7 @@
 package com.apex.core.tools.agent
 
 import android.content.Context
-import com.ai.assistance.showerclient.ShowerServerManager as CoreShowerServerManager
+import com.apex.core.tools.agent.ShowerServerManager as CoreShowerServerManager
 
 /**
  * Helper to manage the lifecycle of the Shower server (shower-server.jar) on the device.

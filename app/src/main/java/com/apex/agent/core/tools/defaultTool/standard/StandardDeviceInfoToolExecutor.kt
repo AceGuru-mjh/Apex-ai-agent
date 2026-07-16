@@ -8,11 +8,12 @@ import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import android.provider.Settings
-import com.apex.agent.core.tools.DeviceInfoResultData
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.ToolExecutor
+import com.apex.core.tools.DeviceInfoResultData
+import com.apex.core.tools.StringResultData
+import com.apex.agent.core.patterns.ToolExecutor
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * Device information tool that collects comprehensive system details Provides information about

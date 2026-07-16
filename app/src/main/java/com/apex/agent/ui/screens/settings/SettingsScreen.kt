@@ -2,7 +2,7 @@ package com.apex.agent.ui.screens.settings
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.*

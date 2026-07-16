@@ -6,10 +6,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.apex.agent.R
-import com.apex.core.tools.system.AndroidShellExecutor
+import com.apex.agent.core.tools.system.AndroidShellExecutor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
+import com.apex.agent.core.normal.shortcut.CommandCategory
 
 /**
  * Shell命令管理�? 负责命令执行、历史记录管理等

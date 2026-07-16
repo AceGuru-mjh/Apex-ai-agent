@@ -1,17 +1,18 @@
 package com.apex.agent.core.tools.defaultTool.standard
 
 import android.content.Context
-import com.apex.agent.core.tools.FFmpegResultData
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.ToolExecutor
+import com.apex.core.tools.FFmpegResultData
+import com.apex.core.tools.StringResultData
+import com.apex.agent.core.patterns.ToolExecutor
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.data.model.ToolValidationResult
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegKitConfig
 import com.arthenica.ffmpegkit.FFprobeKit
 import com.arthenica.ffmpegkit.ReturnCode
 import java.io.File
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /** FFmpeg工具执行为提供媒体文件处理能力，包括转换、裁剪、合并等功能 */
 class StandardFFmpegToolExecutor(private val context: Context) : ToolExecutor {

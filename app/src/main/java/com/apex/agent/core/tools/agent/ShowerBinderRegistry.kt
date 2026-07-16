@@ -1,7 +1,7 @@
 package com.apex.core.tools.agent
 
 import com.ai.assistance.shower.IShowerService
-import com.ai.assistance.showerclient.ShowerBinderRegistry as CoreShowerBinderRegistry
+import com.apex.core.tools.agent.ShowerBinderRegistry as CoreShowerBinderRegistry
 
 /**
  * App-level facade over the shared Shower client binder registry.

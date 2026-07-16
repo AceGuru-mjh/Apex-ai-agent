@@ -14,7 +14,7 @@ import com.apex.data.model.ModelParameter
 import com.apex.data.model.CharacterCard
 import com.apex.data.model.FunctionType
 import com.apex.data.model.PromptFunctionType
-import com.apex.data.model.ChatMessage
+import com.apex.agent.ui.screens.chat.ChatMessage
 import com.apex.data.model.InputProcessingState
 import com.apex.data.model.CharacterCardChatModelBindingMode
 import com.apex.data.model.ActivePrompt
@@ -46,6 +46,9 @@ import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.coroutines.coroutineContext
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
+import com.apex.services.core.PendingAutoContinuationRequest
 
 /**
  * 消息协调委托�?* 负责消息发送、自动总结、附件清理等核心协调逻辑

@@ -5,6 +5,7 @@ import com.apex.data.model.ApiKeyAvailabilityStatus
 import com.apex.data.preferences.ModelConfigManager
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * API密钥提供程序接口

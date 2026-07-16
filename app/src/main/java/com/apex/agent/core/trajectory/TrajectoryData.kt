@@ -1,7 +1,7 @@
 package com.apex.agent.core.trajectory
 
-import com.apex.agent.core.chat.hooks.PromptTurn
-import com.apex.agent.core.chat.hooks.PromptTurnKind
+import com.apex.core.chat.hooks.PromptTurn
+import com.apex.core.chat.hooks.PromptTurnKind
 
 /**
  * 轨迹数据 - 表示一个完整的对话轨迹

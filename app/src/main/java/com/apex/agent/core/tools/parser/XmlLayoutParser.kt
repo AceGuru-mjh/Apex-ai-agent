@@ -1,6 +1,6 @@
 package com.apex.agent.core.tools.parser
 
-import com.apex.agent.core.tools.SimplifiedUINode
+import com.apex.core.tools.SimplifiedUINode
 import com.apex.util.AppLogger
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory

@@ -1,8 +1,8 @@
 package com.apex.agent.core.tools.defaultTool.standard
 
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
-import com.apex.agent.core.tools.StringResultData
+import com.apex.core.tools.ToolResult
+import com.apex.core.tools.StringResultData
 
 /**
  * 内存查询工具的公共方�?/

@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import java.io.InputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import kotlinx.coroutines.isActive
 
 /** 基于Shizuku的Shell命令执行。实现DEBUGGER权限级别的命令执�?/

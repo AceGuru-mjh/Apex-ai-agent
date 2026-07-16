@@ -3,14 +3,15 @@ package com.apex.core.tools.document
 import android.content.Context
 import com.apex.agent.core.security.InputSanitizer
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
-import com.apex.data.model.StringResultData
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
+import com.apex.core.tools.StringResultData
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 class DocumentTools(private val context: Context) {
 

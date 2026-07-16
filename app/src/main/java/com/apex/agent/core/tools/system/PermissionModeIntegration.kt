@@ -8,6 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import com.apex.agent.core.tools.system.RootManager
+import com.apex.agent.core.tools.system.ShizukuManager
 
 /**
  * 统一的权限模式集成器

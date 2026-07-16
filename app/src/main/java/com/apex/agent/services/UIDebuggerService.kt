@@ -1,8 +1,8 @@
 package com.apex.services
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import com.apex.agent.core.patterns.Notification
+import com.apex.agent.core.patterns.NotificationChannel
+import com.apex.agent.core.patterns.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent

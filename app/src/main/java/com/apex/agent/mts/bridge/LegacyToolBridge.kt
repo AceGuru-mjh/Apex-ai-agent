@@ -1,11 +1,13 @@
 package com.apex.agent.mts.bridge
 
 import android.content.Context
-import com.apex.agent.core.tools.AIToolHandler
+import com.apex.core.tools.AIToolHandler
 import com.apex.agent.mts.MtsEngine
-import com.apex.agent.mts.executor.ExecutionConfig
+import com.apex.agent.core.multiagent.ExecutionConfig
 import com.apex.agent.mts.executor.ToolInvoker
 import com.apex.agent.mts.schema.*
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.StringResultData
 
 class LegacyToolBridge(context: Context) {
     private val toolHandler = AIToolHandler.getInstance(context)

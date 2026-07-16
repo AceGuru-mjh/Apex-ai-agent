@@ -2,28 +2,28 @@ package com.apex.agent.core.tools.defaultTool.standard
 
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.agent.api.chat.EnhancedAIService
-import com.apex.agent.api.chat.llmprovider.AIService
-import com.apex.agent.core.chat.hooks.PromptTurn
-import com.apex.agent.core.chat.hooks.PromptTurnKind
-import com.apex.agent.core.tools.FindFilesResultData
-import com.apex.agent.core.tools.GrepResultData
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.ToolProgressBus
-import com.apex.agent.core.tools.ToolExecutionLimits
+import com.apex.api.chat.EnhancedAIService
+import com.apex.api.chat.llmprovider.AIService
+import com.apex.core.chat.hooks.PromptTurn
+import com.apex.core.chat.hooks.PromptTurnKind
+import com.apex.core.tools.FindFilesResultData
+import com.apex.core.tools.GrepResultData
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.ToolProgressBus
+import com.apex.core.tools.ToolExecutionLimits
 import com.apex.data.model.AITool
 import com.apex.data.model.FunctionType
 import com.apex.data.model.ModelParameter
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import java.io.File
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import com.apex.agent.util.HttpMultiPartDownloader
-import com.apex.agent.util.FFmpegUtil
+import com.apex.util.HttpMultiPartDownloader
+import com.apex.util.FFmpegUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.Semaphore
+import com.apex.agent.mts.executor.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
@@ -42,8 +42,8 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import androidx.core.content.FileProvider
 import android.webkit.MimeTypeMap
-import com.apex.agent.api.chat.enhance.FileBindingService
-import com.apex.agent.core.config.FunctionalPrompts
+import com.apex.api.chat.enhance.FileBindingService
+import com.apex.core.config.FunctionalPrompts
 import com.apex.agent.data.preferences.ApiPreferences
 import com.apex.agent.data.preferences.FunctionalConfigManager
 import com.apex.agent.data.preferences.ModelConfigManager
@@ -55,9 +55,11 @@ import com.apex.agent.terminal.utils.SSHFileConnectionManager
 import com.apex.agent.terminal.utils.SourceManager
 import com.apex.agent.core.tools.defaultTool.PathValidator
 import com.apex.agent.core.tools.system.Terminal
-import com.apex.agent.util.LocaleUtils
+import com.apex.util.LocaleUtils
 import org.json.JSONObject
 import java.util.concurrent.atomic.AtomicInteger
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.FilePartContentData
 
 open class FileSystemAdvancedTools(protected val context: Context) {
     companion object {

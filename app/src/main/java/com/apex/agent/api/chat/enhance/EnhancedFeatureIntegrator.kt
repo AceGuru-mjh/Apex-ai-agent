@@ -4,6 +4,7 @@ import com.apex.data.model.ModelParameter
 import com.apex.data.model.ParameterCategory
 import com.apex.data.model.ParameterValueType
 import com.apex.util.AppLogger
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * 增强功能集成�?* 统一管理三个核心增强功能的集成点

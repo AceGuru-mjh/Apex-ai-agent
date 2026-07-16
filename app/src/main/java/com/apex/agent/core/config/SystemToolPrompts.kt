@@ -5,6 +5,7 @@ import com.apex.core.chat.hooks.PromptHookRegistry
 import com.apex.data.model.SystemToolPromptCategory
 import com.apex.data.model.ToolPrompt
 import com.apex.data.model.ToolParameterSchema
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * 系统工具提示词管理器

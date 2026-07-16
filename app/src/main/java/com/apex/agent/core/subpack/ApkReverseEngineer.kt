@@ -13,7 +13,7 @@ import java.util.zip.CRC32
 import java.util.zip.ZipFile
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
-import org.apache.commons.io.IOUtils
+import com.apex.util.IOUtils
 import pxb.android.axml.Axml
 import pxb.android.axml.AxmlReader
 import pxb.android.axml.AxmlVisitor

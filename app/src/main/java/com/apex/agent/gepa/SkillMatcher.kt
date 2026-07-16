@@ -3,12 +3,12 @@ package com.apex.gepa
 import com.apex.agent.MainTask
 import com.apex.agent.SubTask
 import com.apex.data.gepa.SkillDao
-import com.apex.data.gepa.SkillTemplate
+import com.apex.agent.core.tools.skill.SkillTemplate
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 
 class SkillMatcher(
     private val skillDao: SkillDao,

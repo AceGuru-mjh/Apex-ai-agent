@@ -2,6 +2,7 @@ package com.apex.agent.core.multiagent
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import com.apex.agent.orchestration.agent.AgentInstance
 
 class StateManager {
 

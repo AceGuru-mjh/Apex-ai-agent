@@ -9,7 +9,7 @@ import com.apex.agent.R
 import com.apex.util.AppLogger
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.UUID

@@ -14,6 +14,7 @@ import java.io.FileOutputStream
 import java.net.URLClassLoader
 import java.util.concurrent.ConcurrentHashMap
 import java.util.zip.ZipInputStream
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 class SkillPluginLoader private constructor(private val context: Context) {
 

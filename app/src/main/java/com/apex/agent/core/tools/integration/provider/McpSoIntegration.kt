@@ -16,6 +16,7 @@ import com.apex.data.mcp.MCPRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 private const val TAG = "McpSoIntegration"
 

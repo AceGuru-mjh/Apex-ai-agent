@@ -2,11 +2,11 @@ package com.apex.agent.orchestration.collaboration.modes
 
 import android.content.Context
 import com.apex.agent.R
-import com.apex.agent.domain.entity.AgentMessage
-import com.apex.agent.domain.entity.Task
-import com.apex.agent.orchestration.agent.AgentManager
-import com.apex.agent.orchestration.agent.model.Agent
-import com.apex.agent.orchestration.collaboration.AgentStatus
+import com.apex.agent.AgentMessage
+import com.apex.agent.core.task.Task
+import com.apex.agent.core.multiagent.AgentManager
+import com.apex.agent.core.multiagent.Agent
+import com.apex.agent.core.multiagent.AgentStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

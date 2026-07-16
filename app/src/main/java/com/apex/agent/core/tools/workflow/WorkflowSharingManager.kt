@@ -5,10 +5,10 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.util.Base64
 import com.apex.data.model.ShareMetadata
-import com.apex.data.model.Workflow
-import com.apex.data.model.WorkflowImportResult
-import com.apex.data.model.WorkflowShare
-import com.apex.data.model.WorkflowTemplate
+import com.apex.agent.core.multiagent.Workflow
+import com.apex.agent.core.multiagent.WorkflowImportResult
+import com.apex.agent.core.multiagent.WorkflowShare
+import com.apex.agent.core.multiagent.WorkflowTemplate
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter

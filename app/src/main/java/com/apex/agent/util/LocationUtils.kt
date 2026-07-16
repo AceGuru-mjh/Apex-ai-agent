@@ -3,7 +3,7 @@ package com.apex.util
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location

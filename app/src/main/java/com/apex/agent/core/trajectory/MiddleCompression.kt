@@ -1,7 +1,8 @@
 package com.apex.agent.core.trajectory
 
-import com.apex.agent.core.chat.hooks.PromptTurn
-import com.apex.agent.core.chat.hooks.PromptTurnKind
+import com.apex.core.chat.hooks.PromptTurn
+import com.apex.core.chat.hooks.PromptTurnKind
+import com.apex.core.tools.javascript.not
 
 /**
  * 中间轮次压缩�?- 负责压缩中间区域的轮�? * 

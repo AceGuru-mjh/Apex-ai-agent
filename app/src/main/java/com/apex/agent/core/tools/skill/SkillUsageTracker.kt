@@ -10,7 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.apex.util.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

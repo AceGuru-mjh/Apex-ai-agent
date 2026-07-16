@@ -1,7 +1,7 @@
 package com.apex.agent.mts.optimizer
 
-import com.apex.agent.mts.observer.ToolCallRecord
-import com.apex.agent.mts.registry.ToolRegistry
+import com.apex.agent.core.normal.export.ToolCallRecord
+import com.apex.core.tools.ToolRegistry
 import com.apex.agent.mts.schema.*
 import kotlinx.coroutines.runBlocking
 

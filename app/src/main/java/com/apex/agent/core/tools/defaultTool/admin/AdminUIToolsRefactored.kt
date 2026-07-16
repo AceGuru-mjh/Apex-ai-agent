@@ -6,7 +6,8 @@ import com.apex.agent.core.tools.result.UIToolsErrorCode
 import com.apex.agent.core.tools.result.UIToolsResult
 import com.apex.util.AppLogger
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * 管理员级别的 UI 工具类（重构版）

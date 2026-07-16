@@ -2,8 +2,11 @@ package com.apex.agent.core.tools.system
 
 import android.content.Context
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
-import com.apex.data.model.StringResultData
+import com.apex.core.tools.ToolResult
+import com.apex.core.tools.StringResultData
+import com.apex.agent.core.multiagent.LogLevel
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.agent.core.tools.system.LogType
 
 /**
  * 日志查询工具执行�? */

@@ -1,6 +1,6 @@
 package com.apex.core.tools.calculator
 
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 
 /** Calculator类，作为对JsCalculator的适配器，保持API兼容�?/
 class Calculator {

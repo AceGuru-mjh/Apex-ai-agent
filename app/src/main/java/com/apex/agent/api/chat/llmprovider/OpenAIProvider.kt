@@ -31,7 +31,7 @@ import com.apex.util.stream.stream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.UUID
@@ -45,6 +45,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import com.apex.api.chat.llmprovider.MediaLinkParser
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.api.chat.llmprovider.ModelListFetcher
 
 /**
  * OpenAI API格式的实现，支持标准OpenAI接口和兼容此格式的其他提供商

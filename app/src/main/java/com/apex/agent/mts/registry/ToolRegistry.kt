@@ -1,7 +1,7 @@
 package com.apex.agent.mts.registry
 
 import com.apex.agent.mts.schema.ScoredTool
-import com.apex.agent.mts.schema.ToolCategory
+import com.apex.agent.core.streaming.output.ToolCategory
 import com.apex.agent.mts.schema.ToolSpec
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList

@@ -3,7 +3,7 @@ package com.apex.agent.core
 import android.content.Context
 import com.apex.agent.R
 import com.apex.agent.TaskScheduler
-import com.apex.agent.agent.BaseSubAgent
+import com.apex.agent.BaseSubAgent
 import com.apex.agent.SubTask
 import com.apex.agent.SubTaskResult
 import com.apex.agent.core.batch.BatchRunner
@@ -12,7 +12,7 @@ import com.apex.agent.core.batch.DatasetLoader
 import com.apex.agent.core.batch.ResumableRunner
 import com.apex.agent.core.batch.StatisticsAggregator
 import com.apex.agent.core.extension.Capability
-import com.apex.agent.core.extension.CapabilityRegistry
+import com.apex.core.extension.CapabilityRegistry
 import com.apex.agent.core.extension.FootprintLevel
 import com.apex.agent.core.kanban.KanbanBoard
 import com.apex.agent.core.kanban.TaskDispatcher
@@ -31,8 +31,8 @@ import com.apex.agent.core.storage.SessionChainManager
 import com.apex.agent.core.storage.SessionDatabase
 import com.apex.agent.core.trajectory.CompressionStrategy
 import com.apex.agent.core.trajectory.TrajectoryCompressor
-import com.apex.core.tools.skill.SkillManager
-import com.apex.core.tools.skill.WorkflowEngine
+import com.apex.agent.core.tools.skill.SkillManager
+import com.apex.agent.core.tools.skill.WorkflowEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

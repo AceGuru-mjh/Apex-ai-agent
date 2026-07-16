@@ -1,6 +1,6 @@
 package com.apex.agent.domain.workflow
 
-import com.apex.agent.domain.interfaces.WorkflowExecutor
+import com.apex.agent.core.multiagent.WorkflowExecutor
 import com.apex.agent.domain.model.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow

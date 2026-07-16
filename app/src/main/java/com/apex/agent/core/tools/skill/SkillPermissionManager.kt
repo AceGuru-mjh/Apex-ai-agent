@@ -1,7 +1,7 @@
 package com.apex.agent.core.tools.skill
 
 import android.content.Context
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -9,8 +9,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.apex.agent.core.tools.LocalizedText
-import com.apex.agent.core.tools.PackagePermission
+import com.apex.core.tools.LocalizedText
+import com.apex.core.tools.PackagePermission
 import com.apex.util.AppLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,11 +18,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 private val Context.skillPermissionsDataStore: DataStore<Preferences> by preferencesDataStore(name = "skill_permissions")
 

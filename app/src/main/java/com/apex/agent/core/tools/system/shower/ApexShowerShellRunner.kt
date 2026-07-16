@@ -1,9 +1,9 @@
 package com.apex.core.tools.system.shower
 
-import com.apex.core.tools.system.AndroidShellExecutor
-import com.apex.core.tools.system.ShellIdentity as AppShellIdentity
+import com.apex.agent.core.tools.system.AndroidShellExecutor
+import com.apex.agent.core.tools.system.ShellIdentity as AppShellIdentity
 import com.ai.assistance.showerclient.ShellCommandResult
-import com.ai.assistance.showerclient.ShellIdentity
+import com.apex.agent.core.tools.system.ShellIdentity
 import com.ai.assistance.showerclient.ShellRunner
 
 /**

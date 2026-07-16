@@ -8,21 +8,21 @@ import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import com.aaswordman.file.FileManager
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.AIToolHandler
-import com.apex.agent.core.tools.DirectoryListingData
-import com.apex.agent.core.tools.FileContentData
-import com.apex.agent.core.tools.FileExistsData
-import com.apex.agent.core.tools.FileInfoData
-import com.apex.agent.core.tools.FileOperationData
-import com.apex.agent.core.tools.FilePartContentData
-import com.apex.agent.core.tools.FindFilesResultData
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.ToolExecutionLimits
+import com.apex.core.tools.AIToolHandler
+import com.apex.core.tools.DirectoryListingData
+import com.apex.core.tools.FileContentData
+import com.apex.core.tools.FileExistsData
+import com.apex.core.tools.FileInfoData
+import com.apex.core.tools.FileOperationData
+import com.apex.core.tools.FilePartContentData
+import com.apex.core.tools.FindFilesResultData
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.ToolExecutionLimits
 import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilityFileSystemTools
 import com.apex.agent.core.tools.system.AndroidShellExecutor
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.defaultTool.PathValidator
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -30,7 +30,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.zip.ZipEntry
@@ -38,15 +38,16 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import kotlin.math.exp
-import com.apex.agent.util.FileUtils
-import com.apex.agent.core.tools.ToolProgressBus
-import com.apex.agent.util.AndroidUserPathUtils
+import com.apex.util.FileUtils
+import com.apex.core.tools.ToolProgressBus
+import com.apex.util.AndroidUserPathUtils
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /** 调试者级别的文件系统工具，继承无障碍版本 */
 open class DebuggerFileSystemTools(context: Context) : AccessibilityFileSystemTools(context) {

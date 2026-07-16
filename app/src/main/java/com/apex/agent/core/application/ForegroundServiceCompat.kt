@@ -1,6 +1,6 @@
 package com.apex.core.application
 
-import android.app.Notification
+import com.apex.agent.core.patterns.Notification
 import android.app.Service
 import android.content.pm.ServiceInfo
 import android.os.Build

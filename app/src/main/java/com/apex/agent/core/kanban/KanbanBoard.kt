@@ -1,6 +1,6 @@
 package com.apex.agent.core.kanban
 
-import com.apex.agent.core.extension.CapabilityRegistry
+import com.apex.core.extension.CapabilityRegistry
 import com.apex.agent.core.extension.FootprintLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

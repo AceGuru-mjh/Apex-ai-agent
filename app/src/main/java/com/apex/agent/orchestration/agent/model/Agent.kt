@@ -2,7 +2,7 @@ package com.apex.agent.orchestration.agent.model
 
 import com.apex.agent.core.memory.unified.AgentMode
 import com.apex.agent.core.memory.unified.ModeAwareMemoryConfig
-import com.apex.agent.orchestration.agent.AgentCapabilityProfile
+import com.apex.agent.core.multiagent.AgentCapabilityProfile
 
 class Agent(
     val id: String,

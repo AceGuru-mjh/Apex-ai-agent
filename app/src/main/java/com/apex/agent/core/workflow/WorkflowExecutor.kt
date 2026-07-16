@@ -6,23 +6,23 @@ import com.apex.core.config.SystemToolPrompts
 import com.apex.util.AppLogger
 import com.apex.core.tools.AIToolHandler
 import com.apex.data.model.AITool
-import com.apex.data.model.ConditionNode
-import com.apex.data.model.ConditionOperator
+import com.apex.agent.orchestration.workflow.nodes.ConditionNode
+import com.apex.agent.core.kanban.ConditionOperator
 import com.apex.data.model.ExecuteNode
-import com.apex.data.model.ExtractMode
+import com.apex.agent.core.tools.skill.ExtractMode
 import com.apex.data.model.ExtractNode
 import com.apex.data.model.LogicNode
 import com.apex.data.model.LogicOperator
-import com.apex.data.model.ParameterValue
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolParameterSchema
+import com.apex.agent.core.tools.skill.ParameterValue
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolParameterSchema
 import com.apex.data.model.TriggerNode
-import com.apex.data.model.Workflow
-import com.apex.data.model.WorkflowExecutionLogEntry
-import com.apex.data.model.WorkflowExecutionRecord
-import com.apex.data.model.WorkflowLogLevel
-import com.apex.data.model.WorkflowNode
-import com.apex.data.model.WorkflowNodeConnection
+import com.apex.agent.core.multiagent.Workflow
+import com.apex.agent.core.multiagent.WorkflowExecutionLogEntry
+import com.apex.agent.core.multiagent.WorkflowExecutionRecord
+import com.apex.agent.core.multiagent.WorkflowLogLevel
+import com.apex.agent.core.multiagent.WorkflowNode
+import com.apex.agent.core.multiagent.WorkflowNodeConnection
 import com.apex.core.tools.MessageSendResultData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +35,9 @@ import java.util.UUID
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
+import com.apex.core.workflow.WorkflowRunLogger
 
 /**
  * 节点执行状�?*/

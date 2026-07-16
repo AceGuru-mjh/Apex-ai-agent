@@ -1,6 +1,6 @@
 package com.apex.core.tools.calculator
 
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 
 /**
  * JavaScript风格的计算器

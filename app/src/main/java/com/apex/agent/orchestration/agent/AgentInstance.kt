@@ -1,6 +1,6 @@
 package com.apex.agent.orchestration.agent
 
-import com.apex.agent.orchestration.agent.model.Agent
+import com.apex.agent.core.multiagent.Agent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

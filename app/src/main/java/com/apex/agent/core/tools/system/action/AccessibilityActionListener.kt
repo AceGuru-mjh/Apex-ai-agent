@@ -11,6 +11,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 import com.apex.agent.R
+import com.apex.agent.core.rl.ActionType
+import com.apex.agent.core.tools.system.action.ActionEvent
+import com.apex.agent.core.tools.system.action.ActionListener
+import com.apex.agent.core.tools.system.action.ElementInfo
+import com.apex.agent.core.tools.system.action.ListeningResult
+import com.apex.agent.core.tools.system.action.PermissionStatus
 
 /**
  * 基于无障碍服务的UI操作监听了实现ACCESSIBILITY权限级别的操作监�?* 通过UIHierarchyManager与系统的无障碍服务进行通信，监听系统级的UI事件和用户操�?*/

@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import com.apex.agent.core.tools.system.action.ActionEvent
+import com.apex.agent.core.tools.system.action.ListeningResult
+import com.apex.agent.core.tools.system.action.PermissionStatus
+import com.apex.core.tools.javascript.callback
 
 /**
  * UI操作监听管理�?* 统一管理所有权限级别的UI操作监听器，提供简化的使用接口

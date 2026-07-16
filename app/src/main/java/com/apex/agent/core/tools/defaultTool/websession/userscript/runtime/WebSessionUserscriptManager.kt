@@ -7,7 +7,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import android.util.Base64
 import android.webkit.CookieManager

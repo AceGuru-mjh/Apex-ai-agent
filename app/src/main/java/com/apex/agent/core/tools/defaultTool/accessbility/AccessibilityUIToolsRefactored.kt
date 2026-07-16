@@ -1,9 +1,9 @@
 package com.apex.agent.core.tools.defaultTool.accessbility
 
 import android.content.Context
-import com.apex.agent.core.tools.SimplifiedUINode
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.UIPageResultData
+import com.apex.core.tools.SimplifiedUINode
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.UIPageResultData
 import com.apex.agent.core.tools.base.BaseUITools
 import com.apex.agent.core.tools.config.UIToolsConfig
 import com.apex.agent.core.tools.parser.XmlLayoutParser
@@ -11,7 +11,7 @@ import com.apex.agent.core.tools.result.UIToolsErrorCode
 import com.apex.agent.core.tools.result.UIToolsResult
 import com.apex.agent.core.tools.selector.ElementSelector
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.agent.data.repository.UIHierarchyManager
 import com.apex.util.AppLogger
 import kotlinx.coroutines.delay

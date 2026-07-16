@@ -13,6 +13,9 @@ import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import com.apex.agent.core.patterns.CommandResult
+import com.apex.agent.core.tools.system.action.PermissionStatus
+import com.apex.agent.core.tools.system.shell.ShellProcess
 
 class ShizukuShellExecutor(private val context: Context) : ShellExecutor {
 

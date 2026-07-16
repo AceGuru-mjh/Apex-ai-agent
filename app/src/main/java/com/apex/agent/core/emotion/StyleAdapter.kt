@@ -4,6 +4,7 @@ import android.content.Context
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.emotion.ConversationStyle
 
 class StyleAdapter(private val context: Context) {
 

@@ -2,14 +2,15 @@ package com.apex.agent.core.tools.defaultTool.debugger
 
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.AppOperationData
-import com.apex.agent.core.tools.NotificationData
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.SystemSettingData
+import com.apex.core.tools.AppOperationData
+import com.apex.core.tools.NotificationData
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.SystemSettingData
 import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilitySystemOperationTools
 import com.apex.agent.core.tools.system.AndroidShellExecutor
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /** 调试级别的系统操作工具，继承无障碍版�并使用shell命令覆盖部分实现 */
 open class DebuggerSystemOperationTools(context: Context) :

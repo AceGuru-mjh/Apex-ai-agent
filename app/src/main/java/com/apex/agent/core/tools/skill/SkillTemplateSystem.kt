@@ -1,7 +1,7 @@
 package com.apex.agent.core.tools.skill
 
 import android.content.Context
-import com.apex.agent.core.tools.PackagePermission
+import com.apex.core.tools.PackagePermission
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +14,10 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import com.apex.agent.core.multiagent.TemplateCategory
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.agent.core.tools.skill.SkillCreationResult
+import com.apex.agent.core.tools.skill.TemplateVariable
 
 /**
  * Skill 模板系统 - 快速创�?Skill 的模板引�?

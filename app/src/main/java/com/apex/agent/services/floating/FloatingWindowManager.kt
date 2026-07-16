@@ -5,7 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import com.apex.util.AppLogger
 import android.view.Gravity
@@ -36,10 +36,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import com.apex.agent.ui.screens.chat.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import com.apex.util.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,13 +64,14 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.apex.api.chat.AIForegroundService
 import com.apex.data.model.AttachmentInfo
-import com.apex.data.model.ChatMessage
+import com.apex.agent.ui.screens.chat.ChatMessage
 import com.apex.data.model.InputProcessingState
 import com.apex.data.model.PromptFunctionType
 import com.apex.services.FloatingChatService
 import com.apex.ui.floating.FloatingChatWindow
-import com.apex.ui.floating.FloatingMode
+import com.apex.agent.ui.floating.FloatingMode
 import com.apex.ui.floating.FloatingWindowTheme
+import com.apex.services.floating.TargetParams
 
 enum class StatusIndicatorStyle {
     FULLSCREEN_RAINBOW,

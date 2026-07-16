@@ -1,6 +1,6 @@
 package com.apex.agent.orchestration.core
 
-import com.apex.agent.orchestration.core.AllocationModels.ComplexityReport
+import com.apex.api.chat.llmprovider.ComplexityReport
 import javax.inject.Inject
 import javax.inject.Singleton
 

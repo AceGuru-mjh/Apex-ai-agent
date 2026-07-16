@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Color as AndroidColor
 import android.graphics.PixelFormat
 import android.os.Build
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import android.view.Gravity
 import android.view.View

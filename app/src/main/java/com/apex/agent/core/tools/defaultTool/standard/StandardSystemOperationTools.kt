@@ -6,7 +6,7 @@ import android.app.PendingIntent
 import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import android.os.Process
 import android.widget.Toast
@@ -15,23 +15,23 @@ import android.location.Location
 import android.location.LocationManager
 import androidx.core.app.NotificationCompat
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.AppListData
-import com.apex.agent.core.tools.AppOperationData
-import com.apex.agent.core.tools.AppUsageTimeEntry
-import com.apex.agent.core.tools.AppUsageTimeResultData
-import com.apex.agent.core.tools.LocationData
-import com.apex.agent.core.tools.NotificationData
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.SystemSettingData
+import com.apex.core.tools.AppListData
+import com.apex.core.tools.AppOperationData
+import com.apex.core.tools.AppUsageTimeEntry
+import com.apex.core.tools.AppUsageTimeResultData
+import com.apex.core.tools.LocationData
+import com.apex.core.tools.NotificationData
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.SystemSettingData
 import com.apex.agent.core.tools.system.AndroidShellExecutor
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.content.pm.ApplicationInfo
 import android.app.ActivityManager
 import android.content.ComponentName
@@ -43,8 +43,10 @@ import androidx.core.content.FileProvider
 import java.io.File
 import com.apex.agent.services.notification.Apex-AgentNotificationStore
 import com.apex.agent.R
-import com.apex.agent.util.AndroidUserPathUtils
+import com.apex.util.AndroidUserPathUtils
 import com.apex.agent.util.LogistraPaths
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 /** 提供系统级操作的工具，包括系统设置修改、应用安装和卸载，这些操作需要用户明确授权 */
 open class StandardSystemOperationTools(private val context: Context) {
@@ -266,7 +268,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             val resultData = SystemSettingData(namespace = namespace, setting = setting, value = value)
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "修改系统设置时出?, e)
+            AppLogger.e(TAG, "修改系统设置时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -274,7 +276,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Security exception when modifying system settings: ${e.message}. This may require higher permissions."
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "修改系统设置时出?, e)
+            AppLogger.e(TAG, "修改系统设置时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -284,7 +286,7 @@ open class StandardSystemOperationTools(private val context: Context) {
         }
     }
 
-    /** 获取系统设置的当前?*/
+    /** 获取系统设置的当前*/
     open suspend fun getSystemSetting(tool: AITool): ToolResult {
         val setting = tool.parameters.find { it.name == "setting" }?.value ?: ""
         val namespace = tool.parameters.find { it.name == "namespace" }?.value ?: "system"
@@ -328,7 +330,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "获取系统设置时出?, e)
+            AppLogger.e(TAG, "获取系统设置时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -336,7 +338,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Security exception when getting system settings: ${e.message}. This may require higher permissions."
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取系统设置时出?, e)
+            AppLogger.e(TAG, "获取系统设置时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -346,7 +348,7 @@ open class StandardSystemOperationTools(private val context: Context) {
         }
     }
 
-    /** 安装应用程序 需要APK文件的路?*/
+    /** 安装应用程序 需要APK文件的路*/
     open suspend fun installApp(tool: AITool): ToolResult {
         val apkPath = tool.parameters.find { it.name == "path" }?.value ?: ""
 
@@ -398,7 +400,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "请求安装应用时出?, e)
+            AppLogger.e(TAG, "请求安装应用时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -408,7 +410,7 @@ open class StandardSystemOperationTools(private val context: Context) {
         }
     }
 
-    /** 卸载应用程序 需要提供包?*/
+    /** 卸载应用程序 需要提供包*/
     open suspend fun uninstallApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
 
@@ -446,7 +448,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "请求卸载应用时出?, e)
+            AppLogger.e(TAG, "请求卸载应用时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -503,7 +505,7 @@ open class StandardSystemOperationTools(private val context: Context) {
         }
     }
 
-    /** 启动应用程序 如果提供了activity参数，将启动指定的活否则使用默认启动器启动应?*/
+    /** 启动应用程序 如果提供了activity参数，将启动指定的活否则使用默认启动器启动应*/
     open suspend fun startApp(tool: AITool): ToolResult {
         val packageName = tool.parameters.find { it.name == "package_name" }?.value ?: ""
         val activityName = tool.parameters.find { it.name == "activity" }?.value ?: ""
@@ -547,7 +549,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
         } catch (e: Exception) {
-            AppLogger.e(TAG, "启动应用时出?, e)
+            AppLogger.e(TAG, "启动应用时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -581,7 +583,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "停止应用时出现安全异?, e)
+            AppLogger.e(TAG, "停止应用时出现安全异, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -589,7 +591,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Failed to stop app: ${e.message}. Requires KILL_BACKGROUND_PROCESSES permission."
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "停止应用时出?, e)
+            AppLogger.e(TAG, "停止应用时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -623,7 +625,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 }
                 context.startActivity(intent)
             } catch (e: Exception) {
-                AppLogger.e(TAG, "打开通知使用权设置页面失?, e)
+                AppLogger.e(TAG, "打开通知使用权设置页面失, e)
             }
 
             return ToolResult(
@@ -645,7 +647,7 @@ open class StandardSystemOperationTools(private val context: Context) {
             )
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取通知时出?, e)
+            AppLogger.e(TAG, "获取通知时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -791,7 +793,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
             ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: SecurityException) {
-            AppLogger.e(TAG, "读取应用使用时长时出现权限异?, e)
+            AppLogger.e(TAG, "读取应用使用时长时出现权限异, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -799,7 +801,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 error = "Security exception when reading app usage time: ${e.message}"
             )
         } catch (e: Exception) {
-            AppLogger.e(TAG, "读取应用使用时长时出?, e)
+            AppLogger.e(TAG, "读取应用使用时长时出, e)
             ToolResult(
                 toolName = tool.name,
                 success = false,
@@ -818,7 +820,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                 tool.parameters.find { it.name == "include_address" }?.value?.toBoolean() ?: true
 
         return try {
-            // 检查位置权?            val hasFineLocationPermission =
+            // 检查位置权            val hasFineLocationPermission =
                     context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                             android.content.pm.PackageManager.PERMISSION_GRANTED
 
@@ -827,7 +829,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                             android.Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
-            // 如果没有任何位置权限，返回错?            if (!hasFineLocationPermission && !hasCoarseLocationPermission) {
+            // 如果没有任何位置权限，返回错            if (!hasFineLocationPermission && !hasCoarseLocationPermission) {
                 return ToolResult(
                         toolName = tool.name,
                         success = false,
@@ -836,9 +838,9 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
 
-            // 根据精度要求和权限情况决定使用哪种精?            val actualHighAccuracy = highAccuracy && hasFineLocationPermission
+            // 根据精度要求和权限情况决定使用哪种精            val actualHighAccuracy = highAccuracy && hasFineLocationPermission
 
-            // 使用Dispatchers.Main确保在主线程上执行位置操?            @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+            // 使用Dispatchers.Main确保在主线程上执行位置操            @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
             val locationResult =
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                         kotlinx.coroutines.suspendCancellableCoroutine<Location?> { continuation ->
@@ -846,7 +848,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                     context.getSystemService(Context.LOCATION_SERVICE) as
                                             LocationManager
 
-                            // 选择合适的位置提供?                            val provider =
+                            // 选择合适的位置提供                            val provider =
                                     when {
                                         actualHighAccuracy &&
                                                 locationManager.isProviderEnabled(
@@ -866,7 +868,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                 return@suspendCancellableCoroutine
                             }
 
-                            // 尝试获取最后已知位?                            val lastKnownLocation =
+                            // 尝试获取最后已知位                            val lastKnownLocation =
                                     try {
                                         if (actualHighAccuracy && hasFineLocationPermission) {
                                             locationManager.getLastKnownLocation(
@@ -886,11 +888,11 @@ open class StandardSystemOperationTools(private val context: Context) {
                                             null
                                         }
                                     } catch (e: SecurityException) {
-                                        AppLogger.e(TAG, "获取最后已知位置失?, e)
+                                        AppLogger.e(TAG, "获取最后已知位置失, e)
                                         null
                                     }
 
-                            // 如果有最后已知位置且足够新（10分钟内），直接返?                            if (lastKnownLocation != null &&
+                            // 如果有最后已知位置且足够新（10分钟内），直接返                            if (lastKnownLocation != null &&
                                             System.currentTimeMillis() - lastKnownLocation.time <
                                                     10 * 60 * 1000
                             ) {
@@ -909,7 +911,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                         }
 
                                         override fun onProviderDisabled(provider: String) {
-                                            // 如果提供者被禁用，尝试使用最后已知位?                                            if (!continuation.isCompleted) {
+                                            // 如果提供者被禁用，尝试使用最后已知位                                            if (!continuation.isCompleted) {
                                                 if (lastKnownLocation != null) {
                                                     continuation.resume(lastKnownLocation) {
                                                         AppLogger.e(TAG, "位置请求取消", it)
@@ -923,7 +925,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                         }
 
                                         override fun onProviderEnabled(provider: String) {
-                                            // 不需要处?                                        }
+                                            // 不需要处                                        }
 
                                         @Deprecated("Deprecated in Java")
                                         override fun onStatusChanged(
@@ -931,7 +933,7 @@ open class StandardSystemOperationTools(private val context: Context) {
                                                 status: Int,
                                                 extras: android.os.Bundle
                                         ) {
-                                            // 不需要处?                                        }
+                                            // 不需要处                                        }
                                     }
 
                             try {
@@ -1020,7 +1022,7 @@ open class StandardSystemOperationTools(private val context: Context) {
 
             return ToolResult(toolName = tool.name, success = true, result = resultData, error = "")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取位置信息时出?, e)
+            AppLogger.e(TAG, "获取位置信息时出, e)
             return ToolResult(
                     toolName = tool.name,
                     success = false,
@@ -1055,14 +1057,14 @@ open class StandardSystemOperationTools(private val context: Context) {
                 )
             }
         } catch (e: Exception) {
-            AppLogger.e(TAG, "获取地址信息时出?, e)
+            AppLogger.e(TAG, "获取地址信息时出, e)
         }
 
         // 如果无法获取地址信息，返回空对象
         return AddressInfo("", "", "", "", "")
     }
 
-    /** 地址信息数据?*/
+    /** 地址信息数据*/
     data class AddressInfo(
             val address: String, // 完整地址
             val city: String, // 城市

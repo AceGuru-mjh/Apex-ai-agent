@@ -3,6 +3,7 @@ package com.apex.util.stream
 import android.content.Context
 import com.apex.agent.R
 import com.apex.util.AppLogger
+import com.apex.util.stream.StreamLogger
 
 /**
  * 流处理器接口，定义了如何处理流数�?* @param T 输入数据类型

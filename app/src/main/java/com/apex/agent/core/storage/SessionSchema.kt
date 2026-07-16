@@ -1,6 +1,6 @@
 package com.apex.agent.core.storage
 
-import androidx.room.Entity
+import com.apex.agent.core.ai.optimization.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey

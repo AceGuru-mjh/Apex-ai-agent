@@ -1,7 +1,7 @@
 package com.apex.agent.core.collaboration
 
 import android.util.Log
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.agent.data.burstmode.swarm.IBurstCollaborationFramework
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

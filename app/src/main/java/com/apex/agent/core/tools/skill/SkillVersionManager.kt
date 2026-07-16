@@ -8,7 +8,7 @@ import com.apex.agent.data.gepa.SkillVersionDao
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.lang.management.ManagementFactory
 import java.lang.management.MemoryMXBean
 import java.lang.management.MemoryUsage
+import com.apex.util.AppLogger
 
 data class PerformanceMetrics(
     val sttLatencyMs: Float = 0f,

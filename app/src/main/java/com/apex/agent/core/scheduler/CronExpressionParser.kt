@@ -3,6 +3,7 @@ package com.apex.agent.core.scheduler
 import com.apex.util.AppLogger
 import java.util.Calendar
 import java.util.regex.Pattern
+import com.apex.agent.core.scheduler.TimeDescription
 
 /**
  * 自然语言 Cron 表达式解析器

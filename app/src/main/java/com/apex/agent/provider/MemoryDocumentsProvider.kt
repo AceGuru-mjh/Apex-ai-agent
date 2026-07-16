@@ -5,7 +5,7 @@ import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.CancellationSignal
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
@@ -14,7 +14,7 @@ import android.util.Base64
 import android.util.Log
 import com.apex.agent.R
 import com.apex.data.preferences.UserPreferencesManager
-import com.apex.data.model.Memory
+import com.apex.provider.Memory
 import com.apex.data.model.PreferenceProfile
 import com.apex.data.repository.MemoryRepository
 import com.apex.util.AppLogger
@@ -25,6 +25,8 @@ import java.io.FileNotFoundException
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.Executors
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 class MemoryDocumentsProvider : DocumentsProvider() {
 

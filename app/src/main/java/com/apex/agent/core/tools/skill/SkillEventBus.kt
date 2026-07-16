@@ -12,6 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.agent.core.tools.skill.SkillCompleted
+import com.apex.agent.core.tools.skill.SkillInvoked
+import com.apex.agent.core.tools.skill.SkillLoaded
 
 class SkillEventBus private constructor() {
 

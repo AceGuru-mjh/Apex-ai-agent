@@ -5,7 +5,7 @@ import com.apex.util.AppLogger
 import com.apex.agent.R
 import com.apex.api.chat.EnhancedAIService
 import com.apex.data.model.ChatHistory
-import com.apex.data.model.ChatMessage
+import com.apex.agent.ui.screens.chat.ChatMessage
 import com.apex.data.model.WorkspaceRenameResult
 import com.apex.data.repository.ChatHistoryManager
 import java.time.LocalDateTime
@@ -21,13 +21,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import com.apex.data.preferences.ActivePromptManager
-import com.apex.data.model.ChatMessageTimestampAllocator
+import com.apex.agent.ui.screens.chat.ChatMessageTimestampAllocator
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.apex.agent.core.hooks.HookRegistry
 import com.apex.agent.core.hooks.SessionContext
 import com.apex.agent.core.hooks.PreCompactHook
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /** 委托类，负责管理聊天历史相关功能 */
 class ChatHistoryDelegate(

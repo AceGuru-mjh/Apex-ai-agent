@@ -1,10 +1,10 @@
 package com.apex.agent.services.notification
 
-import android.app.Notification
+import com.apex.agent.core.patterns.Notification
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import com.apex.agent.core.tools.NotificationData
+import com.apex.core.tools.NotificationData
 
 object ApexAgentNotificationStore {
     private data class Entry(

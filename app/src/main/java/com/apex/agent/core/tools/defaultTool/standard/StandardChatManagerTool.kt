@@ -7,34 +7,34 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
 import com.apex.agent.R
-import com.apex.agent.api.chat.EnhancedAIService
+import com.apex.api.chat.EnhancedAIService
 import com.apex.util.AppLogger
-import com.apex.agent.util.ChatMarkupRegex
-import com.apex.agent.util.stream.SharedStream
+import com.apex.util.ChatMarkupRegex
+import com.apex.util.stream.SharedStream
 import com.apex.agent.core.chat.hooks.toPromptTurns
-import com.apex.agent.core.tools.AgentStatusResultData
-import com.apex.agent.core.tools.ChatCreationResultData
-import com.apex.agent.core.tools.ChatFindResultData
-import com.apex.agent.core.tools.ChatListResultData
-import com.apex.agent.core.tools.ChatMessagesResultData
+import com.apex.core.tools.AgentStatusResultData
+import com.apex.core.tools.ChatCreationResultData
+import com.apex.core.tools.ChatFindResultData
+import com.apex.core.tools.ChatListResultData
+import com.apex.core.tools.ChatMessagesResultData
 
-import com.apex.agent.core.tools.ChatServiceStartResultData
-import com.apex.agent.core.tools.ChatSwitchResultData
-import com.apex.agent.core.tools.ChatTitleUpdateResultData
-import com.apex.agent.core.tools.ChatDeleteResultData
-import com.apex.agent.core.tools.MessageSendResultData
-import com.apex.agent.core.tools.StringResultData
+import com.apex.core.tools.ChatServiceStartResultData
+import com.apex.core.tools.ChatSwitchResultData
+import com.apex.core.tools.ChatTitleUpdateResultData
+import com.apex.core.tools.ChatDeleteResultData
+import com.apex.core.tools.MessageSendResultData
+import com.apex.core.tools.StringResultData
 import com.apex.data.model.ChatHistory
 import com.apex.data.model.AITool
 import com.apex.data.model.FunctionType
 import com.apex.data.model.InputProcessingState
 import com.apex.data.model.PromptFunctionType
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.agent.data.preferences.ApiPreferences
 
 import com.apex.agent.data.repository.ChatHistoryManager
-import com.apex.agent.services.ChatServiceCore
-import com.apex.agent.services.FloatingChatService
+import com.apex.services.ChatServiceCore
+import com.apex.services.FloatingChatService
 import com.apex.agent.ui.floating.FloatingMode
 import java.time.ZoneId
 import kotlinx.coroutines.CompletableDeferred
@@ -45,6 +45,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 data class MessageSendStreamSession(
     val chatId: String,

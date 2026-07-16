@@ -2,7 +2,7 @@ package com.apex.agent.core.multiagent
 
 import android.content.Context
 import android.os.Debug
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import android.os.Process
 import java.lang.System.nanoTime

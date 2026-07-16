@@ -4,7 +4,7 @@ import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.view.View
@@ -22,7 +22,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.apex.agent.R
-import com.apex.agent.core.application.ActivityLifecycleManager
+import com.apex.core.application.ActivityLifecycleManager
 import com.apex.agent.core.tools.defaultTool.standard.StandardBrowserSessionTools
 import com.apex.agent.core.tools.defaultTool.websession.userscript.UserscriptInstallSourceType
 import com.apex.util.AppLogger

@@ -1,6 +1,6 @@
 package com.apex.agent.core.kanban
 
-import com.apex.agent.core.collaboration.AgentCollaborationFramework.AgentRole
+import com.apex.agent.core.multiagent.AgentRole
 import java.util.UUID
 
 /**

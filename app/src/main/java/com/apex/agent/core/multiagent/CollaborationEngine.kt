@@ -2,7 +2,7 @@ package com.apex.agent.core.multiagent
 
 import android.content.Context
 import com.apex.agent.R
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.agent.core.quality.AgentThinkingSession
 import com.apex.agent.core.swarm.SwarmIntelligenceEngine
 import com.apex.util.AppLogger
@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import com.apex.agent.orchestration.agent.AgentInstance
 
 class CollaborationEngine(
     private val context: Context,

@@ -21,6 +21,7 @@ import kotlinx.coroutines.sync.withLock
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import com.apex.agent.core.tools.system.ShellIdentity
 
 /**
  * Root 管理器 - 提供统一的 Root 权限管理接口

@@ -1,6 +1,6 @@
 package com.apex.agent.mts.router
 
-import com.apex.agent.mts.registry.ToolRegistry
+import com.apex.core.tools.ToolRegistry
 import com.apex.agent.mts.schema.*
 
 data class ExecutionContext(

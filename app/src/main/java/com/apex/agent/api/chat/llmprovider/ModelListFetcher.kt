@@ -8,7 +8,7 @@ import com.apex.util.AppLogger
 import com.apex.data.model.ApiProviderType
 import com.apex.data.model.ModelOption
 import java.io.File
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException

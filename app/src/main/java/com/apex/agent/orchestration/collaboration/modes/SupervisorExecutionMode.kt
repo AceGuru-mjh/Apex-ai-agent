@@ -2,14 +2,14 @@ package com.apex.agent.orchestration.collaboration.modes
 
 import android.content.Context
 import com.apex.agent.R
-import com.apex.agent.domain.entity.AgentMessage
-import com.apex.agent.domain.entity.Task
-import com.apex.agent.orchestration.agent.AgentManager
-import com.apex.agent.orchestration.agent.model.Agent
-import com.apex.agent.orchestration.collaboration.AgentStatus
-import com.apex.agent.orchestration.core.AllocationModels.AllocationRequest
-import com.apex.agent.orchestration.core.IntelligentTaskAllocator
-import com.apex.agent.orchestration.core.TaskComplexityQuantifier
+import com.apex.agent.AgentMessage
+import com.apex.agent.core.task.Task
+import com.apex.agent.core.multiagent.AgentManager
+import com.apex.agent.core.multiagent.Agent
+import com.apex.agent.core.multiagent.AgentStatus
+import com.apex.agent.core.multiagent.AllocationRequest
+import com.apex.agent.core.multiagent.IntelligentTaskAllocator
+import com.apex.agent.core.multiagent.TaskComplexityQuantifier
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject

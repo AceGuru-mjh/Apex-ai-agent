@@ -1,6 +1,6 @@
 package com.apex.agent.core.workflow.enhanced
 
-import com.apex.agent.core.workflow.enhanced.checkpoint.CheckpointManager
+import com.apex.agent.core.batch.CheckpointManager
 import com.apex.agent.core.workflow.enhanced.checkpoint.CheckpointNodeState
 import com.apex.agent.core.workflow.enhanced.checkpoint.InMemoryCheckpointer
 import com.apex.agent.core.workflow.enhanced.events.EventBusHolder
@@ -22,7 +22,7 @@ import com.apex.agent.core.workflow.enhanced.parallel.ParallelExecutor
 import com.apex.agent.core.workflow.enhanced.retry.CircuitBreakerRegistry
 import com.apex.agent.core.workflow.enhanced.retry.RetryExecutor
 import com.apex.agent.core.workflow.enhanced.saga.Saga
-import com.apex.agent.core.workflow.enhanced.saga.SagaBuilder
+import com.apex.agent.core.workflow.enhanced.dsl.SagaBuilder
 import com.apex.agent.core.workflow.enhanced.saga.SagaResult
 import com.apex.agent.core.workflow.enhanced.subworkflow.DelegatingSubWorkflowExecutor
 import com.apex.agent.core.workflow.enhanced.subworkflow.SubWorkflowInvocation

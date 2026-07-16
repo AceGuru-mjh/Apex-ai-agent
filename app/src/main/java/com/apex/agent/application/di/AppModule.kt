@@ -10,13 +10,13 @@ import com.apex.agent.domain.repository.TaskRepository
 import com.apex.agent.domain.repository.WorkflowRepository
 import com.apex.agent.infrastructure.eventbus.EventBus
 import com.apex.agent.infrastructure.model.LocalModelClient
-import com.apex.agent.infrastructure.model.ModelClient
+import com.apex.agent.core.patterns.ModelClient
 import com.apex.agent.orchestration.collaboration.modes.DebateReviewMode
 import com.apex.agent.orchestration.collaboration.modes.FreeDialogMode
 import com.apex.agent.orchestration.collaboration.modes.ParallelExecutionMode
 import com.apex.agent.orchestration.collaboration.modes.SerialPipelineMode
 import com.apex.agent.orchestration.collaboration.modes.SupervisorExecutionMode
-import com.apex.agent.orchestration.collaboration.TaskExecutor
+import com.apex.agent.core.multiagent.TaskExecutor
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

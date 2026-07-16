@@ -1,11 +1,11 @@
 package com.apex.agent.orchestration.core
 
 import com.apex.agent.common.result.Result
-import com.apex.agent.orchestration.agent.AgentManager
-import com.apex.agent.orchestration.agent.model.Agent
-import com.apex.agent.orchestration.core.AllocationModels.AllocationRequest
-import com.apex.agent.orchestration.core.AllocationModels.AllocationResult
-import com.apex.agent.orchestration.core.AllocationModels.AgentScore
+import com.apex.agent.core.multiagent.AgentManager
+import com.apex.agent.core.multiagent.Agent
+import com.apex.agent.core.multiagent.AllocationRequest
+import com.apex.agent.core.multiagent.AllocationResult
+import com.apex.agent.orchestration.core.AgentScore
 import javax.inject.Inject
 import javax.inject.Singleton
 

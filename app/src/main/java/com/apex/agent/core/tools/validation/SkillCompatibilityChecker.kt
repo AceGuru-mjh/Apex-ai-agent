@@ -2,7 +2,7 @@ package com.apex.core.tools.validation
 
 import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.os.Build
 import com.apex.core.tools.PackagePermission
 import com.apex.core.tools.ToolPackage

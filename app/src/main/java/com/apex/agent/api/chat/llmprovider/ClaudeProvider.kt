@@ -26,7 +26,7 @@ import com.apex.util.stream.TextStreamEventType
 import com.apex.util.stream.withEventChannel
 import com.apex.util.stream.stream
 import com.apex.api.chat.llmprovider.MediaLinkParser
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.UUID
@@ -36,6 +36,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.api.chat.llmprovider.ModelListFetcher
 
 /** Anthropic Claude API的实现，处理Claude特有的API格式 */
 class ClaudeProvider(

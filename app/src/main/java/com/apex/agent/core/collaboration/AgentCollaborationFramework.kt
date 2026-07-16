@@ -1,7 +1,7 @@
 package com.apex.agent.core.collaboration
 
 import android.content.Context
-import com.apex.agent.api.chat.EnhancedAIService
+import com.apex.api.chat.EnhancedAIService
 import com.apex.core.chat.hooks.PromptTurn
 import com.apex.core.chat.hooks.PromptTurnKind
 import com.apex.util.AppLogger
@@ -12,11 +12,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 import java.util.Locale
 import java.util.UUID
 
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.core.chat.hooks.PromptTurn
 import com.apex.core.chat.hooks.PromptTurnKind
 

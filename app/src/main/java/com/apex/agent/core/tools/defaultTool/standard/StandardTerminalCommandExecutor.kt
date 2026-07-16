@@ -5,7 +5,7 @@ import com.apex.agent.R
 import com.apex.util.AppLogger
 import com.apex.agent.core.tools.*
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.agent.core.tools.system.Terminal
 import com.apex.agent.terminal.provider.type.HiddenExecResult
 import com.apex.agent.terminal.view.domain.ansi.TerminalChar

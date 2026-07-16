@@ -4,15 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.apex.agent.core.tools.IntentResultData
-import com.apex.agent.core.tools.StringResultData
+import com.apex.core.tools.IntentResultData
+import com.apex.core.tools.StringResultData
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.data.model.ToolValidationResult
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 class StandardSendBroadcastToolExecutor(private val context: Context) {
 

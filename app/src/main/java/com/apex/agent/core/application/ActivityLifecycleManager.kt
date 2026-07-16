@@ -11,7 +11,7 @@ import com.apex.plugins.lifecycle.AppLifecycleEvent
 import com.apex.plugins.lifecycle.AppLifecycleHookParams
 import com.apex.plugins.lifecycle.AppLifecycleHookPluginRegistry
 import com.apex.integrations.http.ExternalChatHttpAutoStarter
-import com.apex.ui.common.displays.VirtualDisplayOverlay
+import com.apex.agent.ui.common.displays.VirtualDisplayOverlay
 import com.apex.core.tools.agent.ShowerController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +19,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import com.apex.core.tools.javascript.not
 
 /**
  * A robust manager to track the current foreground activity using Android's standard

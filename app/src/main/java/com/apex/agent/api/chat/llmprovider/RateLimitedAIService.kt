@@ -5,7 +5,7 @@ import com.apex.core.chat.hooks.PromptTurn
 import com.apex.data.model.ModelParameter
 import com.apex.data.model.ToolPrompt
 import com.apex.util.stream.Stream
-import kotlinx.coroutines.sync.Semaphore
+import com.apex.agent.mts.executor.Semaphore
 
 class RateLimitedAIService(
     private val delegate: AIService,

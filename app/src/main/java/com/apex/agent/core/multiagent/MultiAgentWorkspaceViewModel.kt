@@ -10,6 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.multiagent.Agent
+import com.apex.agent.core.multiagent.CollaborationSession
+import com.apex.agent.core.task.Task
 
 class MultiAgentWorkspaceViewModel(
     private val context: Context

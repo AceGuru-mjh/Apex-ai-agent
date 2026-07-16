@@ -7,10 +7,10 @@ import android.media.MediaScannerConnection
 import android.os.Environment
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
-import com.apex.agent.core.application.ActivityLifecycleManager
+import com.apex.core.application.ActivityLifecycleManager
 import com.apex.agent.core.tools.defaultTool.standard.StandardBrowserSessionTools
 import com.apex.util.AppLogger
-import com.apex.agent.util.HttpMultiPartDownloader
+import com.apex.util.HttpMultiPartDownloader
 import java.io.File
 import java.io.FileOutputStream
 import java.util.LinkedHashMap

@@ -1,10 +1,11 @@
 package com.apex.agent.core.multimodal
 
 import android.content.Context
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.core.tools.javascript.map
 
 class MultiModalFusionEngine(
     private val context: Context,

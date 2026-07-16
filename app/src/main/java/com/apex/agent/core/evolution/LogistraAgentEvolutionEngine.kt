@@ -2,9 +2,9 @@ package com.apex.agent.core.evolution
 
 import android.content.Context
 import com.apex.agent.core.rl.ReinforcementLearningEngine
-import com.apex.agent.core.rl.State
-import com.apex.agent.core.rl.Action
-import com.apex.agent.core.rl.ActionType
+import com.apex.util.State
+import com.apex.util.streamnative.Action
+import com.apex.util.streamnative.ActionType
 import com.apex.agent.core.rl.Reward
 import com.apex.agent.core.rl.RewardType
 import com.apex.agent.core.skills.SkillEvolutionManager
@@ -13,7 +13,7 @@ import com.apex.agent.data.repository.MemoryRepository
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 
 class LogistraAgentEvolutionEngine(
     private val context: Context,

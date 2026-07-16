@@ -3,11 +3,12 @@ package com.apex.services
 import android.app.IntentService
 import android.content.Intent
 import com.apex.util.AppLogger
-import com.apex.core.tools.system.AndroidShellExecutor.CommandResult
+import com.apex.agent.core.patterns.CommandResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import com.apex.agent.core.tools.system.AndroidShellExecutor
 
 /**
  * Termux命令结果服务

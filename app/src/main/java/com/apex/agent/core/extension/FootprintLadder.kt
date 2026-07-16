@@ -2,6 +2,7 @@ package com.apex.agent.core.extension
 
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.util.ValidationResult
 
 enum class FootprintLevel(val level: Int, val description: String, val surfaceArea: String) {
     EXTEND_EXISTING(1, "扩展现有代码", "零新增表面积"),

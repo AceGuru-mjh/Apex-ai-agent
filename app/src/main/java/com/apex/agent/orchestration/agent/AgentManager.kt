@@ -1,7 +1,7 @@
 package com.apex.agent.orchestration.agent
 
 import com.apex.agent.common.result.Result
-import com.apex.agent.orchestration.agent.model.Agent
+import com.apex.agent.core.multiagent.Agent
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton

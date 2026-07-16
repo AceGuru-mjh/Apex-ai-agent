@@ -1,10 +1,11 @@
 package com.apex.agent.core.kanban
 
 import com.apex.agent.core.collaboration.AgentCollaborationFramework
-import com.apex.agent.core.collaboration.AgentCollaborationFramework.AgentRole
+import com.apex.agent.core.multiagent.AgentRole
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * TaskDispatcher - 任务分发逻辑

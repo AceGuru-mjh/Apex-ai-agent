@@ -1,6 +1,6 @@
 package com.apex.agent.orchestration.communication
 
-import com.apex.agent.domain.entity.AgentMessage
+import com.apex.agent.AgentMessage
 
 enum class CommunicationChannel {
     TEXT, VOICE, NOTIFICATION, PUSH, WEBHOOK

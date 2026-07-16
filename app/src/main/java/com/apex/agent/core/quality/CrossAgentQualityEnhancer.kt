@@ -1,9 +1,9 @@
 package com.apex.agent.core.quality
 
 import android.content.Context
-import com.apex.agent.api.chat.llmprovider.AIService
+import com.apex.api.chat.llmprovider.AIService
 import com.apex.agent.core.evaluation.QualityGate
-import com.apex.agent.core.evaluation.ValidationResult
+import com.apex.util.ValidationResult
 import com.apex.agent.core.multiagent.Agent
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers

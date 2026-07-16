@@ -3,9 +3,10 @@ package com.apex.agent.core.tools.skill
 import android.content.Context
 import com.apex.util.AppLogger
 import java.text.SimpleDateFormat
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 class DebugConsoleUI private constructor(private val context: Context) {
 

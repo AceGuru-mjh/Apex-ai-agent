@@ -1,7 +1,7 @@
 package com.apex.agent.orchestration.workflow
 
 import com.apex.agent.common.result.Result
-import com.apex.agent.orchestration.workflow.nodes.AgentNode
+import com.apex.agent.core.multiagent.AgentNode
 import com.apex.agent.orchestration.workflow.nodes.ConditionNode
 import com.apex.agent.orchestration.workflow.nodes.CustomNode
 import com.apex.agent.orchestration.workflow.nodes.DelayNode

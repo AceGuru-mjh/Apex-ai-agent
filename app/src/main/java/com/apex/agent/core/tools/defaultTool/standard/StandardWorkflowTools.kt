@@ -2,14 +2,14 @@ package com.apex.agent.core.tools.defaultTool.standard
 
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.WorkflowDetailResultData
-import com.apex.agent.core.tools.WorkflowListResultData
-import com.apex.agent.core.tools.WorkflowResultData
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.WorkflowDetailResultData
+import com.apex.core.tools.WorkflowListResultData
+import com.apex.core.tools.WorkflowResultData
 import com.apex.data.model.*
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
-import com.apex.agent.data.repository.WorkflowRepository
+import com.apex.core.tools.ToolResult
+import com.apex.agent.domain.repository.WorkflowRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
@@ -25,6 +25,15 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
+import com.apex.agent.core.kanban.ConditionOperator
+import com.apex.agent.core.multiagent.Workflow
+import com.apex.agent.core.multiagent.WorkflowNode
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.agent.core.tools.skill.ExtractMode
+import com.apex.agent.core.tools.skill.NodePosition
+import com.apex.agent.core.tools.skill.ParameterValue
+import com.apex.agent.orchestration.workflow.nodes.ConditionNode
+import com.apex.core.tools.javascript.not
 
 /**
  * 工作流管理工�?* 提供工作流的创建、查询、更新、启停、删除与触发功能

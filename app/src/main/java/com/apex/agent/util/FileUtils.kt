@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.nio.channels.FileChannel
@@ -28,6 +28,7 @@ import java.text.DecimalFormat
 import java.util.UUID
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import com.apex.util.in
 
 object FileUtils {
 

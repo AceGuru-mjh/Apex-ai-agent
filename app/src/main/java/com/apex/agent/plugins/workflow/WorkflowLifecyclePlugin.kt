@@ -1,6 +1,6 @@
 package com.apex.plugins.workflow
 
-import com.apex.data.repository.WorkflowRepository
+import com.apex.agent.domain.repository.WorkflowRepository
 import com.apex.plugins.ApexPlugin
 import com.apex.plugins.lifecycle.AppLifecycleEvent
 import com.apex.plugins.lifecycle.AppLifecycleHookParams

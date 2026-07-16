@@ -16,6 +16,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.agent.core.tools.system.action.PermissionStatus
+import com.apex.agent.core.tools.system.shell.AdminShellExecutor
+import com.apex.agent.core.tools.system.shell.DebuggerShellExecutor
+import com.apex.agent.core.tools.system.shell.StandardShellExecutor
 
 /**
  * 权限模式执行器工�?- 根据 PermissionMode 创建对应�?Shell 执行�?

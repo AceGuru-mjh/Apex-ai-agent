@@ -1,14 +1,14 @@
 package com.apex.agent.orchestration.collaboration
 
 import com.apex.agent.common.result.Result
-import com.apex.agent.domain.entity.AgentMessage
-import com.apex.agent.domain.entity.Task
+import com.apex.agent.AgentMessage
+import com.apex.agent.core.task.Task
 import com.apex.agent.domain.repository.TaskRepository
 import com.apex.agent.infrastructure.eventbus.EventBus
-import com.apex.agent.orchestration.agent.AgentManager
-import com.apex.agent.orchestration.core.AllocationModels.AllocationRequest
-import com.apex.agent.orchestration.core.IntelligentTaskAllocator
-import com.apex.agent.orchestration.core.TaskComplexityQuantifier
+import com.apex.agent.core.multiagent.AgentManager
+import com.apex.agent.core.multiagent.AllocationRequest
+import com.apex.agent.core.multiagent.IntelligentTaskAllocator
+import com.apex.agent.core.multiagent.TaskComplexityQuantifier
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton

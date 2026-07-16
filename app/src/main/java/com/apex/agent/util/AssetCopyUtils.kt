@@ -3,7 +3,7 @@ package com.apex.util
 import android.content.Context
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import com.apex.util.AppLogger
 
 object AssetCopyUtils {

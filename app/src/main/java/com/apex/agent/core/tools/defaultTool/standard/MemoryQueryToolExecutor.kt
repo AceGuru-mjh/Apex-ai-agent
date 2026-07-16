@@ -4,14 +4,14 @@ import android.content.Context
 import com.apex.agent.core.memory.unified.AgentMode
 import com.apex.agent.core.memory.unified.UnifiedMemoryManager
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.MemoryQueryResultData
-import com.apex.agent.core.tools.MemoryLinkResultData
-import com.apex.agent.core.tools.MemoryLinkQueryResultData
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.ToolExecutor
+import com.apex.core.tools.MemoryQueryResultData
+import com.apex.core.tools.MemoryLinkResultData
+import com.apex.core.tools.MemoryLinkQueryResultData
+import com.apex.core.tools.StringResultData
+import com.apex.agent.core.patterns.ToolExecutor
 import com.apex.data.model.AITool
-import com.apex.data.model.Memory
-import com.apex.data.model.ToolResult
+import com.apex.provider.Memory
+import com.apex.core.tools.ToolResult
 import com.apex.data.model.ToolValidationResult
 import com.apex.data.preferences.MemorySearchSettingsPreferences
 import com.apex.agent.data.repository.MemoryRepository
@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import java.io.File
 import com.apex.agent.core.tools.defaultTool.standard.MemoryQueryUtils
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * Executes queries against the AI's memory graph and manages user preferences.

@@ -9,6 +9,7 @@ import java.io.File
 import java.io.RandomAccessFile
 import java.text.SimpleDateFormat
 import java.util.*
+import com.apex.agent.core.multiagent.LogLevel
 
 /**
  * 日志管理�? 从AppLogger的日志文件读取日�?*/

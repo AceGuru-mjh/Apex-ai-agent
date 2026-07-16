@@ -16,6 +16,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.agent.core.tools.system.RootAuthorizer
+import com.apex.agent.core.tools.system.RootDetectionResult
+import com.apex.agent.core.tools.system.SELinuxStatus
+import com.apex.agent.core.tools.system.ShizukuDetectionResult
 
 /**
  * 权限模式管理�?- 统一管理所有权限模式的检测、状态、切�?

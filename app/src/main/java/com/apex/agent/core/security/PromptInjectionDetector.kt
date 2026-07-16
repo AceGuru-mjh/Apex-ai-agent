@@ -2,6 +2,7 @@ package com.apex.agent.core.security
 
 import com.apex.util.AppLogger
 import java.util.regex.Pattern
+import com.apex.agent.core.normal.toolpreview.RiskLevel
 
 /**
  * 提示注入检测器

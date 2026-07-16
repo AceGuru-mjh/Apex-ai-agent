@@ -1,6 +1,6 @@
 package com.apex.agent.orchestration.collaboration
 
-import com.apex.agent.domain.entity.AgentMessage
+import com.apex.agent.AgentMessage
 
 data class AgentExecutionState(
     val agentId: String,

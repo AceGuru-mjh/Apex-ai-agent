@@ -2,7 +2,7 @@ package com.apex.agent.core.tools.system
 
 import android.content.Context
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.os.Build
 import com.apex.agent.R
 import com.apex.util.AppLogger

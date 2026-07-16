@@ -1,9 +1,9 @@
 package com.apex.agent.core.evolution
 
 import android.content.Context
-import com.apex.agent.api.chat.EnhancedAIService
-import com.apex.agent.core.chat.hooks.PromptTurn
-import com.apex.agent.core.chat.hooks.PromptTurnKind
+import com.apex.api.chat.EnhancedAIService
+import com.apex.core.chat.hooks.PromptTurn
+import com.apex.core.chat.hooks.PromptTurnKind
 import com.apex.util.AppLogger
 import com.apex.data.model.FunctionType
 import com.google.gson.Gson

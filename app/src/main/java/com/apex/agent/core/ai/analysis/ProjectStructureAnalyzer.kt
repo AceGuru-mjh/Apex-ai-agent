@@ -1,6 +1,9 @@
 package com.apex.agent.core.ai.analysis
 
 import com.apex.agent.ui.components.burstmode.*
+import com.apex.agent.core.codeengine.Dependency
+import com.apex.agent.core.normal.multimodal.FileType
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * 项目结构分析�?

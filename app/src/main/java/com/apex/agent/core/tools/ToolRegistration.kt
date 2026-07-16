@@ -2,13 +2,13 @@ package com.apex.core.tools
 
 import android.content.Context
 import com.apex.agent.R
-import com.apex.core.tools.defaultTool.ToolGetter
+import com.apex.agent.core.tools.defaultTool.ToolGetter
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolParameter
+import com.apex.core.tools.ToolResult
 import com.apex.integrations.tasker.triggerAIAgentAction
 import com.apex.services.FloatingChatService
-import com.apex.ui.common.displays.VirtualDisplayOverlay
+import com.apex.agent.ui.common.displays.VirtualDisplayOverlay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.last
@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * This file contains all tool registrations centralized for easier maintenance and integration It

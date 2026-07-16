@@ -1,9 +1,9 @@
 package com.apex.agent.orchestration.sanxing
 
 import com.apex.agent.common.result.Result
-import com.apex.agent.domain.entity.AgentMessage
-import com.apex.agent.orchestration.agent.model.Agent
-import com.apex.agent.orchestration.agent.model.ModelConfig
+import com.apex.agent.AgentMessage
+import com.apex.agent.core.multiagent.Agent
+import com.apex.agent.core.multiagent.ModelConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.util.UUID

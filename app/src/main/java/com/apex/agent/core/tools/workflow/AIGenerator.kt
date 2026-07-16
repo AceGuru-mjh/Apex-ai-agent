@@ -3,6 +3,10 @@ package com.apex.core.tools.workflow
 import com.apex.data.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.multiagent.Workflow
+import com.apex.agent.core.multiagent.WorkflowNode
+import com.apex.agent.core.tools.skill.ParameterValue
+import com.apex.core.tools.javascript.not
 
 class AIGenerator {
 

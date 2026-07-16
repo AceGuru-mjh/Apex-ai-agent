@@ -1,8 +1,8 @@
 package com.apex.plugins.skill
 
 import android.content.Context
-import com.apex.core.tools.skill.SkillManager
-import com.apex.core.tools.skill.SkillUsageTracker
+import com.apex.agent.core.tools.skill.SkillManager
+import com.apex.agent.core.tools.skill.SkillUsageTracker
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,6 +11,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.pow
+import com.apex.core.tools.javascript.not
 
 class SmartRecommender private constructor(private val context: Context) {
 

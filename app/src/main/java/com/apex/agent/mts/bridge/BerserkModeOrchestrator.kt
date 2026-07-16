@@ -4,10 +4,10 @@ import com.apex.agent.domain.model.BurstInput
 import com.apex.agent.domain.model.BurstTask
 import com.apex.agent.kernel.burst.BurstKernel
 import com.apex.agent.mts.executor.ToolInvoker
-import com.apex.agent.mts.schema.ExecutionResult
+import com.apex.agent.core.multiagent.ExecutionResult
 import com.apex.agent.mts.schema.ToolOutcome
-import com.apex.agent.mts.registry.ToolRegistry
-import com.apex.agent.mts.schema.ParsedToolCall
+import com.apex.core.tools.ToolRegistry
+import com.apex.core.tools.javascript.ParsedToolCall
 import com.apex.agent.mts.schema.ToolSpec
 import kotlinx.coroutines.*
 import java.util.UUID

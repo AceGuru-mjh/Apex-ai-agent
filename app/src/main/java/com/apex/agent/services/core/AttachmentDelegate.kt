@@ -10,7 +10,7 @@ import com.apex.util.ApexPaths
 import com.apex.core.tools.AIToolHandler
 import com.apex.data.model.AITool
 import com.apex.data.model.AttachmentInfo
-import com.apex.data.model.ToolParameter
+import com.apex.core.tools.ToolParameter
 import com.apex.util.OCRUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,8 +22,9 @@ import android.provider.DocumentsContract
 import android.webkit.MimeTypeMap
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 import java.util.Locale
+import com.apex.core.tools.javascript.not
 
 /**
  * Manages attachment operations for the chat feature Handles adding, removing, and referencing

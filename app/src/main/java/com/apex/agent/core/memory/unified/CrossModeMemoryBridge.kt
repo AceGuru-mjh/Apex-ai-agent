@@ -2,7 +2,7 @@ package com.apex.agent.core.memory.unified
 
 import com.apex.agent.data.burstmode.memory.BurstMemoryItem
 import com.apex.agent.kernel.interaction.awareness.ContextFact
-import com.apex.agent.kernel.interaction.awareness.FactCategory
+import com.apex.agent.core.normal.trivia.FactCategory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow

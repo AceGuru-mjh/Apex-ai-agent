@@ -2,6 +2,11 @@ package com.apex.agent.core.multiagent
 
 import com.apex.util.AppLogger
 import java.util.UUID
+import com.apex.agent.core.multiagent.stages.ImplementerAgent
+import com.apex.agent.core.multiagent.stages.PlannerAgent
+import com.apex.agent.core.multiagent.stages.ResearchAgent
+import com.apex.agent.core.multiagent.stages.ReviewerAgent
+import com.apex.agent.core.multiagent.stages.ValidatorAgent
 
 /**
  * 管道阶段枚举

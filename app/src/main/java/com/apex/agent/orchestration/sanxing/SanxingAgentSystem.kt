@@ -4,8 +4,8 @@ import android.content.Context
 import com.apex.agent.common.result.Result
 import com.apex.agent.core.permissions.rbac.PermissionDeniedException
 import com.apex.agent.core.permissions.rbac.RbacManager
-import com.apex.agent.domain.entity.AgentMessage
-import com.apex.agent.orchestration.agent.model.Agent
+import com.apex.agent.AgentMessage
+import com.apex.agent.core.multiagent.Agent
 import com.apex.agent.orchestration.sanxing.roles.Bingbu
 import com.apex.agent.orchestration.sanxing.roles.Gongbu
 import com.apex.agent.orchestration.sanxing.roles.Hubu

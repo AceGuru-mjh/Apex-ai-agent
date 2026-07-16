@@ -1,13 +1,13 @@
 package com.apex.api.chat
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import com.apex.agent.core.patterns.Notification
+import com.apex.agent.core.patterns.NotificationChannel
+import com.apex.agent.core.patterns.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioAttributes
@@ -15,7 +15,7 @@ import android.media.AudioManager
 import android.media.AudioRecordingConfiguration
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.Process
@@ -46,7 +46,7 @@ import com.apex.services.FloatingChatService
 import com.apex.services.UIDebuggerService
 import com.apex.data.preferences.DisplayPreferencesManager
 import com.apex.data.preferences.WakeWordPreferences
-import com.apex.data.repository.WorkflowRepository
+import com.apex.agent.domain.repository.WorkflowRepository
 import com.apex.ui.main.MainActivity
 import com.apex.util.WaifuMessageProcessor
 import kotlinx.coroutines.CoroutineScope
@@ -72,6 +72,9 @@ import kotlin.system.exitProcess
 import java.io.FileInputStream
 import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
+import com.apex.core.tools.condition.Punct
+import com.apex.core.tools.javascript.callback
+import com.apex.core.tools.javascript.not
 private fun AudioRecordingConfiguration.tryGetClientUid(): Int? {
     return try {
         val method =            java

@@ -1,8 +1,8 @@
 package com.apex.agent.core.profileevolution
 
 import android.content.Context
-import com.apex.agent.core.userprofile.UserProfileManager
-import com.apex.data.model.ChatMessage
+import com.apex.agent.core.normal.profile.UserProfileManager
+import com.apex.agent.ui.screens.chat.ChatMessage
 import com.apex.data.model.HonzonUserProfile
 import com.apex.agent.data.repository.MemoryRepository
 import com.apex.util.AppLogger

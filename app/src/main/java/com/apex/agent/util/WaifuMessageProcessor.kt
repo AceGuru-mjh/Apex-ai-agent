@@ -9,6 +9,7 @@ import com.apex.util.streamnative.nativeMarkdownSplitByBlock
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import com.apex.core.tools.javascript.not
 
 /**
  * Waifu模式消息处理�?* 负责将AI回复按句号分割并模拟逐句发�?*/

@@ -8,6 +8,8 @@ import com.apex.core.tools.ToolPackage
 import com.apex.data.mcp.plugins.MCPBridgeClient
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 /**
  * 表示MCP服务器作为工具包

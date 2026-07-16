@@ -5,9 +5,9 @@ import com.apex.agent.R
 import com.apex.util.AppLogger
 import com.apex.core.tools.AIToolHandler
 import com.apex.core.tools.StringResultData
-import com.apex.core.tools.ToolExecutor
+import com.apex.agent.core.patterns.ToolExecutor
 import com.apex.data.model.ToolInvocation
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.core.tools.packTool.PackageManager
 import com.apex.util.stream.StreamCollector
 
@@ -17,7 +17,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolParameter
+import com.apex.core.tools.ToolParameter
 import com.apex.ui.common.displays.MessageContentParser
 import com.apex.util.ChatMarkupRegex
 import com.apex.util.stream.plugins.StreamXmlPlugin
@@ -29,6 +29,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import org.json.JSONObject
 import com.apex.core.tools.ToolAdapterManager
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 /** Utility class for managing tool executions */
 object ToolExecutionManager {

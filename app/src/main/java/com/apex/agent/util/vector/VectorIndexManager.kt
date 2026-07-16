@@ -6,7 +6,7 @@ import com.github.jelmerk.hnswlib.core.hnsw.HnswIndex
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 
 /**
  * 精简的HNSW向量索引管理器，支持初始化、添加、查询、保存、加载， */

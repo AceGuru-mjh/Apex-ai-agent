@@ -6,14 +6,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Base64
@@ -36,20 +36,20 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import com.apex.agent.R
-import com.apex.agent.core.application.ActivityLifecycleManager
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.ToolExecutor
+import com.apex.core.application.ActivityLifecycleManager
+import com.apex.core.tools.StringResultData
+import com.apex.agent.core.patterns.ToolExecutor
 import com.apex.agent.core.tools.defaultTool.websession.browser.*
 import com.apex.agent.core.tools.defaultTool.websession.userscript.UserscriptInstallSourceType
 import com.apex.agent.core.tools.defaultTool.websession.userscript.runtime.WebSessionUserscriptManager
 import com.apex.agent.core.tools.defaultTool.websession.userscript.storage.UserscriptRepository
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.Date
+import com.apex.agent.core.tools.skill.Date
 import java.util.LinkedHashSet
 import java.util.Locale
 import java.util.UUID
@@ -66,6 +66,7 @@ import kotlinx.coroutines.runBlocking
 import androidx.core.content.ContextCompat
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor {
 

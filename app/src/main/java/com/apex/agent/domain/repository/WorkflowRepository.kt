@@ -1,7 +1,7 @@
 package com.apex.agent.domain.repository
 
 import com.apex.agent.common.result.Result
-import com.apex.agent.domain.entity.WorkflowDefinition
+import com.apex.agent.core.tools.skill.WorkflowDefinition
 
 interface WorkflowRepository {
     suspend fun save(workflow: WorkflowDefinition): Result<Unit>

@@ -18,16 +18,16 @@ import com.apex.core.tools.mcp.MCPManager
 import com.apex.core.tools.mcp.MCPPackage
 import com.apex.core.tools.mcp.MCPServerConfig
 import com.apex.core.tools.mcp.MCPToolExecutor
-import com.apex.core.tools.skill.SkillManager
+import com.apex.agent.core.tools.skill.SkillManager
 import com.apex.data.preferences.SkillVisibilityPreferences
-import com.apex.core.tools.system.AndroidPermissionLevel
-import com.apex.core.tools.system.ShizukuAuthorizer
+import com.apex.agent.core.tools.system.AndroidPermissionLevel
+import com.apex.agent.core.tools.system.ShizukuAuthorizer
 import com.apex.data.preferences.DisplayPreferencesManager
 import com.apex.data.preferences.EnvPreferences
 import com.apex.data.preferences.androidPermissionPreferences
 import com.apex.data.model.PackageToolPromptCategory
 import com.apex.data.model.ToolPrompt
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
@@ -42,6 +42,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.hjson.JsonValue
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.packTool.PackageLoadErrorInfo
 
 /**
  * Manages the loading, registration, and handling of tool packages

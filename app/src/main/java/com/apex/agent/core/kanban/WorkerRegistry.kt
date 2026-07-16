@@ -1,8 +1,8 @@
 package com.apex.agent.core.kanban
 
-import com.apex.agent.core.collaboration.AgentCollaborationFramework.AgentRole
+import com.apex.agent.core.multiagent.AgentRole
 import com.apex.core.extension.CapabilityDeclaration
-import com.apex.core.extension.FootprintLevel
+import com.apex.agent.core.extension.FootprintLevel
 import com.apex.util.AppLogger
 import java.util.UUID
 

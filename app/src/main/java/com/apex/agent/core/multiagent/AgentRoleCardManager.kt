@@ -14,8 +14,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 import kotlinx.coroutines.launch
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 private val Context.roleCardDataStore by preferencesDataStore("agent_role_cards")
 

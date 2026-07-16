@@ -1,6 +1,7 @@
 package com.apex.api.chat.enhance
 
 import com.apex.util.AppLogger
+import com.apex.api.chat.enhance.ConversationScenario
 
 /**
  * 动态模型参数适配�?* 根据用户提问类型自动调整模型参数，提升回答质量和适配�?*/

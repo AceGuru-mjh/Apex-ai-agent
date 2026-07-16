@@ -4,24 +4,26 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.SimplifiedUINode
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.UIActionResultData
-import com.apex.agent.core.tools.UIPageResultData
+import com.apex.core.tools.SimplifiedUINode
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.UIActionResultData
+import com.apex.core.tools.UIPageResultData
 import com.apex.agent.core.tools.defaultTool.standard.StandardUITools
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.agent.data.repository.UIHierarchyManager
 import com.apex.agent.util.LogistraPaths
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.apex.agent.util.ImagePoolManager
+import com.apex.util.ImagePoolManager
 import java.io.StringReader
 import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import kotlinx.coroutines.delay
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 /** 无障碍级别的UI工具，使用Android无障碍服务API实现UI操作 */
 open class AccessibilityUITools(context: Context) : StandardUITools(context) {

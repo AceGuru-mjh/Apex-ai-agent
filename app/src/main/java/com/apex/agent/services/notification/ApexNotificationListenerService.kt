@@ -1,6 +1,6 @@
 package com.apex.services.notification
 
-import android.app.Notification
+import com.apex.agent.core.patterns.Notification
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification

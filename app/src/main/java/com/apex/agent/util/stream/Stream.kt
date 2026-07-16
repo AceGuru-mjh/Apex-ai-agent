@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
+import com.apex.core.tools.javascript.not
 
 object StreamLogger {
     private const val TAG = "StreamFramework"

@@ -7,7 +7,7 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 
 class PersistenceManager(private val context: Context) {
 

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentPriorityQueue
+import com.apex.agent.core.util.ConcurrentPriorityQueue
 
 /**
  * F25: 智能提醒与主动服务

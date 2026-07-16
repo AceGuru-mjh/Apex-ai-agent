@@ -1,7 +1,7 @@
 package com.apex.agent.core.evolution
 
 import android.content.Context
-import com.apex.agent.api.chat.EnhancedAIService
+import com.apex.api.chat.EnhancedAIService
 import com.apex.data.model.FitnessRecord
 import com.apex.data.model.EvolutionNode
 import com.apex.data.model.EvolutionNodeType
@@ -10,6 +10,7 @@ import com.apex.data.model.LogistraSkillSpecV2
 import com.apex.util.AppLogger
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.toList
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 class LLMAssistedEvolutionEngine(
     private val context: Context,

@@ -1,6 +1,6 @@
 package com.apex.agent.core.trajectory
 
-import com.apex.agent.core.chat.hooks.PromptTurnKind
+import com.apex.core.chat.hooks.PromptTurnKind
 
 /**
  * 工具调用配对保持�? * 

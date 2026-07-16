@@ -1,6 +1,6 @@
 package com.apex.agent.orchestration.core
 
-import com.apex.agent.orchestration.agent.AgentCapabilityProfile
+import com.apex.agent.core.multiagent.AgentCapabilityProfile
 import javax.inject.Inject
 import javax.inject.Singleton
 

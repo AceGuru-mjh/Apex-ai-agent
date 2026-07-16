@@ -1,7 +1,7 @@
 package com.apex.agent.core.multiagent
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Semaphore
+import com.apex.agent.mts.executor.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger

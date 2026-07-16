@@ -26,11 +26,14 @@ import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers as CoroutineDispatchers
+import com.apex.agent.core.patterns.CommandResult
+import com.apex.agent.core.tools.system.action.PermissionStatus
+import com.apex.agent.core.tools.system.shell.ShellProcess
 
 /** 提供Root权限的Shell命令执行，实现ROOT权限检测和命令执行 */
 class RootShellExecutor(private val context: Context) : ShellExecutor {

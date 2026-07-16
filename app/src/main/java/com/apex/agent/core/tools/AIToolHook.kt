@@ -1,7 +1,7 @@
 package com.apex.core.tools
 
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 
 /**
  * Hook for observing tool call lifecycle events.

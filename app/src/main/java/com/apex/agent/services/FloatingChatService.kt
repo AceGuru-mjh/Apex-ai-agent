@@ -10,14 +10,14 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Binder
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.view.View
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
-import androidx.compose.runtime.State
+import com.apex.util.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
@@ -29,7 +29,7 @@ import com.apex.api.chat.ChatRuntimeSlot
 import com.apex.api.speech.SpeechServiceFactory
 import com.apex.api.voice.VoiceServiceFactory
 import com.apex.data.model.AttachmentInfo
-import com.apex.data.model.ChatMessage
+import com.apex.agent.ui.screens.chat.ChatMessage
 import com.apex.data.model.InputProcessingState
 import com.apex.data.preferences.WakeWordPreferences
 import com.apex.data.model.SerializableColorScheme
@@ -41,7 +41,7 @@ import com.apex.services.floating.FloatingWindowCallback
 import com.apex.services.floating.FloatingWindowManager
 import com.apex.services.floating.FloatingWindowState
 import com.apex.services.floating.StatusIndicatorStyle
-import com.apex.ui.floating.FloatingMode
+import com.apex.agent.ui.floating.FloatingMode
 import com.apex.util.AppLogger
 import com.apex.util.FileUtils
 import com.apex.util.WaifuMessageProcessor
@@ -55,6 +55,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.apex.core.tools.javascript.not
 
 class FloatingChatService : Service(), FloatingWindowCallback {
     private val TAG = "FloatingChatService"

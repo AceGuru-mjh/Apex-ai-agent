@@ -1,7 +1,7 @@
 package com.apex.agent.application.di
 
 import android.content.Context
-import com.apex.agent.api.chat.EnhancedAIService
+import com.apex.api.chat.EnhancedAIService
 import com.apex.agent.core.collaboration.AgentCollaborationFramework
 import com.apex.agent.core.collaboration.BurstCollaborationAdapter
 import com.apex.agent.data.burstmode.swarm.IBurstCollaborationFramework
@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.apex.api.chat.llmprovider.AIService
 
 /**
  * Burst 模块的 Hilt 依赖图。

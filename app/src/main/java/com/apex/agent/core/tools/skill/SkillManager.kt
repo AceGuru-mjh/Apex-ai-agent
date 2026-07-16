@@ -4,8 +4,8 @@ import android.content.Context
 import android.os.Environment
 import android.util.Log
 import com.apex.agent.R
-import com.apex.agent.core.tools.LocalizedText
-import com.apex.agent.core.tools.PackagePermission
+import com.apex.core.tools.LocalizedText
+import com.apex.core.tools.PackagePermission
 import com.apex.util.AppLogger
 import java.io.File
 import java.io.FileInputStream

@@ -6,6 +6,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import com.apex.agent.core.normal.multimodal.FileType
+import com.apex.agent.core.provider.AuthType
 
 /**
  * GitHub API 服务

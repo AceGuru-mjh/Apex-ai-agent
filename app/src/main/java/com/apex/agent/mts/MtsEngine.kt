@@ -3,22 +3,23 @@ package com.apex.agent.mts
 import com.apex.agent.mts.adapter.ProtocolConfig
 import com.apex.agent.mts.adapter.ToolCallProtocolAdapter
 import com.apex.agent.mts.bridge.BerserkModeOrchestrator
-import com.apex.agent.mts.executor.ExecutionConfig
-import com.apex.agent.mts.executor.ExecutionSummary
+import com.apex.agent.core.multiagent.ExecutionConfig
+import com.apex.agent.core.workflow.enhanced.monitor.ExecutionSummary
 import com.apex.agent.mts.executor.SmartExecutor
 import com.apex.agent.mts.executor.ToolInvoker
 import com.apex.agent.mts.observer.ToolObservability
 import com.apex.agent.mts.optimizer.OptimizationContext
-import com.apex.agent.mts.optimizer.OptimizationResult
-import com.apex.agent.mts.optimizer.PromptOptimizer
-import com.apex.agent.mts.registry.ToolRegistry
-import com.apex.agent.mts.router.ExecutionContext
+import com.apex.agent.core.models.OptimizationResult
+import com.apex.agent.core.ai.prompt.PromptOptimizer
+import com.apex.core.tools.ToolRegistry
+import com.apex.agent.core.workflow.enhanced.ExecutionContext
 import com.apex.agent.mts.router.IntelligentRouter
 import com.apex.agent.mts.router.RoutingPlan
 import com.apex.agent.mts.schema.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeout
+import com.apex.agent.mts.router.IntentAnalysis
 
 /**
  * MtsEngine - Meta Tool System unified entry point.

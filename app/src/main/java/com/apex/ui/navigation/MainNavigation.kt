@@ -15,8 +15,8 @@ import com.apex.agent.kernel.burst.ui.BurstLogEntry
 import com.apex.agent.presentation.multiagent.ui.MultiAgentScreen
 import com.apex.agent.presentation.multiagent.state.MultiAgentPageState
 import com.apex.ui.terminal.TerminalScreen
-import com.apex.ui.terminal.TerminalLine
-import com.apex.ui.terminal.TerminalLineKind
+import com.apex.agent.presentation.enhancedterminal.data.TerminalLine
+import com.apex.agent.presentation.enhancedterminal.data.TerminalLineKind
 import com.ai.assistance.aiterminal.terminal.mascot.AuraMascot
 
 /**

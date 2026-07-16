@@ -1,6 +1,6 @@
 package com.apex.agent.orchestration.collaboration
 
-import com.apex.agent.domain.entity.AgentMessage
+import com.apex.agent.AgentMessage
 
 sealed class CollaborationEvent(val taskId: String) {
     class TaskCreated(taskId: String) : CollaborationEvent(taskId)

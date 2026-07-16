@@ -29,7 +29,7 @@ import com.apex.data.model.FunctionType
 import com.apex.data.model.InputProcessingState
 import com.apex.data.model.PromptFunctionType
 import com.apex.data.model.ToolInvocation
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.data.model.ModelConfigData
 import com.apex.data.model.AITool
 import com.apex.data.preferences.ApiPreferences

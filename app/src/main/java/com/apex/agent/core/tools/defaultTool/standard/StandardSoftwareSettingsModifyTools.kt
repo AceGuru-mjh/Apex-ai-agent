@@ -1,46 +1,46 @@
 package com.apex.agent.core.tools.defaultTool.standard
 
 import android.content.Context
-import com.apex.agent.api.chat.EnhancedAIService
-import com.apex.agent.api.chat.llmprovider.ModelConfigConnectionTester
+import com.apex.api.chat.EnhancedAIService
+import com.apex.api.chat.llmprovider.ModelConfigConnectionTester
 // import com.apex.agent.api.speech.SpeechServiceFactory
-// import com.apex.agent.api.voice.HttpTtsResponsePipelineStep
-// import com.apex.agent.api.voice.TtsException
+// import com.apex.api.voice.HttpTtsResponsePipelineStep
+// import com.apex.api.voice.TtsException
 // import com.apex.agent.api.voice.VoiceServiceFactory
-import com.apex.agent.core.tools.FunctionModelBindingResultData
-import com.apex.agent.core.tools.FunctionModelConfigResultData
-import com.apex.agent.core.tools.FunctionModelConfigsResultData
-import com.apex.agent.core.tools.FunctionModelMappingResultItem
-import com.apex.agent.core.tools.EnvironmentVariableReadResultData
-import com.apex.agent.core.tools.EnvironmentVariableWriteResultData
-import com.apex.agent.core.tools.McpRestartLogPluginResultItem
-import com.apex.agent.core.tools.McpRestartWithLogsResultData
-import com.apex.agent.core.tools.ModelConfigConnectionTestItemResultData
-import com.apex.agent.core.tools.ModelConfigConnectionTestResultData
-import com.apex.agent.core.tools.ModelConfigCreateResultData
-import com.apex.agent.core.tools.ModelConfigDeleteResultData
-import com.apex.agent.core.tools.ModelConfigResultItem
-import com.apex.agent.core.tools.ModelConfigUpdateResultData
-import com.apex.agent.core.tools.ModelConfigsResultData
-import com.apex.agent.core.tools.SandboxPackageResultItem
-import com.apex.agent.core.tools.SandboxPackageUpdateResultData
-import com.apex.agent.core.tools.SandboxPackagesResultData
-import com.apex.agent.core.tools.SandboxScriptExecutionResultData
-// import com.apex.agent.core.tools.SpeechServicesConfigResultData
-// import com.apex.agent.core.tools.SpeechServicesTtsPlaybackTestResultData
-// import com.apex.agent.core.tools.SpeechServicesUpdateResultData
-// import com.apex.agent.core.tools.SpeechSttHttpConfigResultItem
-// import com.apex.agent.core.tools.SpeechTtsHttpConfigResultItem
-import com.apex.agent.core.tools.StringResultData
-import com.apex.agent.core.tools.javascript.JsEngine
-import com.apex.agent.core.tools.javascript.JsExecutionTraceRecorder
-import com.apex.agent.core.tools.packTool.PackageManager
+import com.apex.core.tools.FunctionModelBindingResultData
+import com.apex.core.tools.FunctionModelConfigResultData
+import com.apex.core.tools.FunctionModelConfigsResultData
+import com.apex.core.tools.FunctionModelMappingResultItem
+import com.apex.core.tools.EnvironmentVariableReadResultData
+import com.apex.core.tools.EnvironmentVariableWriteResultData
+import com.apex.core.tools.McpRestartLogPluginResultItem
+import com.apex.core.tools.McpRestartWithLogsResultData
+import com.apex.core.tools.ModelConfigConnectionTestItemResultData
+import com.apex.core.tools.ModelConfigConnectionTestResultData
+import com.apex.core.tools.ModelConfigCreateResultData
+import com.apex.core.tools.ModelConfigDeleteResultData
+import com.apex.core.tools.ModelConfigResultItem
+import com.apex.core.tools.ModelConfigUpdateResultData
+import com.apex.core.tools.ModelConfigsResultData
+import com.apex.core.tools.SandboxPackageResultItem
+import com.apex.core.tools.SandboxPackageUpdateResultData
+import com.apex.core.tools.SandboxPackagesResultData
+import com.apex.core.tools.SandboxScriptExecutionResultData
+// import com.apex.core.tools.SpeechServicesConfigResultData
+// import com.apex.core.tools.SpeechServicesTtsPlaybackTestResultData
+// import com.apex.core.tools.SpeechServicesUpdateResultData
+// import com.apex.core.tools.SpeechSttHttpConfigResultItem
+// import com.apex.core.tools.SpeechTtsHttpConfigResultItem
+import com.apex.core.tools.StringResultData
+import com.apex.core.tools.javascript.JsEngine
+import com.apex.core.tools.javascript.JsExecutionTraceRecorder
+import com.apex.core.tools.packTool.PackageManager
 import com.apex.data.model.AITool
 import com.apex.data.model.ApiProviderType
 import com.apex.data.model.FunctionType
 import com.apex.data.model.ModelConfigData
 import com.apex.agent.data.preferences.EnvPreferences
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.data.model.getModelByIndex
 import com.apex.data.model.getModelList
 import com.apex.data.model.getValidModelIndex
@@ -64,11 +64,13 @@ import kotlinx.serialization.json.longOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 import java.net.ConnectException
 import java.net.ProtocolException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 /** 软件设置修改工具（包含MCP 重启与日志收集） */
 class StandardSoftwareSettingsModifyTools(private val context: Context) {

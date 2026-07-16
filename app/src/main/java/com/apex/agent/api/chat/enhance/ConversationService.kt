@@ -14,7 +14,7 @@ import com.apex.core.tools.packTool.PackageManager
 import com.apex.data.model.AITool
 import com.apex.data.model.FunctionType
 import com.apex.data.model.PreferenceProfile
-import com.apex.data.model.ToolParameter
+import com.apex.core.tools.ToolParameter
 import com.apex.core.tools.UIPageResultData
 import com.apex.core.tools.SimplifiedUINode
 import com.apex.core.config.FunctionalPrompts
@@ -52,6 +52,8 @@ import com.apex.agent.core.hooks.HookRegistry
 import com.apex.agent.core.hooks.SessionContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.apex.agent.core.tools.defaultTool.debugger.name
+import com.apex.core.tools.javascript.not
 
 /** 处理会话相关功能的服务类，包括会话总结、偏好处理和对话切割准备 */
 class ConversationService(

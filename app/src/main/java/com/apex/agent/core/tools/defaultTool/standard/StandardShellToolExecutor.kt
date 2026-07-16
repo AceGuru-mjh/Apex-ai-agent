@@ -2,14 +2,15 @@ package com.apex.agent.core.tools.defaultTool.standard
 
 import android.content.Context
 import com.apex.util.AppLogger
-import com.apex.agent.core.tools.ADBResultData
-import com.apex.agent.core.tools.StringResultData
+import com.apex.core.tools.ADBResultData
+import com.apex.core.tools.StringResultData
 import com.apex.agent.core.tools.system.AndroidShellExecutor
 import com.apex.agent.core.tools.system.ShizukuAuthorizer
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.data.model.ToolValidationResult
 import kotlinx.coroutines.runBlocking
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 /**
  * Tool for executing ADB commands directly. This provides direct access to ADB shell commands for

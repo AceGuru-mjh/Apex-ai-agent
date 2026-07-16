@@ -4,7 +4,7 @@ import android.content.Context
 import com.apex.util.AppLogger
 import androidx.work.*
 import com.apex.data.model.TriggerNode
-import com.apex.data.model.Workflow
+import com.apex.agent.core.multiagent.Workflow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat

@@ -1,6 +1,6 @@
 package com.apex.agent.mts.executor
 
-import com.apex.agent.mts.registry.ToolRegistry
+import com.apex.core.tools.ToolRegistry
 import com.apex.agent.mts.schema.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.min
 import kotlin.system.measureTimeMillis
+import com.apex.agent.core.workflow.enhanced.ExecutionContext
 
 interface ToolInvoker {
     suspend fun invoke(toolSpec: ToolSpec, args: Map<String, Any?>): ToolOutcome

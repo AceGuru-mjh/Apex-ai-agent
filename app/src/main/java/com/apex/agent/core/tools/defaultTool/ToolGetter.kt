@@ -8,6 +8,20 @@ import com.apex.agent.core.tools.defaultTool.root.*
 import com.apex.agent.core.tools.defaultTool.standard.*
 import com.apex.agent.core.tools.system.AndroidPermissionLevel
 import com.apex.agent.data.preferences.androidPermissionPreferences
+import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilityDeviceInfoToolExecutor
+import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilityFileSystemTools
+import com.apex.agent.core.tools.defaultTool.accessbility.AccessibilitySystemOperationTools
+import com.apex.agent.core.tools.defaultTool.admin.AdminDeviceInfoToolExecutor
+import com.apex.agent.core.tools.defaultTool.admin.AdminFileSystemTools
+import com.apex.agent.core.tools.defaultTool.admin.AdminSystemOperationTools
+import com.apex.agent.core.tools.defaultTool.admin.AdminUITools
+import com.apex.agent.core.tools.defaultTool.debugger.DebuggerDeviceInfoToolExecutor
+import com.apex.agent.core.tools.defaultTool.root.RootDeviceInfoToolExecutor
+import com.apex.agent.core.tools.defaultTool.root.RootFileSystemTools
+import com.apex.agent.core.tools.defaultTool.root.RootSystemOperationTools
+import com.apex.agent.core.tools.defaultTool.standard.StandardFFmpegConvertToolExecutor
+import com.apex.agent.core.tools.defaultTool.standard.StandardFFmpegInfoToolExecutor
+import com.apex.agent.core.tools.defaultTool.standard.StandardHttpTools
 
 /** 工具获取�? 根据首选权限级别获取对应的工具实现 如果特定权限级别下没有对应工具实现，则回退到标准权限级别的工具 */
 object ToolGetter {

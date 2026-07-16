@@ -5,7 +5,7 @@ import com.apex.core.tools.ScriptExecutionTraceData
 import com.apex.core.tools.StringResultData
 import com.apex.core.tools.packTool.PackageManager
 import com.apex.data.model.AITool
-import com.apex.data.model.ToolResult
+import com.apex.core.tools.ToolResult
 import com.apex.util.AppLogger
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
 import org.json.JSONObject
+import com.apex.agent.core.tools.defaultTool.debugger.name
 
 class JsToolManager private constructor(
     private val context: Context,

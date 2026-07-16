@@ -1,7 +1,7 @@
 package com.apex.core.tools.system
 
 import android.content.Context
-import android.content.pm.PackageManager
+import com.apex.core.tools.packTool.PackageManager
 import com.apex.util.AppLogger
 import com.apex.util.GithubReleaseUtil
 import com.google.gson.Gson
@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
-import java.io.IOException
+import com.apex.agent.core.util.IOException
 
 object ApexTerminalManager {
     const val PACKAGE_NAME = "com.apex.terminal"

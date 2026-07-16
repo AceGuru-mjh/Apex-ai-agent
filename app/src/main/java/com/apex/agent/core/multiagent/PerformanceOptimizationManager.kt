@@ -16,8 +16,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.apex.core.tools.javascript.map
 import kotlinx.coroutines.launch
+import com.apex.agent.core.multiagent.PresetInfo
 
 private val Context.performanceSettingsDataStore by preferencesDataStore(name = "performance_settings")
 

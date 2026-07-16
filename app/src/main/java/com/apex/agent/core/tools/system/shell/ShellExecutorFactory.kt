@@ -4,6 +4,7 @@ import android.content.Context
 import com.apex.util.AppLogger
 import com.apex.agent.core.tools.system.AndroidPermissionLevel
 import com.apex.agent.data.preferences.androidPermissionPreferences
+import com.apex.agent.core.tools.system.action.PermissionStatus
 
 /** Shell执行器工厂类 根据权限级别提供相应的执行器实例 */
 class ShellExecutorFactory {

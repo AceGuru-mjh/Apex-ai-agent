@@ -2,7 +2,7 @@ package com.apex.gepa
 
 import com.apex.agent.SubTask
 import com.apex.data.gepa.SkillDao
-import com.apex.data.gepa.SkillTemplate
+import com.apex.agent.core.tools.skill.SkillTemplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext

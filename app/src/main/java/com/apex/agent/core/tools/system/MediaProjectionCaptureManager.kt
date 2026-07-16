@@ -10,7 +10,7 @@ import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.util.DisplayMetrics
 import android.view.WindowManager
-import android.os.Handler
+import com.apex.agent.core.patterns.Handler
 import android.os.Looper
 import com.apex.util.AppLogger
 import java.io.File

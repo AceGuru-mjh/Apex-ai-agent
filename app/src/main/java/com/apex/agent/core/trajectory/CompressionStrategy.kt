@@ -1,6 +1,6 @@
 package com.apex.agent.core.trajectory
 
-import com.apex.agent.core.chat.hooks.PromptTurnKind
+import com.apex.core.chat.hooks.PromptTurnKind
 
 /**
  * 压缩策略 - 定义轨迹首尾保护策略

@@ -2,9 +2,9 @@ package com.apex.agent.orchestration.communication.adapters
 
 import android.content.Context
 import com.apex.agent.common.result.Result
-import com.apex.agent.domain.entity.AgentMessage
-import com.apex.agent.orchestration.communication.ChannelAdapter
-import com.apex.agent.orchestration.communication.CommunicationChannel
+import com.apex.agent.AgentMessage
+import com.apex.agent.core.multiagent.ChannelAdapter
+import com.apex.agent.core.multiagent.CommunicationChannel
 import javax.inject.Inject
 
 class NotificationChannelAdapter constructor(

@@ -1,7 +1,7 @@
 package com.apex.agent.core.interest
 
 import android.content.Context
-import com.apex.data.model.ChatMessage
+import com.apex.agent.ui.screens.chat.ChatMessage
 import com.apex.data.model.HonzonUserProfile
 import com.apex.util.AppLogger
 import kotlinx.coroutines.Dispatchers

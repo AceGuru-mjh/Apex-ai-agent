@@ -2,7 +2,7 @@ package com.apex.agent.kernel.burst.optimization
 
 import com.apex.agent.domain.model.BurstTask
 import com.apex.agent.domain.model.KernelState
-import com.apex.agent.domain.model.TaskStatus
+import com.apex.agent.core.task.TaskStatus
 import com.apex.agent.kernel.burst.BurstKernel
 import com.apex.agent.kernel.burst.BurstTaskScheduler
 import kotlinx.coroutines.*
