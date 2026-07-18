@@ -30,9 +30,17 @@ class ProcessTool : Tool {
 
     private fun listProcesses(filterName: String?): ExecutionResult {
         return try {
-            val process = Runtime.getRuntime().exec("ps -ef" + (if (!filterName.isNullOrEmpty()) " | grep $filterName" else ""))
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            val exitCode = if (process.waitFor(10, TimeUnit.SECONDS)) 0 else { process.destroyForcibly(); -1 }
+            // No shell: invoke `ps -ef` directly to prevent shell injection via filterName.
+            val process = ProcessBuilder("ps", "-ef").redirectErrorStream(true).start()
+            val rawOutput = process.inputStream.bufferedReader().use { it.readText() }
+            val exitCode = if (process.waitFor(10, TimeUnit.SECONDS)) process.exitValue() else { process.destroyForcibly(); -1 }
+
+            // Filter in Kotlin rather than piping through `grep $filterName`.
+            val output = if (filterName.isNullOrEmpty()) {
+                rawOutput
+            } else {
+                rawOutput.lineSequence().filter { it.contains(filterName, ignoreCase = true) }.joinToString("\n")
+            }
 
             ExecutionResult().apply {
                 this.exitCode = exitCode
@@ -46,9 +54,14 @@ class ProcessTool : Tool {
 
     private fun killProcess(pid: String?): ExecutionResult {
         if (pid.isNullOrEmpty()) return errorResult("PID is required")
+        // Reject non-numeric pid to prevent shell injection via `kill $pid`.
+        if (!pid.matches(Regex("^\\d+$"))) {
+            return errorResult("Invalid PID: pid must be a positive integer")
+        }
 
         return try {
-            val process = Runtime.getRuntime().exec("kill $pid")
+            // No shell: invoke `kill <pid>` directly.
+            val process = ProcessBuilder("kill", pid).redirectErrorStream(true).start()
             val exited = process.waitFor(10, TimeUnit.SECONDS)
             val exitCode = if (exited) process.exitValue() else { process.destroyForcibly(); -1 }
             val output = if (exitCode == 0) "Process $pid killed" else "Failed to kill process $pid"

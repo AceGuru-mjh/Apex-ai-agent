@@ -1,7 +1,7 @@
 /**
  * Apex Terminal — "Aura" 水母吉祥物形态定义
  *
- * 22 种形态(14 基础 + 8 功能扩展),每种对应一张 PNG 图像。
+ * 25 种形态(14 基础 + 11 功能扩展),每种对应一张 PNG 图像。
  * 设计:深海极光生物荧光水母,圆顶钟盖 + 飘逸触手。
  * 形态由终端/Agent/狂暴模式/功能状态自动触发。
  *
@@ -10,7 +10,7 @@
  */
 
 export type AuraForm =
-  // 基础 14 形态
+  // 14 个基础形态
   | "IDLE" | "THINKING" | "TYPING" | "EXECUTING" | "BERSERK"
   | "SUCCESS" | "ERROR" | "SLEEPING" | "EVOLVING" | "COLLABORATING"
   | "LOADING" | "CELEBRATING" | "CURIOUS" | "SHIELDING"
@@ -31,7 +31,7 @@ export interface AuraFormMeta {
 }
 
 export const AURA_FORMS: AuraFormMeta[] = [
-  // ===== 基础 14 形态 =====
+  // ===== 14 个基础形态 =====
   { form: "IDLE", displayName: "漂浮", description: "轻柔漂浮 · 触手微摆", emoji: "🪼", intervalMs: 1100, accent: "cyan" },
   { form: "THINKING", displayName: "思考", description: "凝神思考 · 光圈扩散", emoji: "🤔", intervalMs: 750, accent: "sky" },
   { form: "TYPING", displayName: "打字", description: "触手快速敲击", emoji: "⌨️", intervalMs: 280, accent: "cyan" },
@@ -46,7 +46,7 @@ export const AURA_FORMS: AuraFormMeta[] = [
   { form: "CELEBRATING", displayName: "庆祝", description: "礼花跳跃 · 狂欢", emoji: "🎉", intervalMs: 450, accent: "amber" },
   { form: "CURIOUS", displayName: "好奇", description: "黄色身体 · 两眼探头", emoji: "👀", intervalMs: 700, accent: "amber" },
   { form: "SHIELDING", displayName: "防御", description: "光盾展开 · 安全", emoji: "🛡️", accent: "sky", intervalMs: 550 },
-  // ===== 功能扩展 8 形态 =====
+  // ===== 功能扩展 11 形态 =====
   { form: "REMEMBERING", displayName: "记忆", description: "记忆系统 · 神经节点", emoji: "🧠", intervalMs: 650, accent: "mint" },
   { form: "ANALYZING", displayName: "分析", description: "代码分析 · 放大镜", emoji: "🔍", intervalMs: 500, accent: "cyan" },
   { form: "LEARNING", displayName: "进化", description: "进化系统 · 自我迭代", emoji: "🌱", intervalMs: 700, accent: "violet" },

@@ -5,7 +5,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.GradleException
 
 /**
- * 模块归属校验插件 — 编译时检查 lib:* 模块只被授权的 APK 引用。
+ * 模块归属校验插件 —— 编译时检查 lib:* / rage-native / rage-jni 模块只被授权的消费者引用。
  *
  * **解决的问题**：
  *   `:lib:working-files` 应该只打包进 `:apk:working-files`，
@@ -13,9 +13,16 @@ import org.gradle.api.GradleException
  *   本插件在 preBuild 阶段检查依赖图，发现违规即让构建失败。
  *
  * **归属规则**（见 docs/architecture/MODULE_OWNERSHIP.md）：
- *   :lib:multi-agent   → 只允许 :apk:multi-agent 引用
- *   :lib:workflow      → 只允许 :apk:workflow 引用
- *   :lib:working-files → 只允许 :apk:working-files 引用
+ *   :lib:multi-agent   → 只允许 :apk:multi-agent 引用（迁移期 :app 也允许）
+ *   :lib:workflow      → 只允许 :apk:workflow 引用（迁移期 :app 也允许）
+ *   :lib:working-files → 只允许 :apk:working-files 引用（迁移期 :app 也允许）
+ *   :lib:engine        → 只允许 :apk:engine 引用（迁移期 :app 也允许）
+ *   :lib:rage          → 只允许 :apk:rage 引用（迁移期 :app 也允许）
+ *   :lib:market        → 只允许 :apk:market 引用（迁移期 :app 也允许）
+ *   :lib:terminal      → 只允许 :apk:terminal 引用（迁移期 :app 也允许）
+ *   :lib:voice         → 只允许 :apk:voice 引用（迁移期 :app 也允许）
+ *   :rage-native       → 只允许 :rage-jni 引用（C++ 核心 .so，只暴露给 JNI 桥）
+ *   :rage-jni          → 只允许 :lib:rage + :app 引用（迁移期；拆 APK 后只剩 :lib:rage）
  *   :sdk:*             → 所有 APK 都可引用（共享 SDK）
  *   :core:* / :engine / :plugins:* / :ai-terminal / :domain / :database / :background / :file
  *                     → 按需引用（不限制）
@@ -25,27 +32,46 @@ import org.gradle.api.GradleException
  *     plugins { id("apex.module.ownership") }
  *
  *   或在 settings.gradle.kts 中对所有 :app 和 :apk:* 模块自动应用。
+ *
+ * **ARCH-3 扩展**：插件 apply 范围从 `:app` + `:apk:*` 扩展到也覆盖 `:lib:*` +
+ * `:rage-jni`，使得 :rage-native → :rage-jni 的归属规则可被强制校验
+ * （:rage-jni 是 :rage-native 的唯一合法消费者）。
  */
 class ModuleOwnershipPlugin : Plugin<Project> {
 
-    /** lib 模块 → 允许引用它的 APK/模块 白名单。 */
+    /** lib / native / jni 模块 → 允许引用它的 APK/模块 白名单。
+     *
+     * 当前阶段为单 APK 多模块架构——所有 :lib:* 都允许被 :app 直接 implementation 引用。
+     * 保留 :apk:* 条目是为未来拆 APK 时无需再改规则。
+     * 若未来 :apk:* 模块落地，可移除此处 :app 条目以恢复严格隔离。
+     *
+     * ARCH-3 新增 :rage-native / :rage-jni 规则：
+     *   - :rage-native 是 C++17 核心 .so，只应被 :rage-jni（JNI 桥）消费
+     *   - :rage-jni 在迁移期可被 :lib:rage + :app 直接消费；拆 APK 后应只剩 :lib:rage
+     */
     private val ownershipRules: Map<String, Set<String>> = mapOf(
-        ":lib:multi-agent" to setOf(":apk:multi-agent"),
-        ":lib:workflow" to setOf(":apk:workflow"),
-        ":lib:working-files" to setOf(":apk:working-files"),
-        ":lib:engine" to setOf(":apk:engine"),
-        ":lib:rage" to setOf(":apk:rage"),
-        ":lib:market" to setOf(":apk:market"),
-        ":lib:terminal" to setOf(":apk:terminal"),
-        ":lib:voice" to setOf(":apk:voice")
+        ":lib:multi-agent" to setOf(":apk:multi-agent", ":app"),
+        ":lib:workflow" to setOf(":apk:workflow", ":app"),
+        ":lib:working-files" to setOf(":apk:working-files", ":app"),
+        ":lib:engine" to setOf(":apk:engine", ":app"),
+        ":lib:rage" to setOf(":apk:rage", ":app"),
+        ":lib:market" to setOf(":apk:market", ":app"),
+        ":lib:terminal" to setOf(":apk:terminal", ":app"),
+        ":lib:voice" to setOf(":apk:voice", ":app"),
+        // ── ARCH-3: Rage 三层架构归属规则 ──────────────────────────
+        ":rage-native" to setOf(":rage-jni"),
+        ":rage-jni" to setOf(":lib:rage", ":app")
     )
 
     override fun apply(target: Project) {
-        // 只在 :app 和 :apk:* 模块上生效
         val path = target.path
         val isAppModule = path == ":app"
         val isApkModule = path.startsWith(":apk:")
-        if (!isAppModule && !isApkModule) {
+        // ARCH-3: 扩展 apply 范围 —— lib:* 与 :rage-jni 也需校验自身依赖,
+        // 以强制 :rage-native → :rage-jni 的单向归属
+        val isLibModule = path.startsWith(":lib:")
+        val isJniBridgeModule = path == ":rage-jni"
+        if (!isAppModule && !isApkModule && !isLibModule && !isJniBridgeModule) {
             return
         }
 
@@ -87,7 +113,7 @@ class ModuleOwnershipPlugin : Plugin<Project> {
                         appendLine("  - 工作流：ApexClient.workflow.*")
                         appendLine("  - 工作文件：ApexClient.workingFiles.*")
                         appendLine("  - 引擎：ApexClient.engine.*")
-                        appendLine("  - 狂暴模式：ApexClient.rage.*")
+                        appendLine("  - 狂暴模式：ApexClient.rage.*  (Kotlin 薄壳 + :rage-jni + :rage-native C++ 核心)")
                         appendLine("  - 市场：ApexClient.market.*")
                         appendLine("  - 终端：ApexClient.terminal.*")
                         appendLine("  - 语音：ApexClient.voice.*")

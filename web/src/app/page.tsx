@@ -30,7 +30,7 @@ export default function Home() {
           <nav className="ml-auto hidden items-center gap-1 font-mono text-xs sm:flex">
             <HeaderTag color={APEX_THEME.primary} label="v2.4.0" />
             <HeaderTag color={APEX_THEME.accent} label="burst-ready" />
-            <HeaderTag color={APEX_THEME.success} label="22 forms" />
+            <HeaderTag color={APEX_THEME.success} label="25 forms" />
           </nav>
         </div>
       </header>
@@ -44,7 +44,7 @@ export default function Home() {
               <span className="text-slate-300">· 深海极光水母</span>
             </h1>
             <p className="mt-1 font-mono text-xs text-slate-500">
-              精致版终端吉祥物 — 14 形态高精度 ASCII 动画 · 多层光晕 · 生物荧光粒子
+              精致版终端吉祥物 — 25 形态 PNG 动画 · 多层光晕 · 生物荧光粒子
             </p>
           </div>
           <div className="flex items-center gap-2 font-mono text-[11px] text-slate-400">
@@ -64,7 +64,7 @@ export default function Home() {
             <span style={{ color: APEX_THEME.primary }}>◆</span> AURA 形态切换
             <span className="text-slate-600">— 点击切换吉祥物动画</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5">
             {AURA_FORMS.map((f) => {
               const active = f.form === form;
               const color = ACCENT_COLOR[f.accent];
@@ -72,6 +72,7 @@ export default function Home() {
                 <button
                   key={f.form}
                   onClick={() => setForm(f.form)}
+                  aria-pressed={active}
                   className="group relative flex flex-col items-start gap-0.5 overflow-hidden rounded-lg border px-3 py-2 text-left transition-all duration-200"
                   style={{
                     borderColor: active ? color : "rgba(255,255,255,0.08)",

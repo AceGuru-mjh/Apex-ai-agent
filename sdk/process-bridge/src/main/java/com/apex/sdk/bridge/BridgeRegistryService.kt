@@ -36,6 +36,12 @@ class BridgeRegistryService : Service() {
             services[serviceName] = bridge
             // 同步注册到 BinderConnectionManager，让进程内调用方也能查到
             BinderConnectionManager.register(serviceName, bridge)
+
+            // 为该 IApkBridge 的 Binder 安装死亡监听 → Watchdog 立即感知 APK 死亡
+            // 通过反射调用 Watchdog.linkToBinderDeath，避免 :sdk:process-bridge → :sdk:watchdog 硬依赖。
+            // serviceName 在本设计中即 apkId（参见 ApexBridge.mapServiceToApkId）。
+            linkBinderDeathViaReflection(serviceName, bridge.asBinder())
+
             ApexLog.i(
                 ApexSuite.ApkId.MAIN,
                 "[BridgeRegistry] service registered: $serviceName (pid=${Process.myPid()})"
@@ -45,6 +51,10 @@ class BridgeRegistryService : Service() {
 
         override fun unregister(serviceName: String?) {
             if (serviceName == null) return
+
+            // 注销前先解除死亡监听，避免 unregister 后仍触发 binderDied 回调
+            unlinkBinderDeathViaReflection(serviceName)
+
             services.remove(serviceName)
             BinderConnectionManager.unregister(serviceName)
         }
@@ -63,6 +73,64 @@ class BridgeRegistryService : Service() {
 
         override fun heartbeat(): Long {
             return System.currentTimeMillis()
+        }
+    }
+
+    /**
+     * 反射调用 `Watchdog.linkToBinderDeath(apkId, binder)`。
+     *
+     * 若 Watchdog SDK 不在 classpath（[ClassNotFoundException] / [NoSuchMethodException]），
+     * 静默跳过 —— Registry 仍可正常工作，只是失去 Binder 死亡即时通知能力，
+     * 退化为依赖 Watchdog 心跳超时检测。
+     *
+     * 所有异常都被吞掉，本 Service **绝不**因 Watchdog 反射失败而崩溃。
+     */
+    private fun linkBinderDeathViaReflection(apkId: String, binder: IBinder) {
+        try {
+            val wdClass = Class.forName("com.apex.sdk.watchdog.Watchdog")
+            val instance = wdClass.getField("INSTANCE").get(null)
+            val method = wdClass.getMethod(
+                "linkToBinderDeath",
+                String::class.java,
+                IBinder::class.java
+            )
+            method.invoke(instance, apkId, binder)
+        } catch (e: ClassNotFoundException) {
+            // Watchdog SDK 不在 classpath — 静默跳过
+        } catch (e: NoSuchMethodException) {
+            ApexLog.w(
+                ApexSuite.ApkId.MAIN,
+                "[BridgeRegistry] Watchdog.linkToBinderDeath not found: ${e.message}"
+            )
+        } catch (e: Throwable) {
+            ApexLog.w(
+                ApexSuite.ApkId.MAIN,
+                "[BridgeRegistry] linkToBinderDeath failed for $apkId: ${e.message}"
+            )
+        }
+    }
+
+    /**
+     * 反射调用 `Watchdog.unlinkBinderDeath(apkId)`。容错同上。
+     */
+    private fun unlinkBinderDeathViaReflection(apkId: String) {
+        try {
+            val wdClass = Class.forName("com.apex.sdk.watchdog.Watchdog")
+            val instance = wdClass.getField("INSTANCE").get(null)
+            val method = wdClass.getMethod("unlinkBinderDeath", String::class.java)
+            method.invoke(instance, apkId)
+        } catch (e: ClassNotFoundException) {
+            // Watchdog SDK 不在 classpath — 静默跳过
+        } catch (e: NoSuchMethodException) {
+            ApexLog.w(
+                ApexSuite.ApkId.MAIN,
+                "[BridgeRegistry] Watchdog.unlinkBinderDeath not found: ${e.message}"
+            )
+        } catch (e: Throwable) {
+            ApexLog.w(
+                ApexSuite.ApkId.MAIN,
+                "[BridgeRegistry] unlinkBinderDeath failed for $apkId: ${e.message}"
+            )
         }
     }
 

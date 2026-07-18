@@ -79,8 +79,6 @@ class ContainerManager(private val context: Context) {
                 return false
             }
 
-            isRunning.set(true)
-
             executor.submit {
                 shellSession = ShellSession(context, getRootfsPath())
                 shellSession?.setOutputListener { output ->
@@ -91,6 +89,8 @@ class ContainerManager(private val context: Context) {
                 }
 
                 if (shellSession?.start() == true) {
+                    // Only mark running AFTER the shell session is actually ready.
+                    isRunning.set(true)
                     currentStatus.set(STATUS_RUNNING)
                     statusListener?.invoke(currentStatus.get())
                     try { Thread.sleep(500) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }

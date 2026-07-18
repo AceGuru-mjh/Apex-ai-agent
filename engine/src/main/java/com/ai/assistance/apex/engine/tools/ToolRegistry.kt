@@ -39,7 +39,7 @@ class ToolRegistry(private val context: Context) {
     private fun registerBuiltInTools() {
         register(FileTool())
         register(NetworkTool())
-        register(SystemTool())
+        register(SystemTool(context))
         register(ProcessTool())
         register(CodeExecutionTool())
     }

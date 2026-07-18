@@ -1,15 +1,23 @@
 ﻿package com.ai.assistance.apex.engine.tools.impl
 
+import android.content.Context
 import android.os.Build
+import android.util.Log
 import com.ai.assistance.apex.engine.model.ExecutionResult
 import com.ai.assistance.apex.engine.tools.Tool
 import com.ai.assistance.apex.engine.tools.errorResult
 import com.ai.assistance.apex.engine.tools.successResult
+import com.ai.assistance.aiterminal.terminal.ai.CommandRiskAssessor
+import com.ai.assistance.aiterminal.terminal.ai.DangerousCommandPatterns
+import com.ai.assistance.aiterminal.terminal.ai.LLMAPI
+import com.ai.assistance.aiterminal.terminal.ai.RiskLevel
+import com.ai.assistance.aiterminal.terminal.ai.TerminalContext
+import kotlinx.coroutines.runBlocking
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
 
-class SystemTool : Tool {
+class SystemTool(private val context: Context? = null) : Tool {
     override val name = "system"
     override val description = "System information and operations tool"
     override val category = "system"
@@ -135,6 +143,20 @@ class SystemTool : Tool {
     }
 
     private fun executeShellCommand(command: String): ExecutionResult {
+        // === 风险评估拦截（Task E）===
+        // CRITICAL/HIGH 直接拒绝；MEDIUM 仅记日志后放行；LOW/无匹配放行。
+        val riskLevel = assessCommandRisk(command)
+        when (riskLevel) {
+            RiskLevel.CRITICAL, RiskLevel.HIGH -> {
+                Log.w(TAG, "Command blocked by risk assessor (level=$riskLevel): $command")
+                return errorResult("Command blocked by risk assessor (level=$riskLevel): $command")
+            }
+            RiskLevel.MEDIUM -> {
+                Log.w(TAG, "MEDIUM-risk command proceeding: $command")
+            }
+            RiskLevel.LOW -> { /* safe to proceed */ }
+        }
+
         return try {
             val process = Runtime.getRuntime().exec(command)
             val exitCode = if (process.waitFor(30, TimeUnit.SECONDS)) process.exitValue() else { process.destroyForcibly(); -1 }
@@ -150,6 +172,28 @@ class SystemTool : Tool {
         } catch (e: Exception) {
             errorResult(e.message ?: "Command execution failed")
         }
+    }
+
+    /**
+     * 调用 :ai-terminal 的 [CommandRiskAssessor] 评估命令风险等级。
+     * - 当 [context] 非空时使用完整 assessor（覆盖正则模式匹配 + 启发式分析），
+     *   通过 runBlocking 阻塞调用 [CommandRiskAssessor.assessRisk] —— 该方法本身不调用 LLM。
+     * - 当 [context] 为空时退化为同步的 [DangerousCommandPatterns.matchPattern]。
+     */
+    private fun assessCommandRisk(command: String): RiskLevel {
+        val ctx = context ?: return DangerousCommandPatterns.matchPattern(command)?.riskLevel ?: RiskLevel.LOW
+        val noOpLlmApi = object : LLMAPI {
+            override suspend fun generate(prompt: String): String = ""
+        }
+        val assessor = CommandRiskAssessor(ctx, noOpLlmApi)
+        // 传入空的 TerminalContext() 以跳过昂贵的 TerminalContextCollector.collectContext() 调用；
+        // assessRisk() 内部不会调用 llmApi（只有 assessWithAI 会），所以 noOp LLM 是安全的。
+        val result = runBlocking { assessor.assessRisk(command, TerminalContext()) }
+        return result.level
+    }
+
+    private companion object {
+        private const val TAG = "SystemTool"
     }
 
     private fun formatBytes(bytes: Long): String {

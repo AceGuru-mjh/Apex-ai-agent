@@ -1,6 +1,7 @@
 package com.apex.engine.tools
 
 import com.apex.core.model.ToolCall
+import com.apex.core.model.ToolMetadata
 import com.apex.core.model.ToolResult
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -9,11 +10,17 @@ import kotlinx.coroutines.withContext
 
 /**
  * 工具执行器 — 带熔断和权限检查。
+ *
+ * 同时暴露 [listMetadata] 以便上层（如 [com.apex.engine.chat.ChatEngine]）能把
+ * 注册表中的工具元信息作为 OpenAI function-calling 工具列表透传给 LLM。
  */
 class ToolExecutor(private val registry: ToolRegistry) {
 
     private val failureCount = ConcurrentHashMap<String, AtomicInteger>()
     private val maxFailures = 5
+
+    /** 返回注册表中所有工具的元信息。供 LLM Provider 构造 function-calling 工具列表。 */
+    fun listMetadata(): List<ToolMetadata> = registry.listMetadata()
 
     suspend fun execute(call: ToolCall): ToolResult = withContext(Dispatchers.IO) {
         if (isCircuitOpen(call.toolId)) {

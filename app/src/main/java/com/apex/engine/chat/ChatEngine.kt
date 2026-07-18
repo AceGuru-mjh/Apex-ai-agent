@@ -5,16 +5,29 @@ import com.apex.core.kernel.EventBus
 import com.apex.core.model.ApiConfig
 import com.apex.core.model.ChatMessage
 import com.apex.core.model.Conversation
+import com.apex.engine.tools.ToolExecutor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 
 /**
  * 聊天引擎 — 协调 LLM Provider 和工具系统，管理对话流程。
+ *
+ * 工具循环不在本类内完成——本类只负责把 [ToolExecutor] 注册表中的工具元信息
+ * 透传给 LLM Provider，由调用方（如 [com.apex.ui.features.chat.ChatViewModel]）
+ * 消费 [StreamEvent.ToolCallEvent] 并通过 [ToolExecutor.execute] 执行，
+ * 再以 role="tool" 的 [ChatMessage] 回灌对话后再次调用 [sendMessage]。
+ *
+ * @param provider LLM 提供商（默认 [OpenAICompatProvider]）
+ * @param bus      事件总线（用于广播流式 chunk / 完成事件，便于全局监听）
+ * @param toolExecutor 可选工具执行器。非空时会把其注册表中所有工具元信息作为
+ *                     OpenAI function-calling 工具列表传给 LLM；为空时不暴露
+ *                     任何工具（向后兼容，等价于之前的 `emptyList()` 行为）。
  */
 class ChatEngine(
     private val provider: LLMProvider = OpenAICompatProvider(),
-    private val bus: EventBus = ApexKernel.eventBus
+    private val bus: EventBus = ApexKernel.eventBus,
+    private val toolExecutor: ToolExecutor? = null
 ) {
     /** 发送消息，返回流式事件 */
     fun sendMessage(
@@ -28,7 +41,11 @@ class ChatEngine(
             model = config.model,
             temperature = config.temperature
         )
-        return provider.stream(allMessages, emptyList(), requestConfig)
+        // 把 ToolExecutor 注册表中所有工具元信息透传给 LLM Provider，
+        // 由 Provider 转换为 OpenAI function-calling 协议格式后随请求发出。
+        // toolExecutor 为 null 时退化为不暴露任何工具（向后兼容）。
+        val tools = toolExecutor?.listMetadata() ?: emptyList()
+        return provider.stream(allMessages, tools, requestConfig)
             .onEach { event ->
                 when (event) {
                     is StreamEvent.Chunk -> bus.publish(

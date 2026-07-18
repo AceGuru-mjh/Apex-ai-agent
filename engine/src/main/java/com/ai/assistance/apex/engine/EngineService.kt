@@ -18,6 +18,9 @@ import com.ai.assistance.apex.engine.model.ExecutionResult
 import com.ai.assistance.apex.engine.model.ToolInfo
 import com.ai.assistance.apex.engine.permissions.PermissionManager
 import com.ai.assistance.apex.engine.tools.ToolExecutor
+import com.apex.agent.database.AppDatabase
+import com.apex.agent.database.DatabaseRepository
+import kotlinx.coroutines.runBlocking
 
 class EngineService : Service() {
 
@@ -25,11 +28,21 @@ class EngineService : Service() {
         private const val TAG = "EngineService"
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "engine_service_channel"
+
+        // RBAC — 默认调用方为 super_admin 用户（userId=1，由 AppDatabase seed 创建）。
+        // 未来接入真实认证后，应从 IPC callerUid / SecurityIdentity 解析实际 userId。
+        private const val DEFAULT_ADMIN_USER_ID = 1L
+        private const val SHELL_PERMISSION = "engine:shell:execute"
     }
 
     private lateinit var containerManager: ContainerManager
     private lateinit var toolExecutor: ToolExecutor
     private lateinit var permissionManager: PermissionManager
+
+    // RBAC 仓储 — 在 onCreate 中由 AppDatabase 派生。
+    // :engine 不引入 Hilt（保持纯 Service），直接用 AppDatabase.getDatabase() 单例。
+    @Volatile
+    private var databaseRepository: DatabaseRepository? = null
 
     private val containerCallbacks = RemoteCallbackList<IContainerCallback>()
     private val binder = EngineBinder()
@@ -41,6 +54,30 @@ class EngineService : Service() {
                 return ExecutionResult().apply {
                     exitCode = -1
                     error = "Command is null or empty"
+                    success = false
+                }
+            }
+            // RBAC: 校验调用方拥有 engine:shell:execute 权限。
+            // 当前阶段没有真实认证，使用默认 super_admin 用户（userId=1）。
+            // 若 seed 未执行或权限未授予，直接拒绝执行 shell 命令。
+            val repo = databaseRepository
+            if (repo == null) {
+                return ExecutionResult().apply {
+                    exitCode = -1
+                    error = "Permission denied: database not initialized"
+                    success = false
+                }
+            }
+            val allowed = try {
+                runBlocking { repo.hasPermission(DEFAULT_ADMIN_USER_ID, SHELL_PERMISSION) }
+            } catch (e: Exception) {
+                Log.e(TAG, "RBAC check failed: ${e.message}", e)
+                false
+            }
+            if (!allowed) {
+                return ExecutionResult().apply {
+                    exitCode = -1
+                    error = "Permission denied: user $DEFAULT_ADMIN_USER_ID lacks '$SHELL_PERMISSION'"
                     success = false
                 }
             }
@@ -161,6 +198,18 @@ class EngineService : Service() {
         containerManager = ContainerManager(this)
         toolExecutor = ToolExecutor(this)
         permissionManager = PermissionManager(this)
+
+        // 初始化 RBAC 仓储 — 直接复用 :database 的 AppDatabase 单例
+        val db = AppDatabase.getDatabase(this)
+        databaseRepository = DatabaseRepository(
+            userDao = db.userDao(),
+            taskDao = db.taskDao(),
+            userWithTasksDao = db.userWithTasksDao(),
+            permissionDao = db.permissionDao(),
+            roleDao = db.roleDao(),
+            userRoleDao = db.userRoleDao(),
+            rolePermissionDao = db.rolePermissionDao()
+        )
 
         containerManager.setOutputListener { output ->
             val count = containerCallbacks.beginBroadcast()

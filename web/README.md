@@ -8,10 +8,10 @@
 
 ## 预览内容
 
-- **22 种水母形态**(14 基础 + 8 功能扩展)的 PNG 图像
+- **25 种水母形态**(14 基础 + 11 功能扩展)的 PNG 图像
 - **深海极光主题终端窗口**(深空黑 + 电光青 + 珊瑚粉)
 - **可交互命令行**(help / status / burst / agent / form / remember / analyze 等)
-- **形态切换按钮**(底部 22 个,点击即切换)
+- **形态切换按钮**(底部 25 个,点击即切换)
 - **浮动呼吸动画**(水母轻微上下浮动 + 缩放)
 
 ## 本地运行
@@ -40,21 +40,21 @@ bun run dev        # 或 npm run dev
 | `clear` | 清屏 |
 | `about` | 关于信息 |
 
-也可以直接点击底部的 22 个形态按钮切换。
+也可以直接点击底部的 25 个形态按钮切换。
 
-## 22 种形态
+## 25 种形态
 
-### 基础 14 形态
+### 14 个基础形态
 IDLE 漂浮 / THINKING 思考 / TYPING 打字 / EXECUTING 执行 / BERSERK 狂暴 / SUCCESS 成功 / ERROR 错误 / SLEEPING 休眠 / EVOLVING 演化 / COLLABORATING 协作 / LOADING 加载 / CELEBRATING 庆祝 / CURIOUS 好奇 / SHIELDING 防御
 
-### 功能扩展 8 形态(由软件功能状态触发)
-REMEMBERING 记忆 / ANALYZING 分析 / LEARNING 学习 / NETWORKING 联网 / ROOT 提权 / PLANNING 规划 / COMPILING 编译 / CONNECTING 连接
+### 功能扩展 11 形态(由软件功能状态触发)
+REMEMBERING 记忆 / ANALYZING 分析 / LEARNING 学习 / NETWORKING 联网 / ROOT 提权 / PLANNING 规划 / COMPILING 编译 / CONNECTING 连接 / TOOLING 工具 / SKILLING 技能 / MCPING MCP连接
 
 ## 文件结构
 
 ```
 web/
-├── public/aura-*.png      # 22 张水母形态 PNG
+├── public/aura-*.png      # 25 张水母形态 PNG
 ├── src/
 │   ├── app/               # Next.js App Router 页面
 │   ├── components/        # 终端 + 水母组件

@@ -6,7 +6,19 @@ import com.apex.core.kernel.ApexKernel
 import com.apex.engine.chat.ChatEngine
 import com.apex.engine.tools.ToolRegistry
 import com.apex.engine.tools.builtin.BuiltInTools
+import dagger.hilt.android.HiltAndroidApp
 
+/**
+ * Apex Application — @HiltAndroidApp 触发 Hilt 单例组件的代码生成。
+ *
+ * 迁移策略：Hilt 与既有 ServiceLocator 共存——
+ *   - ServiceLocator 仍由 ApexKernel.boot() 初始化并注册 ChatEngine / ToolRegistry
+ *     （已有 UI/ViewModel 通过 serviceLocator.resolve() 拿这些实例）
+ *   - Hilt 提供 DatabaseRepository / ChatEngine / ToolExecutor 等单例，
+ *     供 @AndroidEntryPoint / @HiltViewModel 注入
+ * 未来逐步把 UI 迁移到 Hilt 注入后，可移除 ServiceLocator 注册。
+ */
+@HiltAndroidApp
 class ApexApplication : Application() {
     companion object {
         private const val TAG = "ApexApp"

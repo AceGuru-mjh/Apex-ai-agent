@@ -60,6 +60,3 @@ dependencies {
     androidTestImplementation(libs.androidx.test.espresso.core)
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}

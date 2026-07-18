@@ -49,7 +49,7 @@ object BridgeConnection {
         val intent = Intent().apply {
             action = BridgeRegistryService.ACTION_BIND
             // 主 APK 包名
-            setPackage("com.apex.agent")
+            setPackage("com.apex")
         }
 
         val conn = object : ServiceConnection {

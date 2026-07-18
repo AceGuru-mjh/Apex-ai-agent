@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { getFormMeta, type AuraForm } from "@/lib/aura-mascot";
 import { ACCENT_COLOR } from "@/lib/terminal-theme";
 
@@ -12,7 +14,7 @@ interface AuraJellyfishProps {
 /**
  * 极简版 Aura 水母渲染器 —— PNG 图像版(对标 Clawd)。
  *
- * 直接显示定稿的极简 PNG 主形象,14 形态各一张图,切换时换图。
+ * 直接显示定稿的极简 PNG 主形象,25 形态各一张图,切换时换图。
  * 不再用 ASCII,因为 ASCII 画有机圆弧生物天生吃亏。
  * 这才是 Android 端真实会用的渲染方式(ImageView/PNG)。
  */
@@ -24,7 +26,6 @@ export function AuraJellyfish({ form, maxWidth = 260 }: AuraJellyfishProps) {
   return (
     <div
       className="relative flex items-center justify-center"
-      style={{ "--aura": accent } as React.CSSProperties}
     >
       {/* 极淡背景辉光 — 单色呼吸氛围 */}
       <div
@@ -36,9 +37,11 @@ export function AuraJellyfish({ form, maxWidth = 260 }: AuraJellyfishProps) {
         aria-hidden
       />
 
-      <img
+      <Image
         src={src}
         alt={`Aura mascot — ${meta.displayName}`}
+        width={1344}
+        height={768}
         className="relative z-10 select-none"
         style={{
           maxWidth: `${maxWidth}px`,

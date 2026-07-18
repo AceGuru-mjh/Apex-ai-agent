@@ -22,7 +22,7 @@
         <service
             android:name=".EngineService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:foregroundServiceType="dataSync"
             android:process=":engine_process">
             <intent-filter>

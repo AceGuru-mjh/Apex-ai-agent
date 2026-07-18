@@ -9,7 +9,8 @@ object BuiltInTools {
         return listOf(
             HttpGetTool(),
             AppListTool(context),
-            DateTimeTool()
+            DateTimeTool(),
+            SafeShellTool(context)
         )
     }
 }

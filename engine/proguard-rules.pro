@@ -3,9 +3,9 @@
     public *;
 }
 
--keep class com.ai.assistance.operit.engine.** { *; }
--keep interface com.ai.assistance.operit.engine.** { *; }
--keep class com.ai.assistance.operit.engine.model.** { *; }
+-keep class com.ai.assistance.apex.engine.** { *; }
+-keep interface com.ai.assistance.apex.engine.** { *; }
+-keep class com.ai.assistance.apex.engine.model.** { *; }
 
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface *;

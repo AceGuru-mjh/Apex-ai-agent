@@ -28,7 +28,7 @@ const HELP_LINES: Omit<TerminalLine, "id">[] = [
   { kind: "output", text: "可用命令:" },
   { kind: "output", text: "  help              显示此帮助" },
   { kind: "output", text: "  status            查看 Aura 与系统状态" },
-  { kind: "output", text: "  form <名称>       切换 Aura 形态 (22 种)" },
+  { kind: "output", text: "  form <名称>       切换 Aura 形态 (25 种)" },
   { kind: "output", text: "  burst             进入狂暴模式" },
   { kind: "output", text: "  agent <任务>      派遣 Agent 执行任务" },
   { kind: "output", text: "  ── 功能触发形态 ──" },
@@ -53,16 +53,18 @@ const ABOUT_LINES: Omit<TerminalLine, "id">[] = [
   { kind: "output", text: "│  以狂暴模式微内核为核心，融合多 Agent     │" },
   { kind: "output", text: "│  协作、深度记忆与可插拔技能。             │" },
   { kind: "output", text: "╰───────────────────────────────────────╯" },
-  { kind: "output", text: "吉祥物: Aura (深海极光水母) · 14 形态动画" },
+  { kind: "output", text: "吉祥物: Aura (深海极光水母) · 25 形态 PNG 动画" },
   { kind: "output", text: "主题: Deep Sea Aurora · 电光青 + 珊瑚粉" },
 ];
 
-let lineId = 0;
-const nextId = () => ++lineId;
-
 export function AuraTerminal({ form, onFormChange }: AuraTerminalProps) {
+  // Ref-based ID counter — only mutated inside event handlers (never during render).
+  // Boot lines get deterministic index-based IDs; runtime lines start counting after them.
+  const lineIdRef = useRef(BOOT_LINES.length);
+  const nextId = () => ++lineIdRef.current;
+
   const [lines, setLines] = useState<TerminalLine[]>(() =>
-    BOOT_LINES.map((l) => ({ ...l, id: nextId() }))
+    BOOT_LINES.map((l, i) => ({ ...l, id: i }))
   );
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<string[]>([]);
@@ -416,6 +418,7 @@ export function AuraTerminal({ form, onFormChange }: AuraTerminalProps) {
             <span className="text-slate-600">$</span>
             <input
               ref={inputRef}
+              aria-label="终端命令输入"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}

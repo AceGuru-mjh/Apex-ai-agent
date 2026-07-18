@@ -201,11 +201,11 @@ private fun StatsCard() {
         Column(modifier = Modifier.padding(20.dp)) {
             Text("系统信息", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(12.dp))
-            StatRow("架构", "5 层分层 + 插件化")
-            StatRow("引擎", "ChatEngine + LLM Provider")
-            StatRow("工具系统", "内置 3 个 + 可拓展")
+            StatRow("架构", "26 模块单 APK + 跨模块 Bridge")
+            StatRow("引擎", "ChatEngine + LLM Provider + 工具循环")
+            StatRow("工具系统", "内置 4 个（含 SafeShell）+ 可拓展")
             StatRow("UI 框架", "Compose Material Design 3")
-            StatRow("DI 方案", "ServiceLocator (无 Hilt)")
+            StatRow("DI 方案", "Hilt + ServiceLocator（迁移期）")
         }
     }
 }

@@ -110,6 +110,7 @@ abstract class AppDatabase : RoomDatabase() {
 
                     insertDefaultPermissions(database)
                     insertDefaultRoles(database)
+                    seedDefaultAdminUser(database)
                     database.setTransactionSuccessful()
                 } finally {
                     database.endTransaction()
@@ -124,6 +125,7 @@ abstract class AppDatabase : RoomDatabase() {
                 try {
                     insertDefaultPermissions(db)
                     insertDefaultRoles(db)
+                    seedDefaultAdminUser(db)
                     db.setTransactionSuccessful()
                 } finally {
                     db.endTransaction()
@@ -156,7 +158,8 @@ abstract class AppDatabase : RoomDatabase() {
                 "('system:audit', '查看审计日志', 'system', $now)",
                 "('file:read', '读取文件系统中的文件', 'file', $now)",
                 "('file:write', '写入文件系统中的文件', 'file', $now)",
-                "('file:delete', '删除文件系统中的文件', 'file', $now)"
+                "('file:delete', '删除文件系统中的文件', 'file', $now)",
+                "('engine:shell:execute', '允许通过 EngineService 执行 Shell 命令', 'engine', $now)"
             )
             database.execSQL(
                 "INSERT OR IGNORE INTO permissions (name, description, category, createdAt) VALUES ${perms.joinToString(",")}"
@@ -171,6 +174,37 @@ abstract class AppDatabase : RoomDatabase() {
                     "('admin', '管理员 - 高级权限', 4, 1, $now)," +
                     "('user', '普通用户 - 标准权限', 1, 1, $now)," +
                     "('guest', '访客 - 只读权限', 0, 1, $now)"
+            )
+        }
+
+        /**
+         * 种子默认管理员用户 + RBAC 关联：
+         *   1. 创建 id=1 的 admin 用户（INSERT OR IGNORE 保证幂等）
+         *   2. 把 super_admin 角色授予 userId=1
+         *   3. 把 super_admin 关联到所有权限（role_permissions 全量赋权）
+         *
+         * 这一步是 RBAC 真正生效的关键——仅有 permissions / roles 表而没有
+         * user_roles / role_permissions 行的话，hasPermission() 永远返回 false。
+         *
+         * EngineService.executeCommand 默认以 userId=1 + "engine:shell:execute"
+         * 调用 hasPermission；本 seed 保证 super_admin 拥有该权限。
+         */
+        private fun seedDefaultAdminUser(database: SupportSQLiteDatabase) {
+            val now = System.currentTimeMillis()
+            // 1. 默认 admin 用户（显式 id=1，方便 EngineService 等下游写死 DEFAULT_ADMIN_USER_ID=1L）
+            database.execSQL(
+                "INSERT OR IGNORE INTO users (id, name, email, createdAt, updatedAt) " +
+                    "VALUES (1, 'admin', 'admin@apex.local', $now, $now)"
+            )
+            // 2. 授予 super_admin 角色（通过子查询解析 roleId，避免硬编码 id）
+            database.execSQL(
+                "INSERT OR IGNORE INTO user_roles (userId, roleId, grantedBy, grantedAt) " +
+                    "VALUES (1, (SELECT id FROM roles WHERE name='super_admin' LIMIT 1), 'system', $now)"
+            )
+            // 3. super_admin 全量赋权（CROSS JOIN 当前所有权限）
+            database.execSQL(
+                "INSERT OR IGNORE INTO role_permissions (roleId, permissionId) " +
+                    "SELECT r.id, p.id FROM roles r CROSS JOIN permissions p WHERE r.name='super_admin'"
             )
         }
     }
