@@ -49,8 +49,11 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
+    // AppDatabase extends androidx.room.RoomDatabase and is part of this module's
+    // public API, so downstream consumers (e.g. :engine) need Room on their compile
+    // classpath to see the supertype. Expose via `api(...)` rather than `implementation(...)`.
+    api(libs.androidx.room.runtime)
+    api(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.kotlinx.coroutines.core)
