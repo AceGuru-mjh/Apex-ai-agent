@@ -99,12 +99,12 @@ class TerminalBridge(
             )
         }
 
-        // 风险评估
+        // 风险评估 (E-2: block CRITICAL and HIGH for non-privileged agents)
         val risk = assessRisk(request.command)
-        if (risk == RiskLevel.CRITICAL && permission != TerminalPermission.FULL) {
+        if ((risk == RiskLevel.CRITICAL || risk == RiskLevel.HIGH) && permission != TerminalPermission.FULL) {
             return TerminalExecutionResult(
                 success = false,
-                error = "Command blocked (CRITICAL risk): " + request.command,
+                error = "Command blocked (" + risk + " risk): " + request.command,
                 exitCode = -1
             )
         }
@@ -123,7 +123,9 @@ class TerminalBridge(
 
         // 包装 root 命令
         val command = if (request.requireRoot && !request.command.startsWith("su")) {
-            "su -c \"" + request.command + "\""
+            // Security (B-2): use single-quote escaping instead of double quotes
+            // to prevent root shell injection via the command payload.
+            "su -c '" + escapeShellSingleQuote(request.command) + "'"
         } else {
             request.command
         }
@@ -222,12 +224,23 @@ class TerminalBridge(
 
     // ===== 内部方法 =====
 
+    /**
+     * Security (B-2): escape single quotes for safe interpolation inside a single-quoted
+     * shell argument. Standard POSIX technique: replace ' with '\''.
+     */
+    private fun escapeShellSingleQuote(s: String): String = s.replace("'", "'\\''")
+
     private fun assessRisk(command: String): RiskLevel {
-        val lower = command.lowercase().trim()
-        return when {
-            lower.contains("rm -rf /") || lower.contains("mkfs") || lower.contains("dd if=") || lower.contains("format") -> RiskLevel.CRITICAL
-            lower.contains("rm -rf") || lower.contains("reboot") || lower.contains("shutdown") -> RiskLevel.HIGH
-            lower.contains("chmod 777") || lower.contains("kill -9") || lower.contains("su -c") || lower.startsWith("mount") -> RiskLevel.MEDIUM
+        // Security (E-2): delegate to the thorough ai.DangerousCommandPatterns library
+        // (25+ regex patterns across 4 risk tiers) instead of the previous weak substring
+        // check. Map the ai.RiskLevel enum to the local bridge.RiskLevel by name (both
+        // enums define LOW/MEDIUM/HIGH/CRITICAL).
+        val matched = com.ai.assistance.aiterminal.terminal.ai.DangerousCommandPatterns.matchPattern(command)
+        return when (matched?.riskLevel?.name) {
+            "CRITICAL" -> RiskLevel.CRITICAL
+            "HIGH" -> RiskLevel.HIGH
+            "MEDIUM" -> RiskLevel.MEDIUM
+            "LOW" -> RiskLevel.LOW
             else -> RiskLevel.LOW
         }
     }

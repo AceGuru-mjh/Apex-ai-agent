@@ -177,7 +177,9 @@ class ErrorAnalyzer {
         return when (errorType) {
             ErrorType.PERMISSION_DENIED -> {
                 if (!originalCommand.startsWith("su")) {
-                    "su -c \"$originalCommand\""
+                    // Security (B-3): use single-quote escaping instead of double quotes
+                    // to prevent root shell injection via the originalCommand payload.
+                    "su -c '" + originalCommand.replace("'", "'\\''") + "'"
                 } else {
                     null
                 }

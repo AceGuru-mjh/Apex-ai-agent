@@ -124,7 +124,20 @@ class AgentTerminalExecutor(private val context: Context) {
         workingDir: String = System.getProperty("user.home") ?: "/",
         timeoutMs: Long = 30_000,
         env: Map<String, String> = emptyMap(),
-    ): ExecResult = withTimeoutOrNull(timeoutMs) {
+    ): ExecResult {
+        // Security (E-2): assess command risk before execution. Block CRITICAL/HIGH
+        // commands using the thorough ai.DangerousCommandPatterns library (25+ patterns).
+        val matchedPattern = DangerousCommandPatterns.matchPattern(command)
+        if (matchedPattern != null && (matchedPattern.riskLevel == RiskLevel.CRITICAL || matchedPattern.riskLevel == RiskLevel.HIGH)) {
+            return ExecResult(
+                stdout = "",
+                stderr = "Command blocked by risk assessor (level=" + matchedPattern.riskLevel + "): " + matchedPattern.description,
+                exitCode = -1,
+                durationMs = 0,
+                workingDir = workingDir
+            )
+        }
+        return withTimeoutOrNull(timeoutMs) {
         val startedAt = System.currentTimeMillis()
         val dir = File(workingDir).takeIf { it.exists() } ?: File("/")
 
@@ -146,7 +159,8 @@ class AgentTerminalExecutor(private val context: Context) {
         val durationMs = System.currentTimeMillis() - startedAt
 
         ExecResult(stdout, stderr, exitCode, durationMs, workingDir)
-    } ?: ExecResult("", "Timeout after ${timeoutMs}ms", -1, timeoutMs, workingDir)
+        } ?: ExecResult("", "Timeout after ${timeoutMs}ms", -1, timeoutMs, workingDir)
+    }
 
     // ============ 2. 批量执行 ============
 

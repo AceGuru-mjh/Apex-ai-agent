@@ -8,6 +8,7 @@
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 
 ProcessManager::ProcessManager() : running(true) {
     cleanupThread = std::thread(&ProcessManager::cleanupLoop, this);
@@ -89,15 +90,14 @@ bool ProcessManager::killProcess(pid_t pid, int signal) {
     if (it == processes.end()) {
         return false;
     }
-    
-    int result = ::kill(pid, signal);
-    if (result == 0) {
-        it->second.state = ProcessState::TERMINATED;
-        it->second.endTime = std::chrono::steady_clock::now();
-        notifyProcessEvent(it->second);
-        LOGI("Killed process: PID=%d with signal=%d", pid, signal);
-    }
-    return result == 0;
+
+    // Security (A-1): ProcessManager tracks LOGICAL tasks, not OS processes. The PIDs
+    // returned by addProcess() are fake (starting at 10001) and do NOT correspond to
+    // real child processes. Calling ::kill() on these fake PIDs can kill ARBITRARY
+    // system processes that happen to have that PID (e.g. system_server, zygote),
+    // which is a privilege-escalation / DoS vulnerability. Do NOT call ::kill here.
+    LOGW("killProcess(%d) ignored — ProcessManager tracks logical tasks, not OS PIDs; killing arbitrary PIDs is a security risk", pid);
+    return false;
 }
 
 bool ProcessManager::killProcessGroup(pid_t pgid, int signal) {
@@ -106,14 +106,12 @@ bool ProcessManager::killProcessGroup(pid_t pgid, int signal) {
     if (it == processGroups.end()) {
         return false;
     }
-    
-    for (pid_t pid : it->second) {
-        ::kill(pid, signal);
-    }
-    
-    int result = ::kill(-pgid, signal);
-    LOGI("Killed process group: PGID=%d with signal=%d", pgid, signal);
-    return result == 0;
+
+    // Security (A-1): same vulnerability as killProcess — the PIDs in processGroups are
+    // fake logical IDs, not real OS PIDs. Calling ::kill() on them (or on -pgid) can
+    // kill arbitrary system processes. Do NOT call ::kill here.
+    LOGW("killProcessGroup(%d) ignored — ProcessManager tracks logical tasks, not OS PIDs; killing arbitrary PIDs is a security risk", pgid);
+    return false;
 }
 
 bool ProcessManager::suspendProcess(pid_t pid) {
@@ -294,9 +292,10 @@ void ProcessManager::cleanupSessionProcesses(const std::string& sessionId) {
 
 void ProcessManager::cleanupAll() {
     std::lock_guard<std::mutex> lock(mtx);
-    for (auto& pair : processes) {
-        ::kill(pair.first, SIGKILL);
-    }
+    // Security (A-1): do NOT call ::kill() on the fake logical PIDs in `processes` —
+    // they do not correspond to real child processes and killing them could kill
+    // arbitrary system processes. Just clear the in-memory tracking maps.
+    LOGW("cleanupAll() — skipping ::kill for %zu fake logical PIDs (security: A-1)", processes.size());
     processes.clear();
     processGroups.clear();
     LOGI("Cleaned up all processes");

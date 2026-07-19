@@ -17,7 +17,7 @@
     <application>
         <service
             android:name="com.ai.assistance.aiterminal.terminal.service.TerminalService"
-            android:exported="true"
+            android:exported="false"
             android:process=":terminal_process" />
     </application>
 

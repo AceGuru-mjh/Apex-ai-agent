@@ -51,6 +51,17 @@ class TerminalToolExecutor(private val context: Context) {
             error = "Missing required parameter: command"
         )
 
+        // Security (E-2): assess command risk before execution. Block CRITICAL/HIGH
+        // commands using the thorough ai.DangerousCommandPatterns library (25+ patterns).
+        val matchedPattern = DangerousCommandPatterns.matchPattern(command)
+        if (matchedPattern != null && (matchedPattern.riskLevel == RiskLevel.CRITICAL || matchedPattern.riskLevel == RiskLevel.HIGH)) {
+            return ToolExecutionResult(
+                success = false,
+                result = "",
+                error = "Command blocked by risk assessor (level=" + matchedPattern.riskLevel + "): " + matchedPattern.description
+            )
+        }
+
         val requireRoot = parameters["require_root"] as? Boolean ?: false
 
         val sessionId = java.util.UUID.randomUUID().toString()

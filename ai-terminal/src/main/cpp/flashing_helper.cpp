@@ -60,7 +60,18 @@ std::string FlashingHelper::executeRootCommand(const std::string& cmd) {
         return "";
     }
     
-    std::string fullCmd = "su -c '" + cmd + "' 2>&1";
+    // Security (B-1): escape single quotes in cmd to prevent root shell injection.
+    // Single-quote escaping: replace every ' with '\'' (close quote, escaped quote, reopen quote).
+    std::string escapedCmd;
+    escapedCmd.reserve(cmd.size() + 16);
+    for (char c : cmd) {
+        if (c == '\'') {
+            escapedCmd += "'\\''";
+        } else {
+            escapedCmd += c;
+        }
+    }
+    std::string fullCmd = "su -c '" + escapedCmd + "' 2>&1";
     FILE* pipe = popen(fullCmd.c_str(), "r");
     if (!pipe) {
         return "";
