@@ -5,10 +5,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
 import android.os.RemoteCallbackList
 import android.os.Build
 import android.util.Log
+import java.util.concurrent.ConcurrentHashMap
 import com.ai.assistance.aiterminal.terminal.ITerminalCallback
 import com.ai.assistance.aiterminal.terminal.ITerminalService
 import com.ai.assistance.aiterminal.terminal.TerminalManager
@@ -34,6 +36,25 @@ class TerminalService : Service() {
     // 终端管理器实例
     private val terminalManager = TerminalManager.instance
 
+    // D-5: per-caller (UID) rate limiting for executeCommand. A malicious
+    // binder client can call executeCommand in a tight loop and spawn
+    // thousands of shell processes (fork-bomb / DoS). Sliding 1-second
+    // window, max 10 commands per UID per window. ConcurrentHashMap +
+    // per-list synchronized block for thread safety (binder calls arrive
+    // on pool threads).
+    private val commandTimes = ConcurrentHashMap<Int, MutableList<Long>>()
+
+    private fun checkRateLimit(uid: Int): Boolean {
+        val now = System.currentTimeMillis()
+        val times = commandTimes.computeIfAbsent(uid) { mutableListOf() }
+        synchronized(times) {
+            times.removeAll { now - it > 1000 }  // drop entries older than 1s
+            if (times.size >= 10) return false   // 10 cmds/sec per caller
+            times.add(now)
+            return true
+        }
+    }
+
     // AIDL Binder
     private val binder = object : ITerminalService.Stub() {
         // 创建会话
@@ -51,6 +72,21 @@ class TerminalService : Service() {
         // 执行命令
         override fun executeCommand(sessionId: String, command: String): Boolean {
             Log.d(TAG, "executeCommand: $sessionId, command: $command")
+            // D-5: per-caller rate limit. Without this a binder client can
+            // hammer executeCommand in a tight loop and fork-bomb the device.
+            // 10 cmds/sec/UID sliding window — see checkRateLimit().
+            //
+            // Per-session concurrent-command limit: NOT enforced here.
+            // Session.state (CREATED/RUNNING/SUSPENDED/CLOSED) tracks
+            // session lifecycle, not per-command execution, so there is no
+            // reliable 'command in flight' flag to check without a deeper
+            // change to the JNI layer. The rate limit above is the primary
+            // guard against concurrent-spam DoS.
+            val uid = Binder.getCallingUid()
+            if (!checkRateLimit(uid)) {
+                Log.w(TAG, "Rate limit exceeded for uid=$uid, rejecting command on session $sessionId")
+                return false
+            }
             return terminalManager.executeCommand(sessionId, command)
         }
 

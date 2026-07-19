@@ -1,5 +1,6 @@
 ﻿package com.ai.assistance.aiterminal.terminal
 
+import android.util.Log
 import com.ai.assistance.aiterminal.terminal.model.Session
 import com.ai.assistance.aiterminal.terminal.model.SessionState
 import com.ai.assistance.aiterminal.terminal.model.TerminalEvent
@@ -12,6 +13,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -20,6 +23,13 @@ import kotlinx.coroutines.launch
  */
 class TerminalManager private constructor() {
     companion object {
+        private const val TAG = "TerminalManager"
+        // D-3: a session with no activity for this long is auto-closed.
+        private const val IDLE_TIMEOUT_MS = 30L * 60 * 1000           // 30 min
+        // D-3: no session may live longer than this, even if still active.
+        private const val MAX_LIFETIME_MS = 24L * 60 * 60 * 1000      // 24 h
+        // D-3: how often the reaper scans for idle / expired sessions.
+        private const val REAPER_INTERVAL_MS = 60L * 1000             // 60 s
         private var appContext: android.content.Context? = null
 
         // 单例实现
@@ -58,6 +68,21 @@ class TerminalManager private constructor() {
                 updateStateFromEvent(event)
             }
         }
+        // D-3: session idle/lifetime reaper. Sessions created via
+        // createSession live until closeSession is explicitly called —
+        // without this guard a leaked/forgotten session pins a PTY + sh
+        // subprocess forever. Only closes idle sessions, so no in-flight
+        // command is interrupted.
+        scope.launch {
+            while (isActive) {
+                delay(REAPER_INTERVAL_MS)
+                try {
+                    reapIdleSessions()
+                } catch (e: Exception) {
+                    Log.w(TAG, "session reaper error", e)
+                }
+            }
+        }
     }
 
     // ========== 会话管理（对标核心能力） ==========
@@ -91,6 +116,7 @@ class TerminalManager private constructor() {
         val success = jni.startSession(sessionId, shellType)
         if (success) {
             updateSessionState(sessionId, SessionState.RUNNING)
+            touchSession(sessionId)  // D-3
         }
         return success
     }
@@ -115,6 +141,8 @@ class TerminalManager private constructor() {
             }
             // 记录命令到历史管理器
             CommandHistoryManager.instance.recordCommand(sessionId, command)
+            // D-3: refresh idle timer so the reaper does not close an active session.
+            touchSession(sessionId)
         }
         return success
     }
@@ -132,6 +160,7 @@ class TerminalManager private constructor() {
             currentSessionId = sessionId
             _terminalState.update { it.copy(currentSessionId = sessionId) }
             jni.updateCurrentSessionId(sessionId)
+            touchSession(sessionId)  // D-3
         }
         return success
     }
@@ -147,6 +176,7 @@ class TerminalManager private constructor() {
                 newSessions[sessionId]?.currentDir = path
                 state.copy(sessions = newSessions)
             }
+            touchSession(sessionId)  // D-3
         }
         return success
     }
@@ -172,6 +202,7 @@ class TerminalManager private constructor() {
     fun resumeSession(sessionId: String) {
         jni.resumeSession(sessionId)
         updateSessionState(sessionId, SessionState.RUNNING)
+        touchSession(sessionId)  // D-3
     }
 
     /**
@@ -260,6 +291,41 @@ class TerminalManager private constructor() {
     }
 
     // ========== 内部方法 ==========
+
+    // D-3: refresh lastActivityAt for a session so the idle reaper does
+    // not close it. Creates a new Session instance (copy) so StateFlow
+    // equality is violated and collectors actually receive the update.
+    private fun touchSession(sessionId: String) {
+        _terminalState.update { state ->
+            val existing = state.sessions[sessionId] ?: return@update state
+            val updated = existing.copy(lastActivityAt = System.currentTimeMillis())
+            val newSessions = state.sessions.toMutableMap()
+            newSessions[sessionId] = updated
+            state.copy(sessions = newSessions)
+        }
+    }
+
+    // D-3: close sessions idle > IDLE_TIMEOUT_MS or alive > MAX_LIFETIME_MS.
+    // Invoked every REAPER_INTERVAL_MS by the reaper coroutine in init.
+    // Only idle sessions are closed, so no in-flight command is interrupted.
+    private fun reapIdleSessions() {
+        val now = System.currentTimeMillis()
+        val toClose = _terminalState.value.sessions.values.filter {
+            (now - it.lastActivityAt > IDLE_TIMEOUT_MS) ||
+                (now - it.createdAt > MAX_LIFETIME_MS)
+        }
+        if (toClose.isEmpty()) return
+        for (s in toClose) {
+            val idleSec = (now - s.lastActivityAt) / 1000
+            val ageSec = (now - s.createdAt) / 1000
+            Log.w(
+                TAG,
+                "Auto-closing session ${s.sessionId}: idle=${idleSec}s age=${ageSec}s " +
+                    "(limits idle=${IDLE_TIMEOUT_MS / 1000}s age=${MAX_LIFETIME_MS / 1000}s)"
+            )
+            closeSession(s.sessionId)
+        }
+    }
     /**
      * 从事件更新状态
      */

@@ -137,7 +137,13 @@ class AgentTerminalExecutor(private val context: Context) {
                 workingDir = workingDir
             )
         }
-        return withTimeoutOrNull(timeoutMs) {
+        // B-12: withTimeoutOrNull cancels the coroutine on timeout, but
+        // process.waitFor() is a blocking JNI call that does NOT react to
+        // cancellation — so the spawned `sh -c <command>` subprocess keeps
+        // running (resource leak / runaway command). Capture the Process in
+        // `proc` and destroyForcibly() it after the timeout fires.
+        var proc: Process? = null
+        val result = withTimeoutOrNull(timeoutMs) {
         val startedAt = System.currentTimeMillis()
         // J-12: 工作目录不存在时拒绝执行,不再静默回退到 "/" (否则命令会在意外位置运行,
         // 例如 Agent 传入已删除/不存在的会话目录时)。空 workingDir 回退到 app filesDir。
@@ -161,6 +167,7 @@ class AgentTerminalExecutor(private val context: Context) {
         env.forEach { (k, v) -> processBuilder.environment()[k] = v }
 
         val process = processBuilder.start()
+        proc = process  // B-12: capture for watchdog destroy on timeout
 
         val stdoutDeferred = scope.async { process.inputStream.bufferedReader().readText() }
         val stderrDeferred = scope.async { process.errorStream.bufferedReader().readText() }
@@ -182,7 +189,14 @@ class AgentTerminalExecutor(private val context: Context) {
         val stderr = TerminalOutputSanitizer.sanitize(rawStderr)
 
         ExecResult(stdout, stderr, exitCode, durationMs, workingDir)
-        } ?: ExecResult("", "Timeout after ${timeoutMs}ms", -1, timeoutMs, workingDir)
+        }
+        if (result == null) {
+            // Timeout fired — the coroutine was cancelled but the subprocess
+            // is still alive. SIGKILL it to avoid a leak.
+            try { proc?.destroyForcibly() } catch (_: Exception) {}
+            return ExecResult("", "Timeout after ${timeoutMs}ms", -1, timeoutMs, workingDir)
+        }
+        return result
     }
 
     // ============ 2. 批量执行 ============
@@ -410,6 +424,11 @@ class AgentTerminalExecutor(private val context: Context) {
         val output: StringBuilder = StringBuilder(),
         val startedAt: Long = System.currentTimeMillis(),
         var endedAt: Long? = null,
+        // TERM-FIX-4C / B-11: hold the live Process so cancelBgTask can
+        // destroyForcibly() it. Without this, cancelling the coroutine only
+        // abandons the reader loop and the sh subprocess keeps running in the
+        // background (resource leak / runaway command).
+        var process: Process? = null,
     )
 
     enum class BgTaskStatus { RUNNING, COMPLETED, FAILED, CANCELLED }
@@ -431,6 +450,8 @@ class AgentTerminalExecutor(private val context: Context) {
             try {
                 val dir = File(workingDir).takeIf { it.exists() } ?: File("/")
                 val process = ProcessBuilder("sh", "-c", command).directory(dir).redirectErrorStream(true).start()
+                // B-11: expose the Process on the task so cancelBgTask can kill it.
+                task.process = process
                 val reader = process.inputStream.bufferedReader()
                 var line = reader.readLine()
                 while (line != null) {
@@ -457,8 +478,18 @@ class AgentTerminalExecutor(private val context: Context) {
     /** 取消后台任务 */
     fun cancelBgTask(taskId: String) {
         bgJobs[taskId]?.cancel()
-        bgTasks[taskId]?.status = BgTaskStatus.CANCELLED
-        bgTasks[taskId]?.endedAt = System.currentTimeMillis()
+        // B-11: coroutine cancellation alone does NOT kill the spawned shell.
+        // Job.cancel() throws CancellationException in the suspended reader
+        // loop, but the OS subprocess keeps running. destroyForcibly() sends
+        // SIGKILL to the child process.
+        val task = bgTasks[taskId]
+        try {
+            task?.process?.destroyForcibly()
+        } catch (_: Exception) {
+            // best-effort; process may already be dead
+        }
+        task?.status = BgTaskStatus.CANCELLED
+        task?.endedAt = System.currentTimeMillis()
     }
 
     /** 列出所有后台任务 */

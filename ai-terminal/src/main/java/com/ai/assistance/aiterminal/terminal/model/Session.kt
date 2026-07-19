@@ -15,5 +15,11 @@ data class Session(
     var state: SessionState = SessionState.CREATED,
     var currentDir: String = "/",
     val commandHistory: MutableList<String> = mutableListOf(),
-    val env: MutableMap<String, String> = mutableMapOf()
+    val env: MutableMap<String, String> = mutableMapOf(),
+    // TERM-FIX-4C / D-3: timestamp bookkeeping used by the TerminalManager
+    // reaper coroutine to auto-close idle (>30 min) or long-lived (>24 h)
+    // sessions. createdAt is set once at construction; lastActivityAt is
+    // bumped on every interactive entry point via touchSession().
+    val createdAt: Long = System.currentTimeMillis(),
+    var lastActivityAt: Long = System.currentTimeMillis()
 )
