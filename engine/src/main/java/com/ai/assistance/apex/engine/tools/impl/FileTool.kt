@@ -46,15 +46,15 @@ class FileTool(private val context: Context? = null) : Tool {
         val external = runCatching {
             android.os.Environment.getExternalStorageDirectory().canonicalPath
         }.getOrNull()
-        return if (context != null) {
-            listOfNotNull(
-                runCatching { context.filesDir.canonicalPath }.getOrNull(),
-                runCatching { context.cacheDir.canonicalPath }.getOrNull(),
-                external
-            )
-        } else {
-            listOfNotNull(external)
+        val bases = mutableListOf<String>()
+        // context is nullable (Context? = null); use safe-call so the compiler
+        // doesn't complain about a nullable receiver inside the runCatching lambdas.
+        context?.let { ctx ->
+            runCatching { ctx.filesDir.canonicalPath }.getOrNull()?.let { bases.add(it) }
+            runCatching { ctx.cacheDir.canonicalPath }.getOrNull()?.let { bases.add(it) }
         }
+        external?.let { bases.add(it) }
+        return bases
     }
 
     override fun execute(args: String): ExecutionResult {
