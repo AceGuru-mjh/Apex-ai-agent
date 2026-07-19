@@ -245,6 +245,15 @@ class TerminalManager private constructor() {
      * 清理资源
      */
     fun cleanup() {
+        // TERM-FIX-4A / I-7: flush debounced command history to disk before
+        // tearing down. Without this, commands recorded within the last
+        // SAVE_DEBOUNCE_MS window (5s) would be lost on service shutdown.
+        // Called from TerminalService.onDestroy().
+        try {
+            CommandHistoryManager.instance.flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         closeAllSessions()
         jni.cleanup()
         scope.cancel()

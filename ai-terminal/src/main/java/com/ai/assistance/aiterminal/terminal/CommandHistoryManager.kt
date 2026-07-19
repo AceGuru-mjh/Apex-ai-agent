@@ -1,11 +1,13 @@
 package com.ai.assistance.aiterminal.terminal
 
 import com.ai.assistance.aiterminal.terminal.model.Session
+import com.ai.assistance.aiterminal.terminal.ai.SecretRedactor
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.regex.Pattern
-import kotlin.collections.HashMap
 import kotlin.math.min
 
 /**
@@ -42,30 +44,44 @@ class CommandHistoryManager private constructor() {
     }
     
     // 会话命令历史记录
-    private val sessionHistories: MutableMap<String, MutableList<CommandRecord>> = HashMap()
-    
+    // J-3: ConcurrentHashMap for thread safety (accessed from JNI callback thread,
+    // UI thread, and AI agent IO threads). Inner lists are CopyOnWriteArrayList so
+    // that concurrent iteration during search/flatten is safe without external locks.
+    private val sessionHistories: MutableMap<String, MutableList<CommandRecord>> =
+        ConcurrentHashMap<String, MutableList<CommandRecord>>()
+
     // 命令使用频率统计
-    private val commandFrequency: MutableMap<String, Int> = HashMap()
-    
+    private val commandFrequency: MutableMap<String, Int> =
+        ConcurrentHashMap<String, Int>()
+
     // 命令别名映射
-    private val commandAliases: MutableMap<String, String> = HashMap()
-    
+    private val commandAliases: MutableMap<String, String> =
+        ConcurrentHashMap<String, String>()
+
     // 工作流记录
-    private val workflows: MutableList<WorkflowRecord> = ArrayList()
-    
-    // 当前录制的工作流
+    private val workflows: MutableList<WorkflowRecord> = CopyOnWriteArrayList<WorkflowRecord>()
+
+    // 当前录制的工作流 (@Volatile — may be started from UI thread and read from others)
+    @Volatile
     private var currentRecording: MutableList<CommandRecord>? = null
+    @Volatile
     private var recordingStartTime: Long = 0
-    
+
     // 命令书签/收藏
-    private val bookmarks: MutableList<Bookmark> = ArrayList()
-    
+    private val bookmarks: MutableList<Bookmark> = CopyOnWriteArrayList<Bookmark>()
+
     // 命令执行时间统计
-    private val executionTimes: MutableMap<String, ExecutionStats> = HashMap()
-    
+    private val executionTimes: MutableMap<String, ExecutionStats> =
+        ConcurrentHashMap<String, ExecutionStats>()
+
     // 最近使用的目录
-    private val recentDirectories: MutableList<String> = ArrayList()
+    private val recentDirectories: MutableList<String> = CopyOnWriteArrayList<String>()
     private val MAX_RECENT_DIRS = 20
+
+    // I-7: saveHistory 防抖 — 避免每条命令都写盘造成磁盘 I/O 风暴
+    private val SAVE_DEBOUNCE_MS = 5000L
+    @Volatile
+    private var lastSaveTime = 0L
     
     init {
         // 加载历史数据
@@ -80,10 +96,7 @@ class CommandHistoryManager private constructor() {
      * 记录命令执行
      */
     fun recordCommand(sessionId: String, command: String, exitCode: Int = 0) {
-        // 确保会话历史记录存在
-        if (!sessionHistories.containsKey(sessionId)) {
-            sessionHistories[sessionId] = mutableListOf()
-        }
+        // (J-3: session list is created atomically via computeIfAbsent below)
 
         // Security (TERM-FIX-3B / I-6): redact secrets BEFORE storing the command.
         // Command history is persisted to disk (see saveHistory()) and is also
@@ -107,14 +120,24 @@ class CommandHistoryManager private constructor() {
             exitCode = exitCode
         )
 
-        // 添加到会话历史
-        sessionHistories[sessionId]?.add(record)
+        // J-3: computeIfAbsent is atomic on ConcurrentHashMap — avoids the
+        // check-then-put race. Inner list is CopyOnWriteArrayList so concurrent
+        // iteration (search/flatten) is safe without external locks.
+        val sessionList = sessionHistories.computeIfAbsent(sessionId) {
+            CopyOnWriteArrayList<CommandRecord>()
+        }
+        sessionList.add(record)
 
         // 更新频率统计 (key on the redacted form so frequency counts aren't split)
         commandFrequency[safeCommand] = (commandFrequency[safeCommand] ?: 0) + 1
 
-        // 保存历史数据
-        saveHistory()
+        // I-7: 防抖保存 — 仅在距上次保存超过 SAVE_DEBOUNCE_MS 时才写盘,
+        // 避免突发执行(如 AI agent 批量调用)时每条命令都触发磁盘 I/O。
+        // 应用进入后台/退出时应调用 flush() 强制写盘。
+        val now = System.currentTimeMillis()
+        if (now - lastSaveTime > SAVE_DEBOUNCE_MS) {
+            saveHistory()
+        }
     }
 
     /**
@@ -143,45 +166,11 @@ class CommandHistoryManager private constructor() {
      *     var name matches one of the patterns above.
      */
     private fun redactSecrets(command: String): String {
-        var redacted = command
-
-        // Authorization: Bearer <token>
-        redacted = Regex("""(Authorization:\s*Bearer\s+)([^\s]+)""", RegexOption.IGNORE_CASE)
-            .replace(redacted) { "${it.groupValues[1]}[REDACTED]" }
-
-        // password=<value> | password: <value>  (stops at whitespace or &)
-        redacted = Regex("""(password\s*[=:]\s*)([^\s&]+)""", RegexOption.IGNORE_CASE)
-            .replace(redacted) { "${it.groupValues[1]}[REDACTED]" }
-
-        // secret=<value> | secret: <value>
-        redacted = Regex("""(secret\s*[=:]\s*)([^\s&]+)""", RegexOption.IGNORE_CASE)
-            .replace(redacted) { "${it.groupValues[1]}[REDACTED]" }
-
-        // token=<value> | token: <value>
-        redacted = Regex("""(token\s*[=:]\s*)([^\s&]+)""", RegexOption.IGNORE_CASE)
-            .replace(redacted) { "${it.groupValues[1]}[REDACTED]" }
-
-        // api_key=<value> | apikey=<value> | api-key=<value> | api_key: <value>
-        redacted = Regex("""(api_?key\s*[=:]\s*)([^\s&]+)""", RegexOption.IGNORE_CASE)
-            .replace(redacted) { "${it.groupValues[1]}[REDACTED]" }
-
-        // URL-embedded credentials: https://user:pass@host
-        // Keep the username (often non-secret) but redact the password segment.
-        redacted = Regex("""(https?://)([^:\s]+):([^@\s]+)@""")
-            .replace(redacted) { "${it.groupValues[1]}${it.groupValues[2]}:[REDACTED]@" }
-
-        // AWS access key IDs (well-known format: AKIA + 16 uppercase alphanumerics)
-        redacted = Regex("""(AKIA[0-9A-Z]{16})""")
-            .replace(redacted, "[REDACTED_AWS_KEY]")
-
-        // Generic long hex/base64 token — 40+ contiguous hex chars.
-        // Catches: SHA-1 hashes (40), AWS secret keys (40 hex), Git OIDs,
-        // many JWT signatures (43+ base64url), etc. False positives on legit
-        // hashes are an acceptable trade-off for defense-in-depth.
-        redacted = Regex("""\b([a-fA-F0-9]{40,})\b""")
-            .replace(redacted, "[REDACTED_TOKEN]")
-
-        return redacted
+        // TERM-FIX-4A / I-9: redaction logic extracted to the shared
+        // `SecretRedactor` object so that `AgentTerminalExecutor.logAudit`
+        // (and any other sensitive sink) applies the exact same regex patterns.
+        // See SecretRedactor.redact() for the full pattern list and limitations.
+        return SecretRedactor.redact(command)
     }
     
     /**
@@ -806,8 +795,48 @@ class CommandHistoryManager private constructor() {
         return sb.toString()
     }
     
+    /**
+     * I-8: 解析书签 JSON (org.json.JSONArray)。
+     *
+     * Schema (与 bookmarksToJson() 对应):
+     * [
+     *   {"id":"...", "command":"...", "description":"...",
+     *    "tags":["t1","t2"], "createdAt":123, "lastUsed":456, "usageCount":0},
+     *   ...
+     * ]
+     *
+     * 对每个字段做 best-effort 类型容错(opt*/optInt/optLong 优雅降级),
+     * 单条 bookmark 解析失败不影响其余条目。
+     */
     private fun parseBookmarksJson(json: String) {
-        // 简化解析
+        try {
+            val arr = JSONArray(json.trim())
+            for (i in 0 until arr.length()) {
+                try {
+                    val obj = arr.getJSONObject(i)
+                    val tagsArr = obj.optJSONArray("tags")
+                    val tags = if (tagsArr != null) {
+                        (0 until tagsArr.length()).mapNotNull { tagsArr.optString(it) }
+                    } else {
+                        emptyList()
+                    }
+                    bookmarks.add(Bookmark(
+                        id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+                        command = obj.optString("command", ""),
+                        description = obj.optString("description", ""),
+                        tags = tags,
+                        createdAt = obj.optLong("createdAt", System.currentTimeMillis()),
+                        lastUsed = obj.optLong("lastUsed", System.currentTimeMillis()),
+                        usageCount = obj.optInt("usageCount", 0)
+                    ))
+                } catch (e: Exception) {
+                    // 跳过单条损坏的 bookmark,继续解析其余条目
+                    e.printStackTrace()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     
     /**
@@ -832,7 +861,8 @@ class CommandHistoryManager private constructor() {
      * 记录命令执行时间
      */
     fun recordExecutionTime(command: String, durationMs: Long) {
-        val stats = executionTimes.getOrPut(command) { ExecutionStats() }
+        // J-3: computeIfAbsent is atomic on ConcurrentHashMap (getOrPut is not).
+        val stats = executionTimes.computeIfAbsent(command) { ExecutionStats() }
         stats.recordExecution(durationMs)
     }
     
@@ -881,6 +911,11 @@ class CommandHistoryManager private constructor() {
         var minDurationMs: Long = Long.MAX_VALUE,
         var maxDurationMs: Long = 0
     ) {
+        // J-3: @Synchronized — ExecutionStats instances are shared via
+        // ConcurrentHashMap and mutated from multiple threads (JNI callback,
+        // AI agent IO). The four var updates must be atomic w.r.t. each other
+        // to avoid torn reads in getSlowestCommands / getFastestCommands.
+        @Synchronized
         fun recordExecution(durationMs: Long) {
             totalDurationMs += durationMs
             executionCount++
@@ -1079,10 +1114,65 @@ class CommandHistoryManager private constructor() {
     }
     
     /**
-     * 解析工作流JSON
+     * I-8: 解析工作流 JSON (org.json.JSONArray)。
+     *
+     * Schema (与 workflowsToJson() 对应):
+     * [
+     *   {"id":"...", "name":"...", "duration":123, "createdAt":456,
+     *    "commands":[
+     *      {"command":"...", "timestamp":123, "exitCode":0}, ...
+     *    ]},
+     *   ...
+     * ]
+     *
+     * 注意: workflowsToJson() 不序列化 startTime,这里用 createdAt - duration
+     * 回填(防负数),仅用于展示;回放时只依赖 commands 列表。
      */
     private fun parseWorkflowsJson(json: String) {
-        // 简化解析，实际项目中应使用JSON库
+        try {
+            val arr = JSONArray(json.trim())
+            for (i in 0 until arr.length()) {
+                try {
+                    val obj = arr.getJSONObject(i)
+                    val cmdsArr = obj.optJSONArray("commands")
+                    val commands = if (cmdsArr != null) {
+                        (0 until cmdsArr.length()).mapNotNull { idx ->
+                            try {
+                                val c = cmdsArr.getJSONObject(idx)
+                                CommandRecord(
+                                    command = c.optString("command", ""),
+                                    timestamp = c.optLong("timestamp", 0L),
+                                    exitCode = c.optInt("exitCode", 0)
+                                )
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                    } else {
+                        emptyList()
+                    }
+                    val createdAt = obj.optLong("createdAt", System.currentTimeMillis())
+                    val duration = obj.optLong("duration", 0L)
+                    workflows.add(WorkflowRecord(
+                        id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+                        name = obj.optString("name", "Workflow ${workflows.size + 1}"),
+                        commands = commands,
+                        startTime = Math.max(0L, createdAt - duration),
+                        duration = duration,
+                        createdAt = createdAt
+                    ))
+                } catch (e: Exception) {
+                    // 跳过单条损坏的 workflow,继续解析其余条目
+                    e.printStackTrace()
+                }
+            }
+            // 保持工作流数量限制
+            while (workflows.size > MAX_WORKFLOWS) {
+                workflows.removeAt(0)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     
     /**
@@ -1111,16 +1201,30 @@ class CommandHistoryManager private constructor() {
             val file = File(HISTORY_FILE_PATH)
             // 创建目录
             file.parentFile?.mkdirs()
-            
+
             val writer = FileWriter(file)
             val historyData = HistoryData(sessionHistories, commandFrequency)
-            
+
             // 简单的JSON序列化
             writer.write(historyData.toJson())
             writer.close()
+            // I-7: 记录本次保存时间,供 recordCommand 防抖判断。
+            // 无论调用来源(recordCommand / clearAllHistory / flush),保存成功后
+            // 都更新 lastSaveTime,使防抖窗口从最后一次成功写入开始计算。
+            lastSaveTime = System.currentTimeMillis()
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    /**
+     * I-7: 强制立即保存历史数据(跳过防抖)。
+     *
+     * 供应用进入后台 / 退出时调用,确保防抖窗口内未落盘的命令不丢失。
+     * 典型调用点: TerminalManager.cleanup() (由 TerminalService.onDestroy 触发)。
+     */
+    fun flush() {
+        saveHistory()
     }
     
     /**
@@ -1136,7 +1240,11 @@ class CommandHistoryManager private constructor() {
             reader.close()
             
             val historyData = HistoryData.fromJson(json)
-            sessionHistories.putAll(historyData.sessionHistories.mapValues { it.value.toMutableList() })
+            // J-3: 内部 list 使用 CopyOnWriteArrayList,与运行时创建的 inner list 类型一致,
+            // 保证 loadHistory 后所有 session list 都具备相同的并发迭代安全性。
+            historyData.sessionHistories.forEach { (sid, records) ->
+                sessionHistories[sid] = CopyOnWriteArrayList(records)
+            }
             commandFrequency.putAll(historyData.commandFrequency)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -1203,18 +1311,69 @@ class CommandHistoryManager private constructor() {
         }
         
         companion object {
+            /**
+             * I-8: 解析 toJson() 产生的 JSON (org.json.JSONObject)。
+             *
+             * Schema:
+             * {
+             *   "sessionHistories": {
+             *     "<sessionId>": [
+             *       {"command":"...", "timestamp":123, "exitCode":0}, ...
+             *     ], ...
+             *   },
+             *   "commandFrequency": {
+             *     "<command>": <count:int>, ...
+             *   }
+             * }
+             *
+             * 对每个字段做 best-effort 类型容错;单条 record 解析失败不影响其余。
+             * 返回的 HistoryData 在 loadHistory() 中被 putAll 到线程安全的
+             * ConcurrentHashMap 字段。
+             */
             fun fromJson(json: String): HistoryData {
                 val sessionHistories = mutableMapOf<String, List<CommandRecord>>()
                 val commandFrequency = mutableMapOf<String, Int>()
-                
+
                 try {
-                    // 简单的JSON解析，实际项目中建议使用JSON库
-                    // 这里只做基本的解析，处理简单情况
-                    
+                    val root = JSONObject(json.trim())
+
+                    // 解析 sessionHistories
+                    val shObj = root.optJSONObject("sessionHistories")
+                    if (shObj != null) {
+                        val keys = shObj.keys()
+                        while (keys.hasNext()) {
+                            val sid = keys.next()
+                            val recordsArr = shObj.optJSONArray(sid)
+                            if (recordsArr == null) continue
+                            val records = (0 until recordsArr.length()).mapNotNull { idx ->
+                                try {
+                                    val r = recordsArr.getJSONObject(idx)
+                                    CommandRecord(
+                                        command = r.optString("command", ""),
+                                        timestamp = r.optLong("timestamp", 0L),
+                                        exitCode = r.optInt("exitCode", 0)
+                                    )
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            }
+                            sessionHistories[sid] = records
+                        }
+                    }
+
+                    // 解析 commandFrequency
+                    val cfObj = root.optJSONObject("commandFrequency")
+                    if (cfObj != null) {
+                        val keys = cfObj.keys()
+                        while (keys.hasNext()) {
+                            val cmd = keys.next()
+                            commandFrequency[cmd] = cfObj.optInt(cmd, 0)
+                        }
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-                
+
                 return HistoryData(sessionHistories, commandFrequency)
             }
         }

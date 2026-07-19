@@ -908,7 +908,12 @@ class AgentTerminalExecutor(private val context: Context) {
             id = "audit_${System.currentTimeMillis()}_${(1..999).random()}",
             timestamp = System.currentTimeMillis(),
             toolName = toolName,
-            command = command.take(200),
+            // TERM-FIX-4A / I-9: redact secrets BEFORE truncating & storing.
+            // Audit logs are serialized via getAuditLogs() and may be surfaced
+            // to the LLM / persisted — same sensitive-sink rationale as
+            // CommandHistoryManager. Shares the exact same regex patterns via
+            // SecretRedactor to avoid pattern drift.
+            command = SecretRedactor.redact(command).take(200),
             success = result.success,
             exitCode = result.exitCode,
             durationMs = result.durationMs,
