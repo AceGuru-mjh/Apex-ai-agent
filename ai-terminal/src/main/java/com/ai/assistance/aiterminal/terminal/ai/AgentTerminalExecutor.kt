@@ -139,7 +139,19 @@ class AgentTerminalExecutor(private val context: Context) {
         }
         return withTimeoutOrNull(timeoutMs) {
         val startedAt = System.currentTimeMillis()
-        val dir = File(workingDir).takeIf { it.exists() } ?: File("/")
+        // J-12: 工作目录不存在时拒绝执行,不再静默回退到 "/" (否则命令会在意外位置运行,
+        // 例如 Agent 传入已删除/不存在的会话目录时)。空 workingDir 回退到 app filesDir。
+        val effectiveDir = if (workingDir.isBlank()) context.filesDir else File(workingDir)
+        if (!effectiveDir.exists()) {
+            return@withTimeoutOrNull ExecResult(
+                stdout = "",
+                stderr = "Working directory does not exist: $workingDir",
+                exitCode = -1,
+                durationMs = 0,
+                workingDir = workingDir
+            )
+        }
+        val dir = effectiveDir
 
         val processBuilder = ProcessBuilder("sh", "-c", command)
             .directory(dir)

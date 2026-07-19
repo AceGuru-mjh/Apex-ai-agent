@@ -66,6 +66,22 @@ class TerminalContextCollector(private val context: Context) {
     private var lastCollectTime: Long = 0
     private val cacheValidityMs: Long = 5000
 
+    // J-14: Root 可用性在会话生命周期内不会变化,缓存首次结果不再每 5s spawn `su -c id`
+    // (spawn su 成本高 + 频繁弹授权框)。null = 尚未计算。
+    @Volatile
+    private var rootAvailabilityCached: Boolean? = null
+
+    /**
+     * J-14: 会话级缓存的 root 可用性检查。
+     * 首次调用实际执行 `su -c id`,之后直接返回缓存值。
+     */
+    private fun isRootAvailable(): Boolean {
+        rootAvailabilityCached?.let { return it }
+        val result = checkRootAccess()
+        rootAvailabilityCached = result
+        return result
+    }
+
     suspend fun collectContext(
         sessionId: String? = null,
         forceRefresh: Boolean = false,
@@ -93,7 +109,7 @@ class TerminalContextCollector(private val context: Context) {
         val androidInfo = collectAndroidSystemInfo()
         val storageInfo = collectStorageInfo()
         val networkInfo = collectNetworkInfo()
-        val isRoot = checkRootAccess()
+        val isRoot = isRootAvailable()
         val selinux = checkSELinuxStatus()
 
         val newContext = TerminalContext(

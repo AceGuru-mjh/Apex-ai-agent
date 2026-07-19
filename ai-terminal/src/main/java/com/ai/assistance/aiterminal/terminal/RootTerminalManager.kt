@@ -39,8 +39,13 @@ class RootTerminalManager {
             val canExecuteRoot = try {
                 val process = Runtime.getRuntime().exec("su -c id")
                 val output = process.inputStream.bufferedReader().use { it.readText() }
-                process.waitFor(10, TimeUnit.SECONDS)
-                output.contains("uid=0")
+                // B-17: 超时后必须 destroyForcibly 杀掉 su 进程,否则泄漏为孤儿进程
+                if (!process.waitFor(10, TimeUnit.SECONDS)) {
+                    process.destroyForcibly()
+                    false
+                } else {
+                    output.contains("uid=0")
+                }
             } catch (e: Exception) {
                 false
             }
@@ -199,6 +204,16 @@ class RootTerminalManager {
         return nativeGetSessionPid(sessionId)
     }
 
+    /**
+     * J-13: 安全敏感环境变量黑名单 — 调用方不允许覆盖这些变量,
+     * 否则可借此注入 LD_PRELOAD / IFS / BASH_ENV 等实现提权或绕过限制。
+     */
+    private val BLOCKED_ENV_VARS = setOf(
+        "LD_PRELOAD", "LD_LIBRARY_PATH", "LD_AUDIT", "LD_BIND_NOW",
+        "LD_DEBUG", "LD_TRACE_LOADED_OBJECTS",
+        "IFS", "ENV", "BASH_ENV", "PERL5OPT", "PYTHONPATH"
+    )
+
     private fun buildEnvList(customEnv: Map<String, String>, useRoot: Boolean): List<String> {
         val baseEnv = if (useRoot) {
             // Root 环境
@@ -218,7 +233,25 @@ class RootTerminalManager {
             )
         }
 
-        customEnv.forEach { (k, v) -> baseEnv.add("$k=$v") }
+        customEnv.forEach { (k, v) ->
+            // J-13: 拦截安全敏感变量
+            if (k.uppercase() in BLOCKED_ENV_VARS) {
+                android.util.Log.w(
+                    "RootTerminalManager",
+                    "Blocked override of security-sensitive env var: $k"
+                )
+                return@forEach
+            }
+            // J-13: PATH 只允许 prepend,不允许 replace — 防止把系统路径完全换掉
+            if (k.uppercase() == "PATH") {
+                val existingPath = baseEnv.find { it.startsWith("PATH=") }
+                    ?.removePrefix("PATH=") ?: ""
+                baseEnv.removeAll { it.startsWith("PATH=") }
+                baseEnv.add("PATH=$v:$existingPath")
+                return@forEach
+            }
+            baseEnv.add("$k=$v")
+        }
         return baseEnv
     }
 

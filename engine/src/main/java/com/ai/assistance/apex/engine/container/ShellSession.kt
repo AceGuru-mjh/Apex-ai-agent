@@ -8,9 +8,6 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
-import java.lang.reflect.Field
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 class ShellSession(private val context: Context, private val rootfsPath: String) {
 
@@ -35,10 +32,20 @@ class ShellSession(private val context: Context, private val rootfsPath: String)
     val startTime: Long = System.currentTimeMillis()
 
     private fun getProcessPid(process: Process): Int {
+        // J-8: 优先用 Process.pid() 公开方法 (Android API 35+ / Java 9+),
+        // 避免依赖反射访问私有 `pid` 字段 (不同 ROM/版本字段名/类型可能不同,极脆弱)。
         return try {
-            val field: Field = process.javaClass.getDeclaredField("pid")
-            field.isAccessible = true
-            field.getInt(process)
+            val pidMethod = Process::class.java.getMethod("pid")
+            (pidMethod.invoke(process) as Long).toInt()
+        } catch (e: NoSuchMethodException) {
+            // Fallback (API 26-34): 反射读取私有 `pid` 字段
+            try {
+                val field = process.javaClass.getDeclaredField("pid")
+                field.isAccessible = true
+                field.getInt(process)
+            } catch (e2: Exception) {
+                -1
+            }
         } catch (e: Exception) {
             -1
         }
@@ -90,13 +97,6 @@ class ShellSession(private val context: Context, private val rootfsPath: String)
                 }
             }.start()
 
-            Thread {
-                try {
-                    process?.waitFor(30, TimeUnit.SECONDS)
-                } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                }
-            }.start()
 
             true
         } catch (e: Exception) {
@@ -127,46 +127,100 @@ class ShellSession(private val context: Context, private val rootfsPath: String)
         }
 
         val startTime = System.currentTimeMillis()
+        // J-10 / B-15: sentinel 协议 — 命令后追加 `echo <sentinel>:$?`,
+        // 轮询 outputBuffer 直到 sentinel 出现,然后从 `$?` 解析真实 exit code。
+        // 替代旧的 sleep(200)+poll:不再丢失 sentinel 之后的输出,exit code 也准确。
+        val sentinel = "__APEX_CMD_DONE_${startTime}__"
+        val sentinelPrefix = "$sentinel:"
 
         return try {
             synchronized(outputBuffer) {
                 outputBuffer.setLength(0)
             }
 
-            inputWriter?.apply {
+            val writer = inputWriter
+            if (writer == null) {
+                return ExecutionResult().apply {
+                    exitCode = -1
+                    error = "Input writer not available"
+                    executionTime = System.currentTimeMillis() - startTime
+                    success = false
+                }
+            }
+            writer.apply {
                 write("$command\n")
+                write("echo $sentinelPrefix\$?\n")
                 flush()
             }
 
-            Thread.sleep(200)
-
-            var output = ""
             val maxWaitTime = startTime + timeoutMs
+            var bufferSnapshot = ""
+            var sentinelIndex = -1
             while (System.currentTimeMillis() < maxWaitTime) {
                 synchronized(outputBuffer) {
-                    output = outputBuffer.toString()
+                    bufferSnapshot = outputBuffer.toString()
                 }
-                if (output.isNotEmpty() && output.contains("\n")) {
+                sentinelIndex = bufferSnapshot.indexOf(sentinelPrefix)
+                if (sentinelIndex >= 0) break
+                if (process?.isAlive != true) {
+                    // Shell 在产出 sentinel 前就退出了 — 不再等待
                     break
                 }
-                Thread.sleep(100)
+                try {
+                    Thread.sleep(50)
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                    break
+                }
             }
 
             val executionTime = System.currentTimeMillis() - startTime
 
+            if (sentinelIndex < 0) {
+                // 超时或 shell 退出,未拿到 sentinel — 返回已收集到的输出
+                return ExecutionResult().apply {
+                    exitCode = -1
+                    this.output = bufferSnapshot
+                    this.error = if (process?.isAlive != true)
+                        "Shell process exited before command completed"
+                    else "Command timed out after ${timeoutMs}ms"
+                    this.executionTime = executionTime
+                    success = false
+                }
+            }
+
+            // 解析 exit code: sentinel 后紧跟 ":<digits>" 直到行尾
+            val afterSentinel = bufferSnapshot.substring(sentinelIndex + sentinelPrefix.length)
+            val newlineIdx = afterSentinel.indexOf('\n')
+            val exitCodeStr = if (newlineIdx >= 0)
+                afterSentinel.substring(0, newlineIdx).trim()
+            else
+                afterSentinel.trim()
+            val parsedExitCode = exitCodeStr.toIntOrNull() ?: 0
+
+            // 真实命令输出 = sentinel 之前的全部内容 (去掉末尾换行)
+            var actualOutput = bufferSnapshot.substring(0, sentinelIndex)
+            while (actualOutput.endsWith('\n')) {
+                actualOutput = actualOutput.removeSuffix("\n")
+            }
+
+            // 从共享 buffer 中移除 sentinel 行,保持 getOutput() 干净
+            synchronized(outputBuffer) {
+                val full = outputBuffer.toString()
+                val lineEnd = full.indexOf('\n', sentinelIndex)
+                outputBuffer.setLength(0)
+                outputBuffer.append(full.substring(0, sentinelIndex))
+                if (lineEnd >= 0 && lineEnd + 1 < full.length) {
+                    outputBuffer.append(full.substring(lineEnd + 1))
+                }
+            }
+
             ExecutionResult().apply {
-                exitCode = if (process?.isAlive == true) 0 else -1
-                this.output = output
+                exitCode = parsedExitCode
+                this.output = actualOutput
                 this.error = ""
                 this.executionTime = executionTime
-                success = exitCode == 0
-            }
-        } catch (e: TimeoutException) {
-            ExecutionResult().apply {
-                exitCode = -1
-                error = "Command execution timed out"
-                executionTime = timeoutMs
-                success = false
+                success = (parsedExitCode == 0)
             }
         } catch (e: Exception) {
             ExecutionResult().apply {
