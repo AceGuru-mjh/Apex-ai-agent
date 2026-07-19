@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.regex.Pattern
 import kotlin.math.min
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * 命令历史记录管理器
@@ -805,7 +807,7 @@ class CommandHistoryManager private constructor() {
      *   ...
      * ]
      *
-     * 对每个字段做 best-effort 类型容错(opt*/optInt/optLong 优雅降级),
+     * 对每个字段做 best-effort 类型容错(opt系列/optInt/optLong 优雅降级),
      * 单条 bookmark 解析失败不影响其余条目。
      */
     private fun parseBookmarksJson(json: String) {
