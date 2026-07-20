@@ -3,6 +3,8 @@
 #include <cstring>
 #include <fcntl.h>
 #include <pty.h>
+#include <poll.h>       // PERF-01: poll() for non-blocking PTY reads with timeout
+#include <chrono>       // PERF-01: steady_clock deadline for read timeout
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -195,6 +197,18 @@ bool TerminalSession::start(const std::string& shellType) {
     shellFd[0] = masterFd;  // read shell output from master
     shellFd[1] = masterFd;  // write commands to master
 
+    // PERF-01: set the master fd to non-blocking mode. This is REQUIRED for
+    // the poll()-based read loop in `executeCommand` — without O_NONBLOCK,
+    // a `read()` after poll() returns POLLIN could still block (e.g. if the
+    // shell produces exactly the data poll() saw, then goes quiet before
+    // read() runs). With O_NONBLOCK, read() returns EAGAIN/EWOULDBLOCK
+    // instead of blocking, so the loop can fall back to the next poll()
+    // iteration and respect the deadline.
+    int fdFlags = fcntl(masterFd, F_GETFL, 0);
+    if (fdFlags != -1) {
+        (void)fcntl(masterFd, F_SETFL, fdFlags | O_NONBLOCK);
+    }
+
     shellPid = pid;
     state = SessionState::RUNNING;
 
@@ -239,19 +253,124 @@ bool TerminalSession::executeCommand(const std::string& cmd) {
         return false;
     }
 
-    // 异步读取输出（简化版，实际可封装线程）
-    char buffer[4096];
-    ssize_t readLen;
-    std::string output;
+    // PERF-01 / PERF-02: poll()-based non-blocking read loop.
+    //
+    // The previous implementation used a blocking `while ((readLen = read(...)) > 0)`
+    // loop which can hang the calling binder thread indefinitely if the shell
+    // is quiet (e.g. interactive prompt waiting for input) or produces output
+    // in slow trickles. On Android this manifests as a JNI ANR/SIGQUIT and
+    // ultimately a watchdog kill.
+    //
+    // The fix uses poll() with a 100ms granularity and an overall deadline
+    // (default 30s) so the binder thread is never blocked for more than the
+    // deadline. Each chunk is streamed via the callback immediately (PERF-02)
+    // so the UI can render progressively, and a 1 MiB cap prevents OOM on
+    // pathological commands like `yes` or `cat /dev/urandom`.
+    //
+    // The PTY master was set to O_NONBLOCK in `start()`, so a `read()` that
+    // finds no data returns EAGAIN/EWOULDBLOCK (errno) instead of blocking —
+    // we treat that as "no data right now" and loop back to poll().
+    static constexpr int READ_DEADLINE_MS = 30000;        // 30s overall cap
+    static constexpr size_t MAX_OUTPUT_BYTES = 1024 * 1024;  // PERF-02: 1 MiB cap
+    static constexpr int POLL_TIMEOUT_MS = 100;            // 100ms poll granularity
 
-    // PTY master is non-blocking after forkpty on some platforms; loop until
-    // EAGAIN/EWOULDBLOCK. Use a short timeout-style read loop.
-    while ((readLen = read(shellFd[0], buffer, sizeof(buffer) - 1)) > 0) {
-        buffer[readLen] = '\0';
-        output.append(buffer);
+    std::string output;
+    output.reserve(4096);
+    auto deadline = std::chrono::steady_clock::now()
+                    + std::chrono::milliseconds(READ_DEADLINE_MS);
+
+    char buffer[4096];
+    bool sentinelFound = false;
+    bool truncated = false;
+
+    while (std::chrono::steady_clock::now() < deadline && !sentinelFound) {
+        struct pollfd pfd;
+        pfd.fd = shellFd[0];
+        pfd.events = POLLIN;
+        pfd.revents = 0;
+
+        int pr = poll(&pfd, 1, POLL_TIMEOUT_MS);
+        if (pr < 0) {
+            if (errno == EINTR) continue;  // interrupted by signal — retry
+            LOGE("poll() failed for session %s: %s", sessionId.c_str(), strerror(errno));
+            break;  // unrecoverable error — return what we have
+        }
+        if (pr == 0) {
+            // 100ms elapsed with no data — re-check the deadline.
+            continue;
+        }
+
+        if (pfd.revents & POLLIN) {
+            ssize_t readLen = read(shellFd[0], buffer, sizeof(buffer) - 1);
+            if (readLen > 0) {
+                buffer[readLen] = '\0';
+
+                // PERF-02: cap accumulated output at MAX_OUTPUT_BYTES to
+                // prevent OOM on pathological commands (`yes`, `cat
+                // /dev/urandom`, large `find /` output, etc.). Once the cap
+                // is hit we still drain the PTY (to avoid blocking the
+                // shell's stdout pipe) but stop appending.
+                if (!truncated) {
+                    if (output.size() + static_cast<size_t>(readLen) <= MAX_OUTPUT_BYTES) {
+                        output.append(buffer, static_cast<size_t>(readLen));
+                    } else {
+                        size_t remaining = MAX_OUTPUT_BYTES - output.size();
+                        if (remaining > 0) {
+                            output.append(buffer, remaining);
+                        }
+                        output.append("[...truncated]");
+                        truncated = true;
+                        LOGI("Session %s output truncated at %zu bytes",
+                             sessionId.c_str(), MAX_OUTPUT_BYTES);
+                    }
+                }
+
+                // PERF-02: stream each chunk via the callback immediately
+                // so the UI can render progressively instead of waiting for
+                // the entire command to finish.
+                if (callback) {
+                    callback(TerminalEventType::COMMAND_OUTPUT,
+                             std::string(buffer, static_cast<size_t>(readLen)), 0);
+                }
+
+                // Check for an end-of-command sentinel if the caller/shell
+                // uses one. The Kotlin ShellSession protocol emits
+                // `__APEX_CMD_DONE_<id>__`; some legacy paths use `__DONE__`.
+                // We check the just-read chunk (not the full accumulated
+                // output) for efficiency.
+                if (strstr(buffer, "__APEX_CMD_DONE_") != nullptr ||
+                    strstr(buffer, "__DONE__") != nullptr) {
+                    sentinelFound = true;
+                }
+            } else if (readLen == 0) {
+                // EOF — the shell closed its stdout (typically because the
+                // shell process exited, e.g. `exit` command).
+                break;
+            } else {
+                // readLen < 0 — expected EAGAIN/EWOULDBLOCK on a non-blocking
+                // fd when poll() reported POLLIN but the data was already
+                // drained by a racing reader (shouldn't happen here, but is
+                // benign). Any other errno is a real error.
+                if (errno != EAGAIN && errno != EWOULDBLOCK) {
+                    LOGE("read() failed for session %s: %s",
+                         sessionId.c_str(), strerror(errno));
+                    break;
+                }
+                // EAGAIN/EWOULDBLOCK — loop back to poll().
+            }
+        }
+
+        if (pfd.revents & (POLLHUP | POLLERR)) {
+            // Peer hung up or reported an error — stop reading.
+            break;
+        }
     }
 
     // 触发输出事件（对标事件通知）
+    // NOTE: when streaming is enabled (above), each chunk was already
+    // delivered via callback. We still emit a final aggregated event for
+    // callers that want the full output in one shot (e.g. AI summarizer).
+    // The aggregated payload is capped at MAX_OUTPUT_BYTES.
     if (callback && !output.empty()) {
         callback(TerminalEventType::COMMAND_OUTPUT, output, 0);
     }
@@ -369,6 +488,20 @@ void TerminalSession::resume() {
 }
 
 // 关闭会话
+//
+// PERF-05: the previous implementation called `waitpid(shellPid, nullptr, 0)`
+// which BLOCKS the calling thread until the child exits. On Android this is
+// invoked from a JNI binder thread (via TerminalSessionPool::closeSession /
+// closeAllSessions), and SIGKILL delivery + kernel reap can take tens of
+// milliseconds under load — long enough to cause contention when closing
+// many sessions. Worse, the pool's `closeSessionUnlocked` historically held
+// `m_mutex` while calling `close()` (see PERF-05 fix in the pool below),
+// serializing all session operations behind a single waitpid().
+//
+// The fix uses `waitpid(WNOHANG)` in a 100ms poll loop with a 1-second total
+// budget. If the child isn't reaped within 1s (very unusual after SIGKILL),
+// we abandon the wait — the JVM/ProcessManager SIGCHLD handler will reap it
+// asynchronously. This keeps the binder thread responsive.
 void TerminalSession::close() {
     if (state == SessionState::CLOSED) {
         return;
@@ -390,8 +523,35 @@ void TerminalSession::close() {
 
     // 结束Shell进程
     if (shellPid > 0) {
-        kill(shellPid, SIGKILL);
-        waitpid(shellPid, nullptr, 0);
+        // Send SIGKILL first (SIGTERM is ignored by `/system/bin/sh` on
+        // Android in many configurations, so SIGKILL is the reliable choice).
+        (void)kill(shellPid, SIGKILL);
+
+        // PERF-05: poll for reaping with WNOHANG. Total budget: 1 second
+        // (10 iterations × 100ms). If the child is still not reaped by the
+        // end of the budget, we abandon the wait — the kernel will keep the
+        // child as a zombie until something reaps it (the JVM's SIGCHLD
+        // handler, or process teardown). This is safe because we already
+        // SIGKILL'd the child, so it WILL die — we just don't block on it.
+        for (int i = 0; i < 10; i++) {
+            int status;
+            pid_t r = waitpid(shellPid, &status, WNOHANG);
+            if (r == shellPid) {
+                // Reaped.
+                break;
+            }
+            if (r == -1) {
+                // ECHILD — child already reaped by someone else (e.g. SIGCHLD
+                // handler). Either way, nothing more for us to do.
+                if (errno == EINTR) continue;  // retry this iteration
+                break;
+            }
+            // r == 0 — child still running. Sleep 100ms and retry.
+            usleep(100000);  // 100ms
+        }
+        // If still not reaped after 1s, the SIGCHLD handler / teardown will
+        // reap it. Log so we can detect persistent zombies in field reports.
+        // (No LOGE — this is expected occasionally under heavy load.)
         shellPid = -1;
     }
 
@@ -467,24 +627,45 @@ bool TerminalSessionPool::switchSession(const std::string& sessionId) {
     return true;
 }
 
-// 关闭会话 (A-7: locks; delegates to closeSessionUnlocked to avoid
-// deadlock with closeAllSessions which is itself a public method).
+// 关闭会话 (PERF-05: see detachSessionUnlocked — the actual close()+delete
+// happens OUTSIDE the lock so the blocking waitpid in close() doesn't
+// serialize against other pool operations).
 bool TerminalSessionPool::closeSession(const std::string& sessionId) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    return closeSessionUnlocked(sessionId);
-}
-
-// A-7: internal helper — caller MUST already hold m_mutex.
-bool TerminalSessionPool::closeSessionUnlocked(const std::string& sessionId) {
-    auto it = sessions.find(sessionId);
-    if (it == sessions.end()) {
+    TerminalSession* session = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        session = detachSessionUnlocked(sessionId);
+    }
+    if (session == nullptr) {
         LOGE("Session %s not found", sessionId.c_str());
         return false;
     }
+    // close() may block for up to 1s in the waitpid(WNOHANG) poll loop
+    // (PERF-05). Doing this OUTSIDE m_mutex means concurrent
+    // createSession/getSession/switchSession calls on OTHER sessions
+    // are not blocked behind this close.
+    session->close();
+    delete session;
+    LOGD("Closed session %s", sessionId.c_str());
+    return true;
+}
 
-    // 先关闭会话再删除
-    it->second->close();
-    delete it->second;
+// A-7 / PERF-05: internal helper — caller MUST already hold m_mutex.
+// Finds the session by id, REMOVES it from the map (so subsequent
+// getSession/createSession calls with the same id see "not found"),
+// updates `currentSessionId` if needed, and returns the raw pointer.
+//
+// IMPORTANT: this helper does NOT call session->close() or delete —
+// the caller is responsible for doing so OUTSIDE the lock to avoid
+// holding m_mutex during the (potentially 1s) waitpid in close().
+//
+// Returns nullptr if the session id is not in the map.
+TerminalSession* TerminalSessionPool::detachSessionUnlocked(const std::string& sessionId) {
+    auto it = sessions.find(sessionId);
+    if (it == sessions.end()) {
+        return nullptr;
+    }
+    TerminalSession* session = it->second;
     sessions.erase(it);
 
     // 更新当前会话
@@ -493,24 +674,29 @@ bool TerminalSessionPool::closeSessionUnlocked(const std::string& sessionId) {
     } else if (sessions.empty()) {
         currentSessionId.clear();
     }
-
-    LOGD("Closed session %s", sessionId.c_str());
-    return true;
+    return session;
 }
 
-// 关闭所有会话 (A-7: locks; iterates calling closeSessionUnlocked to
-// avoid re-entrant deadlock on m_mutex).
+// 关闭所有会话 (PERF-05: detach all sessions under the lock, then
+// close()+delete each one OUTSIDE the lock so the (up to 1s) waitpid
+// per session doesn't serialize against other pool operations).
 void TerminalSessionPool::closeAllSessions() {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    // Copy keys first because closeSessionUnlocked mutates `sessions`.
-    std::vector<std::string> ids;
-    ids.reserve(sessions.size());
-    for (auto& pair : sessions) {
-        ids.push_back(pair.first);
+    std::vector<TerminalSession*> toClose;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        toClose.reserve(sessions.size());
+        for (auto& pair : sessions) {
+            toClose.push_back(pair.second);
+        }
+        sessions.clear();
+        currentSessionId.clear();
     }
-    for (auto& id : ids) {
-        closeSessionUnlocked(id);
+    // close()+delete outside the lock — each close() may do up to 1s of
+    // waitpid(WNOHANG) polling (PERF-05), but this no longer blocks other
+    // threads from using the pool.
+    for (auto* session : toClose) {
+        session->close();
+        delete session;
     }
-    currentSessionId.clear();
-    LOGD("Closed all sessions");
+    LOGD("Closed all sessions (%zu sessions)", toClose.size());
 }

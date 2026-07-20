@@ -9,8 +9,10 @@ namespace {
 constexpr const char* TAG = "RageSched";
 }
 
-ParallelScheduler::ParallelScheduler(int maxConcurrency)
-    : maxConcurrency_(std::max(1, maxConcurrency)) {
+ParallelScheduler::ParallelScheduler(int maxConcurrency,
+                                     std::function<void()> threadInit)
+    : maxConcurrency_(std::max(1, maxConcurrency)),
+      threadInit_(std::move(threadInit)) {
     for (int i = 0; i < maxConcurrency_; ++i) {
         workers_.emplace_back([this] { workerLoop(); });
     }
@@ -42,6 +44,22 @@ int ParallelScheduler::queuedCount() const {
 }
 
 void ParallelScheduler::workerLoop() {
+    // PERF-43: invoke the optional per-thread init callback BEFORE pulling
+    // any tasks. rage_jni.cpp uses this to AttachCurrentThread + cache the
+    // JNIEnv* in thread_local storage, so the first JNI callback issued
+    // from this worker doesn't pay the (50-100us) attach latency on the
+    // hot path. Errors in the callback are swallowed (best-effort).
+    if (threadInit_) {
+        try {
+            threadInit_();
+        } catch (const std::exception& e) {
+            __android_log_print(ANDROID_LOG_WARN, TAG,
+                                "threadInit threw: %s", e.what());
+        } catch (...) {
+            __android_log_print(ANDROID_LOG_WARN, TAG,
+                                "threadInit threw unknown exception");
+        }
+    }
     for (;;) {
         QueueEntry entry;
         {

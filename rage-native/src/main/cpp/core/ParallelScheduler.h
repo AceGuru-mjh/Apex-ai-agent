@@ -9,6 +9,13 @@
 //   - shutdown() drains queued tasks (no new submits allowed) and joins workers.
 //
 // Thread-safe: submit() may be called from any thread.
+//
+// PERF-43: an optional `threadInit` callback may be passed to the constructor.
+// It is invoked once at the start of each worker thread, BEFORE the worker
+// begins pulling tasks from the queue. rage_jni.cpp uses this to pre-attach
+// the worker to the JVM (via AttachCurrentThread + thread_local cache) so
+// the first JNI callback issued from that worker doesn't pay the
+// attach latency on the hot path.
 #pragma once
 
 #include <atomic>
@@ -26,7 +33,13 @@ namespace rage::native {
 
 class ParallelScheduler {
 public:
-    explicit ParallelScheduler(int maxConcurrency);
+    // PERF-43: `threadInit` is invoked once at the start of each worker
+    // thread. May be nullptr (default) — in that case workers start
+    // immediately with no per-thread initialization. The callback is
+    // stored by value (std::function) and must remain valid for the
+    // lifetime of the scheduler.
+    explicit ParallelScheduler(int maxConcurrency,
+                               std::function<void()> threadInit = nullptr);
     ~ParallelScheduler();
 
     ParallelScheduler(const ParallelScheduler&) = delete;
@@ -95,6 +108,7 @@ private:
     void workerLoop();
 
     const int                                          maxConcurrency_;
+    std::function<void()>                              threadInit_;  // PERF-43
     std::priority_queue<QueueEntry,
                         std::vector<QueueEntry>,
                         Cmp>                           queue_;

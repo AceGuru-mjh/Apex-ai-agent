@@ -74,7 +74,11 @@ private:
     // Used to avoid deadlock when a public method needs to invoke logic
     // shared with another public method.
     TerminalSession* getSessionUnlocked(const std::string& sessionId);
-    bool closeSessionUnlocked(const std::string& sessionId);
+    // PERF-05: detaches (removes from map + updates currentSessionId) but
+    // does NOT call close() or delete — the caller MUST close()+delete the
+    // returned pointer OUTSIDE the lock to avoid holding m_mutex during
+    // the (potentially 1s) waitpid in close().
+    TerminalSession* detachSessionUnlocked(const std::string& sessionId);
 public:
     static TerminalSessionPool& getInstance();
 
