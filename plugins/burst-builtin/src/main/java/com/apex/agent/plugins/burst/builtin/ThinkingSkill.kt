@@ -44,7 +44,7 @@ class ThinkingSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val llm = context.llmService
             val taskType = analyzeTaskType(task, llm)
             val assessment = complexityAnalyzer.assess(task, llm)

@@ -51,7 +51,7 @@ class KnowledgeGraphSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val input = task.input.text ?: task.description
             
             // 从输入构建知识图谱
@@ -147,7 +147,7 @@ class KnowledgeGraphSkill : IBurstSkill {
             }
         }
         
-        entityIds
+        return entityIds
     }
     
     private fun detectEntityType(text: String, words: List<String>): EntityType {

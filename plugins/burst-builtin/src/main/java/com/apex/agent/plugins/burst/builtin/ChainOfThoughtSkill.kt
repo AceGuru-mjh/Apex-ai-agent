@@ -42,7 +42,7 @@ class ChainOfThoughtSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
 
-        try {
+        return try {
             if (isPaused) {
                 return BurstSkillResult(success = false, errorMessage = "Skill paused")
             }

@@ -57,7 +57,7 @@ class CodeQualityAnalyzerSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val code = task.input.text ?: task.description
             val operation = task.metadata["operation"] ?: "analyze"
             

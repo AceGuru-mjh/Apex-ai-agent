@@ -47,7 +47,7 @@ class TaskSchedulerSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             // 从任务元数据中获取执行计划
             val planJson = task.metadata["executionPlan"]
             val executionPlan = planJson?.let { parsePlanFromJson(it) } ?: createDefaultPlan(task)

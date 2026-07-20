@@ -66,7 +66,7 @@ class MemoryStorageSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val operation = task.metadata["operation"] ?: "store"
             val key = task.metadata["key"] ?: task.id
             

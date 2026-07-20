@@ -52,7 +52,7 @@ class SelfCorrectionSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val input = task.input.text ?: task.description
             val taskId = task.id
             

@@ -46,7 +46,7 @@ class APIClientSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val model = task.metadata["model"] ?: "claude-3.5"
             val input = task.input.text ?: task.description
             currentTaskId = task.id

@@ -50,7 +50,7 @@ class TreeOfThoughtsSkill : IBurstSkill {
         val startTime = System.currentTimeMillis()
         val llm = context.llmService
 
-        try {
+        return try {
             if (isPaused) {
                 return BurstSkillResult(
                     success = false,

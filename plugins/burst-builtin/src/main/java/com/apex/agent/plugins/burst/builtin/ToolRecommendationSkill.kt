@@ -67,7 +67,7 @@ class ToolRecommendationSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val taskDescription = task.input.text ?: task.description
             
             val intent = detectIntent(taskDescription)

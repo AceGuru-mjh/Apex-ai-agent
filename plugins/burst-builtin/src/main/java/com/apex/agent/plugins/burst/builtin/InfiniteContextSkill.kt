@@ -43,7 +43,7 @@ class InfiniteContextSkill : IBurstSkill {
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val text = task.input.text ?: ""
             val windows = createSlidingWindows(text)
             

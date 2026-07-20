@@ -38,7 +38,7 @@ class ExtremeReasoningSkill : IBurstSkill {
         val llm = context.llmService
         val startTime = System.currentTimeMillis()
         
-        try {
+        return try {
             val paths = mutableListOf<Deferred<PathResult>>()
             repeat(3) { pathId ->
                 paths.add(scope.async {

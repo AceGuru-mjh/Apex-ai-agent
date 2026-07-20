@@ -69,7 +69,7 @@ class RacingSkill : IBurstSkill {
 
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
-        try {
+        return try {
             // 修复 C4：旧版 execute 完全未检查 isPaused，pause() 失效
             if (isPaused) {
                 return BurstSkillResult(

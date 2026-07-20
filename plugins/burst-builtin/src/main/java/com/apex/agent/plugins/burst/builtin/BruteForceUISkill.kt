@@ -97,7 +97,7 @@ class BruteForceUISkill : IBurstSkill {
 
     override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
-        try {
+        return try {
             val operation = task.metadata["operation"] ?: "brute_force"
 
             when (operation) {
