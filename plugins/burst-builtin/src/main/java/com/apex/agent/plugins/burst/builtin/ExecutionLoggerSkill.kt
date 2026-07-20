@@ -44,7 +44,7 @@ class ExecutionLoggerSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
         try {
@@ -85,11 +85,9 @@ class ExecutionLoggerSkill : IBurstSkill {
                     val events = getEvents(taskId)
                     val report = if (context.utilityProcessor?.isEnabled == true && events.isNotEmpty()) {
                         val summaries = events.map { event ->
-                            runBlocking(Dispatchers.IO) {
-                                context.utilityProcessor!!.summarizeStep(
-                                    "${event.eventType}: ${event.message}"
-                                )
-                            }
+                            context.utilityProcessor!!.summarizeStep(
+                                "${event.eventType}: ${event.message}"
+                            )
                         }
                         buildString {
                             appendLine("# Utility Execution Report")

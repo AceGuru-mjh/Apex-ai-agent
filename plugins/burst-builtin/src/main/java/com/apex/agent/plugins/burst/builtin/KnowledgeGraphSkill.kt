@@ -48,7 +48,7 @@ class KnowledgeGraphSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
         try {
@@ -111,7 +111,7 @@ class KnowledgeGraphSkill : IBurstSkill {
         relation.id
     }
     
-    fun buildFromText(text: String): List<String> = runBlocking(Dispatchers.IO) {
+    suspend fun buildFromText(text: String): List<String> {
         val entityIds = mutableListOf<String>()
         val sentences = text.split(Regex("[.!?]+")).filter { it.isNotBlank() }
         

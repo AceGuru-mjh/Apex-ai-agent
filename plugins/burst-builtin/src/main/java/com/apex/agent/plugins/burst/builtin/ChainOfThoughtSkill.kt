@@ -39,19 +39,19 @@ class ChainOfThoughtSkill : IBurstSkill {
         this.context = context
     }
 
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
 
         try {
             if (isPaused) {
-                return@runBlocking BurstSkillResult(success = false, errorMessage = "Skill paused")
+                return BurstSkillResult(success = false, errorMessage = "Skill paused")
             }
 
             val llm = context.llmService
             val steps = decomposeTask(task, llm)
 
             if (steps.isEmpty()) {
-                return@runBlocking BurstSkillResult(success = false, errorMessage = "无法分解推理步骤")
+                return BurstSkillResult(success = false, errorMessage = "无法分解推理步骤")
             }
 
             val stepResults = mutableListOf<String>()

@@ -34,7 +34,7 @@ class ExtremeReasoningSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val llm = context.llmService
         val startTime = System.currentTimeMillis()
         

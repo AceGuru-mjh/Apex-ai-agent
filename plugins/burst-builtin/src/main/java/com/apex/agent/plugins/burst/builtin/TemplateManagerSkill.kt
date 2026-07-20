@@ -42,7 +42,7 @@ class TemplateManagerSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
         try {
@@ -55,7 +55,7 @@ class TemplateManagerSkill : IBurstSkill {
                     val templateDescription = task.metadata["description"] ?: ""
                     val rawFiles = task.input.text ?: ""
                     val files = if (context.utilityProcessor?.isEnabled == true && rawFiles.isNotBlank()) {
-                        val cleaned = runBlocking(Dispatchers.IO) { context.utilityProcessor!!.cleanResponse(rawFiles) }
+                        val cleaned = context.utilityProcessor!!.cleanResponse(rawFiles)
                         cleaned.split("\n").filter { it.isNotBlank() }
                     } else {
                         rawFiles.split("\n").filter { it.isNotBlank() }
@@ -92,7 +92,7 @@ class TemplateManagerSkill : IBurstSkill {
                     val template = templateId?.let { templates[it] }
                     
                     if (template == null) {
-                        return@runBlocking BurstSkillResult(
+                        return BurstSkillResult(
                             success = false,
                             errorMessage = "Template not found: $templateId"
                         )
@@ -136,7 +136,7 @@ class TemplateManagerSkill : IBurstSkill {
                     val template = templateId?.let { templates[it] }
                     
                     if (template == null) {
-                        return@runBlocking BurstSkillResult(
+                        return BurstSkillResult(
                             success = false,
                             errorMessage = "Template not found: $templateId"
                         )

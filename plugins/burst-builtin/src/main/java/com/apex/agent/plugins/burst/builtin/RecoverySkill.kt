@@ -44,7 +44,7 @@ class RecoverySkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
         try {
@@ -76,9 +76,7 @@ class RecoverySkill : IBurstSkill {
                     val result = recoverTask(checkpointId)
                     
                     val suggestions = if (!result.success && context.utilityProcessor?.isEnabled == true) {
-                        runBlocking(Dispatchers.IO) {
-                            context.utilityProcessor!!.suggestRecovery(result.message)
-                        }
+                        context.utilityProcessor!!.suggestRecovery(result.message)
                     } else emptyList()
                     
                     val executionTime = System.currentTimeMillis() - startTime

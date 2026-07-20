@@ -80,6 +80,8 @@ class BurstExecutionEngine(
             )
             val result = try {
                 skill.execute(subTask)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 BurstSkillResult(
                     success = false,
@@ -168,6 +170,8 @@ class BurstExecutionEngine(
             paths.add(scope.async(start = CoroutineStart.DEFAULT) {
                 try {
                     skill.execute(task)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     BurstSkillResult(
                         success = false,

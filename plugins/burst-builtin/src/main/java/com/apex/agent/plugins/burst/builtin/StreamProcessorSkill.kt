@@ -43,7 +43,7 @@ class StreamProcessorSkill : IBurstSkill {
         this.context = context
     }
     
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         
         try {
@@ -84,9 +84,7 @@ class StreamProcessorSkill : IBurstSkill {
             
             val rawResult = results.joinToString("")
             val finalResult = if (context.utilityProcessor?.isEnabled == true && rawResult.length > 100) {
-                runBlocking(Dispatchers.IO) {
-                    context.utilityProcessor!!.formatForContext(rawResult, rawResult.length)
-                }
+                context.utilityProcessor!!.formatForContext(rawResult, rawResult.length)
             } else rawResult
             val executionTime = System.currentTimeMillis() - startTime
             

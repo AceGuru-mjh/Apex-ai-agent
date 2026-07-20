@@ -9,7 +9,7 @@ interface IBurstSkill {
     val manifest: BurstSkillManifest
     
     fun initialize(context: BurstSkillContext)
-    fun execute(task: BurstTask): BurstSkillResult
+    suspend fun execute(task: BurstTask): BurstSkillResult
     fun pause()
     fun resume()
     fun destroy()

@@ -43,7 +43,7 @@ class BerserkExecutionSkill : IBurstSkill {
         this.ctx = context
     }
 
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         try {
             val operation = task.metadata["operation"] ?: "execute"

@@ -67,12 +67,12 @@ class RacingSkill : IBurstSkill {
         this.ctx = context
     }
 
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         try {
             // 修复 C4：旧版 execute 完全未检查 isPaused，pause() 失效
             if (isPaused) {
-                return@runBlocking BurstSkillResult(
+                return BurstSkillResult(
                     success = false,
                     errorMessage = "Skill paused",
                     metrics = SkillMetrics(executionTimeMs = System.currentTimeMillis() - startTime)

@@ -46,13 +46,13 @@ class TreeOfThoughtsSkill : IBurstSkill {
         this.context = context
     }
 
-    override fun execute(task: BurstTask): BurstSkillResult = runBlocking(Dispatchers.IO) {
+    override suspend fun execute(task: BurstTask): BurstSkillResult {
         val startTime = System.currentTimeMillis()
         val llm = context.llmService
 
         try {
             if (isPaused) {
-                return@runBlocking BurstSkillResult(
+                return BurstSkillResult(
                     success = false,
                     errorMessage = "Skill paused"
                 )
@@ -81,7 +81,7 @@ class TreeOfThoughtsSkill : IBurstSkill {
             if (paths.isEmpty()) {
                 val totalTime = System.currentTimeMillis() - startTime
                 totalExecutions.incrementAndGet()
-                return@runBlocking BurstSkillResult(
+                return BurstSkillResult(
                     success = false,
                     errorMessage = "No reasoning paths generated (LLM may be unavailable)",
                     metrics = SkillMetrics(
