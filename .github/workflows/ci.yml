@@ -83,8 +83,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Compile all modules (Kotlin + Hilt kapt)
-        run: ./gradlew compileDebugKotlin kaptDebugKotlin --no-daemon --continue 2>&1
+      - name: Compile all modules (Kotlin + Hilt KSP)
+        run: ./gradlew compileDebugKotlin kspDebugKotlin --no-daemon --continue 2>&1
 
       - name: Build C++ native libraries (rage-native + ai-terminal)
         run: ./gradlew :rage-native:externalNativeBuildDebug :ai-terminal:externalNativeBuildDebug --no-daemon --continue 2>&1
