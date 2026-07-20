@@ -77,6 +77,9 @@ object ApexClient {
     /** 语音 APK 客户端。 */
     val voice: VoiceClient = VoiceClient()
 
+    /** 自改源码客户端（Agent 自改源码子系统，per AGENT_SELF_MODIFY_SPEC §8.2）。 */
+    val selfModify: SelfModifyClient = SelfModifyClient()
+
     // ============================================================
     // Engine
     // ============================================================
@@ -908,6 +911,63 @@ object ApexClient {
         suspend fun stopRecognition(): BridgeResult<String> = invoke("voice/stopRecognition", emptyMap(), "voice")
 
         suspend fun cancelRecognition(): BridgeResult<String> = invoke("voice/cancelRecognition", emptyMap(), "voice")
+    }
+
+    // ============================================================
+    // Self-Modify（Agent 自改源码）
+    // ============================================================
+
+    /**
+     * Agent 自改源码客户端 — 镜像 [com.apex.selfmodify.SelfModifyService] 的公开 API。
+     *
+     * Per AGENT_SELF_MODIFY_SPEC §8.2。所有方法通过通用 `selfmodify/*` method 路由，
+     * 经 [ApexBridge.invoke] 调用 SelfModifyService（同进程走 InProcessRegistry 零延迟，
+     * 跨进程走 AIDL）。
+     *
+     * **注意（Phase 4 状态）**：本客户端的 method 路由（`IApkBridgeInternal` 注册
+     * `selfmodify/*` → SelfModifyService）属于 Phase 5 工作，尚未接线。当前调用会返回
+     * `BridgeResult.Failure(BridgeError.methodNotFound(...))`。Phase 5 将在 Engine APK
+     * 的 BridgeModule 中注册路由并补全端到端集成测试。
+     */
+    class SelfModifyClient {
+
+        /** 读取 workspace 源码文件。 */
+        suspend fun readFile(path: String): BridgeResult<String> =
+            invoke("selfmodify/readFile", mapOf("path" to path))
+
+        /** 列出匹配 pattern 的文件。 */
+        suspend fun listFiles(pattern: String = ".*"): BridgeResult<String> =
+            invoke("selfmodify/listFiles", mapOf("pattern" to pattern))
+
+        /** 查找符号定义，返回 JSON 数组 (file/line/column)。 */
+        suspend fun findSymbol(name: String): BridgeResult<String> =
+            invoke("selfmodify/findSymbol", mapOf("name" to name))
+
+        /** 查找符号引用，返回 JSON 数组 (file/line/symbol)。 */
+        suspend fun findReferences(symbol: String): BridgeResult<String> =
+            invoke("selfmodify/findReferences", mapOf("symbol" to symbol))
+
+        /**
+         * 应用一个修改计划。planJson 形如：
+         * `{"changes":[{"path":"...","type":"MODIFY","newContent":"..."}],"reason":"...","risk":"MEDIUM"}`
+         * 触发完整流程：snapshot → write → compile gate → reload → audit（失败自动回滚）。
+         */
+        suspend fun applyPlan(planJson: String): BridgeResult<String> =
+            invoke("selfmodify/applyPlan", mapOf("planJson" to planJson))
+
+        /** 回滚到指定 commit（省略则回滚到上一个快照）。 */
+        suspend fun rollback(commit: String? = null): BridgeResult<String> {
+            val args = if (commit != null) mapOf("commit" to commit) else emptyMap()
+            return invoke("selfmodify/rollback", args)
+        }
+
+        /** 列出最近快照（git log），返回 JSON 数组。 */
+        suspend fun listSnapshots(): BridgeResult<String> =
+            invoke("selfmodify/listSnapshots", emptyMap())
+
+        /** 触发全量重建代码索引。 */
+        suspend fun reindex(): BridgeResult<String> =
+            invoke("selfmodify/reindex", emptyMap())
     }
 
     // ============================================================

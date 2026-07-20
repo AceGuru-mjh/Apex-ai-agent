@@ -8,6 +8,7 @@ import com.apex.engine.chat.OpenAICompatProvider
 import com.apex.engine.tools.ToolExecutor
 import com.apex.engine.tools.ToolRegistry
 import com.apex.engine.tools.builtin.BuiltInTools
+import com.apex.selfmodify.SelfModifyService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,9 +44,12 @@ object EngineModule {
 
     @Provides
     @Singleton
-    fun provideToolRegistry(@ApplicationContext ctx: Context): ToolRegistry {
+    fun provideToolRegistry(
+        @ApplicationContext ctx: Context,
+        selfModify: SelfModifyService
+    ): ToolRegistry {
         val registry = ToolRegistry()
-        BuiltInTools.createAll(ctx).forEach { registry.register(it) }
+        BuiltInTools.createAll(ctx, selfModify).forEach { registry.register(it) }
         return registry
     }
 
