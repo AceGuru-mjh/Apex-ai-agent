@@ -49,9 +49,11 @@ android {
     buildTypes {
         val releaseSigningConfig = signingConfigs.findByName("release")
         release {
-            // PERF-47: 启用 R8 minification + 资源收缩，显著减小 release APK 体积并剔除死代码。
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // REVERT: 关闭 R8 minification + 资源收缩 — Agent 后续要自改源码,
+            // 混淆会导致代码不可读、堆栈不可定位。保留 KSP(非混淆,仅更快注解处理)+所有纯性能优化。
+            // proguardFiles 引用保留 — isMinifyEnabled=false 时 proguard 规则不生效。
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
