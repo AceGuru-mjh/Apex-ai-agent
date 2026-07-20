@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/z/my-project/src/app/page.tsx"],"sourcesContent":["'use client'\n\nexport default function Home() {\n  return (\n    <div style={{\n      display: 'flex',\n      flexDirection: 'column',\n      alignItems: 'center',\n      justifyContent: 'center',\n      minHeight: '100vh',\n      gap: '2rem',\n      padding: '1rem'\n    }}>\n      <div style={{\n        position: 'relative',\n        width: '6rem',\n        height: '6rem'\n      }}>\n        <img\n          src=\"/logo.svg\"\n          alt=\"Z.ai Logo\"\n          style={{\n            width: '100%',\n            height: '100%',\n            objectFit: 'contain'\n          }}\n        />\n      </div>\n    </div>\n  )\n}"],"names":[],"mappings":";;;;;AAAA;;AAEe,SAAS;IACtB,qBACE,6LAAC;QAAI,OAAO;YACV,SAAS;YACT,eAAe;YACf,YAAY;YACZ,gBAAgB;YAChB,WAAW;YACX,KAAK;YACL,SAAS;QACX;kBACE,cAAA,6LAAC;YAAI,OAAO;gBACV,UAAU;gBACV,OAAO;gBACP,QAAQ;YACV;sBACE,cAAA,6LAAC;gBACC,KAAI;gBACJ,KAAI;gBACJ,OAAO;oBACL,OAAO;oBACP,QAAQ;oBACR,WAAW;gBACb;;;;;;;;;;;;;;;;AAKV;KA5BwB"}}]
+}
