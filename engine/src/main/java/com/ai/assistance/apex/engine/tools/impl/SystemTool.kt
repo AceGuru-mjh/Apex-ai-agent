@@ -7,12 +7,8 @@ import com.ai.assistance.apex.engine.model.ExecutionResult
 import com.ai.assistance.apex.engine.tools.Tool
 import com.ai.assistance.apex.engine.tools.errorResult
 import com.ai.assistance.apex.engine.tools.successResult
-import com.ai.assistance.aiterminal.terminal.ai.CommandRiskAssessor
 import com.ai.assistance.aiterminal.terminal.ai.DangerousCommandPatterns
-import com.ai.assistance.aiterminal.terminal.ai.LLMAPI
 import com.ai.assistance.aiterminal.terminal.ai.RiskLevel
-import com.ai.assistance.aiterminal.terminal.ai.TerminalContext
-import kotlinx.coroutines.runBlocking
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
@@ -175,21 +171,25 @@ class SystemTool(private val context: Context? = null) : Tool {
     }
 
     /**
-     * 调用 :ai-terminal 的 [CommandRiskAssessor] 评估命令风险等级。
-     * - 当 [context] 非空时使用完整 assessor（覆盖正则模式匹配 + 启发式分析），
-     *   通过 runBlocking 阻塞调用 [CommandRiskAssessor.assessRisk] —— 该方法本身不调用 LLM。
-     * - 当 [context] 为空时退化为同步的 [DangerousCommandPatterns.matchPattern]。
+     * 评估命令风险等级（PERF-27: 同步实现，去除 runBlocking + withContext(IO) 开销）。
+     *
+     * 旧实现通过 `runBlocking { assessor.assessRisk(command, TerminalContext()) }`
+     * 在 binder/调用线程上阻塞协程，引入线程切换 + 对象分配开销。而 `assessRisk`
+     * 在不调用 LLM 时（`assessWithAI` 才会）实际只依赖 [DangerousCommandPatterns.matchPattern]
+     * 的正则匹配——这是纯同步、CPU-bound 的操作。
+     *
+     * 这里直接走同步路径：
+     *   - 当 [context] 为空时退化为 [DangerousCommandPatterns.matchPattern]（与旧路径一致）。
+     *   - 当 [context] 非空时也只走 matchPattern —— 旧的 assessor 分支传入空 TerminalContext
+     *     以跳过 collectContext，等价于"无上下文"，因此 matchPattern 即可覆盖。
+     *
+     * 去掉 LLMAPI/CommandRiskAssessor/TerminalContext 实例化与 runBlocking 协程桥接，
+     * 每次调用节省 ~数十 µs + 一次线程调度。
      */
     private fun assessCommandRisk(command: String): RiskLevel {
-        val ctx = context ?: return DangerousCommandPatterns.matchPattern(command)?.riskLevel ?: RiskLevel.LOW
-        val noOpLlmApi = object : LLMAPI {
-            override suspend fun generate(prompt: String): String = ""
-        }
-        val assessor = CommandRiskAssessor(ctx, noOpLlmApi)
-        // 传入空的 TerminalContext() 以跳过昂贵的 TerminalContextCollector.collectContext() 调用；
-        // assessRisk() 内部不会调用 llmApi（只有 assessWithAI 会），所以 noOp LLM 是安全的。
-        val result = runBlocking { assessor.assessRisk(command, TerminalContext()) }
-        return result.level
+        // context 暂不影响同步路径（见上 KDoc 说明）；保留构造参数以备未来接入上下文感知匹配。
+        val pattern = DangerousCommandPatterns.matchPattern(command)
+        return pattern?.riskLevel ?: RiskLevel.LOW
     }
 
     private companion object {

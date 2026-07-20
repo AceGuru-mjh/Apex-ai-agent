@@ -33,6 +33,13 @@ class EngineService : Service() {
         // 未来接入真实认证后，应从 IPC callerUid / SecurityIdentity 解析实际 userId。
         private const val DEFAULT_ADMIN_USER_ID = 1L
         private const val SHELL_PERMISSION = "engine:shell:execute"
+
+        // PERF-28: 固定大小线程池处理 async 调用，替代每次调用裸 `Thread{}.start()`。
+        // 4 线程足够覆盖典型并发 IPC 调用（同时执行的工具/命令数有限），
+        // 同时为 daemon 线程，避免阻止 JVM 退出；任务排队由 LinkedBlockingQueue 默认无界承载。
+        private val asyncExecutor = java.util.concurrent.Executors.newFixedThreadPool(4) { r ->
+            Thread(r, "EngineService-async").apply { isDaemon = true }
+        }
     }
 
     private lateinit var containerManager: ContainerManager
@@ -94,14 +101,15 @@ class EngineService : Service() {
                 return
             }
 
-            Thread {
+            // PERF-28: 复用固定线程池，避免每次调用都创建/销毁裸 Thread。
+            asyncExecutor.execute {
                 val result = containerManager.executeCommand(command)
                 try {
                     callback?.onResult(result)
                 } catch (e: RemoteException) {
                     Log.e(TAG, "executeCommandAsync: onResult error", e)
                 }
-            }.start()
+            }
         }
 
         override fun executeTool(toolName: String?, args: String?): ExecutionResult {
@@ -125,14 +133,15 @@ class EngineService : Service() {
                 return
             }
 
-            Thread {
+            // PERF-28: 复用固定线程池，避免每次调用都创建/销毁裸 Thread。
+            asyncExecutor.execute {
                 val result = toolExecutor.execute(toolName, args ?: "")
                 try {
                     callback?.onResult(result)
                 } catch (e: RemoteException) {
                     Log.e(TAG, "executeToolAsync: onResult error", e)
                 }
-            }.start()
+            }
         }
 
         override fun getAvailableTools(): MutableList<ToolInfo> {
@@ -261,6 +270,16 @@ class EngineService : Service() {
     override fun onDestroy() {
         containerManager.stop()
         containerCallbacks.kill()
+        // PERF-28: 关闭 async 线程池，释放线程资源。
+        asyncExecutor.shutdown()
+        try {
+            if (!asyncExecutor.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS)) {
+                asyncExecutor.shutdownNow()
+            }
+        } catch (e: InterruptedException) {
+            asyncExecutor.shutdownNow()
+            Thread.currentThread().interrupt()
+        }
         super.onDestroy()
     }
 

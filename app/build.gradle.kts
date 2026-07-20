@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.google.hilt.android)
 }
 
@@ -49,8 +49,13 @@ android {
     buildTypes {
         val releaseSigningConfig = signingConfigs.findByName("release")
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // PERF-47: 启用 R8 minification + 资源收缩，显著减小 release APK 体积并剔除死代码。
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             if (releaseSigningConfig != null) signingConfig = releaseSigningConfig
         }
         debug {
@@ -88,16 +93,14 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     kotlinOptions { jvmTarget = "17" }
 }
 
-// Kapt + Kotlin 2.0 compatibility: kapt K1 stub generator cannot load K2
-// module metadata, causing "Could not load module <Error module>" on
-// kaptGenerateStubsDebugUnitTestKotlin. Additionally, :app unit-test sources
-// have ~3900 pre-existing compilation errors (reference refactored/removed
-// classes like BurstModeConfig, PluginRegistry, Modality, SessionPhase, etc.).
-// Hilt kapt only needs main sources; other modules' tests still run normally.
-// TODO: fix :app unit tests, then remove this block.
+// PERF-48: Hilt 已从 KAPT 切换到 KSP，不再需要 kapt-UnitTest 兼容性 workaround
+// (KSP 不存在 K1 stub 无法加载 K2 metadata 的问题)。
+// 但 :app unit-test sources 仍有 ~3900 预存在编译错误（引用已重构/移除的类，
+// 如 BurstModeConfig / PluginRegistry / Modality / SessionPhase 等），
+// 故继续禁用 :app 的 unit test 编译/运行任务。其他模块的测试不受影响。
+// TODO: 修复 :app unit tests，然后移除本块。
 tasks.matching {
     val n = it.name
-    (n.startsWith("kapt") && n.contains("UnitTest")) ||
     n == "compileDebugUnitTestKotlin" ||
     n == "compileDebugUnitTestJavaWithJavac" ||
     n == "testDebugUnitTest"
@@ -149,7 +152,8 @@ dependencies {
     // Hilt DI
     // ============================================================
     implementation(libs.google.hilt.android)
-    kapt(libs.google.hilt.compiler)
+    // PERF-48: KSP 处理 Hilt 注解（替代 kapt，Kotlin 2.0/K2 原生兼容，编译更快）。
+    ksp(libs.google.hilt.compiler)
     // Hilt Compose ViewModel 注入（@HiltViewModel + hiltViewModel()）
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 

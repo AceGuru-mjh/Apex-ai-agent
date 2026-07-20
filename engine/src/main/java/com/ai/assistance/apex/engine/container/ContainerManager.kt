@@ -11,6 +11,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 
 class ContainerManager(private val context: Context) {
 
@@ -34,6 +36,14 @@ class ContainerManager(private val context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
     private val isRunning = AtomicBoolean(false)
 
+    // PERF-29: 容器就绪信号 —— start() 提交后台任务后立即返回；后台任务完成
+    // prepareRootfs() + shellSession.start() 后 complete(true)。executeCommand()
+    // 在执行前 await 该信号，避免在调用线程上阻塞 5 分钟的 tar -xf。
+    // 初始实例预 complete(false)：保证 start() 从未调用时 executeCommand() 的
+    // await 立即返回 false，不会永久阻塞。
+    @Volatile
+    private var containerReady: CompletableDeferred<Boolean> = CompletableDeferred<Boolean>().apply { complete(false) }
+
     private val currentStatus = AtomicInteger(STATUS_STOPPED)
 
     fun setOutputListener(listener: (String) -> Unit) {
@@ -47,6 +57,12 @@ class ContainerManager(private val context: Context) {
     fun setErrorListener(listener: (String) -> Unit) {
         errorListener = listener
     }
+
+    /**
+     * 挂起等待容器就绪（PERF-29）。start() 提交的后台任务完成 prepareRootfs +
+     * shell 启动后 resolve。返回 false 表示容器未就绪（start 未调用 / 失败 / 已 stop）。
+     */
+    suspend fun awaitReady(): Boolean = containerReady.await()
 
     fun getStatus(): ContainerStatus {
         return ContainerStatus().apply {
@@ -69,36 +85,64 @@ class ContainerManager(private val context: Context) {
             return true
         }
 
+        // PERF-29: 重置就绪信号 —— 每次 start 都用全新的 deferred，避免上一次
+        // stop() complete(false) 后旧信号残留。
+        containerReady = CompletableDeferred()
+
         currentStatus.set(STATUS_STARTING)
         statusListener?.invoke(currentStatus.get())
 
         try {
-            if (!prepareRootfs()) {
-                currentStatus.set(STATUS_ERROR)
-                statusListener?.invoke(currentStatus.get())
-                return false
-            }
-
+            // PERF-29: prepareRootfs()（首次启动会执行 tar -xf，最长 5 分钟）
+            // 移入后台线程，start() 立即返回 true。就绪状态通过 containerReady
+            // 信号 + statusListener 异步通知调用方，不再阻塞 binder 线程。
             executor.submit {
-                shellSession = ShellSession(context, getRootfsPath())
-                shellSession?.setOutputListener { output ->
-                    outputListener?.invoke(output)
-                }
-                shellSession?.setErrorListener { error ->
-                    errorListener?.invoke(error)
-                }
+                try {
+                    if (!prepareRootfs()) {
+                        currentStatus.set(STATUS_ERROR)
+                        statusListener?.invoke(currentStatus.get())
+                        isRunning.set(false)
+                        containerReady.complete(false)
+                        return@submit
+                    }
 
-                if (shellSession?.start() == true) {
-                    // Only mark running AFTER the shell session is actually ready.
-                    isRunning.set(true)
-                    currentStatus.set(STATUS_RUNNING)
-                    statusListener?.invoke(currentStatus.get())
-                    try { Thread.sleep(500) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
-                    executeCommand("source /init.sh 2>/dev/null || true")
-                } else {
+                    shellSession = ShellSession(context, getRootfsPath())
+                    shellSession?.setOutputListener { output ->
+                        outputListener?.invoke(output)
+                    }
+                    shellSession?.setErrorListener { error ->
+                        errorListener?.invoke(error)
+                    }
+
+                    if (shellSession?.start() == true) {
+                        // PERF-30: 用 sentinel 探测替代旧的 Thread.sleep(500)。
+                        // shellSession.execute 内部追加 `echo <sentinel>:$?` 并轮询
+                        // outputBuffer 直到 sentinel 出现才返回 —— 真正确认 shell 进程
+                        // 已就绪可接收命令，比固定 500ms 更准且通常更快。
+                        shellSession?.execute("echo __APEX_READY__", 2000)
+                        // Only mark running AFTER the shell session is actually ready.
+                        isRunning.set(true)
+                        currentStatus.set(STATUS_RUNNING)
+                        statusListener?.invoke(currentStatus.get())
+                        // PERF-29: 通知所有等待 executeCommand 的调用方 —— 容器就绪。
+                        // 必须在调用 executeCommand 之前 complete，否则 executeCommand
+                        // 内部 await 会死锁（等待自己完成的信号）。
+                        containerReady.complete(true)
+                        // 此时 executeCommand 不会阻塞（deferred 已 complete(true)）。
+                        executeCommand("source /init.sh 2>/dev/null || true")
+                    } else {
+                        currentStatus.set(STATUS_ERROR)
+                        statusListener?.invoke(currentStatus.get())
+                        isRunning.set(false)
+                        containerReady.complete(false)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "start() executor task failed", e)
+                    errorListener?.invoke(e.message ?: "Unknown error")
                     currentStatus.set(STATUS_ERROR)
                     statusListener?.invoke(currentStatus.get())
                     isRunning.set(false)
+                    containerReady.complete(false)
                 }
             }
 
@@ -109,6 +153,7 @@ class ContainerManager(private val context: Context) {
             currentStatus.set(STATUS_ERROR)
             statusListener?.invoke(currentStatus.get())
             isRunning.set(false)
+            containerReady.complete(false)
             return false
         }
     }
@@ -116,6 +161,9 @@ class ContainerManager(private val context: Context) {
     fun stop(): Boolean {
         return try {
             isRunning.set(false)
+            // PERF-29: 解除任何在 executeCommand 中 await 的调用方，让它们立即收到
+            // "Container not running"。start() 会在下次调用时替换为新 deferred。
+            containerReady.complete(false)
             shellSession?.stop()
             shellSession = null
             currentStatus.set(STATUS_STOPPED)
@@ -129,13 +177,20 @@ class ContainerManager(private val context: Context) {
     }
 
     fun restart(): Boolean {
+        // PERF-30: 去除旧的 Thread.sleep(1000) —— stop() 同步关闭 shellSession，
+        // start() 内部用 sentinel 探测等 shell 就绪，固定 sleep 既慢又不可靠。
         stop()
-        try { Thread.sleep(1000) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         return start()
     }
 
     fun executeCommand(command: String): ExecutionResult {
-        if (!isRunning.get() || shellSession == null) {
+        // PERF-29: 等待容器就绪（prepareRootfs + shell 启动完成）。
+        // - start() 从未调用：containerReady 是预 complete(false) 的默认实例，
+        //   await 立即返回 false -> 走 "Container not running" 分支。
+        // - start() 已提交后台任务但未完成：本调用阻塞等待，直到后台任务 complete。
+        // - stop() 后：containerReady 已被 complete(false)，await 立即返回 false。
+        val ready = containerReady.let { runBlocking { it.await() } }
+        if (!ready || !isRunning.get() || shellSession == null) {
             return ExecutionResult().apply {
                 exitCode = -1
                 error = "Container not running"

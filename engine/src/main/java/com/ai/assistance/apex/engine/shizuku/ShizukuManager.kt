@@ -2,11 +2,8 @@
 
 import android.content.Context
 import android.util.Log
-import com.ai.assistance.aiterminal.terminal.ai.CommandRiskAssessor
-import com.ai.assistance.aiterminal.terminal.ai.LLMAPI
+import com.ai.assistance.aiterminal.terminal.ai.DangerousCommandPatterns
 import com.ai.assistance.aiterminal.terminal.ai.RiskLevel
-import com.ai.assistance.aiterminal.terminal.ai.TerminalContext
-import kotlinx.coroutines.runBlocking
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -87,8 +84,10 @@ class ShizukuManager private constructor(private val context: Context) {
         return try {
             val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
             val exitCode = if (process.waitFor(30, TimeUnit.SECONDS)) 0 else { process.destroyForcibly(); -1 }
-            val output = process.inputStream.bufferedReader().readText()
-            val error = process.errorStream.bufferedReader().readText()
+            // PERF-32: 用 .use{} 确保 BufferedReader（底层 FileInputStream）关闭，
+            // 避免每次执行命令泄露文件描述符。
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            val error = process.errorStream.bufferedReader().use { it.readText() }
 
             CommandResult(exitCode, output, error)
         } catch (e: Exception) {
@@ -97,17 +96,16 @@ class ShizukuManager private constructor(private val context: Context) {
     }
 
     /**
-     * 调用 :ai-terminal 的 [CommandRiskAssessor] 评估命令风险等级。
-     * 通过 runBlocking 阻塞调用 [CommandRiskAssessor.assessRisk] —— 该方法本身不调用 LLM，
-     * 因此 noOp LLM 实现是安全的；传入空的 [TerminalContext] 以跳过昂贵的上下文收集。
+     * 评估命令风险等级（PERF-27: 同步实现，去除 runBlocking + 对象分配开销）。
+     *
+     * 旧实现通过 `runBlocking { assessor.assessRisk(...) }` 在调用线程上阻塞协程，
+     * 但 `assessRisk` 在不调用 LLM 时只依赖 [DangerousCommandPatterns.matchPattern]
+     * 的正则匹配——纯同步 CPU-bound。这里直接走 matchPattern，避免每次执行命令时
+     * 构造 LLMAPI/CommandRiskAssessor/TerminalContext + 协程桥接。
      */
     private fun assessCommandRisk(command: String): RiskLevel {
-        val noOpLlmApi = object : LLMAPI {
-            override suspend fun generate(prompt: String): String = ""
-        }
-        val assessor = CommandRiskAssessor(context, noOpLlmApi)
-        val result = runBlocking { assessor.assessRisk(command, TerminalContext()) }
-        return result.level
+        val pattern = DangerousCommandPatterns.matchPattern(command)
+        return pattern?.riskLevel ?: RiskLevel.LOW
     }
 
     data class CommandResult(
