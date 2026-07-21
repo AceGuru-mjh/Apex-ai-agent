@@ -45,6 +45,15 @@ class AuditLog(private val workspace: WorkspaceManager) {
         return true
     }
 
+    /**
+     * Returns every audit entry in chronological order (oldest first), or an
+     * empty list if the log file does not exist yet. Used by the AuditLogScreen
+     * UI (Phase 5c). Malformed lines are silently skipped (same policy as
+     * [verify]).
+     */
+    fun listEntries(): List<AuditEntry> =
+        logFile.takeIf { it.exists() }?.readLines()?.mapNotNull { deserialize(it) } ?: emptyList()
+
     private fun readLastHash(): String =
         logFile.takeIf { it.exists() }?.readLines()?.lastOrNull()?.let { deserialize(it)?.thisHash } ?: ""
 

@@ -9,7 +9,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.*
+import com.apex.ui.navigation.ApexRoute
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +21,7 @@ import com.apex.core.model.ApiConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onNavigate: (String) -> Unit = {}) {
     var showApiConfig by remember { mutableStateOf(false) }
 
     LazyColumn(
@@ -43,6 +45,14 @@ fun SettingsScreen() {
                 title = "外观",
                 subtitle = "主题、字体、配色",
                 onClick = { /* TODO */ }
+            )
+        }
+        item {
+            SettingsCard(
+                icon = Icons.Default.Security,
+                title = "自改源码审计日志",
+                subtitle = "查看 Agent 代码修改记录 + 链式哈希校验",
+                onClick = { onNavigate(ApexRoute.AuditLog.path) }
             )
         }
         item {
