@@ -7,7 +7,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Bridge handler for selfModify/* methods.
+ * Bridge handler for selfModify methods (selfModify/something pattern).
  *
  * Routes ApexClient.selfModify.* calls (via ApexBridge.invoke("selfModify/<method>", argsJson))
  * to the [SelfModifyService].
