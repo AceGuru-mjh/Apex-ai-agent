@@ -1,5 +1,8 @@
 package com.apex.ui.features.settings
 
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -44,7 +47,7 @@ fun SettingsScreen(onNavigate: (String) -> Unit = {}) {
                 icon = Icons.Default.Palette,
                 title = "外观",
                 subtitle = "主题、字体、配色",
-                onClick = { /* TODO */ }
+                onClick = { /* TODO: 主题切换待实现 */ }
             )
         }
         item {
@@ -60,7 +63,10 @@ fun SettingsScreen(onNavigate: (String) -> Unit = {}) {
                 icon = Icons.Default.Info,
                 title = "关于",
                 subtitle = "版本信息、开源协议",
-                onClick = { /* TODO */ }
+                onClick = {
+                    val ctx = LocalContext.current
+                    Toast.makeText(ctx, "Apex AI Agent v4.0 — Apache 2.0", Toast.LENGTH_LONG).show()
+                }
             )
         }
     }

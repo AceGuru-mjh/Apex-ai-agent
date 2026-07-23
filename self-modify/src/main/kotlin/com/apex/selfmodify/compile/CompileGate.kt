@@ -13,18 +13,22 @@ class CompileGate(
 ) {
     suspend fun compile(module: String): CompileResult = withContext(Dispatchers.IO) {
         val start = System.currentTimeMillis()
+        var proc: Process? = null
         val result = withTimeoutOrNull(timeoutMs) {
             val process = ProcessBuilder("./gradlew", ":$module:compileDebugKotlin", "--no-daemon", "--offline")
                 .directory(projectDir)
                 .redirectErrorStream(true)
                 .start()
+            proc = process
             val output = process.inputStream.bufferedReader().use { it.readText() }
             val exitCode = process.waitFor()
             Pair(exitCode, output)
         }
         val duration = System.currentTimeMillis() - start
         if (result == null) {
-            ApexLog.w(ApexSuite.ApkId.MAIN, "[CompileGate] timeout after ${timeoutMs}ms")
+            // Timeout — kill the lingering gradle process
+            proc?.destroyForcibly()
+            ApexLog.w(ApexSuite.ApkId.MAIN, "[CompileGate] timeout after ${timeoutMs}ms — process killed")
             return@withContext CompileResult.Timeout(duration)
         }
         val (exitCode, output) = result

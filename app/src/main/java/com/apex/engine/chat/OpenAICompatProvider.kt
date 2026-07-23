@@ -88,46 +88,51 @@ class OpenAICompatProvider : LLMProvider {
                 return@flow
             }
 
-            val reader = BufferedReader(InputStreamReader(response.body!!.byteStream()))
-            while (!cancelled.get()) {
-                val line = reader.readLine() ?: break
-                if (line.isBlank()) continue
-                if (!line.startsWith("data:")) continue
-                val data = line.substring(5).trim()
-                if (data == "[DONE]") break
+            val body = response.body ?: run {
+                emit(StreamEvent.Error("Empty response body"))
+                response.close()
+                return@flow
+            }
+            BufferedReader(InputStreamReader(body.byteStream())).use { reader ->
+                while (!cancelled.get()) {
+                    val line = reader.readLine() ?: break
+                    if (line.isBlank()) continue
+                    if (!line.startsWith("data:")) continue
+                    val data = line.substring(5).trim()
+                    if (data == "[DONE]") break
 
-                try {
-                    val json = JSONObject(data)
-                    val choices = json.optJSONArray("choices")
-                    if (choices != null && choices.length() > 0) {
-                        val choice = choices.getJSONObject(0)
-                        val delta = choice.optJSONObject("delta")
-                        if (delta != null) {
-                            val content = delta.optString("content", "")
-                            if (content.isNotEmpty()) {
-                                emit(StreamEvent.Chunk(content))
-                            }
-                            val toolCalls = delta.optJSONArray("tool_calls")
-                            if (toolCalls != null) {
-                                for (i in 0 until toolCalls.length()) {
-                                    val tc = toolCalls.getJSONObject(i)
-                                    val fn = tc.optJSONObject("function")
-                                    if (fn != null) {
-                                        emit(StreamEvent.ToolCallEvent(
-                                            id = tc.optString("id", ""),
-                                            name = fn.optString("name", ""),
-                                            arguments = fn.optString("arguments", "")
-                                        ))
+                    try {
+                        val json = JSONObject(data)
+                        val choices = json.optJSONArray("choices")
+                        if (choices != null && choices.length() > 0) {
+                            val choice = choices.getJSONObject(0)
+                            val delta = choice.optJSONObject("delta")
+                            if (delta != null) {
+                                val content = delta.optString("content", "")
+                                if (content.isNotEmpty()) {
+                                    emit(StreamEvent.Chunk(content))
+                                }
+                                val toolCalls = delta.optJSONArray("tool_calls")
+                                if (toolCalls != null) {
+                                    for (i in 0 until toolCalls.length()) {
+                                        val tc = toolCalls.getJSONObject(i)
+                                        val fn = tc.optJSONObject("function")
+                                        if (fn != null) {
+                                            emit(StreamEvent.ToolCallEvent(
+                                                id = tc.optString("id", ""),
+                                                name = fn.optString("name", ""),
+                                                arguments = fn.optString("arguments", "")
+                                            ))
+                                        }
                                     }
                                 }
                             }
                         }
+                    } catch (_: Exception) {
+                        // 跳过解析错误的行
                     }
-                } catch (_: Exception) {
-                    // 跳过解析错误的行
                 }
             }
-            reader.close()
             response.close()
             if (!cancelled.get()) emit(StreamEvent.Done)
         } catch (_: CancellationException) {

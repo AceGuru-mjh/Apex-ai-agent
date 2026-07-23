@@ -41,7 +41,12 @@ class PlanExecutor(
                     ChangeType.DELETE ->
                         workspace.deleteFile(change.path)
                     ChangeType.MOVE -> {
-                        // TODO: implement move (read old → write new → delete old)
+                        // Read old content, write to new path, delete old
+                        val srcPath = change.path
+                        val dstPath = change.newContent ?: throw java.io.IOException("MOVE requires newContent (destination path)")
+                        val content = workspace.readFile(srcPath)
+                        workspace.writeFile(dstPath, content)
+                        workspace.deleteFile(srcPath)
                     }
                 }
             }

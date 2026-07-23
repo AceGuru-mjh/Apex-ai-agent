@@ -186,7 +186,7 @@ class ChatViewModel @Inject constructor(
 
                     // 错误：终止循环
                     if (errorEvent != null) {
-                        val errMsg = errorEvent!!.message
+                        val errMsg = errorEvent?.message ?: "unknown error"
                         val cur2 = _state.value.messages.toMutableList()
                         if (currentAiIndex in cur2.indices) {
                             if (cur2[currentAiIndex].content.isEmpty()) {
