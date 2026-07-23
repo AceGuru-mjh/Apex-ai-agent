@@ -26,6 +26,7 @@ import com.apex.core.model.ApiConfig
 @Composable
 fun SettingsScreen(onNavigate: (String) -> Unit = {}) {
     var showApiConfig by remember { mutableStateOf(false) }
+    val ctx = LocalContext.current
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -64,7 +65,6 @@ fun SettingsScreen(onNavigate: (String) -> Unit = {}) {
                 title = "关于",
                 subtitle = "版本信息、开源协议",
                 onClick = {
-                    val ctx = LocalContext.current
                     Toast.makeText(ctx, "Apex AI Agent v4.0 — Apache 2.0", Toast.LENGTH_LONG).show()
                 }
             )
